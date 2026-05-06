@@ -107,6 +107,21 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       prioritizeMapLibraryLoading: isSearchPageWithMap,
     },
     {
+      path: '/coaches',
+      name: 'CoachesPage',
+      ...authForPrivateMarketplace,
+      component: SearchPageWithGrid,
+      loadData: pageDataLoadingAPI.SearchPage.loadData,
+    },
+    {
+      path: '/coach-map',
+      name: 'CoachMapPage',
+      ...authForPrivateMarketplace,
+      component: SearchPageWithMap,
+      loadData: pageDataLoadingAPI.SearchPage.loadData,
+      prioritizeMapLibraryLoading: true,
+    },
+    {
       path: '/l',
       name: 'ListingBasePage',
       component: RedirectToLandingPage,
