@@ -152,6 +152,7 @@ const TopbarDesktop = props => {
     showSearchForm,
     showCreateListingsLink,
     inboxTab,
+    topbarCenterContent,
   } = props;
   const [mounted, setMounted] = useState(false);
 
@@ -191,6 +192,10 @@ const TopbarDesktop = props => {
       initialValues={initialSearchFormValues}
       appConfig={config}
     />
+  ) : topbarCenterContent ? (
+    <div className={classNames(css.centerSlot, { [css.takeAvailableSpace]: giveSpaceForSearch })}>
+      {topbarCenterContent}
+    </div>
   ) : (
     <div
       className={classNames(css.spacer, css.topbarSearchWithLeftPadding, {

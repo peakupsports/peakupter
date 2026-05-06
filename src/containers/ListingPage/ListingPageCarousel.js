@@ -6,6 +6,7 @@ import classNames from 'classnames';
 // Utils
 import { FormattedMessage } from '../../util/reactIntl';
 import { LISTING_STATE_CLOSED, propTypes } from '../../util/types';
+import { formatMoney } from '../../util/currency';
 import { OFFER, REQUEST } from '../../transactions/transaction';
 
 // Global ducks (for Redux actions and thunks)
@@ -23,6 +24,7 @@ import {
   OrderPanel,
   LayoutSingleColumn,
   SectionText,
+  Avatar,
 } from '../../components';
 
 // Related components and modules
@@ -142,7 +144,28 @@ export const ListingPageComponent = props => {
     hasInvalidListingData,
   } = derivedData;
 
-  const topbar = <TopbarContainer />;
+  const isPeakupBookingListing = publicData?.peakupBookingListing === true;
+  const topbarCenterContent = isPeakupBookingListing ? (
+    <div className={css.peakupTopbarCenter}>
+      <Avatar className={css.peakupTopbarCenterAvatar} user={ensuredAuthor} disableProfileLink />
+      <div className={css.peakupTopbarCenterInline}>
+        <span className={css.peakupTopbarCenterTitle}>Coaching session</span>
+        {price ? (
+          <>
+            <span className={css.peakupTopbarCenterSep}>•</span>
+            <span className={css.peakupTopbarCenterPrice}>
+              {formatMoney(intl, price)}
+              <span className={css.peakupTopbarCenterUnit}> / hour</span>
+            </span>
+          </>
+        ) : null}
+      </div>
+    </div>
+  ) : null;
+
+  const topbar = (
+    <TopbarContainer disableSearch={isPeakupBookingListing} topbarCenterContent={topbarCenterContent} />
+  );
 
   if (showListingError && showListingError.status === 404) {
     // 404 listing not found

@@ -751,6 +751,52 @@
   hyphens: auto;
 }
 
+/* PeakUp: center title in Topbar (desktop) */
+.peakupTopbarCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.peakupTopbarCenterAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.peakupTopbarCenterInline {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.peakupTopbarCenterTitle {
+  font-weight: var(--fontWeightSemiBold);
+  color: var(--colorGrey900);
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.peakupTopbarCenterSep {
+  color: var(--colorGrey400);
+}
+
+.peakupTopbarCenterPrice {
+  color: var(--marketplaceColor);
+  font-weight: var(--fontWeightSemiBold);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.peakupTopbarCenterUnit {
+  color: var(--colorGrey700);
+  font-weight: var(--fontWeightMedium);
+}
+
 .productGallery {
   margin: 0 0 36px 0;
 

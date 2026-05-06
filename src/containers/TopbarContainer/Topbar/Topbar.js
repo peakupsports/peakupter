@@ -154,6 +154,8 @@ const TopbarComponent = props => {
     sendVerificationEmailInProgress,
     sendVerificationEmailError,
     showGenericError,
+    disableSearch,
+    topbarCenterContent,
     config,
     routeConfiguration,
   } = props;
@@ -294,7 +296,7 @@ const TopbarComponent = props => {
     searchFormDisplay === SEARCH_DISPLAY_NOT_LANDING_PAGE && resolvedCurrentPage !== 'LandingPage';
 
   const showSearchForm =
-    showSearchOnAllPages || showSearchOnSearchPage || showSearchNotOnLandingPage;
+    !disableSearch && (showSearchOnAllPages || showSearchOnSearchPage || showSearchNotOnLandingPage);
 
   const mobileSearchButtonMaybe = showSearchForm ? (
     <Button
@@ -383,6 +385,7 @@ const TopbarComponent = props => {
           showSearchForm={showSearchForm}
           showCreateListingsLink={showCreateListingsLink}
           inboxTab={topbarInboxTab}
+          topbarCenterContent={topbarCenterContent}
         />
       </div>
       <Modal
