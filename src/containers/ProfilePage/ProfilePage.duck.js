@@ -75,7 +75,7 @@ const queryUserListingsPayloadCreator = (
       // Pick only the id and type properties from the response listings
       const listings = response.data.data;
       const listingRefs = listings
-        .filter(l => l => !l.attributes.deleted && l.attributes.state === 'published')
+        .filter(l => !l.attributes.deleted && l.attributes.state === 'published')
         .map(({ id, type }) => ({ id, type }));
       dispatch(addMarketplaceEntities(response));
       return { listingRefs, response };

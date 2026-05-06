@@ -1,0 +1,123 @@
+.root {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 18px 48px;
+}
+
+@media (--viewportMedium) {
+  .root {
+    padding: 24px 34px 64px;
+  }
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 900;
+  color: #10213e;
+  letter-spacing: -0.02em;
+}
+
+@media (--viewportMedium) {
+  .title {
+    font-size: 32px;
+  }
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--colorGrey700);
+}
+
+.sportBarWrap {
+  margin: 12px 0 20px;
+}
+
+.status {
+  margin: 12px 0;
+  color: var(--colorGrey700);
+}
+
+.errorBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 0 20px;
+}
+
+.retry {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--colorGrey300);
+  background: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.retry:hover {
+  border-color: var(--colorGrey400);
+}
+
+.carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardsRow {
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  overflow-x: auto;
+  padding: 6px 2px 12px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cardsRow::-webkit-scrollbar {
+  height: 6px;
+}
+
+.stickerSlot {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+.carouselNav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 4px 0 8px;
+}
+
+.carouselArrow {
+  width: 44px;
+  height: 44px;
+  padding: 0 0 2px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+  color: #10213e;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.carouselArrow:focus-visible {
+  outline: 2px solid rgba(183, 245, 43, 0.95);
+  outline-offset: 2px;
+}

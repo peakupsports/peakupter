@@ -129,6 +129,7 @@ export const CustomExtendedDataSection = loadable(() => import(/* webpackChunkNa
 export { default as OrderBreakdown } from './OrderBreakdown/OrderBreakdown';
 export { default as OrderPanel } from './OrderPanel/OrderPanel';
 export { default as ListingCard } from './ListingCard/ListingCard';
+export { default as CoachStickerCard } from './CoachStickerCard/CoachStickerCard';
 export { default as Map } from './Map/Map';
 export { default as Page } from './Page/Page';
 export { default as Reviews } from './Reviews/Reviews';

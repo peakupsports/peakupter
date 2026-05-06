@@ -35,6 +35,12 @@ const ProfileSettingsPage = loadable(() => import(/* webpackChunkName: "ProfileS
 const RequestQuotePage = loadable(() => import(/* webpackChunkName: "RequestQuotePage" */ '../containers/RequestQuotePage/RequestQuotePage'));
 const SearchPageWithMap = loadable(() => import(/* webpackChunkName: "SearchPageWithMap" */ /* webpackPrefetch: true */  '../containers/SearchPage/SearchPageWithMap'));
 const SearchPageWithGrid = loadable(() => import(/* webpackChunkName: "SearchPageWithGrid" */ /* webpackPrefetch: true */  '../containers/SearchPage/SearchPageWithGrid'));
+const CoachesPage = loadable(() =>
+  import(/* webpackChunkName: "CoachesPage" */ '../containers/CoachesPage/CoachesPage')
+);
+const CoachMapPage = loadable(() =>
+  import(/* webpackChunkName: "CoachMapPage" */ '../containers/CoachMapPage/CoachMapPage')
+);
 const StripePayoutPage = loadable(() => import(/* webpackChunkName: "StripePayoutPage" */ '../containers/StripePayoutPage/StripePayoutPage'));
 const TermsOfServicePage = loadable(() => import(/* webpackChunkName: "TermsOfServicePage" */ '../containers/TermsOfServicePage/TermsOfServicePage'));
 const TransactionPage = loadable(() => import(/* webpackChunkName: "TransactionPage" */ '../containers/TransactionPage/TransactionPage'));
@@ -110,15 +116,15 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       path: '/coaches',
       name: 'CoachesPage',
       ...authForPrivateMarketplace,
-      component: SearchPageWithGrid,
-      loadData: pageDataLoadingAPI.SearchPage.loadData,
+      component: CoachesPage,
+      loadData: pageDataLoadingAPI.CoachesExplorePage.loadData,
     },
     {
       path: '/coach-map',
       name: 'CoachMapPage',
       ...authForPrivateMarketplace,
-      component: SearchPageWithMap,
-      loadData: pageDataLoadingAPI.SearchPage.loadData,
+      component: CoachMapPage,
+      loadData: pageDataLoadingAPI.CoachesExplorePage.loadData,
       prioritizeMapLibraryLoading: true,
     },
     {

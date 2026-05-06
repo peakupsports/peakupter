@@ -116,6 +116,42 @@ describe('data utils', () => {
         relationships: res2Relationships,
       });
     });
+
+    it('merges sparse user profile from inbox fieldsets without dropping publicData', () => {
+      const userId = new UUID('user-gabri');
+      const res1 = {
+        id: userId,
+        type: 'user',
+        attributes: {
+          deleted: false,
+          profile: {
+            displayName: 'Gabri',
+            publicData: { sports: ['ski'], coachLevel: 'topCoach' },
+            metadata: { coachTier: 'gold' },
+          },
+        },
+      };
+      const res2 = {
+        id: userId,
+        type: 'user',
+        attributes: {
+          profile: { displayName: 'Gabri', abbreviatedName: 'G' },
+        },
+      };
+      expect(combinedResourceObjects(res1, res2)).toEqual({
+        id: userId,
+        type: 'user',
+        attributes: {
+          deleted: false,
+          profile: {
+            displayName: 'Gabri',
+            abbreviatedName: 'G',
+            publicData: { sports: ['ski'], coachLevel: 'topCoach' },
+            metadata: { coachTier: 'gold' },
+          },
+        },
+      });
+    });
   });
 
   describe('updatedEntities()', () => {

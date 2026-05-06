@@ -20,6 +20,7 @@ import {
 import {
   getDetailCustomFieldValue,
   getFieldValue,
+  normalizeExtendedDataTextForDisplay,
   pickCustomFieldProps,
 } from '../../util/fieldHelpers';
 import {
@@ -28,6 +29,16 @@ import {
   isUserAuthorized,
 } from '../../util/userHelpers';
 import { richText } from '../../util/richText';
+import { ensureUser } from '../../util/data';
+import { createSlug } from '../../util/urlHelpers';
+import { pickRepresentativeListing, countryCodeToFlagEmoji } from '../../util/coachExplore';
+import {
+  formatCoachExperienceLabel,
+  formatProfileSportsForSticker,
+  LANGUAGE_FLAGS,
+  shouldShowPeakUpProfileSticker,
+  stickerLanguageLabel,
+} from '../../util/profileCoachSticker';
 
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
@@ -44,6 +55,7 @@ import {
   LayoutSideNavigation,
   NamedRedirect,
   CustomExtendedDataSection,
+  ResponsiveImage,
 } from '../../components';
 
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
@@ -55,26 +67,201 @@ import css from './ProfilePage.module.css';
 const MAX_MOBILE_SCREEN_WIDTH = 768;
 const MIN_LENGTH_FOR_LONG_WORDS = 20;
 
+const STICKER_AVATAR_VARIANTS = [
+  'square-small',
+  'square-small2x',
+  'square-xsmall',
+  'square-xsmall2x',
+];
+
+const currencyTicker = code => {
+  const c = String(code || 'CHF').toUpperCase();
+  if (c === 'EUR') return '€';
+  if (c === 'USD') return '$';
+  if (c === 'GBP') return '£';
+  return c;
+};
+
 export const AsideContent = props => {
-  const { user, displayName, showLinkToProfileSettingsPage } = props;
-  return (
-    <div className={css.asideContent}>
-      <AvatarLarge className={css.avatar} user={user} disableProfileLink />
-      <H2 as="h1" className={css.mobileHeading}>
-        {displayName ? (
-          <FormattedMessage id="ProfilePage.mobileHeading" values={{ name: displayName }} />
+  const intl = useIntl();
+  const { user, displayName, showLinkToProfileSettingsPage, listings = [], reviews = [] } = props;
+
+  const profilePd = user?.attributes?.profile?.publicData || {};
+  const peakUpCoachAside = shouldShowPeakUpProfileSticker(listings, profilePd);
+
+  if (!peakUpCoachAside) {
+    return (
+      <div className={css.asideContent}>
+        <AvatarLarge className={css.avatar} user={user} disableProfileLink />
+        <H2 as="h1" className={css.mobileHeading}>
+          {displayName ? (
+            <FormattedMessage id="ProfilePage.mobileHeading" values={{ name: displayName }} />
+          ) : null}
+        </H2>
+        {showLinkToProfileSettingsPage ? (
+          <>
+            <NamedLink className={css.editLinkMobile} name="ProfileSettingsPage">
+              <FormattedMessage id="ProfilePage.editProfileLinkMobile" />
+            </NamedLink>
+            <NamedLink className={css.editLinkDesktop} name="ProfileSettingsPage">
+              <FormattedMessage id="ProfilePage.editProfileLinkDesktop" />
+            </NamedLink>
+          </>
         ) : null}
-      </H2>
-      {showLinkToProfileSettingsPage ? (
-        <>
-          <NamedLink className={css.editLinkMobile} name="ProfileSettingsPage">
-            <FormattedMessage id="ProfilePage.editProfileLinkMobile" />
+      </div>
+    );
+  }
+
+  const listing = pickRepresentativeListing(listings);
+  const listingPd = listing?.attributes?.publicData || {};
+  const avatarUser = user ? ensureUser(user) : null;
+  const profileImage = avatarUser?.profileImage;
+
+  const countryRaw = profilePd.country || listingPd.country;
+  const cc = countryRaw?.toString?.()?.trim?.() || '';
+  const countryEmoji = cc ? countryCodeToFlagEmoji(cc.length === 2 ? cc.toUpperCase() : cc) : '';
+
+  const coachLevelText =
+    profilePd.coachLevel && String(profilePd.coachLevel).trim()
+      ? profilePd.coachLevel
+      : intl.formatMessage({ id: 'ProfilePage.stickerCoachLevelNew' });
+
+  const sportsBadges = formatProfileSportsForSticker(intl, profilePd.sports);
+  const { priceFrom, currency = 'CHF' } = profilePd;
+
+  const priceLabel =
+    priceFrom != null && String(priceFrom).trim() !== ''
+      ? intl.formatMessage(
+          { id: 'ProfilePage.stickerPriceFrom' },
+          {
+            price: `${currencyTicker(currency)} ${priceFrom}`.trim(),
+          }
+        )
+      : null;
+
+  const locationLabel = normalizeExtendedDataTextForDisplay(
+    profilePd.location ?? listingPd.location
+  );
+  const languages = Array.isArray(profilePd.languages) ? profilePd.languages : [];
+
+  const providerReviews = reviews.filter(r => r.attributes?.type === REVIEW_TYPE_OF_PROVIDER);
+  const reviewCountProv = providerReviews.length;
+  let filledStars = 0;
+  if (reviewCountProv > 0) {
+    const sum = providerReviews.reduce((acc, r) => acc + (Number(r.attributes?.rating) || 0), 0);
+    filledStars = Math.max(1, Math.min(5, Math.round(sum / reviewCountProv)));
+  }
+
+  const listingTitle = listing?.attributes?.title || displayName || 'listing';
+  const listingSlug = listing ? createSlug(String(listingTitle)) : '';
+  const listingId = listing?.id?.uuid;
+
+  const flagDisplay = countryEmoji || '🌍';
+
+  return (
+    <div className={classNames(css.asideContent, css.asideContentStickerOverrides)}>
+      <div className={css.stickerCard}>
+        <div className={css.stickerGlow} />
+
+        <div className={css.stickerNameRow}>
+          <span className={css.flag} aria-hidden>
+            {flagDisplay}
+          </span>
+          <span className={css.stickerName}>{displayName}</span>
+
+          <span className={css.stickerLevelBadge}>{coachLevelText}</span>
+        </div>
+
+        <div className={css.stickerPhotoWrap}>
+          <div className={css.stickerPhotoFrame}>
+            {profileImage?.id ? (
+              <ResponsiveImage
+                rootClassName={css.stickerPhoto}
+                alt={displayName || ''}
+                image={profileImage}
+                variants={STICKER_AVATAR_VARIANTS}
+                sizes="(max-width: 768px) 92vw, 360px"
+              />
+            ) : (
+              <div className={css.cardPhotoPlaceholder}>{(displayName || 'C').charAt(0)}</div>
+            )}
+
+            <div className={css.stickerPhotoOverlay} aria-hidden />
+            <div className={css.stickerPhotoShine} aria-hidden />
+
+            <div className={css.stickerInfoOverlay}>
+              {sportsBadges.length > 0 ? (
+                <div className={css.stickerInfoRow}>
+                  {sportsBadges.map(s => (
+                    <span key={s.key} className={css.stickerMiniBadge} title={s.label}>
+                      {s.emoji}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+
+              {locationLabel ? (
+                <div className={css.stickerInfoRow}>
+                  <span className={css.stickerMiniBadge}>📍 {locationLabel}</span>
+                </div>
+              ) : null}
+
+              {priceLabel ? (
+                <div className={css.stickerInfoRow}>
+                  <span className={css.stickerMiniBadge}>💰 {priceLabel}</span>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        <div className={css.stickerBottomRow}>
+          <div className={css.stickerStars} aria-hidden>
+            {[1, 2, 3, 4, 5].map(star => (
+              <span key={star} className={star <= filledStars ? css.starFilled : css.starEmpty}>
+                ★
+              </span>
+            ))}
+          </div>
+
+          <div className={css.stickerLanguagesMini}>
+            {languages.slice(0, 6).map(lang => (
+              <span key={lang}>{LANGUAGE_FLAGS[String(lang).toLowerCase()] || '🌐'}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className={css.stickerActions}>
+        {listingId ? (
+          <NamedLink
+            name="ListingPage"
+            params={{ slug: listingSlug || 'listing', id: listingId }}
+            className={css.primaryBtn}
+          >
+            <FormattedMessage id="ProfilePage.stickerBookNow" />
           </NamedLink>
-          <NamedLink className={css.editLinkDesktop} name="ProfileSettingsPage">
-            <FormattedMessage id="ProfilePage.editProfileLinkDesktop" />
-          </NamedLink>
-        </>
-      ) : null}
+        ) : (
+          <button type="button" className={css.primaryBtn} disabled>
+            <FormattedMessage id="ProfilePage.stickerBookNow" />
+          </button>
+        )}
+
+        <a href="#profile-coach-listings" className={css.secondaryBtn}>
+          <FormattedMessage id="ProfilePage.stickerViewListings" />
+        </a>
+
+        {showLinkToProfileSettingsPage ? (
+          <>
+            <NamedLink className={css.asideStickerEditMobile} name="ProfileSettingsPage">
+              <FormattedMessage id="ProfilePage.editProfileLinkMobile" />
+            </NamedLink>
+            <NamedLink className={css.asideStickerEditDesktop} name="ProfileSettingsPage">
+              <FormattedMessage id="ProfilePage.editProfileLinkDesktop" />
+            </NamedLink>
+          </>
+        ) : null}
+      </div>
     </div>
   );
 };
@@ -251,7 +438,7 @@ export const MainContent = props => {
     userShowError,
     bio,
     displayName,
-    listings,
+    listings = [],
     queryListingsError,
     reviews = [],
     queryReviewsError,
@@ -264,6 +451,7 @@ export const MainContent = props => {
   } = props;
 
   const hasListings = listings.length > 0;
+  const isPeakUpCoachProfile = shouldShowPeakUpProfileSticker(listings, publicData);
   const hasMatchMedia = typeof window !== 'undefined' && window?.matchMedia;
   const isMobileLayout =
     mounted && hasMatchMedia
@@ -278,8 +466,18 @@ export const MainContent = props => {
   });
 
   const listingsContainerClasses = classNames(css.listingsContainer, {
-    [css.withBioMissingAbove]: !hasBio,
+    [css.withBioMissingAbove]: !hasBio && !isPeakUpCoachProfile,
   });
+
+  const experienceText = formatCoachExperienceLabel(intl, publicData?.experience);
+  const formattedSportsSticker = formatProfileSportsForSticker(intl, publicData?.sports);
+  const coachingLanguages =
+    Array.isArray(publicData?.languages) && publicData.languages.length > 0
+      ? publicData.languages
+          .map(code => stickerLanguageLabel(intl, code))
+          .filter(Boolean)
+          .join(' • ')
+      : '';
 
   if (userShowError || queryListingsError) {
     return (
@@ -288,14 +486,15 @@ export const MainContent = props => {
       </p>
     );
   }
-  return (
-    <div>
+
+  const standardIntro = (
+    <>
       <H2 as="h1" className={css.desktopHeading}>
         <FormattedMessage id="ProfilePage.desktopHeading" values={{ name: displayName }} />
       </H2>
       {hasBio ? <p className={css.bio}>{bioWithLinks}</p> : null}
 
-      {displayName ? (
+      {displayName && !isPeakUpCoachProfile ? (
         <CustomUserFields
           publicData={publicData}
           metadata={metadata}
@@ -303,9 +502,69 @@ export const MainContent = props => {
           intl={intl}
         />
       ) : null}
+    </>
+  );
+
+  const peakUpStickerColumn = (
+    <div className={css.stickerRight}>
+      <div className={css.stickerBio}>
+        <div className={css.stickerBioTitle}>
+          <FormattedMessage id="ProfilePage.stickerAboutHeading" />
+        </div>
+        {hasBio ? (
+          <div className={classNames(css.stickerBioText, css.longWord)}>{bioWithLinks}</div>
+        ) : (
+          <p className={classNames(css.stickerBioText, css.stickerBioEmpty)}>
+            <FormattedMessage id="ProfilePage.coachBioEmpty" />
+          </p>
+        )}
+      </div>
+
+      {experienceText ? (
+        <div className={css.stickerBio}>
+          <div className={css.stickerBioTitle}>
+            <FormattedMessage id="ProfilePage.stickerExperienceHeading" />
+          </div>
+          <div className={classNames(css.stickerBioText, css.longWord)}>{experienceText}</div>
+        </div>
+      ) : null}
+
+      {coachingLanguages ? (
+        <div className={css.stickerBio}>
+          <div className={css.stickerBioTitle}>
+            <FormattedMessage id="ProfilePage.stickerLanguagesHeading" />
+          </div>
+          <div className={classNames(css.stickerBioText, css.longWord)}>{coachingLanguages}</div>
+        </div>
+      ) : null}
+
+      {formattedSportsSticker.length > 0 ? (
+        <div className={css.stickerBio}>
+          <div className={css.stickerBioTitle}>
+            <FormattedMessage id="ProfilePage.stickerSportsHeading" />
+          </div>
+          <div className={css.sportsTags}>
+            {formattedSportsSticker.map(sport => (
+              <span key={sport.key} className={css.sportTag}>
+                {sport.emoji} {sport.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+
+  return (
+    <div>
+      {!isPeakUpCoachProfile ? standardIntro : null}
+      {isPeakUpCoachProfile ? peakUpStickerColumn : null}
 
       {hasListings ? (
-        <div className={listingsContainerClasses}>
+        <div
+          id={isPeakUpCoachProfile ? 'profile-coach-listings' : undefined}
+          className={listingsContainerClasses}
+        >
           <H4 as="h2" className={css.listingsTitle}>
             <FormattedMessage id="ProfilePage.listingsTitle" values={{ count: listings.length }} />
           </H4>
@@ -368,8 +627,11 @@ export const ProfilePageComponent = props => {
     useCurrentUser,
     userShowError,
     user,
+    listings = [],
+    reviews = [],
     ...rest
   } = props;
+
   const isVariant = pathParams.variant?.length > 0;
   const isPreview = isVariant && pathParams.variant === PROFILE_PAGE_PENDING_APPROVAL_VARIANT;
 
@@ -388,6 +650,7 @@ export const ProfilePageComponent = props => {
   const isCurrentUser = currentUser?.id && currentUser?.id?.uuid === pathParams.id;
   const profileUser = useCurrentUser ? currentUser : user;
   const { bio, displayName, publicData, metadata } = profileUser?.attributes?.profile || {};
+  const peakUpCoachLayout = shouldShowPeakUpProfileSticker(listings, publicData || {});
   const { userFields } = config.user;
   const isPrivateMarketplace = config.accessControl.marketplace.private === true;
   const isUnauthorizedUser = currentUser && !isUserAuthorized(currentUser);
@@ -465,13 +728,19 @@ export const ProfilePageComponent = props => {
       }}
     >
       <LayoutSideNavigation
-        sideNavClassName={css.aside}
+        sideNavClassName={classNames(
+          css.aside,
+          peakUpCoachLayout && css.asideProfilePeakUpCoach,
+          peakUpCoachLayout && css.sideNavCoachPeakUpWide
+        )}
         topbar={<TopbarContainer />}
         sideNav={
           <AsideContent
             user={profileUser}
             showLinkToProfileSettingsPage={mounted && isCurrentUser}
             displayName={displayName}
+            listings={listings}
+            reviews={reviews}
           />
         }
         footer={<FooterContainer />}
@@ -486,6 +755,8 @@ export const ProfilePageComponent = props => {
           hideReviews={hasNoViewingRightsOnPrivateMarketplace}
           intl={intl}
           userTypeRoles={userTypeRoles}
+          listings={listings}
+          reviews={reviews}
           {...rest}
         />
       </LayoutSideNavigation>

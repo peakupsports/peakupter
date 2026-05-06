@@ -2,21 +2,10 @@
 
 .carouselContainer {
   display: flex;
-  position: relative;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   scroll-behavior: smooth;
   padding: 32px 0 0 0;
-
-  &:hover .carouselArrows {
-    opacity: 1;
-  }
-
-  /* smartphones, touchscreens: we don't need to show arrows */
-  @media (any-hover: none) and (pointer: coarse) {
-    &:hover .carouselArrows {
-      opacity: 0;
-    }
-  }
 }
 
 .dynamicContainer {
@@ -24,51 +13,87 @@
   position: relative;
 }
 
-.carouselArrows {
-  opacity: 0;
-  z-index: 2;
-  transition: all ease-in-out 500ms;
-}
-
-.carouselArrowPrev,
-.carouselArrowNext {
-  display: flex;
-  justify-content: center;
+.carouselNavFooter {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  position: absolute;
-  z-index: 2;
+  gap: 12px;
+  padding: 18px 12px 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: min(var(--contentMaxWidthPages), var(--carouselWidth));
 
-  width: 48px;
-  height: 48px;
-  padding: 0px 0 4px 0;
-  margin-top: -64px;
-  border-radius: 100%;
-  border: none;
-
-  background-color: lightgrey;
-  opacity: 0.9;
-  font-size: 30px;
-  color: black;
-  transition: all ease-in-out 100ms;
-
-  &:hover {
-    opacity: 1;
-    cursor: pointer;
-    background: black;
-    color: white;
+  @media (--viewportMedium) {
+    padding: 24px 24px 0;
+    gap: 16px;
   }
 }
 
-.carouselArrowPrev {
-  left: 48px;
+.carouselDots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+
+  @media (--viewportMedium) {
+    gap: 8px;
+  }
 }
 
-.carouselArrowNext {
-  right: 48px;
-}
-.notEnoughListings {
+.carouselDot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--colorGrey300);
+  cursor: pointer;
+  transition: background-color var(--transitionStyleButton);
+
   @media (--viewportMedium) {
-    display: none;
+    width: 9px;
+    height: 9px;
+  }
+
+  &:hover {
+    background-color: var(--colorGrey400);
+  }
+}
+
+.carouselDotActive {
+  background-color: var(--marketplaceColor);
+
+  &:hover {
+    background-color: var(--marketplaceColorDark);
+  }
+}
+
+.carouselArrowButton {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0 0 2px;
+  border: none;
+  border-radius: 100%;
+  background-color: var(--colorGrey100);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--colorGrey700);
+  cursor: pointer;
+  transition: background-color var(--transitionStyleButton), color var(--transitionStyleButton);
+
+  &:hover {
+    background-color: var(--colorGrey300);
+    color: var(--colorBlack);
+  }
+
+  @media (--viewportMedium) {
+    width: 48px;
+    height: 48px;
+    font-size: 28px;
   }
 }
 

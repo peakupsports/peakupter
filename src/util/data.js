@@ -28,8 +28,36 @@ export const combinedResourceObjects = (oldRes, newRes) => {
   const attributes = newRes.attributes || oldRes.attributes;
   const attributesOld = oldRes.attributes || {};
   const attributesNew = newRes.attributes || {};
-  // Allow (potentially) sparse attributes to update only relevant fields
-  const attrs = attributes ? { attributes: { ...attributesOld, ...attributesNew } } : null;
+
+  // Shallow merge first; then fix nested objects that Flex returns partially when using
+  // `fields.*` (e.g. inbox transactions: sparse user.profile wipes publicData if merged
+  // only at the top level).
+  let mergedAttributes = { ...attributesOld, ...attributesNew };
+  if (attributesOld.publicData && attributesNew.publicData) {
+    mergedAttributes = {
+      ...mergedAttributes,
+      publicData: { ...attributesOld.publicData, ...attributesNew.publicData },
+    };
+  }
+  const oldProfile = attributesOld.profile;
+  const newProfile = attributesNew.profile;
+  if (oldProfile && newProfile) {
+    mergedAttributes = {
+      ...mergedAttributes,
+      profile: {
+        ...oldProfile,
+        ...newProfile,
+        ...(oldProfile.publicData && newProfile.publicData
+          ? { publicData: { ...oldProfile.publicData, ...newProfile.publicData } }
+          : {}),
+        ...(oldProfile.metadata && newProfile.metadata
+          ? { metadata: { ...oldProfile.metadata, ...newProfile.metadata } }
+          : {}),
+      },
+    };
+  }
+
+  const attrs = attributes ? { attributes: mergedAttributes } : null;
   const relationships = combinedRelationships(oldRes.relationships, newRes.relationships);
   const rels = relationships ? { relationships } : null;
   return { id, type, ...attrs, ...rels };

@@ -18,6 +18,84 @@ import { addScopePrefix } from './userHelpers';
 
 const { stripeSupportedCurrencies, subUnitDivisors } = appSettings;
 
+/**
+ * When extended data typed as "text" contains a persisted LocationAutocomplete-like object
+ * (`{ predictions, search, selectedPlace }`) instead of a string, rendering would crash React.
+ *
+ * @param {*} value publicData/metadata field value
+ * @returns {string|null}
+ */
+export const normalizeExtendedDataTextForDisplay = value => {
+  if (value == null) return null;
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  if (typeof value !== 'object') {
+    return null;
+  }
+
+  const sel = value.selectedPlace;
+  if (sel && typeof sel === 'object' && typeof sel.address === 'string' && sel.address.trim()) {
+    return sel.address.trim();
+  }
+  if (typeof value.address === 'string' && value.address.trim()) {
+    return value.address.trim();
+  }
+  if (typeof value.search === 'string' && value.search.trim()) {
+    return value.search.trim();
+  }
+  return null;
+};
+
+/**
+ * Sharetribe listing `publicData.location` may be `{ building?, address }`, a plain string, or an
+ * object persisted from LocationAutocomplete (`selectedPlace`, `search`, …). Coerces to one shape for
+ * checkout / map labels without rendering invalid React children.
+ *
+ * @param {*} raw value of `listing.attributes.publicData.location`
+ * @returns {{ building?: string, address: string } | null}
+ */
+export const coerceListingPublicDataLocationForUi = raw => {
+  if (raw == null) return null;
+  if (typeof raw === 'string') {
+    const t = raw.trim();
+    return t ? { address: t } : null;
+  }
+  if (typeof raw !== 'object') return null;
+
+  const building =
+    typeof raw.building === 'string' && raw.building.trim() ? raw.building.trim() : undefined;
+  const structuredAddress =
+    typeof raw.address === 'string' && raw.address.trim() ? raw.address.trim() : '';
+
+  if (structuredAddress || building) {
+    if (structuredAddress && building) {
+      return { building, address: structuredAddress };
+    }
+    return structuredAddress ? { address: structuredAddress } : { address: building || '' };
+  }
+
+  const fromAutocompleteOrTextShape = normalizeExtendedDataTextForDisplay(raw);
+  return fromAutocompleteOrTextShape ? { address: fromAutocompleteOrTextShape } : null;
+};
+
+/**
+ * Single formatted line for map heading / Stripe / offer flows.
+ *
+ * @param {*} raw `publicData.location` or equivalent
+ * @returns {string} empty string when nothing usable is present
+ */
+export const listingPublicDataLocationAddressLine = raw => {
+  const parts = coerceListingPublicDataLocationForUi(raw);
+  if (!parts) return '';
+  const { building, address } = parts;
+  if (building && address) return `${building}, ${address}`;
+  return address || '';
+};
+
 const keyMapping = {
   userType: {
     wrapper: 'userTypeConfig',
@@ -167,6 +245,9 @@ export const pickCustomFieldProps = (extendedData, fieldConfigs, entityTypeKey, 
         ? getFieldValue(metadata, key)
         : null;
 
+    const textForDisplay =
+      config.schemaType === SCHEMA_TYPE_TEXT ? normalizeExtendedDataTextForDisplay(value) : null;
+
     return isTargetEntityType && schemaType === SCHEMA_TYPE_MULTI_ENUM && shouldPick
       ? [
           ...pickedElements,
@@ -179,14 +260,14 @@ export const pickCustomFieldProps = (extendedData, fieldConfigs, entityTypeKey, 
             showUnselectedOptions: scope !== 'metadata' && showUnselectedOptions !== false,
           },
         ]
-      : isTargetEntityType && !!value && config.schemaType === SCHEMA_TYPE_TEXT && shouldPick
+      : isTargetEntityType && config.schemaType === SCHEMA_TYPE_TEXT && shouldPick && textForDisplay
       ? [
           ...pickedElements,
           {
             schemaType,
             key,
             heading: label,
-            text: value,
+            text: textForDisplay,
           },
         ]
       : isTargetEntityType && schemaType === SCHEMA_TYPE_YOUTUBE && shouldPick

@@ -5,6 +5,10 @@ import { LISTING_STATE_CLOSED } from '../../util/types';
 import { createResourceLocatorString, findRouteByRouteName } from '../../util/routes';
 import { convertMoneyToNumber, formatMoney } from '../../util/currency';
 import { timestampToDate } from '../../util/dates';
+import {
+  peakupNormalizeSessionsForCheckout,
+  peakupTimespanDatesFromSessions,
+} from '../../util/peakupBooking';
 import { requireListingImage } from '../../util/configHelpers';
 import { richText } from '../../util/richText';
 import { hasPermissionToInitiateTransactions, isUserAuthorized } from '../../util/userHelpers';
@@ -434,10 +438,26 @@ export const handleSubmit = parameters => values => {
     quantity: quantityRaw,
     seats: seatsRaw,
     deliveryMethod,
+    peakupBookingSlots,
+    peakupBookingHoldId,
     ...otherOrderData
   } = values;
 
-  const bookingMaybe = bookingDates
+  const hasPeakupSlots = Array.isArray(peakupBookingSlots) && peakupBookingSlots.length > 0;
+
+  const bookingMaybe = hasPeakupSlots
+    ? (() => {
+        const span = peakupTimespanDatesFromSessions(peakupBookingSlots);
+        return span
+          ? {
+              bookingDates: {
+                bookingStart: span.bookingStart,
+                bookingEnd: span.bookingEnd,
+              },
+            }
+          : {};
+      })()
+    : bookingDates
     ? {
         bookingDates: {
           bookingStart: bookingDates.startDate,
@@ -452,6 +472,14 @@ export const handleSubmit = parameters => values => {
         },
       }
     : {};
+
+  const peakupOrderMaybe = hasPeakupSlots
+    ? {
+        peakupSessionCount: peakupBookingSlots.length,
+        peakupBookingSlots: peakupNormalizeSessionsForCheckout(peakupBookingSlots),
+        ...(peakupBookingHoldId ? { peakupBookingHoldId } : {}),
+      }
+    : {};
   // priceVariantName is relevant for bookings
   const priceVariantNameMaybe = priceVariantName ? { priceVariantName } : {};
   const quantity = Number.parseInt(quantityRaw, 10);
@@ -464,6 +492,7 @@ export const handleSubmit = parameters => values => {
     listing,
     orderData: {
       ...bookingMaybe,
+      ...peakupOrderMaybe,
       ...priceVariantNameMaybe,
       ...quantityMaybe,
       ...seatsMaybe,

@@ -43,6 +43,44 @@
   text-align: right;
 }
 
+.peakupSessionsWrap {
+  margin-top: 10px;
+
+  @media (--viewportMedium) {
+    margin-top: 12px;
+  }
+}
+
+.peakupSessionsHeading {
+  composes: textSmall from global;
+  font-weight: var(--fontWeightSemiBold);
+  margin: 0 0 10px;
+  color: var(--colorGrey700);
+
+  @media (--viewportMedium) {
+    margin-bottom: 12px;
+  }
+}
+
+.peakupSessionsList {
+  margin: 0;
+  padding: 0 0 0 18px;
+}
+
+.peakupSessionLine {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 6px 0 0;
+  line-height: 22px;
+}
+
+.peakupSessionLineDate {
+  font-weight: var(--fontWeightSemiBold);
+}
+
+.peakupSessionLineTimes {
+  color: var(--colorGrey700);
+}
+
 .dayLabel {
   composes: textSmall from global;
   margin: 0;

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { flow } from '../util/common';
+import { normalizeExtendedDataTextForDisplay } from './fieldHelpers';
 import { sanitizeUrl } from '../util/sanitize';
 
 import { ExternalLink } from '../components';
@@ -149,8 +150,13 @@ export const linkifyOrWrapLinkSplit = (word, key, options = {}) => {
  * @return {Array<node>} returns a child array containing strings and inline elements
  */
 export const richText = (text, options) => {
-  if (typeof text !== 'string') {
-    return text;
+  let str = text;
+  if (typeof str !== 'string') {
+    const normalized = normalizeExtendedDataTextForDisplay(str);
+    str = normalized != null ? normalized : '';
+  }
+  if (typeof str !== 'string') {
+    str = '';
   }
 
   // longWordMinLength & longWordClass are needed for long words to be spanned
@@ -160,7 +166,7 @@ export const richText = (text, options) => {
   const nonWhiteSpaceSequence = /([^\s]+)/gi;
   const breakCharsConfig = breakChars != null ? breakChars : '/';
 
-  return text.split(nonWhiteSpaceSequence).reduce((acc, nextChild, i) => {
+  return str.split(nonWhiteSpaceSequence).reduce((acc, nextChild, i) => {
     const parts = flow([
       v =>
         v.flatMap(w => linkifyOrWrapLinkSplit(w, i, { linkify, linkClass: linkOrLongWordClass })),

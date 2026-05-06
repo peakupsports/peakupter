@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import classNames from 'classnames';
 
 // Import configs and components
 import { useConfiguration } from '../../../../context/configurationContext';
 import { lazyLoadWithDimensions } from '../../../../util/uiHelpers';
-import { FormattedMessage } from '../../../../util/reactIntl';
+import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 
 import { ListingCard, IconSpinner, ErrorMessage, NamedLink } from '../../../../components';
 
@@ -16,6 +16,7 @@ import css from './SectionListings.module.css';
 const KEY_ARROW_LEFT = 'ArrowLeft';
 const KEY_ARROW_RIGHT = 'ArrowRight';
 const MAX_MOBILE_SCREEN_WIDTH = 768;
+const MAX_CAROUSEL_DOTS = 9;
 
 // Configuration for supported column layouts
 // Only 3 and 4 columns are supported in this component
@@ -148,6 +149,7 @@ const ListingCarouselComponent = props => {
     error,
     allSections,
     isInsideContainer,
+    onSliderContainerReady,
   } = props;
 
   const listingImageConfig = config.layout.listingImage;
@@ -157,6 +159,12 @@ const ListingCarouselComponent = props => {
       onFetchFeaturedListings(sectionId, parentPage, listingImageConfig, allSections);
     }
   }, []);
+
+  useEffect(() => {
+    if (listings.length > 0 && inProgress !== true && !error) {
+      onSliderContainerReady?.();
+    }
+  }, [listings.length, inProgress, error, onSliderContainerReady]);
 
   if (inProgress == true) {
     return <IconSpinner className={css.centeredContent} />;
@@ -219,6 +227,7 @@ const LazyListingCarouselComponent = lazyLoadWithDimensions(ListingCarouselCompo
  * @returns {JSX.Element} Complete listings section with header and carousel
  */
 const SectionListings = props => {
+  const intl = useIntl();
   const config = useConfiguration();
   const {
     sectionId,
@@ -251,13 +260,115 @@ const SectionListings = props => {
 
   const error = featuredListingData?.[sectionId]?.error;
 
-  const numberOfListings = listingEntities?.length > 0 ? listingIds?.length : 0;
-
   const [carouselWidthConstant, setCarouselWidthConstant] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [carouselNav, setCarouselNav] = useState({
+    visible: false,
+    dotCount: 0,
+    activeDot: 0,
+  });
+  const [sliderBindNonce, bumpSliderBind] = useReducer(n => n + 1, 0);
 
   const containerRef = React.useRef(null);
   const sliderRef = React.useRef(null);
+
+  const getScrollStep = useCallback(slider => {
+    if (typeof window === 'undefined' || !slider) {
+      return 0;
+    }
+    const cardSelector = `.${css.card}`;
+    const cards = slider.querySelectorAll(cardSelector);
+    if (cards.length >= 2) {
+      const a = cards[0].getBoundingClientRect();
+      const b = cards[1].getBoundingClientRect();
+      return Math.ceil(b.left - a.left);
+    }
+    if (cards.length === 1) {
+      return Math.ceil(cards[0].getBoundingClientRect().width + 16);
+    }
+    return Math.max(120, Math.floor(slider.clientWidth * 0.85));
+  }, []);
+
+  const refreshCarouselNav = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const slider = sliderRef.current;
+    if (!slider) {
+      setCarouselNav({ visible: false, dotCount: 0, activeDot: 0 });
+      return;
+    }
+    const maxScroll = Math.max(0, slider.scrollWidth - slider.clientWidth);
+    if (maxScroll <= 2) {
+      setCarouselNav({ visible: false, dotCount: 0, activeDot: 0 });
+      return;
+    }
+    const step = getScrollStep(slider);
+    const safeStep = Math.max(step, 1);
+    const rawPages = Math.max(1, Math.ceil(maxScroll / safeStep) + 1);
+    const dotCount = Math.min(MAX_CAROUSEL_DOTS, rawPages);
+    const ratio = maxScroll > 0 ? slider.scrollLeft / maxScroll : 0;
+    const activeDot =
+      dotCount <= 1 ? 0 : Math.min(dotCount - 1, Math.round(ratio * (dotCount - 1)));
+    setCarouselNav({ visible: true, dotCount, activeDot });
+  }, [getScrollStep]);
+
+  const slideCarousel = useCallback(
+    (direction, event) => {
+      const slider = sliderRef.current;
+      if (!slider || typeof window === 'undefined') {
+        return;
+      }
+      const step = getScrollStep(slider);
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      slider.scrollBy({
+        left: direction * Math.max(step, 1),
+        behavior: reduceMotion ? 'auto' : 'smooth',
+      });
+      if (event?.currentTarget?.focus) {
+        event.currentTarget.focus();
+      }
+    },
+    [getScrollStep]
+  );
+
+  const goToCarouselDot = useCallback(
+    dotIndex => {
+      const slider = sliderRef.current;
+      if (!slider || typeof window === 'undefined') {
+        return;
+      }
+      const maxScroll = Math.max(0, slider.scrollWidth - slider.clientWidth);
+      const step = getScrollStep(slider);
+      const safeStep = Math.max(step, 1);
+      const rawPages = Math.max(1, Math.ceil(maxScroll / safeStep) + 1);
+      const dotCount = Math.min(MAX_CAROUSEL_DOTS, rawPages);
+      if (dotCount <= 1) {
+        return;
+      }
+      const target = (dotIndex / (dotCount - 1)) * maxScroll;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      slider.scrollTo({ left: target, behavior: reduceMotion ? 'auto' : 'smooth' });
+    },
+    [getScrollStep]
+  );
+
+  const onCarouselArrowKeyDown = useCallback(
+    e => {
+      if (e.key === KEY_ARROW_LEFT) {
+        e.preventDefault();
+        slideCarousel(-1, e);
+      } else if (e.key === KEY_ARROW_RIGHT) {
+        e.preventDefault();
+        slideCarousel(1, e);
+      }
+    },
+    [slideCarousel]
+  );
+
+  const handleSliderContainerReady = useCallback(() => {
+    bumpSliderBind();
+  }, []);
 
   // force mobile styles if we render this section within a modal
   const isMobile = mounted && isMobileViewport();
@@ -274,6 +385,7 @@ const SectionListings = props => {
         const carouselWidth = entries[0].contentRect.width;
         containerRef.current.style.setProperty('--carouselWidth', `${carouselWidth}px`);
         setCarouselWidthConstant(carouselWidth);
+        window.requestAnimationFrame(() => refreshCarouselNav());
       });
       resizeObserver.observe(containerRef.current);
 
@@ -281,39 +393,27 @@ const SectionListings = props => {
         resizeObserver.disconnect();
       };
     }
-  }, []);
+  }, [refreshCarouselNav]);
 
-  const onSlideLeft = e => {
+  useEffect(() => {
     const slider = sliderRef.current;
-    if (!slider) return;
-    const sliderChildElement = sliderRef.current.firstElementChild?.querySelector('a');
-    const slideWidth = numColumns * sliderChildElement?.clientWidth;
-    slider.scrollLeft = slider.scrollLeft - slideWidth;
-    // Fix for Safari
-    e.target.focus();
-  };
-
-  const onSlideRight = e => {
-    const slider = sliderRef.current;
-    if (!slider) return;
-    const sliderChildElement = sliderRef.current.firstElementChild?.querySelector('a');
-    const slideWidth = numColumns * sliderChildElement?.clientWidth;
-    slider.scrollLeft = slider.scrollLeft + slideWidth;
-    // Fix for Safari
-    e.target.focus();
-  };
-
-  const onKeyDown = e => {
-    if (e.key === KEY_ARROW_LEFT) {
-      // Prevent changing cursor position in input
-      e.preventDefault();
-      onSlideLeft(e);
-    } else if (e.key === KEY_ARROW_RIGHT) {
-      // Prevent changing cursor position in input
-      e.preventDefault();
-      onSlideRight(e);
+    if (!slider) {
+      return undefined;
     }
-  };
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        window.requestAnimationFrame(() => {
+          ticking = false;
+          refreshCarouselNav();
+        });
+      }
+    };
+    slider.addEventListener('scroll', onScroll, { passive: true });
+    refreshCarouselNav();
+    return () => slider.removeEventListener('scroll', onScroll);
+  }, [sliderBindNonce, refreshCarouselNav]);
 
   const fieldComponents = options?.fieldComponents;
   const fieldOptions = { fieldComponents };
@@ -346,18 +446,6 @@ const SectionListings = props => {
       ) : null}
 
       <div className={css.carouselContainer}>
-        <div
-          className={classNames(css.carouselArrows, {
-            [css.notEnoughListings]: numberOfListings <= numColumns,
-          })}
-        >
-          <button className={css.carouselArrowPrev} onClick={onSlideLeft} onKeyDown={onKeyDown}>
-            ‹
-          </button>
-          <button className={css.carouselArrowNext} onClick={onSlideRight} onKeyDown={onKeyDown}>
-            ›
-          </button>
-        </div>
         <div className={css.dynamicContainer} style={{ height: carouselHeight }} ref={containerRef}>
           {/* Lazy-loaded carousel component renders when in viewport. We don't use lazy loading if component is rendered within a modal */}
           {isInsideContainer ? (
@@ -375,6 +463,7 @@ const SectionListings = props => {
               config={config}
               allSections={allSections}
               isInsideContainer={isInsideContainer}
+              onSliderContainerReady={handleSliderContainerReady}
             />
           ) : (
             <LazyListingCarouselComponent
@@ -391,9 +480,59 @@ const SectionListings = props => {
               config={config}
               allSections={allSections}
               isInsideContainer={isInsideContainer}
+              onSliderContainerReady={handleSliderContainerReady}
             />
           )}
         </div>
+
+        {!inProgress &&
+        !error &&
+        fetched &&
+        listingEntities.length > 0 &&
+        carouselNav.visible &&
+        carouselNav.dotCount > 0 ? (
+          <div
+            className={css.carouselNavFooter}
+            role="group"
+            aria-label={intl.formatMessage({ id: 'SectionListings.carouselNavAria' })}
+          >
+            <button
+              type="button"
+              className={css.carouselArrowButton}
+              aria-label={intl.formatMessage({ id: 'SectionListings.carouselPrev' })}
+              onClick={e => slideCarousel(-1, e)}
+              onKeyDown={onCarouselArrowKeyDown}
+            >
+              ‹
+            </button>
+            <div className={css.carouselDots}>
+              {Array.from({ length: carouselNav.dotCount }).map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className={classNames(css.carouselDot, {
+                    [css.carouselDotActive]: idx === carouselNav.activeDot,
+                  })}
+                  aria-label={intl.formatMessage(
+                    { id: 'SectionListings.carouselGoToSlide' },
+                    { page: idx + 1, pageCount: carouselNav.dotCount }
+                  )}
+                  aria-current={idx === carouselNav.activeDot ? 'true' : undefined}
+                  onClick={() => goToCarouselDot(idx)}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              className={css.carouselArrowButton}
+              aria-label={intl.formatMessage({ id: 'SectionListings.carouselNext' })}
+              onClick={e => slideCarousel(1, e)}
+              onKeyDown={onCarouselArrowKeyDown}
+            >
+              ›
+            </button>
+          </div>
+        ) : null}
       </div>
     </SectionContainer>
   );

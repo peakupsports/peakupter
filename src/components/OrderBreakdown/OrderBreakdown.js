@@ -19,6 +19,7 @@ import {
 } from '../../util/types';
 
 import LineItemBookingPeriod from './LineItemBookingPeriod';
+import LineItemPeakUpSessionsMaybe from './LineItemPeakUpSessionsMaybe';
 import LineItemBasePriceMaybe from './LineItemBasePriceMaybe';
 import LineItemSubTotalMaybe from './LineItemSubTotalMaybe';
 import LineItemShippingFeeMaybe from './LineItemShippingFeeMaybe';
@@ -43,6 +44,7 @@ export const OrderBreakdownComponent = props => {
     timeZone,
     currency,
     marketplaceName,
+    peakupBookingSlots,
     intl,
   } = props;
 
@@ -67,6 +69,9 @@ export const OrderBreakdownComponent = props => {
   });
 
   const classes = classNames(rootClassName || css.root, className);
+
+  const peakupBookingSlotsResolved =
+    peakupBookingSlots ?? transaction?.attributes?.protectedData?.peakupBookingSlots;
 
   /**
    * OrderBreakdown contains different line items:
@@ -111,6 +116,12 @@ export const OrderBreakdownComponent = props => {
         code={lineItemUnitType}
         dateType={dateType}
         timeZone={timeZone}
+      />
+
+      <LineItemPeakUpSessionsMaybe
+        peakupBookingSlots={peakupBookingSlotsResolved}
+        timeZone={timeZone}
+        dateType={dateType}
       />
 
       <LineItemBasePriceMaybe lineItems={lineItems} code={lineItemUnitType} intl={intl} />
@@ -177,7 +188,7 @@ export const OrderBreakdownComponent = props => {
  * @param {'customer' | 'provider'} props.userRole
  * @param {propTypes.transaction} props.transaction
  * @param {propTypes.booking?} props.booking
- * @param {DATE_TYPE_DATE | DATE_TYPE_TIME | DATE_TYPE_DATETIME} props.dateType
+ * @param {Array<{bookingStart?: string, bookingEnd?: string}>} [props.peakupBookingSlots] - when omitted, uses transaction protectedData.peakupBookingSlots when present
  * @returns {JSX.Element} the order breakdown component
  */
 const OrderBreakdown = props => {

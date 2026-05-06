@@ -372,6 +372,8 @@ const OrderPanel = props => {
   const isOrderOpen = !!searchParams.orderOpen;
   const preselectedPriceVariantSlug = searchParams.bookableOption;
 
+  const peakupMultiSlotBooking = !!publicData.peakupBookingListing;
+
   const seatsEnabled = [AVAILABILITY_MULTIPLE_SEATS].includes(listingTypeConfig?.availabilityType);
 
   // Note: publicData contains priceVariationsEnabled if listing is created with priceVariations enabled.
@@ -477,6 +479,7 @@ const OrderPanel = props => {
           <InvalidPriceVariants />
         ) : showBookingFixedDurationForm ? (
           <BookingFixedDurationForm
+            peakupMultiSlotBooking={peakupMultiSlotBooking}
             seatsEnabled={seatsEnabled}
             className={css.bookingForm}
             formId="OrderPanelBookingFixedDurationForm"

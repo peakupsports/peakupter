@@ -108,6 +108,11 @@
   }
 }
 
+.bioEmpty {
+  color: var(--colorGrey500);
+  font-style: italic;
+}
+
 .listingsContainer {
   composes: clearfix from global;
   border-top: 1px solid var(--colorGrey100);
@@ -333,4 +338,347 @@
     padding: 0;
     margin-bottom: 24px;
   }
+}
+
+/* ---- PeakUp coach figurina (sidebar) + contenuto sticker ---- */
+
+.asideProfilePeakUpCoach {
+  @media (--viewportLarge) {
+    max-width: 460px;
+  }
+}
+
+/* Sotto lg il layout aside è allineato a destra; con la figurina forziamo l’inizio riga */
+.sideNavCoachPeakUpWide {
+  /* Vince su .sideNav mobile (flex-end) perché la figurina è una colonna larga */
+  justify-content: flex-start !important;
+}
+
+/* Usare insieme a .asideContent (due classi): evita problemi di composes e riempie la colonna mobile */
+.asideContentStickerOverrides {
+  width: 100%;
+  align-self: stretch;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding-bottom: 24px;
+
+  @media (--viewportLarge) {
+    border-bottom: none;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.asideStickerEditDesktop {
+  display: none;
+
+  @media (--viewportLarge) {
+    display: inline;
+    padding: 6px 0 2px 0;
+  }
+}
+
+.asideStickerEditMobile {
+  margin-top: 12px;
+
+  @media (--viewportLarge) {
+    display: none;
+  }
+}
+
+.stickerCard {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 16px 14px 14px;
+  border-radius: 22px;
+  background: linear-gradient(165deg, #ffffff 0%, #f4f7fb 100%);
+  box-shadow:
+    0 12px 36px rgba(16, 33, 62, 0.14),
+    inset 0 0 0 1px rgba(16, 33, 62, 0.07);
+  box-sizing: border-box;
+}
+
+.stickerGlow {
+  pointer-events: none;
+  position: absolute;
+  inset: -2px;
+  border-radius: 24px;
+  background: radial-gradient(
+    120% 80% at 18% 0%,
+    rgba(183, 245, 43, 0.35),
+    transparent 55%
+  );
+  opacity: 0.85;
+  z-index: 0;
+}
+
+.stickerNameRow {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 2px 0 10px;
+  box-sizing: border-box;
+}
+
+.stickerNameRow .flag {
+  flex-shrink: 0;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.stickerName {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: clamp(14px, 3.6vw, 20px);
+  font-weight: var(--fontWeightBold);
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--colorGrey900);
+}
+
+.stickerLevelBadge {
+  flex: 0 0 auto;
+  margin-left: auto;
+  box-sizing: border-box;
+  min-height: 28px;
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #b7f52b, #91db1d);
+  color: #10213e;
+  font-size: 10px;
+  font-weight: var(--fontWeightBold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.stickerPhotoWrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.stickerPhotoFrame {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--colorGrey100);
+  aspect-ratio: 4 / 5;
+}
+
+.stickerPhoto {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardPhotoPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  font-size: 56px;
+  font-weight: var(--fontWeightBold);
+  color: var(--colorGrey400);
+  background: linear-gradient(160deg, rgba(183, 245, 43, 0.12), rgba(16, 33, 62, 0.05));
+}
+
+.stickerPhotoOverlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 42%, rgba(16, 33, 62, 0.55) 100%);
+}
+
+.stickerPhotoShine {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    transparent 38%,
+    transparent 100%
+  );
+  opacity: 0.35;
+}
+
+.stickerInfoOverlay {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stickerInfoRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stickerMiniBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: var(--fontWeightSemiBold);
+  color: var(--marketplaceColor);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 6px rgba(16, 33, 62, 0.12);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.stickerBottomRow {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 4px;
+}
+
+.stickerStars {
+  display: flex;
+  gap: 3px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.starFilled {
+  color: #ffb400;
+}
+
+.starEmpty {
+  color: var(--colorGrey200);
+}
+
+.stickerLanguagesMini {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.stickerActions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 440px;
+  margin: 18px auto 0;
+  box-sizing: border-box;
+}
+
+.primaryBtn {
+  composes: buttonPrimary from global;
+  width: 100%;
+  text-align: center;
+  border-radius: 12px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.secondaryBtn {
+  composes: buttonSecondary from global;
+  width: 100%;
+  text-align: center;
+  border-radius: 12px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.stickerRight {
+  max-width: 640px;
+  margin-bottom: 24px;
+
+  @media (--viewportLarge) {
+    margin-bottom: 32px;
+  }
+}
+
+.stickerBio {
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(244, 247, 251, 0.85);
+  border: 1px solid var(--colorGrey100);
+
+  @media (--viewportMedium) {
+    padding: 18px 20px;
+  }
+}
+
+.stickerBioTitle {
+  composes: p from global;
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: var(--fontWeightBold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--colorGrey500);
+}
+
+.stickerBioText {
+  composes: p from global;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--colorGrey800);
+}
+
+.stickerBioText :global(.longWord),
+.stickerBioText :global(p) {
+  margin: 0;
+}
+
+.stickerBioEmpty {
+  composes: stickerBioText;
+  color: var(--colorGrey500);
+  font-style: italic;
+}
+
+.sportsTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sportTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: var(--fontWeightMedium);
+  background: var(--colorWhite);
+  border: 1px solid var(--colorGrey100);
 }

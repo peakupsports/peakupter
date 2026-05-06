@@ -3,6 +3,7 @@ import { FormattedMessage } from '../../util/reactIntl';
 import classNames from 'classnames';
 import { propTypes } from '../../util/types';
 import { obfuscatedCoordinates } from '../../util/maps';
+import { listingPublicDataLocationAddressLine } from '../../util/fieldHelpers';
 import { Heading, Map } from '../../components';
 
 import css from './ListingPage.module.css';
@@ -31,7 +32,7 @@ class SectionMapMaybe extends Component {
       return null;
     }
 
-    const address = publicData && publicData.location ? publicData.location.address : '';
+    const address = listingPublicDataLocationAddressLine(publicData?.location);
     const classes = classNames(rootClassName || css.sectionMap, className);
     const cacheKey = listingId ? `${listingId.uuid}_${geolocation.lat}_${geolocation.lng}` : null;
 

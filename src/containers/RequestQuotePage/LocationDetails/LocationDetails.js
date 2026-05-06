@@ -2,6 +2,7 @@ import React from 'react';
 
 // Import contexts and util modules
 import { FormattedMessage } from '../../../util/reactIntl.js';
+import { listingPublicDataLocationAddressLine } from '../../../util/fieldHelpers.js';
 
 // Import shared components
 import { Heading } from '../../../components/index.js';
@@ -21,11 +22,7 @@ import css from './LocationDetails.module.css';
 const LocationDetails = props => {
   const { showLocation, listingLocation, sectionHeadingClassName } = props;
 
-  const locationDetails = listingLocation?.building
-    ? `${listingLocation.building}, ${listingLocation.address}`
-    : listingLocation?.address
-    ? listingLocation.address
-    : null;
+  const locationDetails = listingPublicDataLocationAddressLine(listingLocation) || null;
 
   return showLocation && locationDetails ? (
     <div className={css.locationContainer}>

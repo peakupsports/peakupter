@@ -88,6 +88,30 @@ const request = (path, options = {}) => {
   });
 };
 
+const postJsonToLocalApi = (path, body) => {
+  const url = `${apiBaseUrl()}${path}`;
+  return window
+    .fetch(url, {
+      method: methods.POST,
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    .then(async res => {
+      const contentTypeHeader = res.headers.get('Content-Type');
+      const contentType = contentTypeHeader ? contentTypeHeader.split(';')[0] : null;
+      const parsed = contentType === 'application/json' ? await res.json().catch(() => ({})) : {};
+
+      if (res.status >= 400) {
+        const err = new Error(parsed.message || res.statusText || 'Request failed');
+        err.status = res.status;
+        err.data = parsed;
+        throw err;
+      }
+      return parsed;
+    });
+};
+
 // Keep the previous parameter order for the post method.
 // For now, only POST has own specific function, but you can create more or use request directly.
 const post = (path, body, options = {}) => {
@@ -151,3 +175,11 @@ export const createUserWithIdp = body => {
 export const deleteUserAccount = body => {
   return post('/api/delete-account', body);
 };
+
+/** Reserves overlapping PeakUp time slots server-side until TTL (single-node memory). */
+export const peakupBookingHoldReserve = body =>
+  postJsonToLocalApi('/api/peakup/booking-hold', body);
+
+/** Releases a slot reservation when the shopper leaves checkout or clears the PeakUp cart. */
+export const peakupBookingHoldRelease = body =>
+  postJsonToLocalApi('/api/peakup/booking-hold/release', body);

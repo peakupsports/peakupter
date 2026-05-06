@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Form as FinalForm } from 'react-final-form';
 import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import { timestampToDate } from '../../../util/dates';
-import { propTypes } from '../../../util/types';
+import {
+  peakupNormalizeSessionsForCheckout,
+  peakupTimespanDatesFromSessions,
+} from '../../../util/peakupBooking';
+import { peakupBookingHoldRelease, peakupBookingHoldReserve } from '../../../util/api';
 import { BOOKING_PROCESS_NAME } from '../../../transactions/transaction';
 
-import { Form, H6, PrimaryButton, FieldSelect } from '../../../components';
+import {
+  Form,
+  H6,
+  PrimaryButton,
+  SecondaryButton,
+  FieldSelect,
+  InlineTextButton,
+} from '../../../components';
 
 import EstimatedCustomerBreakdownMaybe from '../EstimatedCustomerBreakdownMaybe';
 import FieldDateAndTimeInput from './FieldDateAndTimeInput';
@@ -18,8 +29,6 @@ import css from './BookingFixedDurationForm.module.css';
 
 // When the values of the form are updated we need to fetch
 // lineItems from this template's backend for the EstimatedTransactionMaybe
-// In case you add more fields to the form, make sure you add
-// the values here to the orderData object.
 const handleFetchLineItems = props => formValues => {
   const {
     listingId,
@@ -32,8 +41,6 @@ const handleFetchLineItems = props => formValues => {
   const startDate = bookingStartTime ? timestampToDate(bookingStartTime) : null;
   const endDate = bookingEndTime ? timestampToDate(bookingEndTime) : null;
 
-  // Note: we expect values bookingStartTime and bookingEndTime to be strings
-  // which is the default case when the value has been selected through the form
   const isStartBeforeEnd = bookingStartTime < bookingEndTime;
   const seatsMaybe = seatsEnabled && seats > 0 ? { seats: parseInt(seats, 10) } : {};
 
@@ -54,7 +61,7 @@ const handleFetchLineItems = props => formValues => {
   }
 };
 
-const onPriceVariantChange = props => value => {
+const onPriceVariantChange = props => _value => {
   const { form: formApi, seatsEnabled } = props;
 
   formApi.batch(() => {
@@ -67,31 +74,22 @@ const onPriceVariantChange = props => value => {
   });
 };
 
+const formatPeakupSessionSummary = (intl, timeZone, session) => {
+  const start = timestampToDate(session.bookingStartTime);
+  const end = timestampToDate(session.bookingEndTime);
+  if (!start || !end) return '';
+  const dateOpts = { weekday: 'short', month: 'short', day: 'numeric', timeZone };
+  const timeOpts = { hour: 'numeric', minute: 'numeric', timeZone };
+  return `${intl.formatDate(start, dateOpts)} · ${intl.formatDate(
+    start,
+    timeOpts
+  )}–${intl.formatDate(end, timeOpts)}`;
+};
+
 /**
  * A form for selecting booking time.
  *
  * @component
- * @param {Object} props
- * @param {string} [props.rootClassName] - Custom class that overrides the default class for the root element
- * @param {string} [props.className] - Custom class that extends the default class for the root element
- * @param {propTypes.money} props.price - The unit price of the listing
- * @param {boolean} props.isOwnListing - Whether the listing is owned by the current user
- * @param {propTypes.uuid} props.listingId - The ID of the listing
- * @param {Array<Object>} [props.priceVariants] - The price variants for the fixed bookings
- * @param {Object} props.monthlyTimeSlots - The monthly time slots
- * @param {Function} props.onFetchTimeSlots - The function to fetch the time slots
- * @param {string} props.timeZone - The time zone of the listing (e.g. "America/New_York")
- * @param {Function} props.onFetchTransactionLineItems - The function to fetch the transaction line items
- * @param {Object} props.lineItems - The line items
- * @param {boolean} props.fetchLineItemsInProgress - Whether line items are being fetched
- * @param {propTypes.error} props.fetchLineItemsError - The error for fetching line items
- * @param {string} [props.startDatePlaceholder] - The placeholder text for the start date
- * @param {number} props.dayCountAvailableForBooking - Number of days available for booking
- * @param {string} props.marketplaceName - Name of the marketplace
- * @param {Array<Object>} [props.priceVariants] - The price variants
- * @param {ReactNode} [props.priceVariantFieldComponent] - The component to use for the price variant field
- * @param {boolean} props.isPublishedListing - Whether the listing is published
- * @returns {JSX.Element}
  */
 export const BookingFixedDurationForm = props => {
   const intl = useIntl();
@@ -107,10 +105,63 @@ export const BookingFixedDurationForm = props => {
     priceVariantFieldComponent: PriceVariantFieldComponent,
     preselectedPriceVariant,
     isPublishedListing,
+    peakupMultiSlotBooking = false,
+    onSubmit,
+    listingId,
+    isOwnListing,
+    onFetchTransactionLineItems,
+    fetchLineItemsInProgress,
     ...rest
   } = props;
 
   const [seatsOptions, setSeatsOptions] = useState([1]);
+  const [peakupSessions, setPeakupSessions] = useState([]);
+  const [peakupSubmitMissing, setPeakupSubmitMissing] = useState(false);
+  const formValuesRef = useRef({});
+
+  const triggerPeakupLineItems = useCallback(
+    (sessionsArg, valuesMaybe) => {
+      if (!peakupMultiSlotBooking || !sessionsArg?.length || fetchLineItemsInProgress) {
+        return;
+      }
+      const mergedValues = valuesMaybe || formValuesRef.current;
+      const span = peakupTimespanDatesFromSessions(sessionsArg);
+      if (!span) {
+        return;
+      }
+      const seatsRaw = mergedValues?.seats;
+      const seatsMaybe = seatsEnabled && seatsRaw > 0 ? { seats: parseInt(seatsRaw, 10) } : {};
+
+      const priceVariantMaybe = mergedValues.priceVariantName
+        ? { priceVariantName: mergedValues.priceVariantName }
+        : {};
+
+      onFetchTransactionLineItems({
+        orderData: {
+          bookingStart: span.bookingStart,
+          bookingEnd: span.bookingEnd,
+          peakupSessionCount: sessionsArg.length,
+          ...seatsMaybe,
+          ...priceVariantMaybe,
+        },
+        listingId,
+        isOwnListing,
+      });
+    },
+    [
+      peakupMultiSlotBooking,
+      seatsEnabled,
+      fetchLineItemsInProgress,
+      listingId,
+      isOwnListing,
+      onFetchTransactionLineItems,
+    ]
+  );
+
+  const standardFetch = handleFetchLineItems(props);
+  const noopFetch = useCallback(() => {}, []);
+  const lineItemFetchHandler = peakupMultiSlotBooking ? noopFetch : standardFetch;
+
   const initialValuesMaybe =
     priceVariants.length > 1 && preselectedPriceVariant
       ? { initialValues: { priceVariantName: preselectedPriceVariant?.name } }
@@ -128,6 +179,21 @@ export const BookingFixedDurationForm = props => {
       {...initialValuesMaybe}
       {...rest}
       unitPrice={unitPrice}
+      onSubmit={values => {
+        if (peakupMultiSlotBooking) {
+          if (!peakupSessions.length) {
+            setPeakupSubmitMissing(true);
+            return;
+          }
+          setPeakupSubmitMissing(false);
+          return onSubmit({
+            ...values,
+            peakupBookingSlots: peakupSessions,
+            peakupBookingHoldId: peakupHoldIdRef.current || undefined,
+          });
+        }
+        return onSubmit(values);
+      }}
       render={formRenderProps => {
         const {
           startDatePlaceholder,
@@ -145,9 +211,11 @@ export const BookingFixedDurationForm = props => {
           fetchLineItemsInProgress,
           fetchLineItemsError,
           payoutDetailsWarning,
-          isOwnListing,
+          isOwnListing: isOwnListingForm,
           finePrintComponent: FinePrint,
         } = formRenderProps;
+
+        formValuesRef.current = values;
 
         const startTime = values?.bookingStartTime ? values.bookingStartTime : null;
         const endTime = values?.bookingEndTime ? values.bookingEndTime : null;
@@ -155,11 +223,13 @@ export const BookingFixedDurationForm = props => {
         const endDate = endTime ? timestampToDate(endTime) : null;
         const priceVariantName = values?.priceVariantName || null;
 
-        // This is the place to collect breakdown estimation data. See the
-        // EstimatedCustomerBreakdownMaybe component to change the calculations
-        // for customized payment processes.
-        const breakdownData =
-          startDate && endDate
+        let breakdownData =
+          peakupMultiSlotBooking && peakupSessions.length > 0
+            ? (() => {
+                const span = peakupTimespanDatesFromSessions(peakupSessions);
+                return span ? { startDate: span.bookingStart, endDate: span.bookingEnd } : null;
+              })()
+            : startDate && endDate
             ? {
                 startDate,
                 endDate,
@@ -169,15 +239,64 @@ export const BookingFixedDurationForm = props => {
         const showEstimatedBreakdown =
           breakdownData && lineItems && !fetchLineItemsInProgress && !fetchLineItemsError;
 
-        const onHandleFetchLineItems = handleFetchLineItems(props);
-        const submitDisabled = isPriceVariationsInUse && !isPublishedListing;
+        const onHandleFetchLineItems = lineItemFetchHandler;
+        const submitDisabled =
+          (isPriceVariationsInUse && !isPublishedListing) ||
+          (peakupMultiSlotBooking ? peakupSessions.length === 0 : false);
+
+        const addPeakupSessionFromPicker = () => {
+          setPeakupSubmitMissing(false);
+          if (!(startTime && endTime && priceVariantName && startDate && endDate)) {
+            return;
+          }
+          const duplicate = peakupSessions.some(
+            s =>
+              String(s.bookingStartTime) === String(startTime) &&
+              String(s.bookingEndTime) === String(endTime)
+          );
+          if (duplicate) {
+            return;
+          }
+          const session = {
+            bookingStartTime: startTime,
+            bookingEndTime: endTime,
+          };
+          setPeakupSessions(prev => {
+            const next = [...prev, session];
+            window.requestAnimationFrame(() => triggerPeakupLineItems(next, values));
+            return next;
+          });
+        };
+
+        const removePeakupSession = index => {
+          setPeakupSessions(prev => {
+            const next = prev.filter((_, i) => i !== index);
+            window.requestAnimationFrame(() => {
+              if (next.length) {
+                triggerPeakupLineItems(next);
+              }
+            });
+            return next;
+          });
+        };
+
+        const onPriceVariantChangeWrapped = pv => {
+          if (peakupMultiSlotBooking) {
+            setPeakupSessions([]);
+            setPeakupSubmitMissing(false);
+          }
+          const fn = onPriceVariantChange(formRenderProps);
+          fn(pv);
+        };
+
+        const seatsBlocked = peakupMultiSlotBooking ? !peakupSessions.length : !startTime;
 
         return (
           <Form onSubmit={handleSubmit} className={classes} enforcePagePreloadFor="CheckoutPage">
             <PriceVariantFieldComponent
               priceVariants={priceVariants}
               priceVariantName={priceVariantName}
-              onPriceVariantChange={onPriceVariantChange(formRenderProps)}
+              onPriceVariantChange={onPriceVariantChangeWrapped}
               disabled={!isPublishedListing}
             />
 
@@ -207,21 +326,76 @@ export const BookingFixedDurationForm = props => {
                 handleFetchLineItems={onHandleFetchLineItems}
               />
             ) : null}
+
+            {peakupMultiSlotBooking ? (
+              <div className={css.peakupSessionBlock}>
+                <SecondaryButton
+                  type="button"
+                  className={css.peakupAddButton}
+                  disabled={!(startTime && endTime)}
+                  onClick={addPeakupSessionFromPicker}
+                >
+                  <FormattedMessage id="BookingFixedDurationForm.peakupAddSession" />
+                </SecondaryButton>
+
+                <h6 className={css.peakupSessionsHeading}>
+                  <FormattedMessage id="BookingFixedDurationForm.peakupSelectedSessionsTitle" />
+                </h6>
+                {!peakupSessions.length ? (
+                  <p className={css.peakupSessionsHint}>
+                    <FormattedMessage id="BookingFixedDurationForm.peakupEmptyCartHint" />
+                  </p>
+                ) : (
+                  <ul className={css.peakupSessionsList}>
+                    {peakupSessions.map((sess, idx) => (
+                      <li
+                        key={`${sess.bookingStartTime}-${sess.bookingEndTime}-${idx}`}
+                        className={css.peakupSessionRow}
+                      >
+                        <span className={css.peakupSessionSummary}>
+                          {formatPeakupSessionSummary(intl, timeZone, sess)}
+                        </span>
+                        <InlineTextButton
+                          type="button"
+                          className={css.peakupRemoveBtn}
+                          onClick={() => removePeakupSession(idx)}
+                        >
+                          <FormattedMessage id="BookingFixedDurationForm.peakupRemoveSession" />
+                        </InlineTextButton>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {peakupSubmitMissing ? (
+                  <p className={css.peakupSubmitError} role="alert">
+                    <FormattedMessage id="BookingFixedDurationForm.peakupSubmitRequiresSessions" />
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
             {seatsEnabled ? (
               <FieldSelect
                 name="seats"
                 id="seats"
-                disabled={!startTime}
-                showLabelAsDisabled={!startTime}
+                disabled={seatsBlocked}
+                showLabelAsDisabled={seatsBlocked}
                 label={intl.formatMessage({ id: 'BookingFixedDurationForm.seatsTitle' })}
                 className={css.fieldSeats}
-                onChange={values => {
+                onChange={seatsChoice => {
+                  if (peakupMultiSlotBooking && peakupSessions.length > 0) {
+                    triggerPeakupLineItems(peakupSessions, {
+                      ...values,
+                      seats: seatsChoice,
+                    });
+                    return;
+                  }
                   onHandleFetchLineItems({
                     values: {
                       priceVariantName,
                       bookingStartTime: startTime,
                       bookingEndTime: endTime,
-                      seats: values,
+                      seats: seatsChoice,
                     },
                   });
                 }}
@@ -250,6 +424,11 @@ export const BookingFixedDurationForm = props => {
                   currency={unitPrice.currency}
                   marketplaceName={marketplaceName}
                   processName={BOOKING_PROCESS_NAME}
+                  peakupBookingSlots={
+                    peakupMultiSlotBooking && peakupSessions.length > 0
+                      ? peakupNormalizeSessionsForCheckout(peakupSessions)
+                      : undefined
+                  }
                 />
               </div>
             ) : null}
@@ -266,7 +445,10 @@ export const BookingFixedDurationForm = props => {
               </PrimaryButton>
             </div>
 
-            <FinePrint payoutDetailsWarning={payoutDetailsWarning} isOwnListing={isOwnListing} />
+            <FinePrint
+              payoutDetailsWarning={payoutDetailsWarning}
+              isOwnListing={isOwnListingForm}
+            />
           </Form>
         );
       }}

@@ -8,6 +8,11 @@ const {
   serialize,
   fetchCommission,
 } = require('../api-util/sdk');
+const { omitPeakupInternalParams } = require('../api-util/peakupParams');
+const {
+  validatePeakUpHoldBeforeInitiate,
+  finalizePeakUpHoldAfterSuccessfulInitiate,
+} = require('../api-util/peakupBookingHoldAssertions');
 
 const { Money } = sharetribeSdk.types;
 
@@ -49,28 +54,39 @@ const getMetadata = (orderData, transition) => {
 };
 
 module.exports = (req, res) => {
-  const { isSpeculative, orderData, bodyParams, queryParams } = req.body || {};
+  const { isSpeculative, orderData, bodyParams, queryParams, peakupBookingHoldId } = req.body || {};
   const transitionName = bodyParams.transition;
   const sdk = getSdk(req, res);
   let lineItems = null;
   let metadataMaybe = {};
+  let listingForHold = null;
 
   Promise.all([listingPromise(sdk, bodyParams?.params?.listingId), fetchCommission(sdk)])
     .then(([showListingResponse, fetchAssetsResponse]) => {
       const listing = showListingResponse.data.data;
+      listingForHold = listing;
       const commissionAsset = fetchAssetsResponse.data.data[0];
 
       const currency = listing.attributes.price?.currency || orderData.currency;
       const { providerCommission, customerCommission } =
         commissionAsset?.type === 'jsonAsset' ? commissionAsset.attributes.data : {};
 
+      const mergedOrderData = getFullOrderData(orderData, bodyParams, currency);
+
       lineItems = transactionLineItems(
         listing,
-        getFullOrderData(orderData, bodyParams, currency),
+        mergedOrderData,
         providerCommission,
         customerCommission
       );
       metadataMaybe = getMetadata(orderData, transitionName);
+
+      validatePeakUpHoldBeforeInitiate({
+        isSpeculative,
+        listing,
+        mergedOrderData,
+        peakupBookingHoldId,
+      });
 
       return getTrustedSdk(req);
     })
@@ -81,7 +97,7 @@ module.exports = (req, res) => {
       const body = {
         ...bodyParams,
         params: {
-          ...params,
+          ...omitPeakupInternalParams(params),
           lineItems,
           ...metadataMaybe,
         },
@@ -93,6 +109,12 @@ module.exports = (req, res) => {
       return trustedSdk.transactions.initiate(body, queryParams);
     })
     .then(apiResponse => {
+      finalizePeakUpHoldAfterSuccessfulInitiate({
+        isSpeculative,
+        listing: listingForHold,
+        peakupBookingHoldId,
+      });
+
       const { status, statusText, data } = apiResponse;
       res
         .status(status)

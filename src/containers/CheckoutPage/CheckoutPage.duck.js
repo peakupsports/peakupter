@@ -19,9 +19,18 @@ const initiateOrderPayloadCreator = (
   // If we already have a transaction ID, we should transition, not initiate.
   const isTransition = !!transactionId;
 
-  const { deliveryMethod, quantity, bookingDates, ...otherOrderParams } = orderParams;
+  const {
+    deliveryMethod,
+    quantity,
+    bookingDates,
+    peakupBookingHoldId,
+    ...otherOrderParams
+  } = orderParams;
   const quantityMaybe = quantity ? { stockReservationQuantity: quantity } : {};
   const bookingParamsMaybe = bookingDates || {};
+
+  const initiatePrivilegedExtras =
+    peakupBookingHoldId && typeof peakupBookingHoldId === 'string' ? { peakupBookingHoldId } : {};
 
   // Parameters only for client app's server
   const orderData = deliveryMethod ? { deliveryMethod } : {};
@@ -82,7 +91,13 @@ const initiateOrderPayloadCreator = (
       .catch(handleError);
   } else if (isPrivilegedTransition) {
     // initiate privileged
-    return initiatePrivileged({ isSpeculative: false, orderData, bodyParams, queryParams })
+    return initiatePrivileged({
+      isSpeculative: false,
+      orderData,
+      bodyParams,
+      queryParams,
+      ...initiatePrivilegedExtras,
+    })
       .then(handleSuccess)
       .catch(handleError);
   } else {
@@ -264,6 +279,7 @@ const speculateTransactionPayloadCreator = (
     priceVariantName,
     quantity,
     bookingDates,
+    peakupBookingHoldId,
     ...otherOrderParams
   } = orderParams;
   const quantityMaybe = quantity ? { stockReservationQuantity: quantity } : {};
@@ -320,6 +336,9 @@ const speculateTransactionPayloadCreator = (
     return rejectWithValue(storableError(e));
   };
 
+  const initiatePrivilegedExtras =
+    peakupBookingHoldId && typeof peakupBookingHoldId === 'string' ? { peakupBookingHoldId } : {};
+
   if (isTransition && isPrivilegedTransition) {
     // transition privileged
     return transitionPrivileged({ isSpeculative: true, orderData, bodyParams, queryParams })
@@ -333,7 +352,13 @@ const speculateTransactionPayloadCreator = (
       .catch(handleError);
   } else if (isPrivilegedTransition) {
     // initiate privileged
-    return initiatePrivileged({ isSpeculative: true, orderData, bodyParams, queryParams })
+    return initiatePrivileged({
+      isSpeculative: true,
+      orderData,
+      bodyParams,
+      queryParams,
+      ...initiatePrivilegedExtras,
+    })
       .then(handleSuccess)
       .catch(handleError);
   } else {

@@ -335,6 +335,74 @@ describe('transactionLineItems', () => {
         includeFor: ['customer', 'provider'],
       });
     });
+
+    it('should multiply fixed-duration line item for PeakUp multi-session without seats', () => {
+      const listing = {
+        ...mockListing,
+        attributes: {
+          ...mockListing.attributes,
+          publicData: {
+            ...mockListing.attributes.publicData,
+            unitType: 'fixed',
+            peakupBookingListing: true,
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2024-01-01T10:00:00.000Z',
+        bookingEnd: '2024-01-03T12:00:00.000Z',
+        peakupSessionCount: 3,
+      };
+
+      const result = transactionLineItems(
+        listing,
+        orderData,
+        mockProviderCommission,
+        mockCustomerCommission
+      );
+
+      expect(result[0]).toMatchObject({
+        code: 'line-item/fixed',
+        quantity: 3,
+        includeFor: ['customer', 'provider'],
+      });
+    });
+
+    it('should multiply units for PeakUp multi-session with seats', () => {
+      const listing = {
+        ...mockListing,
+        attributes: {
+          ...mockListing.attributes,
+          publicData: {
+            ...mockListing.attributes.publicData,
+            unitType: 'fixed',
+            peakupBookingListing: true,
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2024-01-01T10:00:00.000Z',
+        bookingEnd: '2024-01-01T12:00:00.000Z',
+        peakupSessionCount: 2,
+        seats: 3,
+      };
+
+      const result = transactionLineItems(
+        listing,
+        orderData,
+        mockProviderCommission,
+        mockCustomerCommission
+      );
+
+      expect(result[0]).toMatchObject({
+        code: 'line-item/fixed',
+        units: 2,
+        seats: 3,
+        includeFor: ['customer', 'provider'],
+      });
+    });
   });
 
   describe('Default Purchase Process - Item Unit Type', () => {

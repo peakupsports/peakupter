@@ -11,7 +11,10 @@ import classNames from 'classnames';
 import { FormattedMessage, injectIntl } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
 import { ensurePaymentMethodCard } from '../../../util/data';
-import { getPropsForCustomTransactionFieldInputs } from '../../../util/fieldHelpers';
+import {
+  getPropsForCustomTransactionFieldInputs,
+  listingPublicDataLocationAddressLine,
+} from '../../../util/fieldHelpers';
 
 import {
   Heading,
@@ -222,11 +225,9 @@ const LocationOrShippingDetails = props => {
     intl,
   } = props;
 
-  const locationDetails = listingLocation?.building
-    ? `${listingLocation.building}, ${listingLocation.address}`
-    : listingLocation?.address
-    ? listingLocation.address
-    : intl.formatMessage({ id: 'StripePaymentForm.locationUnknown' });
+  const locationLine = listingPublicDataLocationAddressLine(listingLocation);
+  const locationDetails =
+    locationLine || intl.formatMessage({ id: 'StripePaymentForm.locationUnknown' });
 
   return askShippingDetails ? (
     <ShippingDetails intl={intl} formApi={formApi} locale={locale} />

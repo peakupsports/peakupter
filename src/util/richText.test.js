@@ -487,5 +487,31 @@ describe('richText', () => {
         `<span>Chars one${slashWithZWSP}two${slashWithZWSP}three - count until <span class="longWord">exhaustion…</span> and a random link: <span class="longWord">http://www.example.com</span></span>`
       );
     });
+
+    it('coerces LocationAutocomplete-shaped extended data to selectedPlace.address (no React crash)', () => {
+      const value = {
+        predictions: [],
+        search: 'Berlin',
+        selectedPlace: { address: 'Berlin, Germany' },
+      };
+      const wrapper = render(<span>{richText(value, options)}</span>);
+      expect(wrapper.getByText('Berlin, Germany')).toBeInTheDocument();
+    });
+
+    it('coerces LocationAutocomplete-shaped extended data to search when address missing', () => {
+      const value = {
+        predictions: [],
+        search: 'Zürich HB',
+        selectedPlace: {},
+      };
+      const wrapper = render(<span>{richText(value, options)}</span>);
+      expect(wrapper.getByText('Zürich HB')).toBeInTheDocument();
+    });
+
+    it('renders nothing for object values with no usable string (no React crash)', () => {
+      const value = { predictions: [], selectedPlace: {} };
+      const wrapper = render(<span data-testid="wrap">{richText(value, options)}</span>);
+      expect(wrapper.getByTestId('wrap')).toBeEmptyDOMElement();
+    });
   });
 });

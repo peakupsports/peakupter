@@ -16,6 +16,7 @@ const {
   serialize,
   fetchCommission,
 } = require('../api-util/sdk');
+const { omitPeakupInternalParams } = require('../api-util/peakupParams');
 
 const { Money } = sharetribeSdk.types;
 
@@ -163,12 +164,13 @@ module.exports = (req, res) => {
       const roleBasedBodyParams = getRoleBasedBodyParams(orderData, bodyParams);
       // Omit listingId from params (transition/request-payment-after-inquiry does not need it)
       const { listingId, ...restParams } = roleBasedBodyParams?.params || {};
+      const paramsForSdk = omitPeakupInternalParams(restParams);
 
       // Add lineItems to the body params
       const body = {
         ...bodyParams,
         params: {
-          ...restParams,
+          ...paramsForSdk,
           lineItems,
           ...metadataMaybe,
         },

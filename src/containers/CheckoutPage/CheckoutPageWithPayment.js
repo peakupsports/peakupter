@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { FormattedMessage, intlShape } from '../../util/reactIntl';
 import { pathByRouteName } from '../../util/routes';
 import {
+  coerceListingPublicDataLocationForUi,
   isValidCurrencyForTransactionProcess,
   pickTransactionFieldsData,
 } from '../../util/fieldHelpers.js';
@@ -126,6 +127,24 @@ const getOrderParams = (
   const priceVariant = priceVariants?.find(pv => pv.name === priceVariantName);
   const priceVariantMaybe = priceVariant ? prefixPriceVariantProperties(priceVariant) : {};
 
+  const peakupSessionCount = pageData.orderData?.peakupSessionCount;
+  const peakupSessionCountMaybe =
+    Number.isInteger(peakupSessionCount) && peakupSessionCount > 0 ? { peakupSessionCount } : {};
+
+  const peakupBookingHoldId = pageData.orderData?.peakupBookingHoldId;
+  const peakupBookingHoldIdMaybe =
+    typeof peakupBookingHoldId === 'string' && peakupBookingHoldId.length > 0
+      ? { peakupBookingHoldId }
+      : {};
+
+  const peakupSlotsStored = pageData.orderData?.peakupBookingSlots;
+  const peakupSlotsProtectedMaybe =
+    Array.isArray(peakupSlotsStored) &&
+    peakupSlotsStored.length > 0 &&
+    pageData.listing?.attributes?.publicData?.peakupBookingListing
+      ? { peakupBookingSlots: peakupSlotsStored }
+      : {};
+
   const customerDefaultMessageMaybe = customerDefaultMessage ? { customerDefaultMessage } : {};
 
   const protectedDataMaybe = {
@@ -153,6 +172,8 @@ const getOrderParams = (
     ...deliveryMethodMaybe,
     ...quantityMaybe,
     ...seatsMaybe,
+    ...peakupSessionCountMaybe,
+    ...peakupBookingHoldIdMaybe,
     ...bookingDatesMaybe(pageData.orderData?.bookingDates),
     ...priceVariantNameMaybe,
     ...protectedDataMaybe,
@@ -475,6 +496,7 @@ export const CheckoutPageWithPayment = props => {
         userRole="customer"
         transaction={tx}
         {...txBookingMaybe}
+        peakupBookingSlots={orderData?.peakupBookingSlots}
         currency={config.currency}
         marketplaceName={config.marketplaceName}
       />
@@ -544,9 +566,10 @@ export const CheckoutPageWithPayment = props => {
     orderData?.deliveryMethod === 'shipping' &&
     !hasTransactionPassedPendingPayment(existingTransaction, process);
 
-  const listingLocation = listing?.attributes?.publicData?.location;
+  const listingLocationRaw = listing?.attributes?.publicData?.location;
+  const listingLocationCoerced = coerceListingPublicDataLocationForUi(listingLocationRaw);
   const showPickUpLocation = isPurchase && orderData?.deliveryMethod === 'pickup';
-  const showLocation = (isBooking || isNegotiation) && listingLocation?.address;
+  const showLocation = (isBooking || isNegotiation) && !!listingLocationCoerced;
 
   const providerDisplayName = isNegotiation
     ? existingTransaction?.provider?.attributes?.profile?.displayName
@@ -642,7 +665,7 @@ export const CheckoutPageWithPayment = props => {
                 askShippingDetails={askShippingDetails}
                 showPickUpLocation={showPickUpLocation}
                 showLocation={showLocation}
-                listingLocation={listingLocation}
+                listingLocation={listingLocationCoerced}
                 totalPrice={totalPrice}
                 locale={config.localization.locale}
                 stripePublishableKey={config.stripe.publishableKey}

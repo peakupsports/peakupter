@@ -58,13 +58,22 @@ const getOfferQuantityAndLineItems = orderData => {
  * Get quantity for fixed bookings with seats.
  * @param {Object} orderData
  * @param {number} [orderData.seats]
+ * @param {number} [orderData.peakupSessionCount] - PeakUp: multiple disjoint sessions in one order
  */
-const getFixedQuantityAndLineItems = orderData => {
-  const { seats } = orderData || {};
+const getFixedQuantityAndLineItems = (orderData, listingPublicData = {}) => {
+  const { seats, peakupSessionCount } = orderData || {};
+  const isPeakupMulti = !!listingPublicData.peakupBookingListing;
+  const sessionMultiplier =
+    isPeakupMulti && Number.isInteger(peakupSessionCount) && peakupSessionCount > 0
+      ? peakupSessionCount
+      : 1;
+
   const hasSeats = !!seats;
   // If there are seats, the quantity is split to factors: units and seats.
-  // E.g. 1 session x 2 seats (aka unit price is multiplied by 2)
-  return hasSeats ? { units: 1, seats, extraLineItems: [] } : { quantity: 1, extraLineItems: [] };
+  // E.g. 3 PeakUp sessions x 2 seats => units 3, seats 2
+  return hasSeats
+    ? { units: sessionMultiplier, seats, extraLineItems: [] }
+    : { quantity: sessionMultiplier, extraLineItems: [] };
 };
 
 /**
@@ -179,7 +188,7 @@ exports.transactionLineItems = (listing, orderData, providerCommission, customer
     unitType === 'item'
       ? getItemQuantityAndLineItems(orderData, publicData, currency)
       : unitType === 'fixed'
-      ? getFixedQuantityAndLineItems(orderData)
+      ? getFixedQuantityAndLineItems(orderData, publicData)
       : unitType === 'hour'
       ? getHourQuantityAndLineItems(orderData)
       : ['day', 'night'].includes(unitType)
