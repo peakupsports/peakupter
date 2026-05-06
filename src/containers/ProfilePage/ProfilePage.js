@@ -31,7 +31,6 @@ import { richText } from '../../util/richText';
 import { ensureUser } from '../../util/data';
 import { createSlug } from '../../util/urlHelpers';
 import { pickRepresentativeListing, countryCodeToFlagEmoji } from '../../util/coachExplore';
-import { obfuscatedCoordinates } from '../../util/maps';
 import {
   formatCoachExperienceLabel,
   formatProfileSportsForSticker,
@@ -52,7 +51,6 @@ import {
   AvatarLarge,
   NamedLink,
   ListingCard,
-  Map,
   Reviews,
   ButtonTabNavHorizontal,
   LayoutSideNavigation,
@@ -64,6 +62,8 @@ import {
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 import FooterContainer from '../../containers/FooterContainer/FooterContainer';
 import NotFoundPage from '../../containers/NotFoundPage/NotFoundPage';
+
+import layoutSideNavCss from '../../components/LayoutComposer/LayoutSideNavigation/LayoutSideNavigation.module.css';
 
 import css from './ProfilePage.module.css';
 
@@ -87,7 +87,6 @@ const currencyTicker = code => {
 
 export const AsideContent = props => {
   const intl = useIntl();
-  const config = useConfiguration();
   const { user, displayName, showLinkToProfileSettingsPage, listings = [], reviews = [] } = props;
 
   const profilePd = user?.attributes?.profile?.publicData || {};
@@ -140,33 +139,13 @@ export const AsideContent = props => {
       ? intl.formatMessage(
           { id: 'ProfilePage.stickerPriceFrom' },
           {
-            price: `${currencyTicker(stickerCurrency)} ${priceFrom}`.trim(),
+            price: `${String(priceFrom).trim()} ${currencyTicker(stickerCurrency)}`.trim(),
           }
         )
       : null;
 
   const locationLabel = stickerDisplay.locationLine;
   const languages = stickerDisplay.languages;
-  const mapsConfig = config.maps;
-  const geolocationForMap =
-    stickerDisplay.lat != null && stickerDisplay.lng != null
-      ? { lat: stickerDisplay.lat, lng: stickerDisplay.lng }
-      : null;
-  const mapCacheKey = user?.id?.uuid
-    ? `profile-${user.id.uuid}-${stickerDisplay.lat}-${stickerDisplay.lng}`
-    : 'profile-map';
-  const mapProps =
-    geolocationForMap && mapsConfig.fuzzy.enabled
-      ? {
-          obfuscatedCenter: obfuscatedCoordinates(
-            geolocationForMap,
-            mapsConfig.fuzzy.offset,
-            mapCacheKey
-          ),
-        }
-      : geolocationForMap
-      ? { center: geolocationForMap, address: locationLabel || '' }
-      : null;
 
   const providerReviews = reviews.filter(r => r.attributes?.type === REVIEW_TYPE_OF_PROVIDER);
   const reviewCountProv = providerReviews.length;
@@ -187,101 +166,100 @@ export const AsideContent = props => {
       <div className={css.stickerCard}>
         <div className={css.stickerGlow} />
 
-        <div className={css.stickerNameRow}>
-          <span className={css.flag} aria-hidden>
-            {flagDisplay}
-          </span>
-          <span className={css.stickerName}>{displayName}</span>
+        <div className={css.stickerCardHeader}>
+          <div className={css.stickerHeaderLeft}>
+            <span className={css.flag} aria-hidden>
+              {flagDisplay}
+            </span>
+            <span className={css.stickerName}>{displayName}</span>
+          </div>
+          <div className={css.stickerHeaderBadges}>
+            {badgeIds.length > 0 || legacyCoachLevel ? (
+              <>
+                {badgeIds.map(id => (
+                  <span key={id} className={css.stickerCertBadge}>
+                    {intl.formatMessage({
+                      id: `ProfilePage.stickerBadge_${id}`,
+                      defaultMessage: id.replace(/_/g, ' '),
+                    })}
+                  </span>
+                ))}
+                {legacyCoachLevel ? (
+                  <span className={css.stickerLevelBadge}>{legacyCoachLevel}</span>
+                ) : null}
+              </>
+            ) : (
+              <span className={classNames(css.stickerLevelBadge, css.stickerLevelBadgeNewCoach)}>
+                {intl.formatMessage({ id: 'ProfilePage.stickerCoachLevelNew' })}
+              </span>
+            )}
+          </div>
         </div>
 
-        {badgeIds.length > 0 || legacyCoachLevel ? (
-          <div className={css.stickerBadgeRow}>
-            {badgeIds.map(id => (
-              <span key={id} className={css.stickerCertBadge}>
-                {intl.formatMessage({
-                  id: `ProfilePage.stickerBadge_${id}`,
-                  defaultMessage: id.replace(/_/g, ' '),
-                })}
-              </span>
-            ))}
-            {legacyCoachLevel ? (
-              <span className={css.stickerLevelBadge}>{legacyCoachLevel}</span>
-            ) : null}
-          </div>
-        ) : (
-          <div className={css.stickerBadgeRow}>
-            <span className={css.stickerLevelBadge}>
-              {intl.formatMessage({ id: 'ProfilePage.stickerCoachLevelNew' })}
-            </span>
-          </div>
-        )}
+        <div className={css.stickerCardBody}>
+          <div className={css.stickerPhotoWrap}>
+            <div className={css.stickerPhotoFrame}>
+              {profileImage?.id ? (
+                <ResponsiveImage
+                  rootClassName={css.stickerPhoto}
+                  alt={displayName || ''}
+                  image={profileImage}
+                  variants={STICKER_AVATAR_VARIANTS}
+                  /*
+                   * Locked to figurina arte max-width (see --peakUpFigurinaArtMaxWidth): do not change
+                   * without aligning ProfilePage.module.css figurina sizing note + owner sign-off.
+                   */
+                  sizes="(max-width: 768px) 92vw, min(772px, 92vw)"
+                />
+              ) : (
+                <div className={css.cardPhotoPlaceholder}>{(displayName || 'C').charAt(0)}</div>
+              )}
 
-        <div className={css.stickerPhotoWrap}>
-          <div className={css.stickerPhotoFrame}>
-            {profileImage?.id ? (
-              <ResponsiveImage
-                rootClassName={css.stickerPhoto}
-                alt={displayName || ''}
-                image={profileImage}
-                variants={STICKER_AVATAR_VARIANTS}
-                sizes="(max-width: 768px) 92vw, 360px"
-              />
-            ) : (
-              <div className={css.cardPhotoPlaceholder}>{(displayName || 'C').charAt(0)}</div>
-            )}
+              <div className={css.stickerPhotoOverlay} aria-hidden />
+              <div className={css.stickerPhotoShine} aria-hidden />
 
-            <div className={css.stickerPhotoOverlay} aria-hidden />
-            <div className={css.stickerPhotoShine} aria-hidden />
+              <div className={css.stickerInfoOverlay}>
+                {sportsBadges.length > 0 ? (
+                  <div className={css.stickerInfoRow}>
+                    {sportsBadges.map(s => (
+                      <span key={s.key} className={css.stickerMiniBadge} title={s.label}>
+                        {s.emoji}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
 
-            <div className={css.stickerInfoOverlay}>
-              {sportsBadges.length > 0 ? (
-                <div className={css.stickerInfoRow}>
-                  {sportsBadges.map(s => (
-                    <span key={s.key} className={css.stickerMiniBadge} title={s.label}>
-                      {s.emoji}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
+                {locationLabel ? (
+                  <div className={css.stickerInfoRow}>
+                    <span className={css.stickerMiniBadge}>📍 {locationLabel}</span>
+                  </div>
+                ) : null}
 
-              {locationLabel || geolocationForMap ? (
-                <div className={css.stickerInfoRow}>
-                  <span className={css.stickerMiniBadge}>
-                    📍{' '}
-                    {locationLabel ||
-                      intl.formatMessage({ id: 'ProfilePage.stickerLocationOnMap' })}
-                  </span>
-                </div>
-              ) : null}
-
-              {priceLabel ? (
-                <div className={css.stickerInfoRow}>
-                  <span className={css.stickerMiniBadge}>💰 {priceLabel}</span>
-                </div>
-              ) : null}
+                {priceLabel ? (
+                  <div className={css.stickerInfoRow}>
+                    <span className={css.stickerMiniBadge}>💰 {priceLabel}</span>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
 
-        {mapProps ? (
-          <div className={css.stickerMapWrap}>
-            <Map {...mapProps} useStaticMap mapsConfig={mapsConfig} />
-          </div>
-        ) : null}
+        <div className={css.stickerCardFooter}>
+          <div className={css.stickerBottomRow}>
+            <div className={css.stickerStars} aria-hidden>
+              {[1, 2, 3, 4, 5].map(star => (
+                <span key={star} className={star <= filledStars ? css.starFilled : css.starEmpty}>
+                  ★
+                </span>
+              ))}
+            </div>
 
-        <div className={css.stickerBottomRow}>
-          <div className={css.stickerStars} aria-hidden>
-            {[1, 2, 3, 4, 5].map(star => (
-              <span key={star} className={star <= filledStars ? css.starFilled : css.starEmpty}>
-                ★
-              </span>
-            ))}
-          </div>
-
-          <div className={css.stickerLanguagesMini}>
-            {languages.slice(0, 6).map(lang => (
-              <span key={lang}>{LANGUAGE_FLAGS[String(lang).toLowerCase()] || '🌐'}</span>
-            ))}
+            <div className={css.stickerLanguagesMini}>
+              {languages.slice(0, 6).map(lang => (
+                <span key={lang}>{LANGUAGE_FLAGS[String(lang).toLowerCase()] || '🌐'}</span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -291,7 +269,7 @@ export const AsideContent = props => {
           <NamedLink
             name="ListingPage"
             params={{ slug: listingSlug || 'listing', id: listingId }}
-            className={css.primaryBtn}
+            className={classNames(css.primaryBtn, css.stickerActionPrimary)}
           >
             <FormattedMessage id="ProfilePage.stickerBookNow" />
           </NamedLink>
@@ -301,19 +279,17 @@ export const AsideContent = props => {
           </button>
         )}
 
-        <a href="#profile-coach-listings" className={css.secondaryBtn}>
+        <a
+          href="#profile-coach-listings"
+          className={classNames(css.secondaryBtn, css.stickerActionSecondary)}
+        >
           <FormattedMessage id="ProfilePage.stickerViewListings" />
         </a>
 
         {showLinkToProfileSettingsPage ? (
-          <>
-            <NamedLink className={css.asideStickerEditMobile} name="ProfileSettingsPage">
-              <FormattedMessage id="ProfilePage.editProfileLinkMobile" />
-            </NamedLink>
-            <NamedLink className={css.asideStickerEditDesktop} name="ProfileSettingsPage">
-              <FormattedMessage id="ProfilePage.editProfileLinkDesktop" />
-            </NamedLink>
-          </>
+          <NamedLink name="ProfileSettingsPage" className={css.stickerEditProfile}>
+            <FormattedMessage id="ProfilePage.editProfileLinkDesktop" />
+          </NamedLink>
         ) : null}
       </div>
     </div>
@@ -535,6 +511,41 @@ export const MainContent = props => {
           .join(' • ')
       : '';
 
+  const listingTitleSticker = listingForSticker?.attributes?.title || displayName || 'listing';
+  const listingSlugSticker = listingForSticker ? createSlug(String(listingTitleSticker)) : '';
+  const listingUuidSticker = listingForSticker?.id?.uuid;
+
+  const {
+    priceFrom: stickerPriceFromRaw,
+    currency: stickerBookingCurrency = 'CHF',
+    locationLine: stickerLocationLineRaw,
+  } = stickerSource;
+
+  const stickerPriceFormatted =
+    stickerPriceFromRaw != null && String(stickerPriceFromRaw).trim() !== ''
+      ? `${String(stickerPriceFromRaw).trim()} ${currencyTicker(stickerBookingCurrency)}`.trim()
+      : '';
+
+  const stickerRateLine =
+    stickerPriceFormatted !== ''
+      ? intl.formatMessage(
+          { id: 'ProfilePage.stickerPriceFrom' },
+          { price: stickerPriceFormatted }
+        )
+      : null;
+
+  const hasStickerLocationDetail =
+    stickerLocationLineRaw != null && String(stickerLocationLineRaw).trim() !== '';
+
+  const hasStickerSessionsDetail = !!(stickerRateLine || listingUuidSticker);
+
+  const coachLangsOnlyGridSpan =
+    !!coachingLanguages && formattedSportsSticker.length === 0
+      ? css.coachDetailGridSpan
+      : null;
+  const coachSportsOnlyGridSpan =
+    !coachingLanguages && formattedSportsSticker.length > 0 ? css.coachDetailGridSpan : null;
+
   if (userShowError || queryListingsError) {
     return (
       <p className={css.error}>
@@ -563,51 +574,106 @@ export const MainContent = props => {
 
   const peakUpStickerColumn = (
     <div className={css.stickerRight}>
-      <div className={css.stickerBio}>
-        <div className={css.stickerBioTitle}>
-          <FormattedMessage id="ProfilePage.stickerAboutHeading" />
-        </div>
-        {hasBio ? (
-          <div className={classNames(css.stickerBioText, css.longWord)}>{bioWithLinks}</div>
-        ) : (
-          <p className={classNames(css.stickerBioText, css.stickerBioEmpty)}>
-            <FormattedMessage id="ProfilePage.coachBioEmpty" />
-          </p>
-        )}
+      <div className={css.coachProfileDetailGrid}>
+        <section
+          className={classNames(
+            css.stickerBio,
+            !experienceText ? css.coachDetailGridSpan : null
+          )}
+        >
+          <div className={css.stickerBioTitle}>
+            <FormattedMessage id="ProfilePage.stickerAboutHeading" />
+          </div>
+          {hasBio ? (
+            <div className={classNames(css.stickerBioText, css.longWord)}>{bioWithLinks}</div>
+          ) : (
+            <p className={classNames(css.stickerBioText, css.stickerBioEmpty)}>
+              <FormattedMessage id="ProfilePage.coachBioEmpty" />
+            </p>
+          )}
+        </section>
+
+        {experienceText ? (
+          <section className={css.stickerBio}>
+            <div className={css.stickerBioTitle}>
+              <FormattedMessage id="ProfilePage.stickerExperienceHeading" />
+            </div>
+            <div className={classNames(css.stickerBioText, css.longWord)}>{experienceText}</div>
+          </section>
+        ) : null}
+
+        {coachingLanguages ? (
+          <section className={classNames(css.stickerBio, coachLangsOnlyGridSpan)}>
+            <div className={css.stickerBioTitle}>
+              <FormattedMessage id="ProfilePage.stickerLanguagesHeading" />
+            </div>
+            <div className={classNames(css.stickerBioText, css.longWord)}>{coachingLanguages}</div>
+          </section>
+        ) : null}
+
+        {formattedSportsSticker.length > 0 ? (
+          <section className={classNames(css.stickerBio, coachSportsOnlyGridSpan)}>
+            <div className={css.stickerBioTitle}>
+              <FormattedMessage id="ProfilePage.stickerSportsHeading" />
+            </div>
+            <div className={css.sportsTags}>
+              {formattedSportsSticker.map(sport => (
+                <span key={sport.key} className={css.sportTag}>
+                  <span className={css.sportTagEmoji} aria-hidden>
+                    {sport.emoji}
+                  </span>
+                  <span className={css.sportTagLabel}>{sport.label}</span>
+                </span>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {hasStickerLocationDetail || hasStickerSessionsDetail ? (
+          <>
+            {hasStickerLocationDetail ? (
+              <section
+                className={classNames(
+                  css.stickerBio,
+                  !hasStickerSessionsDetail ? css.coachDetailGridSpan : null
+                )}
+              >
+                <div className={css.stickerBioTitle}>
+                  <FormattedMessage id="ProfilePage.coachDetailLocationHeading" />
+                </div>
+                <div className={classNames(css.stickerBioText, css.longWord)}>
+                  {String(stickerLocationLineRaw).trim()}
+                </div>
+              </section>
+            ) : null}
+
+            {hasStickerSessionsDetail ? (
+              <section
+                className={classNames(
+                  css.stickerBio,
+                  !hasStickerLocationDetail ? css.coachDetailGridSpan : null
+                )}
+              >
+                <div className={css.stickerBioTitle}>
+                  <FormattedMessage id="ProfilePage.coachDetailSessionsHeading" />
+                </div>
+                {stickerRateLine ? (
+                  <p className={classNames(css.stickerBioText, css.longWord)}>{stickerRateLine}</p>
+                ) : null}
+                {listingUuidSticker ? (
+                  <NamedLink
+                    name="ListingPage"
+                    params={{ slug: listingSlugSticker || 'listing', id: listingUuidSticker }}
+                    className={css.coachDetailBookBtn}
+                  >
+                    <FormattedMessage id="ProfilePage.stickerBookNow" />
+                  </NamedLink>
+                ) : null}
+              </section>
+            ) : null}
+          </>
+        ) : null}
       </div>
-
-      {experienceText ? (
-        <div className={css.stickerBio}>
-          <div className={css.stickerBioTitle}>
-            <FormattedMessage id="ProfilePage.stickerExperienceHeading" />
-          </div>
-          <div className={classNames(css.stickerBioText, css.longWord)}>{experienceText}</div>
-        </div>
-      ) : null}
-
-      {coachingLanguages ? (
-        <div className={css.stickerBio}>
-          <div className={css.stickerBioTitle}>
-            <FormattedMessage id="ProfilePage.stickerLanguagesHeading" />
-          </div>
-          <div className={classNames(css.stickerBioText, css.longWord)}>{coachingLanguages}</div>
-        </div>
-      ) : null}
-
-      {formattedSportsSticker.length > 0 ? (
-        <div className={css.stickerBio}>
-          <div className={css.stickerBioTitle}>
-            <FormattedMessage id="ProfilePage.stickerSportsHeading" />
-          </div>
-          <div className={css.sportsTags}>
-            {formattedSportsSticker.map(sport => (
-              <span key={sport.key} className={css.sportTag}>
-                {sport.emoji} {sport.label}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 
@@ -784,11 +850,17 @@ export const ProfilePageComponent = props => {
       }}
     >
       <LayoutSideNavigation
+        containerClassName={
+          peakUpCoachLayout
+            ? classNames(layoutSideNavCss.container, css.peakUpProfileLayoutDesktop)
+            : undefined
+        }
         sideNavClassName={classNames(
           css.aside,
           peakUpCoachLayout && css.asideProfilePeakUpCoach,
           peakUpCoachLayout && css.sideNavCoachPeakUpWide
         )}
+        mainColumnClassName={peakUpCoachLayout ? css.mainPeakUpCoachContent : undefined}
         topbar={<TopbarContainer />}
         sideNav={
           <AsideContent

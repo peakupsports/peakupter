@@ -123,7 +123,7 @@ export const peakUpCoachUserFields = [
       label: 'Coaching languages',
     },
     saveConfig: {
-      label: 'Languages you coach in',
+      label: 'Languages you coach',
       displayInSignUp: false,
       isRequired: false,
     },
@@ -162,7 +162,7 @@ export const peakUpCoachUserFields = [
       label: 'Starting price',
     },
     saveConfig: {
-      label: 'Starting price (per session, whole units)',
+      label: 'Starting price (per hour)',
       displayInSignUp: false,
       isRequired: false,
       placeholderMessage: 'e.g. 80',

@@ -28,7 +28,10 @@ import css from './ProfileSettingsForm.module.css';
 
 import FieldCoachMapLocation from './FieldCoachMapLocation';
 
-const PEAK_UP_PROFILE_FIELD_KEYS = new Set(PEAK_UP_COACH_PROFILE_KEYS);
+/* userFieldProps use namespaced keys (e.g. pub_sports); raw keys alone never match */
+const PEAK_UP_PROFILE_FIELD_KEYS = new Set(
+  PEAK_UP_COACH_PROFILE_KEYS.map(k => addScopePrefix('public', k))
+);
 
 const PUB_SPORTS_KEY = addScopePrefix('public', 'sports');
 const PUB_LANGUAGES_KEY = addScopePrefix('public', 'languages');
@@ -37,6 +40,12 @@ const PUB_PRICE_FROM_KEY = addScopePrefix('public', 'priceFrom');
 
 const PEAK_ROW_SPORTS_LANG_KEYS = new Set([PUB_SPORTS_KEY, PUB_LANGUAGES_KEY]);
 const PEAK_ROW_PRICING_KEYS = new Set([PUB_CURRENCY_KEY, PUB_PRICE_FROM_KEY]);
+
+/** Sport left, languages right (Console user-field order can list languages first). */
+const PEAK_SPORTS_LANG_COLUMN_ORDER = [PUB_SPORTS_KEY, PUB_LANGUAGES_KEY];
+
+/** Price before currency (config order is currency → priceFrom). */
+const PEAK_PRICING_DISPLAY_ORDER = [PUB_PRICE_FROM_KEY, PUB_CURRENCY_KEY];
 
 /** Console user fields (public) — same row under display name */
 const PUB_EXPERIENCE_KEY = addScopePrefix('public', 'experience');
@@ -292,10 +301,19 @@ class ProfileSettingsFormComponent extends Component {
           const peakUpFieldProps = userFieldProps.filter(p =>
             PEAK_UP_PROFILE_FIELD_KEYS.has(p.key)
           );
-          const coachPeakSportsLanguages = peakUpFieldProps.filter(p =>
-            PEAK_ROW_SPORTS_LANG_KEYS.has(p.key)
-          );
-          const coachPeakPricing = peakUpFieldProps.filter(p => PEAK_ROW_PRICING_KEYS.has(p.key));
+          const coachPeakSportsLanguages = peakUpFieldProps
+            .filter(p => PEAK_ROW_SPORTS_LANG_KEYS.has(p.key))
+            .sort(
+              (a, b) =>
+                PEAK_SPORTS_LANG_COLUMN_ORDER.indexOf(a.key) -
+                PEAK_SPORTS_LANG_COLUMN_ORDER.indexOf(b.key)
+            );
+          const coachPeakPricing = peakUpFieldProps
+            .filter(p => PEAK_ROW_PRICING_KEYS.has(p.key))
+            .sort(
+              (a, b) =>
+                PEAK_PRICING_DISPLAY_ORDER.indexOf(a.key) - PEAK_PRICING_DISPLAY_ORDER.indexOf(b.key)
+            );
           const coachPeakRemaining = peakUpFieldProps.filter(
             p => !PEAK_ROW_SPORTS_LANG_KEYS.has(p.key) && !PEAK_ROW_PRICING_KEYS.has(p.key)
           );
@@ -332,7 +350,7 @@ class ProfileSettingsFormComponent extends Component {
                 handleSubmit(e);
               }}
             >
-              <div className={css.sectionContainer}>
+              <div className={classNames(css.sectionContainer, css.profileHeroSection)}>
                 <H4 as="h2" className={css.sectionTitle}>
                   <FormattedMessage id="ProfileSettingsForm.yourProfilePicture" />
                 </H4>
@@ -485,38 +503,18 @@ class ProfileSettingsFormComponent extends Component {
                 </div>
               ) : null}
 
-              <div className={classNames(css.sectionContainer, css.lastSection)}>
-                <H4 as="h2" className={css.sectionTitle}>
-                  <FormattedMessage id="ProfileSettingsForm.coachProfileHeading" />
-                </H4>
-                <p className={css.extraInfo}>
-                  {peakUpFieldProps.length > 0 ? (
-                    <FormattedMessage id="ProfileSettingsForm.coachProfileInfo" />
-                  ) : (
-                    <FormattedMessage id="ProfileSettingsForm.coachLocationOnlyInfo" />
-                  )}
-                </p>
-                {coachPeakSportsLanguages.length > 0 ? (
+              {coachPeakSportsLanguages.length > 0 ? (
+                <div className={classNames(css.sectionContainer, css.coachSportsLangSection)}>
+                  <H4 as="h2" className={css.sectionTitle}>
+                    <FormattedMessage id="ProfileSettingsForm.sportsAndLanguagesHeading" />
+                  </H4>
                   <div
                     className={
-                      coachHasSportsAndLanguages
-                        ? css.coachSportsLangTripleGrid
-                        : css.coachRowTwoCol
+                      coachHasSportsAndLanguages ? css.coachSportsLangPair : css.coachRowTwoCol
                     }
                   >
                     {coachPeakSportsLanguages.map(({ key, ...fieldProps }) => (
-                      <div
-                        key={key}
-                        className={
-                          coachHasSportsAndLanguages
-                            ? key === PUB_SPORTS_KEY
-                              ? css.coachTripleSports
-                              : key === PUB_LANGUAGES_KEY
-                              ? css.coachTripleLanguages
-                              : css.coachTripleOther
-                            : undefined
-                        }
-                      >
+                      <div key={key} className={css.coachSportsLangPairCol}>
                         <CustomExtendedDataField
                           {...fieldProps}
                           formId={formId}
@@ -525,14 +523,36 @@ class ProfileSettingsFormComponent extends Component {
                       </div>
                     ))}
                   </div>
-                ) : null}
-                {coachPeakPricing.length > 0 ? (
+                </div>
+              ) : null}
+
+              {coachPeakPricing.length > 0 ? (
+                <div className={css.sectionContainer}>
+                  <H4 as="h2" className={css.sectionTitle}>
+                    <FormattedMessage id="ProfileSettingsForm.coachSessionPriceHeading" />
+                  </H4>
+                  <p className={css.extraInfo}>
+                    <FormattedMessage id="ProfileSettingsForm.coachSessionPriceInfo" />
+                  </p>
                   <div className={css.coachRowTwoCol}>
                     {coachPeakPricing.map(({ key, ...fieldProps }) => (
                       <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
                     ))}
                   </div>
-                ) : null}
+                </div>
+              ) : null}
+
+              <div className={classNames(css.sectionContainer, css.lastSection)}>
+                <H4 as="h2" className={css.sectionTitle}>
+                  <FormattedMessage id="ProfileSettingsForm.coachLocationHeading" />
+                </H4>
+                <p className={css.extraInfo}>
+                  {coachPeakPricing.length > 0 ? (
+                    <FormattedMessage id="ProfileSettingsForm.coachLocationSectionInfo" />
+                  ) : (
+                    <FormattedMessage id="ProfileSettingsForm.coachLocationOnlyInfo" />
+                  )}
+                </p>
                 {coachPeakRemaining.map(({ key, ...fieldProps }) => (
                   <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
                 ))}

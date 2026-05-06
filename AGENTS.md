@@ -151,6 +151,18 @@ Full technical asset reference is available in https://www.sharetribe.com/docs/r
 - Always ask for approval from user if attempting to make changes to transaction processes, and
   remind them to make the necessary process updates towards the Sharetribe backend.
 
+## PeakUp coach figurina (`ProfilePage` sidebar sticker)
+
+Desktop layout uses **CSS grid**: `ProfilePage` passes `layoutSideNavCss.container` + `peakUpProfileLayoutDesktop` (~**35fr** left / ~**65fr** right). That controls **column proportion only**.
+
+**Figurina artwork** (printed card appearance: border thickness, `.stickerPhotoFrame` **`aspect-ratio`**, header/body/footer structure) should stay stable. The **maximum width of that printed box on large screens is capped** with **`--peakUpFigurinaArtMaxWidth`** (see `ProfilePage.module.css`) so widening the grid track **does not** stretch the figurina arbitrarily; **`ResponsiveImage` `sizes` in `ProfilePage.js`** must stay aligned with that cap.
+
+Changing **proportion** (`35fr`/`65fr`, `gap`, container grid) requires an explicit owner layout request; changing **arte** (aspect-ratio, `--peakUpFigurinaArtMaxWidth`, `sizes`, sticker border/frame rules) likewise requires explicit sign-off.
+
+Colours, overlays, typography, **main-column** bio/reviews, and tightening spacing between cards remain fair game independently.
+
+See the **`FIGURINA ART vs LAYOUT GRID`** comment in `ProfilePage.module.css`.
+
 ## Formatting
 
 Prettier: single quotes, 2 spaces, trailing commas, max line 100

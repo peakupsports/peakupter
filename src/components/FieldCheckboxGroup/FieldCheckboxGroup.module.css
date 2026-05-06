@@ -11,7 +11,7 @@
 }
 
 .twoColumns {
-  @media (--viewportMedium) {
+  @media (min-width: 640px) {
     columns: 2;
   }
 }
