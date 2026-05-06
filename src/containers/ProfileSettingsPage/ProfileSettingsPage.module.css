@@ -8,8 +8,13 @@
   margin: 12px 24px 24px 24px;
 
   @media (--viewportMedium) {
-    max-width: 565px;
-    margin: 55px auto 56px auto;
+    max-width: 720px;
+    margin: 48px auto 56px auto;
+    padding: 0 8px;
+  }
+
+  @media (--viewportLarge) {
+    max-width: 880px;
   }
 }
 

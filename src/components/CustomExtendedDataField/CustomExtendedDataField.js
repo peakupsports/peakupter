@@ -26,6 +26,13 @@ const createFilterOptions = options => options.map(o => ({ key: `${o.option}`, l
 
 const getLabel = fieldConfig => fieldConfig?.saveConfig?.label || fieldConfig?.label;
 
+const extendedDataHelpText = (fieldConfig, intl) => {
+  if (fieldConfig?.helpTextTranslationId) {
+    return intl.formatMessage({ id: fieldConfig.helpTextTranslationId });
+  }
+  return fieldConfig?.helpText;
+};
+
 const CustomFieldEnum = props => {
   const { name, fieldConfig, defaultRequiredMessage, formId, intl } = props;
   const { enumOptions = [], saveConfig } = fieldConfig || {};
@@ -46,7 +53,7 @@ const CustomFieldEnum = props => {
       name={name}
       id={formId ? `${formId}.${name}` : name}
       label={label}
-      helpText={fieldConfig?.helpText}
+      helpText={extendedDataHelpText(fieldConfig, intl)}
       {...validateMaybe}
     >
       <option disabled value="">
@@ -65,7 +72,7 @@ const CustomFieldEnum = props => {
 };
 
 const CustomFieldMultiEnum = props => {
-  const { name, fieldConfig, defaultRequiredMessage, formId } = props;
+  const { name, fieldConfig, defaultRequiredMessage, formId, intl, checkboxTwoColumns } = props;
   const { enumOptions = [], saveConfig } = fieldConfig || {};
   const { isRequired, requiredMessage } = saveConfig || {};
   const label = getLabel(fieldConfig);
@@ -79,8 +86,9 @@ const CustomFieldMultiEnum = props => {
       id={formId ? `${formId}.${name}` : name}
       name={name}
       label={label}
-      helpText={fieldConfig?.helpText}
+      helpText={extendedDataHelpText(fieldConfig, intl)}
       options={createFilterOptions(enumOptions)}
+      twoColumns={!!checkboxTwoColumns}
       {...validateMaybe}
     />
   ) : null;
@@ -104,7 +112,7 @@ const CustomFieldShortText = props => {
       type="text"
       maxLength={70}
       label={label}
-      helpText={fieldConfig?.helpText}
+      helpText={extendedDataHelpText(fieldConfig, intl)}
       placeholder={placeholder}
       {...validateMaybe}
     />
@@ -128,7 +136,7 @@ const CustomFieldText = props => {
       name={name}
       type="textarea"
       label={label}
-      helpText={fieldConfig?.helpText}
+      helpText={extendedDataHelpText(fieldConfig, intl)}
       placeholder={placeholder}
       {...validateMaybe}
     />
@@ -166,7 +174,7 @@ const CustomFieldLong = props => {
       name={name}
       type="number"
       step="1"
-      helpText={fieldConfig?.helpText}
+      helpText={extendedDataHelpText(fieldConfig, intl)}
       parse={value => {
         const parsed = Number.parseInt(value, 10);
         return Number.isNaN(parsed) ? null : parsed;
@@ -206,7 +214,7 @@ const CustomFieldBoolean = props => {
       id={formId ? `${formId}.${name}` : name}
       name={name}
       label={label}
-      helpText={fieldConfig?.helpText}
+      helpText={extendedDataHelpText(fieldConfig, intl)}
       placeholder={placeholder}
       {...validateMaybe}
     />
@@ -239,7 +247,7 @@ const CustomFieldYoutube = props => {
       name={name}
       type="text"
       label={label}
-      helpText={fieldConfig?.helpText}
+      helpText={extendedDataHelpText(fieldConfig, intl)}
       placeholder={placeholder}
       validate={value => validate(value)}
     />

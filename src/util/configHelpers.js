@@ -2,6 +2,7 @@ import { subUnitDivisors } from '../config/settingsCurrency';
 import { getSupportedProcessesInfo, isBookingProcessAlias } from '../transactions/transaction';
 import { sanitizeText } from './sanitize';
 import { EXTENDED_DATA_SCHEMA_TYPES } from './types';
+import { peakUpCoachUserFields } from '../config/configPeakUpCoachUserFields';
 
 const isTestEnvironment = process.env.NODE_ENV === 'test';
 // Generic helpers for validating config values
@@ -1390,9 +1391,13 @@ const mergeUserConfig = (hostedConfig, defaultConfigs) => {
   const userTypes = shouldMerge
     ? union(hostedUserTypes, defaultUserTypes, 'userType')
     : hostedUserTypes;
-  const userFields = shouldMerge
+  const mergedHostedUserFields = shouldMerge
     ? union(hostedUserFields, defaultUserFields, 'key')
     : hostedUserFields;
+
+  // PeakUp coach extended fields (sports, price, geo, …) always merged from local config.
+  // Union keeps first insertion order; later duplicate keys replace values (second array wins).
+  const userFields = union(mergedHostedUserFields, peakUpCoachUserFields, 'key');
 
   // To include user type validation (if you have user types in your default configuration),
   // pass userTypes to the validUserFields function as well:

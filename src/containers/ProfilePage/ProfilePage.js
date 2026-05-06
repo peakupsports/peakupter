@@ -20,7 +20,6 @@ import {
 import {
   getDetailCustomFieldValue,
   getFieldValue,
-  normalizeExtendedDataTextForDisplay,
   pickCustomFieldProps,
 } from '../../util/fieldHelpers';
 import {
@@ -32,10 +31,13 @@ import { richText } from '../../util/richText';
 import { ensureUser } from '../../util/data';
 import { createSlug } from '../../util/urlHelpers';
 import { pickRepresentativeListing, countryCodeToFlagEmoji } from '../../util/coachExplore';
+import { obfuscatedCoordinates } from '../../util/maps';
 import {
   formatCoachExperienceLabel,
   formatProfileSportsForSticker,
   LANGUAGE_FLAGS,
+  resolveCoachStickerDisplay,
+  resolvePeakupCoachBadgeIds,
   shouldShowPeakUpProfileSticker,
   stickerLanguageLabel,
 } from '../../util/profileCoachSticker';
@@ -50,6 +52,7 @@ import {
   AvatarLarge,
   NamedLink,
   ListingCard,
+  Map,
   Reviews,
   ButtonTabNavHorizontal,
   LayoutSideNavigation,
@@ -84,6 +87,7 @@ const currencyTicker = code => {
 
 export const AsideContent = props => {
   const intl = useIntl();
+  const config = useConfiguration();
   const { user, displayName, showLinkToProfileSettingsPage, listings = [], reviews = [] } = props;
 
   const profilePd = user?.attributes?.profile?.publicData || {};
@@ -117,32 +121,52 @@ export const AsideContent = props => {
   const avatarUser = user ? ensureUser(user) : null;
   const profileImage = avatarUser?.profileImage;
 
+  const stickerDisplay = resolveCoachStickerDisplay(profilePd, listing);
+  const badgeIds = resolvePeakupCoachBadgeIds(profilePd);
+  const legacyCoachLevel =
+    badgeIds.length === 0 && profilePd.coachLevel && String(profilePd.coachLevel).trim()
+      ? String(profilePd.coachLevel).trim()
+      : null;
+
   const countryRaw = profilePd.country || listingPd.country;
   const cc = countryRaw?.toString?.()?.trim?.() || '';
   const countryEmoji = cc ? countryCodeToFlagEmoji(cc.length === 2 ? cc.toUpperCase() : cc) : '';
 
-  const coachLevelText =
-    profilePd.coachLevel && String(profilePd.coachLevel).trim()
-      ? profilePd.coachLevel
-      : intl.formatMessage({ id: 'ProfilePage.stickerCoachLevelNew' });
-
-  const sportsBadges = formatProfileSportsForSticker(intl, profilePd.sports);
-  const { priceFrom, currency = 'CHF' } = profilePd;
+  const sportsBadges = formatProfileSportsForSticker(intl, stickerDisplay.sports);
+  const { priceFrom, currency: stickerCurrency = 'CHF' } = stickerDisplay;
 
   const priceLabel =
     priceFrom != null && String(priceFrom).trim() !== ''
       ? intl.formatMessage(
           { id: 'ProfilePage.stickerPriceFrom' },
           {
-            price: `${currencyTicker(currency)} ${priceFrom}`.trim(),
+            price: `${currencyTicker(stickerCurrency)} ${priceFrom}`.trim(),
           }
         )
       : null;
 
-  const locationLabel = normalizeExtendedDataTextForDisplay(
-    profilePd.location ?? listingPd.location
-  );
-  const languages = Array.isArray(profilePd.languages) ? profilePd.languages : [];
+  const locationLabel = stickerDisplay.locationLine;
+  const languages = stickerDisplay.languages;
+  const mapsConfig = config.maps;
+  const geolocationForMap =
+    stickerDisplay.lat != null && stickerDisplay.lng != null
+      ? { lat: stickerDisplay.lat, lng: stickerDisplay.lng }
+      : null;
+  const mapCacheKey = user?.id?.uuid
+    ? `profile-${user.id.uuid}-${stickerDisplay.lat}-${stickerDisplay.lng}`
+    : 'profile-map';
+  const mapProps =
+    geolocationForMap && mapsConfig.fuzzy.enabled
+      ? {
+          obfuscatedCenter: obfuscatedCoordinates(
+            geolocationForMap,
+            mapsConfig.fuzzy.offset,
+            mapCacheKey
+          ),
+        }
+      : geolocationForMap
+      ? { center: geolocationForMap, address: locationLabel || '' }
+      : null;
 
   const providerReviews = reviews.filter(r => r.attributes?.type === REVIEW_TYPE_OF_PROVIDER);
   const reviewCountProv = providerReviews.length;
@@ -168,9 +192,29 @@ export const AsideContent = props => {
             {flagDisplay}
           </span>
           <span className={css.stickerName}>{displayName}</span>
-
-          <span className={css.stickerLevelBadge}>{coachLevelText}</span>
         </div>
+
+        {badgeIds.length > 0 || legacyCoachLevel ? (
+          <div className={css.stickerBadgeRow}>
+            {badgeIds.map(id => (
+              <span key={id} className={css.stickerCertBadge}>
+                {intl.formatMessage({
+                  id: `ProfilePage.stickerBadge_${id}`,
+                  defaultMessage: id.replace(/_/g, ' '),
+                })}
+              </span>
+            ))}
+            {legacyCoachLevel ? (
+              <span className={css.stickerLevelBadge}>{legacyCoachLevel}</span>
+            ) : null}
+          </div>
+        ) : (
+          <div className={css.stickerBadgeRow}>
+            <span className={css.stickerLevelBadge}>
+              {intl.formatMessage({ id: 'ProfilePage.stickerCoachLevelNew' })}
+            </span>
+          </div>
+        )}
 
         <div className={css.stickerPhotoWrap}>
           <div className={css.stickerPhotoFrame}>
@@ -200,9 +244,13 @@ export const AsideContent = props => {
                 </div>
               ) : null}
 
-              {locationLabel ? (
+              {locationLabel || geolocationForMap ? (
                 <div className={css.stickerInfoRow}>
-                  <span className={css.stickerMiniBadge}>📍 {locationLabel}</span>
+                  <span className={css.stickerMiniBadge}>
+                    📍{' '}
+                    {locationLabel ||
+                      intl.formatMessage({ id: 'ProfilePage.stickerLocationOnMap' })}
+                  </span>
                 </div>
               ) : null}
 
@@ -214,6 +262,12 @@ export const AsideContent = props => {
             </div>
           </div>
         </div>
+
+        {mapProps ? (
+          <div className={css.stickerMapWrap}>
+            <Map {...mapProps} useStaticMap mapsConfig={mapsConfig} />
+          </div>
+        ) : null}
 
         <div className={css.stickerBottomRow}>
           <div className={css.stickerStars} aria-hidden>
@@ -470,10 +524,12 @@ export const MainContent = props => {
   });
 
   const experienceText = formatCoachExperienceLabel(intl, publicData?.experience);
-  const formattedSportsSticker = formatProfileSportsForSticker(intl, publicData?.sports);
+  const listingForSticker = pickRepresentativeListing(listings);
+  const stickerSource = resolveCoachStickerDisplay(publicData, listingForSticker);
+  const formattedSportsSticker = formatProfileSportsForSticker(intl, stickerSource.sports);
   const coachingLanguages =
-    Array.isArray(publicData?.languages) && publicData.languages.length > 0
-      ? publicData.languages
+    stickerSource.languages.length > 0
+      ? stickerSource.languages
           .map(code => stickerLanguageLabel(intl, code))
           .filter(Boolean)
           .join(' • ')

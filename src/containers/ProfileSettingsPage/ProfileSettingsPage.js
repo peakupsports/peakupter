@@ -13,6 +13,10 @@ import {
   pickUserFieldsData,
   showCreateListingLinkForUser,
 } from '../../util/userHelpers';
+import {
+  coachMapLocationFromPublicData,
+  publicDataPatchFromCoachMapLocation,
+} from '../../util/coachMapLocationForm';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
 import { H3, Page, UserNav, NamedLink, LayoutSingleColumn } from '../../components';
@@ -88,7 +92,8 @@ export const ProfileSettingsPageComponent = props => {
   const publicUserFields = userFields.filter(uf => uf.scope === 'public');
 
   const handleSubmit = (values, userType) => {
-    const { firstName, lastName, displayName, bio: rawBio, ...rest } = values;
+    const { firstName, lastName, displayName, bio: rawBio, pub_coachMapLocation, ...rest } =
+      values;
 
     const displayNameMaybe = displayName
       ? { displayName: displayName.trim() }
@@ -97,12 +102,16 @@ export const ProfileSettingsPageComponent = props => {
     // Ensure that the optional bio is a string
     const bio = rawBio || '';
 
+    const coachLocationPatch = publicDataPatchFromCoachMapLocation(pub_coachMapLocation);
+
     const profile = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       ...displayNameMaybe,
       bio,
+      /* coachCityText from form overwrites address derived from map; lat/lng/location come from map patch */
       publicData: {
+        ...coachLocationPatch,
         ...pickUserFieldsData(rest, 'public', userType, userFields),
       },
     };
@@ -140,6 +149,7 @@ export const ProfileSettingsPageComponent = props => {
         ...displayNameMaybe,
         bio,
         profileImage: user.profileImage,
+        pub_coachMapLocation: coachMapLocationFromPublicData(publicData),
         ...initialValuesForUserFields(publicData, 'public', userType, userFields),
       }}
       profileImage={profileImage}

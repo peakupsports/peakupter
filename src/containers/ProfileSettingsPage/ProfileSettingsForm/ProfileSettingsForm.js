@@ -10,7 +10,8 @@ import { ensureCurrentUser } from '../../../util/data';
 import { propTypes } from '../../../util/types';
 import * as validators from '../../../util/validators';
 import { isUploadImageOverLimitError } from '../../../util/errors';
-import { getPropsForCustomUserFieldInputs } from '../../../util/userHelpers';
+import { addScopePrefix, getPropsForCustomUserFieldInputs } from '../../../util/userHelpers';
+import { PEAK_UP_COACH_PROFILE_KEYS } from '../../../config/configPeakUpCoachUserFields';
 
 import {
   Form,
@@ -25,11 +26,27 @@ import {
 
 import css from './ProfileSettingsForm.module.css';
 
+import FieldCoachMapLocation from './FieldCoachMapLocation';
+
+const PEAK_UP_PROFILE_FIELD_KEYS = new Set(PEAK_UP_COACH_PROFILE_KEYS);
+
+const PUB_SPORTS_KEY = addScopePrefix('public', 'sports');
+const PUB_LANGUAGES_KEY = addScopePrefix('public', 'languages');
+const PUB_CURRENCY_KEY = addScopePrefix('public', 'currency');
+const PUB_PRICE_FROM_KEY = addScopePrefix('public', 'priceFrom');
+
+const PEAK_ROW_SPORTS_LANG_KEYS = new Set([PUB_SPORTS_KEY, PUB_LANGUAGES_KEY]);
+const PEAK_ROW_PRICING_KEYS = new Set([PUB_CURRENCY_KEY, PUB_PRICE_FROM_KEY]);
+
+/** Console user fields (public) — same row under display name */
+const PUB_EXPERIENCE_KEY = addScopePrefix('public', 'experience');
+const PUB_COUNTRY_KEY = addScopePrefix('public', 'country');
+
 const ACCEPT_IMAGES = 'image/*';
 const UPLOAD_CHANGE_DELAY = 2000; // Show spinner so that browser has time to load img srcset
 
 const DisplayNameMaybe = props => {
-  const { userTypeConfig, intl } = props;
+  const { userTypeConfig, intl, embeddedInProfileHero } = props;
 
   const isDisabled = userTypeConfig?.defaultUserFields?.displayName === false;
   if (isDisabled) {
@@ -49,27 +66,30 @@ const DisplayNameMaybe = props => {
       }
     : {};
 
+  const wrapClass = embeddedInProfileHero ? css.displayNameInHero : css.sectionContainer;
+
   return (
-    <div className={css.sectionContainer}>
-      <H4 as="h2" className={css.sectionTitle}>
-        <FormattedMessage id="ProfileSettingsForm.displayNameHeading" />
-      </H4>
+    <div className={wrapClass}>
+      {!embeddedInProfileHero ? (
+        <H4 as="h2" className={css.sectionTitle}>
+          <FormattedMessage id="ProfileSettingsForm.displayNameHeading" />
+        </H4>
+      ) : null}
       <FieldTextInput
         className={css.row}
         type="text"
         id="displayName"
         name="displayName"
         label={intl.formatMessage({
-          id: 'ProfileSettingsForm.displayNameLabel',
+          id: embeddedInProfileHero
+            ? 'ProfileSettingsForm.displayNameHeading'
+            : 'ProfileSettingsForm.displayNameLabel',
         })}
         placeholder={intl.formatMessage({
           id: 'ProfileSettingsForm.displayNamePlaceholder',
         })}
         {...validateMaybe}
       />
-      <p className={css.extraInfo}>
-        <FormattedMessage id="ProfileSettingsForm.displayNameInfo" />
-      </p>
     </div>
   );
 };
@@ -269,6 +289,41 @@ class ProfileSettingsFormComponent extends Component {
             false
           );
 
+          const peakUpFieldProps = userFieldProps.filter(p =>
+            PEAK_UP_PROFILE_FIELD_KEYS.has(p.key)
+          );
+          const coachPeakSportsLanguages = peakUpFieldProps.filter(p =>
+            PEAK_ROW_SPORTS_LANG_KEYS.has(p.key)
+          );
+          const coachPeakPricing = peakUpFieldProps.filter(p => PEAK_ROW_PRICING_KEYS.has(p.key));
+          const coachPeakRemaining = peakUpFieldProps.filter(
+            p => !PEAK_ROW_SPORTS_LANG_KEYS.has(p.key) && !PEAK_ROW_PRICING_KEYS.has(p.key)
+          );
+          const otherUserFieldProps = userFieldProps.filter(
+            p => !PEAK_UP_PROFILE_FIELD_KEYS.has(p.key)
+          );
+          const experienceFieldForHero = otherUserFieldProps.find(
+            p => p.key === PUB_EXPERIENCE_KEY
+          );
+          const countryFieldForHero = otherUserFieldProps.find(p => p.key === PUB_COUNTRY_KEY);
+          const otherUserFieldPropsRest = otherUserFieldProps.filter(
+            p => p.key !== PUB_EXPERIENCE_KEY && p.key !== PUB_COUNTRY_KEY
+          );
+          let experienceHeroFieldProps = null;
+          if (experienceFieldForHero) {
+            const { key, ...rest } = experienceFieldForHero;
+            experienceHeroFieldProps = { key, rest };
+          }
+          let countryHeroFieldProps = null;
+          if (countryFieldForHero) {
+            const { key, ...rest } = countryFieldForHero;
+            countryHeroFieldProps = { key, rest };
+          }
+
+          const coachHasSportsAndLanguages =
+            coachPeakSportsLanguages.some(p => p.key === PUB_SPORTS_KEY) &&
+            coachPeakSportsLanguages.some(p => p.key === PUB_LANGUAGES_KEY);
+
           return (
             <Form
               className={classes}
@@ -281,100 +336,133 @@ class ProfileSettingsFormComponent extends Component {
                 <H4 as="h2" className={css.sectionTitle}>
                   <FormattedMessage id="ProfileSettingsForm.yourProfilePicture" />
                 </H4>
-                <Field
-                  accept={ACCEPT_IMAGES}
-                  id="profileImage"
-                  name="profileImage"
-                  label={chooseAvatarLabel}
-                  type="file"
-                  form={null}
-                  uploadImageError={uploadImageError}
-                  disabled={uploadInProgress}
-                >
-                  {fieldProps => {
-                    const { accept, id, input, label, disabled, uploadImageError } = fieldProps;
-                    const { name, type } = input;
-                    const onChange = e => {
-                      const file = e.target.files[0];
-                      form.change(`profileImage`, file);
-                      form.blur(`profileImage`);
-                      if (file != null) {
-                        const tempId = `${file.name}_${Date.now()}`;
-                        onImageUpload({ id: tempId, file });
-                      }
-                    };
+                <div className={css.profilePictureLayout}>
+                  <div className={css.profilePictureColLeft}>
+                    <Field
+                      accept={ACCEPT_IMAGES}
+                      id="profileImage"
+                      name="profileImage"
+                      label={chooseAvatarLabel}
+                      type="file"
+                      form={null}
+                      uploadImageError={uploadImageError}
+                      disabled={uploadInProgress}
+                    >
+                      {fieldProps => {
+                        const { accept, id, input, label, disabled, uploadImageError } = fieldProps;
+                        const { name, type } = input;
+                        const onChange = e => {
+                          const file = e.target.files[0];
+                          form.change(`profileImage`, file);
+                          form.blur(`profileImage`);
+                          if (file != null) {
+                            const tempId = `${file.name}_${Date.now()}`;
+                            onImageUpload({ id: tempId, file });
+                          }
+                        };
 
-                    let error = null;
+                        let error = null;
 
-                    if (isUploadImageOverLimitError(uploadImageError)) {
-                      error = (
-                        <div className={css.error}>
-                          <FormattedMessage id="ProfileSettingsForm.imageUploadFailedFileTooLarge" />
-                        </div>
-                      );
-                    } else if (uploadImageError) {
-                      error = (
-                        <div className={css.error}>
-                          <FormattedMessage id="ProfileSettingsForm.imageUploadFailed" />
-                        </div>
-                      );
-                    }
+                        if (isUploadImageOverLimitError(uploadImageError)) {
+                          error = (
+                            <div className={css.error}>
+                              <FormattedMessage id="ProfileSettingsForm.imageUploadFailedFileTooLarge" />
+                            </div>
+                          );
+                        } else if (uploadImageError) {
+                          error = (
+                            <div className={css.error}>
+                              <FormattedMessage id="ProfileSettingsForm.imageUploadFailed" />
+                            </div>
+                          );
+                        }
 
-                    return (
-                      <div className={css.uploadAvatarWrapper}>
-                        <label className={css.label} htmlFor={id}>
-                          {label}
-                        </label>
-                        <input
-                          accept={accept}
-                          id={id}
-                          name={name}
-                          className={css.uploadAvatarInput}
-                          disabled={disabled}
-                          onChange={onChange}
-                          type={type}
-                        />
-                        {error}
+                        return (
+                          <div className={css.uploadAvatarWrapper}>
+                            <label className={css.label} htmlFor={id}>
+                              {label}
+                            </label>
+                            <input
+                              accept={accept}
+                              id={id}
+                              name={name}
+                              className={css.uploadAvatarInput}
+                              disabled={disabled}
+                              onChange={onChange}
+                              type={type}
+                            />
+                            {error}
+                          </div>
+                        );
+                      }}
+                    </Field>
+                    <div className={css.profilePictureColHelp}>
+                      <div className={css.tip}>
+                        <FormattedMessage id="ProfileSettingsForm.tip" />
                       </div>
-                    );
-                  }}
-                </Field>
-                <div className={css.tip}>
-                  <FormattedMessage id="ProfileSettingsForm.tip" />
-                </div>
-                <div className={css.fileInfo}>
-                  <FormattedMessage id="ProfileSettingsForm.fileInfo" />
+                      <div className={css.fileInfo}>
+                        <FormattedMessage id="ProfileSettingsForm.fileInfo" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className={css.profilePictureColRight}>
+                    <div className={css.nameFieldsInHero}>
+                      <H4 as="h2" className={classNames(css.sectionTitle, css.subsectionTitle)}>
+                        <FormattedMessage id="ProfileSettingsForm.yourName" />
+                      </H4>
+                      <div className={css.nameContainer}>
+                        <FieldTextInput
+                          className={css.firstName}
+                          type="text"
+                          id="firstName"
+                          name="firstName"
+                          label={firstNameLabel}
+                          placeholder={firstNamePlaceholder}
+                          validate={firstNameRequired}
+                        />
+                        <FieldTextInput
+                          className={css.lastName}
+                          type="text"
+                          id="lastName"
+                          name="lastName"
+                          label={lastNameLabel}
+                          placeholder={lastNamePlaceholder}
+                          validate={lastNameRequired}
+                        />
+                      </div>
+                    </div>
+                    <DisplayNameMaybe
+                      embeddedInProfileHero
+                      userTypeConfig={userTypeConfig}
+                      intl={intl}
+                    />
+                    {countryHeroFieldProps || experienceHeroFieldProps ? (
+                      <div className={css.profileHeroMetaRow}>
+                        {countryHeroFieldProps ? (
+                          <div className={css.profileHeroMetaCol}>
+                            <CustomExtendedDataField
+                              key={countryHeroFieldProps.key}
+                              {...countryHeroFieldProps.rest}
+                              formId={formId}
+                            />
+                          </div>
+                        ) : null}
+                        {experienceHeroFieldProps ? (
+                          <div className={css.profileHeroMetaCol}>
+                            <CustomExtendedDataField
+                              key={experienceHeroFieldProps.key}
+                              {...experienceHeroFieldProps.rest}
+                              formId={formId}
+                            />
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
               </div>
+
               <div className={css.sectionContainer}>
-                <H4 as="h2" className={css.sectionTitle}>
-                  <FormattedMessage id="ProfileSettingsForm.yourName" />
-                </H4>
-                <div className={css.nameContainer}>
-                  <FieldTextInput
-                    className={css.firstName}
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    label={firstNameLabel}
-                    placeholder={firstNamePlaceholder}
-                    validate={firstNameRequired}
-                  />
-                  <FieldTextInput
-                    className={css.lastName}
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    label={lastNameLabel}
-                    placeholder={lastNamePlaceholder}
-                    validate={lastNameRequired}
-                  />
-                </div>
-              </div>
-
-              <DisplayNameMaybe userTypeConfig={userTypeConfig} intl={intl} />
-
-              <div className={classNames(css.sectionContainer)}>
                 <H4 as="h2" className={css.sectionTitle}>
                   <FormattedMessage id="ProfileSettingsForm.bioHeading" />
                 </H4>
@@ -389,10 +477,66 @@ class ProfileSettingsFormComponent extends Component {
                   <FormattedMessage id="ProfileSettingsForm.bioInfo" values={{ marketplaceName }} />
                 </p>
               </div>
+              {otherUserFieldPropsRest.length > 0 ? (
+                <div className={css.sectionContainer}>
+                  {otherUserFieldPropsRest.map(({ key, ...fieldProps }) => (
+                    <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
+                  ))}
+                </div>
+              ) : null}
+
               <div className={classNames(css.sectionContainer, css.lastSection)}>
-                {userFieldProps.map(({ key, ...fieldProps }) => (
+                <H4 as="h2" className={css.sectionTitle}>
+                  <FormattedMessage id="ProfileSettingsForm.coachProfileHeading" />
+                </H4>
+                <p className={css.extraInfo}>
+                  {peakUpFieldProps.length > 0 ? (
+                    <FormattedMessage id="ProfileSettingsForm.coachProfileInfo" />
+                  ) : (
+                    <FormattedMessage id="ProfileSettingsForm.coachLocationOnlyInfo" />
+                  )}
+                </p>
+                {coachPeakSportsLanguages.length > 0 ? (
+                  <div
+                    className={
+                      coachHasSportsAndLanguages
+                        ? css.coachSportsLangTripleGrid
+                        : css.coachRowTwoCol
+                    }
+                  >
+                    {coachPeakSportsLanguages.map(({ key, ...fieldProps }) => (
+                      <div
+                        key={key}
+                        className={
+                          coachHasSportsAndLanguages
+                            ? key === PUB_SPORTS_KEY
+                              ? css.coachTripleSports
+                              : key === PUB_LANGUAGES_KEY
+                              ? css.coachTripleLanguages
+                              : css.coachTripleOther
+                            : undefined
+                        }
+                      >
+                        <CustomExtendedDataField
+                          {...fieldProps}
+                          formId={formId}
+                          checkboxTwoColumns={key === PUB_SPORTS_KEY && coachHasSportsAndLanguages}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+                {coachPeakPricing.length > 0 ? (
+                  <div className={css.coachRowTwoCol}>
+                    {coachPeakPricing.map(({ key, ...fieldProps }) => (
+                      <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
+                    ))}
+                  </div>
+                ) : null}
+                {coachPeakRemaining.map(({ key, ...fieldProps }) => (
                   <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
                 ))}
+                <FieldCoachMapLocation formId={formId} />
               </div>
               {submitError}
               <Button

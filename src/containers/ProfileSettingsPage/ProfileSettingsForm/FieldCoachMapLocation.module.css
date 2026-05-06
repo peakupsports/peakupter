@@ -1,0 +1,40 @@
+@import '../../../styles/customMediaQueries.css';
+
+.root {
+  margin-bottom: 24px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 32px;
+  }
+}
+
+.field {
+  width: 100%;
+}
+
+.locationRoot {
+  position: relative;
+  width: 100%;
+}
+
+.locationInput {
+}
+
+.locationIcon {
+  display: none;
+}
+
+.predictionsRoot {
+  position: absolute;
+  width: 100%;
+  top: 50px;
+  left: 0;
+  background-color: var(--marketplaceColor);
+  border-bottom-left-radius: var(--borderRadius);
+  border-bottom-right-radius: var(--borderRadius);
+  box-shadow: var(--boxShadowPopup);
+  z-index: calc(var(--zIndexPopup) + 1);
+}
+
+.validLocation {
+}
