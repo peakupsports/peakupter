@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 
 import appSettings from '../../../config/settings';
@@ -17,6 +17,7 @@ import {
   LinkedLogo,
   Modal,
   ModalMissingInformation,
+  SportBar,
 } from '../../../components';
 import { getSearchPageResourceLocatorStringParams } from '../../SearchPage/SearchPage.shared';
 
@@ -239,6 +240,7 @@ const TopbarComponent = props => {
   const sortedCustomLinks = sortCustomLinks(config.topbar?.customLinks);
   const customLinks = getResolvedCustomLinks(sortedCustomLinks, routeConfiguration);
   const resolvedCurrentPage = currentPage || getResolvedCurrentPage(location, routeConfiguration);
+  const [landingSport, setLandingSport] = useState('');
 
   const notificationDot = notificationCount > 0 ? <div className={css.notificationDot} /> : null;
 
@@ -297,6 +299,30 @@ const TopbarComponent = props => {
 
   const showSearchForm =
     !disableSearch && (showSearchOnAllPages || showSearchOnSearchPage || showSearchNotOnLandingPage);
+
+  const landingSportBarCenterContent = useMemo(() => {
+    if (resolvedCurrentPage !== 'LandingPage') return null;
+    return (
+      <div className={css.landingSportBarCenterScale}>
+        <SportBar
+          value={landingSport}
+          inTopbar
+          onChange={next => {
+            setLandingSport(next);
+            const queryParams = next ? { sport: next } : {};
+            const to = createResourceLocatorString(
+              'CoachMapPage',
+              routeConfiguration,
+              {},
+              queryParams
+            );
+            history.push(to);
+          }}
+          allLabel="All sports"
+        />
+      </div>
+    );
+  }, [resolvedCurrentPage, landingSport, routeConfiguration, history]);
 
   const mobileSearchButtonMaybe = showSearchForm ? (
     <Button
@@ -382,10 +408,10 @@ const TopbarComponent = props => {
           onSearchSubmit={handleSubmit}
           config={config}
           customLinks={customLinks}
-          showSearchForm={showSearchForm}
+          showSearchForm={resolvedCurrentPage === 'LandingPage' ? false : showSearchForm}
           showCreateListingsLink={showCreateListingsLink}
           inboxTab={topbarInboxTab}
-          topbarCenterContent={topbarCenterContent}
+          topbarCenterContent={resolvedCurrentPage === 'LandingPage' ? landingSportBarCenterContent : topbarCenterContent}
         />
       </div>
       <Modal

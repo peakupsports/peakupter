@@ -3,6 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { storableError } from '../util/errors';
 import { denormalisedResponseEntities } from '../util/data';
 import { createImageVariantConfig } from '../util/sdkLoader';
+import { REVIEW_TYPE_OF_PROVIDER } from '../util/types';
 import { mergeListingsByAuthor } from '../util/coachExplore';
 import {
   peakupCoachBadgePriorityFor,
@@ -22,6 +23,45 @@ import { addMarketplaceEntities } from './marketplaceData.duck';
 const MAX_LISTING_PAGES = 1;
 const PER_PAGE = 50;
 const MAX_FEATURED_COACHES = 18;
+const REVIEW_CONCURRENCY = 5;
+
+const fetchReviewStatsForAuthor = async (sdk, authorUuid) => {
+  const res = await sdk.reviews.query({
+    subject_id: authorUuid,
+    state: 'public',
+    perPage: 100,
+    page: 1,
+  });
+  const rows = denormalisedResponseEntities(res);
+  const ofProvider = rows.filter(r => r.attributes?.type === REVIEW_TYPE_OF_PROVIDER);
+  const count = ofProvider.length;
+  const sum = ofProvider.reduce((acc, r) => acc + (r.attributes?.rating || 0), 0);
+  return { count, average: count > 0 ? sum / count : null };
+};
+
+const batchedReviewStats = async (sdk, authorUuids) => {
+  const stats = {};
+  const queue = [...new Set(authorUuids)].filter(Boolean);
+
+  while (queue.length) {
+    const batch = queue.splice(0, REVIEW_CONCURRENCY);
+    // eslint-disable-next-line no-await-in-loop
+    const results = await Promise.all(
+      batch.map(async uuid => {
+        try {
+          const r = await fetchReviewStatsForAuthor(sdk, uuid);
+          return { uuid, stats: r };
+        } catch {
+          return { uuid, stats: { count: 0, average: null } };
+        }
+      })
+    );
+    results.forEach(({ uuid, stats: s }) => {
+      stats[uuid] = s;
+    });
+  }
+  return stats;
+};
 
 export const fetchFeaturedCoachesThunk = createAsyncThunk(
   'featuredCoaches/fetch',
@@ -159,9 +199,23 @@ export const fetchFeaturedCoachesThunk = createAsyncThunk(
   }
 );
 
+export const fetchFeaturedCoachReviewsThunk = createAsyncThunk(
+  'featuredCoaches/fetchReviews',
+  async ({ authorUuids }, { rejectWithValue, extra: sdk }) => {
+    try {
+      const stats = await batchedReviewStats(sdk, authorUuids || []);
+      return { stats };
+    } catch (e) {
+      return rejectWithValue(storableError(e));
+    }
+  }
+);
+
 const initialState = {
   fetchStatus: 'idle',
   fetchError: null,
+  reviewsStatus: 'idle',
+  reviewsError: null,
   /** @type {Array<{ authorUuid: string, listingId: string|null, sportKeys: string[], reviewCount: number, reviewAverage: number|null, badgeIds: string[], badgePriority: number }>} */
   coaches: [],
 };
@@ -185,10 +239,37 @@ const slice = createSlice({
         state.fetchStatus = 'succeeded';
         state.fetchError = null;
         state.coaches = action.payload.coaches;
+        // new list → allow reviews refetch
+        state.reviewsStatus = 'idle';
+        state.reviewsError = null;
       })
       .addCase(fetchFeaturedCoachesThunk.rejected, (state, action) => {
         state.fetchStatus = 'failed';
         state.fetchError = action.payload;
+      });
+
+    builder
+      .addCase(fetchFeaturedCoachReviewsThunk.pending, state => {
+        state.reviewsStatus = 'loading';
+        state.reviewsError = null;
+      })
+      .addCase(fetchFeaturedCoachReviewsThunk.fulfilled, (state, action) => {
+        state.reviewsStatus = 'succeeded';
+        state.reviewsError = null;
+        const stats = action.payload?.stats || {};
+        state.coaches = (state.coaches || []).map(c => {
+          const s = stats[c.authorUuid];
+          if (!s) return c;
+          return {
+            ...c,
+            reviewCount: s.count || 0,
+            reviewAverage: s.average ?? null,
+          };
+        });
+      })
+      .addCase(fetchFeaturedCoachReviewsThunk.rejected, (state, action) => {
+        state.reviewsStatus = 'failed';
+        state.reviewsError = action.payload;
       });
   },
 });
@@ -202,3 +283,4 @@ export default slice.reducer;
  * @param {{ config: any }} args
  */
 export const fetchFeaturedCoaches = args => fetchFeaturedCoachesThunk(args);
+export const fetchFeaturedCoachReviews = args => fetchFeaturedCoachReviewsThunk(args);

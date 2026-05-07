@@ -102,7 +102,15 @@ const initialWinterAccordion = (value, includeWinterVariants) => {
  * Con `includeWinterVariants` le varianti ski/snowboard sono in un pannello accordion (Coach map).
  */
 export const SportBar = props => {
-  const { value, onChange, showAll = true, allLabel = 'All', includeWinterVariants = false } = props;
+  const {
+    value,
+    onChange,
+    showAll = true,
+    allLabel = 'All',
+    includeWinterVariants = false,
+    inTopbar = false,
+    winterBare = false,
+  } = props;
 
   const [expandedWinter, setExpandedWinter] = useState(() =>
     initialWinterAccordion(value, includeWinterVariants)
@@ -159,9 +167,14 @@ export const SportBar = props => {
   };
 
   return (
-    <div className={css.root}>
-      <div className={css.wrap}>
-        <div className={css.inner}>
+    <div
+      className={classNames(css.root, {
+        [css.rootInTopbar]: inTopbar,
+        [css.rootWinterBare]: winterBare,
+      })}
+    >
+      <div className={classNames(css.wrap, { [css.wrapInTopbar]: inTopbar })}>
+        <div className={classNames(css.inner, { [css.innerInTopbar]: inTopbar })}>
           {showAll ? (
             <button
               type="button"

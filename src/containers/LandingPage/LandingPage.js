@@ -10,7 +10,7 @@ import { propTypes } from '../../util/types';
 
 import FallbackPage from './FallbackPage';
 import { ASSET_NAME } from './LandingPage.duck';
-import { fetchFeaturedCoaches } from '../../ducks/featuredCoaches.duck';
+import { fetchFeaturedCoaches, fetchFeaturedCoachReviews } from '../../ducks/featuredCoaches.duck';
 import { fetchFeaturedListings } from '../../ducks/featuredListings.duck';
 import { getListingsById } from '../../ducks/marketplaceData.duck';
 import { getFeaturedListingsProps } from '../../util/data';
@@ -101,6 +101,8 @@ const mapDispatchToProps = dispatch => ({
     dispatch(fetchFeaturedListings({ sectionId, parentPage, listingImageConfig, allSections })),
   featuredCoachesProps: {
     onFetchFeaturedCoaches: ({ config } = {}) => dispatch(fetchFeaturedCoaches({ config })),
+    onFetchFeaturedCoachReviews: ({ authorUuids } = {}) =>
+      dispatch(fetchFeaturedCoachReviews({ authorUuids })),
   },
 });
 

@@ -342,17 +342,7 @@ const PeakUpCoachFigurineCard = props => {
                 </div>
               ) : null}
 
-              {sportIcons.length > 0 ? (
-                <div className={css.stickerInfoOverlay}>
-                  <div className={css.stickerInfoRow}>
-                    {sportIcons.map(s => (
-                      <span key={s.key} className={css.stickerMiniBadge} title={s.label}>
-                        {s.emoji}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
+              {/** Sport emojis moved to footer next to CTA (see footerSportBadges). */}
             </div>
           </div>
         </div>
@@ -366,17 +356,14 @@ const PeakUpCoachFigurineCard = props => {
                 </span>
               ))}
             </div>
-          </div>
 
-          <div className={css.stickerFooterMeta}>
             {reviewCount > 0 ? (
               <span className={css.reviewMeta}>
                 <FormattedMessage
                   id="PeakUpCoachFigurineCard.reviewMeta"
                   defaultMessage="{rating} · {count, plural, one {# review} other {# reviews}}"
                   values={{
-                    rating:
-                      typeof reviewAverage === 'number' ? reviewAverage.toFixed(1) : '—',
+                    rating: typeof reviewAverage === 'number' ? reviewAverage.toFixed(1) : '—',
                     count: reviewCount,
                   }}
                 />
@@ -389,13 +376,23 @@ const PeakUpCoachFigurineCard = props => {
                 />
               </span>
             )}
+          </div>
 
+          <div className={css.stickerFooterMeta}>
+            {sportIcons.length > 0 ? (
+              <div className={css.footerSportBadges} aria-label="Sports">
+                {sportIcons.map(s => (
+                  <span key={s.key} className={css.footerSportBadge} title={s.label}>
+                    {s.emoji}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span />
+            )}
             {profileId ? (
               <NamedLink className={css.cta} name="ProfilePage" params={{ id: profileId }}>
-                <FormattedMessage
-                  id="PeakUpCoachFigurineCard.cta"
-                  defaultMessage="View profile"
-                />
+                <FormattedMessage id="PeakUpCoachFigurineCard.cta" defaultMessage="View profile" />
               </NamedLink>
             ) : null}
           </div>

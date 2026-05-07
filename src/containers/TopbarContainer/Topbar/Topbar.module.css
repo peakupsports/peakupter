@@ -166,6 +166,11 @@
   }
 }
 
+.landingSportBarCenterScale {
+  transform: scale(0.85);
+  transform-origin: center;
+}
+
 /* Icon component styles */
 .rootMenuIcon {
   fill: var(--colorGrey700);

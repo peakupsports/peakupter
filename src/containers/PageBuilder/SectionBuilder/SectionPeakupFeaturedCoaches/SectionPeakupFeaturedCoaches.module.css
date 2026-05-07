@@ -63,7 +63,7 @@
 }
 
 .scroller::-webkit-scrollbar {
-  height: 8px;
+  height: 12px;
 }
 
 .scroller::-webkit-scrollbar-track {
@@ -73,6 +73,8 @@
 .scroller::-webkit-scrollbar-thumb {
   background: var(--colorGrey300);
   border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .scrollerItem {

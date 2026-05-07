@@ -62,6 +62,14 @@
   justify-content: center;
 }
 
+.centerSlotLanding {
+  /* Landing: no "logo sidebar" divider feel */
+  border-left: none;
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .search {
   font-weight: var(--fontWeightMedium);
   font-size: 15px;

@@ -193,7 +193,13 @@ const TopbarDesktop = props => {
       appConfig={config}
     />
   ) : topbarCenterContent ? (
-    <div className={classNames(css.centerSlot, { [css.takeAvailableSpace]: giveSpaceForSearch })}>
+    <div
+      className={classNames(
+        css.centerSlot,
+        { [css.takeAvailableSpace]: giveSpaceForSearch },
+        currentPage === 'LandingPage' ? css.centerSlotLanding : null
+      )}
+    >
       {topbarCenterContent}
     </div>
   ) : (

@@ -21,6 +21,33 @@
   isolation: isolate;
 }
 
+.stickerCard {
+  transform: translateZ(0);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+  will-change: transform;
+}
+
+.root:hover .stickerCard {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 18px 54px rgba(16, 33, 62, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.root:focus-within .stickerCard {
+  transform: translateY(-1px) scale(1.01);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stickerCard {
+    transition: none;
+  }
+  .root:hover .stickerCard,
+  .root:focus-within .stickerCard {
+    transform: none;
+  }
+}
+
 /* Medaglia da podio: angolo alto-destro, nastro pendulo. `currentColor` riempie il
  * disco metallico (gold/silver/bronze) → vedi varianti `.medal_*`. */
 .podiumMedal {
@@ -446,8 +473,10 @@
 /* Colonna bandiere lingue: dentro la foto, lato destro, una sopra l'altra. */
 .stickerLanguagesColumn {
   position: absolute;
-  right: 8px;
-  top: 8px;
+  left: 8px;
+  bottom: 8px;
+  right: auto;
+  top: auto;
   z-index: 3;
   display: flex;
   flex-direction: column;
@@ -511,9 +540,9 @@
 
 .stickerBottomRow {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin: 0;
   padding: 0;
 }
@@ -538,7 +567,34 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
+}
+
+.footerSportBadges {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.footerSportBadge:first-child {
+  /* Align first sport emoji under the language flag column (bottom-left of photo). */
+  margin-left: 8px;
+}
+
+.footerSportBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(28, 36, 48, 0.78);
+  border: 1px solid rgba(201, 162, 39, 0.28);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  font-size: 14px;
+  line-height: 1;
+  flex: 0 0 auto;
 }
 
 .reviewMeta {
@@ -546,6 +602,7 @@
   color: var(--stickerNavy);
   font-weight: var(--fontWeightSemiBold);
   letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .reviewMetaMuted {

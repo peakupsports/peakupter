@@ -6,7 +6,10 @@ import { useSelector } from 'react-redux';
 import { useConfiguration } from '../../../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 import { getMarketplaceEntities } from '../../../../ducks/marketplaceData.duck';
-import { resolvePeakupCoachBadgeIds } from '../../../../util/profileCoachSticker';
+import {
+  comparePeakupFeaturedCoaches,
+  resolvePeakupCoachBadgeIds,
+} from '../../../../util/profileCoachSticker';
 
 // Shared components (relative path keeps src/components/index.js import order intact)
 import {
@@ -62,7 +65,8 @@ const selectFeaturedCoachCards = state => {
         badgePriority: row.badgePriority || 0,
       };
     })
-    .filter(Boolean);
+    .filter(Boolean)
+    .sort(comparePeakupFeaturedCoaches);
 };
 
 /** Quanto scorrere a ogni click sulle frecce (≈ una card + gap). */
@@ -94,15 +98,24 @@ const SectionPeakupFeaturedCoaches = props => {
   } = props;
 
   const featuredCoaches = options?.featuredCoaches || {};
-  const { onFetchFeaturedCoaches } = featuredCoaches;
+  const { onFetchFeaturedCoaches, onFetchFeaturedCoachReviews } = featuredCoaches;
 
   const fetchStatus = useSelector(state => state.featuredCoaches?.fetchStatus || 'idle');
   const fetchError = useSelector(state => state.featuredCoaches?.fetchError || null);
+  const reviewsStatus = useSelector(state => state.featuredCoaches?.reviewsStatus || 'idle');
   const cards = useSelector(selectFeaturedCoachCards);
   const hasMissingUserPublicData = cards.some(
     c => !c?.author?.attributes?.profile?.publicData
   );
+  const hasMissingAvatarVariants = cards.some(c => {
+    const img = c?.author?.profileImage;
+    if (!img?.id) return false;
+    const variants = img?.attributes?.variants || {};
+    // Card uses square-small(2x)/default fallback. If none exist, it will show placeholder.
+    return !variants['square-small'] && !variants['square-small2x'] && !variants['default'];
+  });
   const didRefetchForUserPublicDataRef = useRef(false);
+  const didRefetchForAvatarVariantsRef = useRef(false);
 
   useEffect(() => {
     if (fetchStatus === 'idle' && typeof onFetchFeaturedCoaches === 'function') {
@@ -111,6 +124,16 @@ const SectionPeakupFeaturedCoaches = props => {
     // We intentionally only react to fetchStatus 'idle': avoids refetch storms on tab focus.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchStatus, onFetchFeaturedCoaches]);
+
+  useEffect(() => {
+    if (fetchStatus !== 'succeeded') return;
+    if (!cards.length) return;
+    if (reviewsStatus !== 'idle') return;
+    if (typeof onFetchFeaturedCoachReviews !== 'function') return;
+
+    const authorUuids = cards.map(c => c.authorUuid).filter(Boolean);
+    onFetchFeaturedCoachReviews({ authorUuids });
+  }, [fetchStatus, cards, reviewsStatus, onFetchFeaturedCoachReviews]);
 
   useEffect(() => {
     if (
@@ -123,6 +146,18 @@ const SectionPeakupFeaturedCoaches = props => {
       onFetchFeaturedCoaches({ config });
     }
   }, [fetchStatus, hasMissingUserPublicData, onFetchFeaturedCoaches, config]);
+
+  useEffect(() => {
+    if (
+      fetchStatus === 'succeeded' &&
+      hasMissingAvatarVariants &&
+      !didRefetchForAvatarVariantsRef.current &&
+      typeof onFetchFeaturedCoaches === 'function'
+    ) {
+      didRefetchForAvatarVariantsRef.current = true;
+      onFetchFeaturedCoaches({ config });
+    }
+  }, [fetchStatus, hasMissingAvatarVariants, onFetchFeaturedCoaches, config]);
 
   const fieldComponents = options?.fieldComponents;
   const fieldOptions = { fieldComponents };
