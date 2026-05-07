@@ -1,6 +1,8 @@
 import memoize from 'lodash/memoize';
+import polyline from '@mapbox/polyline';
 import seedrandom from 'seedrandom';
 import { types as sdkTypes } from './sdkLoader';
+import { encodeLatLng, stringify } from './urlHelpers';
 
 const { LatLng, LatLngBounds } = sdkTypes;
 
@@ -212,4 +214,162 @@ export const hasSameSDKBounds = (sdkBounds1, sdkBounds2) => {
 export const getMapProviderApiAccess = mapConfig => {
   const isGoogleMapsInUse = mapConfig.mapProvider === 'googleMaps';
   return isGoogleMapsInUse ? mapConfig.googleMapsAPIKey : mapConfig.mapboxAccessToken;
+};
+
+const STATIC_MAP_MAX_DIMENSION = 640;
+
+const gbStaticFormatColorSix = color => {
+  if (typeof color !== 'string') {
+    return 'FF0000';
+  }
+  if (/^#[0-9A-F]{6}$/i.test(color)) {
+    return color.substring(1).toUpperCase();
+  }
+  if (/^[0-9A-F]{6}$/i.test(color)) {
+    return color.toUpperCase();
+  }
+  return 'FF0000';
+};
+
+const gbStaticOpacityHex = opacity => {
+  if (typeof opacity === 'number' && !Number.isNaN(opacity) && opacity >= 0 && opacity <= 1) {
+    return Math.floor(opacity * 255)
+      .toString(16)
+      .toUpperCase();
+  }
+  return '4D';
+};
+
+const gbStaticFuzzyCirclePathParam = (mapsConfig, center) => {
+  if (!(mapsConfig && typeof mapsConfig === 'object' && center && typeof center === 'object')) {
+    return '';
+  }
+  const strokeColor = mapsConfig.fuzzy?.circleColor;
+  const strokeWeight = 1;
+  const circleRadius = mapsConfig.fuzzy.offset || 500;
+  const circleStrokeWeight = strokeWeight || 1;
+  const circleStrokeColor = gbStaticFormatColorSix(strokeColor);
+  const circleStrokeOpacity = gbStaticOpacityHex(0.3);
+  const circleFill = gbStaticFormatColorSix(strokeColor);
+  const circleFillOpacity = gbStaticOpacityHex(0.2);
+  const encodedPolyline = polyline.encode(circlePolyline(center, circleRadius));
+
+  const polylineGraphicTokens = [
+    `color:0x${circleStrokeColor}${circleStrokeOpacity}`,
+    `fillcolor:0x${circleFill}${circleFillOpacity}`,
+    `weight:${circleStrokeWeight}`,
+    `enc:${encodedPolyline}`,
+  ];
+
+  return polylineGraphicTokens.join('|');
+};
+
+const mxStaticOverlayPath = (center, mapsConfig) => {
+  if (mapsConfig.fuzzy?.enabled) {
+    const strokeWeight = 1;
+    const strokeColor = mapsConfig.fuzzy.circleColor;
+    const strokeOpacity = 0.5;
+    const fillColor = mapsConfig.fuzzy.circleColor;
+    const fillOpacity = 0.2;
+    const path = circlePolyline(center, mapsConfig.fuzzy.offset);
+    const formatColor = c => String(c || '').replace(/^#/, '');
+    const styles = `-${strokeWeight}+${formatColor(strokeColor)}-${strokeOpacity}+${formatColor(
+      fillColor
+    )}-${fillOpacity}`;
+    return `path${styles}(${encodeURIComponent(polyline.encode(path))})`;
+  }
+  return `pin-s(${center.lng},${center.lat})`;
+};
+
+const latLngPlain = sdkLatLng => {
+  const lat = typeof sdkLatLng?.lat === 'number' ? sdkLatLng.lat : sdkLatLng?.latitude;
+  const lng = typeof sdkLatLng?.lng === 'number' ? sdkLatLng.lng : sdkLatLng?.longitude;
+  return { lat, lng };
+};
+
+/**
+ * URL immagine “static map” con pin (o cerchio fuzzy), senza caricare mapbox-gl / Maps JS.
+ * Stessa logica visiva degli StaticMap Listing/Search ma utilizzabile in card leggere (profilo sticker).
+ *
+ * @param {Object} mapsConfig
+ * @param {{ lat: number; lng: number }} rawCenter
+ * @param {{ width: number; height: number }} dimensions
+ * @param {number|undefined|null} zoomMaybe
+ * @param {string|null|undefined} fuzzyCacheKey chiave stabile quando fuzzy.enabled (es. id profilo)
+ * @returns {string|null}
+ */
+export const staticPinMapImageUrl = (
+  mapsConfig,
+  rawCenter,
+  dimensions,
+  zoomMaybe = null,
+  fuzzyCacheKey = null
+) => {
+  const apiAccess = mapsConfig ? getMapProviderApiAccess(mapsConfig) : null;
+  if (!mapsConfig || !apiAccess || !rawCenter) {
+    return null;
+  }
+  let { lat, lng } = rawCenter;
+  if (typeof lat !== 'number' || typeof lng !== 'number' || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return null;
+  }
+
+  let centerUsed = { lat, lng };
+
+  /** @type {number} */
+  let zoomLevel;
+  if (mapsConfig.fuzzy?.enabled) {
+    zoomLevel =
+      zoomMaybe != null ? zoomMaybe : (mapsConfig.fuzzy.defaultZoomLevel ?? 13);
+    const obf = obfuscatedCoordinates({ lat, lng }, mapsConfig.fuzzy.offset ?? 500, fuzzyCacheKey);
+    const p = latLngPlain(obf);
+    if (
+      typeof p.lat !== 'number' ||
+      typeof p.lng !== 'number' ||
+      !Number.isFinite(p.lat) ||
+      !Number.isFinite(p.lng)
+    ) {
+      return null;
+    }
+    centerUsed = p;
+  } else {
+    zoomLevel = zoomMaybe != null ? zoomMaybe : 11;
+  }
+
+  const width = Math.min(
+    STATIC_MAP_MAX_DIMENSION,
+    Math.max(1, Math.round(dimensions.width))
+  );
+  const height = Math.min(
+    STATIC_MAP_MAX_DIMENSION,
+    Math.max(1, Math.round(dimensions.height))
+  );
+
+  const isGoogle = mapsConfig.mapProvider === 'googleMaps';
+
+  if (isGoogle) {
+    const targetMaybe = mapsConfig.fuzzy?.enabled
+      ? { path: gbStaticFuzzyCirclePathParam(mapsConfig, centerUsed) }
+      : { markers: `${centerUsed.lat},${centerUsed.lng}` };
+
+    const srcParams = stringify({
+      center: encodeLatLng(centerUsed),
+      zoom: zoomLevel,
+      size: `${width}x${height}`,
+      maptype: 'roadmap',
+      key: mapsConfig.googleMapsAPIKey,
+      ...targetMaybe,
+    });
+
+    return `https://maps.googleapis.com/maps/api/staticmap?${srcParams}`;
+  }
+
+  const overlay = mxStaticOverlayPath(centerUsed, mapsConfig);
+  const overlaySeg = overlay ? `/${overlay}` : '';
+
+  return (
+    `https://api.mapbox.com/styles/v1/mapbox/streets-v10/static` +
+    `${overlaySeg}/${centerUsed.lng},${centerUsed.lat},${zoomLevel}/${width}x${height}` +
+    `?access_token=${mapsConfig.mapboxAccessToken}`
+  );
 };

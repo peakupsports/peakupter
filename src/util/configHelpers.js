@@ -1798,7 +1798,16 @@ export const mergeConfig = (configAsset = {}, defaultConfigs = {}) => {
     // - Custom links are links specified by marketplace operator (both internal and external)
     //   - Topbar tries to fit primary links to the visible space,
     //     but secondary links are always behind dropdown menu.
-    topbar: configAsset.topbar, // defaultConfigs.topbar,
+    // PeakUp: hide header listing search (discovery via explore pages; Search page keeps its own UI).
+    topbar: configAsset.topbar
+      ? {
+          ...configAsset.topbar,
+          searchBar: {
+            ...configAsset.topbar.searchBar,
+            display: 'never',
+          },
+        }
+      : { searchBar: { display: 'never' } },
 
     // Include hosted footer config, if it exists
     // Note: if footer asset is not set, Footer is not rendered.

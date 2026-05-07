@@ -1,9 +1,12 @@
 import React, { useRef, useState } from 'react';
 import { Field } from 'react-final-form';
+import { useHistory } from 'react-router-dom';
 import { useIntl } from '../../../../../util/reactIntl';
 import classNames from 'classnames';
 
 import { LocationAutocompleteInput, IconLocation } from '../../../../../components';
+import { useRouteConfiguration } from '../../../../../context/routeConfigurationContext';
+import { createResourceLocatorString } from '../../../../../util/routes';
 import css from './FilterLocation.module.css';
 
 const identity = v => v;
@@ -62,6 +65,8 @@ const LocationSearchField = props => {
 const FilterLocation = props => {
   const searchInpuRef = useRef(null);
   const intl = useIntl();
+  const history = useHistory();
+  const routeConfiguration = useRouteConfiguration();
   const {
     appConfig,
     onSubmit,
@@ -79,6 +84,13 @@ const FilterLocation = props => {
       setSubmitDisabled(true);
     } else {
       setSubmitDisabled(false);
+    }
+
+    // PeakUp: selecting "Current location" should open the coach map instead of running listing search.
+    // LocationAutocompleteInput returns current location with selectedPlace.address === ''.
+    if (location?.selectedPlace && location.selectedPlace.address === '') {
+      const to = createResourceLocatorString('CoachMapPage', routeConfiguration, {}, {});
+      history.push(to);
     }
   };
 

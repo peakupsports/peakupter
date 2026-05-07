@@ -223,19 +223,16 @@ describe('ListingPage variants', () => {
     const listingRouteConfig = routeConfiguration.find(conf => conf.name === 'ListingPage');
     const ListingPage = listingRouteConfig.component;
 
-    const { getByPlaceholderText, getByRole, queryAllByRole, getByText } = render(
-      <ListingPage {...props} />,
-      {
-        initialState,
-        config,
-        routeConfiguration,
-      }
-    );
+    const { getByRole, queryAllByRole, getByText } = render(<ListingPage {...props} />, {
+      initialState,
+      config,
+      routeConfiguration,
+    });
 
     await waitFor(() => {
-      // Has main search in Topbar and it's a location search.
-      expect(getByPlaceholderText('TopbarSearchForm.placeholder')).toBeInTheDocument();
-      expect(screen.getByTestId('location-search')).toBeInTheDocument();
+      // PeakUp: topbar listing search is disabled in merged config.
+      expect(screen.queryByPlaceholderText('TopbarSearchForm.placeholder')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('location-search')).not.toBeInTheDocument();
 
       // Has hero (coverPhoto) section
       expect(screen.getByTestId('hero')).toBeInTheDocument();
@@ -279,18 +276,15 @@ describe('ListingPage variants', () => {
     const listingRouteConfig = routeConfiguration.find(conf => conf.name === 'ListingPage');
     const ListingPage = listingRouteConfig.component;
 
-    const { getByPlaceholderText, getByRole, queryAllByRole, getByText } = render(
-      <ListingPage {...props} />,
-      {
-        initialState,
-        config,
-        routeConfiguration,
-      }
-    );
+    const { getByRole, queryAllByRole, getByText } = render(<ListingPage {...props} />, {
+      initialState,
+      config,
+      routeConfiguration,
+    });
     await waitFor(() => {
-      // Has main search in Topbar and it's a location search.
-      expect(getByPlaceholderText('TopbarSearchForm.placeholder')).toBeInTheDocument();
-      expect(screen.getByTestId('location-search')).toBeInTheDocument();
+      // PeakUp: topbar listing search is disabled in merged config.
+      expect(screen.queryByPlaceholderText('TopbarSearchForm.placeholder')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('location-search')).not.toBeInTheDocument();
 
       // Does not have hero (coverPhoto) section on carousel mode
       expect(screen.getByTestId('carousel')).toBeInTheDocument();

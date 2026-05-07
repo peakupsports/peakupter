@@ -325,7 +325,7 @@ describe('SearchPage', () => {
     const props = { ...commonProps };
     const SearchPage = getConnectedSearchPageForTests(config.layout);
 
-    const { getByPlaceholderText, getByText, getAllByText, queryByText, getByRole } = render(
+    const { getByText, getAllByText, queryByText, getByRole } = render(
       <SearchPage {...props} />,
       {
         initialState,
@@ -336,9 +336,9 @@ describe('SearchPage', () => {
     );
 
     await waitFor(() => {
-      // Has main search in Topbar and it's a location search.
-      expect(getByPlaceholderText('TopbarSearchForm.placeholder')).toBeInTheDocument();
-      expect(screen.getByTestId('location-search')).toBeInTheDocument();
+      // PeakUp: topbar listing search is disabled in merged config.
+      expect(screen.queryByPlaceholderText('TopbarSearchForm.placeholder')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('location-search')).not.toBeInTheDocument();
 
       // Has filter column
       expect(screen.getByTestId('filterColumnAside')).toBeInTheDocument();
@@ -410,27 +410,23 @@ describe('SearchPage', () => {
     const props = { ...commonProps };
     const SearchPage = getConnectedSearchPageForTests(config.layout);
 
-    const {
-      getByPlaceholderText,
-      getByText,
-      getByLabelText,
-      getAllByText,
-      queryByText,
-      getByRole,
-    } = render(<SearchPage {...props} />, {
-      initialState,
-      config,
-      routeConfiguration,
-      messages: {
-        'SearchPage.screenreader.openFilterButton': 'Filter: {label}',
-        'FieldSelectTree.screenreader.option': 'Choose {optionName}.',
-      },
-    });
+    const { getByText, getByLabelText, getAllByText, queryByText, getByRole } = render(
+      <SearchPage {...props} />,
+      {
+        initialState,
+        config,
+        routeConfiguration,
+        messages: {
+          'SearchPage.screenreader.openFilterButton': 'Filter: {label}',
+          'FieldSelectTree.screenreader.option': 'Choose {optionName}.',
+        },
+      }
+    );
 
     await waitFor(() => {
-      // Has main search in Topbar and it's a location search.
-      expect(getByPlaceholderText('TopbarSearchForm.placeholder')).toBeInTheDocument();
-      expect(screen.getByTestId('location-search')).toBeInTheDocument();
+      // PeakUp: topbar listing search is disabled in merged config.
+      expect(screen.queryByPlaceholderText('TopbarSearchForm.placeholder')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('location-search')).not.toBeInTheDocument();
 
       // Does not have filter column
       expect(screen.queryByTestId('filterColumnAside')).not.toBeInTheDocument();
@@ -510,7 +506,7 @@ describe('SearchPage', () => {
     const props = { ...commonProps };
     const SearchPage = getConnectedSearchPageForTests(config.layout);
 
-    const { getByPlaceholderText, getByText, getAllByText, queryByText, getByRole } = render(
+    const { getByText, getAllByText, queryByText, getByRole } = render(
       <SearchPage {...props} />,
       {
         initialState,
@@ -561,7 +557,7 @@ describe('SearchPage', () => {
     const props = { ...commonProps };
     const SearchPage = getConnectedSearchPageForTests(config.layout);
 
-    const { getByPlaceholderText, getByText, getAllByText, queryByText, getByRole } = render(
+    const { getByText, getAllByText, queryByText, getByRole } = render(
       <SearchPage {...props} />,
       {
         initialState,
@@ -599,7 +595,7 @@ describe('SearchPage', () => {
     const props = { ...commonProps, params: { listingType: 'sell-bicycles' } };
     const SearchPage = getConnectedSearchPageForTests(config.layout);
 
-    const { getByPlaceholderText, getByText, getAllByText, queryByText, getByRole } = render(
+    const { getByText, getAllByText, queryByText, getByRole } = render(
       <SearchPage {...props} />,
       {
         initialState,

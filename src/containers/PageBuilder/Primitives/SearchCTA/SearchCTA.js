@@ -23,6 +23,8 @@ import FilterKeyword from './FilterKeyword/FilterKeyword';
 
 import css from './SearchCTA.module.css';
 
+const PEAKUP_SEARCH_BUTTON_LABEL = 'Find your coach';
+
 const GRID_CONFIG = [
   { gridCss: css.gridCol1 },
   { gridCss: css.gridCol2 },
@@ -173,7 +175,7 @@ export const SearchCTA = React.forwardRef((props, ref) => {
               {addFilters(['categories', 'keywordSearch', 'locationSearch', 'dateRange'])}
 
               <PrimaryButton disabled={submitDisabled} className={css.submitButton} type="submit">
-                <FormattedMessage id="PageBuilder.SearchCTA.buttonLabel" />
+                {PEAKUP_SEARCH_BUTTON_LABEL}
               </PrimaryButton>
             </Form>
           );

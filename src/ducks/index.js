@@ -9,6 +9,7 @@ import emailVerification from './emailVerification.duck';
 import routing from './routing.duck';
 import ui from './ui.duck';
 import hostedAssets from './hostedAssets.duck';
+import featuredCoaches from './featuredCoaches.duck';
 import featuredListings from './featuredListings.duck';
 import marketplaceData from './marketplaceData.duck';
 import paymentMethods from './paymentMethods.duck';
@@ -22,6 +23,7 @@ export {
   routing,
   ui,
   hostedAssets,
+  featuredCoaches,
   featuredListings,
   marketplaceData,
   paymentMethods,

@@ -90,6 +90,7 @@ export { default as Menu } from './Menu/Menu';
 
 // Modal
 export { default as Modal } from './Modal/Modal';
+export { default as PeakupCoachBadgesHierarchyModal } from './PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal';
 export { default as ModalInMobile } from './ModalInMobile/ModalInMobile';
 
 // Fields (for Final Form)
@@ -130,6 +131,7 @@ export { default as OrderBreakdown } from './OrderBreakdown/OrderBreakdown';
 export { default as OrderPanel } from './OrderPanel/OrderPanel';
 export { default as ListingCard } from './ListingCard/ListingCard';
 export { default as CoachStickerCard } from './CoachStickerCard/CoachStickerCard';
+export { default as PeakUpCoachFigurineCard } from './PeakUpCoachFigurineCard/PeakUpCoachFigurineCard';
 export { default as Map } from './Map/Map';
 export { default as Page } from './Page/Page';
 export { default as Reviews } from './Reviews/Reviews';

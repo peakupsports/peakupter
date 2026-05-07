@@ -8,6 +8,7 @@ import SectionColumns from './SectionColumns';
 import SectionFeatures from './SectionFeatures';
 import SectionHero from './SectionHero';
 import SectionListings from './SectionListings';
+import SectionPeakupFeaturedCoaches from './SectionPeakupFeaturedCoaches';
 
 // Styles
 // Note: these contain
@@ -41,6 +42,8 @@ const defaultSectionComponents = {
   footer: { component: SectionFooter },
   hero: { component: SectionHero },
   listings: { component: SectionListings },
+  // PeakUp custom: Featured coach figurine grid (badge priority + review score).
+  peakupFeaturedCoaches: { component: SectionPeakupFeaturedCoaches },
 };
 
 //////////////////////

@@ -1,0 +1,149 @@
+@import '../../../../styles/customMediaQueries.css';
+
+.statusWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.errorTitle {
+  composes: textSmall from global;
+  margin: 0 0 8px;
+  font-weight: var(--fontWeightBold);
+  color: var(--colorFail);
+}
+
+.emptyState {
+  composes: textSmall from global;
+  margin: 0;
+  padding: 24px 0;
+  color: var(--colorGrey700);
+  text-align: center;
+}
+
+/* Carousel orizzontale: una sola riga con scroll laterale + snap.
+ * Ogni card ha larghezza min/max calibrata per essere "figurina-friendly".
+ *
+ * Importante: la lista flex ha min-content = somma delle card; senza `min-width: 0` e
+ * `overflow-x` sul wrapper la pagina intera si allarga. Qui la pagina resta a larghezza
+ * standard e scorre solo la riga delle figurine.
+ */
+.scrollViewport {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--contentMaxWidthPages);
+  margin-left: auto;
+  margin-right: auto;
+  /* Allineato a `.sectionDetails` (stesso gutter delle altre sezioni PageBuilder). */
+  padding: 18px 32px 0;
+  margin-top: -18px;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.scroller {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 6px 0 18px;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--colorGrey300) transparent;
+}
+
+.scroller::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroller::-webkit-scrollbar-thumb {
+  background: var(--colorGrey300);
+  border-radius: 999px;
+}
+
+.scrollerItem {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  /* Card figurina: larghezza fissa su desktop; su mobile usa % del *contenitore*
+   * (non vw) così non forza overflow orizzontale sulla pagina. */
+  width: clamp(240px, 78%, 300px);
+  display: flex;
+  min-width: 0;
+
+  @media (--viewportMedium) {
+    width: clamp(260px, 42%, 300px);
+  }
+
+  @media (--viewportLarge) {
+    width: 300px;
+  }
+}
+
+.scrollerItem > * {
+  width: 100%;
+}
+
+/* Frecce di navigazione su desktop */
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(16, 33, 62, 0.15);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--colorGrey900);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(16, 33, 62, 0.18);
+  z-index: 3;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+}
+
+.navButton:hover,
+.navButton:focus-visible {
+  background: #fafbfd;
+}
+
+.navButton:focus-visible {
+  outline: 2px solid var(--marketplaceColor);
+  outline-offset: 2px;
+}
+
+.navButton[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.navButtonPrev {
+  left: 4px;
+}
+
+.navButtonNext {
+  right: 4px;
+}
+
+@media (--viewportMedium) {
+  .navButton {
+    display: inline-flex;
+  }
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import loadable from '@loadable/component';
 
 import { bool, object } from 'prop-types';
@@ -10,16 +10,61 @@ import { propTypes } from '../../util/types';
 
 import FallbackPage from './FallbackPage';
 import { ASSET_NAME } from './LandingPage.duck';
+import { fetchFeaturedCoaches } from '../../ducks/featuredCoaches.duck';
 import { fetchFeaturedListings } from '../../ducks/featuredListings.duck';
 import { getListingsById } from '../../ducks/marketplaceData.duck';
 import { getFeaturedListingsProps } from '../../util/data';
+
+import SectionListings from '../PageBuilder/SectionBuilder/SectionListings';
+import SectionPeakupFeaturedCoaches from '../PageBuilder/SectionBuilder/SectionPeakupFeaturedCoaches';
 
 const PageBuilder = loadable(() =>
   import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')
 );
 
+/**
+ * On the **landing page** the “Featured listings” block is repurposed to display PeakUp coach
+ * figurines (this is the only product use of `sectionType: "listings"` here). To keep the door
+ * open for marketplaces that do want a real listings carousel on landing, an operator can
+ * explicitly opt-out by setting `peakupRenderAs: "listings"` on the section JSON in Console.
+ *
+ * Trigger heuristics (any match → coach figurines):
+ *   - `peakupRenderAs === 'coachFigurines'`
+ *   - `sectionId`, `sectionName`, title/description text contains "coach"
+ *   - Default on landing page: any `listings` section becomes coaches (unless opted-out).
+ */
+const includesCoach = value =>
+  typeof value === 'string' && /coach/i.test(value);
+
+const isPeakupCoachListingsSection = section => {
+  if (!section) return false;
+  if (section.peakupRenderAs === 'listings') return false;
+  if (section.peakupRenderAs === 'coachFigurines') return true;
+  if (includesCoach(section.sectionId)) return true;
+  if (includesCoach(section.sectionName)) return true;
+  if (includesCoach(section.title?.content)) return true;
+  if (includesCoach(section.description?.content)) return true;
+  // Landing page fallback: by default we feature coaches, not listings.
+  return true;
+};
+
 export const LandingPageComponent = props => {
-  const { pageAssetsData, inProgress, error } = props;
+  const { pageAssetsData, inProgress, error, featuredCoachesProps } = props;
+
+  // Section override: re-route any "listings" section flagged as coach-feature to our figurina grid.
+  const sectionComponents = useMemo(
+    () => ({
+      listings: {
+        component: forwardedProps =>
+          isPeakupCoachListingsSection(forwardedProps) ? (
+            <SectionPeakupFeaturedCoaches {...forwardedProps} />
+          ) : (
+            <SectionListings {...forwardedProps} />
+          ),
+      },
+    }),
+    []
+  );
 
   return (
     <PageBuilder
@@ -28,6 +73,10 @@ export const LandingPageComponent = props => {
       error={error}
       fallbackPage={<FallbackPage error={error} />}
       featuredListings={getFeaturedListingsProps(camelize(ASSET_NAME), props)}
+      options={{
+        sectionComponents,
+        featuredCoaches: featuredCoachesProps,
+      }}
     />
   );
 };
@@ -50,6 +99,9 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
   onFetchFeaturedListings: (sectionId, parentPage, listingImageConfig, allSections) =>
     dispatch(fetchFeaturedListings({ sectionId, parentPage, listingImageConfig, allSections })),
+  featuredCoachesProps: {
+    onFetchFeaturedCoaches: ({ config } = {}) => dispatch(fetchFeaturedCoaches({ config })),
+  },
 });
 
 // Note: it is important that the withRouter HOC is **outside** the

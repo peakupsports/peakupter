@@ -33,6 +33,9 @@ export const COACH_CITY_CENTERS = {
   other: null,
 };
 
+/** Slug luogo con blocchi copy i18n `ProfilePage.coachCityLocationSticker*` (mappa = static API). */
+export const LOCATION_STICKER_DETAIL_SLUGS = ['laax'];
+
 /** Etichette mostrate su profilo / figurina */
 export const COACH_CITY_LABELS = {
   zurich: 'Zürich',
@@ -61,6 +64,62 @@ export const COACH_CITY_LABELS = {
   innsbruck: 'Innsbruck',
   munich: 'München',
   other: 'Other / not listed',
+};
+
+const nfcFoldLower = raw =>
+  String(raw || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/**
+ * Slug figurina quando `coachCity` (enum Console) è vuoto ma il luogo è in `coachCityText` /
+ * sulla riga location (PeakUp: spesso solo testo libero sul profilo).
+ *
+ * @param {string|null|undefined} coachCitySlug Enum salvato (`publicData.coachCity`).
+ * @param {string|null|undefined} coachCityText Testo libero (`publicData.coachCityText`).
+ * @param {string|null|undefined} locationLine Riga finale mostrata in sticker.
+ * @returns {string|null}
+ */
+export const resolveCoachLocationStickerSlug = (
+  coachCitySlug,
+  coachCityText,
+  locationLine = ''
+) => {
+  const slugKey = String(coachCitySlug || '')
+    .toLowerCase()
+    .trim();
+  if (slugKey && LOCATION_STICKER_DETAIL_SLUGS.includes(slugKey)) {
+    return slugKey;
+  }
+  const hay = `${nfcFoldLower(coachCityText)} ${nfcFoldLower(locationLine)}`.trim();
+  if (!hay) {
+    return null;
+  }
+
+  const mediaSlugs = [...LOCATION_STICKER_DETAIL_SLUGS];
+  const hitBySlugSubstring = mediaSlugs.find(k => hay.includes(k));
+  if (hitBySlugSubstring) {
+    return hitBySlugSubstring;
+  }
+
+  for (const k of mediaSlugs) {
+    const label = COACH_CITY_LABELS[k];
+    if (!label) {
+      continue;
+    }
+    const lab = nfcFoldLower(label);
+    if (!lab || lab === 'other / not listed') {
+      continue;
+    }
+    if (hay.includes(lab)) {
+      return k;
+    }
+  }
+
+  return null;
 };
 
 /**

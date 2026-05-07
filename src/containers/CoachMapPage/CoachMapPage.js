@@ -47,6 +47,13 @@ const CoachMapPage = props => {
   const [selectedSport, setSelectedSport] = useState('');
   const [activeListingId, setActiveListingId] = useState(null);
 
+  // Ensure data is loaded when entering the map page directly (e.g. from "Current location").
+  useEffect(() => {
+    if (fetchStatus === 'idle') {
+      dispatch(fetchCoachesExploreThunk({ config }));
+    }
+  }, [fetchStatus, dispatch, config]);
+
   useEffect(() => {
     setSelectedSport(queryExplore.sportKey);
   }, [queryExplore.sportKey]);

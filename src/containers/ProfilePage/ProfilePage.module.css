@@ -344,63 +344,57 @@
  * =====================================================================
  * FIGURINA ART vs LAYOUT GRID — PeakUp coach profile (owner ticket)
  *
- * Desktop row uses `.peakUpProfileLayoutDesktop`: ~35fr / ~65fr (see AGENTS.md). That is allowed
+ * Desktop row uses `.peakUpProfileLayoutDesktop`: ~26.5fr / ~73.5fr (see AGENTS.md). That is allowed
  * to change only with explicit marketplace-owner layout requests.
  *
- * The figurina *artwork* footprint (cornice/sticker/card box + foto crop) MUST stay unchanged:
- * do not alter stickerCard border/aspect-ratio/inner photo frame casually. Sidebar column grows;
- * arte is capped via `--peakUpFigurinaArtMaxWidth` (≈ widest box when the sticker used to stretch
- * a max-width 820 column minus aside padding — keep ResponsiveImage sizes in ProfilePage.js in sync).
+ * Do not casually alter figurina *chrome* (border thickness, inner photo aspect-ratio). Arte **width**
+ * on desktop is capped with `--peakUpFigurinaArtMaxWidth`; keep ResponsiveImage sizes in ProfilePage.js
+ * numeric cap aligned when adjusting only figurina size. Sidebar column proportion comes from grid, not from this px cap.
  * =====================================================================
  */
 
-/* ~35% / ~65% main — Airbnb-style marketplace balance on desktop grid */
+/* ~26.5fr / 73.5fr — griglia pagina aside figurina / main. */
 .peakUpProfileLayoutDesktop {
+  /*
+   * Token condiviso: aside + card usano la stessa larghezza arte; min-width colonna fa sì che
+   * max-width della figurina possa effettivamente “attivarsi” (altrimenti la colonna < arte max
+   * riempie sempre al 100% e cambiare i px non si vede).
+   */
+  --peakUpFigurinaArtMaxWidth: 345px;
+
   @media (--viewportLarge) {
     display: grid !important;
     align-items: start;
-    column-gap: 28px;
-    grid-template-columns: minmax(min(304px, 100%), 35fr) minmax(0, 65fr);
+    column-gap: clamp(36px, 5vw, 56px);
+    grid-template-columns: minmax(min(304px, 100%), 26.5fr) minmax(0, 73.5fr);
   }
 
   @media (--viewportLargeWithPaddings) {
     display: grid !important;
     align-items: start;
-    column-gap: 28px;
-    grid-template-columns: minmax(min(304px, 100%), 35fr) minmax(0, 65fr);
+    column-gap: clamp(36px, 5vw, 56px);
+    grid-template-columns: minmax(min(304px, 100%), 26.5fr) minmax(0, 73.5fr);
   }
 }
 
 /* ---- PeakUp coach figurina (sidebar) + contenuto sticker ---- */
 
 .asideProfilePeakUpCoach {
-  /*
-   * Sidebar default: solo padding sinistro → la figurina resta vicina al bordo con la colonna main.
-   * Destra più generosa così figurina è più “al centro” rispetto a quello spazio e staccata dal divider.
-   */
-  /*
-   * Arte max-width: ≈ widest sticker when column was capped at ~820 minus aside + inner padding (772).
-   * Grid column widens (~35%); sticker box does not grow past this arte width.
-   */
-  --peakUpFigurinaArtMaxWidth: 772px;
-
   @media (--viewportLarge) {
-    /* Sticky coach card column (figurina) while scrolling listing/reviews */
     position: sticky;
     top: calc(var(--topbarHeightDesktop) + 8px);
     align-self: start;
-    max-height: calc(100vh - var(--topbarHeightDesktop) - 24px);
     overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-y: visible;
 
-    /* Width comes from `.peakUpProfileLayoutDesktop` grid track */
     box-sizing: border-box;
     width: auto;
-    min-width: 0;
-    padding-top: 16px !important;
+    max-width: 100%;
+    min-width: min(100%, calc(var(--peakUpFigurinaArtMaxWidth) + 64px));
+    /* Figurina scesa del ~8.5% dal bordo superiore (in scala alla sua altezza). */
+    padding-top: clamp(30px, 3.55vw, 49px) !important;
     padding-bottom: 44px !important;
-    padding-left: 4px !important;
+    padding-left: clamp(30px, 3.2vw, 56px) !important;
     padding-right: 28px !important;
   }
 
@@ -408,23 +402,21 @@
     position: sticky;
     top: calc(var(--topbarHeightDesktop) + 8px);
     align-self: start;
-    max-height: calc(100vh - var(--topbarHeightDesktop) - 24px);
     overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-y: visible;
 
     box-sizing: border-box;
     width: auto;
-    min-width: 0;
-    padding-top: 16px !important;
+    max-width: 100%;
+    min-width: min(100%, calc(var(--peakUpFigurinaArtMaxWidth) + 64px));
+    /* Figurina scesa del ~8.5% dal bordo superiore (in scala alla sua altezza). */
+    padding-top: clamp(30px, 3.55vw, 49px) !important;
     padding-bottom: 44px !important;
-    /* Più vicino al bordo sinistro rispetto al gutter centrato 1056px */
-    padding-left: max(4px, calc((100% - 1056px) / 2 - 80px)) !important;
+    padding-left: max(36px, calc((100% - 1056px) / 2 - 24px)) !important;
     padding-right: max(24px, calc((100% - 1056px) / 2 - 36px)) !important;
   }
 }
 
-/* Arte footprint: capped; column can be wider → premium “floating” figurina inside track */
 .asideProfilePeakUpCoach .stickerCard {
   box-sizing: border-box;
   width: 100%;
@@ -459,13 +451,32 @@
     min-width: 0;
     align-self: stretch;
     flex: unset;
-    padding-top: 40px !important;
+    position: relative;
+    z-index: 1;
+    background-color: var(--colorWhite);
+    /* Divider da layout Sharetribe: sopra questo layer non deve “tagliare” il testo */
+    border-left: none !important;
+    box-shadow: inset 1px 0 0 rgba(16, 33, 62, 0.07);
+    /* 48px (.main): un filo più in basso rispetto al bordo alto figurina. */
+    padding-top: 24px !important;
+    /* ~ +4% padding vs punto precedente: colonna contenuto ~4% più stretta sulle proporzioni 26/74 */
+    padding-left: clamp(47px, 4.1vw, 74px) !important;
+    padding-right: clamp(27px, 2.9vw, 47px) !important;
+    padding-bottom: 82px !important;
   }
 
   @media (--viewportLargeWithPaddings) {
     align-self: stretch;
     flex: unset;
-    padding-top: 40px !important;
+    position: relative;
+    z-index: 1;
+    background-color: var(--colorWhite);
+    border-left: none !important;
+    box-shadow: inset 1px 0 0 rgba(16, 33, 62, 0.07);
+    padding-top: 24px !important;
+    padding-left: clamp(47px, 4.1vw, 74px) !important;
+    padding-right: max(27px, calc((100% - 1056px) / 2)) !important;
+    padding-bottom: 82px !important;
   }
 }
 
@@ -483,7 +494,6 @@
 
 /* Sotto lg il layout aside è allineato a destra; con la figurina forziamo l’inizio riga */
 .sideNavCoachPeakUpWide {
-  /* Vince su .sideNav mobile (flex-end) perché la figurina è una colonna larga */
   justify-content: flex-start !important;
 }
 
@@ -512,7 +522,7 @@
     border-bottom: none;
     align-items: flex-start;
     text-align: left;
-    /* figurina tirata a sinistra + meno vuoto sulla colonna */
+    /* Respiro a sinistra dall’aside (.asideProfilePeakUpCoach); qui evitiamo doppio padding */
     padding-left: 0;
     padding-right: 8px;
   }
@@ -578,17 +588,85 @@
   display: none;
 }
 
+/* Slot fisso tra nome e badge: stessa larghezza/altezza per tutte le figurine;
+ * il logo Founder riempie lo slot; per gli altri coach resta vuoto ma riserva lo
+ * spazio così l'header non si allunga solo sul profilo Founder. */
+.stickerFounderLogoSlot {
+  box-sizing: border-box;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo PeakUp inserito tra il nome e il badge "FOUNDER" nell'header navy.
+ * Compare solo per il Founder. Anello dorato sottile per dialogare con la
+ * cornice della figurina, sfondo scuro morbido così il logo bianco "stacca". */
+.stickerFounderLogo {
+  flex: 0 0 auto;
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  padding: 3px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), rgba(0, 0, 0, 0.35));
+  border: 1.5px solid var(--stickerGold);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.18) inset,
+    0 1px 2px rgba(0, 0, 0, 0.35);
+  object-fit: contain;
+  margin: 0;
+
+  @media (--viewportMedium) {
+    width: 36px;
+    height: 36px;
+  }
+}
+
 .stickerCardHeader {
   position: relative;
   z-index: 1;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px 12px;
+  box-sizing: border-box;
+  /* Altezza minima allineata allo slot logo (44px) + padding verticale header */
+  min-height: 64px;
   padding: 10px 12px;
-  background: linear-gradient(180deg, var(--stickerNavyMid) 0%, var(--stickerNavy) 100%);
-  border-bottom: 2px solid var(--stickerGoldSoft);
+  /* Blu che attenua lungo più altezza, così il ponte sulla foto può essere più morbido */
+  background: linear-gradient(
+    180deg,
+    var(--stickerNavyMid) 0%,
+    var(--stickerNavy) 56%,
+    rgba(39, 66, 102, 0.55) 82%,
+    rgba(228, 234, 244, 0.12) 100%
+  );
+  border-bottom: none;
+}
+
+/* Ponte header → foto: fascia più alta e più passaggi per sfumatura lunga */
+.stickerCardHeader::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: clamp(76px, 26vw, 108px);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(16, 33, 62, 0.52) 0%,
+    rgba(16, 33, 62, 0.22) 32%,
+    rgba(218, 228, 240, 0.28) 62%,
+    rgba(237, 242, 250, 0.08) 88%,
+    rgba(238, 243, 249, 0) 100%
+  );
+  z-index: 4;
 }
 
 .stickerHeaderLeft {
@@ -612,6 +690,7 @@
   justify-content: flex-end;
   flex: 0 1 auto;
   max-width: 100%;
+  align-items: center;
 }
 
 .stickerName {
@@ -628,27 +707,140 @@
   text-transform: uppercase;
 }
 
+/* Pulsante reset: pill badge coach apre la modale gerarchia PeakUp. */
+.stickerBadgeButton {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  text-align: inherit;
+  color: inherit;
+  vertical-align: baseline;
+}
+
+.stickerBadgeButton:focus-visible {
+  outline: 2px solid var(--stickerGold);
+  outline-offset: 2px;
+}
+
+/* Pill base "premium light": stessa identica linea visiva di
+ * PeakUpCoachFigurineCard.module.css → mantenere allineate le due definizioni
+ * così i badge coachLevel hanno lo stesso aspetto su LandingPage e ProfilePage. */
 .stickerCertBadge {
   box-sizing: border-box;
-  min-height: 26px;
-  padding: 4px 10px;
+  min-height: 22px;
+  padding: 3px 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--colorGrey900);
-  font-size: 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(42, 58, 85, 0.55) 0%,
+    rgba(22, 38, 61, 0.55) 100%
+  );
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(245, 230, 168, 0.45);
+  color: #f5e6a8;
+  font-size: 9.5px;
   font-weight: var(--fontWeightBold);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
   line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 1px 1.5px rgba(0, 0, 0, 0.18);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
 }
 
-.stickerCardHeader .stickerCertBadge {
-  background: rgba(0, 0, 0, 0.42);
-  border: 1px solid rgba(201, 162, 39, 0.55);
-  color: var(--colorWhite);
+/* FOUNDER — cristallo / diamante. */
+.badge_founder {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(232, 244, 255, 0.84) 45%,
+      rgba(202, 224, 245, 0.78) 75%,
+      rgba(178, 208, 235, 0.72) 100%
+    );
+  color: #06182f;
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(120, 170, 220, 0.35),
+    inset 1px 0 0 rgba(255, 255, 255, 0.45),
+    0 1px 2px rgba(40, 70, 110, 0.22),
+    0 0 8px rgba(160, 200, 255, 0.4);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+  font-weight: var(--fontWeightBlack, 800);
+}
+
+/* AMBASSADOR — oro lucido. */
+.badge_ambassador {
+  background: linear-gradient(
+    180deg,
+    rgba(252, 231, 154, 0.85) 0%,
+    rgba(232, 196, 92, 0.78) 50%,
+    rgba(193, 145, 28, 0.72) 100%
+  );
+  color: #3d2807;
+  border-color: rgba(244, 215, 132, 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 1.5px rgba(120, 80, 0, 0.18);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* TOP COACH — argento. */
+.badge_top_coach {
+  background: linear-gradient(
+    180deg,
+    rgba(248, 250, 253, 0.85) 0%,
+    rgba(214, 220, 230, 0.76) 50%,
+    rgba(160, 170, 184, 0.7) 100%
+  );
+  color: #1d2433;
+  border-color: rgba(225, 230, 240, 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 1px 1.5px rgba(40, 50, 70, 0.18);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* CERTIFIED COACH — bronzo. */
+.badge_certified_coach {
+  background: linear-gradient(
+    180deg,
+    rgba(239, 201, 164, 0.82) 0%,
+    rgba(200, 128, 75, 0.74) 55%,
+    rgba(154, 90, 47, 0.68) 100%
+  );
+  color: #3d1d09;
+  border-color: rgba(232, 188, 148, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 1px 1.5px rgba(60, 25, 5, 0.18);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* COACH LEVEL 4 — peltro chiaro (entry tier). */
+.badge_coach_level_4 {
+  background: linear-gradient(
+    180deg,
+    rgba(216, 221, 230, 0.78) 0%,
+    rgba(152, 162, 177, 0.7) 55%,
+    rgba(108, 117, 135, 0.66) 100%
+  );
+  color: #1a2030;
+  border-color: rgba(190, 198, 210, 0.8);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 1px 1.5px rgba(20, 25, 35, 0.18);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .stickerLevelBadge {
@@ -688,7 +880,7 @@
 .stickerCardBody {
   position: relative;
   z-index: 1;
-  padding: 11px 15px 0;
+  padding: 4px 15px 0;
   box-sizing: border-box;
 }
 
@@ -705,7 +897,8 @@
   background: var(--colorGrey100);
   /* più larga vs altezza (meno colonna foto in verticale) */
   aspect-ratio: 6 / 7;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.9);
+  /* Nessun alone/bordo inset netto sul bordo foto */
+  box-shadow: none;
 }
 
 .stickerPhoto {
@@ -737,7 +930,14 @@
   pointer-events: none;
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 42%, rgba(16, 33, 62, 0.55) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(16, 33, 62, 0.12) 0%,
+    rgba(16, 33, 62, 0.04) 22%,
+    transparent 52%,
+    rgba(16, 33, 62, 0.38) 82%,
+    rgba(16, 33, 62, 0.52) 100%
+  );
 }
 
 .stickerPhotoShine {
@@ -790,8 +990,14 @@
   z-index: 1;
   margin-top: 0;
   padding: 9px 12px 11px;
-  background: linear-gradient(180deg, #eff4fb 0%, var(--stickerFooterBlue) 100%);
-  border-top: 1px solid rgba(16, 33, 62, 0.08);
+  border-top: none;
+  background: linear-gradient(
+    180deg,
+    rgba(233, 240, 250, 0.35) 0%,
+    rgba(224, 233, 244, 0.72) 22%,
+    #eff4fb 52%,
+    var(--stickerFooterBlue) 100%
+  );
   box-sizing: border-box;
 }
 
@@ -807,8 +1013,11 @@
 .stickerStars {
   display: flex;
   gap: 3px;
-  font-size: 16px;
+  /* Stelle ingrandite del ~9% senza alterare il bounding box (line-height: 1). */
+  font-size: 17.45px;
   line-height: 1;
+  /* Spostate ~3% a destra rispetto al bordo sinistro del footer figurina. */
+  margin-left: clamp(8px, 3%, 12px);
 }
 
 .starFilled {
@@ -825,6 +1034,8 @@
   gap: 4px;
   font-size: 15px;
   line-height: 1;
+  /* Bandierine spostate ~3% a sinistra rispetto al bordo destro del footer figurina. */
+  margin-right: clamp(8px, 3%, 12px);
 }
 
 .stickerActions {
@@ -843,6 +1054,26 @@
     margin-right: auto;
     margin-top: 12px;
   }
+}
+
+/* Book + listings affiancati */
+.stickerActionsCtas {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.stickerActionsCtas .primaryBtn,
+.stickerActionsCtas .secondaryBtn {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .primaryBtn {
@@ -922,8 +1153,8 @@
 
   @media (--viewportLarge) {
     margin-bottom: 12px;
-    /* Meno margini laterali: la griglia bio usa quasi tutta la colonna main */
-    padding-inline: clamp(4px, 1.25vw, 16px);
+    /* Griglia bio a tutta ampiezza disponibile dentro la main (aside + gap già tolti dalla griglia pagina). */
+    padding-inline: 0;
   }
 }
 
@@ -931,20 +1162,73 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 10px;
-  align-items: start;
+  /* Stretch: stesse altezze per card affiancate su una riga */
+  align-items: stretch;
+  /* Stacca il blocco delle card dal bordo superiore (figurina/topbar trust) di ~14%. */
+  margin-top: clamp(20px, 3.6vw, 27px);
 
   @media (--viewportMedium) {
     gap: 11px;
+    margin-top: clamp(22px, 3.8vw, 31px);
   }
 
   @media (--viewportLarge) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px 14px;
+    /* Più aria orizzontale tra le due colonne ora che le card sono più larghe */
+    gap: 12px clamp(14px, 2vw, 22px);
+    margin-top: clamp(27px, 2.4vw, 33px);
+    /*
+     * Altezza unica per About / Experience / Location / Price (stessa “tacca” della riga
+     * Location+Price). Le card riempiono la cella; il contenuto usa flex + min-height:0
+     * così non trabocca.
+     */
+    --peakupDetailGridCellHeight: clamp(156px, 18vw, 175px);
   }
 }
 
+/* Desktop 2×2: quattro card stessa altezza (come Location / Price). Esclude Languages & Sports. */
 @media (--viewportLarge) {
-  .coachDetailGridSpan {
+  .coachProfileDetailGrid > .stickerBio:not(.coachLanguagesFullRow):not(.coachSportsFullRow) {
+    height: var(--peakupDetailGridCellHeight);
+    min-height: var(--peakupDetailGridCellHeight);
+    max-height: var(--peakupDetailGridCellHeight);
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .coachProfileDetailGrid
+    > .stickerBio:not(.coachLanguagesFullRow):not(.coachSportsFullRow)
+    > .stickerBioTitle {
+    flex-shrink: 0;
+  }
+
+  .coachProfileDetailGrid > .stickerBio:not(.coachLanguagesFullRow):not(.coachSportsFullRow) > .stickerAboutWrap,
+  .coachProfileDetailGrid > .stickerBio:not(.coachLanguagesFullRow):not(.coachSportsFullRow) > .stickerBioText,
+  .coachProfileDetailGrid
+    > .stickerBio:not(.coachLanguagesFullRow):not(.coachSportsFullRow)
+    > .stickerExperienceBody,
+  .coachProfileDetailGrid
+    > .stickerBio:not(.coachLanguagesFullRow):not(.coachSportsFullRow)
+    > .stickerLocationRich,
+  .coachProfileDetailGrid
+    > .stickerBio:not(.coachLanguagesFullRow):not(.coachSportsFullRow)
+    > .stickerPriceCard {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .coachProfileDetailGrid
+    > .stickerBio:not(.coachLanguagesFullRow):not(.coachSportsFullRow)
+    > .stickerPriceCard {
+    margin-top: 10px;
+  }
+}
+
+/* Sports: tag leggibili, stessa ampiezza utile degli altri blocchi “importanti”. */
+@media (--viewportLarge) {
+  .coachSportsFullRow,
+  .coachLanguagesFullRow {
     grid-column: 1 / -1;
   }
 }
@@ -953,43 +1237,50 @@
   margin-bottom: 0;
   padding-block: 10px;
   padding-inline: clamp(16px, 3vw, 24px);
-  border-radius: 16px;
+  border-radius: 14px;
   background: linear-gradient(
     158deg,
     var(--colorWhite) 0%,
-    rgba(246, 248, 251, 0.98) 48%,
-    #eef3f9 120%
+    rgba(248, 249, 252, 0.99) 52%,
+    #f2f6fb 118%
   );
-  border: 1px solid rgba(16, 33, 62, 0.1);
-  border-top: 1px solid rgba(201, 162, 39, 0.22);
+  border: 1px solid rgba(16, 33, 62, 0.09);
+  border-top: 1px solid rgba(201, 162, 39, 0.24);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.92) inset,
-    0 8px 24px rgba(16, 33, 62, 0.072);
+    0 1px 0 rgba(255, 255, 255, 0.96) inset,
+    0 4px 16px rgba(16, 33, 62, 0.06);
 
   @media (--viewportMedium) {
-    padding-block: 14px;
+    padding-block: 13px;
     padding-inline: clamp(18px, 3.5vw, 28px);
   }
 
   @media (--viewportLarge) {
-    padding-block: 11px;
-    padding-inline: clamp(18px, 3vw, 26px);
+    padding-block: 10px;
+    /* Padding interno un po’ più stretto così titolo/copy usano più larghezza reale */
+    padding-inline: clamp(14px, 2vw, 22px);
+    /* Riempie la cella della griglia: righe a coppie con stessa altezza visiva */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    height: 100%;
+    min-height: 0;
   }
 }
 
 .stickerBioTitle {
   composes: p from global;
   margin: 0 0 6px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(201, 162, 39, 0.32);
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(201, 162, 39, 0.28);
   font-size: 10px;
   font-weight: var(--fontWeightBold);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--stickerNavy);
 
   @media (--viewportMedium) {
-    margin-bottom: 8px;
+    margin-bottom: 7px;
   }
 }
 
@@ -1025,6 +1316,593 @@
   font-style: italic;
 }
 
+/* About — mock figurina PeakUp (icona persona, più righe, prima riga in evidenza) */
+.stickerAboutHeadingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stickerAboutPersonIcon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--stickerGold);
+
+  @media (--viewportMedium) {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+/* Icona montagne colorata nell’intestazione Sports (fill interni, non currentColor) */
+.stickerSportsHeadingIcon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: block;
+
+  @media (--viewportMedium) {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.stickerAboutWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding-top: 4px;
+
+  @media (--viewportMedium) {
+    gap: 8px;
+    padding-top: 6px;
+  }
+}
+
+/*
+ * About-card body. Quando il bio è troppo lungo, applichiamo `-webkit-line-clamp`
+ * sull'intero blocco (modificatore `.stickerAboutBodyClamped`) così avremo UNA sola
+ * ellissi pulita sulla riga finale visibile, senza che JS+CSS taglino due volte.
+ */
+.stickerAboutBody {
+  display: block;
+  width: 100%;
+}
+
+.stickerAboutBodyClamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+
+  @media (--viewportMedium) {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+}
+
+.stickerAboutLine {
+  composes: p from global;
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  font-weight: var(--fontWeightRegular);
+  line-height: 1.34;
+  color: var(--colorGrey900);
+  overflow-wrap: anywhere;
+
+  @media (--viewportMedium) {
+    font-size: 13px;
+    line-height: 1.36;
+    margin-bottom: 8px;
+  }
+}
+
+.stickerAboutLine:last-child {
+  margin-bottom: 0;
+}
+
+.stickerAboutBody :global(a) {
+  font-weight: inherit;
+}
+
+.stickerAboutReadMore {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 0;
+  font-size: 12px;
+  font-weight: var(--fontWeightSemiBold);
+  line-height: 1.25;
+  color: var(--stickerNavy);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  @media (--viewportMedium) {
+    font-size: 13px;
+  }
+}
+
+.stickerAboutReadMore:hover {
+  color: var(--stickerGold);
+}
+
+.stickerAboutModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 4px;
+  max-width: 640px;
+}
+
+.stickerAboutModalHeading {
+  composes: h2 from global;
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--stickerNavy);
+
+  @media (--viewportMedium) {
+    font-size: 26px;
+  }
+}
+
+.stickerAboutModalContent {
+  composes: p from global;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--colorGrey900);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Experience — mock figurina PeakUp (valigetta, anni in evidenza, sottotitolo, montagne) */
+.stickerExperienceCard {
+  position: relative;
+  overflow: hidden;
+}
+
+.stickerExperienceMountain {
+  position: absolute;
+  right: -4px;
+  bottom: -12px;
+  width: min(168px, 58%);
+  max-width: none;
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.94;
+
+  @media (--viewportMedium) {
+    right: -4px;
+    bottom: -10px;
+    width: min(178px, 52%);
+  }
+}
+
+.stickerExperienceTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.stickerExperienceBriefcaseIcon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--stickerGold);
+
+  @media (--viewportMedium) {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+.stickerExperienceBody {
+  position: relative;
+  z-index: 1;
+  padding-top: 8px;
+
+  @media (--viewportMedium) {
+    padding-top: 12px;
+  }
+}
+
+.stickerExperiencePrimary {
+  composes: p from global;
+  margin: 0;
+  font-size: clamp(22px, 2vw + 14px, 30px);
+  font-weight: var(--fontWeightBold);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--stickerNavy);
+}
+
+.stickerExperienceSubtitle {
+  composes: p from global;
+  margin: 6px 0 0;
+  max-width: 22em;
+  font-size: 13px;
+  font-weight: var(--fontWeightRegular);
+  line-height: 1.42;
+  color: rgba(94, 108, 132, 0.92);
+
+  @media (--viewportMedium) {
+    font-size: 14px;
+    line-height: 1.44;
+    margin-top: 8px;
+  }
+}
+
+/* Card prezzo figurina coach (mock PeakUp): importo | verified */
+.stickerPriceTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.peakUpStickerPriceTagIcon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--stickerGold);
+
+  @media (--viewportMedium) {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+.stickerPriceCard {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  /* Respiro sotto il bordo dorato dell’intestazione “PRICE” */
+  margin-top: 12px;
+
+  @media (--viewportMedium) {
+    flex-direction: row;
+    align-items: center;
+    gap: clamp(14px, 2.5vw, 22px);
+    margin-top: 14px;
+  }
+
+  @media (--viewportLarge) {
+    margin-top: 16px;
+  }
+}
+
+.stickerPriceCardLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* Più aria tra From, cifra e “per hour” */
+  gap: 8px;
+
+  @media (--viewportMedium) {
+    gap: 10px;
+  }
+
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.stickerPriceFromLabel {
+  font-size: 12px;
+  font-weight: var(--fontWeightRegular);
+  line-height: 1.3;
+  color: rgba(16, 33, 62, 0.54);
+
+  @media (--viewportMedium) {
+    font-size: 13px;
+    line-height: 1.32;
+  }
+}
+
+.stickerPriceAmount {
+  font-size: clamp(22px, 3.4vw + 10px, 28px);
+  font-weight: var(--fontWeightBold);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--stickerNavy);
+}
+
+.stickerPricePerHour {
+  font-size: 12px;
+  font-weight: var(--fontWeightRegular);
+  line-height: 1.35;
+  color: rgba(16, 33, 62, 0.54);
+  /* Oltre al gap della colonna: “per hour” un filo più verso il basso */
+  margin-top: 6px;
+
+  @media (--viewportMedium) {
+    font-size: 13px;
+    margin-top: 8px;
+  }
+}
+
+.stickerPriceCardDivider {
+  flex-shrink: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(16, 33, 62, 0.12);
+
+  @media (--viewportMedium) {
+    width: 1px;
+    height: auto;
+    align-self: stretch;
+    min-height: 48px;
+  }
+}
+
+.stickerPriceVerifiedPill {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  max-width: 100%;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: rgba(16, 33, 62, 0.06);
+
+  @media (--viewportMedium) {
+    gap: 10px;
+    padding: 9px 16px;
+  }
+}
+
+.stickerPriceVerifiedShield {
+  flex-shrink: 0;
+  display: block;
+}
+
+.stickerPriceVerifiedLabel {
+  font-size: 13px;
+  font-weight: var(--fontWeightSemiBold);
+  line-height: 1.3;
+  color: var(--stickerNavy);
+  letter-spacing: 0.01em;
+
+  @media (--viewportMedium) {
+    font-size: 14px;
+  }
+}
+
+/* Location sticker: intestazione pin + foto + blocchi tipo mockup PeakUp */
+.stickerLocationHeadingWithPin {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.stickerLocationHeadingPin {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  stroke: var(--stickerGold);
+  stroke-width: 2px;
+
+  @media (--viewportMedium) {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+.stickerLocationRich {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 14px;
+  row-gap: 12px;
+  align-items: start;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+
+  @media (--viewportMedium) {
+    column-gap: 16px;
+    row-gap: 14px;
+  }
+
+  @media (--viewportLarge) {
+    column-gap: 18px;
+    row-gap: 16px;
+  }
+}
+
+/* Mappa a sinistra, testo + CTA a destra; colonna destra alta quanto la riga (altezza mappa) */
+.stickerLocationRichWithThumb {
+  grid-template-columns: 1fr;
+
+  @media (--viewportMedium) {
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: stretch;
+  }
+}
+
+.stickerLocationMapCol {
+  flex-shrink: 0;
+  min-width: 0;
+
+  @media (--viewportMedium) {
+    align-self: start;
+  }
+}
+
+.stickerLocationMapLink {
+  display: block;
+  line-height: 0;
+  text-decoration: none;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(16, 33, 62, 0.1);
+  box-shadow: 0 2px 8px rgba(16, 33, 62, 0.08);
+
+  @media (--viewportMedium) {
+    border-radius: 11px;
+  }
+
+  @media (--viewportLarge) {
+    border-radius: 12px;
+  }
+}
+
+@media (hover: hover) {
+  .stickerLocationMapLink:hover {
+    box-shadow: 0 4px 12px rgba(16, 33, 62, 0.14);
+  }
+
+  .stickerLocationMapLink:hover .stickerLocationMapThumb {
+    filter: brightness(0.97);
+  }
+}
+
+.stickerLocationMapLink:focus-visible {
+  outline: 2px solid var(--stickerGold);
+  outline-offset: 2px;
+}
+
+.stickerLocationMapThumb {
+  display: block;
+  width: 158px;
+  height: auto;
+  max-height: 106px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 10px;
+  border: 1px solid rgba(16, 33, 62, 0.1);
+
+  @media (--viewportMedium) {
+    width: 186px;
+    max-height: 124px;
+    border-radius: 11px;
+  }
+
+  @media (--viewportLarge) {
+    /* Mini-mappa allineata all'altezza ridotta delle card About/Experience/Price */
+    width: 152px;
+    max-height: 100px;
+    border-radius: 12px;
+  }
+}
+
+.stickerLocationMapLink .stickerLocationMapThumb {
+  border: none;
+  border-radius: 0;
+}
+
+/* Coordinate senza preview statica: link testuale */
+.stickerLocationMapTextLink {
+  composes: p from global;
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: var(--fontWeightSemiBold);
+  line-height: 1.35;
+  color: var(--stickerNavy);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  @media (--viewportMedium) {
+    font-size: 15px;
+    margin-top: 10px;
+  }
+}
+
+@media (hover: hover) {
+  .stickerLocationMapTextLink:hover {
+    color: #2f5490;
+  }
+}
+
+.stickerLocationMapTextLink:focus-visible {
+  outline: 2px solid var(--stickerGold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.stickerLocationRichMain {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 0;
+  min-height: 0;
+}
+
+.stickerLocationRichWithThumb .stickerLocationRichMain {
+  @media (--viewportMedium) {
+    align-self: stretch;
+  }
+}
+
+.stickerLocationRichCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.stickerLocationRichCopy :global(.stickerBioText) {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+
+  @media (--viewportMedium) {
+    font-size: 15px;
+    line-height: 1.42;
+  }
+}
+
+.stickerLocationRichTitle {
+  composes: p from global;
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--fontWeightBold);
+  line-height: 1.28;
+  color: var(--stickerNavy);
+  overflow-wrap: anywhere;
+
+  @media (--viewportMedium) {
+    font-size: 17px;
+    line-height: 1.3;
+  }
+}
+
+.stickerLocationRichRegion {
+  composes: p from global;
+  margin: 0;
+  font-size: 14px;
+  font-weight: var(--fontWeightRegular);
+  line-height: 1.42;
+  color: rgba(16, 33, 62, 0.68);
+
+  @media (--viewportMedium) {
+    font-size: 15px;
+    line-height: 1.44;
+  }
+}
+
+.stickerLocationRichTagline {
+  composes: p from global;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--colorGrey800);
+
+  @media (--viewportMedium) {
+    font-size: 14px;
+    line-height: 1.48;
+  }
+}
+
 .sportsTags {
   display: flex;
   flex-wrap: wrap;
@@ -1037,6 +1915,22 @@
 
   @media (--viewportLarge) {
     gap: 10px;
+  }
+}
+
+/* Lingue in pill come gli sport, con più respiro tra un tag e l’altro */
+.languageTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+
+  @media (--viewportMedium) {
+    gap: 16px;
+  }
+
+  @media (--viewportLarge) {
+    gap: 18px;
   }
 }
 

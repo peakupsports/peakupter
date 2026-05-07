@@ -14,9 +14,11 @@
 export const PEAK_UP_COACH_PROFILE_KEYS = [
   'sports',
   'languages',
+  'peakupCoachBadges',
   'currency',
   'priceFrom',
   'coachCityText',
+  'coachTravelNearby',
 ];
 
 /** Stesso ordine / set degli sport usati in SportBar / footer di mercato. */
@@ -43,7 +45,6 @@ const WINTER_SPORT_EXTRAS = [
   'freeridesnowboard',
   'freestylesnowboard',
   'freestyleskiing',
-  'skate',
   'skateboard',
 ];
 
@@ -67,7 +68,6 @@ const SPORT_LABELS = {
   freeridesnowboard: 'Freeride snowboard',
   freestylesnowboard: 'Freestyle snowboard',
   freestyleskiing: 'Freeski',
-  skate: 'Skate',
   skateboard: 'Skateboard',
 };
 
@@ -133,6 +133,30 @@ export const peakUpCoachUserFields = [
     },
   },
   {
+    key: 'peakupCoachBadges',
+    scope: 'public',
+    schemaType: 'multi-enum',
+    enumOptions: [
+      { option: 'founder', label: 'Founder' },
+      { option: 'ambassador', label: 'Ambassador' },
+      { option: 'top_coach', label: 'Top coach' },
+      { option: 'certified_coach', label: 'Certified coach' },
+    ],
+    showConfig: {
+      label: 'Coach badges',
+    },
+    saveConfig: {
+      label: 'Coach badges',
+      displayInSignUp: false,
+      isRequired: false,
+    },
+    helpTextTranslationId: 'PeakUpCoachUserFields.peakupCoachBadgesHelp',
+    userTypeConfig: {
+      limitToUserTypeIds: false,
+      userTypeIds: [],
+    },
+  },
+  {
     key: 'currency',
     scope: 'public',
     schemaType: 'enum',
@@ -186,6 +210,23 @@ export const peakUpCoachUserFields = [
       placeholderMessage: 'e.g. Laax, Chamonix, Tokyo…',
     },
     helpTextTranslationId: 'PeakUpCoachUserFields.coachCityTextHelp',
+    userTypeConfig: {
+      limitToUserTypeIds: false,
+      userTypeIds: [],
+    },
+  },
+  {
+    key: 'coachTravelNearby',
+    scope: 'public',
+    schemaType: 'boolean',
+    showConfig: {
+      label: 'Availability',
+    },
+    saveConfig: {
+      label: 'Are you available to coach in nearby areas?',
+      displayInSignUp: false,
+      isRequired: false,
+    },
     userTypeConfig: {
       limitToUserTypeIds: false,
       userTypeIds: [],

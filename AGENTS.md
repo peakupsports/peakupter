@@ -153,11 +153,11 @@ Full technical asset reference is available in https://www.sharetribe.com/docs/r
 
 ## PeakUp coach figurina (`ProfilePage` sidebar sticker)
 
-Desktop layout uses **CSS grid**: `ProfilePage` passes `layoutSideNavCss.container` + `peakUpProfileLayoutDesktop` (~**35fr** left / ~**65fr** right). That controls **column proportion only**.
+Desktop layout uses **CSS grid**: `ProfilePage` passes `layoutSideNavCss.container` + `peakUpProfileLayoutDesktop` (~**26.5fr** left / ~**73.5fr** right). That controls **column proportion only**.
 
 **Figurina artwork** (printed card appearance: border thickness, `.stickerPhotoFrame` **`aspect-ratio`**, header/body/footer structure) should stay stable. The **maximum width of that printed box on large screens is capped** with **`--peakUpFigurinaArtMaxWidth`** (see `ProfilePage.module.css`) so widening the grid track **does not** stretch the figurina arbitrarily; **`ResponsiveImage` `sizes` in `ProfilePage.js`** must stay aligned with that cap.
 
-Changing **proportion** (`35fr`/`65fr`, `gap`, container grid) requires an explicit owner layout request; changing **arte** (aspect-ratio, `--peakUpFigurinaArtMaxWidth`, `sizes`, sticker border/frame rules) likewise requires explicit sign-off.
+Changing **proportion** (`26.5fr`/`73.5fr`, `gap`, container grid) requires an explicit owner layout request; changing **arte** (aspect-ratio, `--peakUpFigurinaArtMaxWidth`, `sizes`, sticker border/frame rules) likewise requires explicit sign-off.
 
 Colours, overlays, typography, **main-column** bio/reviews, and tightening spacing between cards remain fair game independently.
 

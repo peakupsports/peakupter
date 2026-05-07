@@ -31,17 +31,19 @@ import { richText } from '../../util/richText';
 import { ensureUser } from '../../util/data';
 import { createSlug } from '../../util/urlHelpers';
 import { pickRepresentativeListing, countryCodeToFlagEmoji } from '../../util/coachExplore';
+import { getMapProviderApiAccess, staticPinMapImageUrl } from '../../util/maps';
 import {
   formatCoachExperienceLabel,
+  formatProfileLanguagesForSticker,
   formatProfileSportsForSticker,
   LANGUAGE_FLAGS,
   resolveCoachStickerDisplay,
+  sportsForFigurinaOverlay,
   resolvePeakupCoachBadgeIds,
   shouldShowPeakUpProfileSticker,
-  stickerLanguageLabel,
 } from '../../util/profileCoachSticker';
 
-import { isScrollingDisabled } from '../../ducks/ui.duck';
+import { isScrollingDisabled, manageDisableScrolling } from '../../ducks/ui.duck';
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 import {
   Heading,
@@ -51,12 +53,15 @@ import {
   AvatarLarge,
   NamedLink,
   ListingCard,
+  Modal,
   Reviews,
   ButtonTabNavHorizontal,
+  InlineTextButton,
   LayoutSideNavigation,
   NamedRedirect,
   CustomExtendedDataSection,
   ResponsiveImage,
+  IconLocation,
 } from '../../components';
 
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
@@ -65,10 +70,68 @@ import NotFoundPage from '../../containers/NotFoundPage/NotFoundPage';
 
 import layoutSideNavCss from '../../components/LayoutComposer/LayoutSideNavigation/LayoutSideNavigation.module.css';
 
+import PeakUpProfileTrustTopbar from './PeakUpProfileTrustTopbar';
+import PeakupCoachBadgesHierarchyModal from '../../components/PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal';
+import peakUpFounderLogo from '../../assets/peakup-founder-logo.png';
 import css from './ProfilePage.module.css';
+
+/** Pill tier figurina — riferimenti statici per CSS Modules (no `css[\`badge_${id}\`]`). */
+const PROFILE_BADGE_PILL_CLASS = {
+  founder: css.badge_founder,
+  ambassador: css.badge_ambassador,
+  top_coach: css.badge_top_coach,
+  certified_coach: css.badge_certified_coach,
+};
 
 const MAX_MOBILE_SCREEN_WIDTH = 768;
 const MIN_LENGTH_FOR_LONG_WORDS = 20;
+
+/** Numero massimo paragrafi mostrati sulla card About; l'ellisse finale viene gestita via CSS line-clamp. */
+const STICKER_ABOUT_MAX_PARAGRAPHS = 2;
+/** Soglia lunghezza bio per mostrare "Read full bio" (sotto, contenuto sicuramente sta dentro al cap). */
+const STICKER_ABOUT_TRUNCATION_THRESHOLD = 162;
+
+/**
+ * Riduce la bio per la card sticker mantenendo i paragrafi originali (no cut a metà frase):
+ * il taglio finale è gestito via CSS line-clamp + overflow.
+ *
+ * @param {string|unknown} bioString
+ * @returns {{ paragraphs: string[]; isTruncated: boolean }}
+ */
+const stickerAboutLinesForPeakUpSticker = bioString => {
+  if (typeof bioString !== 'string' || !bioString.trim()) {
+    return { paragraphs: [], isTruncated: false };
+  }
+
+  /** @type {string[]} */
+  const raw = bioString
+    .trim()
+    .split(/\r?\n/)
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+
+  const cappedParagraphs = raw.slice(0, STICKER_ABOUT_MAX_PARAGRAPHS);
+  const droppedParagraphs = raw.length > STICKER_ABOUT_MAX_PARAGRAPHS;
+
+  const lengthHint = bioString.trim().length;
+  const isTruncated = droppedParagraphs || lengthHint > STICKER_ABOUT_TRUNCATION_THRESHOLD;
+
+  return { paragraphs: cappedParagraphs, isTruncated };
+};
+
+/** @param {number|null|undefined} lat @param {number|null|undefined} lng */
+const stickerExternalMapsSearchHref = (lat, lng, placeQueryFallback) => {
+  const latOk = typeof lat === 'number' && Number.isFinite(lat);
+  const lngOk = typeof lng === 'number' && Number.isFinite(lng);
+  if (latOk && lngOk) {
+    return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+  }
+  const q =
+    placeQueryFallback != null && String(placeQueryFallback).trim()
+      ? String(placeQueryFallback).trim()
+      : '';
+  return q ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}` : null;
+};
 
 const STICKER_AVATAR_VARIANTS = [
   'square-small',
@@ -85,9 +148,184 @@ const currencyTicker = code => {
   return c;
 };
 
+/** Etichetta prezzo (cartellino, colore da CSS `currentColor`). */
+const PeakUpStickerPriceTagIcon = ({ rootClassName }) => (
+  <svg
+    className={rootClassName}
+    width="17"
+    height="17"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      fill="currentColor"
+      d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-.55 0-1 .45-1 1v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"
+    />
+  </svg>
+);
+
+/** Persona line-art (titolo sezione About sulla figurina). */
+const PeakUpStickerPersonIcon = ({ rootClassName }) => (
+  <svg
+    className={rootClassName}
+    width="17"
+    height="17"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="2" />
+    <path
+      d="M7 20.5v-.5a5 5 0 0 1 5-5h0a5 5 0 0 1 5 5v.5"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+/** Globo (lingue): contorno oro via currentColor / --stickerGold. */
+const PeakUpStickerLanguagesIcon = ({ rootClassName }) => (
+  <svg
+    className={rootClassName}
+    width="17"
+    height="17"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="9.25" stroke="currentColor" strokeWidth="2" />
+    <ellipse cx="12" cy="12" rx="4" ry="9.25" stroke="currentColor" strokeWidth="2" />
+    <path
+      d="M2.75 12h18.5"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+/** Tre vette montagna (titolo Sport sulla figurina: oro, neve centrale, picco teal a destra). */
+const PeakUpStickerSportsMountainsIcon = ({ rootClassName }) => (
+  <svg
+    className={rootClassName}
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path d="M13.2 20 18 10.2 22.85 20z" fill="#1f6f68" />
+    <path d="M1.9 20 6.8 11.9 11.35 20z" fill="#c9a227" />
+    <path d="M6.45 20 12 5.85 17.65 20z" fill="#c9a227" />
+    <path d="M10.9 11.2 12 6.9 13.25 11.65 12 9.7z" fill="#fff" fillOpacity="0.94" />
+  </svg>
+);
+
+/** Valigetta line-art (titolo sezione Experience sulla figurina). */
+const PeakUpStickerBriefcaseIcon = ({ rootClassName }) => (
+  <svg
+    className={rootClassName}
+    width="17"
+    height="17"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <rect
+      x="3"
+      y="7"
+      width="18"
+      height="13"
+      rx="2"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+    <path d="M12 11v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+/** Montagne watermark: tre vette, grigio chiarissimo, linee di crinale (stile pulito / riferimento UI). */
+const StickerExperienceMountainBackdrop = ({ rootClassName }) => (
+  <svg
+    className={rootClassName}
+    viewBox="0 0 288 100"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <g transform="translate(0 4)">
+      {/* Silhouette unica tre picchi — la più alta leggermente a destra del centro */}
+      <path
+        fill="#dfe4ec"
+        fillOpacity="0.42"
+        d="M0 96 V82 L46 62 L76 73 L126 42 L164 71 L226 38 L266 61 L288 53 V96 Z"
+      />
+      {/* Pendii interni leggibili come nel mock minimalist */}
+      <path
+        d="M46 62 L94 93 M126 42 L106 93 M126 42 L154 93 M226 38 L174 93 M226 38 L258 93"
+        fill="none"
+        stroke="#ced5e3"
+        strokeOpacity="0.42"
+        strokeWidth="1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Cresta secondaria molto soft */}
+      <path
+        d="M76 73 L134 93"
+        fill="none"
+        stroke="#d6dde8"
+        strokeOpacity="0.35"
+        strokeWidth="0.75"
+        strokeLinecap="round"
+      />
+    </g>
+  </svg>
+);
+
+/** Scudo verde con spunta bianca (“Verified coach”). */
+const StickerVerifiedShieldIcon = ({ rootClassName }) => (
+  <svg
+    className={rootClassName}
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      fill="#2e7d32"
+      d="M12 2 4 6v5.5c0 4.25 3.28 8.62 8 10 4.72-1.38 8-5.75 8-10V6l-8-4z"
+    />
+    <path
+      stroke="#fff"
+      strokeWidth="1.85"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+      d="M8 12.25 10.95 15.15 17 9.2"
+    />
+  </svg>
+);
+
 export const AsideContent = props => {
   const intl = useIntl();
   const { user, displayName, showLinkToProfileSettingsPage, listings = [], reviews = [] } = props;
+  const [isBadgeHierarchyOpen, setBadgeHierarchyOpen] = useState(false);
 
   const profilePd = user?.attributes?.profile?.publicData || {};
   const peakUpCoachAside = shouldShowPeakUpProfileSticker(listings, profilePd);
@@ -131,7 +369,10 @@ export const AsideContent = props => {
   const cc = countryRaw?.toString?.()?.trim?.() || '';
   const countryEmoji = cc ? countryCodeToFlagEmoji(cc.length === 2 ? cc.toUpperCase() : cc) : '';
 
-  const sportsBadges = formatProfileSportsForSticker(intl, stickerDisplay.sports);
+  const sportsBadges = formatProfileSportsForSticker(
+    intl,
+    sportsForFigurinaOverlay(stickerDisplay.sports)
+  );
   const { priceFrom, currency: stickerCurrency = 'CHF' } = stickerDisplay;
 
   const priceLabel =
@@ -161,6 +402,14 @@ export const AsideContent = props => {
 
   const flagDisplay = countryEmoji || '🌍';
 
+  const isFounder = Array.isArray(badgeIds) && badgeIds.includes('founder');
+
+  const badgeHierarchyModalId = `PeakupCoachBadgesHierarchy-aside-${user?.id?.uuid || 'profile'}`;
+  const badgeModalHint = intl.formatMessage({
+    id: 'PeakupCoachBadgesHierarchyModal.badgeButtonHint',
+    defaultMessage: 'Open PeakUp coach badge guide',
+  });
+
   return (
     <div className={classNames(css.asideContent, css.asideContentStickerOverrides)}>
       <div className={css.stickerCard}>
@@ -173,25 +422,73 @@ export const AsideContent = props => {
             </span>
             <span className={css.stickerName}>{displayName}</span>
           </div>
+          <div
+            className={css.stickerFounderLogoSlot}
+            aria-hidden={!isFounder}
+          >
+            {isFounder ? (
+              <img
+                className={css.stickerFounderLogo}
+                src={peakUpFounderLogo}
+                alt={intl.formatMessage({
+                  id: 'ProfilePage.founderLogoAlt',
+                  defaultMessage: 'PeakUp Founder badge',
+                })}
+                width={36}
+                height={36}
+                loading="lazy"
+                decoding="async"
+              />
+            ) : null}
+          </div>
           <div className={css.stickerHeaderBadges}>
             {badgeIds.length > 0 || legacyCoachLevel ? (
               <>
                 {badgeIds.map(id => (
-                  <span key={id} className={css.stickerCertBadge}>
+                  <button
+                    key={id}
+                    type="button"
+                    className={classNames(
+                      css.stickerBadgeButton,
+                      css.stickerCertBadge,
+                      PROFILE_BADGE_PILL_CLASS[id]
+                    )}
+                    title={badgeModalHint}
+                    aria-haspopup="dialog"
+                    onClick={() => setBadgeHierarchyOpen(true)}
+                  >
                     {intl.formatMessage({
                       id: `ProfilePage.stickerBadge_${id}`,
                       defaultMessage: id.replace(/_/g, ' '),
                     })}
-                  </span>
+                  </button>
                 ))}
                 {legacyCoachLevel ? (
-                  <span className={css.stickerLevelBadge}>{legacyCoachLevel}</span>
+                  <button
+                    type="button"
+                    className={classNames(css.stickerBadgeButton, css.stickerLevelBadge)}
+                    title={badgeModalHint}
+                    aria-haspopup="dialog"
+                    onClick={() => setBadgeHierarchyOpen(true)}
+                  >
+                    {legacyCoachLevel}
+                  </button>
                 ) : null}
               </>
             ) : (
-              <span className={classNames(css.stickerLevelBadge, css.stickerLevelBadgeNewCoach)}>
-                {intl.formatMessage({ id: 'ProfilePage.stickerCoachLevelNew' })}
-              </span>
+              <button
+                type="button"
+                className={classNames(
+                  css.stickerBadgeButton,
+                  css.stickerLevelBadge,
+                  css.stickerLevelBadgeNewCoach
+                )}
+                title={badgeModalHint}
+                aria-haspopup="dialog"
+                onClick={() => setBadgeHierarchyOpen(true)}
+              >
+                <FormattedMessage id="ProfilePage.stickerCoachLevelNew" />
+              </button>
             )}
           </div>
         </div>
@@ -209,7 +506,7 @@ export const AsideContent = props => {
                    * Locked to figurina arte max-width (see --peakUpFigurinaArtMaxWidth): do not change
                    * without aligning ProfilePage.module.css figurina sizing note + owner sign-off.
                    */
-                  sizes="(max-width: 768px) 92vw, min(772px, 92vw)"
+                  sizes="(max-width: 768px) 92vw, min(345px, 92vw)"
                 />
               ) : (
                 <div className={css.cardPhotoPlaceholder}>{(displayName || 'C').charAt(0)}</div>
@@ -265,26 +562,35 @@ export const AsideContent = props => {
       </div>
 
       <div className={css.stickerActions}>
-        {listingId ? (
-          <NamedLink
-            name="ListingPage"
-            params={{ slug: listingSlug || 'listing', id: listingId }}
-            className={classNames(css.primaryBtn, css.stickerActionPrimary)}
+        <div className={css.stickerActionsCtas}>
+          <a
+            href="#profile-coach-listings"
+            className={classNames(css.secondaryBtn, css.stickerActionSecondary)}
           >
-            <FormattedMessage id="ProfilePage.stickerBookNow" />
-          </NamedLink>
-        ) : (
-          <button type="button" className={css.primaryBtn} disabled>
-            <FormattedMessage id="ProfilePage.stickerBookNow" />
-          </button>
-        )}
+            {displayName?.trim() ? (
+              <FormattedMessage
+                id="ProfilePage.stickerContactCoachByName"
+                values={{ name: displayName.trim() }}
+              />
+            ) : (
+              <FormattedMessage id="ProfilePage.stickerContactCoachGeneric" />
+            )}
+          </a>
 
-        <a
-          href="#profile-coach-listings"
-          className={classNames(css.secondaryBtn, css.stickerActionSecondary)}
-        >
-          <FormattedMessage id="ProfilePage.stickerViewListings" />
-        </a>
+          {listingId ? (
+            <NamedLink
+              name="ListingPage"
+              params={{ slug: listingSlug || 'listing', id: listingId }}
+              className={classNames(css.primaryBtn, css.stickerActionPrimary)}
+            >
+              <FormattedMessage id="ProfilePage.stickerBookMe" />
+            </NamedLink>
+          ) : (
+            <button type="button" className={css.primaryBtn} disabled>
+              <FormattedMessage id="ProfilePage.stickerBookMe" />
+            </button>
+          )}
+        </div>
 
         {showLinkToProfileSettingsPage ? (
           <NamedLink name="ProfileSettingsPage" className={css.stickerEditProfile}>
@@ -292,6 +598,12 @@ export const AsideContent = props => {
           </NamedLink>
         ) : null}
       </div>
+
+      <PeakupCoachBadgesHierarchyModal
+        id={badgeHierarchyModalId}
+        isOpen={isBadgeHierarchyOpen}
+        onClose={() => setBadgeHierarchyOpen(false)}
+      />
     </div>
   );
 };
@@ -460,6 +772,7 @@ export const CustomUserFields = props => {
 
 export const MainContent = props => {
   const [mounted, setMounted] = useState(false);
+  const [isBioModalOpen, setIsBioModalOpen] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -478,7 +791,11 @@ export const MainContent = props => {
     intl,
     hideReviews,
     userTypeRoles,
+    profileUserUuid,
+    onManageDisableScrolling,
   } = props;
+
+  const marketplaceConfig = useConfiguration();
 
   const hasListings = listings.length > 0;
   const isPeakUpCoachProfile = shouldShowPeakUpProfileSticker(listings, publicData);
@@ -489,37 +806,102 @@ export const MainContent = props => {
       : true;
 
   const hasBio = !!bio;
-  const bioWithLinks = richText(bio, {
+  const stickerBioRichTextOpts = {
     linkify: true,
     longWordMinLength: MIN_LENGTH_FOR_LONG_WORDS,
     longWordClass: css.longWord,
-  });
+  };
+  const bioWithLinks = richText(bio, stickerBioRichTextOpts);
+  const {
+    paragraphs: stickerAboutParagraphs,
+    isTruncated: stickerAboutIsTruncated,
+  } = stickerAboutLinesForPeakUpSticker(bio);
 
   const listingsContainerClasses = classNames(css.listingsContainer, {
     [css.withBioMissingAbove]: !hasBio && !isPeakUpCoachProfile,
   });
 
   const experienceText = formatCoachExperienceLabel(intl, publicData?.experience);
+  const stickerTravelNearby =
+    publicData?.coachTravelNearby === true ||
+    publicData?.coachTravelNearby === 'true' ||
+    publicData?.coachTravelNearby === 1;
   const listingForSticker = pickRepresentativeListing(listings);
   const stickerSource = resolveCoachStickerDisplay(publicData, listingForSticker);
   const formattedSportsSticker = formatProfileSportsForSticker(intl, stickerSource.sports);
-  const coachingLanguages =
-    stickerSource.languages.length > 0
-      ? stickerSource.languages
-          .map(code => stickerLanguageLabel(intl, code))
-          .filter(Boolean)
-          .join(' • ')
-      : '';
-
-  const listingTitleSticker = listingForSticker?.attributes?.title || displayName || 'listing';
-  const listingSlugSticker = listingForSticker ? createSlug(String(listingTitleSticker)) : '';
-  const listingUuidSticker = listingForSticker?.id?.uuid;
+  const formattedLanguagesSticker = formatProfileLanguagesForSticker(
+    intl,
+    stickerSource.languages
+  );
 
   const {
     priceFrom: stickerPriceFromRaw,
     currency: stickerBookingCurrency = 'CHF',
     locationLine: stickerLocationLineRaw,
+    lat: stickerGeoLatRaw,
+    lng: stickerGeoLngRaw,
+    locationStickerSlug: stickerLocationStickerSlugRaw,
   } = stickerSource;
+
+  const stickerLocationMediaSlug =
+    stickerLocationStickerSlugRaw != null && String(stickerLocationStickerSlugRaw).trim() !== ''
+      ? String(stickerLocationStickerSlugRaw).toLowerCase().trim()
+      : '';
+
+  const stickerLocationCityForCopy = String(stickerLocationLineRaw || '').trim();
+  // Show rich copy (title + tagline) for known slugs AND whenever a coach typed any
+  // location string in Profile Settings — otherwise the tagline area would stay empty.
+  const stickerLocationShowRichCopy =
+    stickerLocationMediaSlug.length > 0 || stickerLocationCityForCopy.length > 0;
+  const stickerLocationHasSlug = stickerLocationMediaSlug.length > 0;
+
+  /** @type {{ lat?: number|null; lng?: number|null }} */
+  const stickerCoords =
+    typeof stickerGeoLatRaw === 'number' &&
+    Number.isFinite(stickerGeoLatRaw) &&
+    typeof stickerGeoLngRaw === 'number' &&
+    Number.isFinite(stickerGeoLngRaw)
+      ? { lat: stickerGeoLatRaw, lng: stickerGeoLngRaw }
+      : { lat: null, lng: null };
+
+  const stickerMapsHasCoords =
+    typeof stickerCoords.lat === 'number' &&
+    typeof stickerCoords.lng === 'number' &&
+    Number.isFinite(stickerCoords.lat) &&
+    Number.isFinite(stickerCoords.lng);
+
+  const fuzzyStickerMapKey =
+    typeof profileUserUuid === 'string' &&
+    profileUserUuid.trim().length > 0 &&
+    stickerMapsHasCoords
+      ? `coachProfileSticker:${profileUserUuid.trim()}:${String(stickerCoords.lat)}:${String(
+          stickerCoords.lng
+        )}`
+      : null;
+
+  const stickerMiniMapSrc =
+    stickerMapsHasCoords && marketplaceConfig.maps && getMapProviderApiAccess(marketplaceConfig.maps)
+      ? staticPinMapImageUrl(
+          marketplaceConfig.maps,
+          { lat: stickerCoords.lat, lng: stickerCoords.lng },
+          { width: 440, height: 264 },
+          null,
+          fuzzyStickerMapKey
+        )
+      : null;
+
+  const stickerMapHref = stickerMapsHasCoords
+    ? stickerExternalMapsSearchHref(
+        stickerCoords.lat,
+        stickerCoords.lng,
+        stickerLocationShowRichCopy
+          ? intl.formatMessage({
+              id: `ProfilePage.coachCityLocationStickerTitle_${stickerLocationMediaSlug}`,
+              defaultMessage: String(stickerLocationLineRaw || '').trim(),
+            })
+          : String(stickerLocationLineRaw || '').trim()
+      )
+    : null;
 
   const stickerPriceFormatted =
     stickerPriceFromRaw != null && String(stickerPriceFromRaw).trim() !== ''
@@ -537,14 +919,10 @@ export const MainContent = props => {
   const hasStickerLocationDetail =
     stickerLocationLineRaw != null && String(stickerLocationLineRaw).trim() !== '';
 
-  const hasStickerSessionsDetail = !!(stickerRateLine || listingUuidSticker);
+  const stickerLocationUseFeaturedLayout =
+    hasStickerLocationDetail && (stickerLocationShowRichCopy || stickerMiniMapSrc != null);
 
-  const coachLangsOnlyGridSpan =
-    !!coachingLanguages && formattedSportsSticker.length === 0
-      ? css.coachDetailGridSpan
-      : null;
-  const coachSportsOnlyGridSpan =
-    !coachingLanguages && formattedSportsSticker.length > 0 ? css.coachDetailGridSpan : null;
+  const hasStickerSessionsDetail = !!stickerRateLine;
 
   if (userShowError || queryListingsError) {
     return (
@@ -575,17 +953,38 @@ export const MainContent = props => {
   const peakUpStickerColumn = (
     <div className={css.stickerRight}>
       <div className={css.coachProfileDetailGrid}>
-        <section
-          className={classNames(
-            css.stickerBio,
-            !experienceText ? css.coachDetailGridSpan : null
-          )}
-        >
-          <div className={css.stickerBioTitle}>
+        <section className={css.stickerBio}>
+          <div className={classNames(css.stickerBioTitle, css.stickerAboutHeadingRow)}>
+            <PeakUpStickerPersonIcon rootClassName={css.stickerAboutPersonIcon} />
             <FormattedMessage id="ProfilePage.stickerAboutHeading" />
           </div>
           {hasBio ? (
-            <div className={classNames(css.stickerBioText, css.longWord)}>{bioWithLinks}</div>
+            <div className={css.stickerAboutWrap}>
+              <div
+                className={classNames(
+                  css.stickerAboutBody,
+                  stickerAboutIsTruncated && css.stickerAboutBodyClamped
+                )}
+              >
+                {stickerAboutParagraphs.map((paragraph, idx) => (
+                  <p key={`sticker-about-${idx}`} className={css.stickerAboutLine}>
+                    {richText(paragraph, stickerBioRichTextOpts)}
+                  </p>
+                ))}
+              </div>
+              {stickerAboutIsTruncated ? (
+                <InlineTextButton
+                  type="button"
+                  rootClassName={css.stickerAboutReadMore}
+                  onClick={() => setIsBioModalOpen(true)}
+                >
+                  <FormattedMessage
+                    id="ProfilePage.stickerAboutReadMore"
+                    defaultMessage="Read full bio"
+                  />
+                </InlineTextButton>
+              ) : null}
+            </div>
           ) : (
             <p className={classNames(css.stickerBioText, css.stickerBioEmpty)}>
               <FormattedMessage id="ProfilePage.coachBioEmpty" />
@@ -594,26 +993,199 @@ export const MainContent = props => {
         </section>
 
         {experienceText ? (
-          <section className={css.stickerBio}>
-            <div className={css.stickerBioTitle}>
+          <section className={classNames(css.stickerBio, css.stickerExperienceCard)}>
+            <StickerExperienceMountainBackdrop
+              rootClassName={css.stickerExperienceMountain}
+            />
+            <div className={classNames(css.stickerBioTitle, css.stickerExperienceTitleRow)}>
+              <PeakUpStickerBriefcaseIcon rootClassName={css.stickerExperienceBriefcaseIcon} />
               <FormattedMessage id="ProfilePage.stickerExperienceHeading" />
             </div>
-            <div className={classNames(css.stickerBioText, css.longWord)}>{experienceText}</div>
+            <div className={css.stickerExperienceBody}>
+              <p className={css.stickerExperiencePrimary}>{experienceText}</p>
+              <p className={css.stickerExperienceSubtitle}>
+                <FormattedMessage id="ProfilePage.stickerExperienceSubtitle" />
+              </p>
+            </div>
           </section>
         ) : null}
 
-        {coachingLanguages ? (
-          <section className={classNames(css.stickerBio, coachLangsOnlyGridSpan)}>
-            <div className={css.stickerBioTitle}>
+        {hasStickerLocationDetail || hasStickerSessionsDetail ? (
+          <>
+            {hasStickerLocationDetail ? (
+              <section className={css.stickerBio}>
+                <div
+                  className={classNames(
+                    css.stickerBioTitle,
+                    stickerLocationUseFeaturedLayout && css.stickerLocationHeadingWithPin
+                  )}
+                >
+                  {stickerLocationUseFeaturedLayout ? (
+                    <span aria-hidden>
+                      <IconLocation rootClassName={css.stickerLocationHeadingPin} />
+                    </span>
+                  ) : null}
+                  <FormattedMessage id="ProfilePage.coachDetailLocationHeading" />
+                </div>
+                {stickerLocationUseFeaturedLayout ? (
+                  <div
+                    className={classNames(
+                      css.stickerLocationRich,
+                      stickerMiniMapSrc && css.stickerLocationRichWithThumb,
+                      css.longWord
+                    )}
+                  >
+                    {stickerMiniMapSrc ? (
+                      <div className={css.stickerLocationMapCol}>
+                        {stickerMapHref ? (
+                          <a
+                            href={stickerMapHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={css.stickerLocationMapLink}
+                            aria-label={intl.formatMessage({
+                              id: 'ProfilePage.stickerLocationOnMap',
+                            })}
+                          >
+                            <img
+                              src={stickerMiniMapSrc}
+                              alt=""
+                              loading="lazy"
+                              decoding="async"
+                              width={440}
+                              height={264}
+                              className={css.stickerLocationMapThumb}
+                            />
+                          </a>
+                        ) : (
+                          <img
+                            src={stickerMiniMapSrc}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            width={440}
+                            height={264}
+                            className={css.stickerLocationMapThumb}
+                          />
+                        )}
+                      </div>
+                    ) : null}
+                    <div className={css.stickerLocationRichMain}>
+                      <div className={css.stickerLocationRichCopy}>
+                        {stickerLocationShowRichCopy ? (
+                          <>
+                            <p className={css.stickerLocationRichTitle}>
+                              {stickerLocationHasSlug ? (
+                                <FormattedMessage
+                                  id={`ProfilePage.coachCityLocationStickerTitle_${stickerLocationMediaSlug}`}
+                                  defaultMessage={stickerLocationCityForCopy}
+                                />
+                              ) : (
+                                stickerLocationCityForCopy
+                              )}
+                            </p>
+                            {stickerLocationHasSlug ? (
+                              <p className={css.stickerLocationRichRegion}>
+                                <FormattedMessage
+                                  id={`ProfilePage.coachCityLocationStickerRegion_${stickerLocationMediaSlug}`}
+                                  defaultMessage={
+                                    stickerLocationMediaSlug === 'laax' ? 'Grisons' : ''
+                                  }
+                                />
+                              </p>
+                            ) : null}
+                            <p className={css.stickerLocationRichTagline}>
+                              {stickerTravelNearby ? (
+                                <FormattedMessage
+                                  id="ProfilePage.coachCityLocationStickerTagline_nearby_generic"
+                                  values={{ city: stickerLocationCityForCopy }}
+                                  defaultMessage="Available in {city} and surrounding areas."
+                                />
+                              ) : (
+                                <FormattedMessage
+                                  id="ProfilePage.coachCityLocationStickerTagline_local_generic"
+                                  defaultMessage="Personalized experiences with a local instructor"
+                                />
+                              )}
+                            </p>
+                          </>
+                        ) : (
+                          <p className={classNames(css.stickerBioText, css.longWord)}>
+                            {String(stickerLocationLineRaw).trim()}
+                          </p>
+                        )}
+                      </div>
+                      {stickerMapHref && !stickerMiniMapSrc ? (
+                        <a
+                          href={stickerMapHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={css.stickerLocationMapTextLink}
+                        >
+                          <FormattedMessage id="ProfilePage.stickerLocationOnMap" />
+                        </a>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : (
+                  <div className={classNames(css.stickerBioText, css.longWord)}>
+                    {String(stickerLocationLineRaw).trim()}
+                  </div>
+                )}
+              </section>
+            ) : null}
+
+            {hasStickerSessionsDetail ? (
+              <section className={css.stickerBio}>
+                <div className={classNames(css.stickerBioTitle, css.stickerPriceTitleRow)}>
+                  <PeakUpStickerPriceTagIcon rootClassName={css.peakUpStickerPriceTagIcon} />
+                  <FormattedMessage id="ProfilePage.stickerPriceHeading" />
+                </div>
+                <div className={css.stickerPriceCard}>
+                  <div className={css.stickerPriceCardLeft}>
+                    <span className={css.stickerPriceFromLabel}>
+                      <FormattedMessage id="ProfilePage.stickerPriceFromLabel" />
+                    </span>
+                    <span className={css.stickerPriceAmount}>{stickerPriceFormatted}</span>
+                    <span className={css.stickerPricePerHour}>
+                      <FormattedMessage id="ProfilePage.stickerPricePerHour" />
+                    </span>
+                  </div>
+                  <>
+                    <div className={css.stickerPriceCardDivider} role="presentation" />
+                    <div className={css.stickerPriceVerifiedPill}>
+                      <StickerVerifiedShieldIcon rootClassName={css.stickerPriceVerifiedShield} />
+                      <span className={css.stickerPriceVerifiedLabel}>
+                        <FormattedMessage id="ProfilePage.stickerVerifiedCoachBadge" />
+                      </span>
+                    </div>
+                  </>
+                </div>
+              </section>
+            ) : null}
+          </>
+        ) : null}
+
+        {formattedLanguagesSticker.length > 0 ? (
+          <section className={classNames(css.stickerBio, css.coachLanguagesFullRow)}>
+            <div className={classNames(css.stickerBioTitle, css.stickerAboutHeadingRow)}>
+              <PeakUpStickerLanguagesIcon rootClassName={css.stickerAboutPersonIcon} />
               <FormattedMessage id="ProfilePage.stickerLanguagesHeading" />
             </div>
-            <div className={classNames(css.stickerBioText, css.longWord)}>{coachingLanguages}</div>
+            <div className={css.languageTags}>
+              {formattedLanguagesSticker.map(lang => (
+                <span key={lang.key} className={css.sportTag}>
+                  <span className={css.sportTagLabel}>{lang.label}</span>
+                </span>
+              ))}
+            </div>
           </section>
         ) : null}
 
         {formattedSportsSticker.length > 0 ? (
-          <section className={classNames(css.stickerBio, coachSportsOnlyGridSpan)}>
-            <div className={css.stickerBioTitle}>
+          <section className={classNames(css.stickerBio, css.coachSportsFullRow)}>
+            <div className={classNames(css.stickerBioTitle, css.stickerAboutHeadingRow)}>
+              <PeakUpStickerSportsMountainsIcon rootClassName={css.stickerSportsHeadingIcon} />
               <FormattedMessage id="ProfilePage.stickerSportsHeading" />
             </div>
             <div className={css.sportsTags}>
@@ -628,59 +1200,37 @@ export const MainContent = props => {
             </div>
           </section>
         ) : null}
-
-        {hasStickerLocationDetail || hasStickerSessionsDetail ? (
-          <>
-            {hasStickerLocationDetail ? (
-              <section
-                className={classNames(
-                  css.stickerBio,
-                  !hasStickerSessionsDetail ? css.coachDetailGridSpan : null
-                )}
-              >
-                <div className={css.stickerBioTitle}>
-                  <FormattedMessage id="ProfilePage.coachDetailLocationHeading" />
-                </div>
-                <div className={classNames(css.stickerBioText, css.longWord)}>
-                  {String(stickerLocationLineRaw).trim()}
-                </div>
-              </section>
-            ) : null}
-
-            {hasStickerSessionsDetail ? (
-              <section
-                className={classNames(
-                  css.stickerBio,
-                  !hasStickerLocationDetail ? css.coachDetailGridSpan : null
-                )}
-              >
-                <div className={css.stickerBioTitle}>
-                  <FormattedMessage id="ProfilePage.coachDetailSessionsHeading" />
-                </div>
-                {stickerRateLine ? (
-                  <p className={classNames(css.stickerBioText, css.longWord)}>{stickerRateLine}</p>
-                ) : null}
-                {listingUuidSticker ? (
-                  <NamedLink
-                    name="ListingPage"
-                    params={{ slug: listingSlugSticker || 'listing', id: listingUuidSticker }}
-                    className={css.coachDetailBookBtn}
-                  >
-                    <FormattedMessage id="ProfilePage.stickerBookNow" />
-                  </NamedLink>
-                ) : null}
-              </section>
-            ) : null}
-          </>
-        ) : null}
       </div>
     </div>
   );
+
+  const bioFullModal =
+    hasBio && onManageDisableScrolling ? (
+      <Modal
+        id="ProfilePage.stickerBioFullModal"
+        isOpen={isBioModalOpen}
+        onClose={() => setIsBioModalOpen(false)}
+        onManageDisableScrolling={onManageDisableScrolling}
+        usePortal
+      >
+        <div className={css.stickerAboutModalBody}>
+          <h2 className={css.stickerAboutModalHeading}>
+            <FormattedMessage
+              id="ProfilePage.stickerAboutModalHeading"
+              defaultMessage="About {name}"
+              values={{ name: displayName || '' }}
+            />
+          </h2>
+          <div className={css.stickerAboutModalContent}>{bioWithLinks}</div>
+        </div>
+      </Modal>
+    ) : null;
 
   return (
     <div>
       {!isPeakUpCoachProfile ? standardIntro : null}
       {isPeakUpCoachProfile ? peakUpStickerColumn : null}
+      {bioFullModal}
 
       {hasListings ? (
         <div
@@ -773,6 +1323,15 @@ export const ProfilePageComponent = props => {
   const profileUser = useCurrentUser ? currentUser : user;
   const { bio, displayName, publicData, metadata } = profileUser?.attributes?.profile || {};
   const peakUpCoachLayout = shouldShowPeakUpProfileSticker(listings, publicData || {});
+  const coachTrustTopbarSlots =
+    peakUpCoachLayout && profileUser ? (
+      <PeakUpProfileTrustTopbar
+        intl={intl}
+        publicData={publicData || {}}
+        reviews={reviews}
+        variant="topbar"
+      />
+    ) : null;
   const { userFields } = config.user;
   const isPrivateMarketplace = config.accessControl.marketplace.private === true;
   const isUnauthorizedUser = currentUser && !isUserAuthorized(currentUser);
@@ -861,7 +1420,7 @@ export const ProfilePageComponent = props => {
           peakUpCoachLayout && css.sideNavCoachPeakUpWide
         )}
         mainColumnClassName={peakUpCoachLayout ? css.mainPeakUpCoachContent : undefined}
-        topbar={<TopbarContainer />}
+        topbar={<TopbarContainer topbarCenterContent={coachTrustTopbarSlots} />}
         sideNav={
           <AsideContent
             user={profileUser}
@@ -873,20 +1432,31 @@ export const ProfilePageComponent = props => {
         }
         footer={<FooterContainer />}
       >
-        <MainContent
-          bio={bio}
-          displayName={displayName}
-          userShowError={userShowError}
-          publicData={publicData}
-          metadata={metadata}
-          userFieldConfig={userFields}
-          hideReviews={hasNoViewingRightsOnPrivateMarketplace}
-          intl={intl}
-          userTypeRoles={userTypeRoles}
-          listings={listings}
-          reviews={reviews}
-          {...rest}
-        />
+        <>
+          {peakUpCoachLayout && profileUser ? (
+            <PeakUpProfileTrustTopbar
+              intl={intl}
+              publicData={publicData || {}}
+              reviews={reviews}
+              variant="rail"
+            />
+          ) : null}
+          <MainContent
+            bio={bio}
+            displayName={displayName}
+            userShowError={userShowError}
+            publicData={publicData}
+            metadata={metadata}
+            userFieldConfig={userFields}
+            hideReviews={hasNoViewingRightsOnPrivateMarketplace}
+            intl={intl}
+            userTypeRoles={userTypeRoles}
+            listings={listings}
+            reviews={reviews}
+            profileUserUuid={profileUser?.id?.uuid}
+            {...rest}
+          />
+        </>
       </LayoutSideNavigation>
     </Page>
   );
@@ -923,6 +1493,11 @@ const mapStateToProps = state => {
   };
 };
 
-const ProfilePage = compose(connect(mapStateToProps))(ProfilePageComponent);
+const mapDispatchToProps = dispatch => ({
+  onManageDisableScrolling: (componentId, disableScrolling) =>
+    dispatch(manageDisableScrolling(componentId, disableScrolling)),
+});
+
+const ProfilePage = compose(connect(mapStateToProps, mapDispatchToProps))(ProfilePageComponent);
 
 export default ProfilePage;

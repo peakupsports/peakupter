@@ -7,6 +7,8 @@ import { OutsideClickHandler } from '../../../../../components';
 
 import css from './FilterCategories.module.css';
 
+const PEAKUP_SPORT_PLACEHOLDER = 'Your sport';
+
 const CategoryDropdown = ({ input, className, rootClassName, categories, alignLeft }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -72,7 +74,7 @@ const CategoryDropdown = ({ input, className, rootClassName, categories, alignLe
   ) : hasSelected && input.value === '' ? (
     <FormattedMessage id="PageBuilder.SearchCTA.CategoryFilter.selectAll" />
   ) : (
-    <FormattedMessage id="PageBuilder.SearchCTA.CategoryFilter.placeholder" />
+    PEAKUP_SPORT_PLACEHOLDER
   );
 
   const rootClass = rootClassName || css.root;
@@ -96,6 +98,7 @@ const CategoryDropdown = ({ input, className, rootClassName, categories, alignLe
           role="combobox"
           aria-label={intl.formatMessage({
             id: 'PageBuilder.SearchCTA.CategoryFilter.placeholder',
+            defaultMessage: PEAKUP_SPORT_PLACEHOLDER,
           })}
           aria-haspopup="listbox"
           aria-expanded={isOpen}

@@ -1,0 +1,588 @@
+@import '../../styles/customMediaQueries.css';
+
+/* PeakUp coach figurina card — visually mirrors the ProfilePage figurina (gold border, navy
+ * header, photo with sport/price overlays, blue footer with stars + language flags).
+ */
+
+.root {
+  /* design tokens locali (allineati a ProfilePage.module.css) */
+  --stickerGold: #c9a227;
+  --stickerGoldSoft: rgba(201, 162, 39, 0.5);
+  --stickerNavy: #10213e;
+  --stickerNavyMid: #1f3558;
+  --stickerFooterBlue: #e4edf7;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  /* Lascia respiro alla medaglia podio che sporge in alto. */
+  padding-top: 18px;
+  isolation: isolate;
+}
+
+/* Medaglia da podio: angolo alto-destro, nastro pendulo. `currentColor` riempie il
+ * disco metallico (gold/silver/bronze) → vedi varianti `.medal_*`. */
+.podiumMedal {
+  position: absolute;
+  top: -4px;
+  right: 8px;
+  width: 30px;
+  height: 42px;
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 4;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
+}
+
+.podiumMedal svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Tier colore base del disco (currentColor sull'<circle> esterno dell'SVG). */
+.medal_gold {
+  color: #f5c542;
+}
+
+.medal_silver {
+  color: #c8d0db;
+}
+
+.medal_bronze {
+  color: #cd7f32;
+}
+
+.stickerCard {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 20px;
+  border: 4px solid var(--stickerGold);
+  background: linear-gradient(165deg, #ffffff 0%, #eef3f9 100%);
+  box-shadow: 0 14px 40px rgba(16, 33, 62, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header navy con flag + nome + badge livello (sempre su una sola riga). */
+.stickerCardHeader {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: 64px;
+  padding: 10px 12px;
+  background: linear-gradient(
+    180deg,
+    var(--stickerNavyMid) 0%,
+    var(--stickerNavy) 56%,
+    rgba(39, 66, 102, 0.55) 82%,
+    rgba(228, 234, 244, 0.12) 100%
+  );
+  border-bottom: none;
+}
+
+/* Sfumatura header→foto, identica a ProfilePage */
+.stickerCardHeader::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: clamp(60px, 22vw, 96px);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(16, 33, 62, 0.52) 0%,
+    rgba(16, 33, 62, 0.22) 32%,
+    rgba(218, 228, 240, 0.28) 62%,
+    rgba(237, 242, 250, 0.08) 88%,
+    rgba(238, 243, 249, 0) 100%
+  );
+  z-index: 4;
+}
+
+.stickerHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.flag {
+  flex-shrink: 0;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.stickerName {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: clamp(13px, 1.6vw, 17px);
+  font-weight: var(--fontWeightBold);
+  letter-spacing: 0.08em;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--colorWhite);
+  text-transform: uppercase;
+}
+
+.stickerHeaderBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+}
+
+/* Pulsante reset: pill badge apre modale gerarchia (stesso ruolo di ProfilePage). */
+.stickerBadgeButton {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  text-align: inherit;
+  color: inherit;
+  vertical-align: baseline;
+}
+
+.stickerBadgeButton:focus-visible {
+  outline: 2px solid var(--stickerGold);
+  outline-offset: 2px;
+}
+
+/* Slot fisso logo Founder — stessa impronta di ProfilePage.module.css */
+.stickerFounderLogoSlot {
+  box-sizing: border-box;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo PeakUp inserito tra nome e pillola "FOUNDER" — visibile solo per il
+ * Founder. Stesso trattamento usato nella ProfilePage figurina (cerchio con
+ * bordo dorato + soft glass scuro), ma scalato perché la card del carosello
+ * è più compatta. */
+.stickerFounderLogo {
+  flex: 0 0 auto;
+  display: block;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  padding: 2px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), rgba(0, 0, 0, 0.35));
+  border: 1.5px solid var(--stickerGold);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.18) inset,
+    0 1px 2px rgba(0, 0, 0, 0.35);
+  object-fit: contain;
+  margin: 0;
+
+  @media (--viewportMedium) {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* Pill base "premium light": pillola sottile, gradient ariose con alpha medio (~0.7),
+ * bordo metallico tenue, ombra esterna minima. I cinque livelli sovrascrivono il
+ * gradient per dare la nuance del metallo (oro / rose-gold / platino / bronzo / acciaio).
+ */
+.stickerCertBadge {
+  box-sizing: border-box;
+  min-height: 22px;
+  padding: 3px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(42, 58, 85, 0.55) 0%,
+    rgba(22, 38, 61, 0.55) 100%
+  );
+  /* leggero "frosted" così il colore resta chiaro anche su sfondi vivaci */
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(245, 230, 168, 0.45);
+  color: #f5e6a8;
+  font-size: 9.5px;
+  font-weight: var(--fontWeightBold);
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 1px 1.5px rgba(0, 0, 0, 0.18);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* FOUNDER — cristallo / diamante. Massima gerarchia: bianco-azzurro luminoso con
+ * leggera iridescenza, abbastanza sostanzioso da leggere il testo navy sopra l'header. */
+.badge_founder {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(232, 244, 255, 0.84) 45%,
+      rgba(202, 224, 245, 0.78) 75%,
+      rgba(178, 208, 235, 0.72) 100%
+    );
+  color: #06182f;
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(120, 170, 220, 0.35),
+    inset 1px 0 0 rgba(255, 255, 255, 0.45),
+    0 1px 2px rgba(40, 70, 110, 0.22),
+    0 0 8px rgba(160, 200, 255, 0.4);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+  font-weight: var(--fontWeightBlack, 800);
+}
+
+/* AMBASSADOR — oro lucido (warm yellow gold). */
+.badge_ambassador {
+  background: linear-gradient(
+    180deg,
+    rgba(252, 231, 154, 0.85) 0%,
+    rgba(232, 196, 92, 0.78) 50%,
+    rgba(193, 145, 28, 0.72) 100%
+  );
+  color: #3d2807;
+  border-color: rgba(244, 215, 132, 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 1.5px rgba(120, 80, 0, 0.18);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* TOP COACH — argento (cool silver). */
+.badge_top_coach {
+  background: linear-gradient(
+    180deg,
+    rgba(248, 250, 253, 0.85) 0%,
+    rgba(214, 220, 230, 0.76) 50%,
+    rgba(160, 170, 184, 0.7) 100%
+  );
+  color: #1d2433;
+  border-color: rgba(225, 230, 240, 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 1px 1.5px rgba(40, 50, 70, 0.18);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* CERTIFIED COACH — bronzo (warm brown/copper). */
+.badge_certified_coach {
+  background: linear-gradient(
+    180deg,
+    rgba(239, 201, 164, 0.82) 0%,
+    rgba(200, 128, 75, 0.74) 55%,
+    rgba(154, 90, 47, 0.68) 100%
+  );
+  color: #3d1d09;
+  border-color: rgba(232, 188, 148, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 1px 1.5px rgba(60, 25, 5, 0.18);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* COACH LEVEL 4 — peltro chiaro (entry tier). */
+.badge_coach_level_4 {
+  background: linear-gradient(
+    180deg,
+    rgba(216, 221, 230, 0.78) 0%,
+    rgba(152, 162, 177, 0.7) 55%,
+    rgba(108, 117, 135, 0.66) 100%
+  );
+  color: #1a2030;
+  border-color: rgba(190, 198, 210, 0.8);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 1px 1.5px rgba(20, 25, 35, 0.18);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.stickerLevelBadge {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  min-height: 26px;
+  padding: 5px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2d3f5c 0%, #16263d 100%);
+  color: #f5e6a8;
+  border: 1px solid rgba(201, 162, 39, 0.65);
+  font-size: 10px;
+  font-weight: var(--fontWeightBold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.stickerCardBody {
+  position: relative;
+  z-index: 1;
+  padding: 4px 12px 0;
+  box-sizing: border-box;
+}
+
+.stickerPhotoWrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.stickerPhotoFrame {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--colorGrey100);
+  aspect-ratio: 6 / 7;
+  box-shadow: none;
+}
+
+.stickerPhotoLink {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+.stickerPhotoLink:focus-visible {
+  outline: 2px solid var(--stickerGold);
+  outline-offset: 2px;
+}
+
+.stickerPhoto {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardPhotoPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 160px;
+  font-size: 56px;
+  font-weight: var(--fontWeightBold);
+  color: rgba(16, 33, 62, 0.35);
+  background: linear-gradient(
+    160deg,
+    rgba(31, 53, 88, 0.14) 0%,
+    rgba(201, 162, 39, 0.1) 55%,
+    rgba(244, 247, 251, 0.95) 100%
+  );
+}
+
+.stickerPhotoOverlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(16, 33, 62, 0.12) 0%,
+    rgba(16, 33, 62, 0.04) 22%,
+    transparent 52%,
+    rgba(16, 33, 62, 0.38) 82%,
+    rgba(16, 33, 62, 0.52) 100%
+  );
+}
+
+.stickerPhotoShine {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    transparent 38%,
+    transparent 100%
+  );
+  opacity: 0.35;
+}
+
+.stickerInfoOverlay {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Colonna bandiere lingue: dentro la foto, lato destro, una sopra l'altra. */
+.stickerLanguagesColumn {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: calc(100% - 16px);
+  overflow: hidden;
+}
+
+.stickerLanguagePill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(28, 36, 48, 0.78);
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.stickerInfoRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stickerMiniBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: var(--fontWeightSemiBold);
+  color: var(--colorWhite);
+  background: rgba(28, 36, 48, 0.82);
+  border: 1px solid rgba(201, 162, 39, 0.22);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.stickerCardFooter {
+  position: relative;
+  z-index: 1;
+  margin-top: 0;
+  padding: 10px 12px 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(233, 240, 250, 0.35) 0%,
+    rgba(224, 233, 244, 0.72) 22%,
+    #eff4fb 52%,
+    var(--stickerFooterBlue) 100%
+  );
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stickerBottomRow {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.stickerStars {
+  display: flex;
+  gap: 3px;
+  font-size: 17.45px;
+  line-height: 1;
+  margin-left: clamp(4px, 3%, 10px);
+}
+
+.starFilled {
+  color: #ffb400;
+}
+
+.starEmpty {
+  color: var(--colorGrey300);
+}
+
+.stickerFooterMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.reviewMeta {
+  font-size: 11px;
+  color: var(--stickerNavy);
+  font-weight: var(--fontWeightSemiBold);
+  letter-spacing: 0.02em;
+}
+
+.reviewMetaMuted {
+  color: var(--colorGrey700);
+  font-weight: var(--fontWeightMedium);
+  font-style: italic;
+}
+
+/* Allineato a `.stickerActionPrimary` di ProfilePage.module.css: stesso gradiente
+ * navy + bordo dorato così il CTA del carosello e quello della pagina profilo
+ * appartengono visivamente alla stessa famiglia. */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2f5490 0%, var(--stickerNavy) 100%);
+  color: var(--colorWhite, #ffffff);
+  font-size: 11px;
+  font-weight: var(--fontWeightBold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1.5px solid var(--stickerGold);
+  box-shadow: 0 1px 3px rgba(16, 33, 62, 0.25);
+  transition: filter 0.15s ease;
+}
+
+.cta:hover,
+.cta:focus-visible {
+  filter: brightness(1.06);
+  color: var(--colorWhite, #ffffff);
+  text-decoration: none;
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--stickerGold);
+  outline-offset: 2px;
+}

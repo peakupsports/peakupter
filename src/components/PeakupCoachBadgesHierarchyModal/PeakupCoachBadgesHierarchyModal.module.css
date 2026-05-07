@@ -1,0 +1,93 @@
+@import '../../styles/customMediaQueries.css';
+
+/* Affiancato a .container del Modal via classNames in JS. */
+.modalContainerNarrow {
+  @media (--viewportMedium) {
+    flex-basis: auto;
+    width: 100%;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.body {
+  position: relative;
+  padding: 0 4px 8px;
+  /* Stessi token delle figurine (PeakUpCoachFigurineCard / ProfilePage sticker). */
+  --stickerGold: #c9a227;
+  --stickerNavy: #10213e;
+  overflow: hidden;
+}
+
+.watermark {
+  position: absolute;
+  inset: 0;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center 50%;
+  background-size: min(420px, 90%);
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 0;
+  filter: saturate(1) contrast(1.1);
+}
+
+.title,
+.tier {
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: var(--fontWeightBold);
+  line-height: 1.25;
+  color: var(--colorGrey900);
+}
+
+.tier {
+  margin: 0 0 16px;
+}
+
+.tier:last-child {
+  margin-bottom: 0;
+}
+
+.tierHeader {
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.tierName {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: var(--fontWeightBlack, 800);
+  letter-spacing: 0.1em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--stickerNavy);
+}
+
+.tierName::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--stickerGold);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.18);
+}
+
+.tierBody {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--colorGrey700);
+}
