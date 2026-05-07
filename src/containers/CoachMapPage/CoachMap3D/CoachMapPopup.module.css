@@ -1,0 +1,221 @@
+/* Popup card mounted inside Mapbox's `.mapboxgl-popup-content` (which gets its
+   own white bg + rounded corners + shadow + tip color via global overrides in
+   CoachMap3D.module.css). The styles here govern the inner content. */
+
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 264px;
+  padding: 14px 14px 12px;
+  font-family: var(--fontFamily);
+  color: var(--colorGrey800);
+}
+
+.closeBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 33, 62, 0.04);
+  border: none;
+  border-radius: 50%;
+  color: var(--colorGrey700);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.closeBtn:hover {
+  background: rgba(16, 33, 62, 0.10);
+  color: var(--colorGrey900);
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--marketplaceColor);
+  outline-offset: 2px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-right: 28px;
+}
+
+.photo {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(16, 33, 62, 0.06);
+}
+
+.photoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photoAvatar {
+  width: 100%;
+  height: 100%;
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--colorGrey900);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.name:hover {
+  color: var(--marketplaceColor);
+}
+
+.identityMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  row-gap: 4px;
+}
+
+/* Premium gold badge for the popup. Matches the figurina tier styling but
+   collapsed into a single solid gold pill so the popup reads as elevated. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badgeGold {
+  color: #4a3300;
+  background: linear-gradient(135deg, #ffe187 0%, #f2c94c 50%, #c9a227 100%);
+  border: 1px solid rgba(195, 152, 22, 0.45);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+}
+
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--colorGrey700);
+}
+
+.ratingStar {
+  color: #f2b134;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.ratingValue {
+  font-weight: 700;
+  color: var(--colorGrey900);
+}
+
+.ratingCount {
+  color: var(--colorGrey500);
+}
+
+.facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.factItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgba(16, 33, 62, 0.04);
+  font-size: 11px;
+  color: var(--colorGrey800);
+  line-height: 1;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(16, 33, 62, 0.07);
+}
+
+.priceBlock {
+  font-size: 12px;
+  color: var(--colorGrey700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.priceValue {
+  color: var(--colorGrey900);
+  font-weight: 700;
+}
+
+.contactBtn {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--marketplaceColor);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+.contactBtn:hover {
+  background: var(--marketplaceColorDark);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.contactBtn:focus-visible {
+  outline: 2px solid var(--marketplaceColor);
+  outline-offset: 2px;
+}

@@ -197,7 +197,7 @@ const TopbarDesktop = props => {
       className={classNames(
         css.centerSlot,
         { [css.takeAvailableSpace]: giveSpaceForSearch },
-        currentPage === 'LandingPage' ? css.centerSlotLanding : null
+        ['LandingPage', 'CoachMapPage'].includes(currentPage) ? css.centerSlotLanding : null
       )}
     >
       {topbarCenterContent}

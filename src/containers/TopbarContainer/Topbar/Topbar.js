@@ -408,10 +408,17 @@ const TopbarComponent = props => {
           onSearchSubmit={handleSubmit}
           config={config}
           customLinks={customLinks}
-          showSearchForm={resolvedCurrentPage === 'LandingPage' ? false : showSearchForm}
+          showSearchForm={
+            resolvedCurrentPage === 'LandingPage' ||
+            (resolvedCurrentPage === 'CoachMapPage' && topbarCenterContent)
+              ? false
+              : showSearchForm
+          }
           showCreateListingsLink={showCreateListingsLink}
           inboxTab={topbarInboxTab}
-          topbarCenterContent={resolvedCurrentPage === 'LandingPage' ? landingSportBarCenterContent : topbarCenterContent}
+          topbarCenterContent={
+            resolvedCurrentPage === 'LandingPage' ? landingSportBarCenterContent : topbarCenterContent
+          }
         />
       </div>
       <Modal

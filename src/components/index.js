@@ -131,6 +131,7 @@ export { default as OrderBreakdown } from './OrderBreakdown/OrderBreakdown';
 export { default as OrderPanel } from './OrderPanel/OrderPanel';
 export { default as ListingCard } from './ListingCard/ListingCard';
 export { default as CoachStickerCard } from './CoachStickerCard/CoachStickerCard';
+export { default as CoachCard } from './CoachCard/CoachCard';
 export { default as PeakUpCoachFigurineCard } from './PeakUpCoachFigurineCard/PeakUpCoachFigurineCard';
 export { default as Map } from './Map/Map';
 export { default as Page } from './Page/Page';

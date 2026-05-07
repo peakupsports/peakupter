@@ -1,0 +1,313 @@
+import React from 'react';
+import classNames from 'classnames';
+
+import { FormattedMessage, useIntl } from '../../util/reactIntl';
+import { types as sdkTypes } from '../../util/sdkLoader';
+import { formatMoney, unitDivisor } from '../../util/currency';
+import { ensureUser } from '../../util/data';
+import {
+  resolveCoachStickerDisplay,
+  resolvePeakupCoachBadgeIds,
+  PEAKUP_COACH_BADGE_PRIORITY,
+  formatProfileSportsForSticker,
+  LANGUAGE_FLAGS,
+} from '../../util/profileCoachSticker';
+
+import { Avatar } from '../Avatar/Avatar';
+import NamedLink from '../NamedLink/NamedLink';
+import ResponsiveImage from '../ResponsiveImage/ResponsiveImage';
+
+import css from './CoachCard.module.css';
+
+const { Money } = sdkTypes;
+
+const PROFILE_IMAGE_VARIANTS = ['square-small', 'square-small2x'];
+
+/**
+ * Build a Money from the coach profile's `publicData.priceFrom` (major units)
+ * and `publicData.currency`. Returns `null` when the inputs are missing,
+ * non-numeric, or when the currency has no known minor-unit divisor – the
+ * caller can then fall back to the listing-based price.
+ *
+ * @param {Object} publicData author profile public data
+ * @returns {Object|null} sdkTypes.Money or null
+ */
+const buildProfilePriceMoney = publicData => {
+  if (!publicData) return null;
+  const rawAmount = publicData.priceFrom;
+  const amountMajor =
+    rawAmount === null || rawAmount === undefined || rawAmount === '' ? NaN : Number(rawAmount);
+  if (!Number.isFinite(amountMajor) || amountMajor <= 0) return null;
+  const currency = publicData.currency;
+  if (!currency || typeof currency !== 'string') return null;
+  try {
+    const subunits = Math.round(amountMajor * unitDivisor(currency));
+    if (!Number.isFinite(subunits)) return null;
+    return new Money(subunits, currency);
+  } catch (e) {
+    return null;
+  }
+};
+
+// Reuse existing badge translations to avoid string duplication.
+const BADGE_LABEL_KEYS = {
+  founder: 'PeakUpCoachFigurineCard.badge.founder',
+  ambassador: 'PeakUpCoachFigurineCard.badge.ambassador',
+  top_coach: 'PeakUpCoachFigurineCard.badge.topCoach',
+  certified_coach: 'PeakUpCoachFigurineCard.badge.certifiedCoach',
+};
+
+// Tier-driven avatar ring. Carries the badge signal visually without a heavy
+// pill. The tiny inline label next to the name reinforces it for a11y.
+const PHOTO_RING_CLASSNAMES = {
+  founder: css.photoRingFounder,
+  ambassador: css.photoRingAmbassador,
+  top_coach: css.photoRingTopCoach,
+  certified_coach: css.photoRingCertifiedCoach,
+};
+
+/** Highest-priority badge id from `publicData`, or null. */
+const pickPrimaryBadgeId = profilePd => {
+  const ids = resolvePeakupCoachBadgeIds(profilePd) || [];
+  if (!ids.length) return null;
+  return [...ids].sort(
+    (a, b) => (PEAKUP_COACH_BADGE_PRIORITY[b] || 0) - (PEAKUP_COACH_BADGE_PRIORITY[a] || 0)
+  )[0];
+};
+
+/**
+ * Sidebar coach card for `/coach-map`.
+ *
+ * Field sourcing follows the rule: profile/user data first, listing data only
+ * as a fallback (price, sports, languages and location lines). Specifically,
+ * the headline price comes from `publicData.priceFrom` configured in
+ * ProfileSettingsPage and falls back to the cheapest listing price only when
+ * the profile-level price is missing or invalid.
+ *
+ * @param {Object} props
+ * @param {Object} props.coach   aggregated coach row (author + representativeListing + sportKeys + reviewCount + reviewAverage + minPrice)
+ * @param {boolean} [props.isSelected]      adds a persistent "active" border (driven by parent selection state)
+ * @param {Function} [props.onMouseEnter]   highlight the marker on the map (transient)
+ * @param {Function} [props.onMouseLeave]   clear marker highlight
+ * @param {Function} [props.onMapClick]     handler for the "Map" button (parent decides what to do – typically flyTo + select)
+ * @param {string} [props.className]
+ * @param {string} [props.rootClassName]
+ */
+const CoachCard = props => {
+  const {
+    coach,
+    isSelected = false,
+    onMouseEnter,
+    onMouseLeave,
+    onMapClick,
+    className,
+    rootClassName,
+  } = props;
+  const intl = useIntl();
+
+  const {
+    author: rawAuthor,
+    representativeListing,
+    minPrice,
+    reviewAverage,
+    reviewCount,
+  } = coach || {};
+
+  const author = rawAuthor ? ensureUser(rawAuthor) : null;
+  const profile = author?.attributes?.profile || {};
+  const publicData = profile.publicData || {};
+  const displayName = profile.displayName || '';
+  const profileId = author?.id?.uuid;
+  const profileImage = author?.profileImage || null;
+
+  // Single source of truth for sports / languages / locationLine / lat / lng
+  // (profile-first, listing-fallback).
+  const sticker = resolveCoachStickerDisplay(publicData, representativeListing);
+  const sportEntries = formatProfileSportsForSticker(intl, sticker.sports).slice(0, 3);
+  // Languages collapse to a tight flag cluster – the written language names
+  // were too noisy and added a third meta row. Flags carry the signal and
+  // keep the card scannable.
+  const languageFlags = (sticker.languages || [])
+    .slice(0, 4)
+    .map(code => LANGUAGE_FLAGS[code])
+    .filter(Boolean);
+
+  // Whether we have any usable coordinate to fly the map to. Mirrors what
+  // `getCoachCoordinates` returns at the page level – kept inline here to avoid
+  // re-running the resolver twice for the same coach.
+  const hasMapTarget = Number.isFinite(sticker.lat) && Number.isFinite(sticker.lng);
+
+  const badgeId = pickPrimaryBadgeId(publicData);
+
+  // Price source order:
+  //   1. coach profile (`publicData.priceFrom` + `publicData.currency`)
+  //      – set from ProfileSettingsPage, this is the "main" coaching price.
+  //   2. cheapest listing (`coach.minPrice`) – legacy fallback for coaches
+  //      who haven't configured a profile-level price yet.
+  // Listing prices elsewhere in the marketplace are unaffected.
+  const profilePriceMoney = buildProfilePriceMoney(publicData);
+  const listingMinPrice =
+    minPrice && typeof minPrice.amount === 'number' ? minPrice : null;
+  const priceForDisplay = profilePriceMoney || listingMinPrice;
+  const formattedPrice = priceForDisplay ? formatMoney(intl, priceForDisplay) : null;
+
+  const profileImageVariants = profileImage
+    ? Object.keys(profileImage?.attributes?.variants || {}).filter(k =>
+        PROFILE_IMAGE_VARIANTS.includes(k)
+      )
+    : [];
+
+  const photo =
+    profileImage && profileImageVariants.length > 0 ? (
+      <ResponsiveImage
+        rootClassName={css.photoImage}
+        alt={displayName || 'Coach'}
+        image={profileImage}
+        variants={profileImageVariants}
+        sizes="56px"
+      />
+    ) : (
+      <Avatar rootClassName={css.photoAvatar} user={author} disableProfileLink />
+    );
+
+  const ratingNumber =
+    typeof reviewAverage === 'number' && Number.isFinite(reviewAverage)
+      ? reviewAverage.toFixed(1)
+      : null;
+
+  const handleMapClick = () => {
+    // TEMP DEBUG: remove once flyTo is verified.
+    // eslint-disable-next-line no-console
+    console.log('[CoachCard] Map button clicked', {
+      authorUuid: coach?.authorUuid,
+      listingId: coach?.representativeListing?.id?.uuid,
+      geolocation: coach?.representativeListing?.attributes?.geolocation,
+      hasOnMapClick: typeof onMapClick === 'function',
+    });
+    if (typeof onMapClick === 'function') {
+      onMapClick(coach);
+    }
+  };
+
+  return (
+    <article
+      className={classNames(
+        rootClassName || css.root,
+        isSelected ? css.rootSelected : null,
+        className
+      )}
+      aria-pressed={isSelected || undefined}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <header className={css.header}>
+        <div className={classNames(css.photo, badgeId ? PHOTO_RING_CLASSNAMES[badgeId] : null)}>
+          {photo}
+        </div>
+        <div className={css.identity}>
+          <div className={css.titleRow}>
+            <span className={css.titleLeft}>
+              {profileId ? (
+                <NamedLink className={css.name} name="ProfilePage" params={{ id: profileId }}>
+                  {displayName || <FormattedMessage id="CoachCard.fallbackName" />}
+                </NamedLink>
+              ) : (
+                <span className={css.name}>
+                  {displayName || <FormattedMessage id="CoachCard.fallbackName" />}
+                </span>
+              )}
+              {badgeId && BADGE_LABEL_KEYS[badgeId] ? (
+                <span className={css.tierLabel} aria-hidden>
+                  <FormattedMessage id={BADGE_LABEL_KEYS[badgeId]} />
+                </span>
+              ) : null}
+            </span>
+
+            {reviewCount > 0 && ratingNumber != null ? (
+              <span
+                className={css.rating}
+                aria-label={intl.formatMessage(
+                  { id: 'CoachCard.ratingAria' },
+                  { rating: ratingNumber, count: reviewCount }
+                )}
+              >
+                <span className={css.ratingStar} aria-hidden>
+                  ★
+                </span>
+                <span className={css.ratingValue}>{ratingNumber}</span>
+                <span className={css.ratingCount}>({reviewCount})</span>
+              </span>
+            ) : null}
+          </div>
+
+          {sportEntries.length > 0 || languageFlags.length > 0 ? (
+            <div className={css.metaRow}>
+              {sportEntries.length > 0 ? (
+                <span className={css.sportsText}>
+                  {sportEntries.map(s => `${s.emoji} ${s.label}`).join(' · ')}
+                </span>
+              ) : null}
+              {languageFlags.length > 0 ? (
+                <span
+                  className={css.flagsCluster}
+                  aria-label={intl.formatMessage({ id: 'CoachCard.languagesAria' })}
+                >
+                  {languageFlags.map((flag, i) => (
+                    <span key={i} className={css.flag}>
+                      {flag}
+                    </span>
+                  ))}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+
+          {sticker.locationLine ? (
+            <div className={css.locationRow}>
+              <span aria-hidden>📍</span>
+              <span className={css.locationText}>{sticker.locationLine}</span>
+            </div>
+          ) : null}
+        </div>
+      </header>
+
+      <footer className={css.footer}>
+        <div className={css.priceBlock}>
+          {formattedPrice ? (
+            <FormattedMessage
+              id="CoachesPage.priceFrom"
+              values={{
+                price: <strong className={css.priceValue}>{formattedPrice}</strong>,
+              }}
+            />
+          ) : null}
+        </div>
+        <div className={css.actions}>
+          {hasMapTarget ? (
+            <button type="button" className={css.mapBtn} onClick={handleMapClick}>
+              <FormattedMessage id="CoachCard.mapAction" />
+            </button>
+          ) : (
+            <span
+              className={css.mapUnavailable}
+              title={intl.formatMessage({ id: 'CoachCard.mapUnavailable' })}
+            >
+              <FormattedMessage id="CoachCard.mapUnavailable" />
+            </span>
+          )}
+          {profileId ? (
+            <NamedLink className={css.contactBtn} name="ProfilePage" params={{ id: profileId }}>
+              <FormattedMessage id="CoachesPage.contact" />
+            </NamedLink>
+          ) : (
+            <span className={css.contactBtnDisabled}>
+              <FormattedMessage id="CoachesPage.contact" />
+            </span>
+          )}
+        </div>
+      </footer>
+    </article>
+  );
+};
+
+export default CoachCard;

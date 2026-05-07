@@ -62,9 +62,20 @@ export const fetchCoachesExploreThunk = createAsyncThunk(
       const { aspectWidth = 1, aspectHeight = 1 } = config.layout.listingImage;
       const aspectRatio = aspectHeight / aspectWidth;
 
+      // CoachCard reads coach name + badges + languages + location from
+      // `author.attributes.profile.publicData`, and shows the actual profile
+      // photo via the avatar variants. Without `fields.user` Sharetribe may
+      // omit `publicData` for sub-included users; without the avatar
+      // variants the profileImage would be returned without usable URLs.
       const imageFields = {
         include: ['author', 'author.profileImage', 'images'],
-        'fields.image': [`variants.${variantPrefix}`, `variants.${variantPrefix}-2x`],
+        'fields.user': ['profile.displayName', 'profile.abbreviatedName', 'profile.publicData'],
+        'fields.image': [
+          `variants.${variantPrefix}`,
+          `variants.${variantPrefix}-2x`,
+          'variants.square-small',
+          'variants.square-small2x',
+        ],
         ...createImageVariantConfig(`${variantPrefix}`, 400, aspectRatio),
         ...createImageVariantConfig(`${variantPrefix}-2x`, 800, aspectRatio),
       };

@@ -351,6 +351,32 @@ export const resolveCoachStickerDisplay = (profilePd = {}, listing = null) => {
 };
 
 /**
+ * Resolve a coach's map coordinates from any data shape we ship.
+ *
+ * Cascading sources (handled by {@link resolveCoachStickerDisplay}):
+ *   1. `listing.attributes.geolocation` (representative listing pin)
+ *   2. `profile.publicData.lat` / `lng` or `latitude` / `longitude`
+ *   3. `profile.publicData.location.selectedPlace.origin` (LocationAutocomplete shape)
+ *   4. `profile.publicData.coachCity` slug → configured city center
+ *
+ * Returns `null` if neither side has a finite numeric pair – so callers can
+ * disable / hide map-targeting actions safely.
+ *
+ * @param {Object|null|undefined} coach aggregated coach row (author + representativeListing)
+ * @returns {{ lat: number, lng: number } | null}
+ */
+export const getCoachCoordinates = coach => {
+  if (!coach) return null;
+  const profilePd = coach.author?.attributes?.profile?.publicData || {};
+  const listing = coach.representativeListing || null;
+  const sticker = resolveCoachStickerDisplay(profilePd, listing);
+  const lat = typeof sticker.lat === 'number' && Number.isFinite(sticker.lat) ? sticker.lat : null;
+  const lng = typeof sticker.lng === 'number' && Number.isFinite(sticker.lng) ? sticker.lng : null;
+  if (lat == null || lng == null) return null;
+  return { lat, lng };
+};
+
+/**
  * Mapping legacy/free-form per il campo `publicData.coachLevel` (es. "Ambassador",
  * "top coach", "certified-coach", "coach level 4"). Tutto viene normalizzato a snake_case
  * minuscolo, poi confrontato con questa tabella.

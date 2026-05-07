@@ -8,11 +8,21 @@ export const listingHasPeakupBookingFlag = listing => {
   return false;
 };
 
+// Normalises a free-form sport label into a comparable key.
+// Strips emojis, punctuation, accents-as-separators, whitespace, hyphens and
+// underscores. Both sides of the SportBar filter pass through this, so the
+// listing/profile data and the SportBar slug end up on the same shape.
+//
+// Examples:
+//   'Surf'        → 'surf'
+//   '🏄 Surf'     → 'surf'
+//   'Cross-country' → 'crosscountry'
+//   'freeride_snowboard' → 'freeridesnowboard'
 const normalizeSportKey = sport =>
   String(sport || '')
     .toLowerCase()
     .trim()
-    .replace(/[\s-_]+/g, '');
+    .replace(/[^a-z0-9]+/g, '');
 
 /** @param {string} value sport bar value (e.g. snowboard, freeridesnowboard) */
 export const selectedSportToFilterHyphen = value =>
@@ -41,25 +51,45 @@ export const countryCodeToFlagEmoji = code => {
 };
 
 /**
+ * Read sport-ish keys from a free-form publicData object. Supports several
+ * field-name conventions we've seen across listings and coach profiles
+ * (`sports[]`, `sport`, `coachSports[]`, `activities[]`, `activity`, `category`).
+ *
+ * @param {Object|null|undefined} pd a publicData-like object
+ * @returns {string[]} deduped, normalised sport keys
+ */
+const sportKeysFromPublicData = pd => {
+  const data = pd || {};
+  const raw = [];
+  if (Array.isArray(data.sports)) raw.push(...data.sports);
+  if (typeof data.sport === 'string') raw.push(data.sport);
+  if (Array.isArray(data.coachSports)) raw.push(...data.coachSports);
+  if (Array.isArray(data.activities)) raw.push(...data.activities);
+  if (typeof data.activity === 'string') raw.push(data.activity);
+  if (typeof data.category === 'string') raw.push(data.category);
+  return [...new Set(raw.map(normalizeSportKey).filter(Boolean))];
+};
+
+/**
  * Read sport-ish keys from listing publicData (supports multiple conventions).
  *
  * @param {Object} listing denormalised listing
  * @returns {string[]} normalised sport keys (e.g. freeridesnowboard)
  */
-export const extractSportKeysFromListing = listing => {
-  const pd = listing?.attributes?.publicData || {};
-  const raw = [];
-  if (Array.isArray(pd.sports)) {
-    raw.push(...pd.sports);
-  }
-  if (typeof pd.sport === 'string') {
-    raw.push(pd.sport);
-  }
-  if (Array.isArray(pd.coachSports)) {
-    raw.push(...pd.coachSports);
-  }
-  return [...new Set(raw.map(normalizeSportKey).filter(Boolean))];
-};
+export const extractSportKeysFromListing = listing =>
+  sportKeysFromPublicData(listing?.attributes?.publicData);
+
+/**
+ * Read sport-ish keys from a coach's profile publicData. Coaches can declare
+ * the sports they teach at the profile level (ProfileSettingsPage → "Coach &
+ * sessions"), independently from any specific listing. Used together with
+ * listing-level keys so the SportBar filter matches what the CoachCard shows.
+ *
+ * @param {Object|null|undefined} author user with `attributes.profile.publicData`
+ * @returns {string[]} normalised sport keys
+ */
+export const extractSportKeysFromCoachProfile = author =>
+  sportKeysFromPublicData(author?.attributes?.profile?.publicData);
 
 export const pickRepresentativeListing = listings => {
   if (!listings?.length) {
@@ -95,6 +125,12 @@ export const mergeListingsByAuthor = denormalisedListings => {
     if (!representativeListing?.author) continue;
 
     const sportKeys = new Set();
+    // Coach-level sports come first so coaches who declared sports only on
+    // their profile (e.g. "Surf") still pass the SportBar filter even when no
+    // listing publicData carries the sport keys.
+    extractSportKeysFromCoachProfile(representativeListing.author).forEach(k =>
+      sportKeys.add(k)
+    );
     let minPrice = null;
     for (const l of authorListings) {
       extractSportKeysFromListing(l).forEach(k => sportKeys.add(k));
@@ -127,7 +163,9 @@ export const filterCoachesBySport = (coaches, selectedSport) => {
   if (!v) return coaches.slice();
 
   const keys = new Set(matchSportFilterKeys(v).map(normalizeSportKey));
-  return coaches.filter(c => c.sportKeys.some(sk => keys.has(normalizeSportKey(sk))));
+  return coaches.filter(c =>
+    (c.sportKeys || []).some(sk => keys.has(normalizeSportKey(sk)))
+  );
 };
 
 /**

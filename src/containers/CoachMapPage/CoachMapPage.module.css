@@ -1,47 +1,123 @@
-.root {
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 18px 18px 48px;
+@import '../../styles/customMediaQueries.css';
+
+/* Match the visual size of the SportBar shown in the LandingPage topbar
+   (see `.landingSportBarCenterScale` in Topbar.module.css). */
+.topbarSportBarScale {
+  transform: scale(0.85);
+  transform-origin: center;
 }
 
-@media (--viewportMedium) {
-  .root {
-    padding: 24px 34px 64px;
+/* Full-bleed layout under the topbar.
+   Mobile: vertical stack — map on top, sidebar (list) below.
+   Desktop (≥ viewportLarge): row — fixed-width sidebar left, map right. */
+.fullScreen {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--colorWhite);
+}
+
+@media (--viewportLarge) {
+  .fullScreen {
+    flex-direction: row;
+    height: calc(100vh - var(--topbarHeightDesktop));
+    overflow: hidden;
   }
 }
 
-.header {
-  margin-bottom: 12px;
+/* Sidebar */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background: var(--colorWhite);
+  /* Mobile: appears below the map */
+  order: 2;
+  border-top: 1px solid var(--colorGrey200);
+}
+
+@media (--viewportLarge) {
+  .sidebar {
+    width: 380px;
+    flex: 0 0 380px;
+    height: 100%;
+    border-top: none;
+    border-right: 1px solid var(--colorGrey200);
+    order: 1;
+    overflow: hidden;
+  }
+}
+
+.sidebarHeader {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--colorGrey100);
 }
 
 .title {
   margin: 0;
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 900;
   color: #10213e;
   letter-spacing: -0.02em;
 }
 
-@media (--viewportMedium) {
-  .title {
-    font-size: 30px;
-  }
-}
-
 .subtitle {
-  margin: 8px 0 0;
-  font-size: 15px;
-  line-height: 1.45;
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
   color: var(--colorGrey700);
 }
 
-.sportBarWrap {
-  margin: 8px 0 16px;
+@media (--viewportLarge) {
+  .title {
+    font-size: 22px;
+  }
+  .subtitle {
+    font-size: 13px;
+  }
+}
+
+.sidebarList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px 14px 24px;
+}
+
+/* Desktop: independent vertical scroll inside the sidebar; the rest of the
+   page (topbar) stays static. */
+@media (--viewportLarge) {
+  .sidebarList {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 14px 14px 28px;
+    scrollbar-width: thin;
+  }
+}
+
+/* Map panel */
+
+.mapPanel {
+  position: relative;
+  width: 100%;
+  /* Mobile: take a comfortable portion of the viewport so list peeks below */
+  height: 60vh;
+  min-height: 320px;
+  order: 1;
+}
+
+@media (--viewportLarge) {
+  .mapPanel {
+    flex: 1 1 auto;
+    height: 100%;
+    order: 2;
+  }
 }
 
 .status {
-  margin: 8px 0;
+  margin: 12px 18px;
   color: var(--colorGrey700);
 }
 
@@ -50,7 +126,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
-  margin: 12px 0 20px;
+  margin: 12px 18px 20px;
 }
 
 .retry {
@@ -61,82 +137,4 @@
   background: #fff;
   font-weight: 700;
   cursor: pointer;
-}
-
-.split {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-@media (--viewportMedium) {
-  .split {
-    flex-direction: row;
-    align-items: stretch;
-    gap: 0;
-    min-height: min(72vh, 820px);
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid var(--colorGrey200);
-    background: rgba(255, 255, 255, 0.96);
-  }
-}
-
-.sidebar {
-  flex-shrink: 0;
-}
-
-@media (--viewportMedium) {
-  .sidebar {
-    width: min(380px, 38vw);
-    max-height: 72vh;
-    overflow: hidden;
-    border-right: 1px solid var(--colorGrey200);
-  }
-}
-
-.sidebarList {
-  display: flex;
-  flex-direction: row;
-  gap: 12px;
-  overflow-x: auto;
-  padding: 4px 2px 8px;
-  -webkit-overflow-scrolling: touch;
-}
-
-@media (--viewportMedium) {
-  .sidebarList {
-    flex-direction: column;
-    overflow-x: visible;
-    overflow-y: auto;
-    max-height: 72vh;
-    padding: 16px;
-    gap: 14px;
-  }
-}
-
-.mapPanel {
-  flex: 1;
-  min-height: 52vh;
-  position: relative;
-}
-
-@media (--viewportMedium) {
-  .mapPanel {
-    min-height: 72vh;
-  }
-}
-
-.mapInner {
-  position: absolute;
-  inset: 0;
-}
-
-.map {
-  height: 100%;
-}
-
-.mapRoot {
-  height: 100%;
-  min-height: 48vh;
 }
