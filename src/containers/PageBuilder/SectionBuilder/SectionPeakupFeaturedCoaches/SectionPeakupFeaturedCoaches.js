@@ -8,7 +8,7 @@ import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 import { getMarketplaceEntities } from '../../../../ducks/marketplaceData.duck';
 import {
   comparePeakupFeaturedCoaches,
-  resolvePeakupCoachBadgeIds,
+  resolveDisplayBadgeIds,
 } from '../../../../util/profileCoachSticker';
 
 // Shared components (relative path keeps src/components/index.js import order intact)
@@ -52,7 +52,9 @@ const selectFeaturedCoachCards = state => {
         ? listingsByUuid.get(row.listingId) || null
         : null;
       const authorPd = author?.attributes?.profile?.publicData || {};
-      const computedBadgeIds = resolvePeakupCoachBadgeIds(authorPd);
+      // Display badges are auto-derived (admin-only Founder/Ambassador,
+      // Top coach for >=10y, Certified coach as default).
+      const computedBadgeIds = resolveDisplayBadgeIds(authorPd);
       return {
         authorUuid: row.authorUuid,
         author,

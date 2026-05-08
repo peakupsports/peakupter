@@ -16,6 +16,15 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  /* Lock the card to its parent slot (carousel cell / grid track):
+   * `min-width: 0` lets the card shrink properly inside flex/grid parents,
+   * `max-width: 100%` prevents oversized inner content (long display name,
+   * wide badge pills, sport bubbles) from pushing the outer width.
+   * `box-sizing: border-box` is explicit so the 4px tier border is included
+   * in the locked width. */
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   /* Lascia respiro alla medaglia podio che sporge in alto. */
   padding-top: 18px;
   isolation: isolate;
@@ -95,6 +104,10 @@
 .stickerCard {
   position: relative;
   width: 100%;
+  /* Mirror the lock applied on `.root` so neither the framed card nor any
+   * inner row (header / footer / sport bubbles) can grow the visual box. */
+  min-width: 0;
+  max-width: 100%;
   margin: 0;
   padding: 0;
   border-radius: 20px;
@@ -109,15 +122,21 @@
   flex-direction: column;
 }
 
-/* Header navy con flag + nome + badge livello (sempre su una sola riga). */
+/* Header navy con flag + nome + badge livello (sempre su una sola riga).
+ * `flex-wrap` was previously `wrap`; we now keep the row strictly on one line
+ * (`nowrap`) and rely on `.stickerName`'s ellipsis to handle long names so the
+ * card width stays stable inside the carousel. `min-width: 0` is required for
+ * the flex children's `min-width: 0` to actually take effect. */
 .stickerCardHeader {
   position: relative;
   z-index: 1;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  min-width: 0;
+  width: 100%;
   box-sizing: border-box;
   min-height: 64px;
   padding: 10px 12px;
@@ -155,8 +174,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  /* `min-width: 0` is required so the flex child can shrink below its
+   * natural content width (i.e. the un-ellipsed display name). `overflow:
+   * hidden` is the safety net that finally makes the ellipsis on
+   * `.stickerName` kick in when the name is longer than the available
+   * space. */
   min-width: 0;
   flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .flag {
@@ -179,14 +204,20 @@
   text-transform: uppercase;
 }
 
+/* Right-side cluster — badges must stay sized to their content (so they
+ * never push the header narrower than the available space). Switching from
+ * `flex: 1 1 auto` to `flex: 0 0 auto` ensures the cluster keeps its natural
+ * width and the leftover space goes to `.stickerHeaderLeft` (which then
+ * ellipses the name). `flex-wrap: nowrap` keeps the pills on the same line
+ * as the name, mirroring the design intent. */
 .stickerHeaderBadges {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
   justify-content: flex-end;
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 0 0 auto;
   align-items: center;
+  white-space: nowrap;
 }
 
 /* Pulsante reset: pill badge apre modale gerarchia (stesso ruolo di ProfilePage). */
@@ -256,6 +287,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 999px;
+  flex: 0 0 auto;
   background: linear-gradient(
     180deg,
     rgba(42, 58, 85, 0.55) 0%,
@@ -617,17 +649,24 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  /* Same lock as the header row: footer cluster can never grow the card. */
+  min-width: 0;
+  width: 100%;
 }
 
 /* Sport bubble row in the footer next to the CTA. Gap bumped 6 → 8 so
  * the new tier ring + glow on each `.footerSportBadge` doesn't visually
- * overlap with the next bubble's white ring. `min-width: 0` and the
- * `:first-child` left margin stay untouched. */
+ * overlap with the next bubble's white ring. The bubble row absorbs any
+ * leftover footer width (`flex: 1 1 auto`) and `overflow: hidden` clips
+ * any extra bubble that wouldn't fit, so it can never push the CTA off
+ * the card or grow the card itself. */
 .footerSportBadges {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .footerSportBadge:first-child {
@@ -693,6 +732,10 @@
   border: 1.5px solid var(--tier-border, var(--stickerGold));
   box-shadow: 0 1px 3px rgba(16, 33, 62, 0.25);
   transition: filter 0.15s ease;
+  /* Stay sized to the localised label and never collapse below it; the
+   * sport-bubble row absorbs leftover space. */
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .cta:hover,

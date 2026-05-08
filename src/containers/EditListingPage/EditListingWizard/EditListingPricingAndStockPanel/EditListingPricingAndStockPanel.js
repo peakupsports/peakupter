@@ -5,7 +5,12 @@ import classNames from 'classnames';
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { LISTING_STATE_DRAFT, STOCK_INFINITE_ITEMS, propTypes } from '../../../../util/types';
 import { types as sdkTypes } from '../../../../util/sdkLoader';
-import { isValidCurrencyForTransactionProcess } from '../../../../util/fieldHelpers';
+import {
+  isValidCurrencyForTransactionProcess,
+  isAllowedListingCurrency,
+  formatAllowedListingCurrencies,
+} from '../../../../util/fieldHelpers';
+import { unitDivisor } from '../../../../util/currency';
 
 // Import shared components
 import { H3, ListingLink } from '../../../../components';
@@ -22,10 +27,37 @@ const getListingTypeConfig = (publicData, listingTypes) => {
   return listingTypes.find(conf => conf.listingType === selectedListingType);
 };
 
+// Read the coach-selected currency from the user's profile public data.
+const getCoachProfileCurrency = currentUser => {
+  const currency = currentUser?.attributes?.profile?.publicData?.currency;
+  return typeof currency === 'string' && currency.length === 3 ? currency.toUpperCase() : null;
+};
+
+// Re-wrap an existing Money value into the target currency while preserving
+// the human-readable major-unit value (e.g. CHF 75 -> EUR 75).
+// Intentionally a 1:1 numeric carry-over (no FX conversion).
+const normalizeMoneyToCurrency = (money, targetCurrency) => {
+  if (!money || !targetCurrency || money.currency === targetCurrency) {
+    return money;
+  }
+  try {
+    const fromDivisor = unitDivisor(money.currency);
+    const toDivisor = unitDivisor(targetCurrency);
+    const majorAmount = Number(money.amount) / fromDivisor;
+    const newSubunits = Math.round(majorAmount * toDivisor);
+    return new Money(newSubunits, targetCurrency);
+  } catch (e) {
+    return money;
+  }
+};
+
 const getInitialValues = props => {
-  const { listing, listingTypes } = props;
+  const { listing, listingTypes, effectiveCurrency } = props;
   const isPublished = listing?.id && listing?.attributes?.state !== LISTING_STATE_DRAFT;
-  const price = listing?.attributes?.price;
+  const rawPrice = listing?.attributes?.price;
+  const price = effectiveCurrency
+    ? normalizeMoneyToCurrency(rawPrice, effectiveCurrency)
+    : rawPrice;
   const currentStock = listing?.currentStock;
 
   const publicData = listing?.attributes?.publicData;
@@ -70,9 +102,6 @@ const getInitialValues = props => {
  * @returns {JSX.Element}
  */
 const EditListingPricingAndStockPanel = props => {
-  // State is needed since re-rendering would overwrite the values during XHR call.
-  const [state, setState] = useState({ initialValues: getInitialValues(props) });
-
   const {
     className,
     rootClassName,
@@ -87,9 +116,20 @@ const EditListingPricingAndStockPanel = props => {
     panelUpdated,
     updateInProgress,
     errors,
+    currentUser,
     updatePageTitle: UpdatePageTitle,
     intl,
   } = props;
+
+  // Resolve the currency the listing should actually use:
+  // coach profile currency wins; marketplace currency is fallback only.
+  const coachProfileCurrency = getCoachProfileCurrency(currentUser);
+  const effectiveCurrency = coachProfileCurrency || marketplaceCurrency;
+
+  // State is needed since re-rendering would overwrite the values during XHR call.
+  const [state, setState] = useState({
+    initialValues: getInitialValues({ ...props, effectiveCurrency }),
+  });
 
   const classes = classNames(rootClassName || css.root, className);
   const initialValues = state.initialValues;
@@ -104,18 +144,20 @@ const EditListingPricingAndStockPanel = props => {
 
   const isPublished = listing?.id && listing?.attributes?.state !== LISTING_STATE_DRAFT;
 
-  // Don't render the form if the assigned currency is different from the marketplace currency
-  // or if transaction process is incompatible with selected currency
+  // Don't render the form if the assigned currency falls outside the PeakUp
+  // whitelist or is incompatible with the transaction process.
   const isStripeCompatibleCurrency = isValidCurrencyForTransactionProcess(
     transactionProcessAlias,
-    marketplaceCurrency,
+    effectiveCurrency,
     'stripe'
   );
-  const priceCurrencyValid = !isStripeCompatibleCurrency
-    ? false
-    : marketplaceCurrency && initialValues.price instanceof Money
-    ? initialValues.price?.currency === marketplaceCurrency
-    : !!marketplaceCurrency;
+  const isAllowedCurrency = isAllowedListingCurrency(effectiveCurrency);
+  const priceCurrencyValid =
+    !isStripeCompatibleCurrency || !isAllowedCurrency
+      ? false
+      : effectiveCurrency && initialValues.price instanceof Money
+      ? initialValues.price?.currency === effectiveCurrency
+      : !!effectiveCurrency;
 
   const panelHeadingProps = isPublished
     ? {
@@ -191,7 +233,8 @@ const EditListingPricingAndStockPanel = props => {
             onSubmit(updateValues);
           }}
           listingMinimumPriceSubUnits={listingMinimumPriceSubUnits}
-          marketplaceCurrency={marketplaceCurrency}
+          marketplaceCurrency={effectiveCurrency}
+          coachProfileCurrency={coachProfileCurrency}
           listingType={listingTypeConfig}
           unitType={unitType}
           saveActionMsg={submitButtonText}
@@ -205,7 +248,11 @@ const EditListingPricingAndStockPanel = props => {
         <div className={css.priceCurrencyInvalid}>
           <FormattedMessage
             id="EditListingPricingAndStockPanel.listingPriceCurrencyInvalid"
-            values={{ marketplaceCurrency }}
+            values={{
+              marketplaceCurrency: effectiveCurrency,
+              currency: effectiveCurrency,
+              supportedCurrencies: formatAllowedListingCurrencies(),
+            }}
           />
         </div>
       )}

@@ -5,6 +5,11 @@ import { SNOWBOARD_SPORT_KEYS, SKI_SPORT_KEYS } from '../../util/sportFilterKeys
 
 import css from './SportBar.module.css';
 
+// SPORT_LABELS / SPORT_EMOJI / TOPBAR_SPORT_ORDER MUST stay in sync with
+// the official platform sports list (Profile Settings) and with
+// `PROFILE_SPORT_DISPLAY_LABELS` / `PROFILE_SPORT_EMOJI` in
+// `src/util/profileCoachSticker.js`. Adding a sport in Profile Settings
+// without adding it here means it never shows up as a filter chip.
 const SPORT_LABELS = {
   surf: 'Surf',
   mtb: 'MTB',
@@ -16,6 +21,7 @@ const SPORT_LABELS = {
   fitness: 'Fitness',
   wakeboard: 'Wakeboard',
   kitesurf: 'Kitesurf',
+  skateboard: 'Skateboard',
   snowboard: 'Snowboard',
   ski: 'Ski',
   crosscountry: 'Cross-country',
@@ -29,9 +35,10 @@ const SPORT_EMOJI = {
   climbing: '🧗',
   yoga: '🧘',
   skydive: '🪂',
-  fitness: '🏋️',
+  fitness: '💪',
   wakeboard: '🏄',
   kitesurf: '🪁',
+  skateboard: '🛹',
   snowboard: '🏂',
   ski: '🎿',
   crosscountry: '🎿',
@@ -48,17 +55,21 @@ const TOPBAR_SPORT_ORDER = [
   'fitness',
   'wakeboard',
   'kitesurf',
+  'skateboard',
   'snowboard',
   'ski',
   'crosscountry',
 ];
 
+// Winter variants displayed in the legacy accordion mode of SportBar
+// (`includeWinterVariants`). Labels mirror the canonical platform list
+// in `PROFILE_SPORT_DISPLAY_LABELS`.
 const WINTER_VARIANT_LABELS = {
   skitouring: 'Skitouring',
   splittouring: 'Split touring',
-  freerideskiing: 'Freeride Skiing',
-  freeridesnowboard: 'Freeride Snowboard',
-  freestylesnowboard: 'Freestyle Snowboard',
+  freerideskiing: 'Freeride skiing',
+  freeridesnowboard: 'Freeride snowboard',
+  freestylesnowboard: 'Freestyle snowboard',
   freestyleskiing: 'Freeski',
 };
 

@@ -132,6 +132,7 @@ export const EditListingPricingAndStockForm = props => (
         invalid,
         pristine,
         marketplaceCurrency,
+        coachProfileCurrency,
         unitType,
         listingMinimumPriceSubUnits = 0,
         listingType,
@@ -195,6 +196,14 @@ export const EditListingPricingAndStockForm = props => (
             currencyConfig={appSettings.getCurrencyFormatting(marketplaceCurrency)}
             validate={priceValidators}
           />
+          {coachProfileCurrency ? (
+            <p className={css.coachCurrencyHint}>
+              <FormattedMessage
+                id="EditListingPricingForm.coachProfileCurrencyHint"
+                values={{ currency: coachProfileCurrency }}
+              />
+            </p>
+          ) : null}
 
           <UpdateStockToInfinityCheckboxMaybe
             formId={formId}

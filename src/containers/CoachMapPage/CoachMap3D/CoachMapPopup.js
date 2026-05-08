@@ -15,6 +15,13 @@ import { Avatar } from '../../../components/Avatar/Avatar';
 import NamedLink from '../../../components/NamedLink/NamedLink';
 import ResponsiveImage from '../../../components/ResponsiveImage/ResponsiveImage';
 
+// TEMP DEMO COACHES FOR MARKETING REEL – REMOVE BEFORE PRODUCTION
+import {
+  DEMO_DISABLED_ACTION_MESSAGE,
+  formatDemoPrice,
+  notifyDemoActionUnavailable,
+} from '../demoCoaches';
+
 import css from './CoachMapPopup.module.css';
 
 const { Money } = sdkTypes;
@@ -94,12 +101,25 @@ const CoachMapPopup = ({ coach, onClose }) => {
   const tierId = pickPrimaryTierId(publicData);
   const tierStyle = getTierStyleVars(tierId);
 
+  // Demo coaches: profile / contact links would 404 (no real Sharetribe
+  // user) and a booking flow doesn't exist for them, so we render the name
+  // as plain text and the Contact button as a non-navigating button that
+  // shows the friendly "coming soon" alert.
+  const isDemo = Boolean(coach?.isDemo);
+
   // Same price source order as CoachCard: profile first, listing min price as
   // fallback. Marketplace listing prices elsewhere are unaffected.
+  // Demo coaches bypass `formatMoney` so each demo card / popup reflects
+  // the coach's local currency (`€95`, `$140`, `CHF 220`, …) – see
+  // `formatDemoPrice` in `../demoCoaches.js`.
   const profilePriceMoney = buildProfilePriceMoney(publicData);
   const listingMinPrice = minPrice && typeof minPrice.amount === 'number' ? minPrice : null;
   const priceForDisplay = profilePriceMoney || listingMinPrice;
-  const formattedPrice = priceForDisplay ? formatMoney(intl, priceForDisplay) : null;
+  const formattedPrice = isDemo
+    ? formatDemoPrice(intl, publicData)
+    : priceForDisplay
+    ? formatMoney(intl, priceForDisplay)
+    : null;
 
   const profileImageVariants = profileImage
     ? Object.keys(profileImage?.attributes?.variants || {}).filter(k =>
@@ -148,7 +168,7 @@ const CoachMapPopup = ({ coach, onClose }) => {
           {photo}
         </div>
         <div className={css.identity}>
-          {profileId ? (
+          {profileId && !isDemo ? (
             <NamedLink className={css.name} name="ProfilePage" params={{ id: profileId }}>
               {displayName || <FormattedMessage id="CoachCard.fallbackName" />}
             </NamedLink>
@@ -209,7 +229,16 @@ const CoachMapPopup = ({ coach, onClose }) => {
             />
           ) : null}
         </div>
-        {profileId ? (
+        {isDemo ? (
+          <button
+            type="button"
+            className={css.contactBtn}
+            onClick={notifyDemoActionUnavailable}
+            aria-label={DEMO_DISABLED_ACTION_MESSAGE}
+          >
+            <FormattedMessage id="CoachesPage.contact" />
+          </button>
+        ) : profileId ? (
           <NamedLink className={css.contactBtn} name="ProfilePage" params={{ id: profileId }}>
             <FormattedMessage id="CoachesPage.contact" />
           </NamedLink>

@@ -35,12 +35,17 @@ const PEAK_UP_PROFILE_FIELD_KEYS = new Set(
 
 const PUB_SPORTS_KEY = addScopePrefix('public', 'sports');
 const PUB_LANGUAGES_KEY = addScopePrefix('public', 'languages');
+// NOTE: `peakupCoachBadges` is no longer rendered as a form field. Founder /
+// Ambassador are admin-only via Console; Top coach / Certified coach are
+// auto-derived from coach experience. The constant is kept in a Set used to
+// hide the field even if the hosted Console user-fields asset still includes it.
 const PUB_PEAK_BADGES_KEY = addScopePrefix('public', 'peakupCoachBadges');
 const PUB_CURRENCY_KEY = addScopePrefix('public', 'currency');
 const PUB_PRICE_FROM_KEY = addScopePrefix('public', 'priceFrom');
 
 const PEAK_ROW_SPORTS_LANG_KEYS = new Set([PUB_SPORTS_KEY, PUB_LANGUAGES_KEY]);
-const PEAK_ROW_BADGES_KEYS = new Set([PUB_PEAK_BADGES_KEY]);
+// Hidden / hard-removed keys: never rendered as user-editable form fields.
+const PEAK_HIDDEN_FIELD_KEYS = new Set([PUB_PEAK_BADGES_KEY]);
 const PEAK_ROW_PRICING_KEYS = new Set([PUB_CURRENCY_KEY, PUB_PRICE_FROM_KEY]);
 
 /** Sport left, languages right (Console user-field order can list languages first). */
@@ -300,8 +305,11 @@ class ProfileSettingsFormComponent extends Component {
             false
           );
 
-          const peakUpFieldProps = userFieldProps.filter(p =>
-            PEAK_UP_PROFILE_FIELD_KEYS.has(p.key)
+          // Hard-hide any field listed in `PEAK_HIDDEN_FIELD_KEYS` even when it
+          // still arrives from the Console-hosted user-fields asset
+          // (Founder / Ambassador must remain admin-only).
+          const peakUpFieldProps = userFieldProps.filter(
+            p => PEAK_UP_PROFILE_FIELD_KEYS.has(p.key) && !PEAK_HIDDEN_FIELD_KEYS.has(p.key)
           );
           const coachPeakSportsLanguages = peakUpFieldProps
             .filter(p => PEAK_ROW_SPORTS_LANG_KEYS.has(p.key))
@@ -310,7 +318,6 @@ class ProfileSettingsFormComponent extends Component {
                 PEAK_SPORTS_LANG_COLUMN_ORDER.indexOf(a.key) -
                 PEAK_SPORTS_LANG_COLUMN_ORDER.indexOf(b.key)
             );
-          const coachPeakBadges = peakUpFieldProps.filter(p => PEAK_ROW_BADGES_KEYS.has(p.key));
           const coachPeakPricing = peakUpFieldProps
             .filter(p => PEAK_ROW_PRICING_KEYS.has(p.key))
             .sort(
@@ -320,11 +327,10 @@ class ProfileSettingsFormComponent extends Component {
           const coachPeakRemaining = peakUpFieldProps.filter(
             p =>
               !PEAK_ROW_SPORTS_LANG_KEYS.has(p.key) &&
-              !PEAK_ROW_BADGES_KEYS.has(p.key) &&
               !PEAK_ROW_PRICING_KEYS.has(p.key)
           );
           const otherUserFieldProps = userFieldProps.filter(
-            p => !PEAK_UP_PROFILE_FIELD_KEYS.has(p.key)
+            p => !PEAK_UP_PROFILE_FIELD_KEYS.has(p.key) && !PEAK_HIDDEN_FIELD_KEYS.has(p.key)
           );
           const experienceFieldForHero = otherUserFieldProps.find(
             p => p.key === PUB_EXPERIENCE_KEY
@@ -532,19 +538,8 @@ class ProfileSettingsFormComponent extends Component {
                 </div>
               ) : null}
 
-              {coachPeakBadges.length > 0 ? (
-                <div className={css.sectionContainer}>
-                  <H4 as="h2" className={css.sectionTitle}>
-                    <FormattedMessage id="ProfileSettingsForm.peakupCoachBadgesHeading" />
-                  </H4>
-                  <p className={css.extraInfo}>
-                    <FormattedMessage id="ProfileSettingsForm.peakupCoachBadgesInfo" />
-                  </p>
-                  {coachPeakBadges.map(({ key, ...fieldProps }) => (
-                    <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
-                  ))}
-                </div>
-              ) : null}
+              {/* Coach badges section removed: Founder / Ambassador are admin-only,
+                  Top coach / Certified coach are auto-derived from experience. */}
 
               {coachPeakPricing.length > 0 ? (
                 <div className={css.sectionContainer}>

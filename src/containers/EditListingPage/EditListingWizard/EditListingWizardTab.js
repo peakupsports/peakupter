@@ -112,6 +112,7 @@ const EditListingWizardTab = props => {
     config,
     routeConfiguration,
     titleId,
+    currentUser,
     intl,
   } = props;
 
@@ -201,6 +202,7 @@ const EditListingWizardTab = props => {
           {...panelProps(DETAILS)}
           onListingTypeChange={onListingTypeChange}
           config={config}
+          currentUser={currentUser}
         />
       );
     }
@@ -210,6 +212,7 @@ const EditListingWizardTab = props => {
           {...panelProps(PRICING_AND_STOCK)}
           marketplaceCurrency={config.currency}
           listingMinimumPriceSubUnits={config.listingMinimumPriceSubUnits}
+          currentUser={currentUser}
         />
       );
     }
@@ -219,6 +222,7 @@ const EditListingWizardTab = props => {
           {...panelProps(PRICING)}
           marketplaceCurrency={config.currency}
           listingMinimumPriceSubUnits={config.listingMinimumPriceSubUnits}
+          currentUser={currentUser}
         />
       );
     }

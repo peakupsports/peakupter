@@ -104,6 +104,7 @@ export const EditListingPricingForm = props => (
         ready,
         handleSubmit,
         marketplaceCurrency,
+        coachProfileCurrency,
         unitType,
         listingTypeConfig,
         isPriceVariationsInUse,
@@ -154,21 +155,31 @@ export const EditListingPricingForm = props => (
               listingMinimumPriceSubUnits={listingMinimumPriceSubUnits}
             />
           ) : (
-            <FieldCurrencyInput
-              id={`${formId}price`}
-              name="price"
-              className={css.input}
-              autoFocus={autoFocus}
-              label={intl.formatMessage(
-                { id: 'EditListingPricingForm.pricePerProduct' },
-                { unitType }
-              )}
-              placeholder={intl.formatMessage({
-                id: 'EditListingPricingForm.priceInputPlaceholder',
-              })}
-              currencyConfig={appSettings.getCurrencyFormatting(marketplaceCurrency)}
-              validate={priceValidators}
-            />
+            <>
+              <FieldCurrencyInput
+                id={`${formId}price`}
+                name="price"
+                className={css.input}
+                autoFocus={autoFocus}
+                label={intl.formatMessage(
+                  { id: 'EditListingPricingForm.pricePerProduct' },
+                  { unitType }
+                )}
+                placeholder={intl.formatMessage({
+                  id: 'EditListingPricingForm.priceInputPlaceholder',
+                })}
+                currencyConfig={appSettings.getCurrencyFormatting(marketplaceCurrency)}
+                validate={priceValidators}
+              />
+              {coachProfileCurrency ? (
+                <p className={css.coachCurrencyHint}>
+                  <FormattedMessage
+                    id="EditListingPricingForm.coachProfileCurrencyHint"
+                    values={{ currency: coachProfileCurrency }}
+                  />
+                </p>
+              ) : null}
+            </>
           )}
 
           {isFixedLengthBooking ? (

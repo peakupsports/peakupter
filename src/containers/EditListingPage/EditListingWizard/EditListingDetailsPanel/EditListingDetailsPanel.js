@@ -307,9 +307,17 @@ const EditListingDetailsPanel = props => {
     updateInProgress,
     errors,
     config,
+    currentUser,
     updatePageTitle: UpdatePageTitle,
     intl,
   } = props;
+
+  // Coach-selected currency wins over the marketplace fallback.
+  const rawCoachCurrency = currentUser?.attributes?.profile?.publicData?.currency;
+  const coachProfileCurrency =
+    typeof rawCoachCurrency === 'string' && rawCoachCurrency.length === 3
+      ? rawCoachCurrency.toUpperCase()
+      : null;
 
   const classes = classNames(rootClassName || css.root, className);
   const { publicData, state } = listing?.attributes || {};
@@ -449,6 +457,7 @@ const EditListingDetailsPanel = props => {
           listingFieldsConfig={listingFields}
           listingCurrency={listing?.attributes?.price?.currency}
           marketplaceCurrency={config.currency}
+          coachProfileCurrency={coachProfileCurrency}
           marketplaceName={config.marketplaceName}
           disabled={disabled}
           ready={ready}

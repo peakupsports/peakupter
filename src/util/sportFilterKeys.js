@@ -12,6 +12,10 @@ export const SNOWBOARD_SPORT_KEYS = [
 
 export const SKI_SPORT_KEYS = ['ski', 'freerideskiing', 'skitouring', 'freestyleskiing'];
 
+// Skateboard is the canonical platform key (`SPORT_LABELS.skateboard`).
+// `skate` is kept as a back-compat alias for legacy coach data; the
+// SportBar / CoachMap chip dispatches `skateboard` and the filter expands
+// it to both keys via `matchSportFilterKeys`.
 export const SKT_SPORT_KEYS = ['skate', 'skateboard'];
 
 /** Slugs also used on sport CMS pages (/p/:pageId); extend as you add landing pages */
@@ -29,6 +33,7 @@ const PRIMARY_SPORT_PAGE_SLUGS = [
   'fitness',
   'climbing',
   'kitesurf',
+  'skateboard',
 ];
 
 export const KNOWN_MARKETPLACE_SPORT_SLUG_SET = new Set(PRIMARY_SPORT_PAGE_SLUGS);
@@ -64,6 +69,8 @@ export const matchSportFilterKeys = selectedSportNormalized => {
 
   if (v === 'snowboard') return SNOWBOARD_SPORT_KEYS.slice();
   if (v === 'ski') return SKI_SPORT_KEYS.slice();
+  // Skateboard chip should also match legacy `skate` coach entries.
+  if (v === 'skateboard' || v === 'skate') return SKT_SPORT_KEYS.slice();
 
   return [v];
 };

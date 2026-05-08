@@ -10,7 +10,37 @@
  * con lat/lng globali; non usiamo più il menu elenco città SV.
  */
 
-/** Chiavi `publicData` scritte dal blocco “Coach & sessions” (e lette sulla Profile page). */
+import { allowedListingCurrencies } from './settingsCurrency';
+
+// Human-readable labels for the currency dropdown shown to coaches.
+// The list of options is driven by `allowedListingCurrencies` (single source
+// of truth). This map only provides display text for known codes; if the
+// whitelist ever grows, the missing label falls back to the ISO code.
+const CURRENCY_LABEL = {
+  CHF: 'CHF (Swiss franc)',
+  EUR: 'EUR (Euro)',
+  USD: 'USD (US dollar)',
+  GBP: 'GBP (British pound)',
+};
+
+const buildCurrencyEnumOptions = () =>
+  (allowedListingCurrencies || []).map(option => ({
+    option,
+    label: CURRENCY_LABEL[option] || option,
+  }));
+
+const buildCurrencyPlaceholder = () => {
+  const list = allowedListingCurrencies || [];
+  if (list.length <= 2) return list.join(' or ');
+  return `${list.slice(0, -1).join(', ')} or ${list[list.length - 1]}`;
+};
+
+/** Chiavi `publicData` scritte dal blocco “Coach & sessions” (e lette sulla Profile page).
+ *
+ * Nota: `peakupCoachBadges` è mantenuto in lista per compatibilità con i dati
+ * salvati lato Console (admin-only Founder/Ambassador), ma non è più esposto
+ * come form field nel ProfileSettings — vedi nota sotto sull'entry rimossa.
+ */
 export const PEAK_UP_COACH_PROFILE_KEYS = [
   'sports',
   'languages',
@@ -132,38 +162,18 @@ export const peakUpCoachUserFields = [
       userTypeIds: [],
     },
   },
-  {
-    key: 'peakupCoachBadges',
-    scope: 'public',
-    schemaType: 'multi-enum',
-    enumOptions: [
-      { option: 'founder', label: 'Founder' },
-      { option: 'ambassador', label: 'Ambassador' },
-      { option: 'top_coach', label: 'Top coach' },
-      { option: 'certified_coach', label: 'Certified coach' },
-    ],
-    showConfig: {
-      label: 'Coach badges',
-    },
-    saveConfig: {
-      label: 'Coach badges',
-      displayInSignUp: false,
-      isRequired: false,
-    },
-    helpTextTranslationId: 'PeakUpCoachUserFields.peakupCoachBadgesHelp',
-    userTypeConfig: {
-      limitToUserTypeIds: false,
-      userTypeIds: [],
-    },
-  },
+  // NOTE: `peakupCoachBadges` form field intentionally removed.
+  // Founder / Ambassador are admin-only (set via Console / API on
+  // `publicData.peakupCoachBadges`).
+  // Top coach / Certified coach are auto-derived from `experience` years —
+  // see `resolveDisplayBadgeIds` in `src/util/profileCoachSticker.js`.
   {
     key: 'currency',
     scope: 'public',
     schemaType: 'enum',
-    enumOptions: [
-      { option: 'CHF', label: 'CHF (Swiss franc)' },
-      { option: 'EUR', label: 'EUR (Euro)' },
-    ],
+    // Driven by `allowedListingCurrencies` so this dropdown stays in sync with
+    // the listing-pricing whitelist (CHF / EUR / USD / GBP).
+    enumOptions: buildCurrencyEnumOptions(),
     showConfig: {
       label: 'Session price currency',
     },
@@ -171,7 +181,7 @@ export const peakUpCoachUserFields = [
       label: 'Price currency',
       displayInSignUp: false,
       isRequired: false,
-      placeholderMessage: 'CHF or EUR',
+      placeholderMessage: buildCurrencyPlaceholder(),
     },
     userTypeConfig: {
       limitToUserTypeIds: false,

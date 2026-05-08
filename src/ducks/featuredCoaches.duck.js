@@ -7,7 +7,7 @@ import { REVIEW_TYPE_OF_PROVIDER } from '../util/types';
 import { mergeListingsByAuthor } from '../util/coachExplore';
 import {
   peakupCoachBadgePriorityFor,
-  resolvePeakupCoachBadgeIds,
+  resolveDisplayBadgeIds,
 } from '../util/profileCoachSticker';
 import { addMarketplaceEntities } from './marketplaceData.duck';
 
@@ -117,7 +117,7 @@ export const fetchFeaturedCoachesThunk = createAsyncThunk(
           didPublishPrelim = true;
           const coachesFast = mergeListingsByAuthor(aggregatedListings);
           const withBadgesFast = coachesFast.map(c => {
-            const badgeIds = resolvePeakupCoachBadgeIds(c.author?.attributes?.profile?.publicData);
+            const badgeIds = resolveDisplayBadgeIds(c.author?.attributes?.profile?.publicData);
             return {
               ...c,
               badgeIds,
@@ -156,7 +156,7 @@ export const fetchFeaturedCoachesThunk = createAsyncThunk(
 
       // Pre-compute badge priority on each coach so the comparator is cheap and deterministic.
       const withBadges = coaches.map(c => {
-        const badgeIds = resolvePeakupCoachBadgeIds(c.author?.attributes?.profile?.publicData);
+        const badgeIds = resolveDisplayBadgeIds(c.author?.attributes?.profile?.publicData);
         return {
           ...c,
           badgeIds,

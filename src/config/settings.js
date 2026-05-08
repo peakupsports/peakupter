@@ -1,4 +1,9 @@
-import { subUnitDivisors, currencyFormatting, stripeSupportedCurrencies } from './settingsCurrency';
+import {
+  subUnitDivisors,
+  currencyFormatting,
+  stripeSupportedCurrencies,
+  allowedListingCurrencies,
+} from './settingsCurrency';
 
 // NOTE: only expose configuration that should be visible in the
 // client side, don't add any server secrets in this file.
@@ -27,6 +32,11 @@ const appSettings = {
   subUnitDivisors,
 
   stripeSupportedCurrencies,
+
+  // Whitelist of currencies real coaches can use when creating/editing listings.
+  // Combined with `stripeSupportedCurrencies` for actual validation in
+  // `isAllowedListingCurrency` (see util/fieldHelpers).
+  allowedListingCurrencies,
 
   // Sentry DSN (Data Source Name), a client key for authenticating calls to Sentry
   sentryDsn: process.env.REACT_APP_SENTRY_DSN,

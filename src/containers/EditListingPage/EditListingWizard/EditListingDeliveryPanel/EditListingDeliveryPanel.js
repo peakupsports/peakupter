@@ -10,6 +10,10 @@ import {
   propTypes,
 } from '../../../../util/types';
 import { displayDeliveryPickup, displayDeliveryShipping } from '../../../../util/configHelpers';
+import {
+  isAllowedListingCurrency,
+  formatAllowedListingCurrencies,
+} from '../../../../util/fieldHelpers';
 import { types as sdkTypes } from '../../../../util/sdkLoader';
 
 // Import shared components
@@ -119,7 +123,10 @@ const EditListingDeliveryPanel = props => {
 
   const classes = classNames(rootClassName || css.root, className);
   const isPublished = listing?.id && listing?.attributes.state !== LISTING_STATE_DRAFT;
-  const priceCurrencyValid = listing?.attributes?.price?.currency === marketplaceCurrency;
+  // Multi-currency aware: accept any whitelisted listing currency, not just the
+  // marketplace currency. CHF listings continue to pass.
+  const listingCurrency = listing?.attributes?.price?.currency;
+  const priceCurrencyValid = isAllowedListingCurrency(listingCurrency);
   const listingType = listing?.attributes?.publicData?.listingType;
   const listingTypeConfig = listingTypes.find(conf => conf.listingType === listingType);
   const allowOrdersOfMultipleItems = [STOCK_MULTIPLE_ITEMS, STOCK_INFINITE_MULTIPLE_ITEMS].includes(
@@ -221,7 +228,11 @@ const EditListingDeliveryPanel = props => {
         <div className={css.priceCurrencyInvalid}>
           <FormattedMessage
             id="EditListingPricingPanel.listingPriceCurrencyInvalid"
-            values={{ marketplaceCurrency }}
+            values={{
+              marketplaceCurrency,
+              currency: listingCurrency || marketplaceCurrency,
+              supportedCurrencies: formatAllowedListingCurrencies(),
+            }}
           />
         </div>
       )}

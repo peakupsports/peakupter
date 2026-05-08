@@ -23,6 +23,11 @@ import {
   LISTING_STATE_PUBLISHED,
 } from '../../util/types';
 import { formatMoney } from '../../util/currency';
+import {
+  isAllowedListingCurrency,
+  isValidCurrencyForTransactionProcess,
+  formatAllowedListingCurrencies,
+} from '../../util/fieldHelpers';
 import { createSlug, parse, stringify } from '../../util/urlHelpers';
 import { userDisplayNameAsString } from '../../util/data';
 import {
@@ -81,8 +86,11 @@ const isPublishedListing = listing => {
   return listing.attributes.state === LISTING_STATE_PUBLISHED;
 };
 
+// Multi-currency aware: render the formatted price for any currency in the
+// PeakUp whitelist (CHF / EUR / USD / GBP). The `currency` argument is kept
+// for signature compatibility with the legacy callers.
 const priceData = (price, currency, intl) => {
-  if (price && price.currency === currency) {
+  if (price && isAllowedListingCurrency(price.currency)) {
     const formattedPrice = formatMoney(intl, price);
     return { formattedPrice, priceTitle: formattedPrice };
   } else if (price) {
@@ -196,10 +204,16 @@ const PriceMissing = () => {
     </p>
   );
 };
-const InvalidCurrency = () => {
+const InvalidCurrency = ({ currency }) => {
   return (
     <p className={css.error}>
-      <FormattedMessage id="OrderPanel.listingCurrencyInvalid" />
+      <FormattedMessage
+        id="OrderPanel.listingCurrencyInvalid"
+        values={{
+          currency: currency || '',
+          supportedCurrencies: formatAllowedListingCurrencies(),
+        }}
+      />
     </p>
   );
 };
@@ -322,8 +336,16 @@ const OrderPanel = props => {
   const isPaymentProcess = isBooking || isPurchase || isNegotiation;
 
   const showPriceMissing = isPaymentProcess && !isNegotiation && !price;
-  const showInvalidCurrency =
-    isPaymentProcess && !isNegotiation && price?.currency !== marketplaceCurrency;
+  // Multi-currency support: a listing price is valid when its currency is in the
+  // PeakUp whitelist (CHF / EUR / USD / GBP) AND compatible with the transaction
+  // process (Stripe-supported for booking/purchase). The marketplace currency is
+  // no longer used as a hard equality check – it is only a fallback elsewhere.
+  const listingCurrency = price?.currency;
+  const isCurrencyValid =
+    !!listingCurrency &&
+    isAllowedListingCurrency(listingCurrency) &&
+    isValidCurrencyForTransactionProcess(transactionProcessAlias, listingCurrency);
+  const showInvalidCurrency = isPaymentProcess && !isNegotiation && !!price && !isCurrencyValid;
 
   const timeZone = listing?.attributes?.availabilityPlan?.timezone;
   const isClosed = listing?.attributes?.state === LISTING_STATE_CLOSED;
@@ -474,7 +496,7 @@ const OrderPanel = props => {
         {showPriceMissing ? (
           <PriceMissing />
         ) : showInvalidCurrency ? (
-          <InvalidCurrency />
+          <InvalidCurrency currency={listingCurrency} />
         ) : showInvalidPriceVariantsMessage ? (
           <InvalidPriceVariants />
         ) : showBookingFixedDurationForm ? (

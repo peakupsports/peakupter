@@ -4,8 +4,10 @@ import {
   comparePeakupFeaturedCoaches,
   formatProfileLanguagesForSticker,
   mergeCoachSports,
+  parseExperienceMinYears,
   peakupCoachBadgePriorityFor,
   peakupCoachReviewScore,
+  resolveDisplayBadgeIds,
   resolvePeakupCoachBadgeIds,
   sportsForFigurinaOverlay,
 } from './profileCoachSticker';
@@ -140,6 +142,119 @@ describe('resolvePeakupCoachBadgeIds', () => {
       'ambassador',
       'top_coach',
     ]);
+  });
+});
+
+describe('parseExperienceMinYears', () => {
+  it('returns 0 for null / empty / hobby', () => {
+    expect(parseExperienceMinYears(null)).toBe(0);
+    expect(parseExperienceMinYears('')).toBe(0);
+    expect(parseExperienceMinYears('hobby')).toBe(0);
+  });
+
+  it('takes the lower bound of the underscore range key', () => {
+    expect(parseExperienceMinYears('0_5')).toBe(0);
+    expect(parseExperienceMinYears('5_10')).toBe(5);
+    expect(parseExperienceMinYears('10_15')).toBe(10);
+    expect(parseExperienceMinYears('15_20')).toBe(15);
+  });
+
+  it('handles ASCII hyphen ranges with or without "years" suffix', () => {
+    expect(parseExperienceMinYears('15-20')).toBe(15);
+    expect(parseExperienceMinYears('15-20 years')).toBe(15);
+  });
+
+  it('handles en-dash / em-dash ranges (Console / hosted label shape)', () => {
+    expect(parseExperienceMinYears('15\u201320 years')).toBe(15); // en dash
+    expect(parseExperienceMinYears('15\u201420 years')).toBe(15); // em dash
+    expect(parseExperienceMinYears('10\u201315')).toBe(10);
+  });
+
+  it('handles the "X to Y years" verbose label', () => {
+    expect(parseExperienceMinYears('15 to 20 years')).toBe(15);
+    expect(parseExperienceMinYears('5 to 10 years')).toBe(5);
+  });
+
+  it('handles 20 / 20+ / spaced "20 +" / "20 years +" as 20', () => {
+    expect(parseExperienceMinYears('20')).toBe(20);
+    expect(parseExperienceMinYears('20+')).toBe(20);
+    expect(parseExperienceMinYears('20 +')).toBe(20);
+    expect(parseExperienceMinYears('20 years +')).toBe(20);
+    expect(parseExperienceMinYears('15+')).toBe(15);
+  });
+
+  it('accepts plain numeric strings and numbers (with optional unit)', () => {
+    expect(parseExperienceMinYears(7)).toBe(7);
+    expect(parseExperienceMinYears('12')).toBe(12);
+    expect(parseExperienceMinYears('12 years')).toBe(12);
+    expect(parseExperienceMinYears('12 yrs')).toBe(12);
+  });
+
+  it('returns 0 for unrecognisable strings', () => {
+    expect(parseExperienceMinYears('--')).toBe(0);
+    expect(parseExperienceMinYears('abc')).toBe(0);
+  });
+});
+
+describe('resolveDisplayBadgeIds', () => {
+  it('keeps admin-only Founder when set', () => {
+    expect(resolveDisplayBadgeIds({ peakupCoachBadges: ['founder'] })).toEqual(['founder']);
+  });
+
+  it('keeps admin-only Ambassador when set', () => {
+    expect(resolveDisplayBadgeIds({ peakupCoachBadges: ['ambassador'] })).toEqual(['ambassador']);
+  });
+
+  it('Founder beats Ambassador when both are set', () => {
+    expect(
+      resolveDisplayBadgeIds({ peakupCoachBadges: ['ambassador', 'founder'] })
+    ).toEqual(['founder']);
+  });
+
+  it('ignores manually-set top_coach / certified_coach (admin-only filter)', () => {
+    expect(resolveDisplayBadgeIds({ peakupCoachBadges: ['top_coach'] })).toEqual(['certified_coach']);
+    expect(resolveDisplayBadgeIds({ peakupCoachBadges: ['certified_coach'] })).toEqual([
+      'certified_coach',
+    ]);
+  });
+
+  it('auto-derives top_coach for experience >= 10 years (legacy enum keys)', () => {
+    expect(resolveDisplayBadgeIds({ experience: '10_15' })).toEqual(['top_coach']);
+    expect(resolveDisplayBadgeIds({ experience: '20+' })).toEqual(['top_coach']);
+  });
+
+  it('auto-derives top_coach for free-form / hosted Console labels', () => {
+    expect(resolveDisplayBadgeIds({ experience: '15\u201320 years' })).toEqual(['top_coach']);
+    expect(resolveDisplayBadgeIds({ experience: '15-20 years' })).toEqual(['top_coach']);
+    expect(resolveDisplayBadgeIds({ experience: '15 to 20 years' })).toEqual(['top_coach']);
+    expect(resolveDisplayBadgeIds({ experience: '12 years' })).toEqual(['top_coach']);
+  });
+
+  it('reads the experience value from alternative publicData keys', () => {
+    expect(resolveDisplayBadgeIds({ peakupCoachExperience: '15\u201320 years' })).toEqual([
+      'top_coach',
+    ]);
+    expect(resolveDisplayBadgeIds({ coachExperience: '12 years' })).toEqual(['top_coach']);
+    expect(resolveDisplayBadgeIds({ experienceYears: 11 })).toEqual(['top_coach']);
+  });
+
+  it('falls back to certified_coach for short experience or missing data', () => {
+    expect(resolveDisplayBadgeIds({})).toEqual(['certified_coach']);
+    expect(resolveDisplayBadgeIds({ experience: 'hobby' })).toEqual(['certified_coach']);
+    expect(resolveDisplayBadgeIds({ experience: '5_10' })).toEqual(['certified_coach']);
+    expect(resolveDisplayBadgeIds({ experience: '5\u201310 years' })).toEqual(['certified_coach']);
+  });
+
+  it('admin Founder wins over experience-based derivation', () => {
+    expect(
+      resolveDisplayBadgeIds({ peakupCoachBadges: ['founder'], experience: '0_5' })
+    ).toEqual(['founder']);
+  });
+
+  it('admin Ambassador wins even if experience would qualify for Top coach', () => {
+    expect(
+      resolveDisplayBadgeIds({ peakupCoachBadges: ['ambassador'], experience: '20+' })
+    ).toEqual(['ambassador']);
   });
 });
 

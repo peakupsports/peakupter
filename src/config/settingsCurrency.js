@@ -1,5 +1,15 @@
 // See: https://en.wikipedia.org/wiki/ISO_4217
 // See: https://stripe.com/docs/currencies
+
+// Currencies that real coaches are allowed to set on their listings.
+// This is intentionally a small explicit subset of `stripeSupportedCurrencies`,
+// chosen for the markets PeakUp actively supports right now.
+// Demo coaches (frontend-only) bypass this list because they don't go through
+// the create/edit listing flow.
+// IMPORTANT: keep CHF in the list to preserve backward compatibility with
+// existing CHF listings created when CHF was the only marketplace currency.
+export const allowedListingCurrencies = ['CHF', 'EUR', 'USD', 'GBP'];
+
 export const stripeSupportedCurrencies = [
   'AUD',
   'CAD',

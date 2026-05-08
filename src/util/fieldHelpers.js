@@ -16,7 +16,36 @@ import {
 import appSettings from '../config/settings';
 import { addScopePrefix } from './userHelpers';
 
-const { stripeSupportedCurrencies, subUnitDivisors } = appSettings;
+const { stripeSupportedCurrencies, subUnitDivisors, allowedListingCurrencies } = appSettings;
+
+/**
+ * Whether a given currency is allowed for real listings on this marketplace.
+ *
+ * Combines two layers:
+ *   1. The explicit PeakUp whitelist (`allowedListingCurrencies`) – the small
+ *      set of currencies coaches can actually pick (CHF, EUR, USD, GBP).
+ *   2. `stripeSupportedCurrencies` – Stripe Connect must support the currency
+ *      for booking transactions to settle.
+ *
+ * Demo coaches bypass this check because they never go through the create /
+ * edit listing flow.
+ *
+ * @param {string} currency - ISO 4217 currency code
+ * @returns {boolean}
+ */
+export const isAllowedListingCurrency = currency => {
+  if (!currency) return false;
+  const upper = String(currency).toUpperCase();
+  const whitelist = allowedListingCurrencies || [];
+  return whitelist.includes(upper) && stripeSupportedCurrencies.includes(upper);
+};
+
+/**
+ * Pretty-printed list of currencies real coaches can use, e.g. "CHF, EUR, USD, GBP".
+ * Used for user-facing error copy when a listing currency falls outside the whitelist.
+ */
+export const formatAllowedListingCurrencies = (separator = ', ') =>
+  (allowedListingCurrencies || []).join(separator);
 
 /**
  * When extended data typed as "text" contains a persisted LocationAutocomplete-like object

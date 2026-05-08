@@ -18,6 +18,10 @@ import {
   sortCoachRowsByDistanceKm,
 } from '../../util/coachExplore';
 import { getCoachCoordinates } from '../../util/profileCoachSticker';
+// TEMP DEMO COACHES FOR MARKETING REEL – REMOVE BEFORE PRODUCTION
+// Single source of truth in `./demoCoaches.js`. To remove, delete this
+// import and the `mergeDemoIntoCoaches` call below; the rest is unchanged.
+import { mergeDemoIntoCoaches } from './demoCoaches';
 import { fetchCoachesExploreThunk } from '../CoachesExplorePage/CoachesExplorePage.duck';
 
 import CoachMap3D from './CoachMap3D/CoachMap3D';
@@ -39,6 +43,17 @@ import css from './CoachMapPage.module.css';
  * This list does NOT change global sport taxonomy, ProfilePage, listing
  * setup or coach figurine; it only drives the SportBar on this page.
  */
+// CoachMap discipline chips. Keys MUST be from the official platform
+// sports list (mirrors `SPORT_LABELS` in `src/components/SportBar/SportBar.js`
+// and `PROFILE_SPORT_DISPLAY_LABELS` in `src/util/profileCoachSticker.js`).
+// Adding a sport in Profile Settings without adding it here means it
+// never shows up as a CoachMap filter chip.
+//
+// Snowboard / Ski declare `variants[]` so the SportBar renders a
+// secondary row when the family is active. Variant short labels stay
+// CoachMap-only ("Freeride" / "Freestyle" / …) – the parent context
+// disambiguates. Canonical full labels live in
+// `PROFILE_SPORT_DISPLAY_LABELS` for use elsewhere (cards, popups, sticker).
 const SNOWBOARD_DISCIPLINE = {
   key: 'snowboard',
   label: 'Snowboard',
@@ -46,7 +61,7 @@ const SNOWBOARD_DISCIPLINE = {
   variants: [
     { key: 'freeridesnowboard', label: 'Freeride' },
     { key: 'freestylesnowboard', label: 'Freestyle' },
-    { key: 'splittouring', label: 'Split Touring' },
+    { key: 'splittouring', label: 'Split touring' },
   ],
 };
 
@@ -57,8 +72,8 @@ const SKI_DISCIPLINE = {
   aliases: ['skiing'],
   variants: [
     { key: 'freerideskiing', label: 'Freeride', aliases: ['freerideski'] },
-    { key: 'freestyleskiing', label: 'Freestyle', aliases: ['freestyleski'] },
-    { key: 'skitouring', label: 'Ski Touring' },
+    { key: 'freestyleskiing', label: 'Freeski', aliases: ['freestyleski'] },
+    { key: 'skitouring', label: 'Skitouring' },
   ],
 };
 
@@ -67,13 +82,29 @@ const SURF_DISCIPLINE = { key: 'surf', label: 'Surf', emoji: '🏄' };
 const TENNIS_DISCIPLINE = { key: 'tennis', label: 'Tennis', emoji: '🎾' };
 const CLIMBING_DISCIPLINE = { key: 'climbing', label: 'Climbing', emoji: '🧗' };
 const GOLF_DISCIPLINE = { key: 'golf', label: 'Golf', emoji: '⛳️' };
-// Fitness sits next to Golf in the seasonal main rows so the wellness /
-// non-extreme cluster reads as a coherent group (Tennis · Climbing ·
-// Golf · Fitness). 💪 matches the emoji already used by
-// `PROFILE_SPORT_EMOJI` for fitness on the figurine card, so the chip,
-// the figurine sport bubble and the context-aware map marker stay
-// visually consistent.
+// 💪 matches `PROFILE_SPORT_EMOJI.fitness` so chip / figurine / marker stay aligned.
 const FITNESS_DISCIPLINE = { key: 'fitness', label: 'Fitness', emoji: '💪' };
+const YOGA_DISCIPLINE = { key: 'yoga', label: 'Yoga', emoji: '🧘' };
+const SKYDIVE_DISCIPLINE = { key: 'skydive', label: 'Skydive', emoji: '🪂' };
+// 🪁 differentiates Kitesurf from Surf (which uses 🏄). Wakeboard
+// re-uses 🏄 since `PROFILE_SPORT_EMOJI.wakeboard` does too – the chip
+// label disambiguates.
+const KITESURF_DISCIPLINE = { key: 'kitesurf', label: 'Kitesurf', emoji: '🪁' };
+const WAKEBOARD_DISCIPLINE = { key: 'wakeboard', label: 'Wakeboard', emoji: '🏄' };
+const CROSSCOUNTRY_DISCIPLINE = {
+  key: 'crosscountry',
+  label: 'Cross-country',
+  emoji: '🎿',
+  aliases: ['cross-country', 'cross_country'],
+};
+// Skateboard chip filters expand to both `skate` and `skateboard` keys
+// via `matchSportFilterKeys` so legacy coach data still matches.
+const SKATEBOARD_DISCIPLINE = {
+  key: 'skateboard',
+  label: 'Skateboard',
+  emoji: '🛹',
+  aliases: ['skate'],
+};
 
 /**
  * Pick the seasonal main-row order. Winter = Nov→Apr (months 10,11,0,1,2,3),
@@ -87,27 +118,44 @@ const FITNESS_DISCIPLINE = { key: 'fitness', label: 'Fitness', emoji: '💪' };
 const getCoachMapDisciplinesForSeason = (date = new Date()) => {
   const month = typeof date.getMonth === 'function' ? date.getMonth() : new Date().getMonth();
   const isWinter = month >= 10 || month <= 3;
+  // Order rationale (both seasons): in-season disciplines first, then
+  // year-round disciplines (Tennis · Climbing · Golf · Fitness · Yoga ·
+  // Skydive · Skateboard), then off-season disciplines at the end. Every
+  // sport from the official platform list is rendered in both seasons so
+  // coaches are never hidden – only the order changes.
   if (isWinter) {
     return [
       SNOWBOARD_DISCIPLINE,
       SKI_DISCIPLINE,
+      CROSSCOUNTRY_DISCIPLINE,
       MTB_DISCIPLINE,
-      TENNIS_DISCIPLINE,
       CLIMBING_DISCIPLINE,
+      TENNIS_DISCIPLINE,
       GOLF_DISCIPLINE,
       FITNESS_DISCIPLINE,
+      YOGA_DISCIPLINE,
+      SKATEBOARD_DISCIPLINE,
+      SKYDIVE_DISCIPLINE,
       SURF_DISCIPLINE,
+      KITESURF_DISCIPLINE,
+      WAKEBOARD_DISCIPLINE,
     ];
   }
   return [
-    MTB_DISCIPLINE,
     SURF_DISCIPLINE,
-    TENNIS_DISCIPLINE,
+    KITESURF_DISCIPLINE,
+    WAKEBOARD_DISCIPLINE,
+    MTB_DISCIPLINE,
     CLIMBING_DISCIPLINE,
+    SKATEBOARD_DISCIPLINE,
+    TENNIS_DISCIPLINE,
     GOLF_DISCIPLINE,
     FITNESS_DISCIPLINE,
+    YOGA_DISCIPLINE,
+    SKYDIVE_DISCIPLINE,
     SNOWBOARD_DISCIPLINE,
     SKI_DISCIPLINE,
+    CROSSCOUNTRY_DISCIPLINE,
   ];
 };
 
@@ -161,9 +209,15 @@ const CoachMapPage = props => {
   const dispatch = useDispatch();
 
   const scrollingDisabled = useSelector(isScrollingDisabled);
-  const { coaches, fetchStatus, boundsPlain } = useSelector(
+  const { coaches: realCoaches, fetchStatus, boundsPlain } = useSelector(
     state => state.CoachesExplorePage
   );
+
+  // Merge real coaches with frontend-only demo entries so the map reads as
+  // an internationally active platform from the very first render (real
+  // coaches still rank first; demos are appended). `mergeDemoIntoCoaches`
+  // is a no-op when `DEMO_COACHES_ENABLED` is false.
+  const coaches = useMemo(() => mergeDemoIntoCoaches(realCoaches), [realCoaches]);
 
   const queryExplore = useMemo(() => parseCoachExploreSearch(location.search), [location.search]);
 

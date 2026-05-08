@@ -38,6 +38,8 @@ const SPIDERFY_SLOTS_PER_RING = 6;
 
 // Same emoji table used by SportBar – kept here as a local map so this
 // component does not pull cross-feature deps just for marker glyphs.
+// Keys MUST mirror `SPORT_EMOJI` in `src/components/SportBar/SportBar.js`
+// and `PROFILE_SPORT_EMOJI` in `src/util/profileCoachSticker.js`.
 const SPORT_EMOJI = {
   surf: '🏄',
   mtb: '🚵',
@@ -49,6 +51,8 @@ const SPORT_EMOJI = {
   fitness: '💪',
   wakeboard: '🏄',
   kitesurf: '🪁',
+  skateboard: '🛹',
+  skate: '🛹',
   snowboard: '🏂',
   ski: '🎿',
   crosscountry: '🎿',

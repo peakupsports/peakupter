@@ -12,6 +12,8 @@ import {
   isFieldForCategory,
   isFieldForListingType,
   isValidCurrencyForTransactionProcess,
+  isAllowedListingCurrency,
+  formatAllowedListingCurrencies,
 } from '../../../../util/fieldHelpers';
 import { maxLength, required, composeValidators } from '../../../../util/validators';
 
@@ -325,6 +327,7 @@ const EditListingDetailsForm = props => (
         invalid,
         pristine,
         marketplaceCurrency,
+        coachProfileCurrency,
         marketplaceName,
         selectableListingTypes,
         selectableCategories,
@@ -354,18 +357,18 @@ const EditListingDetailsForm = props => (
         }
       );
 
-      // Determine the currency to validate:
-      // - If editing an existing listing, use the listing's currency.
-      // - If creating a new listing, fall back to the default marketplace currency.
-      const currencyToCheck = listingCurrency || marketplaceCurrency;
+      // Determine the currency to validate, in this priority order:
+      //   1. The currency already saved on the listing (preserves existing CHF listings).
+      //   2. The coach-selected currency from their profile (multi-currency support).
+      //   3. The marketplace fallback currency.
+      const currencyToCheck = listingCurrency || coachProfileCurrency || marketplaceCurrency;
 
-      // Verify if the selected listing type's transaction process supports the chosen currency.
-      // This checks compatibility between the transaction process
-      // and the marketplace or listing currency.
-      const isCompatibleCurrency = isValidCurrencyForTransactionProcess(
-        transactionProcessAlias,
-        currencyToCheck
-      );
+      // Verify the currency is both:
+      // - inside the explicit PeakUp whitelist (CHF / EUR / USD / GBP), and
+      // - supported by the chosen listing type's transaction process (Stripe, etc.).
+      const isCompatibleCurrency =
+        isValidCurrencyForTransactionProcess(transactionProcessAlias, currencyToCheck) &&
+        isAllowedListingCurrency(currencyToCheck);
 
       const maxLength60Message = maxLength(maxLengthMessage, TITLE_MAX_LENGTH);
 
@@ -468,7 +471,12 @@ const EditListingDetailsForm = props => (
             <p className={css.error}>
               <FormattedMessage
                 id="EditListingDetailsForm.incompatibleCurrency"
-                values={{ marketplaceName, marketplaceCurrency }}
+                values={{
+                  marketplaceName,
+                  marketplaceCurrency,
+                  currency: currencyToCheck,
+                  supportedCurrencies: formatAllowedListingCurrencies(),
+                }}
               />
             </p>
           )}

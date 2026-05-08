@@ -22,6 +22,45 @@ const { Money } = sdkTypes;
 
 const PROFILE_IMAGE_VARIANTS = ['square-small', 'square-small2x'];
 
+// TEMP DEMO COACHES FOR MARKETING REEL – REMOVE BEFORE PRODUCTION
+// Hardcoded here (instead of imported from `containers/CoachMapPage/demoCoaches`)
+// because CoachCard is a shared component in `src/components/` and the
+// codebase rule is that components don't depend on containers. Keep these
+// helpers in sync with `DEMO_DISABLED_ACTION_MESSAGE` and `formatDemoPrice`
+// in `containers/CoachMapPage/demoCoaches.js`.
+const DEMO_DISABLED_ACTION_MESSAGE = 'Booking and contact will be available soon.';
+const showDemoUnavailableAlert = () => {
+  if (typeof window !== 'undefined' && typeof window.alert === 'function') {
+    window.alert(DEMO_DISABLED_ACTION_MESSAGE);
+  }
+};
+
+/**
+ * Demo-only currency formatter (mirror of `formatDemoPrice` in
+ * `containers/CoachMapPage/demoCoaches.js`). Renders the coach profile
+ * price as a clean symbol-prefixed integer (`€95`, `$140`, `£80`, `CHF 220`,
+ * `JPY 28,000`) so demo coaches reflect their country/region instead of
+ * the single marketplace currency the production `formatMoney` pipeline
+ * is locked to.
+ */
+const formatDemoCoachPrice = (intl, publicData) => {
+  if (!publicData || !publicData.currency) return null;
+  const amount = Number(publicData.priceFrom);
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  try {
+    return intl.formatNumber(amount, {
+      style: 'currency',
+      currency: publicData.currency,
+      currencyDisplay: 'symbol',
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0,
+      useGrouping: true,
+    });
+  } catch (e) {
+    return `${publicData.currency} ${amount}`;
+  }
+};
+
 /**
  * Build a Money from the coach profile's `publicData.priceFrom` (major units)
  * and `publicData.currency`. Returns `null` when the inputs are missing,
@@ -135,6 +174,12 @@ const CoachCard = props => {
   const tierId = pickPrimaryTierId(publicData);
   const tierStyle = getTierStyleVars(tierId);
 
+  // Demo coaches: profile / contact links would 404 (no real Sharetribe
+  // user) and a booking flow doesn't exist for them, so we render the name
+  // as plain text and the Contact button as a non-navigating button that
+  // shows the friendly "coming soon" alert.
+  const isDemo = Boolean(coach?.isDemo);
+
   // Price source order:
   //   1. coach profile (`publicData.priceFrom` + `publicData.currency`)
   //      – set from ProfileSettingsPage, this is the "main" coaching price.
@@ -145,7 +190,15 @@ const CoachCard = props => {
   const listingMinPrice =
     minPrice && typeof minPrice.amount === 'number' ? minPrice : null;
   const priceForDisplay = profilePriceMoney || listingMinPrice;
-  const formattedPrice = priceForDisplay ? formatMoney(intl, priceForDisplay) : null;
+  // Demo coaches: use a clean integer currency formatter (`€95` / `$140` /
+  // `CHF 220`) so the marketing reel reflects each coach's country. Real
+  // listings still go through `formatMoney`, which is locked to the
+  // marketplace currency.
+  const formattedPrice = coach?.isDemo
+    ? formatDemoCoachPrice(intl, publicData)
+    : priceForDisplay
+    ? formatMoney(intl, priceForDisplay)
+    : null;
 
   const profileImageVariants = profileImage
     ? Object.keys(profileImage?.attributes?.variants || {}).filter(k =>
@@ -209,7 +262,7 @@ const CoachCard = props => {
         <div className={css.identity}>
           <div className={css.titleRow}>
             <span className={css.titleLeft}>
-              {profileId ? (
+              {profileId && !isDemo ? (
                 <NamedLink className={css.name} name="ProfilePage" params={{ id: profileId }}>
                   {displayName || <FormattedMessage id="CoachCard.fallbackName" />}
                 </NamedLink>
@@ -288,7 +341,16 @@ const CoachCard = props => {
             />
           ) : null}
         </div>
-        {profileId ? (
+        {isDemo ? (
+          <button
+            type="button"
+            className={css.contactBtn}
+            onClick={showDemoUnavailableAlert}
+            aria-label={DEMO_DISABLED_ACTION_MESSAGE}
+          >
+            <FormattedMessage id="CoachesPage.contact" />
+          </button>
+        ) : profileId ? (
           <NamedLink className={css.contactBtn} name="ProfilePage" params={{ id: profileId }}>
             <FormattedMessage id="CoachesPage.contact" />
           </NamedLink>

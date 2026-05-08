@@ -4,6 +4,7 @@ import { types as sdkTypes } from '../../util/sdkLoader';
 import { LISTING_STATE_CLOSED } from '../../util/types';
 import { createResourceLocatorString, findRouteByRouteName } from '../../util/routes';
 import { convertMoneyToNumber, formatMoney } from '../../util/currency';
+import { isAllowedListingCurrency } from '../../util/fieldHelpers';
 import { timestampToDate } from '../../util/dates';
 import {
   peakupNormalizeSessionsForCheckout,
@@ -49,13 +50,19 @@ const { UUID } = sdkTypes;
 
 /**
  * Helper to get formattedPrice and priceTitle for SectionHeading component.
+ *
+ * Multi-currency aware: any currency in the PeakUp whitelist (CHF / EUR / USD /
+ * GBP) renders normally. The `marketplaceCurrency` parameter is kept in the
+ * signature for backward compatibility but is only used as a fallback when
+ * the price object is missing.
+ *
  * @param {Money} price listing's price
- * @param {String} marketplaceCurrency currency of the price (e.g. 'USD')
+ * @param {String} marketplaceCurrency marketplace fallback currency (e.g. 'CHF')
  * @param {Object} intl React Intl instance
  * @returns Object literal containing formattedPrice and priceTitle
  */
 export const priceData = (price, marketplaceCurrency, intl) => {
-  if (price && price.currency === marketplaceCurrency) {
+  if (price && isAllowedListingCurrency(price.currency)) {
     const formattedPrice = formatMoney(intl, price);
     return { formattedPrice, priceTitle: formattedPrice };
   } else if (price) {

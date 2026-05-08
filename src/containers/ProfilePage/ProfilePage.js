@@ -39,7 +39,7 @@ import {
   LANGUAGE_FLAGS,
   resolveCoachStickerDisplay,
   sportsForFigurinaOverlay,
-  resolvePeakupCoachBadgeIds,
+  resolveDisplayBadgeIds,
   shouldShowPeakUpProfileSticker,
 } from '../../util/profileCoachSticker';
 import { pickPrimaryTierId, getTierStyleVars } from '../../util/coachTier';
@@ -360,7 +360,9 @@ export const AsideContent = props => {
   const profileImage = avatarUser?.profileImage;
 
   const stickerDisplay = resolveCoachStickerDisplay(profilePd, listing);
-  const badgeIds = resolvePeakupCoachBadgeIds(profilePd);
+  // Display badges are auto-derived (Founder/Ambassador admin-only,
+  // Top coach for >=10y experience, Certified coach for everyone else).
+  const badgeIds = resolveDisplayBadgeIds(profilePd);
   const legacyCoachLevel =
     badgeIds.length === 0 && profilePd.coachLevel && String(profilePd.coachLevel).trim()
       ? String(profilePd.coachLevel).trim()

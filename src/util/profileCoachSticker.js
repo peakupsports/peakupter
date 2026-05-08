@@ -95,6 +95,13 @@ export const sportsForFigurinaOverlay = sports => {
  * pronta in inglese. Le traduzioni hostate restano comunque la fonte di verità via
  * `ProfilePage.sportSticker.<key>` (questa è solo il `defaultMessage`).
  */
+// Display labels for each sport key. Casing/spelling MUST match the
+// official platform sports list (Profile Settings + SportBar). Keep this
+// table in sync with `SPORT_LABELS` in `src/components/SportBar/SportBar.js`
+// and `WINTER_VARIANT_LABELS` (idem). Adding a new sport key here without
+// adding it to those tables (and vice-versa) leads to mismatched chips
+// vs. card/popup labels. `skate` is kept as a back-compat alias for legacy
+// coach data – the official platform key is `skateboard`.
 export const PROFILE_SPORT_DISPLAY_LABELS = {
   ski: 'Ski',
   snowboard: 'Snowboard',
@@ -105,18 +112,18 @@ export const PROFILE_SPORT_DISPLAY_LABELS = {
   climbing: 'Climbing',
   yoga: 'Yoga',
   skydive: 'Skydive',
-  crosscountry: 'Cross Country',
+  crosscountry: 'Cross-country',
   wakeboard: 'Wakeboard',
   kitesurf: 'Kitesurf',
   fitness: 'Fitness',
-  freeridesnowboard: 'Freeride Snowboard',
-  freestylesnowboard: 'Freestyle Snowboard',
-  splittouring: 'Split Touring',
-  freerideskiing: 'Freeride Skiing',
-  skitouring: 'Ski Touring',
-  freestyleskiing: 'Freestyle Skiing',
+  freeridesnowboard: 'Freeride snowboard',
+  freestylesnowboard: 'Freestyle snowboard',
+  splittouring: 'Split touring',
+  freerideskiing: 'Freeride skiing',
+  skitouring: 'Skitouring',
+  freestyleskiing: 'Freeski',
   skateboard: 'Skateboard',
-  skate: 'Skate',
+  skate: 'Skateboard',
 };
 
 const titleCaseSportLabel = raw => {
@@ -178,11 +185,16 @@ const COACHMAP_VARIANT_PARENT = {
   freestylesnowboard: 'snowboard',
 };
 
+// CoachMap-only short labels for variants shown inside the secondary row,
+// where the parent chip ("Snowboard" / "Ski") already provides context. The
+// canonical full labels live in `PROFILE_SPORT_DISPLAY_LABELS`. Keep casing
+// in sync with the official sports list ("Split touring", "Skitouring",
+// "Freeski") even when abbreviated.
 const COACHMAP_VARIANT_FALLBACK_LABEL = {
-  skitouring: 'Ski Touring',
-  splittouring: 'Split Touring',
+  skitouring: 'Skitouring',
+  splittouring: 'Split touring',
   freerideskiing: 'Freeride',
-  freestyleskiing: 'Freestyle',
+  freestyleskiing: 'Freeski',
   freeridesnowboard: 'Freeride',
   freestylesnowboard: 'Freestyle',
 };
@@ -582,6 +594,131 @@ export const PEAKUP_COACH_BADGE_PRIORITY = {
 };
 
 /**
+ * Badges that can ONLY be set manually by an admin via Console / API and are
+ * never auto-derived. The remaining tiers (top_coach, certified_coach) are
+ * computed from coach data (see `resolveDisplayBadgeIds`).
+ */
+const ADMIN_ONLY_BADGE_IDS = new Set(['founder', 'ambassador']);
+
+/**
+ * Threshold (years) above which a coach is auto-elevated to `top_coach`.
+ */
+const TOP_COACH_MIN_YEARS = 10;
+
+/**
+ * Parse a coach `experience` value into a "minimum years" lower bound.
+ *
+ * Robust against the multiple shapes the value can arrive in (form key,
+ * Console hosted label, free-form string, plain number):
+ *   'hobby'                  -> 0
+ *   '0_5'                    -> 0
+ *   '5_10'                   -> 5
+ *   '10_15'  / '10-15'       -> 10
+ *   '15_20'  / '15-20'       -> 15
+ *   '15–20 years'            -> 15   (en dash)
+ *   '15—20 years'            -> 15   (em dash)
+ *   '15 to 20 years'         -> 15
+ *   '20'  / '20+' / '20 +'   -> 20
+ *   '20 years +'             -> 20
+ *   '12 years' / '12'  / 12  -> 12
+ *
+ * Anything unrecognised returns 0.
+ *
+ * @param {unknown} raw
+ * @returns {number}
+ */
+export const parseExperienceMinYears = raw => {
+  if (raw == null) return 0;
+  if (typeof raw === 'number') return Number.isFinite(raw) && raw > 0 ? Math.trunc(raw) : 0;
+
+  let s = String(raw).toLowerCase().trim();
+  if (!s || s === 'hobby') return 0;
+
+  // Normalise dash variants (hyphen, en dash U+2013, em dash U+2014, figure dash
+  // U+2012, hyphen-bullet U+2043, minus sign U+2212) into a single ASCII hyphen.
+  s = s.replace(/[\u2010-\u2015\u2043\u2212-]/g, '-');
+  // "15 to 20" → "15-20"
+  s = s.replace(/\s+to\s+/g, '-');
+  // strip unit words ("years", "year", "yrs", "yr", "y")
+  s = s.replace(/\b(years?|yrs?|y)\b/g, '');
+  // strip everything that is not digit / + / - / _ (kills stray punctuation/spaces)
+  s = s.replace(/[^0-9+\-_]/g, '');
+  // hyphen and underscore are both range separators
+  s = s.replace(/-/g, '_');
+  // strip leading/trailing separators / pluses
+  s = s.replace(/^[_+]+|[_+]+$/g, '');
+
+  if (!s) return 0;
+
+  // range "a_b" → low end
+  const range = s.match(/^(\d+)_(\d+)$/);
+  if (range) return Number(range[1]);
+
+  // pure number
+  const num = s.match(/^(\d+)$/);
+  if (num) return Number(num[1]);
+
+  // last-resort: first integer found anywhere
+  const firstInt = s.match(/(\d+)/);
+  if (firstInt) return Number(firstInt[1]);
+
+  return 0;
+};
+
+/**
+ * publicData keys that may carry the coach experience value, in order of
+ * preference. Different code paths / Console asset versions have used slightly
+ * different keys, so we look them up uniformly here.
+ */
+const COACH_EXPERIENCE_PD_KEYS = [
+  'experience',
+  'peakupCoachExperience',
+  'coachExperience',
+  'experienceYears',
+];
+
+const readCoachExperienceRaw = pd => {
+  if (!pd || typeof pd !== 'object') return null;
+  for (const k of COACH_EXPERIENCE_PD_KEYS) {
+    const v = pd[k];
+    if (v != null && String(v).trim() !== '') return v;
+  }
+  return null;
+};
+
+/**
+ * Display badge ids actually shown on coach UI (CoachCard, CoachMapPopup,
+ * ProfilePage figurine, sidebar avatar ring, selected-marker glow…).
+ *
+ * Logic:
+ *   1. Admin-only manual badges (founder / ambassador) win when set on
+ *      `publicData.peakupCoachBadges` (or legacy boolean / `coachLevel`).
+ *   2. Otherwise auto-derive from coach experience (read from any of the
+ *      known publicData keys — see `COACH_EXPERIENCE_PD_KEYS`):
+ *        experience years >= 10  -> ['top_coach']
+ *        otherwise               -> ['certified_coach']
+ *
+ * Returns a single-element array so all existing consumers (sort by priority,
+ * pickPrimaryTierId, verified-seal lookup) keep working without changes.
+ *
+ * @param {Object|null|undefined} profilePd `user.attributes.profile.publicData`
+ * @returns {string[]}
+ */
+export const resolveDisplayBadgeIds = (profilePd = {}) => {
+  const adminOnly = resolvePeakupCoachBadgeIds(profilePd).filter(id =>
+    ADMIN_ONLY_BADGE_IDS.has(id)
+  );
+  if (adminOnly.length > 0) {
+    const top = [...adminOnly].sort(
+      (a, b) => (PEAKUP_COACH_BADGE_PRIORITY[b] || 0) - (PEAKUP_COACH_BADGE_PRIORITY[a] || 0)
+    )[0];
+    return [top];
+  }
+  const yrs = parseExperienceMinYears(readCoachExperienceRaw(profilePd));
+  return yrs >= TOP_COACH_MIN_YEARS ? ['top_coach'] : ['certified_coach'];
+};
+
+/**
  * Restituisce la priorità più alta tra i badge passati. 0 se nessuno.
  *
  * @param {string[]} badgeIds output di {@link resolvePeakupCoachBadgeIds}
@@ -635,10 +772,10 @@ export const comparePeakupFeaturedCoaches = (a, b) => {
 
   const pa = typeof a?.badgePriority === 'number'
     ? a.badgePriority
-    : peakupCoachBadgePriorityFor(resolvePeakupCoachBadgeIds(a?.author?.attributes?.profile?.publicData));
+    : peakupCoachBadgePriorityFor(resolveDisplayBadgeIds(a?.author?.attributes?.profile?.publicData));
   const pb = typeof b?.badgePriority === 'number'
     ? b.badgePriority
-    : peakupCoachBadgePriorityFor(resolvePeakupCoachBadgeIds(b?.author?.attributes?.profile?.publicData));
+    : peakupCoachBadgePriorityFor(resolveDisplayBadgeIds(b?.author?.attributes?.profile?.publicData));
   if (pa !== pb) return pb - pa;
 
   const na = (a?.author?.attributes?.profile?.displayName || '').toLowerCase();

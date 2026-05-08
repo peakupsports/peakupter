@@ -1,5 +1,6 @@
 import { displayPrice, isPriceVariationsEnabled } from '../../util/configHelpers';
 import { formatMoney } from '../../util/currency';
+import { isAllowedListingCurrency } from '../../util/fieldHelpers';
 import { richText } from '../../util/richText';
 import { isBookingProcessAlias } from '../../transactions/transaction';
 
@@ -7,8 +8,12 @@ import css from './ListingCard.module.css';
 
 const MIN_LENGTH_FOR_LONG_WORDS = 10;
 
+// Multi-currency aware: any currency in the PeakUp whitelist (CHF / EUR / USD /
+// GBP) renders the formatted price normally. The `currency` parameter is kept
+// for signature compatibility but is no longer used as a hard equality check –
+// the marketplace currency is the fallback default elsewhere.
 const priceData = (price, currency, intl) => {
-  if (price && price.currency === currency) {
+  if (price && isAllowedListingCurrency(price.currency)) {
     const formattedPrice = formatMoney(intl, price);
     return { formattedPrice, priceTooltip: formattedPrice };
   } else if (price) {

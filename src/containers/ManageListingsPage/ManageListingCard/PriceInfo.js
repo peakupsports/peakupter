@@ -4,6 +4,7 @@ import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import { displayPrice, isPriceVariationsEnabled } from '../../../util/configHelpers';
 import { useConfiguration } from '../../../context/configurationContext';
 import { formatMoney } from '../../../util/currency';
+import { isAllowedListingCurrency } from '../../../util/fieldHelpers';
 
 import css from './ManageListingCard.module.css';
 
@@ -16,8 +17,11 @@ import css from './ManageListingCard.module.css';
  * @param {Object} intl - React Intl instance (e.g. from useIntl())
  * @returns {{ formattedPrice?: string }} Object containing formattedPrice when it can be shown
  */
+// Multi-currency aware: any currency in the PeakUp whitelist renders normally.
+// `marketplaceCurrency` is kept for signature compatibility but only matters
+// implicitly via the whitelist (which contains the marketplace default CHF).
 const priceData = (price, marketplaceCurrency, intl) => {
-  if (price?.currency === marketplaceCurrency) {
+  if (price && isAllowedListingCurrency(price.currency)) {
     const formatted = formatMoney(intl, price);
     return { formattedPrice: formatted };
   } else if (price) {

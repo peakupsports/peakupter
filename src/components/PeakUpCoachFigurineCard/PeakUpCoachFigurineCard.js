@@ -124,7 +124,9 @@ const normalizeSportKey = raw => String(raw || '').toLowerCase().replace(/[\s-_]
  * @param {string[]} [props.sportKeys] pre-normalized sport keys (overrides publicData)
  * @param {number} [props.reviewCount]
  * @param {number|null} [props.reviewAverage]
- * @param {string[]} [props.badgeIds] from {@link resolvePeakupCoachBadgeIds}
+ * @param {string[]} [props.badgeIds] from {@link resolveDisplayBadgeIds}
+ * (Founder / Ambassador admin-only, Top coach auto-derived from experience >= 10y,
+ * Certified coach as default)
  * @param {number} [props.rank] posizione 1-indexed in classifica; se ≤ 3 mostra medaglia podio.
  */
 const PeakUpCoachFigurineCard = props => {

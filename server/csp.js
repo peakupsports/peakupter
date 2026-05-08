@@ -87,6 +87,11 @@ const defaultDirectives = {
     'picsum.photos',
     '*.picsum.photos',
 
+    // TEMP DEMO COACHES FOR MARKETING REEL – REMOVE BEFORE PRODUCTION
+    // (Unsplash hosts the demo coach photos rendered by `src/containers/
+    //  CoachMapPage/demoCoaches.js`.)
+    'images.unsplash.com',
+
     'api.mapbox.com',
     'maps.googleapis.com',
     '*.gstatic.com',
