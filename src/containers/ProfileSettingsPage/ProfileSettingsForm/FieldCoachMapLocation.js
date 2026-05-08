@@ -8,7 +8,22 @@ import css from './FieldCoachMapLocation.module.css';
 const identity = v => v;
 
 /**
- * Worldwide address search (Mapbox/Google) for coach profile map pin — same geocoder as listings.
+ * Single primary location field for coach profiles.
+ *
+ * The coach fills this field once: a Mapbox autocomplete that captures
+ * "Where do you coach?". Everything downstream is derived from the
+ * selected place:
+ *
+ *   - precise `lat` / `lng` for the map marker
+ *   - full `location` object (address + bounds) for the popup / listing
+ *     geocoding parity
+ *   - short editorial label (e.g. "St. Moritz") for the figurina / coach
+ *     card, derived via `derivePlaceShortLabel` and stored in
+ *     `publicData.coachCityText` for back-compat and fast access
+ *
+ * See `publicDataPatchFromCoachMapLocation` (the form patcher) and
+ * `getCoachShortLocationLabel` (the figurina renderer) for how the
+ * derived values flow.
  *
  * @param {Object} props
  * @param {string} [props.formId]
@@ -36,6 +51,7 @@ const FieldCoachMapLocation = props => {
         useDarkText
       />
       <HelpText
+        rootClassName={css.helpText}
         helpText={intl.formatMessage({ id: 'FieldCoachMapLocation.helpText' })}
       />
     </div>

@@ -1,4 +1,5 @@
 import { coachCityCenter, coachCityLabel } from '../config/configCoachCity';
+import { deriveCountryCodeFromPlace, derivePlaceShortLabel } from './coachExplore';
 
 const finiteNum = v => {
   if (typeof v === 'number' && Number.isFinite(v)) {
@@ -95,7 +96,21 @@ export const coachMapLocationFromPublicData = (publicData = {}) => {
 
 /**
  * Patch to merge into `profile.publicData` from the coach map location field.
- * Persists both flat `lat`/`lng` (for figurina) and Sharetribe `location` object (Console-friendly).
+ *
+ * Single-field UX: the coach now fills only one Mapbox autocomplete
+ * ("Where do you coach?"). From that value we derive every downstream
+ * piece of data:
+ *
+ *   - `lat` / `lng`            → precise coordinates for the map marker
+ *   - `location` object        → Sharetribe-shaped address + bounds for
+ *                                map popup, listing geocoding parity,
+ *                                Console editing
+ *   - `coachCityText`          → SHORT editorial label for the figurina
+ *                                / coach card (e.g. "St. Moritz" — never
+ *                                the full Mapbox address). Stored for
+ *                                back-compat with legacy data and for
+ *                                fast access in components that don't
+ *                                want to re-derive it.
  *
  * @param {*} value Form value for `pub_coachMapLocation`
  * @returns {Object} Keys may include `lat`, `lng`, `coachCityText`, `coachCity`, `location`
@@ -112,15 +127,29 @@ export const publicDataPatchFromCoachMapLocation = value => {
     typeof loc.search === 'string' && loc.search.trim() ? loc.search.trim() : address;
 
   if (lat != null && lng != null) {
+    // Derive the ISO-2 country code of the coaching place (NOT the
+    // coach's nationality). Persisted onto `selectedPlace.countryCode`
+    // so subsequent renders read it directly without re-parsing the
+    // address tail every time. Mapbox returns addresses in English by
+    // default for the worldwide search, so we use 'en' for the reverse
+    // lookup at save time. The runtime helper (`deriveCountryCodeFromPlace`)
+    // also re-derives from the address tail in the requested locale, as
+    // a defensive fallback for non-English saves.
+    const countryCode = deriveCountryCodeFromPlace(value, 'en');
     const selectedPlace = {
       address,
       origin: { lat, lng },
+      ...(countryCode ? { countryCode } : {}),
       ...(sp?.bounds && typeof sp.bounds === 'object' ? { bounds: sp.bounds } : {}),
     };
+    // Derived short label ("St. Moritz" from "St. Moritz, Grisons,
+    // Switzerland"). Falls back to the full address when the place data
+    // is too sparse to derive a clean head segment.
+    const shortLabel = derivePlaceShortLabel(value) || address;
     return {
       lat,
       lng,
-      coachCityText: address,
+      coachCityText: shortLabel,
       coachCity: null,
       location: {
         predictions: Array.isArray(loc.predictions) ? loc.predictions : [],

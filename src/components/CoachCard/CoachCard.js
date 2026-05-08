@@ -5,6 +5,7 @@ import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { types as sdkTypes } from '../../util/sdkLoader';
 import { formatMoney, unitDivisor } from '../../util/currency';
 import { ensureUser } from '../../util/data';
+import { getCoachMapLocationLabel } from '../../util/coachExplore';
 import {
   resolveCoachStickerDisplay,
   splitCoachSportsForCoachMap,
@@ -148,6 +149,14 @@ const CoachCard = props => {
   // Single source of truth for sports / languages / locationLine / lat / lng
   // (profile-first, listing-fallback).
   const sticker = resolveCoachStickerDisplay(publicData, representativeListing);
+  // Human-readable, deduplicated "City, Country" line for the sidebar row.
+  // Always normalized (e.g. "St.Moritz" → "St. Moritz") and always strict
+  // about the country: the country comes from the saved Mapbox geocode of
+  // the coaching place — never from the coach's nationality
+  // (`publicData.country`). When the country can't be derived, the city
+  // alone is rendered. Coordinate-shaped strings are rejected by the
+  // helper so they never leak into the label.
+  const displayLocation = getCoachMapLocationLabel(coach, { intl });
   // Split sports into "main" parents (Snowboard, Ski, Surf, ...) and
   // "specialties" sub-disciplines (Freeride, Freestyle, Ski Touring, ...).
   // Avoids noisy lines like "Snowboard · Ski · Freeride Snowboard · ..." and
@@ -321,10 +330,10 @@ const CoachCard = props => {
             <div className={css.specialtiesRow}>{visibleSpecialties.join(' · ')}</div>
           ) : null}
 
-          {sticker.locationLine ? (
+          {displayLocation ? (
             <div className={css.locationRow}>
               <span aria-hidden>📍</span>
-              <span className={css.locationText}>{sticker.locationLine}</span>
+              <span className={css.locationText}>{displayLocation}</span>
             </div>
           ) : null}
         </div>

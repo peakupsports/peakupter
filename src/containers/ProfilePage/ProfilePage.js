@@ -30,7 +30,13 @@ import {
 import { richText } from '../../util/richText';
 import { ensureUser } from '../../util/data';
 import { createSlug } from '../../util/urlHelpers';
-import { pickRepresentativeListing, countryCodeToFlagEmoji } from '../../util/coachExplore';
+import {
+  pickRepresentativeListing,
+  countryCodeToFlagEmoji,
+  deriveCountryCodeFromPlace,
+  getCoachShortLocationLabel,
+  getCoachFullLocationLabel,
+} from '../../util/coachExplore';
 import { getMapProviderApiAccess, staticPinMapImageUrl } from '../../util/maps';
 import {
   formatCoachExperienceLabel,
@@ -38,7 +44,6 @@ import {
   formatProfileSportsForSticker,
   LANGUAGE_FLAGS,
   resolveCoachStickerDisplay,
-  sportsForFigurinaOverlay,
   resolveDisplayBadgeIds,
   shouldShowPeakUpProfileSticker,
 } from '../../util/profileCoachSticker';
@@ -372,10 +377,6 @@ export const AsideContent = props => {
   const cc = countryRaw?.toString?.()?.trim?.() || '';
   const countryEmoji = cc ? countryCodeToFlagEmoji(cc.length === 2 ? cc.toUpperCase() : cc) : '';
 
-  const sportsBadges = formatProfileSportsForSticker(
-    intl,
-    sportsForFigurinaOverlay(stickerDisplay.sports)
-  );
   const { priceFrom, currency: stickerCurrency = 'CHF' } = stickerDisplay;
 
   const priceLabel =
@@ -388,7 +389,17 @@ export const AsideContent = props => {
         )
       : null;
 
-  const locationLabel = stickerDisplay.locationLine;
+  // Figurine pill on the ProfilePage hero must render the SHORT location
+  // (single place name like "Laax" or "St. Moritz") + a country flag derived
+  // from the coaching place — never the full Mapbox address. The right-column
+  // Location box uses `getCoachFullLocationLabel` instead so the two are
+  // consistent across all coaches: figurine = short, box = full.
+  const coachShape = { author: user, representativeListing: listing };
+  const locationLabel = getCoachShortLocationLabel(coachShape, { intl });
+  const locationCountryCode =
+    deriveCountryCodeFromPlace(profilePd.location, intl?.locale || 'en') ||
+    deriveCountryCodeFromPlace(listingPd.location, intl?.locale || 'en');
+  const locationFlag = locationCountryCode ? countryCodeToFlagEmoji(locationCountryCode) : '';
   const languages = stickerDisplay.languages;
 
   const providerReviews = reviews.filter(r => r.attributes?.type === REVIEW_TYPE_OF_PROVIDER);
@@ -518,25 +529,28 @@ export const AsideContent = props => {
               <div className={css.stickerPhotoOverlay} aria-hidden />
               <div className={css.stickerPhotoShine} aria-hidden />
 
+              {/* Sport emoji chips intentionally NOT rendered on the
+                  ProfilePage hero figurine: sports are already surfaced
+                  with full labels in the dedicated "Sports I teach"
+                  section on the right column (`formattedSportsSticker`
+                  → `.coachSportsFullRow`). Rendering them here as well
+                  doubled the visual weight and lost contrast on the
+                  light bottom area of the figurina. The figurine on
+                  LandingPage / CoachesPage / map sidebar continues to
+                  show sport bubbles (those use `PeakUpCoachFigurineCard`,
+                  which is a different component). */}
               <div className={css.stickerInfoOverlay}>
-                {sportsBadges.length > 0 ? (
-                  <div className={css.stickerInfoRow}>
-                    {sportsBadges.map(s => (
-                      <span
-                        key={s.key}
-                        className={classNames(css.stickerMiniBadge, css.stickerMiniBadgeSport)}
-                        title={s.label}
-                      >
-                        {s.emoji}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
-
                 {locationLabel ? (
                   <div className={css.stickerInfoRow}>
                     <span className={classNames(css.stickerMiniBadge, css.stickerMiniBadgeInfo)}>
+                      {/* `locationFlag` is the country flag of the COACHING
+                          place (derived from the saved Mapbox geocode), NOT
+                          the coach's nationality flag (rendered in the
+                          header). When Mapbox can't resolve the country
+                          (legacy/sparse data) the flag is omitted entirely
+                          and the pill simply reads `📍 Laax`. */}
                       📍 {locationLabel}
+                      {locationFlag ? <> {locationFlag}</> : null}
                     </span>
                   </div>
                 ) : null}
@@ -848,18 +862,49 @@ export const MainContent = props => {
   const {
     priceFrom: stickerPriceFromRaw,
     currency: stickerBookingCurrency = 'CHF',
-    locationLine: stickerLocationLineRaw,
+    locationLine: stickerLocationLineLegacyRaw,
     lat: stickerGeoLatRaw,
     lng: stickerGeoLngRaw,
     locationStickerSlug: stickerLocationStickerSlugRaw,
   } = stickerSource;
+
+  // Resolve location labels from a single source of truth so the figurina
+  // (short) and the right-column "Location" box (full) are always
+  // consistent across all coaches:
+  //   - Figurina      → `getCoachShortLocationLabel`  → "Laax"
+  //   - Location box  → `getCoachFullLocationLabel`   → "Laax, Grisons,
+  //                                                     Switzerland"
+  // The legacy `stickerSource.locationLine` value is kept only as a final
+  // fallback for very sparse profiles where neither helper resolves.
+  const stickerCoachShape = {
+    author: { attributes: { profile: { publicData: publicData || {} } } },
+    representativeListing: listingForSticker,
+  };
+  const stickerLocationFullLabel =
+    getCoachFullLocationLabel(stickerCoachShape, { intl }) ||
+    (stickerLocationLineLegacyRaw != null && String(stickerLocationLineLegacyRaw).trim() !== ''
+      ? String(stickerLocationLineLegacyRaw).trim()
+      : null);
+  const stickerLocationShortLabel =
+    getCoachShortLocationLabel(stickerCoachShape, { intl }) || stickerLocationFullLabel || null;
+  const stickerLocationLineRaw = stickerLocationFullLabel;
 
   const stickerLocationMediaSlug =
     stickerLocationStickerSlugRaw != null && String(stickerLocationStickerSlugRaw).trim() !== ''
       ? String(stickerLocationStickerSlugRaw).toLowerCase().trim()
       : '';
 
+  // Title text inside the rich-copy card. Uses the FULL clean address so
+  // the box reads "Laax, Grisons, Switzerland" instead of just "Laax".
+  // (Slug-based coaches still get the curated `<FormattedMessage>` title
+  // override below — when a hosted i18n key exists it wins; otherwise
+  // the full address is the safe default.)
   const stickerLocationCityForCopy = String(stickerLocationLineRaw || '').trim();
+  // Short city used inside curated taglines such as "Available in {city}
+  // and surrounding areas." — the tagline must NOT inline the full
+  // address or it reads "Available in Laax, Grisons, Switzerland and
+  // surrounding areas.", which is awkward.
+  const stickerLocationCityShortForCopy = String(stickerLocationShortLabel || '').trim();
   // Show rich copy (title + tagline) for known slugs AND whenever a coach typed any
   // location string in Profile Settings — otherwise the tagline area would stay empty.
   const stickerLocationShowRichCopy =
@@ -1106,7 +1151,11 @@ export const MainContent = props => {
                               {stickerTravelNearby ? (
                                 <FormattedMessage
                                   id="ProfilePage.coachCityLocationStickerTagline_nearby_generic"
-                                  values={{ city: stickerLocationCityForCopy }}
+                                  values={{
+                                    city:
+                                      stickerLocationCityShortForCopy ||
+                                      stickerLocationCityForCopy,
+                                  }}
                                   defaultMessage="Available in {city} and surrounding areas."
                                 />
                               ) : (

@@ -5,6 +5,7 @@ import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import { types as sdkTypes } from '../../../util/sdkLoader';
 import { formatMoney, unitDivisor } from '../../../util/currency';
 import { ensureUser } from '../../../util/data';
+import { getCoachMapLocationLabel } from '../../../util/coachExplore';
 import {
   resolveCoachStickerDisplay,
   splitCoachSportsForCoachMap,
@@ -90,6 +91,11 @@ const CoachMapPopup = ({ coach, onClose }) => {
   const profileImage = author?.profileImage || null;
 
   const sticker = resolveCoachStickerDisplay(publicData, representativeListing);
+  // Same compact "City, Country" label the sidebar CoachCard renders, so
+  // the popup and the card stay in sync. See `getCoachMapLocationLabel`
+  // for the strict country-from-Mapbox-geocode rule (nationality is
+  // intentionally ignored as a fallback).
+  const displayLocation = getCoachMapLocationLabel(coach, { intl });
   // Same CoachMap-only split as the sidebar CoachCard: main parents on top,
   // variant short labels as a small specialties line below.
   const { mainEntries: mainSportEntries, specialties } = splitCoachSportsForCoachMap(
@@ -197,7 +203,7 @@ const CoachMapPopup = ({ coach, onClose }) => {
         </div>
       </header>
 
-      {sportEntries.length > 0 || sticker.locationLine ? (
+      {sportEntries.length > 0 || displayLocation ? (
         <ul className={css.facts}>
           {sportEntries.map(s => (
             <li key={s.key} className={css.factItem}>
@@ -205,10 +211,10 @@ const CoachMapPopup = ({ coach, onClose }) => {
               <span>{s.label}</span>
             </li>
           ))}
-          {sticker.locationLine ? (
+          {displayLocation ? (
             <li className={css.factItem}>
               <span aria-hidden>📍</span>
-              <span>{sticker.locationLine}</span>
+              <span>{displayLocation}</span>
             </li>
           ) : null}
         </ul>

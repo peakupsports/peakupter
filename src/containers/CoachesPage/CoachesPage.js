@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
@@ -8,7 +9,8 @@ import { propTypes } from '../../util/types';
 
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
-import { Page, SportBar, CoachStickerCard } from '../../components';
+// Shared components: index.js maintains the correct module-load order.
+import { Page, PeakUpCoachFigurineCard } from '../../components';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
 
@@ -18,16 +20,26 @@ import {
   parseCoachExploreSearch,
   sortCoachRowsByDistanceKm,
 } from '../../util/coachExplore';
+import { resolveDisplayBadgeIds } from '../../util/profileCoachSticker';
+import { getSportHeroImage } from '../../config/configSportMedia';
 import { fetchCoachesExploreThunk } from '../CoachesExplorePage/CoachesExplorePage.duck';
 
 import css from './CoachesPage.module.css';
 
-const KEY_ARROW_LEFT = 'ArrowLeft';
-const KEY_ARROW_RIGHT = 'ArrowRight';
+/** Pixels scrolled per arrow click (≈ one card + gap). Matches the
+ * Landing Page Featured Coaches carousel for visual consistency. */
+const SCROLL_STEP_PX = 320;
 
 /**
- * Coaches directory: horizontal sticker carousel and sport filter (no winter sub-variants).
- * Supports deep links ?sport=golf&lat=&lng=&location= for marketing / geo landing pages.
+ * Coaches directory: horizontal carousel of PeakUp coach figurine cards
+ * sharing the **exact same layout** as the Landing Page "Featured Coaches"
+ * section (single row, scroll-snap, arrow nav on desktop, no wrapping).
+ *
+ * Sport filtering is driven by the **global SportBar that lives in the
+ * Topbar** (single navigation layer for the whole platform). This page is a
+ * pure consumer of `?sport=` from the URL. Filter logic, query-param
+ * parsing, routing and data fetching remain unchanged. Supports deep links
+ * `?sport=surf&lat=…&lng=…&location=…` for marketing / geo landing pages.
  */
 const CoachesPage = props => {
   const intl = useIntl();
@@ -36,15 +48,12 @@ const CoachesPage = props => {
   const { search } = useLocation();
 
   const scrollingDisabled = useSelector(isScrollingDisabled);
-  const { coaches, fetchStatus, fetchError } = useSelector(state => state.CoachesExplorePage);
+  const { coaches, fetchStatus } = useSelector(state => state.CoachesExplorePage);
 
   const queryExplore = useMemo(() => parseCoachExploreSearch(search), [search]);
-
-  const [selectedSport, setSelectedSport] = useState('');
-
-  useEffect(() => {
-    setSelectedSport(queryExplore.sportKey);
-  }, [queryExplore.sportKey]);
+  // Source of truth for the active sport on this page: the URL `?sport=`.
+  // Same value the global SportBar in the Topbar reads/writes.
+  const selectedSport = queryExplore.sportKey;
 
   const filteredCoaches = useMemo(() => {
     const bySport = filterCoachesBySport(coaches, selectedSport);
@@ -53,40 +62,6 @@ const CoachesPage = props => {
     }
     return bySport;
   }, [coaches, selectedSport, queryExplore.userLat, queryExplore.userLng]);
-
-  const cardsScrollRef = useRef(null);
-
-  const slideCoachesCarousel = useCallback((direction, event) => {
-    const el = cardsScrollRef.current;
-    if (!el || typeof window === 'undefined') return;
-    const first = el.firstElementChild;
-    if (!first) return;
-    const style = window.getComputedStyle(el);
-    const gapParsed = Number.parseFloat(style.gap || style.columnGap || '0');
-    const gap = Number.isFinite(gapParsed) ? gapParsed : 18;
-    const step = Math.ceil(first.getBoundingClientRect().width + gap);
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    el.scrollBy({
-      left: direction * step,
-      behavior: reduceMotion ? 'auto' : 'smooth',
-    });
-    if (event?.currentTarget?.focus) {
-      event.currentTarget.focus();
-    }
-  }, []);
-
-  const onCarouselArrowKeyDown = useCallback(
-    e => {
-      if (e.key === KEY_ARROW_LEFT) {
-        e.preventDefault();
-        slideCoachesCarousel(-1, e);
-      } else if (e.key === KEY_ARROW_RIGHT) {
-        e.preventDefault();
-        slideCoachesCarousel(1, e);
-      }
-    },
-    [slideCoachesCarousel]
-  );
 
   const onRetry = useCallback(() => {
     dispatch(fetchCoachesExploreThunk({ config }));
@@ -100,6 +75,27 @@ const CoachesPage = props => {
     ? formatCoachExploreSportSlug(selectedSport)
     : '';
 
+  // Sport-themed cinematic background for the page hero. Images come from
+  // `public/CoachPagePic/` via the temporary sport-media library
+  // (`src/config/configSportMedia.js`). Empty `selectedSport` ("All
+  // sports") falls back to `SPORT_MEDIA_FALLBACK` (Snowboard1.jpg).
+  // This is the ONLY place CoachesPage uses these assets — figurine
+  // photos, avatars, listing galleries and map popups stay untouched
+  // per the architectural separation note in `configSportMedia.js`.
+  const heroImage = getSportHeroImage(selectedSport);
+  const heroAriaLabel = headlineSportPhrase
+    ? intl.formatMessage(
+        {
+          id: 'CoachDirectory.heroBannerAriaLabel',
+          defaultMessage: '{sport} coaches',
+        },
+        { sport: headlineSportPhrase }
+      )
+    : intl.formatMessage({
+        id: 'CoachDirectory.heroBannerAriaLabelGeneric',
+        defaultMessage: 'PeakUp coaches',
+      });
+
   const hasGeoProximity =
     queryExplore.userLat != null &&
     queryExplore.userLng != null &&
@@ -109,13 +105,80 @@ const CoachesPage = props => {
 
   const loading = fetchStatus === 'loading';
   const failed = fetchStatus === 'failed';
-  const showCarouselNav = !loading && !failed && filteredCoaches.length > 1;
+
+  // Carousel scroll state — same pattern as
+  // `SectionPeakupFeaturedCoaches.js` so the user gets identical "scroll
+  // by ~one card" behaviour and arrow disabled states on both surfaces.
+  const scrollerRef = useRef(null);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    setCanScrollPrev(el.scrollLeft > 4);
+    setCanScrollNext(el.scrollLeft < maxScroll - 4);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+  }, [filteredCoaches.length, updateScrollState]);
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return undefined;
+    const onScroll = () => updateScrollState();
+    el.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', updateScrollState);
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', updateScrollState);
+    };
+  }, [updateScrollState]);
+
+  const scrollBy = dir => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * SCROLL_STEP_PX, behavior: 'smooth' });
+  };
 
   return (
     <Page title={schemaTitle} description={schemaDescription} scrollingDisabled={scrollingDisabled}>
-      <TopbarContainer />
+      <TopbarContainer currentPage="CoachesPage" />
+
+      {/* ============================================================
+          Full-page sport-lifestyle backdrop.
+
+          Rendered as a `position: fixed` layer behind the page so it:
+            - covers the entire viewport edge-to-edge (no boxed card),
+            - stays visible while the user scrolls the figurine
+              carousel (parallax-style cinematic feel),
+            - and stays prominent during the empty state when there
+              are no coaches for the selected sport.
+
+          A vertical dark gradient overlay keeps the title / subtitle
+          / empty-state copy legible regardless of which sport image
+          is shown (Snowboard1, Tennis, Golf, …). The image itself is
+          decorative — meaningful content lives in real text nodes
+          below — so `alt=""` + `role="presentation"` + `aria-hidden`
+          on the wrapper.
+          ============================================================ */}
+      <div className={css.pageBackdrop} aria-hidden aria-label={heroAriaLabel}>
+        <img
+          className={css.pageBackdropImage}
+          src={heroImage}
+          alt=""
+          role="presentation"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
+        <div className={css.pageBackdropOverlay} />
+      </div>
+
       <main className={css.root}>
-        <header className={css.header}>
+        <header className={css.pageHeader}>
           <h1 className={css.title}>
             {headlineSportPhrase ? (
               <FormattedMessage
@@ -140,14 +203,6 @@ const CoachesPage = props => {
           </p>
         </header>
 
-        <div className={css.sportBarWrap}>
-          <SportBar
-            value={selectedSport}
-            onChange={next => setSelectedSport(next)}
-            allLabel={intl.formatMessage({ id: 'CoachesPage.sportAll' })}
-          />
-        </div>
-
         {loading ? (
           <p className={css.status}>
             <FormattedMessage id="CoachesPage.loading" />
@@ -166,42 +221,70 @@ const CoachesPage = props => {
         ) : null}
 
         {!loading && !failed && filteredCoaches.length === 0 ? (
-          <p className={css.status}>
+          <p className={css.empty}>
             <FormattedMessage id="CoachesPage.empty" />
           </p>
         ) : null}
 
         {!loading && !failed && filteredCoaches.length > 0 ? (
-          <div className={css.carousel}>
-            <div ref={cardsScrollRef} className={css.cardsRow}>
-              {filteredCoaches.map(coach => (
-                <div key={coach.authorUuid} className={css.stickerSlot}>
-                  <CoachStickerCard coach={coach} />
-                </div>
-              ))}
-            </div>
-            {showCarouselNav ? (
-              <div className={css.carouselNav}>
-                <button
-                  type="button"
-                  className={css.carouselArrow}
-                  aria-label={intl.formatMessage({ id: 'CoachesPage.carouselPrev' })}
-                  onClick={e => slideCoachesCarousel(-1, e)}
-                  onKeyDown={onCarouselArrowKeyDown}
-                >
-                  ‹
-                </button>
-                <button
-                  type="button"
-                  className={css.carouselArrow}
-                  aria-label={intl.formatMessage({ id: 'CoachesPage.carouselNext' })}
-                  onClick={e => slideCoachesCarousel(1, e)}
-                  onKeyDown={onCarouselArrowKeyDown}
-                >
-                  ›
-                </button>
-              </div>
-            ) : null}
+          <div className={css.scrollViewport}>
+            <button
+              type="button"
+              className={classNames(css.navButton, css.navButtonPrev)}
+              onClick={() => scrollBy(-1)}
+              disabled={!canScrollPrev}
+              aria-label={intl.formatMessage({
+                id: 'CoachesPage.scrollPrev',
+                defaultMessage: 'Scroll to previous coaches',
+              })}
+            >
+              <span aria-hidden>‹</span>
+            </button>
+
+            <ul
+              ref={scrollerRef}
+              className={css.scroller}
+              role="list"
+              aria-label={intl.formatMessage({
+                id: 'CoachesPage.regionLabel',
+                defaultMessage: 'PeakUp coaches',
+              })}
+            >
+              {filteredCoaches.map(coach => {
+                const authorPd = coach.author?.attributes?.profile?.publicData || {};
+                // Display badges are auto-derived: Founder/Ambassador admin-only,
+                // Top coach for >=10y experience, Certified coach as default.
+                const badgeIds = resolveDisplayBadgeIds(authorPd);
+                // No `rank` / `showPodiumBadge` here on purpose: the gold /
+                // silver / bronze podium medal is exclusive to the LandingPage
+                // "Featured Coaches" curated ranking.
+                return (
+                  <li key={coach.authorUuid} className={css.scrollerItem}>
+                    <PeakUpCoachFigurineCard
+                      author={coach.author}
+                      representativeListing={coach.representativeListing}
+                      sportKeys={coach.sportKeys || []}
+                      reviewCount={coach.reviewCount || 0}
+                      reviewAverage={coach.reviewAverage ?? null}
+                      badgeIds={badgeIds}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+
+            <button
+              type="button"
+              className={classNames(css.navButton, css.navButtonNext)}
+              onClick={() => scrollBy(1)}
+              disabled={!canScrollNext}
+              aria-label={intl.formatMessage({
+                id: 'CoachesPage.scrollNext',
+                defaultMessage: 'Scroll to more coaches',
+              })}
+            >
+              <span aria-hidden>›</span>
+            </button>
           </div>
         ) : null}
       </main>

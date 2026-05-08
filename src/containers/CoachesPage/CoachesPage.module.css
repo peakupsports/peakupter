@@ -1,8 +1,90 @@
+/* ============================================================================
+ * Sport-lifestyle full-page background.
+ *
+ * The `<img>` is loaded from `public/CoachPagePic/` via
+ * `getSportHeroImage(selectedSport)` and rendered as a `position: fixed`
+ * layer behind the entire CoachesPage. This is intentionally not a
+ * boxed hero / banner / card — the page should read as
+ *
+ *     "full sport lifestyle backdrop + coach figurines layered above it"
+ *
+ * Why fixed (and not absolute on `.root`):
+ *   - The backdrop must remain visible while the figurine carousel
+ *     scrolls (cinematic / parallax-style feel).
+ *   - When there are no coaches for the selected sport, the page
+ *     should still look beautiful: a fixed full-viewport backdrop
+ *     covers the empty state without depending on `.root`'s height.
+ *   - It naturally spans edge-to-edge of the viewport regardless of
+ *     `.root`'s 1200px max-width, so wide screens don't get white
+ *     gutters around the image.
+ *
+ * The dark vertical gradient overlay keeps the title / subtitle /
+ * empty-state copy legible regardless of which sport image is shown
+ * (Snowboard, Tennis, Golf, … all have very different luminance and
+ * compositions).
+ * ============================================================================ */
+.pageBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.pageBackdropImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  /* Subtle zoom keeps the visual centre of focus stable even when
+   * the viewport is wider than the source image's aspect ratio. */
+  transform: scale(1.02);
+}
+
+.pageBackdropOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Two-stop dark veil:
+   *   - top:    just enough to pull the eye down toward the title
+   *   - middle: deepest so the title / subtitle land on the darkest
+   *             zone for maximum contrast
+   *   - bottom: holds enough darkness behind the figurines so the
+   *             white card chrome reads cleanly, without making the
+   *             sport image feel monochrome.
+   */
+  background: linear-gradient(
+    180deg,
+    rgba(16, 33, 62, 0.35) 0%,
+    rgba(16, 33, 62, 0.55) 50%,
+    rgba(16, 33, 62, 0.7) 100%
+  );
+}
+
+/* ============================================================================
+ * Foreground content layer.
+ *
+ * `.root` sits above the backdrop via `z-index: 1` and a `position:
+ * relative` anchor. `min-height: 100vh` ensures the page always feels
+ * full-height — even when the empty state is the only content — so
+ * the backdrop never "shows through" a half-empty page.
+ * ============================================================================ */
 .root {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 18px 18px 48px;
+  /* Approximate topbar height (~64px); the rest fills the viewport so
+   * the cinematic backdrop is always the canvas, not a half-page
+   * accent. Footer renders below outside `.root`. */
+  min-height: calc(100vh - 64px);
+  box-sizing: border-box;
 }
 
 @media (--viewportMedium) {
@@ -11,38 +93,82 @@
   }
 }
 
-.header {
-  margin-bottom: 16px;
+.pageHeader {
+  margin: 24px 0 28px;
+}
+
+@media (--viewportMedium) {
+  .pageHeader {
+    margin: 40px 0 36px;
+    max-width: 760px;
+  }
 }
 
 .title {
   margin: 0;
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 900;
-  color: #10213e;
+  color: #fff;
   letter-spacing: -0.02em;
+  line-height: 1.08;
+  text-shadow: 0 2px 14px rgba(16, 33, 62, 0.55);
 }
 
 @media (--viewportMedium) {
   .title {
-    font-size: 32px;
+    font-size: 42px;
+  }
+}
+
+@media (--viewportLarge) {
+  .title {
+    font-size: 48px;
   }
 }
 
 .subtitle {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   font-size: 15px;
   line-height: 1.45;
-  color: var(--colorGrey700);
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 8px rgba(16, 33, 62, 0.45);
 }
 
-.sportBarWrap {
-  margin: 12px 0 20px;
+@media (--viewportMedium) {
+  .subtitle {
+    font-size: 17px;
+  }
 }
 
+/* ============================================================================
+ * Status / empty / error states — legible on the dark cinematic backdrop.
+ * ============================================================================ */
 .status {
-  margin: 12px 0;
-  color: var(--colorGrey700);
+  margin: 24px 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 15px;
+  text-shadow: 0 1px 8px rgba(16, 33, 62, 0.45);
+}
+
+/* The empty state is the moment the user sees only the cinematic sport
+ * background. Centred, larger, with a soft text shadow so the message
+ * holds up against any of the 8 source images. */
+.empty {
+  margin: 80px auto;
+  max-width: 560px;
+  text-align: center;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-shadow: 0 2px 14px rgba(16, 33, 62, 0.55);
+}
+
+@media (--viewportMedium) {
+  .empty {
+    margin: 120px auto;
+    font-size: 20px;
+  }
 }
 
 .errorBox {
@@ -59,65 +185,149 @@
   border-radius: 999px;
   border: 1px solid var(--colorGrey300);
   background: #fff;
+  color: var(--colorGrey900);
   font-weight: 700;
   cursor: pointer;
+  /* The retry button now sits on the dark cinematic backdrop, so a
+   * subtle drop shadow keeps it from looking flat against the
+   * gradient overlay. */
+  box-shadow: 0 6px 18px rgba(16, 33, 62, 0.22);
 }
 
 .retry:hover {
   border-color: var(--colorGrey400);
 }
 
-.carousel {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* Horizontal carousel of `PeakUpCoachFigurineCard`s — visually identical
+ * to the Landing Page Featured Coaches section
+ * (`src/containers/PageBuilder/SectionBuilder/SectionPeakupFeaturedCoaches/
+ * SectionPeakupFeaturedCoaches.module.css`).
+ *
+ * Single row, scroll-snap on x, no wrapping. `min-width: 0` + `overflow-x:
+ * hidden` on the viewport prevents the flex children from blowing up the
+ * outer page width; only the inner row scrolls. Card sizing
+ * (`width: clamp(...)` per breakpoint) is copied verbatim so figurines have
+ * the exact same perceived size across both surfaces.
+ */
+.scrollViewport {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
-.cardsRow {
+.scroller {
   display: flex;
-  flex-direction: row;
-  gap: 18px;
+  flex-wrap: nowrap;
+  list-style: none;
+  margin: 0;
+  padding: 6px 0 18px;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
-  padding: 6px 2px 12px;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
   -webkit-overflow-scrolling: touch;
+
+  /* Hide the native horizontal scrollbar while keeping scroll/swipe
+   * interactivity intact. Navigation is handled by the desktop arrow
+   * buttons + trackpad/wheel/touch — the scrollbar itself is purely
+   * decorative noise on a directory page, so we suppress it across
+   * Firefox, old Edge/IE and WebKit. The Landing Page Featured Coaches
+   * keeps a thin scrollbar on purpose (visual cue that more cards
+   * follow); CoachesPage renders many more rows of coaches and the
+   * grey track became a visible artifact below the figurines. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.cardsRow::-webkit-scrollbar {
-  height: 6px;
+.scroller::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
-.stickerSlot {
+.scrollerItem {
   flex: 0 0 auto;
   scroll-snap-align: start;
+  /* Card figurina: same sizing as the Landing Page Featured Coaches.
+   * Mobile uses % of the *container* (not vw) so it never forces the
+   * page itself to overflow horizontally. */
+  width: clamp(240px, 78%, 300px);
+  display: flex;
+  min-width: 0;
 }
 
-.carouselNav {
-  display: flex;
-  flex-direction: row;
+@media (--viewportMedium) {
+  .scrollerItem {
+    width: clamp(260px, 42%, 300px);
+  }
+}
+
+@media (--viewportLarge) {
+  .scrollerItem {
+    width: 300px;
+  }
+}
+
+.scrollerItem > * {
+  width: 100%;
+}
+
+/* Desktop nav arrows — identical to Landing Page carousel. */
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(16, 33, 62, 0.15);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--colorGrey900);
+  display: none;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  padding: 4px 0 8px;
-}
-
-.carouselArrow {
-  width: 44px;
-  height: 44px;
-  padding: 0 0 2px;
-  border: none;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow:
-    0 4px 18px rgba(0, 0, 0, 0.2),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.45);
-  color: #10213e;
-  font-size: 26px;
-  line-height: 1;
   cursor: pointer;
+  box-shadow: 0 6px 18px rgba(16, 33, 62, 0.18);
+  z-index: 3;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
 }
 
-.carouselArrow:focus-visible {
-  outline: 2px solid rgba(183, 245, 43, 0.95);
+.navButton:hover,
+.navButton:focus-visible {
+  background: #fafbfd;
+}
+
+.navButton:focus-visible {
+  outline: 2px solid var(--marketplaceColor);
   outline-offset: 2px;
+}
+
+.navButton[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.navButtonPrev {
+  left: 4px;
+}
+
+.navButtonNext {
+  right: 4px;
+}
+
+@media (--viewportMedium) {
+  .navButton {
+    display: inline-flex;
+  }
 }

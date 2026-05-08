@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
+import { parse, stringify } from '../../util/urlHelpers';
 
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
@@ -54,14 +55,24 @@ import css from './CoachMapPage.module.css';
 // CoachMap-only ("Freeride" / "Freestyle" / …) – the parent context
 // disambiguates. Canonical full labels live in
 // `PROFILE_SPORT_DISPLAY_LABELS` for use elsewhere (cards, popups, sticker).
+// Variant emojis use clean, sport-canonical glyphs that read instantly
+// over the map (no custom symbols / pictograms). Order is curated:
+// gravity-style discipline first (Freestyle / Freeski), then Freeride,
+// then the touring (uphill) variant.
+//
+// Snowboard:  🏂 Freestyle · 🏔️ Freeride · 🥾 Split touring
+// Ski:        ⛷️ Freeski   · 🏔️ Freeride · 🥾 Split touring
+//
+// Keys are kept stable so `matchSportFilterKeys` / aliases / routing /
+// query params keep working unchanged.
 const SNOWBOARD_DISCIPLINE = {
   key: 'snowboard',
   label: 'Snowboard',
   emoji: '🏂',
   variants: [
-    { key: 'freeridesnowboard', label: 'Freeride' },
-    { key: 'freestylesnowboard', label: 'Freestyle' },
-    { key: 'splittouring', label: 'Split touring' },
+    { key: 'freestylesnowboard', label: 'Freestyle', emoji: '🏂' },
+    { key: 'freeridesnowboard', label: 'Freeride', emoji: '🏔️' },
+    { key: 'splittouring', label: 'Split touring', emoji: '🥾' },
   ],
 };
 
@@ -71,9 +82,9 @@ const SKI_DISCIPLINE = {
   emoji: '🎿',
   aliases: ['skiing'],
   variants: [
-    { key: 'freerideskiing', label: 'Freeride', aliases: ['freerideski'] },
-    { key: 'freestyleskiing', label: 'Freeski', aliases: ['freestyleski'] },
-    { key: 'skitouring', label: 'Skitouring' },
+    { key: 'freestyleskiing', label: 'Freeski', emoji: '⛷️', aliases: ['freestyleski'] },
+    { key: 'freerideskiing', label: 'Freeride', emoji: '🏔️', aliases: ['freerideski'] },
+    { key: 'skitouring', label: 'Split touring', emoji: '🥾' },
   ],
 };
 
@@ -206,6 +217,7 @@ const CoachMapPage = props => {
   const intl = useIntl();
   const config = useConfiguration();
   const location = useLocation();
+  const history = useHistory();
   const dispatch = useDispatch();
 
   const scrollingDisabled = useSelector(isScrollingDisabled);
@@ -450,17 +462,35 @@ const CoachMapPage = props => {
     Number.isFinite(queryExplore.userLng);
   const hasPlaceLabel = !hasGeoProximity && queryExplore.locationLabel.length > 0;
 
-  // SportBar lives in the desktop topbar (same row as logo + menu, à la LandingPage),
-  // but it still drives the in-page list/map filter via local `selectedSport`.
-  // The wrapper applies the same scale used on LandingPage to keep visual size aligned.
+  // SportBar lives in the desktop topbar (same row as logo + menu, à la
+  // LandingPage). Click handler updates `?sport=` *in place* on the
+  // current URL, preserving every other search param (lat / lng /
+  // location / coachId). The local `selectedSport` mirror is kept in
+  // sync via the existing `useEffect(queryExplore.sportKey)` upstream,
+  // so the chip active state and the in-memory filter both follow the
+  // URL change. The wrapper applies the same scale used on LandingPage
+  // to keep visual size aligned.
+  const handleSportBarChange = useCallback(
+    next => {
+      setActiveListingId(null);
+      const currentParams = parse(location.search);
+      const merged = { ...currentParams };
+      if (next) {
+        merged.sport = next;
+      } else {
+        delete merged.sport;
+      }
+      const search = stringify(merged);
+      history.push(`${location.pathname}${search ? `?${search}` : ''}`);
+    },
+    [history, location.pathname, location.search]
+  );
+
   const topbarSportBar = (
     <div className={css.topbarSportBarScale}>
       <SportBar
         value={selectedSport}
-        onChange={next => {
-          setSelectedSport(next);
-          setActiveListingId(null);
-        }}
+        onChange={handleSportBarChange}
         allLabel={intl.formatMessage({ id: 'CoachMapPage.sportAll' })}
         disciplines={coachMapDisciplines}
         inTopbar

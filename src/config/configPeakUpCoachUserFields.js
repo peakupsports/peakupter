@@ -207,17 +207,23 @@ export const peakUpCoachUserFields = [
     },
   },
   {
+    // Visual short label shown on the profile, the figurina coach card,
+    // the CoachCard sidebar, and the CoachMap popup. This is the user-
+    // facing "where I'm based" copy — kept short, readable and editorial
+    // (e.g. "Laax", "Zermatt", "Chamonix"). It is intentionally separate
+    // from the precise Mapbox map pin (`pub_coachMapLocation`), which
+    // only drives map positioning and distance.
     key: 'coachCityText',
     scope: 'public',
     schemaType: 'shortText',
     showConfig: {
-      label: 'City or area',
+      label: 'Location',
     },
     saveConfig: {
-      label: 'City or area (shown on your profile)',
+      label: 'Location shown on your profile',
       displayInSignUp: false,
       isRequired: false,
-      placeholderMessage: 'e.g. Laax, Chamonix, Tokyo…',
+      placeholderMessage: 'e.g. Laax, Zermatt, Chamonix…',
     },
     helpTextTranslationId: 'PeakUpCoachUserFields.coachCityTextHelp',
     userTypeConfig: {

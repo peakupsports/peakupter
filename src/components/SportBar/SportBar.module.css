@@ -204,29 +204,154 @@
   }
 }
 
-/* Nessuna card attorno al blocco: solo label con pill sotto */
+/* CoachMap winter variants subnav (🏔️ Freeride / 🌀 Freestyle / 🥾 Split
+ * touring / …).
+ *
+ * Floats below the topbar SportBar as an absolutely-positioned row of
+ * **independent glass pills** over the map. Each chip is its own
+ * translucent white pill with backdrop blur + navy hairline + soft
+ * shadow; there is **no shared container surface** — the wrapper is
+ * a transparent positioning anchor only. Active chip flips to a navy
+ * gradient with white bold text. Sits ~24px below the topbar so it
+ * reads as in-map navigation, not a strip glued to the topbar.
+ *
+ * Targets `.rootInTopbar` only — LandingPage / CoachesPage SportBars don't
+ * pass `disciplines`, so they never render this panel and stay unaffected. */
 .rootInTopbar .accordionPanel {
   position: absolute;
   left: 50%;
   right: auto;
   transform: translateX(-50%);
-  width: max-content;
-  max-width: min(100%, calc(100vw - 24px));
   top: 100%;
   z-index: 20;
-  margin-top: 2px;
-  border-radius: 0;
-  border: none;
+  /* Detach decisively from the topbar so the row sits in the map area. */
+  margin-top: 24px;
+  /* Wrapper is purely positional — no visible surface, no shadow. */
   background: transparent;
+  -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  padding: 4px 0 8px;
+  border: none;
+  border-radius: 0;
   box-shadow: none;
+  padding: 0;
+  /* Stay inside the viewport on narrow phones; subinner handles
+   * horizontal scroll if the variant list grows past that width. */
+  width: max-content;
+  max-width: min(100%, calc(100vw - 24px));
 }
 
 .rootInTopbar .accordionPanel .subinner {
-  padding: 0 0 6px;
-  justify-content: center;
-  flex-wrap: wrap;
+  /* Vertical padding gives the drop-shadow of each pill room to breathe;
+   * horizontal padding ensures the first/last chip aren't clipped at the
+   * edges of the scroll viewport on mobile. */
+  padding: 4px 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  gap: 10px;
+}
+
+.rootInTopbar .accordionPanel .subinner::-webkit-scrollbar {
+  display: none;
+}
+
+/* Each variant is an independent glass pill. Geometry and surface live
+ * on `.chipSm` itself (the <button>) so the hover/focus state hugs the
+ * whole control — emoji span and label span are plain text inside. */
+.rootInTopbar .accordionPanel .chipSm {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* Comfortable 40px tap target on mobile, 36px on desktop. */
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgba(12, 37, 71, 0.12);
+  color: #0c2547;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-font-smoothing: antialiased;
+  box-shadow:
+    0 6px 16px rgba(12, 37, 71, 0.12),
+    0 1px 2px rgba(12, 37, 71, 0.08);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+/* Reset the inner spans — the chip itself carries the visual treatment. */
+.rootInTopbar .accordionPanel .chipSm .chipEmoji {
+  flex: 0 0 auto;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.rootInTopbar .accordionPanel .chipSm .chipLabel {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  color: inherit;
+  white-space: nowrap;
+}
+
+@media (--viewportMedium) {
+  .rootInTopbar .accordionPanel .chipSm {
+    min-height: 36px;
+  }
+}
+
+.rootInTopbar .accordionPanel .chipSm:hover {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(12, 37, 71, 0.22);
+  box-shadow:
+    0 8px 18px rgba(12, 37, 71, 0.16),
+    0 1px 2px rgba(12, 37, 71, 0.08);
+  color: #0c2547;
+}
+
+.rootInTopbar .accordionPanel .chipSm:focus-visible {
+  outline: 2px solid rgba(12, 37, 71, 0.55);
+  outline-offset: 2px;
+}
+
+/* ACTIVE: navy gradient fill, white bold text, deeper navy drop shadow.
+ * Mirrors the marketplace navy used by the figurine card header & CTA so
+ * the variant subnav speaks the same visual language as the rest of
+ * PeakUp. */
+.rootInTopbar .accordionPanel .chipSmActive {
+  background: linear-gradient(135deg, #0c2547 0%, #123d73 100%);
+  border-color: #0c2547;
+  color: var(--colorWhite, #ffffff);
+  box-shadow: 0 10px 22px rgba(12, 37, 71, 0.32);
+}
+
+.rootInTopbar .accordionPanel .chipSmActive .chipLabel {
+  font-weight: 800;
+  color: inherit;
+}
+
+.rootInTopbar .accordionPanel .chipSmActive:hover {
+  background: linear-gradient(135deg, #102e57 0%, #16498a 100%);
+  border-color: #0c2547;
+  color: var(--colorWhite, #ffffff);
+  box-shadow: 0 12px 26px rgba(12, 37, 71, 0.36);
 }
 
 .rootInTopbar .wrap {

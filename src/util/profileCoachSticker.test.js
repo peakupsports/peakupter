@@ -2,6 +2,7 @@ import { resolveCoachLocationStickerSlug } from '../config/configCoachCity';
 import {
   coachStickerShowsVerifiedSeal,
   comparePeakupFeaturedCoaches,
+  formatCoachExperienceLabel,
   formatProfileLanguagesForSticker,
   mergeCoachSports,
   parseExperienceMinYears,
@@ -345,6 +346,67 @@ describe('comparePeakupFeaturedCoaches (reviews first, then badges, then alphabe
     const y = make({ name: 'A', avg: 4.5, count: 10 });
     expect([x, y].sort(comparePeakupFeaturedCoaches).map(c => c.author.attributes.profile.displayName))
       .toEqual(['A', 'Z']);
+  });
+});
+
+describe('formatCoachExperienceLabel', () => {
+  // Resolve the message via `defaultMessage` + ICU placeholders, mirroring
+  // the real react-intl behaviour for unit-test purposes.
+  const intl = {
+    formatMessage: ({ defaultMessage }, values = {}) => {
+      if (!defaultMessage) return '';
+      return defaultMessage.replace(/\{(\w+)\}/g, (_, name) =>
+        values[name] != null ? String(values[name]) : `{${name}}`
+      );
+    },
+  };
+
+  it('returns null for empty / nullish input', () => {
+    expect(formatCoachExperienceLabel(intl, null)).toBeNull();
+    expect(formatCoachExperienceLabel(intl, '')).toBeNull();
+    expect(formatCoachExperienceLabel(intl, undefined)).toBeNull();
+  });
+
+  it('renders canonical enum keys with their curated default', () => {
+    expect(formatCoachExperienceLabel(intl, 'hobby')).toBe('Hobby');
+    expect(formatCoachExperienceLabel(intl, '0_5')).toBe('0–5 years');
+    expect(formatCoachExperienceLabel(intl, '5_10')).toBe('5–10 years');
+    expect(formatCoachExperienceLabel(intl, '10_15')).toBe('10–15 years');
+    expect(formatCoachExperienceLabel(intl, '15_20')).toBe('15–20 years');
+    expect(formatCoachExperienceLabel(intl, '20')).toBe('20+ years');
+    expect(formatCoachExperienceLabel(intl, '20+')).toBe('20+ years');
+  });
+
+  it('synthesises a complete "X–Y years" label from ASCII hyphen ranges', () => {
+    expect(formatCoachExperienceLabel(intl, '15-20')).toBe('15–20 years');
+    expect(formatCoachExperienceLabel(intl, '10-15')).toBe('10–15 years');
+    expect(formatCoachExperienceLabel(intl, '5-10 years')).toBe('5–10 years');
+  });
+
+  it('synthesises ranges from en-dash / em-dash labels (Console hosted shape)', () => {
+    expect(formatCoachExperienceLabel(intl, '15\u201320 years')).toBe('15–20 years');
+    expect(formatCoachExperienceLabel(intl, '10\u201415')).toBe('10–15 years');
+  });
+
+  it('synthesises ranges from "X to Y years"', () => {
+    expect(formatCoachExperienceLabel(intl, '15 to 20 years')).toBe('15–20 years');
+    expect(formatCoachExperienceLabel(intl, '5 to 10')).toBe('5–10 years');
+  });
+
+  it('renders open-ended values with "+ years"', () => {
+    expect(formatCoachExperienceLabel(intl, '20 +')).toBe('20+ years');
+    expect(formatCoachExperienceLabel(intl, '20 years +')).toBe('20+ years');
+    expect(formatCoachExperienceLabel(intl, '25')).toBe('25+ years');
+  });
+
+  it('renders plain numbers with "years" suffix', () => {
+    expect(formatCoachExperienceLabel(intl, 12)).toBe('12 years');
+    expect(formatCoachExperienceLabel(intl, '12')).toBe('12 years');
+    expect(formatCoachExperienceLabel(intl, '7 years')).toBe('7 years');
+  });
+
+  it('falls back to the raw text only when nothing parseable can be extracted', () => {
+    expect(formatCoachExperienceLabel(intl, 'unknown')).toBe('unknown');
   });
 });
 

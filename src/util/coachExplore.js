@@ -1,3 +1,4 @@
+import { coachCityLabel } from '../config/configCoachCity';
 import { matchSportFilterKeys } from './sportFilterKeys';
 
 /** Hosted listing flag PeakUp booking (Flex accetta anche stringhe). */
@@ -48,6 +49,670 @@ export const countryCodeToFlagEmoji = code => {
   } catch {
     return '';
   }
+};
+
+/**
+ * Shape detector for "lat, lng" / "12.34, -56.78" style strings — two finite
+ * decimal numbers separated by a comma. We must NEVER show such a string as a
+ * coach's location label (the value is sometimes the unfiltered LocationAutocomplete
+ * `search` field, e.g. when a user pastes raw coordinates).
+ *
+ * @param {*} value
+ * @returns {boolean}
+ */
+const COORDINATE_LIKE_RE = /^\s*-?\d+(?:\.\d+)?\s*[,;]\s*-?\d+(?:\.\d+)?\s*$/;
+export const looksLikeCoordinates = value =>
+  typeof value === 'string' && COORDINATE_LIKE_RE.test(value);
+
+/**
+ * Trim a candidate location string and reject coordinate-shaped values.
+ * Returns `null` when the value is not a usable human-readable label.
+ *
+ * @param {*} value
+ * @returns {string|null}
+ */
+const sanitizeLocationText = value => {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (looksLikeCoordinates(trimmed)) return null;
+  return trimmed;
+};
+
+/**
+ * Lightweight typographic normalization for location strings:
+ *
+ *   - "St.Moritz" → "St. Moritz"     (insert space after a period that is
+ *                                     immediately followed by a letter,
+ *                                     so abbreviated saints/markers render
+ *                                     consistently regardless of how the
+ *                                     coach typed them)
+ *   - collapse runs of whitespace into a single space
+ *   - dedupe identical adjacent tokens within a single segment
+ *     ("Laax Laax" → "Laax")
+ *
+ * Segment-level deduplication ("Laax, Laax, Switzerland" → "Laax,
+ * Switzerland") is handled separately by `cleanLocationAddress`, because
+ * it operates on whole comma-delimited segments after this primitive
+ * has cleaned each one individually.
+ *
+ * @param {*} value
+ * @returns {string|null}
+ */
+const normalizeLocationText = value => {
+  const cleaned = sanitizeLocationText(value);
+  if (!cleaned) return null;
+  let normalized = cleaned.replace(/\.([A-Za-z])/g, '. $1').replace(/\s+/g, ' ').trim();
+  if (!normalized) return null;
+  // Dedupe identical adjacent tokens within a single segment, e.g.
+  // "Laax Laax" → "Laax", "St. Moritz St. Moritz" → "St. Moritz".
+  const tokens = normalized.split(' ');
+  const dedupedTokens = [];
+  for (const t of tokens) {
+    if (
+      dedupedTokens.length === 0 ||
+      dedupedTokens[dedupedTokens.length - 1].toLowerCase() !== t.toLowerCase()
+    ) {
+      dedupedTokens.push(t);
+    }
+  }
+  return dedupedTokens.join(' ');
+};
+
+/**
+ * Take a free-form address (e.g. "St. Moritz, Maloja District, Grisons,
+ * Switzerland") and return the first comma-delimited segment ("St. Moritz").
+ * Coordinate-shaped values are rejected. This is the primitive used to
+ * derive a short, premium-looking location label for figurine cards from
+ * any saved location source — even legacy data that stored the full
+ * Mapbox address in `publicData.coachCityText`.
+ *
+ * The returned segment is normalized via `normalizeLocationText`, so
+ * "St.Moritz" (no space) renders as "St. Moritz" and accidental token
+ * repetitions ("Laax Laax") collapse to a single token.
+ *
+ * @param {*} value
+ * @returns {string|null}
+ */
+const firstAddressSegment = value => {
+  const cleaned = sanitizeLocationText(value);
+  if (!cleaned) return null;
+  const head = cleaned.split(',')[0].trim();
+  return normalizeLocationText(head);
+};
+
+/**
+ * Clean a free-form address into a single, normalized line suitable for the
+ * "Location" box on `ProfilePage`. Splits on commas, normalizes each segment
+ * (whitespace + abbreviation spacing + intra-segment token dedup), drops
+ * empty segments, and dedupes identical adjacent segments.
+ *
+ *   "Laax Laax, Grisons, Switzerland"      → "Laax, Grisons, Switzerland"
+ *   "Laax, Laax, Switzerland"              → "Laax, Switzerland"
+ *   "St.Moritz, Maloja District, Grisons,  → "St. Moritz, Maloja District,
+ *    Switzerland"                              Grisons, Switzerland"
+ *   "46.80, 9.25" (raw coordinates)        → null
+ *
+ * @param {*} value
+ * @returns {string|null}
+ */
+const cleanLocationAddress = value => {
+  const cleaned = sanitizeLocationText(value);
+  if (!cleaned) return null;
+  const segments = cleaned
+    .split(',')
+    .map(s => normalizeLocationText(s))
+    .filter(Boolean);
+  if (segments.length === 0) return null;
+  const deduped = [];
+  for (const seg of segments) {
+    if (
+      deduped.length === 0 ||
+      deduped[deduped.length - 1].toLowerCase() !== seg.toLowerCase()
+    ) {
+      deduped.push(seg);
+    }
+  }
+  return deduped.join(', ');
+};
+
+/**
+ * Derive a short editorial label from the saved Mapbox autocomplete value
+ * (`publicData.location` / `publicData.coachMapLocation`).
+ *
+ * Priority:
+ *   1. `selectedPlace.name` / `selectedPlace.placeName` if set (Mapbox sometimes
+ *      ships a primary place name alongside the full address).
+ *   2. First comma-delimited segment of `selectedPlace.address`.
+ *   3. First comma-delimited segment of the autocomplete `search` field (rarely
+ *      different from `address`, but useful as a last resort).
+ *
+ * Examples:
+ *   { selectedPlace: { address: 'St. Moritz, Grisons, Switzerland' } } → 'St. Moritz'
+ *   { selectedPlace: { address: 'Laax, Grisons, Switzerland' } }       → 'Laax'
+ *   { selectedPlace: { address: 'Lisbon, Portugal' } }                 → 'Lisbon'
+ *
+ * Coordinate-shaped strings (e.g. "46.80, 9.25") are explicitly rejected so
+ * the figurina never shows raw lat/lng.
+ *
+ * @param {*} location  the Final Form value of `pub_coachMapLocation`, or the
+ *                      Sharetribe `publicData.location` object
+ * @returns {string|null}
+ */
+export const derivePlaceShortLabel = location => {
+  if (!location || typeof location !== 'object') return null;
+  const sp = location.selectedPlace || {};
+  const fromName =
+    firstAddressSegment(sp.name) ||
+    firstAddressSegment(sp.placeName) ||
+    firstAddressSegment(sp.text);
+  if (fromName) return fromName;
+  const fromAddr = firstAddressSegment(sp.address);
+  if (fromAddr) return fromAddr;
+  return firstAddressSegment(location.search);
+};
+
+/**
+ * Try to extract a human-readable address from a LocationAutocomplete value or
+ * a free-form string saved on `publicData.location`. Intentionally avoids the
+ * `value.search` fallback that `normalizeExtendedDataTextForDisplay` uses,
+ * because coaches sometimes paste raw coordinates into the search field.
+ *
+ * @param {*} loc
+ * @returns {string|null}
+ */
+const readSelectedPlaceAddress = loc => {
+  if (!loc) return null;
+  if (typeof loc === 'string') return sanitizeLocationText(loc);
+  if (typeof loc !== 'object') return null;
+  const fromSelected =
+    loc.selectedPlace && typeof loc.selectedPlace === 'object'
+      ? sanitizeLocationText(loc.selectedPlace.address)
+      : null;
+  if (fromSelected) return fromSelected;
+  const fromObj = sanitizeLocationText(loc.address);
+  if (fromObj) return fromObj;
+  return null;
+};
+
+/**
+ * ISO-2 country code → display name in the given locale (e.g. `PT` + `en` →
+ * `"Portugal"`). Falls back to the raw code when `Intl.DisplayNames` is not
+ * available or the value is already a long-form name.
+ *
+ * @param {*} code
+ * @param {string} [locale='en']
+ * @returns {string|null}
+ */
+export const countryDisplayName = (code, locale = 'en') => {
+  if (!code) return null;
+  const cleaned = String(code).trim();
+  if (!cleaned) return null;
+  // Already a long-form name (e.g. "Portugal", "United States"): keep as-is.
+  if (cleaned.length !== 2) return cleaned;
+  try {
+    const dn = new Intl.DisplayNames([locale], { type: 'region' });
+    return dn.of(cleaned.toUpperCase()) || cleaned.toUpperCase();
+  } catch {
+    return cleaned.toUpperCase();
+  }
+};
+
+// Reverse-mapping cache: per-locale Map<lowercased display name, ISO-2 code>.
+// Built lazily by iterating the 26×26 letter pairs through `Intl.DisplayNames`,
+// which gives us ~250 valid country codes mapped to their localized name.
+// Cached because building the map costs ~500 `dn.of()` calls.
+const _countryNameToCodeCache = new Map();
+const buildCountryNameToCodeMap = (locale = 'en') => {
+  const key = String(locale || 'en').toLowerCase();
+  if (_countryNameToCodeCache.has(key)) {
+    return _countryNameToCodeCache.get(key);
+  }
+  const map = new Map();
+  let dn;
+  try {
+    dn = new Intl.DisplayNames([key], { type: 'region' });
+  } catch {
+    _countryNameToCodeCache.set(key, map);
+    return map;
+  }
+  for (let i = 0; i < 26; i++) {
+    for (let j = 0; j < 26; j++) {
+      const code = String.fromCharCode(65 + i, 65 + j);
+      let name;
+      try {
+        name = dn.of(code);
+      } catch {
+        continue;
+      }
+      if (!name || name === code) continue;
+      const key = name.toLowerCase();
+      // Don't overwrite existing entries: the FIRST matching code wins.
+      // This protects against deprecated / ambiguous codes that share a
+      // display name with a current code — e.g. `FX` (Metropolitan France,
+      // deprecated) vs `FR` (France). Iterating A→Z, the canonical code
+      // (FR) is registered first; the deprecated alias (FX) is skipped.
+      if (!map.has(key)) {
+        map.set(key, code);
+      }
+    }
+  }
+  _countryNameToCodeCache.set(key, map);
+  return map;
+};
+
+/**
+ * Reverse `Intl.DisplayNames`: localized country display name → ISO-2 code.
+ * Tries the requested locale first, then falls back to English (covers the
+ * common case where Mapbox returns English place names regardless of the
+ * UI locale).
+ *
+ *   "Switzerland" → "CH"
+ *   "Schweiz"     → "CH" (with locale 'de')
+ *   "Italie"      → "IT" (with locale 'fr')
+ *
+ * @param {*} name
+ * @param {string} [locale='en']
+ * @returns {string} ISO-2 code uppercased, or '' when no match is found.
+ */
+export const countryDisplayNameToCode = (name, locale = 'en') => {
+  if (typeof name !== 'string') return '';
+  const trimmed = name.trim().toLowerCase();
+  if (!trimmed) return '';
+  const primary = buildCountryNameToCodeMap(locale);
+  const fromPrimary = primary.get(trimmed);
+  if (fromPrimary) return fromPrimary;
+  if (String(locale || '').toLowerCase() !== 'en') {
+    const fallback = buildCountryNameToCodeMap('en');
+    const fromFallback = fallback.get(trimmed);
+    if (fromFallback) return fromFallback;
+  }
+  return '';
+};
+
+/**
+ * Derive an ISO-2 country code from a saved Mapbox autocomplete value
+ * (`publicData.location` / `publicData.coachMapLocation`). Used to render
+ * the country flag inside the figurina's location pill — the flag must
+ * represent the **coaching place**, not the coach's nationality
+ * (`publicData.country`).
+ *
+ * Priority:
+ *   1. `selectedPlace.countryCode` if previously persisted by the form
+ *      patcher (fast path for new saves).
+ *   2. Last comma-delimited segment of `selectedPlace.address` matched
+ *      against `Intl.DisplayNames` (e.g. "Switzerland" → "CH").
+ *   3. Second-to-last segment, in case the address ends with a postal /
+ *      administrative suffix (rare with Mapbox forward geocoding output,
+ *      but possible).
+ *   4. Same lookup against `location.search` as a last resort.
+ *
+ * @param {*} location
+ * @param {string} [locale='en']
+ * @returns {string} ISO-2 country code uppercased, or '' when undetermined.
+ */
+export const deriveCountryCodeFromPlace = (location, locale = 'en') => {
+  if (!location || typeof location !== 'object') return '';
+  const sp = location.selectedPlace || {};
+  // 1. Fast path: explicit code captured at save time.
+  const explicit =
+    typeof sp.countryCode === 'string' && sp.countryCode.trim().length === 2
+      ? sp.countryCode.trim().toUpperCase()
+      : typeof sp.country === 'string' && sp.country.trim().length === 2
+        ? sp.country.trim().toUpperCase()
+        : '';
+  if (explicit) return explicit;
+  // 2/3/4: derive from address segments.
+  const candidates = [sp.address, location.search];
+  for (const candidate of candidates) {
+    const cleaned = sanitizeLocationText(candidate);
+    if (!cleaned) continue;
+    const segments = cleaned
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+    if (!segments.length) continue;
+    // Try last segment first (most addresses end with country).
+    const tail = segments[segments.length - 1];
+    const fromTail = countryDisplayNameToCode(tail, locale);
+    if (fromTail) return fromTail;
+    if (segments.length > 1) {
+      const tailMinus1 = segments[segments.length - 2];
+      const fromTailM1 = countryDisplayNameToCode(tailMinus1, locale);
+      if (fromTailM1) return fromTailM1;
+    }
+  }
+  return '';
+};
+
+/**
+ * Build a human-readable location label for a coach row (Coach Map sidebar
+ * card + Mapbox popup). Coordinates must NEVER be returned as a primary label
+ * — they are only meaningful for positioning the marker on the map.
+ *
+ * Sources, in order of preference:
+ *   1. coach.locationLabel / coach.locationName / coach.workingLocationLabel /
+ *      coach.cityCountry (caller-prepared overrides)
+ *   2. profile publicData: locationName, workingLocationLabel, coachCityText,
+ *      location.selectedPlace.address (geocoded address from LocationAutocomplete)
+ *   3. listing publicData fallback: location.selectedPlace.address
+ *   4. Composed `City, Country` from coachCity slug + country code
+ *   5. Country alone (long-form display name from ISO-2 code)
+ *
+ * @param {Object} coach   `{ author, representativeListing, locationLabel?, … }`
+ * @param {Object} [opts]
+ * @param {Object} [opts.intl]   react-intl object (for locale-aware country names)
+ * @param {string} [opts.locale] explicit locale (defaults to `intl.locale` or 'en')
+ * @returns {string|null}        human-readable label, or `null` when nothing usable
+ *                               is available — callers may then surface a "—" or
+ *                               fall back to the raw coordinates if they really
+ *                               want to.
+ */
+export const getCoachDisplayLocation = (coach, opts = {}) => {
+  if (!coach) return null;
+  const locale = opts.locale || opts.intl?.locale || 'en';
+
+  const pd = coach.author?.attributes?.profile?.publicData || {};
+  const lp = coach.representativeListing?.attributes?.publicData || {};
+
+  const ordered = [
+    coach.locationLabel,
+    coach.locationName,
+    coach.workingLocationLabel,
+    coach.cityCountry,
+    pd.locationName,
+    pd.workingLocationLabel,
+    pd.coachCityText,
+    readSelectedPlaceAddress(pd.location),
+    readSelectedPlaceAddress(lp.location),
+  ];
+  for (const candidate of ordered) {
+    const cleaned = sanitizeLocationText(candidate);
+    if (cleaned) return cleaned;
+  }
+
+  // Composed "City, Country" fallback — derive the city label from the
+  // configured `coachCity` slug when available, then either source's country.
+  const citySlug =
+    pd.coachCity != null && String(pd.coachCity).trim()
+      ? String(pd.coachCity).trim().toLowerCase()
+      : '';
+  const cityFromSlug = citySlug ? sanitizeLocationText(coachCityLabel(citySlug)) : null;
+  const city =
+    sanitizeLocationText(coach.city) || sanitizeLocationText(pd.city) || cityFromSlug;
+  const countryRaw = coach.country || pd.country || lp.country || null;
+  const country = sanitizeLocationText(countryDisplayName(countryRaw, locale));
+
+  if (city && country && city !== country) return `${city}, ${country}`;
+  if (city) return city;
+  if (country) return country;
+  return null;
+};
+
+/**
+ * Visual short location label for the figurina coach card.
+ *
+ * The figurina is the editorial face of the coach — it must read like a
+ * place pill ("Laax", "St. Moritz", "Lisbon"), never a long Mapbox
+ * address. The form in ProfileSettings now collects a SINGLE Mapbox
+ * autocomplete value ("Where do you coach?") and we derive the short
+ * label from that place at render time (and at save time, to keep
+ * `publicData.coachCityText` in sync as a back-compat fallback).
+ *
+ * Sources, in order of preference:
+ *   1. Caller-prepared overrides (`coach.locationLabel`, etc.) — short-cut
+ *      to the first comma-delimited segment so even long override values
+ *      collapse to a clean place name.
+ *   2. Profile publicData explicit short-label fields (`locationName`,
+ *      `workingLocationLabel`, `coachCityText`). Each is also shortened
+ *      to its first segment, so legacy data that stored the full
+ *      Mapbox address in `coachCityText` still renders as a clean place
+ *      name on the figurina.
+ *   3. Derived from the saved Mapbox autocomplete value
+ *      (`pd.location.selectedPlace`). This is the canonical source for
+ *      coaches who saved their profile after the single-field refactor.
+ *   4. Listing-level Mapbox value (`lp.location.selectedPlace`).
+ *   5. Composed `City, Country` from explicit fields / `coachCity` slug.
+ *   6. Country alone (long-form from ISO-2 code).
+ *
+ * @param {Object} coach   `{ author, representativeListing, locationLabel?, … }`
+ * @param {Object} [opts]
+ * @param {Object} [opts.intl]   react-intl object (locale-aware country names)
+ * @param {string} [opts.locale] explicit locale (defaults to `intl.locale` or 'en')
+ * @returns {string|null}        short visual label, or `null` when nothing
+ *                               usable is available. Callers must NOT
+ *                               recover by surfacing the raw coordinates.
+ */
+export const getCoachShortLocationLabel = (coach, opts = {}) => {
+  if (!coach) return null;
+  const locale = opts.locale || opts.intl?.locale || 'en';
+
+  const pd = coach.author?.attributes?.profile?.publicData || {};
+  const lp = coach.representativeListing?.attributes?.publicData || {};
+
+  // 1+2: Visual short-label sources, defensively shortened to first segment.
+  // This makes legacy data with a long address in `coachCityText` collapse
+  // to "St. Moritz" instead of leaking the Maloja District / Grisons /
+  // Switzerland tail.
+  const visualOrdered = [
+    coach.locationLabel,
+    coach.locationName,
+    coach.workingLocationLabel,
+    coach.cityCountry,
+    pd.locationName,
+    pd.workingLocationLabel,
+    pd.coachCityText,
+  ];
+  for (const candidate of visualOrdered) {
+    const cleaned = firstAddressSegment(candidate);
+    if (cleaned) return cleaned;
+  }
+
+  // 3+4: Derive from the saved Mapbox autocomplete value(s).
+  const fromProfilePlace = derivePlaceShortLabel(pd.location);
+  if (fromProfilePlace) return fromProfilePlace;
+  const fromListingPlace = derivePlaceShortLabel(lp.location);
+  if (fromListingPlace) return fromListingPlace;
+
+  // 5+6: Composed City/Country / country-only fallback.
+  const citySlug =
+    pd.coachCity != null && String(pd.coachCity).trim()
+      ? String(pd.coachCity).trim().toLowerCase()
+      : '';
+  const cityFromSlug = citySlug ? sanitizeLocationText(coachCityLabel(citySlug)) : null;
+  const city =
+    sanitizeLocationText(coach.city) || sanitizeLocationText(pd.city) || cityFromSlug;
+  const countryRaw = coach.country || pd.country || lp.country || null;
+  const country = sanitizeLocationText(countryDisplayName(countryRaw, locale));
+
+  if (city && country && city !== country) return `${city}, ${country}`;
+  if (city) return city;
+  if (country) return country;
+  return null;
+};
+
+/**
+ * Full clean location label for the "Location" box on `ProfilePage`.
+ *
+ * Counterpart to `getCoachShortLocationLabel`. Where the short helper
+ * collapses to a single place name for the figurina pill ("Laax",
+ * "St. Moritz"), this helper preserves the full editorial address —
+ * "Laax, Grisons, Switzerland" — so the right-column Location section
+ * always reads as a complete, readable line. Both helpers share the
+ * same input shape, so callers can render the figurina and the box
+ * from the same source object.
+ *
+ * Sources, in order of preference:
+ *   1. Caller-prepared full overrides (`coach.locationLabel`,
+ *      `coach.locationName`, `coach.workingLocationLabel`) — left
+ *      verbatim (just normalized) so embeddings can pass a curated
+ *      multi-segment label.
+ *   2. Profile publicData Mapbox geocoded address
+ *      (`pd.location.selectedPlace.address`) — canonical source for
+ *      coaches who saved their profile after the single-field refactor.
+ *   3. Listing-level Mapbox address (`lp.location.selectedPlace.address`).
+ *   4. Profile publicData explicit short fields (`pd.locationName`,
+ *      `pd.workingLocationLabel`, `pd.coachCityText`) — used as-is
+ *      (possibly already short, in which case the composed fallback
+ *      below adds region/country).
+ *   5. Composed `City, Region, Country` from explicit publicData fields
+ *      / `coachCity` slug + ISO-2 country code.
+ *   6. Final fallback: the short label (so the box never renders empty
+ *      when only short data exists).
+ *
+ * Coordinate-shaped strings are rejected at every step (handled by
+ * `sanitizeLocationText` inside the cleaning primitives).
+ *
+ * @param {Object} coach   `{ author, representativeListing, locationLabel?, … }`
+ * @param {Object} [opts]
+ * @param {Object} [opts.intl]   react-intl object (locale-aware country names)
+ * @param {string} [opts.locale] explicit locale (defaults to `intl.locale` or 'en')
+ * @returns {string|null}        full clean location label, or `null` when
+ *                               no usable data exists.
+ */
+export const getCoachFullLocationLabel = (coach, opts = {}) => {
+  if (!coach) return null;
+  const locale = opts.locale || opts.intl?.locale || 'en';
+
+  const pd = coach.author?.attributes?.profile?.publicData || {};
+  const lp = coach.representativeListing?.attributes?.publicData || {};
+
+  // 1. Caller-supplied full overrides. Cleaned (de-duplicated, spaced)
+  //    but not collapsed to the first segment — so callers can
+  //    intentionally pass a multi-segment label.
+  for (const candidate of [
+    coach.locationLabel,
+    coach.locationName,
+    coach.workingLocationLabel,
+    coach.cityCountry,
+  ]) {
+    const full = cleanLocationAddress(candidate);
+    if (full && full.includes(',')) return full;
+  }
+
+  // 2. Profile-level Mapbox geocoded address (primary canonical source).
+  const profileFull = cleanLocationAddress(pd.location?.selectedPlace?.address);
+  if (profileFull) return profileFull;
+
+  // 3. Listing-level Mapbox geocoded address (legacy/fallback).
+  const listingFull = cleanLocationAddress(lp.location?.selectedPlace?.address);
+  if (listingFull) return listingFull;
+
+  // 4. Caller / profile short fields with a comma already inside (e.g.
+  //    "Laax, Grisons, Switzerland" stored verbatim in `coachCityText`
+  //    by legacy data) — accept them as full labels.
+  for (const candidate of [
+    coach.locationLabel,
+    coach.locationName,
+    coach.workingLocationLabel,
+    pd.locationName,
+    pd.workingLocationLabel,
+    pd.coachCityText,
+  ]) {
+    const full = cleanLocationAddress(candidate);
+    if (full && full.includes(',')) return full;
+  }
+
+  // 5. Composed `City, Region, Country` from explicit fields / slug.
+  const citySlug =
+    pd.coachCity != null && String(pd.coachCity).trim()
+      ? String(pd.coachCity).trim().toLowerCase()
+      : '';
+  const cityFromSlug = citySlug ? sanitizeLocationText(coachCityLabel(citySlug)) : null;
+  const cityFromShort = firstAddressSegment(pd.coachCityText);
+  const city =
+    sanitizeLocationText(coach.city) ||
+    sanitizeLocationText(pd.city) ||
+    cityFromSlug ||
+    cityFromShort;
+  const region =
+    sanitizeLocationText(coach.region) ||
+    sanitizeLocationText(pd.region) ||
+    sanitizeLocationText(pd.coachRegion) ||
+    null;
+  const countryRaw = coach.country || pd.country || lp.country || null;
+  const country = sanitizeLocationText(countryDisplayName(countryRaw, locale));
+
+  const composed = [city, region, country]
+    .filter(Boolean)
+    .filter((part, idx, arr) => idx === 0 || part.toLowerCase() !== arr[idx - 1].toLowerCase());
+  if (composed.length >= 2) return composed.join(', ');
+
+  // 6. Final fallback: short label (the box never renders empty when
+  //    we have at least a single-token piece of location data).
+  return getCoachShortLocationLabel(coach, opts);
+};
+
+/**
+ * Medium-length location label for the **CoachMap sidebar card** and the
+ * **Mapbox popup**. Format: `City, Country` (e.g. "St. Moritz,
+ * Switzerland"), never the full Mapbox address with district / canton
+ * tail and never the city alone when the country is recoverable.
+ *
+ * Why this is a separate helper:
+ *   - `getCoachShortLocationLabel` returns just the city ("Laax") for
+ *     the figurina pill and renders a country flag emoji next to it.
+ *   - `getCoachFullLocationLabel` returns the full editorial address
+ *     ("Laax, Grisons, Switzerland") for the right-column Location box
+ *     on `ProfilePage`.
+ *   - The map sidebar / popup need something in between: a single
+ *     compact line that always reads as "City, Country", deduped and
+ *     normalized.
+ *
+ * Country derivation is **strict to the coaching place**: only the
+ * Mapbox geocode (`publicData.location.selectedPlace`) is consulted.
+ * `publicData.country` (the coach's nationality) is intentionally
+ * never used as a fallback here — an Italian coach working in
+ * Switzerland must render as `"St. Moritz, Switzerland"`, not
+ * `"St. Moritz, Italy"`. When the country can't be derived from the
+ * Mapbox data the city alone is returned.
+ *
+ * Examples:
+ *   "Lisbon, Lisbon, Portugal"            → "Lisbon, Portugal"
+ *   "St.Moritz, Grisons, Switzerland"     → "St. Moritz, Switzerland"
+ *   "Lenzerheide, Grisons, Switzerland"   → "Lenzerheide, Switzerland"
+ *   coachCityText: "London", code: GB     → "London, United Kingdom"
+ *   coachCityText: "Laax" (no Mapbox)     → "Laax"
+ *   "46.80, 9.25" (raw coordinates)       → null
+ *
+ * @param {Object} coach   `{ author, representativeListing, locationLabel?, … }`
+ * @param {Object} [opts]
+ * @param {Object} [opts.intl]   react-intl object (locale-aware country names)
+ * @param {string} [opts.locale] explicit locale (defaults to `intl.locale` or 'en')
+ * @returns {string|null}        compact "City, Country" label, or just
+ *                               the city when no country is recoverable,
+ *                               or `null` when nothing usable is available.
+ */
+export const getCoachMapLocationLabel = (coach, opts = {}) => {
+  if (!coach) return null;
+  const locale = opts.locale || opts.intl?.locale || 'en';
+
+  const pd = coach.author?.attributes?.profile?.publicData || {};
+  const lp = coach.representativeListing?.attributes?.publicData || {};
+
+  // 1. City: re-use the short helper (already normalized via
+  //    `firstAddressSegment` + de-duplicated) and collapse any composed
+  //    "City, Country" fallback back to a single token. This guarantees
+  //    we never end up with "Lisbon, Portugal, Portugal" when the short
+  //    helper itself had to fall back to a composed value.
+  const cityRaw = getCoachShortLocationLabel(coach, { locale });
+  const city = cityRaw ? sanitizeLocationText(cityRaw.split(',')[0]) : null;
+
+  // 2. Country: STRICTLY from the Mapbox geocode of the coaching place.
+  //    `pd.country` (nationality) is intentionally NOT used here — see
+  //    JSDoc above for the rationale.
+  const code =
+    deriveCountryCodeFromPlace(pd.location, locale) ||
+    deriveCountryCodeFromPlace(lp.location, locale);
+  const country = code ? sanitizeLocationText(countryDisplayName(code, locale)) : null;
+
+  if (!city && !country) return null;
+  if (!country) return city;
+  if (!city) return country;
+  // Defensive: avoid degenerate "Switzerland, Switzerland" when the city
+  // resolver itself fell back to the country name (rare, but possible).
+  if (city.toLowerCase() === country.toLowerCase()) return city;
+  return `${city}, ${country}`;
 };
 
 /**

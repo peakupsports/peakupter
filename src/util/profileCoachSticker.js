@@ -252,9 +252,87 @@ const EXPERIENCE_DEFAULTS = {
 };
 
 /**
- * Testo esperienza da `publicData.experience`.
+ * Try to synthesise a complete "X–Y years" / "X+ years" / "X years" label from
+ * a free-form experience value. Used as a fallback for anything that is NOT a
+ * canonical enum key (`'15_20'`, `'20+'`, …) — covers Console hosted labels
+ * (`'15-20'`, `'15–20 years'`, `'15 to 20 years'`), pasted free text and
+ * raw numeric values (`'12'`, `12`, `'12 years'`).
+ *
+ * Returns `null` when nothing usable can be extracted, so the outer helper
+ * can degrade gracefully.
+ *
+ * @param {string} raw
  * @param {import('react-intl').intlShape} intl
- * @param {string} experienceKey
+ * @returns {string|null}
+ */
+const synthesiseExperienceLabel = (raw, intl) => {
+  const lower = String(raw)
+    .toLowerCase()
+    .trim();
+  if (!lower) return null;
+  if (lower === 'hobby') {
+    return intl.formatMessage({
+      id: 'ProfilePage.coachExperience_hobby',
+      defaultMessage: 'Hobby',
+    });
+  }
+
+  // Normalise dash variants (en/em/figure dash, hyphen-bullet, minus,
+  // ASCII hyphen) and the verbose "X to Y" form to a single ASCII hyphen.
+  const normalised = lower
+    .replace(/[\u2010-\u2015\u2043\u2212-]/g, '-')
+    .replace(/\s+to\s+/g, '-');
+
+  const rangeMatch = normalised.match(/(\d+)\s*[-_]\s*(\d+)/);
+  if (rangeMatch) {
+    const [, low, high] = rangeMatch;
+    return intl.formatMessage(
+      {
+        id: 'ProfilePage.coachExperience_range',
+        defaultMessage: '{low}–{high} years',
+      },
+      { low, high }
+    );
+  }
+
+  const numberMatch = normalised.match(/(\d+)/);
+  if (numberMatch) {
+    const n = numberMatch[1];
+    const hasPlus = normalised.includes('+');
+    if (hasPlus || Number(n) >= 20) {
+      return intl.formatMessage(
+        {
+          id: 'ProfilePage.coachExperience_plus',
+          defaultMessage: '{n}+ years',
+        },
+        { n }
+      );
+    }
+    return intl.formatMessage(
+      {
+        id: 'ProfilePage.coachExperience_years',
+        defaultMessage: '{n} years',
+      },
+      { n }
+    );
+  }
+
+  return null;
+};
+
+/**
+ * Testo esperienza da `publicData.experience`. Returns a complete localised
+ * label (e.g. "15–20 years") for every shape we've seen in the wild:
+ *   - canonical enum keys ('15_20', '20+', 'hobby', …)
+ *   - ASCII / en-dash / em-dash ranges with or without "years"
+ *     ('15-20', '15–20 years', '15 to 20 years')
+ *   - plain numbers / numeric strings ('12', 12, '12 years')
+ *
+ * Never returns a bare "15-20" without the "years" suffix.
+ *
+ * @param {import('react-intl').intlShape} intl
+ * @param {string|number} experienceKey
+ * @returns {string|null}
  */
 export const formatCoachExperienceLabel = (intl, experienceKey) => {
   if (experienceKey == null || experienceKey === '') {
@@ -262,11 +340,25 @@ export const formatCoachExperienceLabel = (intl, experienceKey) => {
   }
   const k = String(experienceKey);
   const slug = k.replace(/\+/g, 'plus');
-  const defaultMessage = EXPERIENCE_DEFAULTS[k] ?? k;
-  return intl.formatMessage(
-    { id: `ProfilePage.coachExperience_${slug}`, defaultMessage: defaultMessage },
-    {}
-  );
+
+  // 1) Known canonical enum keys keep their dedicated translation entry,
+  //    falling back to the curated `EXPERIENCE_DEFAULTS` defaults.
+  if (EXPERIENCE_DEFAULTS[k] != null) {
+    return intl.formatMessage(
+      { id: `ProfilePage.coachExperience_${slug}`, defaultMessage: EXPERIENCE_DEFAULTS[k] },
+      {}
+    );
+  }
+
+  // 2) Free-form / Console hosted value → synthesise a complete label so the
+  //    Experience box always reads "<range> years" instead of "15-20".
+  const synthesised = synthesiseExperienceLabel(k, intl);
+  if (synthesised) return synthesised;
+
+  // 3) Last resort: return the raw value (typed as text) — better something
+  //    than nothing, but `synthesiseExperienceLabel` covers virtually all
+  //    realistic inputs, so this only runs for truly unparseable strings.
+  return k;
 };
 
 /** Bandierine lingue coaching (codici corti Console). */

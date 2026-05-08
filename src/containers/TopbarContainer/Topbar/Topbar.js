@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 
 import appSettings from '../../../config/settings';
@@ -10,6 +10,7 @@ import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import { isMainSearchTypeKeywords, isOriginInUse } from '../../../util/search';
 import { parse, stringify } from '../../../util/urlHelpers';
 import { createResourceLocatorString, matchPathname, pathByRouteName } from '../../../util/routes';
+import { parseCoachExploreSearch } from '../../../util/coachExplore';
 import {
   Button,
   IconArrowHead,
@@ -240,7 +241,81 @@ const TopbarComponent = props => {
   const sortedCustomLinks = sortCustomLinks(config.topbar?.customLinks);
   const customLinks = getResolvedCustomLinks(sortedCustomLinks, routeConfiguration);
   const resolvedCurrentPage = currentPage || getResolvedCurrentPage(location, routeConfiguration);
-  const [landingSport, setLandingSport] = useState('');
+
+  // Pages that render the global SportBar inside the topbar instead of an
+  // inline filter row. CoachMapPage owns its own (with winter variants) and
+  // passes it explicitly via `topbarCenterContent`, so it isn't listed here.
+  const GLOBAL_SPORTBAR_PAGES = ['LandingPage', 'CoachesPage'];
+
+  // Pages where a SportBar click should update `?sport=` *in place* instead
+  // of navigating away. LandingPage is intentionally NOT in this list: from
+  // the homepage every chip click must take the user to CoachMapPage so the
+  // SportBar acts as a global entry point to the map (the chip-on-LP UX is
+  // "discover coaches on the map for sport X").
+  const IN_PLACE_SPORTBAR_PAGES = ['CoachesPage', 'CoachMapPage'];
+
+  // Global SportBar is URL-driven: the active chip mirrors `?sport=` so the
+  // selection stays in sync as the user navigates between LandingPage,
+  // CoachesPage and CoachMapPage without any local state.
+  const currentSportFromUrl = useMemo(
+    () => parseCoachExploreSearch(location.search).sportKey || '',
+    [location.search]
+  );
+
+  // Toggle/set the `sport` param on top of the current URL search params.
+  // Used both for in-place updates (Coaches / CoachMap) and for the
+  // LandingPage → CoachMapPage navigation, so any pre-existing `lat`,
+  // `lng`, `location`, `coachId`, … always survive the click.
+  const mergeSportIntoSearch = useCallback(
+    (currentSearch, next) => {
+      const params = parse(currentSearch);
+      const merged = { ...params };
+      if (next) {
+        merged.sport = next;
+      } else {
+        delete merged.sport;
+      }
+      return merged;
+    },
+    []
+  );
+
+  // SportBar click routing:
+  // - LandingPage (and any other page that isn't a coach list) → push to
+  //   CoachMapPage with `?sport=` plus whatever other search params were
+  //   already on the LandingPage URL (lat/lng/location/coachId from a
+  //   marketing deep-link, …).
+  // - CoachesPage → update `?sport=` in place on `/coaches`.
+  // - CoachMapPage → update `?sport=` in place on `/coach-map`.
+  // In all branches lat/lng/location/coachId are preserved. For the empty
+  // `next` ("All sports") we just drop `sport` and keep the rest.
+  const handleGlobalSportChange = useCallback(
+    next => {
+      const merged = mergeSportIntoSearch(location.search, next);
+      const isInPlace = IN_PLACE_SPORTBAR_PAGES.includes(resolvedCurrentPage);
+      if (isInPlace) {
+        const search = stringify(merged);
+        history.push(`${location.pathname}${search ? `?${search}` : ''}`);
+        return;
+      }
+      const to = createResourceLocatorString(
+        'CoachMapPage',
+        routeConfiguration,
+        {},
+        merged
+      );
+      history.push(to);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      resolvedCurrentPage,
+      location.pathname,
+      location.search,
+      history,
+      routeConfiguration,
+      mergeSportIntoSearch,
+    ]
+  );
 
   const notificationDot = notificationCount > 0 ? <div className={css.notificationDot} /> : null;
 
@@ -300,29 +375,24 @@ const TopbarComponent = props => {
   const showSearchForm =
     !disableSearch && (showSearchOnAllPages || showSearchOnSearchPage || showSearchNotOnLandingPage);
 
-  const landingSportBarCenterContent = useMemo(() => {
-    if (resolvedCurrentPage !== 'LandingPage') return null;
+  // Single global SportBar shared across LandingPage and CoachesPage.
+  // CoachMapPage opts out (it injects its own SportBar with winter variants
+  // via `topbarCenterContent`) and on every other page the topbar falls back
+  // to the search form / spacer like before.
+  const globalSportBarCenterContent = useMemo(() => {
+    if (!GLOBAL_SPORTBAR_PAGES.includes(resolvedCurrentPage)) return null;
     return (
       <div className={css.landingSportBarCenterScale}>
         <SportBar
-          value={landingSport}
+          value={currentSportFromUrl}
           inTopbar
-          onChange={next => {
-            setLandingSport(next);
-            const queryParams = next ? { sport: next } : {};
-            const to = createResourceLocatorString(
-              'CoachMapPage',
-              routeConfiguration,
-              {},
-              queryParams
-            );
-            history.push(to);
-          }}
+          onChange={handleGlobalSportChange}
           allLabel="All sports"
         />
       </div>
     );
-  }, [resolvedCurrentPage, landingSport, routeConfiguration, history]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resolvedCurrentPage, currentSportFromUrl, handleGlobalSportChange]);
 
   const mobileSearchButtonMaybe = showSearchForm ? (
     <Button
@@ -409,7 +479,7 @@ const TopbarComponent = props => {
           config={config}
           customLinks={customLinks}
           showSearchForm={
-            resolvedCurrentPage === 'LandingPage' ||
+            GLOBAL_SPORTBAR_PAGES.includes(resolvedCurrentPage) ||
             (resolvedCurrentPage === 'CoachMapPage' && topbarCenterContent)
               ? false
               : showSearchForm
@@ -417,7 +487,10 @@ const TopbarComponent = props => {
           showCreateListingsLink={showCreateListingsLink}
           inboxTab={topbarInboxTab}
           topbarCenterContent={
-            resolvedCurrentPage === 'LandingPage' ? landingSportBarCenterContent : topbarCenterContent
+            topbarCenterContent ||
+            (GLOBAL_SPORTBAR_PAGES.includes(resolvedCurrentPage)
+              ? globalSportBarCenterContent
+              : null)
           }
         />
       </div>

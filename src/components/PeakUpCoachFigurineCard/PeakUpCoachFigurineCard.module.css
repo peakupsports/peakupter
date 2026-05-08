@@ -517,21 +517,113 @@
   gap: 6px;
 }
 
-/* Colonna bandiere lingue: dentro la foto, lato destro, una sopra l'altra.
- * Gap bumped 6 → 8 so the small flag discs don't kiss the previous one
- * once stacked. Position / max-height / dimensions untouched. */
-.stickerLanguagesColumn {
+/* Single overlay stack at the bottom-left of the photo. Contains the
+ * vertical flag column and, as its last "row", the `📍 + location`
+ * caption. By anchoring `right: 8px` we let the location row spread
+ * across (almost) the full photo width — up from the old bottom-right
+ * pill capped at `calc(100% - 56px)` — giving long labels like
+ * "St. Moritz, Grisons, Switzerland" room to breathe without
+ * compressing or hard-ellipsing.
+ *
+ * The flag column inside is no longer absolutely positioned: it sits
+ * naturally as the first child of the stack, with the location row
+ * stacking below the last flag (gap = 8px keeps both rhythms aligned).
+ * Photo aspect-ratio, frame, header, footer, badges, stars, CTA and
+ * sport row are untouched. */
+.stickerOverlayStack {
   position: absolute;
   left: 8px;
+  right: 8px;
   bottom: 8px;
-  right: auto;
-  top: auto;
   z-index: 3;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 8px;
   max-height: calc(100% - 16px);
+  pointer-events: none;
+}
+
+/* Colonna bandiere lingue: ora figlia di `.stickerOverlayStack` (no più
+ * absolute). Dimensioni dei `.stickerLanguagePill` (28×28), gap (8px) e
+ * font-size invariati: si vede esattamente come prima, solo la radice è
+ * cambiata. */
+.stickerLanguagesColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Bandiere stanno strette sulla colonna; non devono mai stirarsi. */
+  align-items: flex-start;
+  flex: 0 0 auto;
+}
+
+/* Single location pill — pin 📍 + full location text inside ONE capsule.
+ * Sits at the bottom of `.stickerOverlayStack`, just below the last
+ * language flag.
+ *
+ * Width strategy: `max-width: 100%` lets the pill grow up to the full
+ * stack width (`100% - 16px` of the photo, since the stack is anchored
+ * `left/right: 8px`) — far wider than the previous bottom-right pill.
+ * Short labels stay content-sized (looks like an elegant capsule); long
+ * labels fill the available width and ellipsis as a last-resort fallback.
+ *
+ * The pin is a non-shrink span (`flex: 0 0 auto`), so the ellipsis only
+ * ever consumes the location text, never the pin. */
+.stickerLocationPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(10, 16, 28, 0.62);
+  border: 1px solid var(--tier-border, rgba(255, 255, 255, 0.4));
+  color: var(--colorWhite);
+  font-size: 12px;
+  font-weight: var(--fontWeightSemiBold);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  box-shadow:
+    0 0 0 1.5px rgba(255, 255, 255, 0.12),
+    0 4px 10px rgba(var(--tier-rgb, 16, 33, 62), 0.18);
+  box-sizing: border-box;
+}
+
+.stickerLocationPin {
+  flex: 0 0 auto;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.stickerLocationText {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tiny country flag inline at the end of the pill — adds the alpine /
+ * luxury-travel cue without enlarging the capsule.
+ *
+ * Sizing: 11px (vs. 12px for the city text) reads as a subtle echo
+ * rather than a competing element. `line-height: 1` keeps the emoji
+ * from inflating the row height; `flex: 0 0 auto` prevents it from
+ * shrinking when the city text ellipses; a small negative left margin
+ * pulls the flag visually closer to the city ("Laax 🇨🇭" reads as one
+ * unit instead of two flex items separated by the standard 6px gap).
+ *
+ * Lower visual emphasis: `opacity: 0.9` softens the flag so the city
+ * name remains the primary read. */
+.stickerLocationFlag {
+  flex: 0 0 auto;
+  margin-left: -2px;
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.9;
 }
 
 /* Language flag — light circular frame, tier-aware.

@@ -58,23 +58,19 @@
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 0;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: var(--colorGrey300) transparent;
+  /* Premium look: hide the horizontal scrollbar on every browser while
+     keeping native horizontal scroll, scroll-snap, mouse-wheel,
+     touchpad and touch swipe gestures fully working. The arrow nav
+     buttons (`navButton`) remain the discoverability hint, mirroring
+     the same convention used by the `CoachesPage` carousel. */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge / IE */
 }
 
 .scroller::-webkit-scrollbar {
-  height: 12px;
-}
-
-.scroller::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scroller::-webkit-scrollbar-thumb {
-  background: var(--colorGrey300);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
+  display: none; /* Chrome / Safari / new Edge */
+  width: 0;
+  height: 0;
 }
 
 .scrollerItem {

@@ -287,6 +287,11 @@ const SectionPeakupFeaturedCoaches = props => {
                   reviewAverage={card.reviewAverage}
                   badgeIds={card.badgeIds}
                   rank={idx + 1}
+                  // Gold / silver / bronze podium medal is intentionally
+                  // scoped to this LandingPage section only — it represents
+                  // the curated "Featured Coaches" ranking and must NOT
+                  // appear on directory pages (/coaches, /coach-map, …).
+                  showPodiumBadge
                 />
               </li>
             ))}

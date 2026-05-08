@@ -1,5 +1,10 @@
 @import '../../../styles/customMediaQueries.css';
 
+/* Primary location field — single Mapbox autocomplete that drives every
+ * downstream piece of coach data (map coordinates, full address, short
+ * figurina label). Visual treatment matches the rest of the form's text
+ * inputs; no "advanced" framing because there is now ONE location
+ * control in the section. */
 .root {
   margin-bottom: 24px;
 
@@ -37,4 +42,15 @@
 }
 
 .validLocation {
+}
+
+/* Calm, secondary-coloured help text below the autocomplete — explains
+ * how this single field powers both the map pin and the short figurina
+ * label, so coaches understand why they only need to fill one input. */
+.helpText {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--colorGrey700, #4a4a4a);
+  line-height: 1.45;
+  letter-spacing: 0.01em;
 }

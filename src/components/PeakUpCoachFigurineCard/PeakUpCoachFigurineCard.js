@@ -3,7 +3,11 @@ import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { ensureUser } from '../../util/data';
-import { countryCodeToFlagEmoji } from '../../util/coachExplore';
+import {
+  countryCodeToFlagEmoji,
+  deriveCountryCodeFromPlace,
+  getCoachShortLocationLabel,
+} from '../../util/coachExplore';
 import {
   LANGUAGE_FLAGS,
   PEAKUP_COACH_BADGE_PRIORITY,
@@ -127,7 +131,11 @@ const normalizeSportKey = raw => String(raw || '').toLowerCase().replace(/[\s-_]
  * @param {string[]} [props.badgeIds] from {@link resolveDisplayBadgeIds}
  * (Founder / Ambassador admin-only, Top coach auto-derived from experience >= 10y,
  * Certified coach as default)
- * @param {number} [props.rank] posizione 1-indexed in classifica; se ≤ 3 mostra medaglia podio.
+ * @param {number} [props.rank] posizione 1-indexed in classifica; combinato con
+ *   `showPodiumBadge`, abilita la medaglia podio quando `rank ≤ 3`.
+ * @param {boolean} [props.showPodiumBadge=false] mostra la medaglia oro/argento/bronzo
+ *   per `rank` 1/2/3. Le directory generiche (CoachesPage, CoachMapPage, ProfilePage)
+ *   non devono mostrarla: solo la sezione "Featured Coaches" della LandingPage la attiva.
  */
 const PeakUpCoachFigurineCard = props => {
   const intl = useIntl();
@@ -141,11 +149,14 @@ const PeakUpCoachFigurineCard = props => {
     reviewAverage = null,
     badgeIds = [],
     rank = null,
+    showPodiumBadge = false,
     className,
   } = props;
 
   const podiumTier =
-    typeof rank === 'number' && rank >= 1 && rank <= 3 ? RANK_MEDAL_TIERS[rank] : null;
+    showPodiumBadge && typeof rank === 'number' && rank >= 1 && rank <= 3
+      ? RANK_MEDAL_TIERS[rank]
+      : null;
 
   const safeUser = author ? ensureUser(author) : null;
   const profile = safeUser?.attributes?.profile;
@@ -156,13 +167,45 @@ const PeakUpCoachFigurineCard = props => {
   const profileImage = safeUser?.profileImage || null;
   const listing = representativeListing || null;
 
-  // Country / flag (publicData first, fallback al listing).
+  // Country / flag (publicData first, fallback al listing). This is the
+  // coach's NATIONALITY / origin and drives the header flag next to the
+  // display name. Do NOT use it for the location pill: the pill must
+  // represent the country of the coaching place, derived separately
+  // below from the saved Mapbox geocode (`locationCountryCode`).
   const countryCode =
     (publicData.country || listing?.attributes?.publicData?.country || '')
       ?.toString?.()
       ?.trim() || '';
   const flag = countryCode ? countryCodeToFlagEmoji(countryCode) : '';
   const flagDisplay = flag || '🌍';
+
+  // Country flag of the COACHING LOCATION. Strictly derived from the
+  // saved Mapbox autocomplete value (`publicData.location` first,
+  // listing-level location as fallback). This way an Italian coach
+  // working in Switzerland renders as:
+  //   header (nationality):     🇮🇹
+  //   pill (coaching place):    📍 St. Moritz 🇨🇭
+  // — never the nationality flag inside the pill.
+  const intlLocale = intl?.locale || 'en';
+  const locationCountryCode =
+    deriveCountryCodeFromPlace(publicData.location, intlLocale) ||
+    deriveCountryCodeFromPlace(listing?.attributes?.publicData?.location, intlLocale);
+  const locationFlag = locationCountryCode
+    ? countryCodeToFlagEmoji(locationCountryCode)
+    : '';
+
+  // Visual short location label — strictly the editorial value the coach
+  // typed in ProfileSettings ("Location shown on your profile"). The
+  // figurina deliberately ignores the technical Mapbox map pin
+  // (`publicData.location.selectedPlace.address`), which is reserved for
+  // map positioning / distance — see `getCoachShortLocationLabel` JSDoc.
+  // CoachCard (map sidebar) and CoachMapPopup keep using the broader
+  // `getCoachDisplayLocation` so they can still surface a richer label
+  // when the visual short field is empty.
+  const displayLocation = getCoachShortLocationLabel(
+    { author: safeUser, representativeListing: listing },
+    { intl }
+  );
 
   // Languages: publicData -> array di codici (es: ['en','it']).
   const languages = Array.isArray(publicData.languages)
@@ -344,13 +387,56 @@ const PeakUpCoachFigurineCard = props => {
               <div className={css.stickerPhotoOverlay} aria-hidden />
               <div className={css.stickerPhotoShine} aria-hidden />
 
-              {languages.length > 0 ? (
-                <div className={css.stickerLanguagesColumn} aria-label="Languages">
-                  {languages.slice(0, 5).map(lang => (
-                    <span key={lang} className={css.stickerLanguagePill}>
-                      {LANGUAGE_FLAGS[lang] || '🌐'}
-                    </span>
-                  ))}
+              {/* Floating overlay stack — single anchored column at the
+                  bottom-left of the photo. Holds the language flag stack
+                  and, beneath the last flag, a single location pill that
+                  contains BOTH `📍` and the full location label. The
+                  stack is locked at `right: 8px` so the pill can stretch
+                  nearly the full photo width — giving long city/region/
+                  country labels room to breathe before falling back to
+                  ellipsis. */}
+              {languages.length > 0 || displayLocation ? (
+                <div className={css.stickerOverlayStack}>
+                  {languages.length > 0 ? (
+                    <div className={css.stickerLanguagesColumn} aria-label="Languages">
+                      {languages.slice(0, 5).map(lang => (
+                        <span key={lang} className={css.stickerLanguagePill}>
+                          {LANGUAGE_FLAGS[lang] || '🌐'}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  {displayLocation ? (
+                    <div
+                      className={css.stickerLocationPill}
+                      title={displayLocation}
+                      aria-label={intl.formatMessage(
+                        {
+                          id: 'PeakUpCoachFigurineCard.locationLabel',
+                          defaultMessage: 'Based in {location}',
+                        },
+                        { location: displayLocation }
+                      )}
+                    >
+                      <span className={css.stickerLocationPin} aria-hidden>
+                        📍
+                      </span>
+                      <span className={css.stickerLocationText}>{displayLocation}</span>
+                      {/* Country flag of the COACHING LOCATION (from the
+                          saved Mapbox geocode), NOT the coach's
+                          nationality flag. Italian coach working in
+                          Switzerland renders as `📍 St. Moritz 🇨🇭`,
+                          not `🇮🇹`. When the country can't be derived
+                          (legacy data, sparse address) the flag is
+                          omitted entirely — the pill simply reads
+                          `📍 Laax`. */}
+                      {locationFlag ? (
+                        <span className={css.stickerLocationFlag} aria-hidden>
+                          {locationFlag}
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 
