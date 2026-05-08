@@ -7,7 +7,7 @@ import { formatMoney, unitDivisor } from '../../util/currency';
 import { ensureUser } from '../../util/data';
 import {
   resolveCoachStickerDisplay,
-  formatProfileSportsForSticker,
+  splitCoachSportsForCoachMap,
   LANGUAGE_FLAGS,
 } from '../../util/profileCoachSticker';
 import { pickPrimaryTierId, getTierStyleVars } from '../../util/coachTier';
@@ -70,7 +70,12 @@ const BADGE_LABEL_KEYS = {
  * @param {boolean} [props.isSelected]      adds a persistent "active" border (driven by parent selection state)
  * @param {Function} [props.onMouseEnter]   highlight the marker on the map (transient)
  * @param {Function} [props.onMouseLeave]   clear marker highlight
- * @param {Function} [props.onMapClick]     handler for the "Map" button (parent decides what to do – typically flyTo + select)
+ * @param {Function} [props.onMapClick]     fired when the user clicks anywhere
+ *   on the card (the card itself is the map interaction; there is no
+ *   dedicated "Map" button anymore). Parent decides what to do – typically
+ *   flyTo + select + open popup. Skipped when no map target is available, and
+ *   when the click originates from an internal anchor/button (Contact link,
+ *   coach name link) so those keep their own action without double-firing.
  * @param {string} [props.className]
  * @param {string} [props.rootClassName]
  */
@@ -104,7 +109,16 @@ const CoachCard = props => {
   // Single source of truth for sports / languages / locationLine / lat / lng
   // (profile-first, listing-fallback).
   const sticker = resolveCoachStickerDisplay(publicData, representativeListing);
-  const sportEntries = formatProfileSportsForSticker(intl, sticker.sports).slice(0, 3);
+  // Split sports into "main" parents (Snowboard, Ski, Surf, ...) and
+  // "specialties" sub-disciplines (Freeride, Freestyle, Ski Touring, ...).
+  // Avoids noisy lines like "Snowboard · Ski · Freeride Snowboard · ..." and
+  // keeps the visual hierarchy (main = strong, specialties = supplementary).
+  const { mainEntries: mainSportEntries, specialties } = splitCoachSportsForCoachMap(
+    intl,
+    sticker.sports
+  );
+  const sportEntries = mainSportEntries.slice(0, 3);
+  const visibleSpecialties = specialties.slice(0, 4);
   // Languages collapse to a tight flag cluster – the written language names
   // were too noisy and added a third meta row. Flags carry the signal and
   // keep the card scannable.
@@ -157,15 +171,18 @@ const CoachCard = props => {
       ? reviewAverage.toFixed(1)
       : null;
 
-  const handleMapClick = () => {
-    // TEMP DEBUG: remove once flyTo is verified.
-    // eslint-disable-next-line no-console
-    console.log('[CoachCard] Map button clicked', {
-      authorUuid: coach?.authorUuid,
-      listingId: coach?.representativeListing?.id?.uuid,
-      geolocation: coach?.representativeListing?.attributes?.geolocation,
-      hasOnMapClick: typeof onMapClick === 'function',
-    });
+  // Whole-card click — the only way to fly the map to this coach now that
+  // the dedicated "Map" button has been removed. Falls through silently if
+  // there's no coordinate to fly to, and skips when the click originated
+  // from an anchor or button inside the card (Contact link, coach name
+  // link) so those keep their own action without flying the map.
+  // Keyboard users navigate to the internal Contact link / coach name
+  // link via Tab; the card is intentionally not made into a `role=button`
+  // because that would conflict with its nested interactive children.
+  const handleCardClick = event => {
+    if (!hasMapTarget) return;
+    const target = event.target;
+    if (target instanceof Element && target.closest('a, button')) return;
     if (typeof onMapClick === 'function') {
       onMapClick(coach);
     }
@@ -176,11 +193,13 @@ const CoachCard = props => {
       className={classNames(
         rootClassName || css.root,
         isSelected ? css.rootSelected : null,
+        hasMapTarget ? css.rootClickable : null,
         className
       )}
       aria-pressed={isSelected || undefined}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      onClick={hasMapTarget ? handleCardClick : undefined}
       style={tierStyle}
     >
       <header className={css.header}>
@@ -245,6 +264,10 @@ const CoachCard = props => {
             </div>
           ) : null}
 
+          {visibleSpecialties.length > 0 ? (
+            <div className={css.specialtiesRow}>{visibleSpecialties.join(' · ')}</div>
+          ) : null}
+
           {sticker.locationLine ? (
             <div className={css.locationRow}>
               <span aria-hidden>📍</span>
@@ -265,29 +288,15 @@ const CoachCard = props => {
             />
           ) : null}
         </div>
-        <div className={css.actions}>
-          {hasMapTarget ? (
-            <button type="button" className={css.mapBtn} onClick={handleMapClick}>
-              <FormattedMessage id="CoachCard.mapAction" />
-            </button>
-          ) : (
-            <span
-              className={css.mapUnavailable}
-              title={intl.formatMessage({ id: 'CoachCard.mapUnavailable' })}
-            >
-              <FormattedMessage id="CoachCard.mapUnavailable" />
-            </span>
-          )}
-          {profileId ? (
-            <NamedLink className={css.contactBtn} name="ProfilePage" params={{ id: profileId }}>
-              <FormattedMessage id="CoachesPage.contact" />
-            </NamedLink>
-          ) : (
-            <span className={css.contactBtnDisabled}>
-              <FormattedMessage id="CoachesPage.contact" />
-            </span>
-          )}
-        </div>
+        {profileId ? (
+          <NamedLink className={css.contactBtn} name="ProfilePage" params={{ id: profileId }}>
+            <FormattedMessage id="CoachesPage.contact" />
+          </NamedLink>
+        ) : (
+          <span className={css.contactBtnDisabled}>
+            <FormattedMessage id="CoachesPage.contact" />
+          </span>
+        )}
       </footer>
     </article>
   );

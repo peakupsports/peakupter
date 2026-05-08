@@ -65,6 +65,10 @@ class Portal extends React.Component {
  * @param {Function} props.onClose
  * @param {Function} props.onManageDisableScrolling
  * @param {boolean} props.usePortal
+ * @param {boolean} [props.closeOnOutsideClick=false] when true, clicking the
+ *   dimmed scroll layer outside the modal container calls `onClose`. Default
+ *   false to preserve existing behavior for form-bearing modals where an
+ *   accidental backdrop click would lose user input.
  * @returns {JSX.Element} Modal element
  */
 export class ModalComponent extends Component {
@@ -73,6 +77,7 @@ export class ModalComponent extends Component {
     this.handleBodyKeyUp = this.handleBodyKeyUp.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleResize = this.handleResize.bind(this);
+    this.handleScrollLayerClick = this.handleScrollLayerClick.bind(this);
 
     this.refDiv = React.createRef();
     this.vh = null;
@@ -153,6 +158,18 @@ export class ModalComponent extends Component {
     window.document.documentElement.style.setProperty('--vh', `${this.vh}px`);
   }
 
+  // Opt-in backdrop close: only fires when the click lands directly on the
+  // scroll layer (the dimmed area outside the centered container). Clicks
+  // that bubble up from the container or any of its children have a
+  // different `target` and are ignored, so interactions inside the modal
+  // (forms, buttons, etc.) keep working untouched.
+  handleScrollLayerClick(event) {
+    if (!this.props.closeOnOutsideClick) return;
+    if (event.target === event.currentTarget) {
+      this.handleClose(event);
+    }
+  }
+
   render() {
     const {
       children,
@@ -206,7 +223,7 @@ export class ModalComponent extends Component {
 
     return !usePortal ? (
       <div className={classes}>
-        <div className={scrollLayerClasses}>
+        <div className={scrollLayerClasses} onClick={this.handleScrollLayerClick}>
           <div className={containerClasses}>
             {closeBtn}
             <div className={classNames(contentClassName || css.content)}>{children}</div>
@@ -216,7 +233,7 @@ export class ModalComponent extends Component {
     ) : portalRoot ? (
       <Portal portalRoot={portalRoot}>
         <div className={classes}>
-          <div className={scrollLayerClasses}>
+          <div className={scrollLayerClasses} onClick={this.handleScrollLayerClick}>
             <div
               className={classNames(containerClasses, css.focusedDiv)}
               ref={this.refDiv}

@@ -148,6 +148,87 @@ export const formatProfileSportsForSticker = (intl, sports) =>
     return { key, emoji, label };
   });
 
+/**
+ * CoachMap-only display split: takes a coach's flat sports list and returns
+ *   { mainEntries: [{key,emoji,label}], specialties: [string] }
+ *
+ * Why: Console saves both parents (snowboard / ski) and winter sub-disciplines
+ * (freeridesnowboard, splittouring, ...) in the same `sports[]`. Rendering them
+ * verbatim in the sidebar/popup produces noisy lines like
+ * "Snowboard · Ski · Freeride Snowboard · Freestyle Snowboard ...".
+ *
+ * For the CoachMap views we instead show:
+ *   • a "main sports" line with the parents only (deduped, parents implied
+ *     from variants when missing);
+ *   • a "specialties" sub-line with the variant short labels deduped by label
+ *     (e.g. "Freeride · Freestyle · Ski Touring").
+ *
+ * Pure presentation – the underlying taxonomy is untouched.
+ *
+ * @param {import('react-intl').intlShape} intl
+ * @param {string[]|unknown} sports
+ * @returns {{ mainEntries: Array<{key:string,emoji:string,label:string}>, specialties: string[] }}
+ */
+const COACHMAP_VARIANT_PARENT = {
+  skitouring: 'ski',
+  freerideskiing: 'ski',
+  freestyleskiing: 'ski',
+  splittouring: 'snowboard',
+  freeridesnowboard: 'snowboard',
+  freestylesnowboard: 'snowboard',
+};
+
+const COACHMAP_VARIANT_FALLBACK_LABEL = {
+  skitouring: 'Ski Touring',
+  splittouring: 'Split Touring',
+  freerideskiing: 'Freeride',
+  freestyleskiing: 'Freestyle',
+  freeridesnowboard: 'Freeride',
+  freestylesnowboard: 'Freestyle',
+};
+
+const normalizeCoachMapSportKey = s =>
+  String(s || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '');
+
+export const splitCoachSportsForCoachMap = (intl, sports) => {
+  const mainOrder = [];
+  const mainSet = new Set();
+  const specialtyOrder = [];
+  const specialtySet = new Set();
+
+  for (const raw of sports || []) {
+    const k = normalizeCoachMapSportKey(raw);
+    if (!k) continue;
+    const parent = COACHMAP_VARIANT_PARENT[k];
+    if (parent) {
+      if (!mainSet.has(parent)) {
+        mainSet.add(parent);
+        mainOrder.push(parent);
+      }
+      const fallback = COACHMAP_VARIANT_FALLBACK_LABEL[k] || k;
+      const specialty = intl
+        ? intl.formatMessage({ id: `CoachMap.specialty.${k}`, defaultMessage: fallback }, {})
+        : fallback;
+      const dedupKey = String(specialty)
+        .trim()
+        .toLowerCase();
+      if (specialty && !specialtySet.has(dedupKey)) {
+        specialtySet.add(dedupKey);
+        specialtyOrder.push(specialty);
+      }
+    } else if (!mainSet.has(k)) {
+      mainSet.add(k);
+      mainOrder.push(k);
+    }
+  }
+
+  const mainEntries = formatProfileSportsForSticker(intl, mainOrder);
+  return { mainEntries, specialties: specialtyOrder };
+};
+
 const EXPERIENCE_DEFAULTS = {
   hobby: 'Hobby',
   '0_5': '0–5 years',

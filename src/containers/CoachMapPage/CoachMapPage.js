@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
@@ -25,6 +25,125 @@ import CoachMap3D from './CoachMap3D/CoachMap3D';
 import css from './CoachMapPage.module.css';
 
 /**
+ * CoachMap-only filter chips. The main row stays compact (one chip per
+ * primary sport). Snowboard and Ski declare `variants[]`: when the family
+ * is active (parent slug OR any variant slug is the current value),
+ * `<SportBar disciplines>` renders a smaller secondary row below with the
+ * leaf disciplines only – the parent chip in the main row already acts as
+ * the implicit "All <sport>". Filtering is delegated to
+ * `matchSportFilterKeys`:
+ *  - `snowboard` (parent click) → all snowboard variants
+ *  - leaf slug (e.g. `freeridesnowboard`) → only that variant
+ *  - same for `ski` family
+ *
+ * This list does NOT change global sport taxonomy, ProfilePage, listing
+ * setup or coach figurine; it only drives the SportBar on this page.
+ */
+const SNOWBOARD_DISCIPLINE = {
+  key: 'snowboard',
+  label: 'Snowboard',
+  emoji: '🏂',
+  variants: [
+    { key: 'freeridesnowboard', label: 'Freeride' },
+    { key: 'freestylesnowboard', label: 'Freestyle' },
+    { key: 'splittouring', label: 'Split Touring' },
+  ],
+};
+
+const SKI_DISCIPLINE = {
+  key: 'ski',
+  label: 'Ski',
+  emoji: '🎿',
+  aliases: ['skiing'],
+  variants: [
+    { key: 'freerideskiing', label: 'Freeride', aliases: ['freerideski'] },
+    { key: 'freestyleskiing', label: 'Freestyle', aliases: ['freestyleski'] },
+    { key: 'skitouring', label: 'Ski Touring' },
+  ],
+};
+
+const MTB_DISCIPLINE = { key: 'mtb', label: 'MTB', emoji: '🚵' };
+const SURF_DISCIPLINE = { key: 'surf', label: 'Surf', emoji: '🏄' };
+const TENNIS_DISCIPLINE = { key: 'tennis', label: 'Tennis', emoji: '🎾' };
+const CLIMBING_DISCIPLINE = { key: 'climbing', label: 'Climbing', emoji: '🧗' };
+const GOLF_DISCIPLINE = { key: 'golf', label: 'Golf', emoji: '⛳️' };
+// Fitness sits next to Golf in the seasonal main rows so the wellness /
+// non-extreme cluster reads as a coherent group (Tennis · Climbing ·
+// Golf · Fitness). 💪 matches the emoji already used by
+// `PROFILE_SPORT_EMOJI` for fitness on the figurine card, so the chip,
+// the figurine sport bubble and the context-aware map marker stay
+// visually consistent.
+const FITNESS_DISCIPLINE = { key: 'fitness', label: 'Fitness', emoji: '💪' };
+
+/**
+ * Pick the seasonal main-row order. Winter = Nov→Apr (months 10,11,0,1,2,3),
+ * pushing Snowboard / Ski to the front; Summer = May→Oct (4-9) leads with
+ * MTB / Surf and pushes winter sports to the back. Date is injected so it
+ * stays unit-testable (default uses the current calendar month).
+ *
+ * @param {Date} [date]
+ * @returns {Array}
+ */
+const getCoachMapDisciplinesForSeason = (date = new Date()) => {
+  const month = typeof date.getMonth === 'function' ? date.getMonth() : new Date().getMonth();
+  const isWinter = month >= 10 || month <= 3;
+  if (isWinter) {
+    return [
+      SNOWBOARD_DISCIPLINE,
+      SKI_DISCIPLINE,
+      MTB_DISCIPLINE,
+      TENNIS_DISCIPLINE,
+      CLIMBING_DISCIPLINE,
+      GOLF_DISCIPLINE,
+      FITNESS_DISCIPLINE,
+      SURF_DISCIPLINE,
+    ];
+  }
+  return [
+    MTB_DISCIPLINE,
+    SURF_DISCIPLINE,
+    TENNIS_DISCIPLINE,
+    CLIMBING_DISCIPLINE,
+    GOLF_DISCIPLINE,
+    FITNESS_DISCIPLINE,
+    SNOWBOARD_DISCIPLINE,
+    SKI_DISCIPLINE,
+  ];
+};
+
+const normalizeDisciplineSlug = s =>
+  String(s || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[\s\-_]+/g, '');
+
+/**
+ * Resolve the user-facing short label for a sport slug used in the page
+ * headline, scoped to the CoachMap chips. Returns the parent or variant
+ * `label` defined in the CoachMap discipline list (so e.g. `freeridesnowboard`
+ * → "Freeride", not the raw slug "Freeridesnowboard"). Returns null when
+ * the slug isn't part of the CoachMap taxonomy – the caller can fall back
+ * to a generic title-case helper for unknown slugs.
+ *
+ * @param {Array} disciplines
+ * @param {string} slug
+ * @returns {string|null}
+ */
+const getCoachMapHeadlineLabel = (disciplines, slug) => {
+  const v = normalizeDisciplineSlug(slug);
+  if (!v) return null;
+  for (const d of disciplines) {
+    if (normalizeDisciplineSlug(d.key) === v) return d.label;
+    if ((d.aliases || []).some(a => normalizeDisciplineSlug(a) === v)) return d.label;
+    for (const va of d.variants || []) {
+      if (normalizeDisciplineSlug(va.key) === v) return va.label;
+      if ((va.aliases || []).some(a => normalizeDisciplineSlug(a) === v)) return va.label;
+    }
+  }
+  return null;
+};
+
+/**
  * Coach map: full-page layout.
  * - Desktop: fixed-width left sidebar with all coach cards (independent scroll)
  *   + 3D Mapbox map filling the remaining width.
@@ -48,6 +167,11 @@ const CoachMapPage = props => {
 
   const queryExplore = useMemo(() => parseCoachExploreSearch(location.search), [location.search]);
 
+  // Seasonal main-row order (winter Nov–Apr puts Snowboard/Ski first; summer
+  // May–Oct leads with MTB/Surf). Computed once per session via `useMemo`
+  // to keep prop reference stable across renders.
+  const coachMapDisciplines = useMemo(() => getCoachMapDisciplinesForSeason(), []);
+
   const [selectedSport, setSelectedSport] = useState('');
   // Hover state on cards/markers — transient.
   const [activeListingId, setActiveListingId] = useState(null);
@@ -56,6 +180,10 @@ const CoachMapPage = props => {
   // click so the same coach can be re-flown by the user.
   const [selectedCoachKey, setSelectedCoachKey] = useState(null);
   const [flyToTarget, setFlyToTarget] = useState(null);
+  // Browser geolocation result. `null` while pending / on permission denial,
+  // `{ lat, lng }` once the user accepts. Drives the "You are here" marker
+  // in CoachMap3D and (conditionally) an auto-flyTo on first resolve.
+  const [userLocation, setUserLocation] = useState(null);
 
   // Ensure data is loaded when entering the map page directly (e.g. from "Current location").
   useEffect(() => {
@@ -67,6 +195,85 @@ const CoachMapPage = props => {
   useEffect(() => {
     setSelectedSport(queryExplore.sportKey);
   }, [queryExplore.sportKey]);
+
+  // Deep-link target: when the page is opened with `?coachId=<uuid>` (e.g.
+  // from the small map preview on a Coach Profile page), auto-select that
+  // coach as soon as the coaches list resolves — popup opens, marker
+  // highlights, camera flies. We look up against the unfiltered `coaches`
+  // array so the link still works even when a sport filter would
+  // otherwise hide the marker. The ref guards against re-firing on every
+  // render: we only consume each `coachId` once per session, then let
+  // the user's interactions take over.
+  const consumedCoachIdRef = useRef(null);
+  useEffect(() => {
+    const targetCoachId = queryExplore.coachId;
+    if (!targetCoachId) return;
+    if (!coaches || coaches.length === 0) return;
+    if (consumedCoachIdRef.current === targetCoachId) return;
+
+    const target = coaches.find(c => c.authorUuid === targetCoachId);
+    if (!target) return;
+
+    consumedCoachIdRef.current = targetCoachId;
+    setSelectedCoachKey(target.authorUuid);
+    setActiveListingId(target.representativeListing?.id || null);
+    const coords = getCoachCoordinates(target);
+    if (coords) {
+      setFlyToTarget({ lat: coords.lat, lng: coords.lng, ts: Date.now() });
+    }
+  }, [queryExplore.coachId, coaches]);
+
+  // Ask the browser for the user's current location once on mount. The
+  // request is fire-and-forget – we never block page rendering on it.
+  // Permission denial, missing API, or timeout are all handled silently:
+  // `userLocation` simply stays `null`, the existing default centring
+  // (bounds-fit on coaches) takes over, and no "You are here" marker is
+  // drawn. We use a low-precision request with a 5-minute cache window
+  // so revisiting the page within the same session doesn't re-prompt.
+  const geolocationRequestedRef = useRef(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (geolocationRequestedRef.current) return;
+    if (!navigator?.geolocation?.getCurrentPosition) return;
+
+    geolocationRequestedRef.current = true;
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const lat = pos?.coords?.latitude;
+        const lng = pos?.coords?.longitude;
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          setUserLocation({ lat, lng });
+        }
+      },
+      // Permission denied, position unavailable, timeout — graceful no-op.
+      // Existing fallback (fit to coach bounds / Alpine default) stays
+      // active.
+      () => {},
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 }
+    );
+  }, []);
+
+  // Auto-centre on the user once geolocation resolves, but only when no
+  // higher-priority focus is implied by the URL:
+  //   – `?coachId=…` (deep-link from a Coach Profile) wins.
+  //   – `?lat=&lng=` (user already provided a location) wins.
+  // With only `?sport=…` (or no params at all) we fly to the user. The
+  // ref guards so we only consume the resolved position once per session
+  // — subsequent filter changes still refit to the filtered coach set.
+  const flyToUserLocationConsumedRef = useRef(false);
+  useEffect(() => {
+    if (flyToUserLocationConsumedRef.current) return;
+    if (!userLocation) return;
+    if (queryExplore.coachId) return;
+    if (queryExplore.userLat != null || queryExplore.userLng != null) return;
+
+    flyToUserLocationConsumedRef.current = true;
+    setFlyToTarget({
+      lat: userLocation.lat,
+      lng: userLocation.lng,
+      ts: Date.now(),
+    });
+  }, [userLocation, queryExplore.coachId, queryExplore.userLat, queryExplore.userLng]);
 
   const filteredCoaches = useMemo(() => {
     const bySport = filterCoachesBySport(coaches, selectedSport);
@@ -174,8 +381,13 @@ const CoachMapPage = props => {
   const loading = fetchStatus === 'loading';
   const failed = fetchStatus === 'failed';
 
+  // Prefer the curated CoachMap chip label so the title reads "Find your
+  // Freeride coach" instead of the raw concatenated slug
+  // ("Freeridesnowboard"). Falls back to the generic slug formatter for
+  // sports outside the CoachMap chip list (e.g. arrived via deep link).
   const headlineSportPhrase = selectedSport.trim()
-    ? formatCoachExploreSportSlug(selectedSport)
+    ? getCoachMapHeadlineLabel(coachMapDisciplines, selectedSport) ||
+      formatCoachExploreSportSlug(selectedSport)
     : '';
   const hasGeoProximity =
     queryExplore.userLat != null &&
@@ -196,7 +408,7 @@ const CoachMapPage = props => {
           setActiveListingId(null);
         }}
         allLabel={intl.formatMessage({ id: 'CoachMapPage.sportAll' })}
-        includeWinterVariants
+        disciplines={coachMapDisciplines}
         inTopbar
       />
     </div>
@@ -275,9 +487,11 @@ const CoachMapPage = props => {
             coaches={filteredCoaches}
             activeListingId={activeListingId}
             selectedListingId={selectedListingId}
+            selectedSport={selectedSport}
             flyToTarget={flyToTarget}
             bounds={effectiveBoundsPlain}
             center={center}
+            userLocation={userLocation}
             onMarkerHover={handleMarkerHover}
             onMarkerClick={handleMarkerClick}
             onPopupClose={handlePopupClose}

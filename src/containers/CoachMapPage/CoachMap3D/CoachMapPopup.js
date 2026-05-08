@@ -7,7 +7,7 @@ import { formatMoney, unitDivisor } from '../../../util/currency';
 import { ensureUser } from '../../../util/data';
 import {
   resolveCoachStickerDisplay,
-  formatProfileSportsForSticker,
+  splitCoachSportsForCoachMap,
 } from '../../../util/profileCoachSticker';
 import { pickPrimaryTierId, getTierStyleVars } from '../../../util/coachTier';
 
@@ -83,7 +83,14 @@ const CoachMapPopup = ({ coach, onClose }) => {
   const profileImage = author?.profileImage || null;
 
   const sticker = resolveCoachStickerDisplay(publicData, representativeListing);
-  const sportEntries = formatProfileSportsForSticker(intl, sticker.sports).slice(0, 1);
+  // Same CoachMap-only split as the sidebar CoachCard: main parents on top,
+  // variant short labels as a small specialties line below.
+  const { mainEntries: mainSportEntries, specialties } = splitCoachSportsForCoachMap(
+    intl,
+    sticker.sports
+  );
+  const sportEntries = mainSportEntries.slice(0, 2);
+  const visibleSpecialties = specialties.slice(0, 3);
   const tierId = pickPrimaryTierId(publicData);
   const tierStyle = getTierStyleVars(tierId);
 
@@ -172,12 +179,12 @@ const CoachMapPopup = ({ coach, onClose }) => {
 
       {sportEntries.length > 0 || sticker.locationLine ? (
         <ul className={css.facts}>
-          {sportEntries.length > 0 ? (
-            <li className={css.factItem}>
-              <span aria-hidden>{sportEntries[0].emoji}</span>
-              <span>{sportEntries[0].label}</span>
+          {sportEntries.map(s => (
+            <li key={s.key} className={css.factItem}>
+              <span aria-hidden>{s.emoji}</span>
+              <span>{s.label}</span>
             </li>
-          ) : null}
+          ))}
           {sticker.locationLine ? (
             <li className={css.factItem}>
               <span aria-hidden>📍</span>
@@ -185,6 +192,10 @@ const CoachMapPopup = ({ coach, onClose }) => {
             </li>
           ) : null}
         </ul>
+      ) : null}
+
+      {visibleSpecialties.length > 0 ? (
+        <div className={css.specialties}>{visibleSpecialties.join(' · ')}</div>
       ) : null}
 
       <footer className={css.footer}>

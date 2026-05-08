@@ -1,6 +1,11 @@
 @import '../../styles/customMediaQueries.css';
 
+/* `position: relative` is required so the `z-index: 2` lift on hover /
+ * keyboard focus can stack the active card above its siblings inside the
+ * scrollable sidebar. The `transform: scale(1.02)` does not push neighbours
+ * either, so the sidebar layout stays stable. */
 .root {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -8,13 +13,42 @@
   background: #ffffff;
   border: 1px solid var(--colorGrey200);
   border-radius: 14px;
-  transition: box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease;
+  transition:
+    box-shadow 200ms ease,
+    transform 200ms ease,
+    border-color 200ms ease;
 }
 
-.root:hover {
-  box-shadow: 0 10px 24px rgba(16, 33, 62, 0.07);
-  border-color: var(--colorGrey300);
-  transform: translateY(-1px);
+/* Applied only when the coach has valid coordinates. The whole card becomes
+ * a clickable surface that flies the map to the coach (mirrors the "Map"
+ * button). Cursor stays default for cards without a map target so users
+ * don't get a misleading affordance. Internal `<a>` / `<button>` keep their
+ * own cursor / focus styling untouched. */
+.rootClickable {
+  cursor: pointer;
+}
+
+/* Hover + keyboard-focus lift. Border + halo consume the per-card tier
+ * tokens (`--tier-border` / `--tier-rgb`) injected by `getTierStyleVars`,
+ * so each coach keeps its own badge identity (icy / gold / silver /
+ * bronze) instead of all cards sharing one accent. The `var()` fallbacks
+ * keep tier-less / dev coaches on a neutral grey halo. */
+.root:hover,
+.root:focus-within {
+  transform: scale(1.02);
+  border-color: var(--tier-border, var(--colorGrey300));
+  box-shadow: 0 14px 32px rgba(var(--tier-rgb, 16, 33, 62), 0.22);
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    transition: box-shadow 120ms ease, border-color 120ms ease;
+  }
+  .root:hover,
+  .root:focus-within {
+    transform: none;
+  }
 }
 
 /* Persistent "selected" state — driven by parent (e.g. clicked the Map button
@@ -194,6 +228,21 @@
   display: inline-block;
 }
 
+/* Specialties (winter sub-disciplines) – supplementary text under the main
+   sports line. Kept smaller / lighter so the main row stays the dominant
+   read; only rendered when the coach has variant disciplines. */
+.specialtiesRow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--colorGrey500);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
 .locationRow {
   display: inline-flex;
   align-items: center;
@@ -233,13 +282,12 @@
   color: #10213e;
 }
 
-.actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.mapBtn,
+/* Single CTA in the footer. The "Map" button was removed because the whole
+ * card now flies the map to the coach on click — keeping just one action
+ * (Contact) makes the card feel more like a premium collectible and less
+ * like a control panel. Visual recipe (height, padding, radius, border)
+ * is byte-identical to the previous two-button row so other surfaces that
+ * referenced this metric stay aligned. */
 .contactBtn,
 .contactBtnDisabled {
   display: inline-flex;
@@ -258,7 +306,6 @@
   transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
 }
 
-.mapBtn:hover,
 .contactBtn:hover {
   background: rgba(16, 33, 62, 0.04);
   border-color: var(--colorGrey300);
@@ -266,7 +313,6 @@
   text-decoration: none;
 }
 
-.mapBtn:focus-visible,
 .contactBtn:focus-visible {
   outline: 2px solid rgba(124, 58, 238, 0.45);
   outline-offset: 2px;
@@ -277,21 +323,4 @@
   color: var(--colorGrey500);
   cursor: not-allowed;
   opacity: 0.7;
-}
-
-/* Shown in place of the Map button when the coach has no usable coordinates.
-   Same vertical metrics as the buttons so the actions row keeps its layout. */
-.mapUnavailable {
-  display: inline-flex;
-  align-items: center;
-  height: 28px;
-  padding: 0 9px;
-  border-radius: 999px;
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--colorGrey600);
-  background: rgba(16, 33, 62, 0.04);
-  border: 1px dashed var(--colorGrey300);
-  white-space: nowrap;
-  cursor: help;
 }

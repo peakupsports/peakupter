@@ -29,9 +29,15 @@
   will-change: transform;
 }
 
+/* Hover lift + tier-coloured halo. The shadow's hue uses
+ * `rgba(var(--tier-rgb), 0.22)` so each card carries its own badge tint
+ * (icy / gold / silver / bronze). The fallback navy `16, 33, 62` keeps
+ * tier-less / legacy cards visually identical to the previous design. */
 .root:hover .stickerCard {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 18px 54px rgba(16, 33, 62, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 18px 54px rgba(var(--tier-rgb, 16, 33, 62), 0.22),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
 .root:focus-within .stickerCard {
@@ -82,15 +88,21 @@
   color: #cd7f32;
 }
 
+/* Card frame. The 4px border now consumes `--tier-border` (icy / gold /
+ * silver / bronze) so the figurina inherits the same tier identity as the
+ * ProfilePage figurina and the CoachMap CoachCard. The fallback gold token
+ * keeps tier-less / legacy cards visually identical to the previous design. */
 .stickerCard {
   position: relative;
   width: 100%;
   margin: 0;
   padding: 0;
   border-radius: 20px;
-  border: 4px solid var(--stickerGold);
+  border: 4px solid var(--tier-border, var(--stickerGold));
   background: linear-gradient(165deg, #ffffff 0%, #eef3f9 100%);
-  box-shadow: 0 14px 40px rgba(16, 33, 62, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 14px 40px rgba(16, 33, 62, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
   box-sizing: border-box;
   overflow: hidden;
   display: flex;
@@ -191,7 +203,7 @@
 }
 
 .stickerBadgeButton:focus-visible {
-  outline: 2px solid var(--stickerGold);
+  outline: 2px solid var(--tier-accent, var(--stickerGold));
   outline-offset: 2px;
 }
 
@@ -219,7 +231,7 @@
   border-radius: 50%;
   padding: 2px;
   background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), rgba(0, 0, 0, 0.35));
-  border: 1.5px solid var(--stickerGold);
+  border: 1.5px solid var(--tier-border, var(--stickerGold));
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.18) inset,
     0 1px 2px rgba(0, 0, 0, 0.35);
@@ -403,7 +415,7 @@
 }
 
 .stickerPhotoLink:focus-visible {
-  outline: 2px solid var(--stickerGold);
+  outline: 2px solid var(--tier-accent, var(--stickerGold));
   outline-offset: 2px;
 }
 
@@ -459,6 +471,9 @@
   opacity: 0.35;
 }
 
+/* Vertical stack of floating emoji rows over the photo. Gap bumped from
+ * 4 → 6 so the new tier-ringed bubbles have breathing room without
+ * pushing the overlay off the photo. Position / dimensions untouched. */
 .stickerInfoOverlay {
   position: absolute;
   left: 8px;
@@ -467,10 +482,12 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
-/* Colonna bandiere lingue: dentro la foto, lato destro, una sopra l'altra. */
+/* Colonna bandiere lingue: dentro la foto, lato destro, una sopra l'altra.
+ * Gap bumped 6 → 8 so the small flag discs don't kiss the previous one
+ * once stacked. Position / max-height / dimensions untouched. */
 .stickerLanguagesColumn {
   position: absolute;
   left: 8px;
@@ -480,31 +497,61 @@
   z-index: 3;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   max-height: calc(100% - 16px);
   overflow: hidden;
 }
 
+/* Language flag — light circular frame, tier-aware.
+ *
+ * Sits between "fully flat" (too easy to lose on busy photos) and the
+ * premium tier-bordered + white-ringed sport bubbles (visually too
+ * heavy for an identity cue). The recipe stays intentionally airy and
+ * deliberately lighter than `.footerSportBadge` / `.stickerMiniBadge`:
+ *   – almost-transparent white wash for a barely-there backdrop that
+ *     stays readable on any photo;
+ *   – thin tier-coloured ring (icy / gold / silver / bronze), so the
+ *     flag picks up the same identity used by the figurine card border
+ *     and the sport bubbles without competing with them;
+ *   – tiny soft tier-rgb ambient glow + a subtle dark drop shadow for
+ *     separation on photos with light backgrounds (sky, snow). The
+ *     glow blur is intentionally small so the flag still feels
+ *     "floating" rather than CTA-like.
+ * Fallbacks (`var(name, fb)`) keep the original all-white treatment for
+ * tier-less coaches in dev/QA — production data always carries a tier.
+ * Slot dimensions (28×28), font-size and column gap are preserved
+ * byte-for-byte. */
 .stickerLanguagePill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
-  border-radius: 999px;
-  background: rgba(28, 36, 48, 0.78);
-  border: 1px solid rgba(201, 162, 39, 0.45);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--tier-border, rgba(255, 255, 255, 0.85));
+  box-shadow:
+    0 0 6px rgba(var(--tier-rgb, 255, 255, 255), 0.28),
+    0 2px 6px rgba(0, 0, 0, 0.18);
   font-size: 14px;
   line-height: 1;
 }
 
+/* Horizontal row of floating chips inside `.stickerInfoOverlay`. Gap
+ * bumped 6 → 8 to match the breathing-room update across all bubble
+ * containers; bubble diameter and padding stay byte-identical. */
 .stickerInfoRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
+/* Generic mini-badge for floating chips overlaid on the photo (sport,
+ * location, price). Currently rendered only on ProfilePage but kept in
+ * sync here so the visual remains consistent if the landing-page
+ * figurine ever surfaces them. Premium tier-aware recipe — separate
+ * from the language flag pill above (intentionally minimal so flags
+ * read as a passive identity cue rather than a CTA). */
 .stickerMiniBadge {
   display: inline-flex;
   align-items: center;
@@ -513,9 +560,11 @@
   font-size: 11px;
   font-weight: var(--fontWeightSemiBold);
   color: var(--colorWhite);
-  background: rgba(28, 36, 48, 0.82);
-  border: 1px solid rgba(201, 162, 39, 0.22);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background: rgba(10, 16, 28, 0.72);
+  border: 1px solid var(--tier-border, rgba(201, 162, 39, 0.45));
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.92),
+    0 6px 14px rgba(var(--tier-rgb, 16, 33, 62), 0.18);
   max-width: 100%;
   box-sizing: border-box;
 }
@@ -570,10 +619,14 @@
   gap: 10px;
 }
 
+/* Sport bubble row in the footer next to the CTA. Gap bumped 6 → 8 so
+ * the new tier ring + glow on each `.footerSportBadge` doesn't visually
+ * overlap with the next bubble's white ring. `min-width: 0` and the
+ * `:first-child` left margin stay untouched. */
 .footerSportBadges {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -582,6 +635,14 @@
   margin-left: 8px;
 }
 
+/* Sport emoji bubble next to the CTA in the footer. Airy / almost-
+ * transparent body — the bubble used to carry a heavy dark glass fill,
+ * but the emoji glyph already has its own colour so the dark backdrop
+ * read as visual weight instead of identity. Now the tier border
+ * (icy / gold / silver / bronze) defines the circle and a very soft
+ * tier-rgb lift keeps the premium feel without dominating the footer
+ * row. Width / height / font-size / radius unchanged so layout and
+ * emoji size stay byte-identical. */
 .footerSportBadge {
   display: inline-flex;
   align-items: center;
@@ -589,9 +650,11 @@
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  background: rgba(28, 36, 48, 0.78);
-  border: 1px solid rgba(201, 162, 39, 0.28);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--tier-border, rgba(201, 162, 39, 0.45));
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.14),
+    0 0 8px rgba(var(--tier-rgb, 16, 33, 62), 0.14);
   font-size: 14px;
   line-height: 1;
   flex: 0 0 auto;
@@ -612,8 +675,8 @@
 }
 
 /* Allineato a `.stickerActionPrimary` di ProfilePage.module.css: stesso gradiente
- * navy + bordo dorato così il CTA del carosello e quello della pagina profilo
- * appartengono visivamente alla stessa famiglia. */
+ * navy + bordo tier-aware così il CTA del carosello e quello della pagina profilo
+ * appartengono visivamente alla stessa famiglia. Il navy fill resta invariato. */
 .cta {
   display: inline-flex;
   align-items: center;
@@ -627,7 +690,7 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   text-decoration: none;
-  border: 1.5px solid var(--stickerGold);
+  border: 1.5px solid var(--tier-border, var(--stickerGold));
   box-shadow: 0 1px 3px rgba(16, 33, 62, 0.25);
   transition: filter 0.15s ease;
 }
@@ -640,6 +703,6 @@
 }
 
 .cta:focus-visible {
-  outline: 2px solid var(--stickerGold);
+  outline: 2px solid var(--tier-accent, var(--stickerGold));
   outline-offset: 2px;
 }

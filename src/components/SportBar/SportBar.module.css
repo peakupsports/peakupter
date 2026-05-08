@@ -231,6 +231,13 @@
 
 .rootInTopbar .wrap {
   position: relative;
+  /* `.wrap` defaults to overflow:hidden to keep the chip row inside the
+     rounded glass card. In the topbar the secondary discipline row is
+     absolutely positioned below the wrap (top:100%), so we must let it
+     escape vertically – otherwise it gets visually clipped and the user
+     sees nothing when clicking Snowboard / Ski. The inner row keeps
+     overflow-x:auto so horizontal chip scroll is unaffected. */
+  overflow: visible;
 }
 
 .inner::-webkit-scrollbar {

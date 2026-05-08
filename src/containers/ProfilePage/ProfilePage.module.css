@@ -953,6 +953,10 @@
   opacity: 0.35;
 }
 
+/* Vertical stack of floating emoji rows over the photo (sport / 📍 /
+ * 💰). Gaps bumped (overlay 4 → 6, row 6 → 8) so the new tier-ringed
+ * bubbles have breathing room without pushing the overlay off the
+ * photo. Position / dimensions untouched. */
 .stickerInfoOverlay {
   position: absolute;
   left: 8px;
@@ -961,15 +965,24 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .stickerInfoRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
+/* Floating emoji / icon bubbles overlaid on the figurine photo (sport
+ * emojis, location 📍 and price 💰 chips). The recipe layers four
+ * elements so each bubble reads on any background image:
+ *   – darker glass body for emoji legibility
+ *   – 1-px tier-aware border (icy / gold / silver / bronze; gold fallback)
+ *   – 2-px white outer ring (sharp edge that pops on dark photos)
+ *   – soft tier-coloured glow further out (subtle premium lift)
+ * Padding, font-size, gap and `border-radius` stay byte-identical to
+ * the previous design — only colours / shadows / border change. */
 .stickerMiniBadge {
   display: inline-flex;
   align-items: center;
@@ -978,11 +991,69 @@
   font-size: 11px;
   font-weight: var(--fontWeightSemiBold);
   color: var(--colorWhite);
-  background: rgba(28, 36, 48, 0.82);
-  border: 1px solid rgba(201, 162, 39, 0.22);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background: rgba(10, 16, 28, 0.72);
+  border: 1px solid var(--tier-border, rgba(201, 162, 39, 0.45));
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.92),
+    0 6px 14px rgba(var(--tier-rgb, 16, 33, 62), 0.18);
   max-width: 100%;
   box-sizing: border-box;
+}
+
+/* Unified "refined premium minimal" recipe shared by both overlay
+ * modifiers (`Sport` for emoji-only discs, `Info` for text-bearing
+ * pills) so the figurine reads as one coherent collectible system.
+ * The figurine layering target is now:
+ *   – language flags (`.stickerLanguagePill`) → ultra light
+ *   – sport circles + info pills → mid layer (this rule)
+ *   – figurine card border + glow → heaviest
+ * The two modifier classes are kept distinct (rather than merged
+ * into a single class) so future per-shape tweaks can stay surgical
+ * without touching the JSX.
+ *
+ * Recipe details:
+ *   – `background: rgba(10, 16, 28, 0.55)` lets the photo bleed
+ *     through ~45%, tying the bubble to the image instead of looking
+ *     pasted on top;
+ *   – `border-color: rgba(var(--tier-rgb), 0.55)` keeps the tier
+ *     identity (icy / gold / silver / bronze) but drops the stroke
+ *     to ~55% alpha so the 1-px ring reads visually thinner without
+ *     changing layout (suggested 55–65% range from spec);
+ *   – `0 1px 3px rgba(0,0,0,0.18)` is a tiny dark drop shadow that
+ *     grounds the bubble on light photo backgrounds (sky, snow);
+ *   – `0 0 6px rgba(var(--tier-rgb), 0.10)` is a whisper of tier
+ *     ambient glow so the badge still feels alive without going CTA.
+ * The base `.stickerMiniBadge` (white inner ring + heavy tier glow)
+ * is fully overridden here for both shapes; padding, font-size, gap,
+ * radius and box-sizing stay byte-identical so layout/spacing inside
+ * `.stickerInfoOverlay` doesn't shift, and emoji size is untouched.
+ *
+ * Note: location/price (`.stickerMiniBadgeInfo`) keep a darker glass
+ * because they contain *text* that needs to stay legible on light
+ * photo backgrounds (sky, snow). Sport emoji bubbles
+ * (`.stickerMiniBadgeSport`) hold a single emoji glyph with its own
+ * built-in colour, so they can drop the dark fill entirely and feel
+ * lighter — the tier border + soft glow still defines the circle. */
+.stickerMiniBadgeInfo {
+  background: rgba(10, 16, 28, 0.55);
+  border-color: rgba(var(--tier-rgb, 16, 33, 62), 0.55);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.18),
+    0 0 6px rgba(var(--tier-rgb, 16, 33, 62), 0.10);
+}
+
+/* Sport emoji bubble — airy / almost-transparent body so the photo
+ * reads through and the bubble doesn't feel "pasted on". The tier
+ * border carries the identity (icy / gold / silver / bronze), and a
+ * very light tier-rgb glow keeps a premium lift without weight.
+ * Padding, font-size, radius and the surrounding `.stickerMiniBadge`
+ * sizing remain byte-identical, so emoji size and spacing don't shift. */
+.stickerMiniBadgeSport {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(var(--tier-rgb, 16, 33, 62), 0.55);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.14),
+    0 0 6px rgba(var(--tier-rgb, 16, 33, 62), 0.10);
 }
 
 .stickerCardFooter {
@@ -1028,13 +1099,17 @@
   color: var(--colorGrey300);
 }
 
+/* Footer language flag row (flat emojis — no bubble treatment). Gap
+ * bumped 4 → 6 to match the breathing-room update applied to the
+ * emoji bubble containers, so the figurine reads with consistent
+ * spacing across both flat flags and ringed sport bubbles. Font-size
+ * and right margin stay untouched. */
 .stickerLanguagesMini {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
   font-size: 15px;
   line-height: 1;
-  /* Bandierine spostate ~3% a sinistra rispetto al bordo destro del footer figurina. */
   margin-right: clamp(8px, 3%, 12px);
 }
 
@@ -1335,12 +1410,16 @@
   }
 }
 
-/* Icona montagne colorata nell’intestazione Sports (fill interni, non currentColor) */
+/* Sports section heading icon. The two main peaks inside the SVG use
+ * `fill="currentColor"`, so this `color` token controls their hue: gold
+ * by default and tier-accent when nested under `.peakUpTierRoot` (see
+ * tier override further down in this file). */
 .stickerSportsHeadingIcon {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
   display: block;
+  color: var(--stickerGold);
 
   @media (--viewportMedium) {
     width: 18px;
@@ -1464,6 +1543,11 @@
   overflow: hidden;
 }
 
+/* Experience card watermark mountain. The main silhouette path uses
+ * `fill="currentColor"`, so this `color` token controls its hue: cool
+ * grey-blue by default and tier-accent when nested under
+ * `.peakUpTierRoot` (see tier override further down). The thin ridge
+ * strokes inside the SVG keep their neutral grey to preserve depth. */
 .stickerExperienceMountain {
   position: absolute;
   right: -4px;
@@ -1474,6 +1558,7 @@
   pointer-events: none;
   z-index: 0;
   opacity: 0.94;
+  color: #dfe4ec;
 
   @media (--viewportMedium) {
     right: -4px;
@@ -1657,9 +1742,15 @@
   }
 }
 
+/* Shield body uses `fill="currentColor"`. The base color is the brand
+ * navy so the icon is never invisible if the chip ever renders outside
+ * `.peakUpTierRoot`; the override further down inside `.peakUpTierRoot`
+ * swaps in the active tier border so the icon picks up the coach's
+ * tier identity (icy / gold / silver / bronze) on the public profile. */
 .stickerPriceVerifiedShield {
   flex-shrink: 0;
   display: block;
+  color: var(--stickerNavy);
 }
 
 .stickerPriceVerifiedLabel {
@@ -1999,5 +2090,227 @@
 
 .coachDetailBookBtn:focus-visible {
   outline: 2px solid var(--stickerGold);
+  outline-offset: 2px;
+}
+
+/*
+ * =====================================================================
+ * PeakUp coach TIER theme — single source of truth: src/util/coachTier.js
+ *
+ * `<ProfilePage>` wraps its layout with `<div className={css.peakUpTierRoot}
+ * style={getTierStyleVars(tierId)}>` only for PeakUp coaches with a
+ * resolved tier (founder | ambassador | top_coach | certified_coach).
+ * This stylesheet then reads the injected CSS variables on the curated
+ * accent layers (figurine chrome, main-column cards, dividers, sport /
+ * language pills, primary CTA), falling back to the existing gold tokens
+ * when the wrapper or the tier is absent.
+ *
+ * Founder = icy (#dff6ff)
+ * Ambassador = gold (#f2c94c)
+ * Top Coach = silver (#cbd5e1)
+ * Certified Coach = bronze (#cd7f32)
+ *
+ * Design direction: precise, premium, accent-only. Halos are 1–2 px ring
+ * shadows (not diffuse blurs) so Founder doesn't feel "fluffy"; Top
+ * Coach silver doesn't get washed out. No heavy backgrounds. No layout
+ * / spacing / typography changes. Figurina chrome thickness, photo
+ * frame aspect-ratio and grid proportions stay untouched per AGENTS.md.
+ * ===================================================================== */
+
+.peakUpTierRoot {
+  display: contents;
+}
+
+/* ── Figurina sidebar ─────────────────────────────────────────────── */
+
+/* Border picks up the tier hue. Thickness (4px) is preserved per
+   AGENTS.md. The outer halo is now a precise 2-px ring instead of a
+   22-px diffuse blur, so Founder reads as "icy/diamond", not foggy. */
+.peakUpTierRoot .stickerCard {
+  border-color: var(--tier-border, var(--stickerGold));
+  box-shadow:
+    0 14px 40px rgba(16, 33, 62, 0.18),
+    0 0 0 2px var(--tier-glow, transparent),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+/* ── Main-column detail cards ─────────────────────────────────────── */
+
+/* About / Experience / Price / Location all compose `.stickerBio`.
+   Tier-aware: full perimeter slightly tinted, top edge a touch stronger
+   for the section accent line, and the surrounding halo collapsed into
+   a sharp 1-px ring (no more soft cyan cloud). */
+.peakUpTierRoot .stickerBio {
+  border: 1px solid var(--tier-border, rgba(16, 33, 62, 0.09));
+  border-top: 2px solid var(--tier-border, rgba(201, 162, 39, 0.24));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    0 6px 18px rgba(16, 33, 62, 0.07),
+    0 0 0 1px var(--tier-glow, transparent);
+}
+
+/* Section title divider — slightly stronger than the card top line so
+   the tier accent reads inside the card too, not just on its frame. */
+.peakUpTierRoot .stickerBioTitle {
+  border-bottom-color: var(--tier-accent, rgba(201, 162, 39, 0.28));
+}
+
+/* Small section icons next to "About", "Experience", "Price",
+   "Location". `--tier-accent` (more saturated than `--tier-border`)
+   keeps Founder's icon visible on white while still subtle. The Sports
+   "mountains" icon uses two `currentColor` peaks inside the SVG so the
+   same `color` token re-tints them tier-by-tier. */
+.peakUpTierRoot .stickerAboutPersonIcon,
+.peakUpTierRoot .stickerExperienceBriefcaseIcon,
+.peakUpTierRoot .peakUpStickerPriceTagIcon,
+.peakUpTierRoot .stickerSportsHeadingIcon {
+  color: var(--tier-accent, var(--stickerGold));
+}
+
+.peakUpTierRoot .stickerLocationHeadingPin {
+  stroke: var(--tier-accent, var(--stickerGold));
+}
+
+/* Experience-card watermark mountain. The silhouette path uses
+   `fill="currentColor"` so a single `color` change re-tints the whole
+   shape with the tier accent (icy/diamond, gold, silver, bronze) while
+   keeping the thin ridge strokes neutral to preserve the layered look. */
+.peakUpTierRoot .stickerExperienceMountain {
+  color: var(--tier-accent, #dfe4ec);
+}
+
+/* Round Founder logo at the top of the sticker header. Inside
+   `.peakUpTierRoot` the gold ring is swapped for the tier border so
+   Founder's icy/diamond identity (and Top Coach's silver, Certified
+   Coach's bronze, Ambassador's gold) reads on the logo too. Layout,
+   size, padding, radius and background gradient stay untouched. */
+.peakUpTierRoot .stickerFounderLogo {
+  border-color: var(--tier-border, var(--stickerGold));
+}
+
+/* "Verified coach" chip inside the Price card. The shield body fills
+   with `currentColor` (see SVG) and the chip becomes tier-aware when
+   nested under `.peakUpTierRoot`:
+   - shield fill  → `var(--tier-border)` (icy / gold / silver / bronze)
+   - chip wash    → `var(--tier-soft)` very low-opacity tier tint
+   - inset ring   → `var(--tier-border)` 1-px stroke (no layout shift,
+                    rendered via `box-shadow: inset` so padding and
+                    typography stay byte-identical to the base chip)
+   The white check inside the shield stays white at all tiers — it
+   reads cleanly against any tier fill behind it. */
+.peakUpTierRoot .stickerPriceVerifiedShield {
+  color: var(--tier-border, var(--stickerGold));
+}
+
+.peakUpTierRoot .stickerPriceVerifiedPill {
+  background: var(--tier-soft, rgba(16, 33, 62, 0.06));
+  box-shadow: inset 0 0 0 1px var(--tier-border, transparent);
+}
+
+/* Divider line between the price column and the "Verified coach" chip
+   inside the Price card. Stacks horizontally on mobile (1px tall, full
+   width) and rotates to a vertical 1px stroke from `--viewportMedium`,
+   so a single `background` swap covers both orientations without
+   touching width / height / position. */
+.peakUpTierRoot .stickerPriceCardDivider {
+  background: rgba(var(--tier-rgb, 16, 33, 62), 0.25);
+}
+
+/* ── Sport & language pills ───────────────────────────────────────── */
+
+/* Both `.languageTags > .sportTag` and `.sportsTags > .sportTag` use
+   the same pill class. Hard-coded gold border / shadow are replaced
+   with tier tokens so a Founder profile doesn't keep a gold ring on
+   blue accents. The white pill body stays — the tier color reads on
+   the 1.5-px stroke + a very faint inner halo. */
+.peakUpTierRoot .sportTag {
+  border-color: var(--tier-border, rgba(201, 162, 39, 0.55));
+  box-shadow:
+    0 2px 8px rgba(16, 33, 62, 0.08),
+    inset 0 0 0 1px var(--tier-glow, transparent);
+}
+
+@media (hover: hover) {
+  .peakUpTierRoot .sportTag:hover {
+    border-color: var(--tier-accent, var(--stickerGold));
+    box-shadow:
+      0 4px 12px rgba(16, 33, 62, 0.12),
+      inset 0 0 0 1px var(--tier-glow, transparent),
+      0 0 0 1px var(--tier-glow, transparent);
+  }
+}
+
+.peakUpTierRoot .sportTag:focus-visible {
+  outline: 2px solid var(--tier-accent, var(--stickerGold));
+  outline-offset: 2px;
+}
+
+/* ── CTAs (figurina + main column) ────────────────────────────────── */
+
+/* Premium core stays neutral: primary CTAs keep their navy gradient
+   fill, secondary CTAs keep their white fill. Only the gold frame +
+   focus ring shift to the tier color, so a Founder profile reads
+   "navy + icy" instead of "navy + gold". Sizing / padding / radius are
+   intentionally untouched. The base rules use `!important`, so these
+   tier overrides repeat it where needed (no specificity escalation
+   beyond `.peakUpTierRoot` + the original class). */
+
+/* Book-me button (main column) */
+.peakUpTierRoot .coachDetailBookBtn {
+  border-color: var(--tier-border, var(--stickerGold));
+  box-shadow:
+    0 6px 16px rgba(16, 33, 62, 0.18),
+    0 0 0 1px var(--tier-glow, transparent);
+}
+
+@media (hover: hover) {
+  .peakUpTierRoot .coachDetailBookBtn:hover {
+    box-shadow:
+      0 8px 20px rgba(16, 33, 62, 0.22),
+      0 0 0 2px var(--tier-glow, transparent);
+  }
+}
+
+.peakUpTierRoot .coachDetailBookBtn:focus-visible {
+  outline-color: var(--tier-accent, var(--stickerGold));
+}
+
+/* Figurina primary CTA (Book / navy fill kept) */
+.peakUpTierRoot .stickerActionPrimary {
+  border-color: var(--tier-border, var(--stickerGold)) !important;
+  box-shadow:
+    0 6px 16px rgba(16, 33, 62, 0.18),
+    0 0 0 1px var(--tier-glow, transparent);
+}
+
+@media (hover: hover) {
+  .peakUpTierRoot .stickerActionPrimary:hover:not(:disabled) {
+    border-color: var(--tier-accent, var(--stickerGold)) !important;
+    box-shadow:
+      0 8px 20px rgba(16, 33, 62, 0.22),
+      0 0 0 2px var(--tier-glow, transparent);
+  }
+}
+
+.peakUpTierRoot .stickerActionPrimary:focus-visible {
+  outline: 2px solid var(--tier-accent, var(--stickerGold));
+  outline-offset: 2px;
+}
+
+/* Figurina secondary CTA (Contact / white fill kept) */
+.peakUpTierRoot .stickerActionSecondary {
+  border-color: var(--tier-border, rgba(201, 162, 39, 0.55)) !important;
+  box-shadow: 0 0 0 1px var(--tier-glow, transparent);
+}
+
+@media (hover: hover) {
+  .peakUpTierRoot .stickerActionSecondary:hover {
+    border-color: var(--tier-accent, var(--stickerGold)) !important;
+    box-shadow: 0 0 0 2px var(--tier-glow, transparent);
+  }
+}
+
+.peakUpTierRoot .stickerActionSecondary:focus-visible {
+  outline: 2px solid var(--tier-accent, var(--stickerGold));
   outline-offset: 2px;
 }

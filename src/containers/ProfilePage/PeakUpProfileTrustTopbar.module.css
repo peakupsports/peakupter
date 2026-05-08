@@ -16,7 +16,12 @@
   align-self: center;
 }
 
-/* Mobile / tablet: fascia sotto header — sempre su una sola riga */
+/* Mobile / tablet: fascia sotto header — sempre su una sola riga.
+   When the trust topbar is rendered inside `.peakUpTierRoot` (any PeakUp
+   coach profile with a resolved tier), the divider line + faint inner
+   shadow inherit the tier hue via the CSS custom properties cascaded
+   from ProfilePage.js. Outside that wrapper the fallback grey/neutral
+   tokens take over so this stylesheet stays consumable on its own. */
 .rootRail {
   display: flex;
   flex-direction: row;
@@ -28,8 +33,8 @@
   padding: 14px 20px 16px;
   box-sizing: border-box;
   background-color: var(--colorWhite);
-  border-bottom: 1px solid var(--colorGrey100);
-  box-shadow: 0 1px 0 rgba(16, 33, 62, 0.04);
+  border-bottom: 1px solid var(--tier-border, var(--colorGrey100));
+  box-shadow: 0 1px 0 var(--tier-glow, rgba(16, 33, 62, 0.04));
   overflow-x: auto;
 
   @media (--viewportMedium) {
@@ -59,11 +64,14 @@
   min-width: 0;
 }
 
+/* Icon stroke colour: gold by default, tier accent when nested under
+   `.peakUpTierRoot`. The icons use `stroke="currentColor"`, so a single
+   `color` change re-tints all four (shield / star / people / bolt). */
 .iconWrap {
   flex-shrink: 0;
   width: 28px;
   height: 28px;
-  color: #c9a227;
+  color: var(--tier-accent, #c9a227);
   display: block;
 }
 

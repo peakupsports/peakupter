@@ -42,6 +42,7 @@ import {
   resolvePeakupCoachBadgeIds,
   shouldShowPeakUpProfileSticker,
 } from '../../util/profileCoachSticker';
+import { pickPrimaryTierId, getTierStyleVars } from '../../util/coachTier';
 
 import { isScrollingDisabled, manageDisableScrolling } from '../../ducks/ui.duck';
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
@@ -117,20 +118,6 @@ const stickerAboutLinesForPeakUpSticker = bioString => {
   const isTruncated = droppedParagraphs || lengthHint > STICKER_ABOUT_TRUNCATION_THRESHOLD;
 
   return { paragraphs: cappedParagraphs, isTruncated };
-};
-
-/** @param {number|null|undefined} lat @param {number|null|undefined} lng */
-const stickerExternalMapsSearchHref = (lat, lng, placeQueryFallback) => {
-  const latOk = typeof lat === 'number' && Number.isFinite(lat);
-  const lngOk = typeof lng === 'number' && Number.isFinite(lng);
-  if (latOk && lngOk) {
-    return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-  }
-  const q =
-    placeQueryFallback != null && String(placeQueryFallback).trim()
-      ? String(placeQueryFallback).trim()
-      : '';
-  return q ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}` : null;
 };
 
 const STICKER_AVATAR_VARIANTS = [
@@ -210,6 +197,10 @@ const PeakUpStickerLanguagesIcon = ({ rootClassName }) => (
 );
 
 /** Tre vette montagna (titolo Sport sulla figurina: oro, neve centrale, picco teal a destra). */
+/** Sports section icon: teal accent peak (right) + two tier-coloured peaks
+ *  (centre & left) + white snow tip. The two tier peaks use `currentColor`
+ *  so the ProfilePage CSS can recolor them via `var(--tier-accent)` inside
+ *  `.peakUpTierRoot`, falling back to gold elsewhere. */
 const PeakUpStickerSportsMountainsIcon = ({ rootClassName }) => (
   <svg
     className={rootClassName}
@@ -220,8 +211,8 @@ const PeakUpStickerSportsMountainsIcon = ({ rootClassName }) => (
     aria-hidden="true"
   >
     <path d="M13.2 20 18 10.2 22.85 20z" fill="#1f6f68" />
-    <path d="M1.9 20 6.8 11.9 11.35 20z" fill="#c9a227" />
-    <path d="M6.45 20 12 5.85 17.65 20z" fill="#c9a227" />
+    <path d="M1.9 20 6.8 11.9 11.35 20z" fill="currentColor" />
+    <path d="M6.45 20 12 5.85 17.65 20z" fill="currentColor" />
     <path d="M10.9 11.2 12 6.9 13.25 11.65 12 9.7z" fill="#fff" fillOpacity="0.94" />
   </svg>
 );
@@ -258,7 +249,11 @@ const PeakUpStickerBriefcaseIcon = ({ rootClassName }) => (
   </svg>
 );
 
-/** Montagne watermark: tre vette, grigio chiarissimo, linee di crinale (stile pulito / riferimento UI). */
+/** Mountain watermark for the Experience card. The main silhouette fill
+ *  uses `currentColor` so the ProfilePage CSS can tint it via
+ *  `var(--tier-accent)` inside `.peakUpTierRoot`, falling back to the
+ *  cool grey-blue (#dfe4ec) elsewhere. The thin ridge strokes stay neutral
+ *  grey to preserve the layered depth of the original UI mock. */
 const StickerExperienceMountainBackdrop = ({ rootClassName }) => (
   <svg
     className={rootClassName}
@@ -270,7 +265,7 @@ const StickerExperienceMountainBackdrop = ({ rootClassName }) => (
     <g transform="translate(0 4)">
       {/* Silhouette unica tre picchi — la più alta leggermente a destra del centro */}
       <path
-        fill="#dfe4ec"
+        fill="currentColor"
         fillOpacity="0.42"
         d="M0 96 V82 L46 62 L76 73 L126 42 L164 71 L226 38 L266 61 L288 53 V96 Z"
       />
@@ -297,7 +292,13 @@ const StickerExperienceMountainBackdrop = ({ rootClassName }) => (
   </svg>
 );
 
-/** Scudo verde con spunta bianca (“Verified coach”). */
+/** Verified-coach shield with a white check.
+ *
+ *  The shield body uses `fill="currentColor"`, so the surrounding CSS
+ *  controls its hue: brand navy as a defensive base, tier accent when
+ *  nested under `.peakUpTierRoot` (icy / gold / silver / bronze). The
+ *  white check stays white at all tiers because it always reads cleanly
+ *  against the tier fill behind it. */
 const StickerVerifiedShieldIcon = ({ rootClassName }) => (
   <svg
     className={rootClassName}
@@ -308,7 +309,7 @@ const StickerVerifiedShieldIcon = ({ rootClassName }) => (
     aria-hidden="true"
   >
     <path
-      fill="#2e7d32"
+      fill="currentColor"
       d="M12 2 4 6v5.5c0 4.25 3.28 8.62 8 10 4.72-1.38 8-5.75 8-10V6l-8-4z"
     />
     <path
@@ -519,7 +520,11 @@ export const AsideContent = props => {
                 {sportsBadges.length > 0 ? (
                   <div className={css.stickerInfoRow}>
                     {sportsBadges.map(s => (
-                      <span key={s.key} className={css.stickerMiniBadge} title={s.label}>
+                      <span
+                        key={s.key}
+                        className={classNames(css.stickerMiniBadge, css.stickerMiniBadgeSport)}
+                        title={s.label}
+                      >
                         {s.emoji}
                       </span>
                     ))}
@@ -528,13 +533,17 @@ export const AsideContent = props => {
 
                 {locationLabel ? (
                   <div className={css.stickerInfoRow}>
-                    <span className={css.stickerMiniBadge}>📍 {locationLabel}</span>
+                    <span className={classNames(css.stickerMiniBadge, css.stickerMiniBadgeInfo)}>
+                      📍 {locationLabel}
+                    </span>
                   </div>
                 ) : null}
 
                 {priceLabel ? (
                   <div className={css.stickerInfoRow}>
-                    <span className={css.stickerMiniBadge}>💰 {priceLabel}</span>
+                    <span className={classNames(css.stickerMiniBadge, css.stickerMiniBadgeInfo)}>
+                      💰 {priceLabel}
+                    </span>
                   </div>
                 ) : null}
               </div>
@@ -890,18 +899,16 @@ export const MainContent = props => {
         )
       : null;
 
-  const stickerMapHref = stickerMapsHasCoords
-    ? stickerExternalMapsSearchHref(
-        stickerCoords.lat,
-        stickerCoords.lng,
-        stickerLocationShowRichCopy
-          ? intl.formatMessage({
-              id: `ProfilePage.coachCityLocationStickerTitle_${stickerLocationMediaSlug}`,
-              defaultMessage: String(stickerLocationLineRaw || '').trim(),
-            })
-          : String(stickerLocationLineRaw || '').trim()
-      )
-    : null;
+  // Internal deep-link to /coach-map for this coach's marker. The
+  // CoachMap page reads `?coachId=<uuid>` and auto-selects the
+  // matching coach (sidebar card highlight + flyTo + popup open). The
+  // small map preview thumbnail and the "View on map" text link both
+  // navigate to this internal URL instead of opening external Google
+  // / Apple Maps.
+  const stickerCoachMapSearch =
+    typeof profileUserUuid === 'string' && profileUserUuid.trim().length > 0
+      ? `?coachId=${encodeURIComponent(profileUserUuid.trim())}`
+      : null;
 
   const stickerPriceFormatted =
     stickerPriceFromRaw != null && String(stickerPriceFromRaw).trim() !== ''
@@ -1037,13 +1044,12 @@ export const MainContent = props => {
                   >
                     {stickerMiniMapSrc ? (
                       <div className={css.stickerLocationMapCol}>
-                        {stickerMapHref ? (
-                          <a
-                            href={stickerMapHref}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        {stickerCoachMapSearch ? (
+                          <NamedLink
+                            name="CoachMapPage"
+                            to={{ search: stickerCoachMapSearch }}
                             className={css.stickerLocationMapLink}
-                            aria-label={intl.formatMessage({
+                            ariaLabel={intl.formatMessage({
                               id: 'ProfilePage.stickerLocationOnMap',
                             })}
                           >
@@ -1056,7 +1062,7 @@ export const MainContent = props => {
                               height={264}
                               className={css.stickerLocationMapThumb}
                             />
-                          </a>
+                          </NamedLink>
                         ) : (
                           <img
                             src={stickerMiniMapSrc}
@@ -1115,15 +1121,14 @@ export const MainContent = props => {
                           </p>
                         )}
                       </div>
-                      {stickerMapHref && !stickerMiniMapSrc ? (
-                        <a
-                          href={stickerMapHref}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                      {stickerCoachMapSearch && !stickerMiniMapSrc ? (
+                        <NamedLink
+                          name="CoachMapPage"
+                          to={{ search: stickerCoachMapSearch }}
                           className={css.stickerLocationMapTextLink}
                         >
                           <FormattedMessage id="ProfilePage.stickerLocationOnMap" />
-                        </a>
+                        </NamedLink>
                       ) : null}
                     </div>
                   </div>
@@ -1323,6 +1328,13 @@ export const ProfilePageComponent = props => {
   const profileUser = useCurrentUser ? currentUser : user;
   const { bio, displayName, publicData, metadata } = profileUser?.attributes?.profile || {};
   const peakUpCoachLayout = shouldShowPeakUpProfileSticker(listings, publicData || {});
+  // Tier theme: PeakUp coaches get their tier color injected as CSS custom
+  // properties on a wrapper around the layout. Only the curated accents
+  // (figurine border, about-card top line, section dividers, small icons,
+  // subtle glow) read these vars in `ProfilePage.module.css`. Single source
+  // of truth: `src/util/coachTier.js`.
+  const peakUpCoachTierId = peakUpCoachLayout ? pickPrimaryTierId(publicData || {}) : null;
+  const peakUpCoachTierStyle = peakUpCoachTierId ? getTierStyleVars(peakUpCoachTierId) : null;
   const coachTrustTopbarSlots =
     peakUpCoachLayout && profileUser ? (
       <PeakUpProfileTrustTopbar
@@ -1394,20 +1406,10 @@ export const ProfilePageComponent = props => {
   }
 
   // This is rendering normal profile page (not preview for pending-approval)
-  return (
-    <Page
-      scrollingDisabled={scrollingDisabled}
-      title={schemaTitle}
-      schema={{
-        '@context': 'http://schema.org',
-        '@type': 'ProfilePage',
-        mainEntity: {
-          '@type': 'Person',
-          name: profileUser?.attributes?.profile?.displayName,
-        },
-        name: schemaTitle,
-      }}
-    >
+  // The tier wrapper uses `display: contents` so it doesn't disrupt the
+  // LayoutSideNavigation grid/flex; CSS variables still inherit through the
+  // DOM tree, reaching both the figurina sidebar and the main column cards.
+  const layoutNode = (
       <LayoutSideNavigation
         containerClassName={
           peakUpCoachLayout
@@ -1458,6 +1460,29 @@ export const ProfilePageComponent = props => {
           />
         </>
       </LayoutSideNavigation>
+  );
+
+  return (
+    <Page
+      scrollingDisabled={scrollingDisabled}
+      title={schemaTitle}
+      schema={{
+        '@context': 'http://schema.org',
+        '@type': 'ProfilePage',
+        mainEntity: {
+          '@type': 'Person',
+          name: profileUser?.attributes?.profile?.displayName,
+        },
+        name: schemaTitle,
+      }}
+    >
+      {peakUpCoachLayout && peakUpCoachTierStyle ? (
+        <div className={css.peakUpTierRoot} style={peakUpCoachTierStyle}>
+          {layoutNode}
+        </div>
+      ) : (
+        layoutNode
+      )}
     </Page>
   );
 };

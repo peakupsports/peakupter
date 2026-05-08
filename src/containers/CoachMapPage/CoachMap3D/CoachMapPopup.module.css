@@ -110,11 +110,25 @@
   row-gap: 4px;
 }
 
-/* Tier-coloured badge pill. The visible color comes from `--tier-border` /
-   `--tier-glow` set on `.root` via `getTierStyleVars`. Same color tokens are
-   reused by the avatar ring above and by the selected map marker glow, so
-   founder/ambassador/top-coach/certified-coach are visually consistent
-   across CoachCard, popup and CoachMap3D. */
+/* Tier-coloured badge pill — outline-only treatment.
+ *
+ * Earlier the pill used `var(--tier-border)` as a *filled* background,
+ * which made the badge visually shout next to the coach name (Founder
+ * pill in particular ended up icy-blue on white). The new direction
+ * keeps the same tier identity but as a thin accent rather than a
+ * solid fill:
+ *   – background: barely-there tier-rgb wash (~6% alpha) so the chip
+ *     reads as outlined rather than filled but still picks up the
+ *     active tier hue;
+ *   – border: 1-px solid `var(--tier-border)` so the outline carries
+ *     the full tier colour (icy / gold / silver / bronze);
+ *   – color: brand-dark text (`--colorGrey900`) so labels stay
+ *     readable on the light wash regardless of tier hue.
+ * Same `--tier-border` / `--tier-rgb` tokens injected on `.root` via
+ * `getTierStyleVars` are reused by the avatar ring and the selected
+ * map marker glow, so founder/ambassador/top-coach/certified-coach
+ * stay visually consistent across CoachCard, popup and CoachMap3D
+ * — only the *weight* of the badge changes, not its identity. */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -126,9 +140,9 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
-  color: #2a2a2a;
-  background: var(--tier-border, rgba(16, 33, 62, 0.06));
-  border: 1px solid var(--tier-glow, rgba(16, 33, 62, 0.12));
+  color: var(--colorGrey900);
+  background: rgba(var(--tier-rgb, 16, 33, 62), 0.06);
+  border: 1px solid var(--tier-border, rgba(16, 33, 62, 0.18));
 }
 
 .rating {
@@ -176,6 +190,19 @@
   line-height: 1;
   white-space: nowrap;
   max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Specialties sub-line in the popup: smaller and lighter than the main fact
+   chips above. Only shown when the coach has variant disciplines. */
+.specialties {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--colorGrey600);
+  line-height: 1.3;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }

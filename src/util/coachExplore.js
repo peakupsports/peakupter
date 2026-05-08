@@ -18,7 +18,7 @@ export const listingHasPeakupBookingFlag = listing => {
 //   '🏄 Surf'     → 'surf'
 //   'Cross-country' → 'crosscountry'
 //   'freeride_snowboard' → 'freeridesnowboard'
-const normalizeSportKey = sport =>
+export const normalizeSportKey = sport =>
   String(sport || '')
     .toLowerCase()
     .trim()
@@ -187,8 +187,13 @@ export const parseCoachExploreSearch = search => {
   const userLat = Number.isFinite(userLatParsed) ? userLatParsed : null;
   const userLng = Number.isFinite(userLngParsed) ? userLngParsed : null;
   const locationLabel = String(params.get('location') || '').trim();
+  // Coach UUID from `?coachId=…` (used by the Coach Profile location
+  // card to deep-link the Coach Map to the corresponding marker).
+  // Trimmed only — UUID validation happens downstream when the value
+  // is matched against the loaded coaches.
+  const coachId = String(params.get('coachId') || '').trim();
 
-  return { sportKey, userLat, userLng, locationLabel };
+  return { sportKey, userLat, userLng, locationLabel, coachId };
 };
 
 /**

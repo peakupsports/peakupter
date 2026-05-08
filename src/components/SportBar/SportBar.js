@@ -99,7 +99,27 @@ const initialWinterAccordion = (value, includeWinterVariants) => {
 
 /**
  * SportBar: horizontal emoji+label chips.
- * Con `includeWinterVariants` le varianti ski/snowboard sono in un pannello accordion (Coach map).
+ * Con `includeWinterVariants` le varianti ski/snowboard sono in un pannello accordion (Coach map legacy).
+ *
+ * Con `disciplines` la barra renderizza una main row compatta dichiarata dal
+ * caller (CoachMap-only). Ogni chip può opzionalmente avere `variants[]`: se
+ * presenti, viene mostrata una secondary row sotto la main row quando la
+ * disciplina è attiva (parent o una delle sue varianti è il `value` corrente).
+ * `TOPBAR_SPORT_ORDER` e l'accordion legacy `includeWinterVariants` vengono
+ * ignorati in questa modalità. Gli altri consumer (LandingPage, Featured
+ * Coaches, ecc.) non passano `disciplines` e non sono interessati.
+ *
+ * @param {Object} props
+ * @param {string} props.value
+ * @param {(v:string)=>void} props.onChange
+ * @param {boolean} [props.showAll=true]
+ * @param {string} [props.allLabel='All']
+ * @param {boolean} [props.includeWinterVariants=false]
+ * @param {boolean} [props.inTopbar=false]
+ * @param {boolean} [props.winterBare=false]
+ * @param {Array<{key:string,label:string,emoji:string,variants?:Array<{key:string,label:string,emoji?:string}>}>} [props.disciplines]
+ *        Main row chip list. Items with `variants` show a conditional
+ *        secondary row when active. CoachMap-only.
  */
 export const SportBar = props => {
   const {
@@ -110,6 +130,7 @@ export const SportBar = props => {
     includeWinterVariants = false,
     inTopbar = false,
     winterBare = false,
+    disciplines = null,
   } = props;
 
   const [expandedWinter, setExpandedWinter] = useState(() =>
@@ -117,7 +138,8 @@ export const SportBar = props => {
   );
 
   useEffect(() => {
-    if (!includeWinterVariants) {
+    // The flat-chip mode (`disciplines` prop) never expands the accordion.
+    if (disciplines || !includeWinterVariants) {
       setExpandedWinter(null);
       return;
     }
@@ -127,7 +149,7 @@ export const SportBar = props => {
     if (!v || (!inSnowboard && !inSki)) {
       setExpandedWinter(null);
     }
-  }, [value, includeWinterVariants]);
+  }, [value, includeWinterVariants, disciplines]);
 
   const orderedEntries = useMemo(() => {
     const entriesByKey = Object.entries(SPORT_LABELS).reduce((acc, [k, v]) => {
@@ -153,6 +175,31 @@ export const SportBar = props => {
     if (!includeWinterVariants) return [];
     return SKI_VARIANT_KEYS.filter(k => WINTER_VARIANT_LABELS[k]).map(k => [k, WINTER_VARIANT_LABELS[k]]);
   }, [includeWinterVariants]);
+
+  // Currently active discipline in `disciplines` mode: the one whose parent
+  // key, parent aliases, any variant key, or any variant aliases match
+  // `value`. Drives the main-row active state for parents-with-variants and
+  // the conditional secondary row visibility. `normalizeSportKey` already
+  // strips spaces/hyphens/underscores so 'freeride-skiing' === 'freerideskiing';
+  // aliases cover spelling differences like 'freerideski' vs 'freerideskiing'.
+  const activeDiscipline = useMemo(() => {
+    if (!disciplines) return null;
+    const v = normalizeSportKey(value);
+    if (!v) return null;
+    const matchesKeyOrAlias = (k, aliases) => {
+      if (k && normalizeSportKey(k) === v) return true;
+      if (aliases && aliases.length) {
+        return aliases.some(a => normalizeSportKey(a) === v);
+      }
+      return false;
+    };
+    return (
+      disciplines.find(d => {
+        if (matchesKeyOrAlias(d.key, d.aliases)) return true;
+        return (d.variants || []).some(va => matchesKeyOrAlias(va.key, va.aliases));
+      }) || null
+    );
+  }, [disciplines, value]);
 
   const handleWinterParentClick = (family, parentKey) => {
     if (expandedWinter === family) {
@@ -188,7 +235,36 @@ export const SportBar = props => {
             </button>
           ) : null}
 
-          {orderedEntries.map(([k, label]) => {
+          {disciplines
+            ? disciplines.map(d => {
+                const k = d.key;
+                const hasVariants = !!(d.variants && d.variants.length);
+                // Parents with variants are active when value matches the
+                // parent OR any variant – mirrors the legacy snowboard/ski
+                // family logic.
+                const isActive = hasVariants
+                  ? activeDiscipline && activeDiscipline.key === k
+                  : normalizeSportKey(value) === normalizeSportKey(k);
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    className={classNames(css.chip, isActive ? css.chipActive : null)}
+                    onClick={() => onChange(k)}
+                    aria-expanded={
+                      hasVariants ? activeDiscipline && activeDiscipline.key === k : undefined
+                    }
+                    aria-label={d.label}
+                  >
+                    <span className={css.chipEmoji} aria-hidden="true">
+                      {d.emoji || '🏅'}
+                    </span>
+                    <span className={css.chipLabel}>{d.label}</span>
+                  </button>
+                );
+              })
+            : null}
+          {!disciplines && orderedEntries.map(([k, label]) => {
             if (includeWinterVariants && k === 'snowboard') {
               const isActive = valueInKeySet(value, SNOWBOARD_SPORT_KEYS);
               return (
@@ -244,7 +320,33 @@ export const SportBar = props => {
           })}
         </div>
 
-        {includeWinterVariants && expandedWinter === 'snowboard' && winterVariantEntriesSnowboard.length ? (
+        {disciplines && activeDiscipline && activeDiscipline.variants && activeDiscipline.variants.length ? (
+          <div className={css.accordionPanel} role="region" aria-label={activeDiscipline.label}>
+            <div className={css.subinner}>
+              {activeDiscipline.variants.map(va => {
+                const isActive = normalizeSportKey(value) === normalizeSportKey(va.key);
+                return (
+                  <button
+                    key={va.key}
+                    type="button"
+                    className={classNames(css.chipSm, isActive ? css.chipSmActive : null)}
+                    onClick={() => onChange(va.key)}
+                    aria-label={va.label}
+                  >
+                    {va.emoji ? (
+                      <span className={css.chipEmoji} aria-hidden="true">
+                        {va.emoji}
+                      </span>
+                    ) : null}
+                    <span className={css.chipLabel}>{va.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
+        {!disciplines && includeWinterVariants && expandedWinter === 'snowboard' && winterVariantEntriesSnowboard.length ? (
           <div className={css.accordionPanel} role="region" aria-label="Snowboard">
             <div className={css.subinner}>
               {winterVariantEntriesSnowboard.map(([vk, vlabel]) => {
@@ -268,7 +370,7 @@ export const SportBar = props => {
           </div>
         ) : null}
 
-        {includeWinterVariants && expandedWinter === 'ski' && winterVariantEntriesSki.length ? (
+        {!disciplines && includeWinterVariants && expandedWinter === 'ski' && winterVariantEntriesSki.length ? (
           <div className={css.accordionPanel} role="region" aria-label="Ski">
             <div className={css.subinner}>
               {winterVariantEntriesSki.map(([vk, vlabel]) => {

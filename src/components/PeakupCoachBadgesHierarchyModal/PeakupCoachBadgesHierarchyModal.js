@@ -4,6 +4,7 @@ import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { manageDisableScrolling } from '../../ducks/ui.duck';
+import { getTierStyleVars } from '../../util/coachTier';
 
 import Modal from '../Modal/Modal';
 import modalCss from '../Modal/Modal.module.css';
@@ -75,6 +76,7 @@ const PeakupCoachBadgesHierarchyModal = ({ id, isOpen, onClose }) => {
       onManageDisableScrolling={onManageDisableScrolling}
       usePortal
       lightCloseButton
+      closeOnOutsideClick
       containerClassName={classNames(modalCss.container, css.modalContainerNarrow)}
     >
       <div className={css.body}>
@@ -91,7 +93,11 @@ const PeakupCoachBadgesHierarchyModal = ({ id, isOpen, onClose }) => {
         </h2>
 
         {BADGE_HIERARCHY_ROWS.map(row => (
-          <section key={row.tier} className={css.tier}>
+          <section
+            key={row.tier}
+            className={css.tier}
+            style={getTierStyleVars(row.tier)}
+          >
             <div className={css.tierHeader}>
               <strong className={css.tierName}>
                 {intl.formatMessage({ id: row.labelId, defaultMessage: row.labelDefault })}

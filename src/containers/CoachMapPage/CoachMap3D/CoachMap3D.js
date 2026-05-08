@@ -4,11 +4,37 @@ import classNames from 'classnames';
 
 import { getCoachCoordinates } from '../../../util/profileCoachSticker';
 import { pickPrimaryTierId, getTierColors } from '../../../util/coachTier';
+import { normalizeSportKey, selectedSportToFilterHyphen } from '../../../util/coachExplore';
+import { matchSportFilterKeys } from '../../../util/sportFilterKeys';
 
 import CoachMapPopup from './CoachMapPopup';
 import css from './CoachMap3D.module.css';
 
 const STREET_STYLE_3D = 'mapbox://styles/mapbox/streets-v12';
+
+// Anti-stacking ("spiderfy") config. When 2+ coaches share the same
+// fingerprint (`toFixed(4)` ≈ 11m bucket on lat/lng), we keep the
+// first marker on its real coordinates and spread the rest on a tight
+// ring around it. The fingerprint width is intentionally tight so
+// coaches at genuinely distinct addresses never get clustered, while
+// still catching "same building / same parking lot" cases that fall
+// just outside an exact-coordinate match (e.g. one coach uses the
+// listing geolocation, another falls back to the configured city slug).
+//
+// The radius is chosen as a compromise between "subtle so the location
+// still feels accurate" and "visibly separated at typical exploration
+// zoom (12–15)":
+//   – ring 1, ring radius 0.002° → ~220m lat / ~150m lng at lat 46°.
+//     At zoom 14 (typical zoom-in to a city) that's ~33px — clearly
+//     bigger than the marker's 38px disc but still tight enough to
+//     read as "same place".
+//   – ring 2+ scales the radius linearly so groups of 7+ stay legible.
+// Each coach gets a deterministic slot via a stable sort on
+// `authorUuid` inside the cluster, so offsets never jiggle between
+// renders even if Redux returns coaches in a different order.
+const SPIDERFY_FINGERPRINT_DECIMALS = 4;
+const SPIDERFY_RING_RADIUS_DEG = 0.002;
+const SPIDERFY_SLOTS_PER_RING = 6;
 
 // Same emoji table used by SportBar – kept here as a local map so this
 // component does not pull cross-feature deps just for marker glyphs.
@@ -20,7 +46,7 @@ const SPORT_EMOJI = {
   climbing: '🧗',
   yoga: '🧘',
   skydive: '🪂',
-  fitness: '🏋️',
+  fitness: '💪',
   wakeboard: '🏄',
   kitesurf: '🪁',
   snowboard: '🏂',
@@ -34,10 +60,59 @@ const SPORT_EMOJI = {
   freestyleskiing: '🎿',
 };
 
-const dominantEmoji = coach => {
-  const sport = coach?.sportKeys?.[0];
-  const key = String(sport || '').toLowerCase();
+/**
+ * Pick the emoji glyph rendered inside the coach's map marker.
+ *
+ * When a sport filter is active (the user is exploring `/coach-map?sport=mtb`,
+ * for example), the marker should reflect the sport currently being explored
+ * instead of the coach's primary/default sport. Concretely:
+ *   – Filter "MTB" → all markers in the filtered set show 🚵, even for a
+ *     coach whose primary sport is Ski (Dani teaches both, the filter is
+ *     why he's on the map at all).
+ *   – Filter "Snowboard" → 🏂 for every coach in view, regardless of which
+ *     snowboard variant they actually teach.
+ *   – No filter (or coach has no sport in the active filter set, which the
+ *     filter pipeline shouldn't allow but we keep a defensive fallback) →
+ *     fall back to the coach's first declared sport key (current behavior).
+ *
+ * The matching is done against the *normalised* sport key set so the marker
+ * stays accurate regardless of whether the listing publicData stores a
+ * filter parent (`snowboard`) or one of its variants
+ * (`freerideSnowboard`, `splitTouring`, etc.) — this mirrors how
+ * `filterCoachesBySport` decides who shows up on the map in the first place.
+ *
+ * @param {Object} coach aggregated coach row (with `sportKeys`)
+ * @param {Set<string>|null} activeFilterKeys normalised sport keys allowed by
+ *   the current SportBar filter; pass `null` when no filter is active
+ * @returns {string} a single emoji character (or 📍 fallback)
+ */
+const dominantEmoji = (coach, activeFilterKeys) => {
+  const sportKeys = coach?.sportKeys || [];
+  if (activeFilterKeys && activeFilterKeys.size > 0) {
+    for (const sk of sportKeys) {
+      const k = normalizeSportKey(sk);
+      if (k && activeFilterKeys.has(k) && SPORT_EMOJI[k]) {
+        return SPORT_EMOJI[k];
+      }
+    }
+  }
+  const sport = sportKeys[0];
+  const key = normalizeSportKey(sport);
   return SPORT_EMOJI[key] || '📍';
+};
+
+/**
+ * Build the Set of normalised sport keys allowed by the current SportBar
+ * value, mirroring the expansion done by `filterCoachesBySport`. Returns
+ * `null` when no filter is active so consumers can short-circuit cheaply.
+ *
+ * @param {string} selectedSport raw SportBar value ('' / 'mtb' / 'snowboard'…)
+ * @returns {Set<string>|null}
+ */
+const buildActiveFilterKeySet = selectedSport => {
+  const v = selectedSportToFilterHyphen(selectedSport);
+  if (!v) return null;
+  return new Set(matchSportFilterKeys(v).map(normalizeSportKey));
 };
 
 const isMapboxAvailable = () =>
@@ -55,10 +130,17 @@ const isMapboxAvailable = () =>
  * @param {Array}  props.coaches             Aggregated coach rows (with representativeListing).
  * @param {Object} [props.activeListingId]   Sharetribe SDK UUID of the hovered listing.
  * @param {Object} [props.selectedListingId] Sharetribe SDK UUID of the selected listing (persistent).
+ * @param {string} [props.selectedSport]     Raw SportBar value ('' / 'mtb' / 'snowboard' / …).
+ *                                           When set, marker glyphs switch to the filtered sport
+ *                                           so the map feels context-aware (a coach who teaches
+ *                                           both Ski and MTB shows 🚵 under the MTB filter and
+ *                                           🎿 under the Ski filter).
  * @param {Object} [props.flyToTarget]       { lat, lng, ts? } — `ts` is treated as a nonce so the
  *                                           camera re-flies even when the user re-clicks the same coach.
  * @param {Object} [props.bounds]            Plain bounds { swLat, swLng, neLat, neLng }.
  * @param {Object} [props.center]            { lat, lng } fallback when bounds are missing.
+ * @param {Object} [props.userLocation]      { lat, lng } — when set, draws a subtle pulsing
+ *                                           "You are here" dot. Independent from coach markers.
  * @param {Function} [props.onMarkerHover]   (coach, isHovering) => void
  * @param {Function} [props.onMarkerClick]   (coach) => void
  * @param {Function} [props.onPopupClose]    () => void — called when the popup is dismissed
@@ -71,9 +153,11 @@ const CoachMap3D = props => {
     coaches = [],
     activeListingId = null,
     selectedListingId = null,
+    selectedSport = '',
     flyToTarget = null,
     bounds = null,
     center = null,
+    userLocation = null,
     onMarkerHover = () => {},
     onMarkerClick = () => {},
     onPopupClose = () => {},
@@ -85,6 +169,10 @@ const CoachMap3D = props => {
   const mapRef = useRef(null);
   // authorUuid -> { marker, container }
   const markersRef = useRef(new Map());
+  // Single Mapbox Marker for the "You are here" dot. Lives separately from
+  // the coach markers map so toggling user location on/off never disturbs
+  // the coach pin lifecycle.
+  const userLocationMarkerRef = useRef(null);
   // Latest callbacks – kept in refs so marker listeners don't need re-bind on each render.
   const onMarkerHoverRef = useRef(onMarkerHover);
   const onMarkerClickRef = useRef(onMarkerClick);
@@ -230,9 +318,19 @@ const CoachMap3D = props => {
   // Coordinate sourcing uses `getCoachCoordinates`, which falls back from the
   // representative listing's `geolocation` to the coach profile publicData
   // (lat/lng, location.selectedPlace.origin, configured `coachCity` slug).
-  // We also validate finite range, swap clearly-reversed pairs, and apply a
-  // tiny ring offset to coaches that share the exact same coords so each
-  // marker stays individually clickable instead of stacking invisibly.
+  //
+  // Pipeline (3 passes):
+  //   1. Validate + range-check + swap clearly-reversed pairs.
+  //   2. Group by `toFixed(SPIDERFY_FINGERPRINT_DECIMALS)` fingerprint
+  //      so coaches that land on the same place (identical coords or
+  //      within ~11m) — e.g. Filo and Javier in St. Moritz — end up in
+  //      the same bucket regardless of input order.
+  //   3. Sort each bucket by `authorUuid` and assign a slot on a tight
+  //      polar ring. The first coach (sorted) keeps the real coordinates;
+  //      the rest spread on `SPIDERFY_RING_RADIUS_DEG` rings. Sorting by
+  //      stable id makes the spiderfy fully deterministic across renders
+  //      so markers never jiggle when Redux re-emits the coach list in a
+  //      slightly different order (e.g. distance-sort toggle).
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !isReady || !window.mapboxgl) return;
@@ -245,85 +343,126 @@ const CoachMap3D = props => {
       lng >= -180 &&
       lng <= 180;
 
-    const rows = coaches.map(coach => ({
-      coach,
-      key: coach?.authorUuid || null,
-      coords: getCoachCoordinates(coach),
-    }));
+    // Resolve the active SportBar filter once per pass so every marker in
+    // the run picks the same context-aware glyph (Dani's marker shows 🚵
+    // on /coach-map?sport=mtb and 🎿 on /coach-map?sport=ski). Built from
+    // the same key-expansion used by `filterCoachesBySport`, so parent
+    // filters (`snowboard`, `ski`) match every variant.
+    const activeFilterKeys = buildActiveFilterKeySet(selectedSport);
 
-    const seen = new Set();
-    const seenAtFp = new Map();
-
-    rows.forEach(({ coach, key, coords }) => {
-      if (!key || !coords) return;
+    // Pass 1 — resolve & validate base coords per coach.
+    const validRows = [];
+    coaches.forEach(coach => {
+      const key = coach?.authorUuid;
+      if (!key) return;
+      const coords = getCoachCoordinates(coach);
+      if (!coords) return;
       let { lat, lng } = coords;
-
-      // Heuristic swap: clearly-reversed pair (lat outside ±90 but lng would fit).
       if (Math.abs(lat) > 90 && Math.abs(lng) <= 90) {
         const tmp = lat;
         lat = lng;
         lng = tmp;
       }
       if (!isInRange(lat, lng)) return;
+      validRows.push({ coach, key, lat, lng });
+    });
 
-      // Spread duplicates on a small ring so they stay individually clickable.
-      const fp = `${lat.toFixed(5)},${lng.toFixed(5)}`;
-      const dupIndex = seenAtFp.get(fp) || 0;
-      seenAtFp.set(fp, dupIndex + 1);
-      if (dupIndex > 0) {
-        const slot = (dupIndex - 1) % 6;
-        const ring = Math.ceil(dupIndex / 6);
-        const angle = (slot * 2 * Math.PI) / 6;
-        const radius = 0.0001 * ring; // ~11 m per ring
-        lat += radius * Math.sin(angle);
-        lng += radius * Math.cos(angle);
+    // Pass 2 — group by fingerprint (~11m bucket via toFixed(4)).
+    const fpGroups = new Map();
+    validRows.forEach(row => {
+      const fp = `${row.lat.toFixed(SPIDERFY_FINGERPRINT_DECIMALS)},${row.lng.toFixed(
+        SPIDERFY_FINGERPRINT_DECIMALS
+      )}`;
+      let bucket = fpGroups.get(fp);
+      if (!bucket) {
+        bucket = [];
+        fpGroups.set(fp, bucket);
       }
+      bucket.push(row);
+    });
 
-      seen.add(key);
-      const lngLat = [lng, lat];
+    // Pass 3 — assign deterministic positions and create/update markers.
+    const seen = new Set();
 
-      // Resolve the coach's tier so the marker hover/active glow can pick up
-      // the same border/glow used by the CoachCard avatar ring and the popup
-      // badge. Falls back to the default purple via the CSS `var(name, fb)`
-      // when the coach has no tier.
-      const tierId = pickPrimaryTierId(coach?.author?.attributes?.profile?.publicData);
-      const tierColors = getTierColors(tierId);
+    fpGroups.forEach(bucket => {
+      // Stable sort within the cluster so the same coach always gets the
+      // same slot regardless of input order (Redux refetches, distance
+      // resorts, sport filter toggles).
+      bucket.sort((a, b) => a.key.localeCompare(b.key));
 
-      const applyTierVars = el => {
-        if (!el) return;
-        if (tierColors) {
-          el.style.setProperty('--tier-border', tierColors.border);
-          el.style.setProperty('--tier-glow', tierColors.glow);
-        } else {
-          el.style.removeProperty('--tier-border');
-          el.style.removeProperty('--tier-glow');
+      bucket.forEach((row, dupIndex) => {
+        const { coach, key } = row;
+        let { lat, lng } = row;
+
+        // Single coach in this bucket → keep real coordinates exactly.
+        // Otherwise spread on a tight polar ring so each marker stays
+        // individually clickable.
+        if (dupIndex > 0) {
+          const slot = (dupIndex - 1) % SPIDERFY_SLOTS_PER_RING;
+          const ring = Math.ceil(dupIndex / SPIDERFY_SLOTS_PER_RING);
+          const angle = (slot * 2 * Math.PI) / SPIDERFY_SLOTS_PER_RING;
+          const radius = SPIDERFY_RING_RADIUS_DEG * ring;
+          lat += radius * Math.sin(angle);
+          lng += radius * Math.cos(angle);
         }
-      };
 
-      const existing = markersRef.current.get(key);
-      if (existing) {
-        existing.marker.setLngLat(lngLat);
-        // Refresh emoji glyph in case the coach's dominant sport changed.
-        existing.container.textContent = dominantEmoji(coach);
-        applyTierVars(existing.container);
-        return;
-      }
+        seen.add(key);
+        const lngLat = [lng, lat];
 
-      const container = document.createElement('div');
-      container.className = css.markerPin;
-      container.dataset.coachKey = key;
-      container.textContent = dominantEmoji(coach);
-      applyTierVars(container);
+        // Resolve the coach's tier so the marker hover/active glow can pick
+        // up the same border/glow used by the CoachCard avatar ring and the
+        // popup badge. Falls back to the default purple via `var(name, fb)`
+        // when the coach has no tier.
+        const tierId = pickPrimaryTierId(coach?.author?.attributes?.profile?.publicData);
+        const tierColors = getTierColors(tierId);
 
-      container.addEventListener('mouseenter', () => onMarkerHoverRef.current(coach, true));
-      container.addEventListener('mouseleave', () => onMarkerHoverRef.current(coach, false));
-      container.addEventListener('click', () => onMarkerClickRef.current(coach));
+        const applyTierVars = el => {
+          if (!el) return;
+          if (tierColors) {
+            el.style.setProperty('--tier-border', tierColors.border);
+            el.style.setProperty('--tier-glow', tierColors.glow);
+          } else {
+            el.style.removeProperty('--tier-border');
+            el.style.removeProperty('--tier-glow');
+          }
+        };
 
-      const marker = new window.mapboxgl.Marker({ element: container, anchor: 'center' })
-        .setLngLat(lngLat)
-        .addTo(map);
+        const existing = markersRef.current.get(key);
+        if (existing) {
+          existing.marker.setLngLat(lngLat);
+          // Refresh glyph: this is what makes the marker context-aware.
+          // When the user switches the SportBar filter, the effect re-runs
+          // (deps include `selectedSport`) and every existing marker swaps
+          // its emoji to the active sport — no marker re-creation needed.
+          existing.container.textContent = dominantEmoji(coach, activeFilterKeys);
+          applyTierVars(existing.container);
+          return;
+        }
 
-      markersRef.current.set(key, { marker, container });
+        const container = document.createElement('div');
+        container.className = css.markerPin;
+        container.dataset.coachKey = key;
+        container.textContent = dominantEmoji(coach, activeFilterKeys);
+        applyTierVars(container);
+
+        container.addEventListener('mouseenter', () => onMarkerHoverRef.current(coach, true));
+        container.addEventListener('mouseleave', () => onMarkerHoverRef.current(coach, false));
+        // `stopPropagation` keeps the click from bubbling up to our
+        // document-level outside-click handler (see effect below) and any
+        // future Mapbox-internal listeners on the map container, so the
+        // marker click is the *only* event that runs and `selectedCoachKey`
+        // is set without being immediately reset by a stale close.
+        container.addEventListener('click', e => {
+          e.stopPropagation();
+          onMarkerClickRef.current(coach);
+        });
+
+        const marker = new window.mapboxgl.Marker({ element: container, anchor: 'center' })
+          .setLngLat(lngLat)
+          .addTo(map);
+
+        markersRef.current.set(key, { marker, container });
+      });
     });
 
     // Drop stale markers.
@@ -333,7 +472,13 @@ const CoachMap3D = props => {
         markersRef.current.delete(key);
       }
     });
-  }, [coaches, isReady]);
+    // `selectedSport` is in the deps so the marker glyphs refresh when the
+    // user toggles the SportBar (e.g. Dani's icon flips from 🎿 to 🚵 when
+    // switching from Ski to MTB). `coaches` already changes by reference
+    // on filter toggle, but listing both is defensive against future
+    // memoization/sort changes upstream that could keep the same
+    // reference across two filters that produce identical visible sets.
+  }, [coaches, isReady, selectedSport]);
 
   // Highlight the hovered AND/OR selected listing's marker.
   useEffect(() => {
@@ -371,6 +516,64 @@ const CoachMap3D = props => {
     });
   }, [flyToTarget, isReady]);
 
+  // "You are here" marker. Lives independently from the coach markers
+  // pipeline so toggling user location on/off (e.g. permission revoked
+  // mid-session) never touches coach pins, hover halos or selection
+  // halos. Re-uses the same Mapbox Marker / DOM element across renders
+  // when only the coordinates change.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !window.mapboxgl) return undefined;
+
+    const lat = userLocation?.lat;
+    const lng = userLocation?.lng;
+    const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
+
+    if (!hasCoords) {
+      if (userLocationMarkerRef.current) {
+        userLocationMarkerRef.current.remove();
+        userLocationMarkerRef.current = null;
+      }
+      return undefined;
+    }
+
+    const lngLat = [lng, lat];
+    if (userLocationMarkerRef.current) {
+      userLocationMarkerRef.current.setLngLat(lngLat);
+      return undefined;
+    }
+
+    const dot = document.createElement('div');
+    dot.className = css.userLocationDot;
+    dot.setAttribute('aria-label', 'Your location');
+    const pulse = document.createElement('span');
+    pulse.className = css.userLocationPulse;
+    pulse.setAttribute('aria-hidden', 'true');
+    dot.appendChild(pulse);
+
+    const marker = new window.mapboxgl.Marker({
+      element: dot,
+      anchor: 'center',
+    })
+      .setLngLat(lngLat)
+      .addTo(map);
+
+    userLocationMarkerRef.current = marker;
+    return undefined;
+  }, [userLocation, isReady]);
+
+  // Belt & suspenders: tear down the user-location marker on unmount so a
+  // late-arriving geolocation result can't leak the DOM element.
+  useEffect(
+    () => () => {
+      if (userLocationMarkerRef.current) {
+        userLocationMarkerRef.current.remove();
+        userLocationMarkerRef.current = null;
+      }
+    },
+    []
+  );
+
   // Resolve the currently-selected coach from the listing id so we can render
   // its premium popup. We match on the representative listing's UUID, which is
   // also what drives `markerPinActive` for the persistent click highlight.
@@ -399,8 +602,22 @@ const CoachMap3D = props => {
       return undefined;
     }
 
-    const coords = getCoachCoordinates(selectedCoach);
-    if (!coords) {
+    // Anchor the popup to the marker's *actual* rendered position so the
+    // popup tip points to the pin even when the spiderfy pipeline shifts
+    // the marker off the cluster center. Falls back to the raw coordinates
+    // in the brief window where the marker hasn't been created yet
+    // (e.g. ?coachId= deep-link landing before the coaches list resolves).
+    const markerEntry = markersRef.current.get(selectedCoach.authorUuid);
+    let lngLat = null;
+    if (markerEntry?.marker) {
+      const ll = markerEntry.marker.getLngLat();
+      if (ll) lngLat = [ll.lng, ll.lat];
+    }
+    if (!lngLat) {
+      const coords = getCoachCoordinates(selectedCoach);
+      if (coords) lngLat = [coords.lng, coords.lat];
+    }
+    if (!lngLat) {
       if (popupRef.current) {
         popupRef.current.remove();
         popupRef.current = null;
@@ -409,7 +626,6 @@ const CoachMap3D = props => {
       return undefined;
     }
 
-    const lngLat = [coords.lng, coords.lat];
     if (popupRef.current) {
       // Existing popup: just move it, the React portal re-renders the body.
       popupRef.current.setLngLat(lngLat);
@@ -417,6 +633,13 @@ const CoachMap3D = props => {
     }
 
     const containerEl = document.createElement('div');
+    // We deliberately keep `closeOnClick: false` and instead implement
+    // outside-click ourselves (see the document-level effect below). The
+    // built-in `closeOnClick: true` was racing with marker clicks: in the
+    // same tick where a marker click set a new `selectedCoachKey`, Mapbox
+    // would also fire `popup.close` (queueing `setSelectedCoachKey(null)`),
+    // and React's automatic batching let the null win — so popups silently
+    // didn't open / didn't switch when clicking another marker.
     const popup = new window.mapboxgl.Popup({
       closeButton: false,
       closeOnClick: false,
@@ -441,7 +664,11 @@ const CoachMap3D = props => {
     popupRef.current = popup;
     setPopupContainer(containerEl);
     return undefined;
-  }, [selectedCoach]);
+    // We also depend on `isReady` so a popup created via ?coachId= deep-link
+    // *before* Mapbox has finished loading (markers not yet rendered, popup
+    // anchored to fallback raw coords) gets re-anchored to the actual
+    // marker position once the marker sync runs and `markersRef` is hot.
+  }, [selectedCoach, isReady]);
 
   // Belt & suspenders: tear down the popup on unmount in case the
   // selection-driven effect didn't get a chance to clean up.
@@ -454,6 +681,55 @@ const CoachMap3D = props => {
     },
     []
   );
+
+  // Outside-click + ESC for the marker popup. We implement this at the
+  // document level (instead of relying on Mapbox's `closeOnClick: true`)
+  // so we get full control over which clicks count as "outside":
+  //
+  //   - clicks on a marker → `stopPropagation` keeps them from reaching
+  //     here at all; selection updates via the marker's own handler.
+  //   - clicks inside the popup (`.mapboxgl-popup`) → ignored.
+  //   - clicks on Mapbox controls (`.mapboxgl-ctrl`) → ignored, so zoom /
+  //     fullscreen buttons don't dismiss the popup.
+  //   - clicks outside the map container entirely (sidebar Coach Cards,
+  //     SportBar, topbar) → ignored, so the sidebar "Map" button can
+  //     switch the selected coach without the popup being closed first
+  //     and React batching the null update on top of the new uuid.
+  //   - clicks on the map canvas / empty area inside the map container →
+  //     close the popup.
+  //
+  // Listener is attached only while a popup is open, so it never runs
+  // when there's nothing to close.
+  useEffect(() => {
+    if (!selectedCoach) return undefined;
+
+    const handleDocClick = event => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const map = mapRef.current;
+      if (!map) return;
+      const mapContainer = map.getContainer();
+      if (!mapContainer) return;
+      if (!mapContainer.contains(target)) return; // click outside the map
+      if (target.closest('.mapboxgl-popup')) return; // click inside popup
+      if (target.closest('.mapboxgl-marker')) return; // click on a marker
+      if (target.closest('.mapboxgl-ctrl')) return; // click on a control
+      onPopupCloseRef.current();
+    };
+
+    const handleKey = event => {
+      if (event.key === 'Escape' || event.key === 'Esc') {
+        onPopupCloseRef.current();
+      }
+    };
+
+    document.addEventListener('click', handleDocClick);
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('click', handleDocClick);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [selectedCoach]);
 
   return (
     <>

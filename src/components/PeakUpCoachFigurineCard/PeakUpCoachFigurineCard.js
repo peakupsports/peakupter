@@ -10,6 +10,7 @@ import {
   PROFILE_SPORT_DISPLAY_LABELS,
   PROFILE_SPORT_EMOJI,
 } from '../../util/profileCoachSticker';
+import { getTierStyleVars } from '../../util/coachTier';
 
 import NamedLink from '../NamedLink/NamedLink';
 import ResponsiveImage from '../ResponsiveImage/ResponsiveImage';
@@ -196,6 +197,12 @@ const PeakUpCoachFigurineCard = props => {
 
   const showFounderLogo = sortedTierBadgeIds.includes('founder');
 
+  // Highest-priority tier (already first after sort) drives the colour vars
+  // the CSS reads. Tier-less / legacy coaches get an empty object so the
+  // `var(--tier-*, fallback)` defaults in CSS keep the original gold look.
+  const primaryTierId = sortedTierBadgeIds[0] || null;
+  const tierStyle = primaryTierId ? getTierStyleVars(primaryTierId) : null;
+
   const badgeModalHint = intl.formatMessage({
     id: 'PeakupCoachBadgesHierarchyModal.badgeButtonHint',
     defaultMessage: 'Open PeakUp coach badge guide',
@@ -228,7 +235,10 @@ const PeakUpCoachFigurineCard = props => {
     );
 
   return (
-    <article className={classNames(css.root, className)}>
+    <article
+      className={classNames(css.root, className)}
+      style={tierStyle || undefined}
+    >
       {podiumTier ? (
         <span
           className={classNames(css.podiumMedal, css[podiumTier.className])}
