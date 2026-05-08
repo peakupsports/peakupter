@@ -57,6 +57,16 @@
   border-radius: 50%;
   overflow: hidden;
   background: rgba(16, 33, 62, 0.06);
+  border: 2px solid #ffffff;
+}
+
+/* Tier ring on the popup avatar — same shared system used by CoachCard.
+   Colors come from `--tier-border` / `--tier-glow`, set on `.root` via
+   inline style by the consumer (`getTierStyleVars`). */
+.photoRing {
+  box-shadow:
+    0 0 0 2px var(--tier-border, transparent),
+    0 0 14px var(--tier-glow, transparent);
 }
 
 .photoImage {
@@ -100,26 +110,25 @@
   row-gap: 4px;
 }
 
-/* Premium gold badge for the popup. Matches the figurina tier styling but
-   collapsed into a single solid gold pill so the popup reads as elevated. */
+/* Tier-coloured badge pill. The visible color comes from `--tier-border` /
+   `--tier-glow` set on `.root` via `getTierStyleVars`. Same color tokens are
+   reused by the avatar ring above and by the selected map marker glow, so
+   founder/ambassador/top-coach/certified-coach are visually consistent
+   across CoachCard, popup and CoachMap3D. */
 .badge {
   display: inline-flex;
   align-items: center;
   height: 18px;
-  padding: 0 7px;
+  padding: 0 8px;
   border-radius: 999px;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
-}
-
-.badgeGold {
-  color: #4a3300;
-  background: linear-gradient(135deg, #ffe187 0%, #f2c94c 50%, #c9a227 100%);
-  border: 1px solid rgba(195, 152, 22, 0.45);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  color: #2a2a2a;
+  background: var(--tier-border, rgba(16, 33, 62, 0.06));
+  border: 1px solid var(--tier-glow, rgba(16, 33, 62, 0.12));
 }
 
 .rating {

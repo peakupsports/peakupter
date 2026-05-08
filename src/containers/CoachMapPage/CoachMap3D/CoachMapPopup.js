@@ -7,10 +7,9 @@ import { formatMoney, unitDivisor } from '../../../util/currency';
 import { ensureUser } from '../../../util/data';
 import {
   resolveCoachStickerDisplay,
-  resolvePeakupCoachBadgeIds,
-  PEAKUP_COACH_BADGE_PRIORITY,
   formatProfileSportsForSticker,
 } from '../../../util/profileCoachSticker';
+import { pickPrimaryTierId, getTierStyleVars } from '../../../util/coachTier';
 
 import { Avatar } from '../../../components/Avatar/Avatar';
 import NamedLink from '../../../components/NamedLink/NamedLink';
@@ -28,15 +27,6 @@ const BADGE_LABEL_KEYS = {
   ambassador: 'PeakUpCoachFigurineCard.badge.ambassador',
   top_coach: 'PeakUpCoachFigurineCard.badge.topCoach',
   certified_coach: 'PeakUpCoachFigurineCard.badge.certifiedCoach',
-};
-
-/** Highest-priority badge id from `publicData`, or null. */
-const pickPrimaryBadgeId = profilePd => {
-  const ids = resolvePeakupCoachBadgeIds(profilePd) || [];
-  if (!ids.length) return null;
-  return [...ids].sort(
-    (a, b) => (PEAKUP_COACH_BADGE_PRIORITY[b] || 0) - (PEAKUP_COACH_BADGE_PRIORITY[a] || 0)
-  )[0];
 };
 
 /**
@@ -94,7 +84,8 @@ const CoachMapPopup = ({ coach, onClose }) => {
 
   const sticker = resolveCoachStickerDisplay(publicData, representativeListing);
   const sportEntries = formatProfileSportsForSticker(intl, sticker.sports).slice(0, 1);
-  const badgeId = pickPrimaryBadgeId(publicData);
+  const tierId = pickPrimaryTierId(publicData);
+  const tierStyle = getTierStyleVars(tierId);
 
   // Same price source order as CoachCard: profile first, listing min price as
   // fallback. Marketplace listing prices elsewhere are unaffected.
@@ -128,7 +119,12 @@ const CoachMapPopup = ({ coach, onClose }) => {
       : null;
 
   return (
-    <div className={css.root} role="dialog" aria-label={displayName || 'Coach'}>
+    <div
+      className={css.root}
+      role="dialog"
+      aria-label={displayName || 'Coach'}
+      style={tierStyle}
+    >
       {typeof onClose === 'function' ? (
         <button
           type="button"
@@ -141,7 +137,9 @@ const CoachMapPopup = ({ coach, onClose }) => {
       ) : null}
 
       <header className={css.header}>
-        <div className={css.photo}>{photo}</div>
+        <div className={classNames(css.photo, tierId ? css.photoRing : null)}>
+          {photo}
+        </div>
         <div className={css.identity}>
           {profileId ? (
             <NamedLink className={css.name} name="ProfilePage" params={{ id: profileId }}>
@@ -154,9 +152,9 @@ const CoachMapPopup = ({ coach, onClose }) => {
           )}
 
           <div className={css.identityMeta}>
-            {badgeId ? (
-              <span className={classNames(css.badge, css.badgeGold)}>
-                <FormattedMessage id={BADGE_LABEL_KEYS[badgeId]} />
+            {tierId ? (
+              <span className={css.badge}>
+                <FormattedMessage id={BADGE_LABEL_KEYS[tierId]} />
               </span>
             ) : null}
             {reviewCount > 0 && ratingNumber != null ? (

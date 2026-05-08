@@ -7,11 +7,10 @@ import { formatMoney, unitDivisor } from '../../util/currency';
 import { ensureUser } from '../../util/data';
 import {
   resolveCoachStickerDisplay,
-  resolvePeakupCoachBadgeIds,
-  PEAKUP_COACH_BADGE_PRIORITY,
   formatProfileSportsForSticker,
   LANGUAGE_FLAGS,
 } from '../../util/profileCoachSticker';
+import { pickPrimaryTierId, getTierStyleVars } from '../../util/coachTier';
 
 import { Avatar } from '../Avatar/Avatar';
 import NamedLink from '../NamedLink/NamedLink';
@@ -55,24 +54,6 @@ const BADGE_LABEL_KEYS = {
   ambassador: 'PeakUpCoachFigurineCard.badge.ambassador',
   top_coach: 'PeakUpCoachFigurineCard.badge.topCoach',
   certified_coach: 'PeakUpCoachFigurineCard.badge.certifiedCoach',
-};
-
-// Tier-driven avatar ring. Carries the badge signal visually without a heavy
-// pill. The tiny inline label next to the name reinforces it for a11y.
-const PHOTO_RING_CLASSNAMES = {
-  founder: css.photoRingFounder,
-  ambassador: css.photoRingAmbassador,
-  top_coach: css.photoRingTopCoach,
-  certified_coach: css.photoRingCertifiedCoach,
-};
-
-/** Highest-priority badge id from `publicData`, or null. */
-const pickPrimaryBadgeId = profilePd => {
-  const ids = resolvePeakupCoachBadgeIds(profilePd) || [];
-  if (!ids.length) return null;
-  return [...ids].sort(
-    (a, b) => (PEAKUP_COACH_BADGE_PRIORITY[b] || 0) - (PEAKUP_COACH_BADGE_PRIORITY[a] || 0)
-  )[0];
 };
 
 /**
@@ -137,7 +118,8 @@ const CoachCard = props => {
   // re-running the resolver twice for the same coach.
   const hasMapTarget = Number.isFinite(sticker.lat) && Number.isFinite(sticker.lng);
 
-  const badgeId = pickPrimaryBadgeId(publicData);
+  const tierId = pickPrimaryTierId(publicData);
+  const tierStyle = getTierStyleVars(tierId);
 
   // Price source order:
   //   1. coach profile (`publicData.priceFrom` + `publicData.currency`)
@@ -199,9 +181,10 @@ const CoachCard = props => {
       aria-pressed={isSelected || undefined}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      style={tierStyle}
     >
       <header className={css.header}>
-        <div className={classNames(css.photo, badgeId ? PHOTO_RING_CLASSNAMES[badgeId] : null)}>
+        <div className={classNames(css.photo, tierId ? css.photoRing : null)}>
           {photo}
         </div>
         <div className={css.identity}>
@@ -216,9 +199,9 @@ const CoachCard = props => {
                   {displayName || <FormattedMessage id="CoachCard.fallbackName" />}
                 </span>
               )}
-              {badgeId && BADGE_LABEL_KEYS[badgeId] ? (
+              {tierId && BADGE_LABEL_KEYS[tierId] ? (
                 <span className={css.tierLabel} aria-hidden>
-                  <FormattedMessage id={BADGE_LABEL_KEYS[badgeId]} />
+                  <FormattedMessage id={BADGE_LABEL_KEYS[tierId]} />
                 </span>
               ) : null}
             </span>

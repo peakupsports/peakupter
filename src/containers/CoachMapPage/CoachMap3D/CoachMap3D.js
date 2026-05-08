@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 
 import { getCoachCoordinates } from '../../../util/profileCoachSticker';
+import { pickPrimaryTierId, getTierColors } from '../../../util/coachTier';
 
 import CoachMapPopup from './CoachMapPopup';
 import css from './CoachMap3D.module.css';
@@ -281,11 +282,30 @@ const CoachMap3D = props => {
       seen.add(key);
       const lngLat = [lng, lat];
 
+      // Resolve the coach's tier so the marker hover/active glow can pick up
+      // the same border/glow used by the CoachCard avatar ring and the popup
+      // badge. Falls back to the default purple via the CSS `var(name, fb)`
+      // when the coach has no tier.
+      const tierId = pickPrimaryTierId(coach?.author?.attributes?.profile?.publicData);
+      const tierColors = getTierColors(tierId);
+
+      const applyTierVars = el => {
+        if (!el) return;
+        if (tierColors) {
+          el.style.setProperty('--tier-border', tierColors.border);
+          el.style.setProperty('--tier-glow', tierColors.glow);
+        } else {
+          el.style.removeProperty('--tier-border');
+          el.style.removeProperty('--tier-glow');
+        }
+      };
+
       const existing = markersRef.current.get(key);
       if (existing) {
         existing.marker.setLngLat(lngLat);
         // Refresh emoji glyph in case the coach's dominant sport changed.
         existing.container.textContent = dominantEmoji(coach);
+        applyTierVars(existing.container);
         return;
       }
 
@@ -293,6 +313,7 @@ const CoachMap3D = props => {
       container.className = css.markerPin;
       container.dataset.coachKey = key;
       container.textContent = dominantEmoji(coach);
+      applyTierVars(container);
 
       container.addEventListener('mouseenter', () => onMarkerHoverRef.current(coach, true));
       container.addEventListener('mouseleave', () => onMarkerHoverRef.current(coach, false));

@@ -34,11 +34,16 @@
   user-select: none;
 }
 
+/* Hover + selected glow for markers. Colors come from `--tier-border` /
+   `--tier-glow` set on the marker container by `CoachMap3D.js` (resolved via
+   `pickPrimaryTierId` + `getTierColors` in `src/util/coachTier.js`). When the
+   coach has no tier, the `var(name, fallback)` keeps the previous purple
+   accent so hovering still produces a clear feedback. */
 .markerPin:hover,
 .markerPinActive {
   transform: scale(1.14);
-  border-color: rgba(124, 58, 238, 0.55);
-  box-shadow: 0 14px 28px rgba(124, 58, 238, 0.22);
+  border-color: var(--tier-border, rgba(124, 58, 238, 0.55));
+  box-shadow: 0 14px 28px var(--tier-glow, rgba(124, 58, 238, 0.22));
   z-index: 2;
 }
 

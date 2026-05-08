@@ -17,14 +17,17 @@
   transform: translateY(-1px);
 }
 
-/* Persistent "selected" state — driven by parent (e.g. clicked the Map button).
-   Visual-only: no layout change, just a stronger border + soft glow so the user
-   can keep track of which card is centred on the map. */
+/* Persistent "selected" state — driven by parent (e.g. clicked the Map button
+   or selected the corresponding marker). Reads the same `--tier-border` /
+   `--tier-glow` set on the article root by `getTierStyleVars`, so the card's
+   selection halo matches the marker's selection glow. The `var(name, fb)`
+   fallback keeps a sensible purple highlight for tier-less coaches in dev /
+   QA — production data always has a tier, so the fallback never shows. */
 .rootSelected,
 .rootSelected:hover {
-  border-color: rgba(124, 58, 238, 0.55);
+  border-color: var(--tier-border, rgba(124, 58, 238, 0.55));
   box-shadow:
-    0 0 0 2px rgba(124, 58, 238, 0.18),
+    0 0 0 2px var(--tier-glow, rgba(124, 58, 238, 0.18)),
     0 12px 28px rgba(16, 33, 62, 0.08);
 }
 
@@ -67,23 +70,14 @@
   margin: 0;
 }
 
-/* Tier rings: outer ring + matching soft glow. Order of box-shadow layers:
-   1) ring color, 2) soft glow halo. Inner 2px white border separates ring
-   from photo so it doesn't clip onto the face. */
-.photoRingFounder {
-  box-shadow: 0 0 0 2px #f2c94c, 0 0 14px rgba(242, 201, 76, 0.4);
-}
-
-.photoRingAmbassador {
-  box-shadow: 0 0 0 2px #7c3aed, 0 0 14px rgba(124, 58, 238, 0.32);
-}
-
-.photoRingTopCoach {
-  box-shadow: 0 0 0 2px #3b82f6, 0 0 14px rgba(59, 130, 246, 0.32);
-}
-
-.photoRingCertifiedCoach {
-  box-shadow: 0 0 0 2px #cbd5e1, 0 0 10px rgba(148, 163, 184, 0.28);
+/* Tier ring: outer ring + matching soft glow. Colors come from
+   `--tier-border` / `--tier-glow` set via inline style by the consumer
+   (see `getTierStyleVars` in `src/util/coachTier.js`). The 2px white border
+   on `.photo` above creates the inner spacer between the photo and the ring. */
+.photoRing {
+  box-shadow:
+    0 0 0 2px var(--tier-border, transparent),
+    0 0 14px var(--tier-glow, transparent);
 }
 
 .identity {
