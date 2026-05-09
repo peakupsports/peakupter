@@ -469,6 +469,14 @@ export const DEMO_COACHES = [
     bio: 'Dolomiti Superski coach. Carving fundamentals + scenic Sella Ronda days.',
   }),
   // ─── Snow worldwide ──────────────────────────────────────────────────────
+  // Variant tag intentionally omitted (was 'freeridesnowboard'). This coach
+  // is geographically far from the European cluster (lng +140°E vs +9°E),
+  // so including the variant tag would expand the filter bounds for
+  // "Snowboard > Freeride" to a 131° longitude span and force fitBounds
+  // to a globe view. The coach still appears under the Snowboard parent
+  // filter (which is expected to span the world) and on the map at their
+  // real coordinates — only the per-variant filter visibility was scoped
+  // to the regional cluster.
   makeDemoCoach({
     uuid: 'niseko-yuki',
     displayName: 'Yuki Tanaka',
@@ -476,7 +484,7 @@ export const DEMO_COACHES = [
     city: 'Niseko, JP',
     lat: 42.8047,
     lng: 140.6874,
-    sports: ['snowboard', 'freeridesnowboard'],
+    sports: ['snowboard'],
     languages: ['en'],
     priceFrom: 28000,
     currency: 'JPY',
@@ -486,6 +494,11 @@ export const DEMO_COACHES = [
     photoId: '1647644768239-6e937d5e9743',
     bio: 'Powder snowboarding in the Annupuri trees. Tree-line reading and pillow lines.',
   }),
+  // Variant tag intentionally omitted (was 'freestylesnowboard') for the
+  // same reason as Niseko above — Whistler is at lng -122.96°W, which
+  // would push the "Snowboard > Freestyle" bounds across the Atlantic.
+  // The coach still appears under the Snowboard parent and as a marker
+  // at their real coordinates.
   makeDemoCoach({
     uuid: 'whistler-isaac',
     displayName: 'Isaac Bennett',
@@ -493,7 +506,7 @@ export const DEMO_COACHES = [
     city: 'Whistler, CA',
     lat: 50.1163,
     lng: -122.9574,
-    sports: ['snowboard', 'freestylesnowboard'],
+    sports: ['snowboard'],
     languages: ['en', 'fr'],
     priceFrom: 290,
     currency: 'CAD',
@@ -503,6 +516,11 @@ export const DEMO_COACHES = [
     photoId: '1599405653894-8a595f692abf',
     bio: 'Park & jump progression at Blackcomb. Slope-style athlete background.',
   }),
+  // Variant tag intentionally omitted (was 'freerideskiing') for the same
+  // reason as Niseko / Whistler above — Aspen is at lng -106.82°W, which
+  // would push the "Ski > Freeride" bounds across the Atlantic. The coach
+  // still appears under the Ski parent and as a marker at their real
+  // coordinates.
   makeDemoCoach({
     uuid: 'aspen-katie',
     displayName: 'Katie Sullivan',
@@ -510,7 +528,7 @@ export const DEMO_COACHES = [
     city: 'Aspen, US',
     lat: 39.1911,
     lng: -106.8175,
-    sports: ['ski', 'freerideskiing'],
+    sports: ['ski'],
     languages: ['en', 'es'],
     priceFrom: 380,
     currency: 'USD',

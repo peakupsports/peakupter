@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { Form as FinalForm } from 'react-final-form';
 import { useHistory } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { FormattedMessage } from '../../../../util/reactIntl';
 import { createResourceLocatorString } from '../../../../util/routes';
 import { isOriginInUse } from '../../../../util/search';
 import { stringifyDateToISO8601 } from '../../../../util/dates';
+import { sortSportsBySeason } from '../../../../util/coachExplore';
 
 // Shared components
 import { Form, PrimaryButton } from '../../../../components';
@@ -62,13 +63,25 @@ export const SearchCTA = React.forwardRef((props, ref) => {
 
   const categoryConfig = config.categoryConfiguration;
 
+  // LandingPage "Your sport" dropdown — apply the shared seasonal sport
+  // order (winter Nov–Apr puts Snowboard/Ski first; summer May–Oct leads
+  // with MTB/Surf). Categories not in the seasonal list are pushed to
+  // the tail in their original (Console-defined) order, so unknown /
+  // future hosted categories never disappear. Pure sort: category IDs,
+  // names, the `pub_categoryLevel1` URL param, and "All categories"
+  // (prepended inside `<FilterCategories>`) are all unchanged.
+  const seasonallyOrderedCategories = useMemo(
+    () => sortSportsBySeason(categoryConfig.categories || [], cat => cat?.id),
+    [categoryConfig.categories]
+  );
+
   const filters = {
     categories: {
       enabled: categories,
       isValid: () => categoryConfig.categories.length > 0,
       render: alignLeft => (
         <div className={css.filterField} key="categories">
-          <FilterCategories categories={categoryConfig.categories} alignLeft={alignLeft} />
+          <FilterCategories categories={seasonallyOrderedCategories} alignLeft={alignLeft} />
         </div>
       ),
     },

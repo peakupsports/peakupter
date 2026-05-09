@@ -15,6 +15,7 @@ import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import {
   filterCoachesBySport,
   formatCoachExploreSportSlug,
+  haversineDistanceKm,
   parseCoachExploreSearch,
   sortCoachRowsByDistanceKm,
 } from '../../util/coachExplore';
@@ -57,14 +58,21 @@ import css from './CoachMapPage.module.css';
 // `PROFILE_SPORT_DISPLAY_LABELS` for use elsewhere (cards, popups, sticker).
 // Variant emojis use clean, sport-canonical glyphs that read instantly
 // over the map (no custom symbols / pictograms). Order is curated:
-// gravity-style discipline first (Freestyle / Freeski), then Freeride,
-// then the touring (uphill) variant.
+// gravity-style discipline first (Freestyle), then Freeride, then the
+// touring (uphill) variant.
 //
-// Snowboard:  🏂 Freestyle · 🏔️ Freeride · 🥾 Split touring
-// Ski:        ⛷️ Freeski   · 🏔️ Freeride · 🥾 Split touring
+// Snowboard variant labels use the implicit-parent short form (the
+// Snowboard parent chip already provides context):
+//   Snowboard:  🏂 Freestyle · 🏔️ Freeride · 🥾 Split touring
+//
+// Ski variant labels use the explicit "<sport> Ski" / "Ski touring"
+// form to (a) follow the canonical ski-domain naming and (b) avoid
+// any cross-discipline confusion with the Snowboard "Split touring"
+// term — they share the same 🥾 glyph but are different disciplines:
+//   Ski:        ⛷️ Freestyle Ski · 🏔️ Freeride Ski · 🥾 Ski touring
 //
 // Keys are kept stable so `matchSportFilterKeys` / aliases / routing /
-// query params keep working unchanged.
+// query params keep working unchanged. Only the user-facing labels move.
 const SNOWBOARD_DISCIPLINE = {
   key: 'snowboard',
   label: 'Snowboard',
@@ -82,9 +90,12 @@ const SKI_DISCIPLINE = {
   emoji: '🎿',
   aliases: ['skiing'],
   variants: [
-    { key: 'freestyleskiing', label: 'Freeski', emoji: '⛷️', aliases: ['freestyleski'] },
-    { key: 'freerideskiing', label: 'Freeride', emoji: '🏔️', aliases: ['freerideski'] },
-    { key: 'skitouring', label: 'Split touring', emoji: '🥾' },
+    { key: 'freestyleskiing', label: 'Freestyle Ski', emoji: '⛷️', aliases: ['freestyleski'] },
+    { key: 'freerideskiing', label: 'Freeride Ski', emoji: '🏔️', aliases: ['freerideski'] },
+    // Was previously labeled "Split touring" — that's the Snowboard term.
+    // The canonical Ski-domain term is "Ski touring" (matches the key
+    // `skitouring`). Filter keys / URL params unchanged.
+    { key: 'skitouring', label: 'Ski touring', emoji: '🥾' },
   ],
 };
 
@@ -202,6 +213,86 @@ const getCoachMapHeadlineLabel = (disciplines, slug) => {
   return null;
 };
 
+// Defensive viewport guard (F1a). The bounds derived from `filteredCoaches`
+// can occasionally span continents — e.g. when a future real coach signs up
+// in Niseko/Whistler/Aspen on a sport whose other coaches all live in the
+// Alps. Without this guard, `fitBounds` over a hemispheric box produces a
+// globe view at zoom 0–1 (Mapbox v3 defaults to `projection: 'globe'`).
+//
+// When the raw filtered bounds exceed these spans AND the user's
+// geolocation is known, we recompute bounds from the subset of coaches
+// within `USER_REGION_CLIP_KM` km of the user. The faraway coaches are
+// still rendered as markers (this only clips the camera, not the data),
+// so a click on a Niseko marker still flies the camera there.
+//
+// When userLocation is NOT known, we keep the raw filtered bounds as-is
+// (fail-soft) — under normal data conditions this branch is unreachable
+// because the demo cleanup (F2) keeps every demo's variant tag inside the
+// Alpine cluster.
+const WIDE_BOUNDS_LAT_SPAN_DEG = 30;
+const WIDE_BOUNDS_LNG_SPAN_DEG = 60;
+// ~800 km ≈ 7° lat at lat 46° / ~10° lng at lat 46°. Wide enough to cover
+// most of an alpine country plus its neighbours, narrow enough to clearly
+// reject transatlantic / transpacific outliers.
+const USER_REGION_CLIP_KM = 800;
+
+/**
+ * True when `bounds` cover more than the safe span thresholds (i.e. the
+ * filtered coach set is geographically scattered enough that fitBounds
+ * would zoom out to a globe-style view).
+ *
+ * @param {{ swLat:number, swLng:number, neLat:number, neLng:number }|null} bounds
+ * @returns {boolean}
+ */
+const isWideBounds = bounds => {
+  if (!bounds) return false;
+  const latSpan = bounds.neLat - bounds.swLat;
+  const lngSpan = bounds.neLng - bounds.swLng;
+  return latSpan > WIDE_BOUNDS_LAT_SPAN_DEG || lngSpan > WIDE_BOUNDS_LNG_SPAN_DEG;
+};
+
+/**
+ * Compute filtered bounds from the subset of `coaches` within `radiusKm`
+ * of `(centerLat, centerLng)`. Same shape and single-coach padding as the
+ * main `filteredBoundsPlain` calculation. Returns `null` when no coach
+ * passes the radius filter or when none have valid coordinates.
+ *
+ * @param {Object[]} coaches
+ * @param {number} centerLat
+ * @param {number} centerLng
+ * @param {number} radiusKm
+ * @returns {{ swLat:number, swLng:number, neLat:number, neLng:number }|null}
+ */
+const computeBoundsForCoachesNear = (coaches, centerLat, centerLng, radiusKm) => {
+  let swLat = Infinity;
+  let swLng = Infinity;
+  let neLat = -Infinity;
+  let neLng = -Infinity;
+  let count = 0;
+  coaches.forEach(c => {
+    const coords = getCoachCoordinates(c);
+    if (!coords) return;
+    const km = haversineDistanceKm(centerLat, centerLng, coords.lat, coords.lng);
+    if (km == null || km > radiusKm) return;
+    if (coords.lat < swLat) swLat = coords.lat;
+    if (coords.lng < swLng) swLng = coords.lng;
+    if (coords.lat > neLat) neLat = coords.lat;
+    if (coords.lng > neLng) neLng = coords.lng;
+    count += 1;
+  });
+  if (count === 0) return null;
+  if (count === 1) {
+    const pad = 0.08;
+    return {
+      swLat: swLat - pad,
+      swLng: swLng - pad,
+      neLat: neLat + pad,
+      neLng: neLng + pad,
+    };
+  }
+  return { swLat, swLng, neLat, neLng };
+};
+
 /**
  * Coach map: full-page layout.
  * - Desktop: fixed-width left sidebar with all coach cards (independent scroll)
@@ -238,7 +329,18 @@ const CoachMapPage = props => {
   // to keep prop reference stable across renders.
   const coachMapDisciplines = useMemo(() => getCoachMapDisciplinesForSeason(), []);
 
-  const [selectedSport, setSelectedSport] = useState('');
+  // The URL is the single source of truth for the active sport filter (per
+  // the SportBar contract — see Topbar.js `mergeSportIntoSearch`). Reading
+  // it directly via the already-memoized `queryExplore` removes the
+  // 1-render desync window we used to have between `useState('')` +
+  // `useEffect(setSelectedSport(queryExplore.sportKey))`. That window
+  // caused a visible double map-fit on initial load (the first paint
+  // fitted to all coaches with `selectedSport=''`, then the effect ran,
+  // selectedSport flipped to e.g. 'ski', and the bounds-fit fired again
+  // to the filtered subset). Deriving the value keeps the SportBar chip,
+  // the in-memory filter and the URL perfectly in lockstep on every
+  // render.
+  const selectedSport = queryExplore.sportKey;
   // Hover state on cards/markers — transient.
   const [activeListingId, setActiveListingId] = useState(null);
   // Click "Map" on a CoachCard => persistent selection that survives mouseleave
@@ -257,10 +359,6 @@ const CoachMapPage = props => {
       dispatch(fetchCoachesExploreThunk({ config }));
     }
   }, [fetchStatus, dispatch, config]);
-
-  useEffect(() => {
-    setSelectedSport(queryExplore.sportKey);
-  }, [queryExplore.sportKey]);
 
   // Deep-link target: when the page is opened with `?coachId=<uuid>` (e.g.
   // from the small map preview on a Coach Profile page), auto-select that
@@ -320,18 +418,27 @@ const CoachMapPage = props => {
   }, []);
 
   // Auto-centre on the user once geolocation resolves, but only when no
-  // higher-priority focus is implied by the URL:
+  // higher-priority focus is implied by the URL. Order of precedence:
   //   – `?coachId=…` (deep-link from a Coach Profile) wins.
-  //   – `?lat=&lng=` (user already provided a location) wins.
-  // With only `?sport=…` (or no params at all) we fly to the user. The
-  // ref guards so we only consume the resolved position once per session
-  // — subsequent filter changes still refit to the filtered coach set.
+  //   – `?lat=&lng=` (user already provided an explicit location) wins.
+  //   – `?sport=…` (active SportBar filter) wins — the camera must stay
+  //     fitted to the filtered coach set, otherwise a late-arriving
+  //     geolocation result silently hijacks the view a second or two
+  //     after the user picked their sport.
+  // With none of the above (a clean visit to /coach-map) we fly to the
+  // user. The ref guards so we only consume the resolved position once
+  // per session — subsequent filter changes still refit to the filtered
+  // coach set via the bounds-driven `fitBounds` effect inside CoachMap3D.
   const flyToUserLocationConsumedRef = useRef(false);
   useEffect(() => {
     if (flyToUserLocationConsumedRef.current) return;
     if (!userLocation) return;
     if (queryExplore.coachId) return;
     if (queryExplore.userLat != null || queryExplore.userLng != null) return;
+    // Active sport filter takes precedence over the user's geolocation.
+    // The bounds pipeline already fitted the camera to the filtered
+    // coaches; we must NOT fly elsewhere on top of that.
+    if (queryExplore.sportKey) return;
 
     flyToUserLocationConsumedRef.current = true;
     setFlyToTarget({
@@ -339,7 +446,13 @@ const CoachMapPage = props => {
       lng: userLocation.lng,
       ts: Date.now(),
     });
-  }, [userLocation, queryExplore.coachId, queryExplore.userLat, queryExplore.userLng]);
+  }, [
+    userLocation,
+    queryExplore.coachId,
+    queryExplore.userLat,
+    queryExplore.userLng,
+    queryExplore.sportKey,
+  ]);
 
   const filteredCoaches = useMemo(() => {
     const bySport = filterCoachesBySport(coaches, selectedSport);
@@ -384,9 +497,53 @@ const CoachMapPage = props => {
     return { swLat, swLng, neLat, neLng };
   }, [filteredCoaches]);
 
-  // Prefer the filtered bounds; fall back to the global bounds from the duck
-  // while the filtered set is empty or hasn't resolved any coordinates yet.
-  const effectiveBoundsPlain = filteredBoundsPlain || boundsPlain || null;
+  // F1a (defensive viewport guard). When the raw `filteredBoundsPlain`
+  // would force fitBounds to a globe view (filtered coaches scattered
+  // across continents) AND we have the user's geolocation, we replace
+  // them with bounds derived from coaches within `USER_REGION_CLIP_KM`
+  // of the user. The faraway coach markers are still rendered — only
+  // the camera is regionalized. Clicking a faraway marker still fires
+  // `flyTo` to that coach via `handleMarkerClick` / `handleMapClick`.
+  //
+  // This guard is fail-soft: if userLocation is unknown OR no coach
+  // falls within the radius, we keep the original `filteredBoundsPlain`
+  // (so under normal data conditions — i.e. with the F2 demo cleanup —
+  // this branch is essentially never reached).
+  const safeFilteredBoundsPlain = useMemo(() => {
+    if (!isWideBounds(filteredBoundsPlain)) return filteredBoundsPlain;
+    if (!userLocation) return filteredBoundsPlain;
+    const clipped = computeBoundsForCoachesNear(
+      filteredCoaches,
+      userLocation.lat,
+      userLocation.lng,
+      USER_REGION_CLIP_KM
+    );
+    return clipped || filteredBoundsPlain;
+  }, [filteredBoundsPlain, filteredCoaches, userLocation]);
+
+  // Bounds resolution rules:
+  //  – No active sport filter (`/coach-map` or `/coach-map?sport=`):
+  //    prefer the filtered bounds; if the filtered set is empty (e.g.
+  //    waiting for the first fetch), fall back to the global bounds
+  //    from the duck so the map at least shows a sensible coach
+  //    distribution on first paint.
+  //  – Active sport filter (`/coach-map?sport=ski` etc.) with results:
+  //    use the filtered bounds, so the map fits to the visible coaches.
+  //  – Active sport filter with NO results: pass `null`. Inside
+  //    CoachMap3D the `fitBounds` effect short-circuits on `!bounds`,
+  //    so the map keeps its current camera (last filtered view, user
+  //    geolocation, or the alpine fallback) instead of jumping to the
+  //    global all-coaches bounds. The cinematic empty state in the
+  //    sidebar is the user-facing signal — the map staying put is the
+  //    coherent map-side counterpart.
+  //
+  // In every branch we pass `safeFilteredBoundsPlain` (the F1a-clipped
+  // version) instead of the raw `filteredBoundsPlain`, so the camera
+  // stays regional whenever the filter result happens to span continents.
+  const isSportFilterActive = !!selectedSport;
+  const effectiveBoundsPlain = isSportFilterActive
+    ? safeFilteredBoundsPlain
+    : safeFilteredBoundsPlain || boundsPlain || null;
 
   const center = useMemo(() => {
     const b = effectiveBoundsPlain;
@@ -438,6 +595,30 @@ const CoachMapPage = props => {
     if (!selectedCoachKey) return null;
     const c = filteredCoaches.find(x => x.authorUuid === selectedCoachKey);
     return c?.representativeListing?.id || null;
+  }, [filteredCoaches, selectedCoachKey]);
+
+  // Filter-wins selection consistency. When the SportBar narrows the
+  // visible set so that the previously-selected coach is no longer part
+  // of `filteredCoaches`, clear the selection explicitly:
+  //   – the popup closes (CoachMap3D resolves `selectedCoach` from the
+  //     same filtered list and tears the popup down on null);
+  //   – the marker drops its persistent highlight class;
+  //   – the hover/active id is reset so a stale `mouseleave` on the
+  //     vanished card doesn't keep firing onto a removed marker;
+  //   – and crucially: the selection state in this component matches
+  //     the user-visible reality, so switching back to a sport that
+  //     re-includes the coach won't ghost-rehydrate the popup.
+  // The bounds pipeline already refits the camera to the new filtered
+  // set on the same URL change, so no extra flyTo is needed here.
+  useEffect(() => {
+    if (!selectedCoachKey) return;
+    const stillVisible = filteredCoaches.some(
+      c => c.authorUuid === selectedCoachKey
+    );
+    if (!stillVisible) {
+      setSelectedCoachKey(null);
+      setActiveListingId(null);
+    }
   }, [filteredCoaches, selectedCoachKey]);
 
   const marketplaceName = config.branding.marketplaceName || 'Marketplace';

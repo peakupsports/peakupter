@@ -10,7 +10,114 @@ import { matchSportFilterKeys } from '../../../util/sportFilterKeys';
 import CoachMapPopup from './CoachMapPopup';
 import css from './CoachMap3D.module.css';
 
-const STREET_STYLE_3D = 'mapbox://styles/mapbox/streets-v12';
+// Mapbox base style. We use the v3 "Outdoors" style instead of "Streets":
+// it ships with topographic relief shading, contour lines, hiking trails
+// and ski runs at high zoom — exactly the alpine/sporty palette PeakUp's
+// map should evoke. Architecturally identical to streets-v12 (same v2
+// "composite" vector source), so our manual `peakup-3d-buildings`
+// fill-extrusion layer keeps working untouched, and so do markers,
+// popups, fitBounds, flyTo, hover and the geolocation pipeline.
+//
+// Tile bandwidth and tile cost are roughly the same as streets-v12.
+// Switching back is a one-line change.
+const COACH_MAP_STYLE = 'mapbox://styles/mapbox/outdoors-v12';
+
+// Match the desktop / mobile breakpoint used elsewhere in the app
+// (`--viewportMedium` in `customMediaQueries.css` starts at 768px).
+// Mobile gets a lighter "premium" treatment (lower terrain exaggeration,
+// no atmospheric fog) so the map stays crisp on small screens and cheap
+// on cellular bandwidth.
+const isMobileViewport = () =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(max-width: 767px)').matches;
+
+/**
+ * Apply the premium "alpine outdoor" visual layer on top of the base
+ * Mapbox style. Idempotent: every step checks for an existing
+ * source/layer first so a re-fired `style.load` (Mapbox can re-emit it
+ * after `setStyle`) won't double-add. Safe no-op on browsers without
+ * `setTerrain` / `setFog` support — the rest of the map continues to
+ * work without these effects.
+ *
+ * Effects added (all are GPU-only or use cached DEM tiles):
+ *  – Terrain DEM via `mapbox-dem` raster-dem source + `setTerrain`,
+ *    which lifts mountains so our 50° pitch reads as a true 3D relief
+ *    instead of a flat tilted plane.
+ *  – `sky` layer of type `atmosphere`, giving the horizon a real
+ *    atmospheric gradient at high pitch (very cheap effect).
+ *  – `setFog({…})` for a soft alpine haze that fades distant terrain
+ *    into the sky color. Desktop only — on mobile we skip it to keep
+ *    the map crisp and avoid the small extra GPU/network cost.
+ *
+ * Markers, popups, flyTo, hover and the geolocation pipeline are
+ * deliberately untouched: they bind to the Map instance, not to the
+ * style, so they keep working through any style upgrade.
+ *
+ * @param {object} map a live `mapboxgl.Map` instance, post `style.load`
+ */
+const installPremiumOutdoorLook = map => {
+  if (!map) return;
+  const mobile = isMobileViewport();
+
+  // 1. Terrain DEM ---------------------------------------------------------
+  // The DEM raster source is shared across all Mapbox accounts and is
+  // already covered by our CSP allow-list (api.mapbox.com /
+  // *.tiles.mapbox.com). `maxzoom: 14` keeps the DEM lookups cheap —
+  // anything above that is flat-terrain at city level anyway.
+  if (typeof map.setTerrain === 'function') {
+    if (!map.getSource('mapbox-dem')) {
+      map.addSource('mapbox-dem', {
+        type: 'raster-dem',
+        url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+        tileSize: 512,
+        maxzoom: 14,
+      });
+    }
+    // Exaggeration is intentionally subtle: 1.4 desktop / 1.15 mobile
+    // gives clear alpine relief without making the Alps look like
+    // theme-park spikes when the camera is near-vertical.
+    map.setTerrain({
+      source: 'mapbox-dem',
+      exaggeration: mobile ? 1.15 : 1.4,
+    });
+  }
+
+  // 2. Sky / atmosphere ----------------------------------------------------
+  // A `sky` layer of type `atmosphere` renders a physically-based sky
+  // gradient with the sun position we configure. Costs nothing in tile
+  // bandwidth and very little GPU; safe on every viewport. The sun is
+  // pulled high (90° elevation, north azimuth) so we get a clean
+  // daylight horizon without harsh sunrise tones tinting the map.
+  if (!map.getLayer('peakup-sky')) {
+    map.addLayer({
+      id: 'peakup-sky',
+      type: 'sky',
+      paint: {
+        'sky-type': 'atmosphere',
+        'sky-atmosphere-sun': [0.0, 90.0],
+        'sky-atmosphere-sun-intensity': 15,
+      },
+    });
+  }
+
+  // 3. Atmospheric fog (desktop only) --------------------------------------
+  // `setFog` adds a soft haze along the horizon — distant terrain fades
+  // into the sky color, giving real depth at our 50° pitch. The palette
+  // is intentionally cool/alpine. Mobile skips this effect: on small
+  // screens the haze eats the limited horizon real-estate and on
+  // cellular it's wasted bandwidth on already-tiny markers.
+  if (!mobile && typeof map.setFog === 'function') {
+    map.setFog({
+      range: [0.5, 10],
+      color: '#dde6ee',
+      'high-color': '#bcd5e5',
+      'horizon-blend': 0.06,
+      'space-color': '#0a1426',
+      'star-intensity': 0.0,
+    });
+  }
+};
 
 // Anti-stacking ("spiderfy") config. When 2+ coaches share the same
 // fingerprint (`toFixed(4)` ≈ 11m bucket on lat/lng), we keep the
@@ -219,7 +326,7 @@ const CoachMap3D = props => {
 
       const map = new window.mapboxgl.Map({
         container: containerRef.current,
-        style: STREET_STYLE_3D,
+        style: COACH_MAP_STYLE,
         center: initialCenter,
         zoom: 4,
         pitch: 50,
@@ -274,6 +381,13 @@ const CoachMap3D = props => {
             labelLayerId
           );
         }
+
+        // Premium "alpine outdoor" pass: terrain DEM + sky/atmosphere
+        // (+ fog on desktop). Idempotent and fully isolated — does not
+        // touch the building-extrusion layer above, the marker pipeline,
+        // popups, fitBounds, flyTo, hover, or geolocation. See
+        // `installPremiumOutdoorLook` for the full rationale.
+        installPremiumOutdoorLook(map);
         setIsReady(true);
       });
 

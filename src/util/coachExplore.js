@@ -32,6 +32,141 @@ export const selectedSportToFilterHyphen = value =>
     .trim()
     .replace(/\s+/g, '-');
 
+// ───────────────────────── Seasonal sport ordering ─────────────────────────
+//
+// Shared seasonal sport order used by surfaces that need to surface
+// in-season disciplines first (currently the LandingPage "Your sport"
+// search dropdown). Keys are NORMALIZED (lowercase, no spaces / hyphens /
+// underscores) so they line up with whatever casing/spacing the hosted
+// Sharetribe Console category IDs use ("Sky Dive", "WakeBoarding",
+// "Cross-Country", "TeleMark" all collapse to the same key via
+// `normalizeSportKey`).
+//
+// Winter = November → April (months 10, 11, 0, 1, 2, 3) — same calendar
+// boundary as `getCoachMapDisciplinesForSeason` in CoachMapPage so the
+// two surfaces flip seasons together.
+//
+// Note on `telemark`: not currently in the platform sports taxonomy
+// (`PROFILE_SPORT_DISPLAY_LABELS`, `SPORT_LABELS`, `peakUpCoachUserFields`,
+// `getCoachMapDisciplinesForSeason`). Listed here so that the day a
+// hosted category named "TeleMark" is added in Console, it appears in the
+// correct seasonal slot without any extra code change. While dormant the
+// extra entry is a harmless no-op (only surfaces when a matching
+// category exists in the input list).
+const SEARCH_SPORT_WINTER_ORDER = [
+  'snowboard',
+  'ski',
+  'crosscountry',
+  'telemark',
+  'mtb',
+  'tennis',
+  'golf',
+  'surf',
+  'wakeboard',
+  'kitesurf',
+  'skydive',
+  'climbing',
+  'fitness',
+  'yoga',
+];
+
+const SEARCH_SPORT_SUMMER_ORDER = [
+  'mtb',
+  'surf',
+  'wakeboard',
+  'kitesurf',
+  'skydive',
+  'climbing',
+  'tennis',
+  'golf',
+  'fitness',
+  'yoga',
+  'snowboard',
+  'ski',
+  'crosscountry',
+  'telemark',
+];
+
+// Hosted Sharetribe Console category IDs sometimes use the gerund form
+// (e.g. `WakeBoarding`) of a sport that the platform taxonomy stores
+// under a shorter canonical key (`wakeboard`). After `normalizeSportKey`
+// these collapse to `wakeboarding`/`wakeboard` and stop matching each
+// other, which silently dumps the category into the leftover tail of
+// the seasonal sort.
+//
+// This alias map resolves common gerund variants back to the canonical
+// platform key BEFORE the seasonal index lookup. Scoped to the seasonal
+// sort only — `normalizeSportKey` itself stays minimal so global filter
+// matching, marker glyph dispatch, etc. behave exactly as before.
+//
+// Add new entries here as needed when a hosted category ID drifts from
+// the canonical platform key. Keys/values are already normalised
+// (lowercase, no whitespace / hyphens / underscores).
+const SEARCH_SPORT_KEY_ALIASES = {
+  wakeboarding: 'wakeboard',
+  snowboarding: 'snowboard',
+  skiing: 'ski',
+  surfing: 'surf',
+  kitesurfing: 'kitesurf',
+  skydiving: 'skydive',
+};
+
+/**
+ * Pick the seasonal sport order. Winter (Nov–Apr) leads with snow sports;
+ * summer (May–Oct) leads with MTB / Surf and pushes snow sports to the back.
+ * Date is injected so callers can unit-test deterministically.
+ *
+ * @param {Date} [date] defaults to current calendar date
+ * @returns {string[]} array of normalised sport keys in seasonal order
+ */
+export const getSeasonalSportOrder = (date = new Date()) => {
+  const month = typeof date.getMonth === 'function' ? date.getMonth() : new Date().getMonth();
+  const isWinter = month >= 10 || month <= 3;
+  return (isWinter ? SEARCH_SPORT_WINTER_ORDER : SEARCH_SPORT_SUMMER_ORDER).slice();
+};
+
+/**
+ * Stable-sort `items` by the seasonal sport order. `getKey(item)` extracts
+ * the sport key from each item (e.g. category id, listing publicData
+ * sport, etc.) — the key is:
+ *   1. normalised via `normalizeSportKey` (lowercase, alphanumeric only),
+ *   2. resolved via `SEARCH_SPORT_KEY_ALIASES` so common gerund forms
+ *      (`wakeboarding`, `snowboarding`, `skiing`, `surfing`,
+ *      `kitesurfing`, `skydiving`) match their canonical platform key,
+ *   3. matched against the seasonal order array.
+ *
+ * Items whose key is NOT in the seasonal order (after alias resolution)
+ * are pushed to the tail in their original input order, so unknown /
+ * future hosted categories are never silently dropped — they just
+ * appear after the known sports.
+ *
+ * Pure / non-mutating: returns a new array, leaves the input untouched.
+ *
+ * @template T
+ * @param {T[]} items
+ * @param {(item: T) => string} getKey
+ * @param {Date} [date]
+ * @returns {T[]} new array sorted by seasonal index, original order on ties
+ */
+export const sortSportsBySeason = (items, getKey, date) => {
+  if (!Array.isArray(items)) return items;
+  const order = getSeasonalSportOrder(date);
+  const indexOf = key => {
+    const normalized = normalizeSportKey(key);
+    const canonical = SEARCH_SPORT_KEY_ALIASES[normalized] || normalized;
+    const idx = order.indexOf(canonical);
+    return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+  };
+  return items
+    .map((item, originalIdx) => ({
+      item,
+      idx: indexOf(typeof getKey === 'function' ? getKey(item) : ''),
+      originalIdx,
+    }))
+    .sort((a, b) => (a.idx !== b.idx ? a.idx - b.idx : a.originalIdx - b.originalIdx))
+    .map(x => x.item);
+};
+
 /**
  * ISO 3166-1 alpha-2 → regional indicator flag emoji (e.g. CH → 🇨🇭).
  *
