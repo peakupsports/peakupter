@@ -1,31 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 
+import {
+  PEAKUP_TOP_LEVEL_SPORT_LABELS,
+  PEAKUP_TOP_LEVEL_SPORT_ORDER,
+  PEAKUP_WINTER_VARIANT_LABELS,
+} from '../../util/peakupSportTaxonomy';
 import { SNOWBOARD_SPORT_KEYS, SKI_SPORT_KEYS } from '../../util/sportFilterKeys';
 
 import css from './SportBar.module.css';
 
-// SPORT_LABELS / SPORT_EMOJI / TOPBAR_SPORT_ORDER MUST stay in sync with
-// the official platform sports list (Profile Settings) and with
-// `PROFILE_SPORT_DISPLAY_LABELS` / `PROFILE_SPORT_EMOJI` in
-// `src/util/profileCoachSticker.js`. Adding a sport in Profile Settings
-// without adding it here means it never shows up as a filter chip.
-const SPORT_LABELS = {
-  surf: 'Surf',
-  mtb: 'MTB',
-  tennis: 'Tennis',
-  golf: 'Golf',
-  climbing: 'Climbing',
-  yoga: 'Yoga',
-  skydive: 'Skydive',
-  fitness: 'Fitness',
-  wakeboard: 'Wakeboard',
-  kitesurf: 'Kitesurf',
-  skateboard: 'Skateboard',
-  snowboard: 'Snowboard',
-  ski: 'Ski',
-  crosscountry: 'Cross-country',
-};
+const SPORT_LABELS = PEAKUP_TOP_LEVEL_SPORT_LABELS;
 
 const SPORT_EMOJI = {
   surf: '🏄',
@@ -37,6 +22,10 @@ const SPORT_EMOJI = {
   skydive: '🪂',
   fitness: '💪',
   wakeboard: '🏄',
+  // 🌊 visually differentiates Wakesurf from Wakeboard (🏄) and Surf (🏄)
+  // in the chip row. Same disambiguation pattern used for Kitesurf (🪁
+  // vs. Surf 🏄) — see CoachMapPage `WAKESURF_DISCIPLINE`.
+  wakesurf: '🌊',
   kitesurf: '🪁',
   skateboard: '🛹',
   snowboard: '🏂',
@@ -44,34 +33,12 @@ const SPORT_EMOJI = {
   crosscountry: '🎿',
 };
 
-const TOPBAR_SPORT_ORDER = [
-  'surf',
-  'mtb',
-  'tennis',
-  'golf',
-  'climbing',
-  'yoga',
-  'skydive',
-  'fitness',
-  'wakeboard',
-  'kitesurf',
-  'skateboard',
-  'snowboard',
-  'ski',
-  'crosscountry',
-];
+const TOPBAR_SPORT_ORDER = PEAKUP_TOP_LEVEL_SPORT_ORDER;
 
 // Winter variants displayed in the legacy accordion mode of SportBar
 // (`includeWinterVariants`). Labels mirror the canonical platform list
 // in `PROFILE_SPORT_DISPLAY_LABELS`.
-const WINTER_VARIANT_LABELS = {
-  skitouring: 'Skitouring',
-  splittouring: 'Split touring',
-  freerideskiing: 'Freeride skiing',
-  freeridesnowboard: 'Freeride snowboard',
-  freestylesnowboard: 'Freestyle snowboard',
-  freestyleskiing: 'Freeski',
-};
+const WINTER_VARIANT_LABELS = PEAKUP_WINTER_VARIANT_LABELS;
 
 const WINTER_VARIANT_EMOJI = {
   skitouring: '🎿',

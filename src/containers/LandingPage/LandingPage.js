@@ -17,6 +17,9 @@ import { getFeaturedListingsProps } from '../../util/data';
 
 import SectionListings from '../PageBuilder/SectionBuilder/SectionListings';
 import SectionPeakupFeaturedCoaches from '../PageBuilder/SectionBuilder/SectionPeakupFeaturedCoaches';
+import LandingHeroSection from './LandingHeroSection';
+
+import css from './LandingPage.module.css';
 
 const PageBuilder = loadable(() =>
   import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')
@@ -54,6 +57,9 @@ export const LandingPageComponent = props => {
   // Section override: re-route any "listings" section flagged as coach-feature to our figurina grid.
   const sectionComponents = useMemo(
     () => ({
+      hero: {
+        component: forwardedProps => <LandingHeroSection {...forwardedProps} />,
+      },
       listings: {
         component: forwardedProps =>
           isPeakupCoachListingsSection(forwardedProps) ? (
@@ -66,8 +72,17 @@ export const LandingPageComponent = props => {
     []
   );
 
+  // `className` is forwarded from PageBuilder → StaticPage → Page where it
+  // ends up on the `<div id="page">` wrapper (see Page.js line 122). This
+  // is the single hook we use to scope ALL premium cinematic refinements
+  // of the Landing Page to its own subtree without touching the shared
+  // PageBuilder pipeline (which would also restyle CMS pages, the article
+  // page, etc.). The visual changes live entirely in `LandingPage.module.css`
+  // under `.landingPremium ...` rules — no JS / DOM mutations, no
+  // Sharetribe Console asset changes, no figurine-card edits.
   return (
     <PageBuilder
+      className={css.landingPremium}
       pageAssetsData={pageAssetsData?.[camelize(ASSET_NAME)]?.data}
       inProgress={inProgress}
       error={error}

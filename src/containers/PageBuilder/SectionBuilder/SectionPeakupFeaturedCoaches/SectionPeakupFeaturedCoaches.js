@@ -93,8 +93,6 @@ const SectionPeakupFeaturedCoaches = props => {
     rootClassName,
     defaultClasses,
     appearance,
-    title,
-    description,
     callToAction,
     options = {},
   } = props;
@@ -163,7 +161,7 @@ const SectionPeakupFeaturedCoaches = props => {
 
   const fieldComponents = options?.fieldComponents;
   const fieldOptions = { fieldComponents };
-  const hasHeaderFields = hasDataInFields([title, description, callToAction], fieldOptions);
+  const hasCallToAction = hasDataInFields([callToAction], fieldOptions);
 
   const inProgress = fetchStatus === 'loading' && cards.length === 0;
   const noCoachesFound = fetchStatus === 'succeeded' && cards.length === 0;
@@ -210,21 +208,40 @@ const SectionPeakupFeaturedCoaches = props => {
       rootClassName={rootClassName}
       appearance={appearance}
     >
-      {hasHeaderFields ? (
-        <header className={defaultClasses.sectionDetails}>
-          <Field data={title} className={defaultClasses.title} options={fieldOptions} />
-          <Field
-            data={description}
-            className={defaultClasses.description}
-            options={fieldOptions}
+      <header className={classNames(defaultClasses.sectionDetails, css.showcaseHeader)}>
+        <h2 className={css.showcaseTitle}>
+          <span className={css.showcaseTitleIcon} aria-hidden="true">
+            🔥
+          </span>
+          <span className={css.showcaseTitleText}>
+            <FormattedMessage
+              id="SectionPeakupFeaturedCoaches.titleFeatured"
+              defaultMessage="Featured"
+            />{' '}
+            <span className={css.showcaseTitleAccent}>
+              <FormattedMessage
+                id="SectionPeakupFeaturedCoaches.titleCoach"
+                defaultMessage="Coach"
+              />
+            </span>
+          </span>
+        </h2>
+
+        <p className={css.showcaseSubtitle}>
+          <FormattedMessage
+            id="SectionPeakupFeaturedCoaches.subtitle"
+            defaultMessage="Top rated coaches by our community"
           />
+        </p>
+
+        {hasCallToAction ? (
           <Field
             data={callToAction}
             className={defaultClasses.ctaButton}
             options={fieldOptions}
           />
-        </header>
-      ) : null}
+        ) : null}
+      </header>
 
       {inProgress ? (
         <div className={css.statusWrap}>

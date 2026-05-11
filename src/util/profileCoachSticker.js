@@ -25,6 +25,10 @@ export const PROFILE_SPORT_EMOJI = {
   skydive: '🪂',
   crosscountry: '🎿',
   wakeboard: '🏄',
+  // `wakesurf` is a separate bookable sport, not a Wakeboard variant.
+  // 🌊 keeps Wakesurf visually distinct from Wakeboard (🏄) and Surf (🏄)
+  // — same disambiguation pattern used for Kitesurf 🪁 vs Surf 🏄.
+  wakesurf: '🌊',
   kitesurf: '🪁',
   fitness: '💪',
   freeridesnowboard: '🏂',
@@ -114,6 +118,10 @@ export const PROFILE_SPORT_DISPLAY_LABELS = {
   skydive: 'Skydive',
   crosscountry: 'Cross-country',
   wakeboard: 'Wakeboard',
+  // `wakesurf` is a separate top-level bookable sport on PeakUp, NOT a
+  // Wakeboard variant. Keep it adjacent to `wakeboard` for readability;
+  // canonical label casing matches the SportBar / Profile Settings list.
+  wakesurf: 'Wakesurf',
   kitesurf: 'Kitesurf',
   fitness: 'Fitness',
   freeridesnowboard: 'Freeride snowboard',

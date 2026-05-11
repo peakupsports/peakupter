@@ -29,6 +29,10 @@ const PRIMARY_SPORT_PAGE_SLUGS = [
   'golf',
   'crosscountry',
   'wakeboard',
+  // Separate top-level sport (not a Wakeboard variant). `matchSportFilterKeys`
+  // does not need a special case — `wakesurf` maps to a single key just
+  // like `surf` / `golf` / `tennis`.
+  'wakesurf',
   'skydive',
   'fitness',
   'climbing',

@@ -212,20 +212,8 @@ const TopbarDesktop = props => {
     />
   );
 
-  return (
-    <nav
-      className={classes}
-      aria-label={intl.formatMessage({ id: 'TopbarDesktop.screenreader.topbarNavigation' })}
-    >
-      <LinkedLogo
-        id="logo-topbar-desktop"
-        className={css.logoLink}
-        layout="desktop"
-        alt={intl.formatMessage({ id: 'TopbarDesktop.logo' }, { marketplaceName })}
-        linkToExternalSite={config?.topbar?.logoLink}
-      />
-      {searchFormMaybe}
-
+  const rightActionsMaybe = (
+    <>
       <CustomLinksMenu
         currentPage={currentPage}
         customLinks={customLinks}
@@ -233,11 +221,33 @@ const TopbarDesktop = props => {
         hasClientSideContentReady={authenticatedOnClientSide || !isAuthenticatedOrJustHydrated}
         showCreateListingsLink={showCreateListingsLink}
       />
-
       {inboxLinkMaybe}
       {profileMenuMaybe}
       {signupLinkMaybe}
       {loginLinkMaybe}
+    </>
+  );
+
+  return (
+    <nav
+      className={classes}
+      aria-label={intl.formatMessage({ id: 'TopbarDesktop.screenreader.topbarNavigation' })}
+    >
+      <div className={css.leftSlot}>
+        <LinkedLogo
+          id="logo-topbar-desktop"
+          className={css.logoLink}
+          logoClassName={css.logoWrap}
+          logoImageClassName={css.logoImage}
+          layout="desktop"
+          alt={intl.formatMessage({ id: 'TopbarDesktop.logo' }, { marketplaceName })}
+          linkToExternalSite={config?.topbar?.logoLink}
+        />
+      </div>
+
+      <div className={css.middleSlot}>{searchFormMaybe}</div>
+
+      <div className={css.rightSlot}>{rightActionsMaybe}</div>
     </nav>
   );
 };

@@ -12,6 +12,7 @@ import {
   looksLikeCoordinates,
   parseCoachExploreSearch,
   sortCoachRowsByDistanceKm,
+  SPORT_VARIANT_DISPLAY_LABELS,
 } from './coachExplore';
 
 describe('parseCoachExploreSearch', () => {
@@ -39,6 +40,84 @@ describe('parseCoachExploreSearch', () => {
 describe('formatCoachExploreSportSlug', () => {
   it('title-cases hyphenated slugs', () => {
     expect(formatCoachExploreSportSlug('freeride-snowboard')).toBe('Freeride Snowboard');
+  });
+
+  // The CoachesPage hero headline is built from `?sport=<variant>` slugs
+  // that are typically compound, separator-less words. The pinned
+  // `SPORT_VARIANT_DISPLAY_LABELS` map is the canonical source for
+  // those labels — these assertions guard the user-visible copy
+  // ("Find your Freestyle Snowboard coach") against regressions in the
+  // formatter or the registry.
+  it('resolves canonical labels for Snowboard / Ski variant slugs', () => {
+    expect(formatCoachExploreSportSlug('freerideski')).toBe('Freeride Ski');
+    expect(formatCoachExploreSportSlug('freerideskiing')).toBe('Freeride Ski');
+    expect(formatCoachExploreSportSlug('freeridesnowboard')).toBe('Freeride Snowboard');
+    expect(formatCoachExploreSportSlug('freestyleski')).toBe('Freestyle Ski');
+    expect(formatCoachExploreSportSlug('freestyleskiing')).toBe('Freestyle Ski');
+    expect(formatCoachExploreSportSlug('freestylesnowboard')).toBe('Freestyle Snowboard');
+    expect(formatCoachExploreSportSlug('splitboard')).toBe('Splitboard');
+    expect(formatCoachExploreSportSlug('splittouring')).toBe('Splitboard');
+    expect(formatCoachExploreSportSlug('skitouring')).toBe('Ski Touring');
+  });
+
+  it('resolves variant labels regardless of casing / separators', () => {
+    // Defensive: lookup collapses non-alphanumerics before matching, so
+    // human-edited inputs ("Freeride-Ski", "FREESTYLE_SNOWBOARD") still
+    // hit the pinned label instead of falling through to the
+    // title-case fallback.
+    expect(formatCoachExploreSportSlug('Freeride-Ski')).toBe('Freeride Ski');
+    expect(formatCoachExploreSportSlug('FREESTYLE_SNOWBOARD')).toBe('Freestyle Snowboard');
+    expect(formatCoachExploreSportSlug('  ski touring  ')).toBe('Ski Touring');
+    expect(formatCoachExploreSportSlug('Split-Touring')).toBe('Splitboard');
+  });
+
+  it('falls back to title-case for non-variant slugs (top-level sports)', () => {
+    // Top-level sports are intentionally NOT in the variant registry —
+    // their single-word slugs are already handled correctly by the
+    // generic title-case path, and we don't want this formatter to
+    // shadow the canonical SPORT_LABELS that live elsewhere
+    // (SportBar, Profile Settings, …).
+    expect(formatCoachExploreSportSlug('snowboard')).toBe('Snowboard');
+    expect(formatCoachExploreSportSlug('ski')).toBe('Ski');
+    expect(formatCoachExploreSportSlug('kitesurf')).toBe('Kitesurf');
+  });
+
+  it('returns empty string for nullish / empty input', () => {
+    expect(formatCoachExploreSportSlug('')).toBe('');
+    expect(formatCoachExploreSportSlug(null)).toBe('');
+    expect(formatCoachExploreSportSlug(undefined)).toBe('');
+    expect(formatCoachExploreSportSlug('   ')).toBe('');
+  });
+});
+
+describe('SPORT_VARIANT_DISPLAY_LABELS', () => {
+  it('pins both slug shapes for each variant discipline (short + long form)', () => {
+    // Both shapes must coexist so the registry tolerates either the
+    // Console-style slug (`freerideski`) or the CoachMap canonical
+    // key (`freerideskiing`). When they share a discipline they must
+    // share the SAME display label.
+    expect(SPORT_VARIANT_DISPLAY_LABELS.freerideski).toBe(
+      SPORT_VARIANT_DISPLAY_LABELS.freerideskiing
+    );
+    expect(SPORT_VARIANT_DISPLAY_LABELS.freestyleski).toBe(
+      SPORT_VARIANT_DISPLAY_LABELS.freestyleskiing
+    );
+    expect(SPORT_VARIANT_DISPLAY_LABELS.splitboard).toBe(
+      SPORT_VARIANT_DISPLAY_LABELS.splittouring
+    );
+  });
+
+  it('exposes the six Snowboard / Ski variants the brief listed', () => {
+    expect(SPORT_VARIANT_DISPLAY_LABELS.freerideski).toBe('Freeride Ski');
+    expect(SPORT_VARIANT_DISPLAY_LABELS.freeridesnowboard).toBe('Freeride Snowboard');
+    expect(SPORT_VARIANT_DISPLAY_LABELS.freestyleski).toBe('Freestyle Ski');
+    expect(SPORT_VARIANT_DISPLAY_LABELS.freestylesnowboard).toBe('Freestyle Snowboard');
+    expect(SPORT_VARIANT_DISPLAY_LABELS.splitboard).toBe('Splitboard');
+    expect(SPORT_VARIANT_DISPLAY_LABELS.skitouring).toBe('Ski Touring');
+  });
+
+  it('is frozen so consumers cannot mutate the registry at runtime', () => {
+    expect(Object.isFrozen(SPORT_VARIANT_DISPLAY_LABELS)).toBe(true);
   });
 });
 

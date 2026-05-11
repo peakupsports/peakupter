@@ -63,6 +63,10 @@ const SEARCH_SPORT_WINTER_ORDER = [
   'golf',
   'surf',
   'wakeboard',
+  // `wakesurf` is a separate bookable sport (NOT a Wakeboard variant).
+  // Listed adjacent to `wakeboard` so both surface together in the
+  // off-season tail during winter.
+  'wakesurf',
   'kitesurf',
   'skydive',
   'climbing',
@@ -74,6 +78,9 @@ const SEARCH_SPORT_SUMMER_ORDER = [
   'mtb',
   'surf',
   'wakeboard',
+  // `wakesurf` is a separate top-level summer water sport — keeps its
+  // own slot next to `wakeboard` / `kitesurf` in the summer lead-block.
+  'wakesurf',
   'kitesurf',
   'skydive',
   'climbing',
@@ -104,6 +111,11 @@ const SEARCH_SPORT_SUMMER_ORDER = [
 // (lowercase, no whitespace / hyphens / underscores).
 const SEARCH_SPORT_KEY_ALIASES = {
   wakeboarding: 'wakeboard',
+  // Defensive alias: if a Console category is added as "Wakesurfing", it
+  // collapses to `wakesurfing` after `normalizeSportKey` and resolves to
+  // the canonical platform key `wakesurf`. The platform sports list uses
+  // `wakesurf`; this alias only kicks in if hosted data drifts.
+  wakesurfing: 'wakesurf',
   snowboarding: 'snowboard',
   skiing: 'ski',
   surfing: 'surf',
@@ -997,8 +1009,71 @@ export const parseCoachExploreSearch = search => {
 };
 
 /**
- * @param {string} slug sport key / URL segment
- * @returns {string}
+ * Canonical *display* labels for the Snowboard / Ski discipline variants.
+ *
+ * Why this map exists:
+ *   - URL slugs for variants are compound, separator-less words
+ *     (`freestylesnowboard`, `freerideski`, `splittouring`, …). The
+ *     generic title-case fallback in `formatCoachExploreSportSlug`
+ *     can only capitalize the first letter of each *separator-delimited
+ *     token*, so an URL like `/coaches?sport=freestylesnowboard`
+ *     produces the cosmetically broken headline
+ *     "Find your Freestylesnowboard coach".
+ *   - This registry pins the human-readable label for each known
+ *     variant slug. `formatCoachExploreSportSlug` consults it first and
+ *     falls back to the title-case logic for anything else — so
+ *     top-level sports (`snowboard`, `ski`, `mtb`, `crosscountry`, …)
+ *     continue to flow through the existing path unchanged.
+ *
+ * Keys are stored in their fully normalized form (lower-case, no
+ * separators) so callers can look up by the value coming out of
+ * `normalizeSportKey` or by the raw `?sport=` slug verbatim — both
+ * resolve to the same entry.
+ *
+ * Scope note:
+ *   - This map is the *display* layer only. It does NOT affect
+ *     filtering, routing, the SportBar chips, the CoachMap discipline
+ *     tree, the figurine sticker labels, or `PROFILE_SPORT_DISPLAY_LABELS`
+ *     — those each serve their own context and intentionally use
+ *     different copy. Keep filter/routing keys untouched.
+ *   - Both slug shapes for the same discipline are listed
+ *     (`freerideski` + `freerideskiing`, `splitboard` + `splittouring`,
+ *     `freestyleski` + `freestyleskiing`) so the registry tolerates
+ *     whichever shape the URL / footer link / Console content uses.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+export const SPORT_VARIANT_DISPLAY_LABELS = Object.freeze({
+  freerideski: 'Freeride Ski',
+  freerideskiing: 'Freeride Ski',
+  freeridesnowboard: 'Freeride Snowboard',
+  freestyleski: 'Freestyle Ski',
+  freestyleskiing: 'Freestyle Ski',
+  freestylesnowboard: 'Freestyle Snowboard',
+  splitboard: 'Splitboard',
+  splittouring: 'Splitboard',
+  skitouring: 'Ski Touring',
+});
+
+/**
+ * Format a sport slug for display in page titles / hero headlines.
+ *
+ * Resolution order:
+ *   1. `SPORT_VARIANT_DISPLAY_LABELS` — pinned, human-readable labels
+ *      for the Snowboard / Ski discipline variants whose URL slugs are
+ *      compound separator-less words (the title-case fallback can't
+ *      produce a good headline for these).
+ *   2. Generic title-case of the slug, splitting on hyphens / spaces.
+ *      This covers every top-level sport (`snowboard`, `ski`, `mtb`,
+ *      `crosscountry`, …) and any future variant we haven't pinned
+ *      yet — they at least get a stable "first-letter-up" rendering.
+ *
+ * The function is pure and locale-agnostic; for i18n-aware copy the
+ * caller still wraps the result in `FormattedMessage` / `intl.formatMessage`
+ * (see `CoachesPage` headline).
+ *
+ * @param {string} slug sport key / URL segment (`?sport=` value)
+ * @returns {string} display-ready label, or '' for nullish / empty input
  */
 export const formatCoachExploreSportSlug = slug => {
   const raw = String(slug || '')
@@ -1006,6 +1081,14 @@ export const formatCoachExploreSportSlug = slug => {
     .trim()
     .replace(/\s+/g, '-');
   if (!raw) return '';
+
+  // Variant lookup: collapse all separators so `freeride-ski`,
+  // `freeride_ski`, `FREERIDE SKI` and `freerideski` all resolve to the
+  // same entry, then consult the pinned-labels registry.
+  const canonical = raw.replace(/[^a-z0-9]+/g, '');
+  const pinned = SPORT_VARIANT_DISPLAY_LABELS[canonical];
+  if (pinned) return pinned;
+
   return raw
     .split('-')
     .filter(Boolean)

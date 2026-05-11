@@ -19,6 +19,7 @@ import {
   parseCoachExploreSearch,
   sortCoachRowsByDistanceKm,
 } from '../../util/coachExplore';
+import { sortByPeakUpTopLevelSportOrder } from '../../util/peakupSportTaxonomy';
 import { getCoachCoordinates } from '../../util/profileCoachSticker';
 // TEMP DEMO COACHES FOR MARKETING REEL – REMOVE BEFORE PRODUCTION
 // Single source of truth in `./demoCoaches.js`. To remove, delete this
@@ -113,6 +114,11 @@ const SKYDIVE_DISCIPLINE = { key: 'skydive', label: 'Skydive', emoji: '🪂' };
 // label disambiguates.
 const KITESURF_DISCIPLINE = { key: 'kitesurf', label: 'Kitesurf', emoji: '🪁' };
 const WAKEBOARD_DISCIPLINE = { key: 'wakeboard', label: 'Wakeboard', emoji: '🏄' };
+// `wakesurf` is a separate top-level bookable sport on PeakUp, NOT a
+// Wakeboard variant — no entry in `WAKEBOARD_DISCIPLINE.variants`.
+// 🌊 visually disambiguates from Wakeboard (🏄) and Surf (🏄) in the
+// CoachMap chip row.
+const WAKESURF_DISCIPLINE = { key: 'wakesurf', label: 'Wakesurf', emoji: '🌊' };
 const CROSSCOUNTRY_DISCIPLINE = {
   key: 'crosscountry',
   label: 'Cross-country',
@@ -129,57 +135,33 @@ const SKATEBOARD_DISCIPLINE = {
 };
 
 /**
- * Pick the seasonal main-row order. Winter = Nov→Apr (months 10,11,0,1,2,3),
- * pushing Snowboard / Ski to the front; Summer = May→Oct (4-9) leads with
- * MTB / Surf and pushes winter sports to the back. Date is injected so it
- * stays unit-testable (default uses the current calendar month).
+ * CoachMap top-level parent sports must follow the same canonical PeakUp order
+ * as the Landing / Topbar SportBar. Variants stay nested under their existing
+ * parent discipline and are NOT reordered here.
  *
- * @param {Date} [date]
  * @returns {Array}
  */
-const getCoachMapDisciplinesForSeason = (date = new Date()) => {
-  const month = typeof date.getMonth === 'function' ? date.getMonth() : new Date().getMonth();
-  const isWinter = month >= 10 || month <= 3;
-  // Order rationale (both seasons): in-season disciplines first, then
-  // year-round disciplines (Tennis · Climbing · Golf · Fitness · Yoga ·
-  // Skydive · Skateboard), then off-season disciplines at the end. Every
-  // sport from the official platform list is rendered in both seasons so
-  // coaches are never hidden – only the order changes.
-  if (isWinter) {
-    return [
+const getCoachMapDisciplines = () =>
+  sortByPeakUpTopLevelSportOrder(
+    [
+      SURF_DISCIPLINE,
+      MTB_DISCIPLINE,
+      TENNIS_DISCIPLINE,
+      GOLF_DISCIPLINE,
+      CLIMBING_DISCIPLINE,
+      YOGA_DISCIPLINE,
+      SKYDIVE_DISCIPLINE,
+      FITNESS_DISCIPLINE,
+      WAKEBOARD_DISCIPLINE,
+      WAKESURF_DISCIPLINE,
+      KITESURF_DISCIPLINE,
+      SKATEBOARD_DISCIPLINE,
       SNOWBOARD_DISCIPLINE,
       SKI_DISCIPLINE,
       CROSSCOUNTRY_DISCIPLINE,
-      MTB_DISCIPLINE,
-      CLIMBING_DISCIPLINE,
-      TENNIS_DISCIPLINE,
-      GOLF_DISCIPLINE,
-      FITNESS_DISCIPLINE,
-      YOGA_DISCIPLINE,
-      SKATEBOARD_DISCIPLINE,
-      SKYDIVE_DISCIPLINE,
-      SURF_DISCIPLINE,
-      KITESURF_DISCIPLINE,
-      WAKEBOARD_DISCIPLINE,
-    ];
-  }
-  return [
-    SURF_DISCIPLINE,
-    KITESURF_DISCIPLINE,
-    WAKEBOARD_DISCIPLINE,
-    MTB_DISCIPLINE,
-    CLIMBING_DISCIPLINE,
-    SKATEBOARD_DISCIPLINE,
-    TENNIS_DISCIPLINE,
-    GOLF_DISCIPLINE,
-    FITNESS_DISCIPLINE,
-    YOGA_DISCIPLINE,
-    SKYDIVE_DISCIPLINE,
-    SNOWBOARD_DISCIPLINE,
-    SKI_DISCIPLINE,
-    CROSSCOUNTRY_DISCIPLINE,
-  ];
-};
+    ],
+    discipline => discipline.key
+  );
 
 const normalizeDisciplineSlug = s =>
   String(s || '')
@@ -327,7 +309,7 @@ const CoachMapPage = props => {
   // Seasonal main-row order (winter Nov–Apr puts Snowboard/Ski first; summer
   // May–Oct leads with MTB/Surf). Computed once per session via `useMemo`
   // to keep prop reference stable across renders.
-  const coachMapDisciplines = useMemo(() => getCoachMapDisciplinesForSeason(), []);
+  const coachMapDisciplines = useMemo(() => getCoachMapDisciplines(), []);
 
   // The URL is the single source of truth for the active sport filter (per
   // the SportBar contract — see Topbar.js `mergeSportIntoSearch`). Reading

@@ -1,16 +1,923 @@
-.sportBarDock {
-  position: sticky;
+@import '../../styles/customMediaQueries.css';
+
+/* ===========================================================================
+ * PeakUp Landing Page — premium cinematic visual layer
+ * ===========================================================================
+ *
+ * SCOPE
+ *   This entire stylesheet only takes effect under the `.landingPremium`
+ *   class which is attached to the `<div id="page">` wrapper exclusively
+ *   on `/` (see LandingPage.js → `<PageBuilder className={css.landingPremium}>`).
+ *   No other page in the marketplace (CMS, account, listing, search, …)
+ *   inherits these rules — the Page wrapper class is the single gate.
+ *
+ * NON-GOALS (do NOT touch)
+ *   - Coach figurine cards (`PeakUpCoachFigurineCard.*`).
+ *     They are explicitly carved out of every typography / color rule
+ *     below via `:not([class*="PeakUpCoachFigurineCard"])` or by scoping
+ *     to higher-level structural selectors that stop above the card.
+ *   - Routes, data flow, CMS asset structure, Sharetribe Console content.
+ *   - Topbar / SportBar / Footer (rendered by their own containers, not
+ *     by the landing PageBuilder, and therefore outside `.landingPremium`).
+ *   - The marketplace `--marketplaceColor` design token — softened only
+ *     via a local `filter: saturate()` on landing CTAs, never re-declared.
+ *
+ * STRATEGY
+ *   - Replace the alternating white/colored backgrounds inherited from
+ *     the generic Sharetribe template with a single, continuous dark
+ *     atmospheric canvas (radial blue accent + carbon-navy gradient).
+ *   - Stack a cinematic gradient over the first `<section>` of `<main>`
+ *     (the hero) so background images read as editorial outdoor
+ *     campaign frames rather than flat stock photos.
+ *   - Refine the type hierarchy on landing only (heavier weight, tighter
+ *     letter-spacing, softer body color, subtle text shadow on hero).
+ *   - Soften neon CTAs via a localized `filter: saturate()` — keeps the
+ *     PeakUp brand color recognizable but ~20–25% less aggressive.
+ *   - Introduce a soft horizontal divider between sections so the eye
+ *     reads a quiet rhythm without obvious section dividers.
+ *
+ * Targeting CSS-Modules class names from outside their module is done
+ * with `[class*="X"]` substring matches against the hashed names
+ * (`SectionContainer_sectionContent__abc123` → `[class*="sectionContent"]`).
+ * This is the standard escape hatch used elsewhere in this codebase
+ * (see e.g. how the figurine sticker styles compose with hashed bem-
+ * style classes).
+ * ===========================================================================
+ */
+
+/* ---------------------------------------------------------------------------
+ * Dark atmospheric canvas
+ * ------------------------------------------------------------------------- */
+
+.landingPremium {
+  /* layered atmospheric gradient:
+   *   1. radial blue accent — distant horizon glow, anchors the brand
+   *      without going full neon.
+   *   2. vertical carbon-navy ramp — keeps depth consistent across
+   *      the page even when sections have no own background image.
+   * Both gradients are baked into the page wrapper so every section
+   * below sits on top of a single, continuous canvas.
+   */
+  background:
+    radial-gradient(
+      1200px 720px at 50% -10%,
+      rgba(58, 122, 220, 0.07) 0%,
+      transparent 65%
+    ),
+    linear-gradient(180deg, #0a0d14 0%, #0b1019 45%, #090c14 100%);
+  background-attachment: fixed;
+  color: #f4f6fa;
+  /* Smoother long-page scroll alongside the cinematic feel. */
+  scroll-behavior: smooth;
+}
+
+/* Kill the legacy nth-of-type(odd) white backgrounds applied by
+ * `SectionContainer.module.css` to every PageBuilder section. Doing this
+ * at the SECTION level (vs. the document) keeps any section that has
+ * its own customAppearance background image intact — those still render
+ * via `.backgroundImageWrapper` (absolutely positioned inside the
+ * section) and remain visible. */
+.landingPremium :global(main) :global(section) {
+  background-color: transparent !important;
+}
+
+/* Soft horizontal section divider — a quiet rhythm cue between
+ * stacked content blocks, far more editorial than a hard rule. */
+.landingPremium :global(main) :global(section) + :global(section) {
+  position: relative;
+}
+.landingPremium :global(main) :global(section) + :global(section)::before {
+  content: '';
+  display: block;
+  position: absolute;
   top: 0;
-  z-index: 20;
-  background: rgba(255, 255, 255, 0.92);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(16, 33, 62, 0.08);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(960px, 78%);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.10) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
 }
 
-.sportBarInner {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 10px 12px;
+/* ---------------------------------------------------------------------------
+ * HERO — cinematic outdoor-campaign overlay
+ * ------------------------------------------------------------------------- */
+
+/* `main > section:first-of-type` is the hero. The overlay is layered
+ * ABOVE the background image but BELOW the hero text/CTA. Two stacked
+ * gradients produce the alpine-evening mood:
+ *   - 120° diagonal: focuses readability on the lower-left where
+ *     hero copy traditionally sits, while keeping the right side of
+ *     the image visible enough to retain the campaign-photo feel.
+ *   - 180° vertical: softens the top edge (logo / topbar contrast)
+ *     and the bottom edge (transition into the next section).
+ */
+.landingPremium :global(main) > :global(section):first-of-type:not([class*='LandingHeroSection_root']) {
+  position: relative;
+  isolation: isolate; /* keep our z-index sandbox local to the hero */
+  min-height: 84vh;   /* slightly more breathing room than the 80vh default */
 }
 
+.landingPremium
+  :global(main)
+  > :global(section):first-of-type:not([class*='LandingHeroSection_root'])::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  /* Refinement pass: alphas reduced ~8–12% across all stops so outdoor
+   * hero imagery (snow, sky, sunset, water) retains its highlights and
+   * texture instead of reading as muted. Readability is preserved by a
+   * slightly stronger text-shadow on the hero typography below. */
+  background:
+    linear-gradient(
+      118deg,
+      rgba(8, 12, 22, 0.70) 0%,
+      rgba(8, 12, 22, 0.36) 38%,
+      rgba(8, 12, 22, 0.12) 62%,
+      rgba(8, 12, 22, 0.46) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(8, 12, 22, 0.12) 0%,
+      rgba(8, 12, 22, 0.00) 30%,
+      rgba(8, 12, 22, 0.00) 65%,
+      rgba(8, 12, 22, 0.46) 100%
+    );
+}
+
+/* Lift the hero content above the overlay. We target the hashed
+ * `.sectionContent` of `SectionContainer` so we don't accidentally
+ * lift the `.backgroundImageWrapper` (which must stay UNDER the
+ * overlay to be tinted by it). */
+.landingPremium :global(main) > :global(section):first-of-type [class*="sectionContent"] {
+  position: relative;
+  z-index: 2;
+}
+
+/* Hero typography — editorial weight + subtle text shadow for
+ * readability across any background image (snow, water, dusk, etc.).
+ * Mobile uses a slightly looser line-height so long headlines wrap
+ * gracefully on narrow viewports; viewportMedium tightens it back
+ * for the editorial display look on tablet/desktop. */
+.landingPremium
+  :global(main)
+  > :global(section):first-of-type
+  :is(:global(h1), :global(h2)) {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  /* Slightly wider, slightly deeper text-shadow compensates for the
+   * lighter overlay above without darkening the photography itself. */
+  text-shadow: 0 2px 26px rgba(0, 0, 0, 0.52);
+}
+
+@media (--viewportMedium) {
+  .landingPremium
+    :global(main)
+    > :global(section):first-of-type
+    :is(:global(h1), :global(h2)) {
+    line-height: 1.05;
+  }
+}
+
+.landingPremium
+  :global(main)
+  > :global(section):first-of-type
+  :is(:global(p), :global(li)) {
+  color: rgba(244, 246, 250, 0.92);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.40);
+}
+
+/* ---------------------------------------------------------------------------
+ * Global typography refinement (premium hierarchy)
+ *
+ * Excludes everything inside the coach figurine card subtree — those
+ * components own their type system and must remain pixel-identical.
+ * ------------------------------------------------------------------------- */
+
+.landingPremium
+  :global(main)
+  :is(:global(h1), :global(h2), :global(h3)):not([class*="PeakUpCoachFigurineCard"]) {
+  color: #ffffff;
+  letter-spacing: -0.015em;
+  /* Mobile-first line-height — keep titles readable when they wrap to
+   * 3–4 lines on narrow viewports. Tightened on viewportMedium for the
+   * editorial display look on tablet/desktop. */
+  line-height: 1.18;
+}
+
+@media (--viewportMedium) {
+  .landingPremium
+    :global(main)
+    :is(:global(h1), :global(h2), :global(h3)):not([class*="PeakUpCoachFigurineCard"]) {
+    line-height: 1.12;
+  }
+}
+
+.landingPremium
+  :global(main)
+  :global(h2):not([class*="PeakUpCoachFigurineCard"]) {
+  font-weight: 700;
+}
+
+.landingPremium
+  :global(main)
+  :is(:global(p), :global(li)):not([class*="PeakUpCoachFigurineCard"]) {
+  color: rgba(244, 246, 250, 0.78);
+}
+
+.landingPremium :global(main) :global(a) {
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * "Why PeakUp" / feature sections — matte editorial cards
+ *
+ * Targets the BlockDefault `.text` wrapper inside any section's blocks.
+ * Renders feature blocks as matte dark cards on top of the landing
+ * canvas instead of plain text-on-white. The earlier glassmorphism
+ * (backdrop-blur + multi-stop highlight) read too "tech UI" / SaaS;
+ * we now sit flat and matte and rely on outer shadow + a hairline
+ * border for depth. The figurine carousel inside
+ * SectionPeakupFeaturedCoaches is untouched — its scrollerItem ≠
+ * a BlockDefault.
+ * ------------------------------------------------------------------------- */
+
+.landingPremium
+  :global(main)
+  :global(section):not(:first-of-type)
+  [class*="BlockDefault_text"] {
+  padding: 22px 22px;
+  border-radius: 14px;
+  /* Matte outdoor-editorial surface — no backdrop blur (which read as
+   * SaaS glassmorphism). A flat, almost imperceptible cool-white tint
+   * keeps the cards present on the dark canvas without becoming a
+   * shiny screen. Depth is carried by the outer shadow, not by inset
+   * highlights or reflections. */
+  background-color: rgba(248, 250, 255, 0.024);
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  box-shadow:
+    0 12px 32px -14px rgba(0, 0, 0, 0.58),
+    inset 0 1px 0 rgba(255, 255, 255, 0.022);
+}
+
+/* Media inside feature blocks — soften the harsh rounded corners and
+ * lift with a subtle shadow so images sit on the dark canvas. */
+.landingPremium
+  :global(main)
+  :global(section):not(:first-of-type)
+  [class*="BlockDefault_media"] {
+  border-radius: 14px;
+  box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+ * CTAs — softer, more cinematic, less neon
+ *
+ * Two layers:
+ *   (a) Generic Field-driven CTAs that compose `.ctaButton` from
+ *       SectionBuilder.module.css — desaturate ~20% and add a subtle
+ *       editorial shadow.
+ *   (b) Anchor-style internal links inside hero content — keep them
+ *       calm and confident, never glow.
+ * ------------------------------------------------------------------------- */
+
+.landingPremium :global(main) :global(a)[class*="ctaButton"],
+.landingPremium :global(main) :global(button)[class*="ctaButton"] {
+  filter: saturate(0.82) contrast(0.97);
+  border-radius: 10px;
+  padding: 12px 22px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow:
+    0 14px 32px -10px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+}
+
+.landingPremium :global(main) :global(a)[class*="ctaButton"]:hover,
+.landingPremium :global(main) :global(button)[class*="ctaButton"]:hover {
+  filter: saturate(0.95) contrast(1);
+  transform: translateY(-1px);
+  box-shadow:
+    0 20px 40px -10px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* ---------------------------------------------------------------------------
+ * Spacing rhythm
+ *
+ * Sharetribe's default `.sectionContent { padding: 32px 0; (md) 64px 0; }`
+ * feels cramped on a premium cinematic page. Bump the rhythm by ~50%
+ * on landing only, while staying within the existing baseline (multiples
+ * of 8 / 12) so the SectionContainer's internal grid math is unaffected.
+ * ------------------------------------------------------------------------- */
+
+.landingPremium :global(main) :global(section) [class*="sectionContent"] {
+  /* Mobile: generous breathing space so cinematic sections don't
+   * collapse on narrow viewports. Stays on the 8px baseline. */
+  padding-top: 56px;
+  padding-bottom: 56px;
+}
+
+@media (--viewportMedium) {
+  .landingPremium :global(main) :global(section) [class*="sectionContent"] {
+    padding-top: 96px;
+    padding-bottom: 96px;
+  }
+}
+
+/* SectionFeatures collapses its `.block` gap to 0 on mobile, which
+ * means a feature card's text wrapper sits flush against its media.
+ * Give it a real gap on phone so the matte card breathes. On
+ * viewportMedium the section already provides a 64px horizontal gap
+ * between text and media, so the margin resets to 0 there. */
+.landingPremium
+  :global(main)
+  :global(section):not(:first-of-type)
+  [class*="BlockDefault_text"]:not(:first-child) {
+  margin-top: 28px;
+}
+
+@media (--viewportMedium) {
+  .landingPremium
+    :global(main)
+    :global(section):not(:first-of-type)
+    [class*="BlockDefault_text"]:not(:first-child) {
+    margin-top: 0;
+  }
+}
+
+/* The hero already provides its own min-height + overlay, so trim
+ * its top padding so the hero copy sits visually higher inside the
+ * frame instead of feeling pushed down. */
+.landingPremium
+  :global(main)
+  > :global(section):first-of-type
+  [class*="sectionContent"] {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Featured coaches (SectionPeakupFeaturedCoaches) — surround only
+ *
+ * The figurine cards themselves remain pixel-identical (see the
+ * `:not([class*="PeakUpCoachFigurineCard"])` carve-out above and below).
+ * Here we only tune the section-level surround: tighter top/bottom
+ * padding so the carousel breathes inside the dark canvas, and a
+ * slightly stronger separation from neighboring sections.
+ * ------------------------------------------------------------------------- */
+
+.landingPremium
+  :global(main)
+  :global(section)
+  :where([class*="scrollViewport"], [class*="scroller"]) {
+  /* leave figurine-internal layout untouched; only ensure the carousel
+   * sits comfortably in the wider section gutter. */
+}
+
+/* Defensive guard — re-affirm critical figurine colours/typography in
+ * case any selector above accidentally matches a descendant of a
+ * figurine card.
+ *
+ * IMPORTANT: do **not** use `color: revert` here. `revert` rolls the
+ * cascade back past the figurine module's own author rules, all the
+ * way to the user-agent default — which would turn the white display
+ * name into black, the "VIEW PROFILE" CTA text into the UA link blue,
+ * etc. Instead we restate the canonical figurine values explicitly so
+ * the guard is additive and never lowers the figurine module's
+ * authority over its own colour palette.
+ *
+ * Targets used:
+ *   - `<a class="cta">` View Profile pill
+ *   - `<span class="stickerStars"> ⭐⭐⭐⭐⭐` rating row
+ *   - `<svg class="medal_*">` podium medals (Founder ranking only)
+ *   - `<span class="reviewMeta">` review meta string in footer
+ *   - `<span class="stickerName">` coach display name (header)
+ * The CTA text deliberately stays `#041018` (deep navy) so it stays
+ * readable on the new green→mint→blue gradient surface defined inside
+ * `PeakUpCoachFigurineCard.module.css`. */
+.landingPremium [class*="PeakUpCoachFigurineCard_stickerName"] {
+  color: var(--colorWhite, #ffffff);
+  text-shadow: none;
+}
+.landingPremium [class*="PeakUpCoachFigurineCard_starFilled"] {
+  color: #ffb400;
+}
+.landingPremium [class*="PeakUpCoachFigurineCard_starEmpty"] {
+  color: var(--colorGrey300, #d4d4d4);
+}
+.landingPremium [class*="PeakUpCoachFigurineCard_medal_gold"] {
+  color: #f5c542;
+}
+.landingPremium [class*="PeakUpCoachFigurineCard_medal_silver"] {
+  color: #c8d0db;
+}
+.landingPremium [class*="PeakUpCoachFigurineCard_medal_bronze"] {
+  color: #cd7f32;
+}
+.landingPremium [class*="PeakUpCoachFigurineCard_reviewMeta"] {
+  color: rgba(236, 242, 250, 0.82);
+  text-shadow: none;
+}
+.landingPremium [class*="PeakUpCoachFigurineCard_cta"] {
+  color: #041018;
+  -webkit-text-fill-color: #041018;
+  text-shadow: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * Misc polish
+ * ------------------------------------------------------------------------- */
+
+.landingPremium ::selection {
+  background: rgba(63, 119, 224, 0.38);
+  color: #ffffff;
+}
+
+/* Honour users who prefer reduced motion — kill smooth scroll and
+ * transition easing on the landing-scoped premium interactions. */
+@media (prefers-reduced-motion: reduce) {
+  .landingPremium {
+    scroll-behavior: auto;
+  }
+
+  .landingPremium :global(main) :global(a)[class*="ctaButton"],
+  .landingPremium :global(main) :global(button)[class*="ctaButton"] {
+    transition: none;
+  }
+}
+
+/* ===========================================================================
+ * STEP 1 — DARK TOPBAR (Landing only)
+ * ===========================================================================
+ *
+ * The Topbar is a global container (rendered for every page by `Page.js`
+ * via `LayoutComposer.Topbar`). We do **not** modify the Topbar / SportBar
+ * components themselves — we just override their hashed CSS-Modules
+ * surfaces here, scoped under `.landingPremium`. Any other page in the
+ * marketplace renders outside `.landingPremium` and therefore keeps the
+ * original white Topbar pixel-identical.
+ *
+ * Layered selectors used:
+ *   – `.landingPremium :global(header)` is the `<Topbar as="header">`
+ *     LayoutComposer wrapper that exists on every page; under
+ *     `.landingPremium` it only exists once, so it's a precise hook.
+ *   – `[class*="TopbarDesktop_root"]` is the inner `<nav>` (desktop
+ *     topbar) that carries the white background + box-shadow we
+ *     replace with a carbon-navy gradient.
+ *   – `[class*="Topbar_container"]` is the mobile `<div>` equivalent.
+ *   – `[class*="SportBar_..."]` targets the chip surface inside the
+ *     topbar's center slot; we keep the inline `:global` SportBar
+ *     architecture untouched and only re-tint the chips.
+ * ========================================================================= */
+
+/* Replace the white Topbar canvas with a carbon-navy gradient, kill the
+ * marketplace box-shadow, and add the subtle hairline divider requested
+ * by the mockup. Affects desktop nav AND mobile container. */
+.landingPremium :global(header) [class*="TopbarDesktop_root"],
+.landingPremium :global(header) [class*="Topbar_container"] {
+  background-color: transparent;
+  background-image: linear-gradient(180deg, #0b101c 0%, #0a0d14 100%);
+  box-shadow: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Topbar links (Inbox / Sign up / Log in / profile menu trigger / desktop
+ * "Search…" placeholder text) — flip from grey-700 on white to a soft
+ * off-white on the new dark surface. Hover keeps the marketplaceColor
+ * underline (already declared by TopbarDesktop.module.css) so brand
+ * accent is preserved when interacting. */
+.landingPremium :global(header) [class*="TopbarDesktop_topbarLink"],
+.landingPremium :global(header) [class*="TopbarDesktop_profileMenuLabel"],
+.landingPremium :global(header) [class*="TopbarDesktop_search"] {
+  color: rgba(244, 246, 250, 0.86);
+}
+
+.landingPremium :global(header) [class*="TopbarDesktop_topbarLink"]:hover,
+.landingPremium :global(header) [class*="TopbarDesktop_profileMenuLabel"]:hover {
+  color: #ffffff;
+}
+
+/* Landing desktop logo presence.
+ *
+ * Diagnosis: the premium dark header changed the perceived visual balance
+ * of the topbar (darker canvas, stronger SportBar contrast), but the logo
+ * itself was still left to the very generic shared `LinkedLogo` / `Logo`
+ * defaults. That made the wordmark feel visually under-weighted even
+ * though the Console asset is correctly configured as "Large (48px)".
+ *
+ * We keep this strictly landing-only and desktop-only:
+ *   - no Topbar / LinkedLogo / Logo component edits
+ *   - no SportBar resizing
+ *   - no mobile layout changes
+ *
+ * What we fix here:
+ *   1. stop any flex compression of the logo anchor/wrapper
+ *   2. remove the extra vertical margin from `Logo.root` so the brand sits
+ *      fully inside the 72px topbar instead of feeling inset / small
+ *   3. give the rendered logo image an explicit desktop height target
+ *      (~48px, allowed up to 52px) so the brand regains signature weight
+ *   4. trim wrapper side padding slightly so the logo feels more present
+ *      without widening the whole left rail
+ */
+@media (--viewportLarge) {
+  .landingPremium :global(header) [class*="TopbarDesktop_logoLink"][class*="LinkedLogo_root"] {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    min-width: max-content;
+    padding-left: 24px;
+    padding-right: 20px;
+  }
+
+  .landingPremium
+    :global(header)
+    [class*="TopbarDesktop_logoLink"][class*="LinkedLogo_root"]
+    [class*="Logo_root"] {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    max-width: none;
+    min-width: max-content;
+    margin: 0;
+  }
+
+  .landingPremium
+    :global(header)
+    [class*="TopbarDesktop_logoLink"][class*="LinkedLogo_root"]
+    [class*="Logo_logo"] {
+    width: auto;
+    height: 48px;
+    max-width: min(100%, 300px);
+    max-height: 52px;
+    object-fit: contain;
+  }
+}
+
+/* Mobile burger menu & search icon — invert default grey strokes to
+ * read against the new dark canvas. */
+.landingPremium :global(header) [class*="Topbar_rootMenuIcon"] {
+  fill: rgba(244, 246, 250, 0.92);
+}
+.landingPremium :global(header) [class*="Topbar_rootSearchIcon"] {
+  stroke: rgba(244, 246, 250, 0.92);
+}
+.landingPremium :global(header) [class*="Topbar_menu"],
+.landingPremium :global(header) [class*="Topbar_searchMenu"] {
+  color: rgba(244, 246, 250, 0.86);
+}
+
+/* SportBar topbar mode.
+ *
+ * The chip surface itself now lives in `SportBar.module.css` so LandingPage
+ * no longer needs to skin chip backgrounds/labels/hover states from the
+ * outside. We only keep the container-level behaviour here: in topbar mode
+ * the bar background remains transparent so it sits cleanly inside the
+ * dark header. */
+.landingPremium :global(header) [class*="SportBar_rootInTopbar"] {
+  background: transparent;
+  border-bottom: none;
+}
+
+/* ===========================================================================
+ * STEP 2 — SEARCH BUTTON premium PeakUp gradient (Landing only)
+ * ===========================================================================
+ *
+ * The Landing Page hero search button is a `PrimaryButton` from
+ * `src/components` that composes the global `.buttonPrimary` recipe
+ * (solid `--marketplaceColor` background, white text). On landing we
+ * promote it to a premium PeakUp accent gradient that matches the
+ * figurine "VIEW PROFILE" CTA, so the two most-clicked surfaces of
+ * the homepage speak the same visual language.
+ *
+ * Selector hooks (in order of specificity, all class-level):
+ *   – `[class*="SearchCTA_submitButton"]` is the SearchCTA-local
+ *     class added via `className={css.submitButton}` to the button.
+ *   – `[class*="Button_primaryButtonRoot"]` is the Button module's
+ *     wrapper class (combined with `buttonPrimary` from global) —
+ *     used as a fallback / OR selector for higher robustness against
+ *     any future refactor where SearchCTA stops adding its own class.
+ * Other PrimaryButtons elsewhere in the marketplace (signup, checkout,
+ * profile-edit, etc.) live outside `.landingPremium` and are
+ * unaffected; this rule only matches under the landing wrapper. */
+.landingPremium :global(main) [class*="SearchCTA_submitButton"] {
+  background-color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    #9dff2e 0%,
+    #22e6b8 48%,
+    #159bff 100%
+  );
+  color: #041018;
+  -webkit-text-fill-color: #041018;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border-radius: 14px;
+  border: none;
+  /* Override the previously-applied generic CTA `filter: saturate(0.82)`
+   * — for this primary action we want the full saturation of the brand
+   * gradient. */
+  filter: none;
+  box-shadow:
+    0 12px 30px rgba(16, 33, 62, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.landingPremium :global(main) [class*="SearchCTA_submitButton"]:hover,
+.landingPremium :global(main) [class*="SearchCTA_submitButton"]:focus-visible {
+  background-color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    #9dff2e 0%,
+    #22e6b8 48%,
+    #159bff 100%
+  );
+  color: #041018;
+  -webkit-text-fill-color: #041018;
+  transform: translateY(-1px);
+  filter: brightness(1.04) saturate(1.08);
+  box-shadow:
+    0 16px 36px rgba(16, 33, 62, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.landingPremium :global(main) [class*="SearchCTA_submitButton"]:focus-visible {
+  outline: 2px solid rgba(157, 255, 46, 0.85);
+  outline-offset: 2px;
+}
+
+/* ===========================================================================
+ * STEP 4 — FEATURED COACH section surround (Landing only)
+ * ===========================================================================
+ *
+ * The carousel itself (figurine card layout, photo aspect ratio, badge
+ * tier rings, footer flag row, View profile CTA) is intentionally
+ * unchanged. We only enhance the SECTION around the carousel so it
+ * feels integrated into the premium dark canvas:
+ *
+ *   – soft radial green→blue glow behind the carousel viewport (sits
+ *     under the cards via z-index 0, never under the figurine borders)
+ *   – stronger separation from neighbouring sections via the existing
+ *     section divider system + a bit of extra vertical padding
+ *   – section title gets a heavier letter-spacing + brand-accent on
+ *     the trailing word ONLY (not on every word, per design direction)
+ *     via the existing `[class*="SectionBuilder_title"]` hook
+ *   – nav arrows re-skinned for the dark canvas
+ *
+ * NB: figurine subtree is **not** touched here. All carve-outs
+ * (`:not([class*="PeakUpCoachFigurineCard"])`) apply unchanged. */
+
+/* Subtle radial glow behind the carousel — sits ABOVE the page canvas
+ * but UNDER the figurine cards. Constrained to the section so it
+ * doesn't bleed into neighbouring blocks. */
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
+  [class*="sectionContent"] {
+  padding-top: 72px;
+  padding-bottom: 64px;
+}
+
+@media (--viewportMedium) {
+  .landingPremium
+    :global(main)
+    :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
+    [class*="sectionContent"] {
+    padding-top: 120px;
+    padding-bottom: 104px;
+  }
+}
+
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
+  [class*="sectionDetails"] {
+  padding-bottom: 22px;
+}
+
+@media (--viewportMedium) {
+  .landingPremium
+    :global(main)
+    :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
+    [class*="sectionDetails"] {
+    padding-bottom: 30px;
+  }
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionPeakupFeaturedCoaches_scrollViewport"] {
+  position: relative;
+  margin-top: 20px;
+}
+
+@media (--viewportMedium) {
+  .landingPremium
+    :global(main)
+    [class*="SectionPeakupFeaturedCoaches_scrollViewport"] {
+    margin-top: 28px;
+  }
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionPeakupFeaturedCoaches_scrollViewport"]::before {
+  content: '';
+  position: absolute;
+  inset: -32px -8px;
+  background: radial-gradient(
+    900px 220px at 50% 55%,
+    rgba(34, 230, 184, 0.07) 0%,
+    rgba(21, 155, 255, 0.05) 40%,
+    transparent 78%
+  );
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 28px;
+}
+
+/* Keep the scroller (and its figurine children) above the glow. */
+.landingPremium
+  :global(main)
+  [class*="SectionPeakupFeaturedCoaches_scroller"] {
+  position: relative;
+  z-index: 1;
+}
+
+/* Nav arrows on the dark canvas — replace the bright white pills with
+ * a translucent dark glass treatment so they read as in-section
+ * controls, not floating modal triggers. */
+.landingPremium
+  :global(main)
+  [class*="SectionPeakupFeaturedCoaches_navButton"] {
+  background: rgba(20, 28, 44, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(244, 246, 250, 0.92);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+.landingPremium
+  :global(main)
+  [class*="SectionPeakupFeaturedCoaches_navButton"]:hover,
+.landingPremium
+  :global(main)
+  [class*="SectionPeakupFeaturedCoaches_navButton"]:focus-visible {
+  background: rgba(28, 38, 58, 0.85);
+  color: #ffffff;
+}
+
+/* Premium typography for the section title. Applies to every non-hero
+ * section title on landing (Featured coaches, Why PeakUp, etc.) so
+ * the page reads with one editorial voice. The figurine card subtree
+ * is excluded by the `:not(...)` carve-outs above the file. */
+.landingPremium
+  :global(main)
+  :global(section):not(:first-of-type)
+  [class*="SectionBuilder_title"] {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Section description below the title — soft, editorial body color. */
+.landingPremium
+  :global(main)
+  :global(section):not(:first-of-type)
+  [class*="SectionBuilder_description"] {
+  color: rgba(244, 246, 250, 0.74);
+  letter-spacing: 0.005em;
+}
+
+/* ===========================================================================
+ * STEP 5 — DARK FOOTER (Landing only)
+ * ===========================================================================
+ *
+ * `<SectionFooter>` renders a real `<footer>` element (see
+ * `SectionFooter.js` → `<SectionContainer as="footer">`). Under
+ * `.landingPremium` there is only one such footer, so the
+ * `.landingPremium :global(footer)` selector is precise and never
+ * matches anything else.
+ *
+ * We do **not** touch the global FooterContainer / SectionFooter
+ * components. All overrides live here, scoped to landing. Other pages
+ * keep the original white footer pixel-identical.
+ *
+ * Treatment:
+ *   – dark carbon-navy gradient (matches the page canvas above)
+ *   – fine top divider with a PeakUp accent glow segment
+ *   – column titles get a single subtle PeakUp gradient via
+ *     `-webkit-background-clip: text` (preserves screen readers + SEO,
+ *     all real text rendered, no SVGs / images injected)
+ *   – links flip to a light off-white, hover to pure white
+ *   – copyright softens to a muted white, social icon SVGs keep their
+ *     own colours — we only restyle their hit-state. */
+
+.landingPremium :global(footer) {
+  background-color: transparent;
+  background-image: linear-gradient(
+    180deg,
+    #090c14 0%,
+    #0a0d14 40%,
+    #0b1019 100%
+  );
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+
+/* Soft brand-accent divider on top of the footer, mirroring the
+ * between-section dividers above so the footer reads as the natural
+ * closing block of the dark canvas. */
+.landingPremium :global(footer)::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(960px, 78%);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(34, 230, 184, 0.45) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Footer typography. Column titles (Sharetribe Console authors them as
+ * `<h2>` blocks inside footer link sections) get a single subtle
+ * PeakUp gradient so they read as "headings" without resorting to a
+ * loud all-green color. `background-clip: text` keeps the text fully
+ * selectable / accessible. */
+.landingPremium :global(footer) :is(h1, h2, h3, h4, h5, h6) {
+  background-image: linear-gradient(
+    90deg,
+    #9dff2e 0%,
+    #22e6b8 55%,
+    #159bff 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  letter-spacing: 0.005em;
+}
+
+/* Footer links + plain text. */
+.landingPremium :global(footer) :global(a) {
+  color: rgba(244, 246, 250, 0.82);
+  transition: color 0.15s ease;
+}
+.landingPremium :global(footer) :global(a):hover,
+.landingPremium :global(footer) :global(a):focus-visible {
+  color: #ffffff;
+  text-decoration: none;
+}
+.landingPremium :global(footer) :is(:global(p), :global(li), :global(span)) {
+  color: rgba(244, 246, 250, 0.72);
+}
+
+/* Copyright + slogan — slightly more muted than primary links so they
+ * sit visually beneath the column titles. */
+.landingPremium :global(footer) [class*="SectionFooter_copyright"] {
+  color: rgba(244, 246, 250, 0.55);
+}
+.landingPremium :global(footer) [class*="SectionFooter_slogan"] {
+  color: rgba(244, 246, 250, 0.78);
+}
+
+/* Social icons — the SVG glyphs themselves stay as Console authors
+ * them; we only lift the surrounding background a touch on hover so
+ * the icons feel interactive on the dark canvas. */
+.landingPremium :global(footer) [class*="SectionFooter_icon"] {
+  transition: filter 0.18s ease, transform 0.18s ease;
+}
+.landingPremium :global(footer) [class*="SectionFooter_icon"]:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+/* The footer top hairline rendered by `SectionFooter.module.css`
+ * `.root { border-top: 1px solid var(--colorGrey100); }` would
+ * conflict visually with our own `border-top` + `::before` divider.
+ * Suppress it under `.landingPremium` only. */
+.landingPremium :global(footer)[class*="SectionFooter_root"],
+.landingPremium :global(footer) > [class*="SectionFooter_root"] {
+  border-top: none;
+}

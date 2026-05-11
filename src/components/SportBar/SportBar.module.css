@@ -4,9 +4,10 @@
 
 .wrap {
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.72);
+  background: linear-gradient(180deg, rgba(10, 14, 22, 0.82) 0%, rgba(8, 11, 18, 0.88) 100%);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   overflow: hidden;
 }
 
@@ -29,22 +30,45 @@
   height: 38px;
   padding: 0 14px;
   border-radius: 999px;
-  border: 1px solid var(--colorGrey200);
-  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, rgba(10, 14, 22, 0.92) 0%, rgba(8, 11, 18, 0.96) 100%) padding-box,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.08) 100%)
+      border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 8px 20px rgba(0, 0, 0, 0.24);
   display: inline-flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   white-space: nowrap;
+  color: rgba(245, 247, 250, 0.92);
   transition:
     transform 120ms ease,
-    box-shadow 120ms ease,
-    background-color 120ms ease;
+    box-shadow 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
 }
 
 .chip:hover {
-  background: #ffffff;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  background:
+    linear-gradient(180deg, rgba(15, 20, 32, 0.95) 0%, rgba(10, 14, 24, 0.98) 100%) padding-box,
+    linear-gradient(
+        90deg,
+        rgba(157, 255, 46, 0.28) 0%,
+        rgba(34, 230, 184, 0.22) 48%,
+        rgba(21, 155, 255, 0.24) 100%
+      )
+      border-box;
+  color: #ffffff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 20px rgba(0, 0, 0, 0.24),
+    0 0 0 1px rgba(120, 255, 120, 0.16),
+    0 0 18px rgba(0, 255, 180, 0.14),
+    0 0 26px rgba(0, 140, 255, 0.12);
+  transform: translateY(-1px);
 }
 
 .chip:active {
@@ -57,8 +81,21 @@
 }
 
 .chipActive {
-  border-color: rgba(16, 33, 62, 0.32);
-  box-shadow: 0 0 0 2px rgba(16, 33, 62, 0.12);
+  background:
+    linear-gradient(180deg, rgba(14, 19, 30, 0.96) 0%, rgba(10, 14, 24, 0.99) 100%) padding-box,
+    linear-gradient(
+        90deg,
+        rgba(157, 255, 46, 0.36) 0%,
+        rgba(34, 230, 184, 0.3) 48%,
+        rgba(21, 155, 255, 0.32) 100%
+      )
+      border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 20px rgba(0, 0, 0, 0.24),
+    0 0 0 1px rgba(120, 255, 120, 0.12),
+    0 0 14px rgba(0, 255, 180, 0.1),
+    0 0 20px rgba(0, 140, 255, 0.08);
 }
 
 .chipEmoji {
@@ -69,7 +106,7 @@
 .chipLabel {
   font-size: 13px;
   font-weight: 700;
-  color: #10213e;
+  color: inherit;
   line-height: 1;
 }
 
@@ -163,6 +200,30 @@
   max-width: clamp(320px, 56vw, 760px);
   width: auto;
   margin: 0 auto;
+}
+
+/* Topbar integration:
+ *
+ * In the dark cinematic header the SportBar should read as a row of
+ * independent interactive pills, not as a rounded panel / box sitting
+ * inside another box. Therefore, when the bar is rendered with
+ * `inTopbar`, the outer wrap becomes a purely structural centering
+ * container: no visible background, no outline, no glass blur, no edge
+ * fades. Geometry is unchanged; only the container chrome is removed. */
+.rootInTopbar .wrap,
+.wrapInTopbar {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.rootInTopbar .wrap::before,
+.rootInTopbar .wrap::after,
+.wrapInTopbar::before,
+.wrapInTopbar::after {
+  display: none;
 }
 
 .inner {
@@ -374,18 +435,38 @@
   height: 36px;
   padding: 0 12px;
   border-radius: 999px;
-  border: 1px solid var(--colorGrey200);
-  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, rgba(10, 14, 22, 0.92) 0%, rgba(8, 11, 18, 0.96) 100%) padding-box,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.08) 100%)
+      border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 8px 20px rgba(0, 0, 0, 0.24);
   display: inline-flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   white-space: nowrap;
+  color: rgba(245, 247, 250, 0.92);
 }
 
 .chipActive {
-  border-color: rgba(124, 58, 238, 0.35);
-  box-shadow: 0 10px 20px rgba(124, 58, 238, 0.14);
+  background:
+    linear-gradient(180deg, rgba(14, 19, 30, 0.96) 0%, rgba(10, 14, 24, 0.99) 100%) padding-box,
+    linear-gradient(
+        90deg,
+        rgba(157, 255, 46, 0.36) 0%,
+        rgba(34, 230, 184, 0.3) 48%,
+        rgba(21, 155, 255, 0.32) 100%
+      )
+      border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 20px rgba(0, 0, 0, 0.24),
+    0 0 0 1px rgba(120, 255, 120, 0.12),
+    0 0 14px rgba(0, 255, 180, 0.1),
+    0 0 20px rgba(0, 140, 255, 0.08);
 }
 
 .chipEmoji {
@@ -396,7 +477,7 @@
 .chipLabel {
   font-size: 13px;
   font-weight: 600;
-  color: var(--colorGrey700);
+  color: inherit;
 }
 
 .subbar {
@@ -518,11 +599,11 @@
 
 .wrap::before {
   left: 0;
-  background: linear-gradient(to right, var(--colorWhite) 30%, rgba(255, 255, 255, 0));
+  background: linear-gradient(to right, rgba(8, 11, 18, 0.98) 30%, rgba(8, 11, 18, 0));
 }
 
 .wrap::after {
   right: 0;
-  background: linear-gradient(to left, var(--colorWhite) 30%, rgba(255, 255, 255, 0));
+  background: linear-gradient(to left, rgba(8, 11, 18, 0.98) 30%, rgba(8, 11, 18, 0));
 }
 

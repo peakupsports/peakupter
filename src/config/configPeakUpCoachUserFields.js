@@ -62,6 +62,10 @@ const PRIMARY_SPORT_ORDER = [
   'skydive',
   'fitness',
   'wakeboard',
+  // `wakesurf` is a separate bookable sport on PeakUp (NOT a Wakeboard
+  // variant). Listed next to `wakeboard` for adjacency in the Profile
+  // Settings multi-enum; treated as its own canonical sport key.
+  'wakesurf',
   'kitesurf',
   'snowboard',
   'ski',
@@ -88,6 +92,7 @@ const SPORT_LABELS = {
   skydive: 'Skydive',
   fitness: 'Fitness',
   wakeboard: 'Wakeboard',
+  wakesurf: 'Wakesurf',
   kitesurf: 'Kitesurf',
   snowboard: 'Snowboard',
   ski: 'Ski',

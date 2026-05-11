@@ -9,10 +9,8 @@ import { useConfiguration } from '../../../../context/configurationContext';
 
 // Utility
 import { FormattedMessage } from '../../../../util/reactIntl';
+import { getPeakUpTopLevelSportOptions } from '../../../../util/peakupSportTaxonomy';
 import { createResourceLocatorString } from '../../../../util/routes';
-import { isOriginInUse } from '../../../../util/search';
-import { stringifyDateToISO8601 } from '../../../../util/dates';
-import { sortSportsBySeason } from '../../../../util/coachExplore';
 
 // Shared components
 import { Form, PrimaryButton } from '../../../../components';
@@ -38,20 +36,6 @@ const getGridCount = numberOfFields => {
   return gridConfig ? gridConfig.gridCss : GRID_CONFIG[0].gridCss;
 };
 
-const isEmpty = value => {
-  if (value == null) return true;
-  return value.hasOwnProperty('length') && value.length === 0;
-};
-
-const formatDateValue = (dateRange, queryParamName) => {
-  const hasDates = dateRange;
-  const { startDate, endDate } = hasDates ? dateRange : {};
-  const start = startDate ? stringifyDateToISO8601(startDate) : null;
-  const end = endDate ? stringifyDateToISO8601(endDate) : null;
-  const value = start && end ? `${start},${end}` : null;
-  return { [queryParamName]: value };
-};
-
 export const SearchCTA = React.forwardRef((props, ref) => {
   const history = useHistory();
   const routeConfiguration = useRouteConfiguration();
@@ -61,27 +45,22 @@ export const SearchCTA = React.forwardRef((props, ref) => {
 
   const [submitDisabled, setSubmitDisabled] = useState(false);
 
-  const categoryConfig = config.categoryConfiguration;
-
-  // LandingPage "Your sport" dropdown — apply the shared seasonal sport
-  // order (winter Nov–Apr puts Snowboard/Ski first; summer May–Oct leads
-  // with MTB/Surf). Categories not in the seasonal list are pushed to
-  // the tail in their original (Console-defined) order, so unknown /
-  // future hosted categories never disappear. Pure sort: category IDs,
-  // names, the `pub_categoryLevel1` URL param, and "All categories"
-  // (prepended inside `<FilterCategories>`) are all unchanged.
-  const seasonallyOrderedCategories = useMemo(
-    () => sortSportsBySeason(categoryConfig.categories || [], cat => cat?.id),
-    [categoryConfig.categories]
+  // Landing hero "Your sport" must mirror the SportBar taxonomy/navigation
+  // exactly, even if hosted category data is incomplete or still contains
+  // legacy categories. Therefore the dropdown reads directly from the shared
+  // PeakUp taxonomy source of truth instead of the hosted category list.
+  const peakupHeroCategories = useMemo(
+    () => getPeakUpTopLevelSportOptions(),
+    []
   );
 
   const filters = {
     categories: {
       enabled: categories,
-      isValid: () => categoryConfig.categories.length > 0,
+      isValid: () => peakupHeroCategories.length > 0,
       render: alignLeft => (
         <div className={css.filterField} key="categories">
-          <FilterCategories categories={seasonallyOrderedCategories} alignLeft={alignLeft} />
+          <FilterCategories categories={peakupHeroCategories} alignLeft={alignLeft} />
         </div>
       ),
     },
@@ -140,36 +119,19 @@ export const SearchCTA = React.forwardRef((props, ref) => {
     return null;
   }
 
-  const onSubmit = values => {
-    // Convert form values to query parameters
-    let queryParams = {};
-
-    Object.entries(values).forEach(([key, value]) => {
-      if (!isEmpty(value)) {
-        if (key == 'dateRange') {
-          const { dates } = formatDateValue(value, 'dates');
-          queryParams.dates = dates;
-        } else if (key == 'location') {
-          if (value.selectedPlace) {
-            const {
-              search,
-              selectedPlace: { origin, bounds },
-            } = value;
-            queryParams.bounds = bounds;
-            queryParams.address = search;
-
-            if (isOriginInUse(config) && origin) {
-              queryParams.origin = `${origin.lat},${origin.lng}`;
-            }
-          }
-        } else {
-          queryParams[key] = value;
-        }
-      }
-    });
-
-    const to = createResourceLocatorString('SearchPage', routeConfiguration, {}, queryParams);
-    // Use history.push to navigate without page refresh
+  // PeakUp Landing Page hero CTA — the green "Find your coach" button must
+  // route straight to the Coach Map page (the marketplace's primary coach
+  // discovery surface). The legacy SearchPage query-param builder that used
+  // to convert the hero's sport/location/date/keyword fields into a
+  // `/s?...` URL has been intentionally removed: SearchPage is not the
+  // destination for this CTA anymore, and CoachMapPage exposes its own
+  // (different) URL param schema. Using `createResourceLocatorString` with
+  // the route name `CoachMapPage` keeps the path relative ("/coach-map"),
+  // so it works identically on localhost, staging, and production. Other
+  // entry points to SearchPage (Topbar keyword search, etc.) are unaffected
+  // because they live outside this primitive.
+  const onSubmit = () => {
+    const to = createResourceLocatorString('CoachMapPage', routeConfiguration, {}, {});
     history.push(to);
   };
 

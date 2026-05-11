@@ -10,7 +10,12 @@
   --stickerGoldSoft: rgba(201, 162, 39, 0.5);
   --stickerNavy: #10213e;
   --stickerNavyMid: #1f3558;
-  --stickerFooterBlue: #e4edf7;
+  --stickerFooterBlue: #111a2b;
+  --stickerSurfaceTop: #18263f;
+  --stickerSurfaceMid: #111a2c;
+  --stickerSurfaceBottom: #0b1220;
+  --stickerSurfaceGlow: rgba(21, 155, 255, 0.14);
+  --stickerAmbientShadow: rgba(21, 64, 128, 0.22);
 
   position: relative;
   display: flex;
@@ -45,8 +50,9 @@
 .root:hover .stickerCard {
   transform: translateY(-2px) scale(1.02);
   box-shadow:
-    0 18px 54px rgba(var(--tier-rgb, 16, 33, 62), 0.22),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+    0 18px 54px rgba(var(--tier-rgb, 16, 33, 62), 0.20),
+    0 10px 30px var(--stickerAmbientShadow),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
 .root:focus-within .stickerCard {
@@ -112,14 +118,63 @@
   padding: 0;
   border-radius: 20px;
   border: 4px solid var(--tier-border, var(--stickerGold));
-  background: linear-gradient(165deg, #ffffff 0%, #eef3f9 100%);
+  background:
+    radial-gradient(circle at 18% 10%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 34%),
+    radial-gradient(circle at 84% 100%, var(--stickerSurfaceGlow) 0%, rgba(21, 155, 255, 0) 38%),
+    radial-gradient(circle at 50% 100%, rgba(12, 36, 72, 0.18) 0%, rgba(12, 36, 72, 0) 44%),
+    linear-gradient(
+      180deg,
+      #1b2b47 0%,
+      var(--stickerSurfaceTop) 18%,
+      var(--stickerSurfaceMid) 48%,
+      var(--stickerSurfaceBottom) 100%
+    );
   box-shadow:
-    0 14px 40px rgba(16, 33, 62, 0.18),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+    0 18px 44px rgba(3, 8, 16, 0.36),
+    0 8px 24px var(--stickerAmbientShadow),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   box-sizing: border-box;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.stickerCard::before,
+.stickerCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.stickerCard::before {
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse at 16% 7%,
+      rgba(255, 255, 255, 0.13) 0%,
+      rgba(255, 255, 255, 0.045) 26%,
+      rgba(255, 255, 255, 0) 56%
+    ),
+    linear-gradient(
+      140deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.02) 18%,
+      rgba(255, 255, 255, 0) 42%
+    );
+}
+
+.stickerCard::after {
+  z-index: 0;
+  background:
+    radial-gradient(circle at 76% 100%, rgba(21, 155, 255, 0.07) 0%, rgba(21, 155, 255, 0) 32%),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.02) 0%,
+      rgba(255, 255, 255, 0) 38%,
+      rgba(0, 0, 0, 0.16) 100%
+    );
 }
 
 /* Header navy con flag + nome + badge livello (sempre su una sola riga).
@@ -142,10 +197,10 @@
   padding: 10px 12px;
   background: linear-gradient(
     180deg,
-    var(--stickerNavyMid) 0%,
-    var(--stickerNavy) 56%,
-    rgba(39, 66, 102, 0.55) 82%,
-    rgba(228, 234, 244, 0.12) 100%
+    rgba(31, 53, 88, 0.98) 0%,
+    rgba(16, 33, 62, 0.96) 54%,
+    rgba(13, 23, 38, 0.86) 84%,
+    rgba(11, 18, 32, 0.72) 100%
   );
   border-bottom: none;
 }
@@ -161,11 +216,11 @@
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(16, 33, 62, 0.52) 0%,
-    rgba(16, 33, 62, 0.22) 32%,
-    rgba(218, 228, 240, 0.28) 62%,
-    rgba(237, 242, 250, 0.08) 88%,
-    rgba(238, 243, 249, 0) 100%
+    rgba(16, 33, 62, 0.58) 0%,
+    rgba(16, 33, 62, 0.28) 32%,
+    rgba(11, 18, 32, 0.16) 64%,
+    rgba(11, 18, 32, 0.04) 88%,
+    rgba(11, 18, 32, 0) 100%
   );
   z-index: 4;
 }
@@ -422,6 +477,11 @@
   z-index: 1;
   padding: 4px 12px 0;
   box-sizing: border-box;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.015) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
 .stickerPhotoWrap {
@@ -434,9 +494,13 @@
   position: relative;
   border-radius: 16px;
   overflow: hidden;
-  background: var(--colorGrey100);
+  background: linear-gradient(180deg, rgba(10, 16, 28, 0.98) 0%, rgba(17, 26, 43, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   aspect-ratio: 6 / 7;
-  box-shadow: none;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.24),
+    0 4px 14px rgba(21, 64, 128, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .stickerPhotoLink {
@@ -467,12 +531,12 @@
   min-height: 160px;
   font-size: 56px;
   font-weight: var(--fontWeightBold);
-  color: rgba(16, 33, 62, 0.35);
+  color: rgba(244, 247, 251, 0.34);
   background: linear-gradient(
     160deg,
-    rgba(31, 53, 88, 0.14) 0%,
-    rgba(201, 162, 39, 0.1) 55%,
-    rgba(244, 247, 251, 0.95) 100%
+    rgba(31, 53, 88, 0.52) 0%,
+    rgba(21, 155, 255, 0.16) 45%,
+    rgba(11, 18, 32, 0.96) 100%
   );
 }
 
@@ -698,13 +762,18 @@
   z-index: 1;
   margin-top: 0;
   padding: 10px 12px 12px;
-  background: linear-gradient(
-    180deg,
-    rgba(233, 240, 250, 0.35) 0%,
-    rgba(224, 233, 244, 0.72) 22%,
-    #eff4fb 52%,
-    var(--stickerFooterBlue) 100%
-  );
+  background:
+    radial-gradient(circle at 16% 0%, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0) 34%),
+    linear-gradient(
+      180deg,
+      rgba(23, 35, 56, 0.94) 0%,
+      rgba(16, 25, 42, 0.97) 34%,
+      rgba(12, 19, 33, 0.99) 100%
+    );
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 18px 28px rgba(255, 255, 255, 0.012);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -793,37 +862,59 @@
 
 .reviewMeta {
   font-size: 11px;
-  color: var(--stickerNavy);
+  color: rgba(236, 242, 250, 0.82);
   font-weight: var(--fontWeightSemiBold);
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
 .reviewMetaMuted {
-  color: var(--colorGrey700);
+  color: rgba(236, 242, 250, 0.56);
   font-weight: var(--fontWeightMedium);
   font-style: italic;
 }
 
-/* Allineato a `.stickerActionPrimary` di ProfilePage.module.css: stesso gradiente
- * navy + bordo tier-aware così il CTA del carosello e quello della pagina profilo
- * appartengono visivamente alla stessa famiglia. Il navy fill resta invariato. */
+/* PeakUp "View profile" CTA — premium badge-like pill that mirrors the
+ * Landing Page hero search button (green → mint → blue gradient) so that
+ * the marketplace's two most-clicked CTAs speak the same visual language.
+ *
+ * Layout (padding, radius, font-size, letter-spacing, text-transform,
+ * flex behaviour, `white-space`) is preserved byte-for-byte so the
+ * figurine carousel layout and the footer row never reflow. Only the
+ * surface treatment changes:
+ *   – background swapped from navy gradient to PeakUp accent gradient
+ *   – text color flipped to deep navy (`#041018`) for AA contrast on
+ *     the green→blue surface; `-webkit-text-fill-color` is set as a
+ *     safety belt against any ancestor cascade (e.g. dark-themed
+ *     landing typography) that might otherwise re-color the text
+ *   – tier border kept (1.5px) so Founder / Ambassador / Top coach /
+ *     Certified coach still carry their tier identity on the button
+ *   – stronger but still soft shadow + a subtle inset highlight to read
+ *     as a "metal badge" against busy figurine footers
+ * `font-weight` bumped from Bold → Black so the dark text holds against
+ * the vivid gradient without looking thin. */
 .cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #2f5490 0%, var(--stickerNavy) 100%);
-  color: var(--colorWhite, #ffffff);
+  background: linear-gradient(90deg, #9dff2e 0%, #22e6b8 48%, #159bff 100%);
+  color: #041018;
+  -webkit-text-fill-color: #041018;
   font-size: 11px;
-  font-weight: var(--fontWeightBold);
-  letter-spacing: 0.04em;
+  font-weight: var(--fontWeightBlack, 800);
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   text-decoration: none;
   border: 1.5px solid var(--tier-border, var(--stickerGold));
-  box-shadow: 0 1px 3px rgba(16, 33, 62, 0.25);
-  transition: filter 0.15s ease;
+  box-shadow:
+    0 4px 10px rgba(16, 33, 62, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transition:
+    filter 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.18s ease;
   /* Stay sized to the localised label and never collapse below it; the
    * sport-bubble row absorbs leftover space. */
   flex: 0 0 auto;
@@ -832,9 +923,14 @@
 
 .cta:hover,
 .cta:focus-visible {
-  filter: brightness(1.06);
-  color: var(--colorWhite, #ffffff);
+  filter: brightness(1.04) saturate(1.08);
+  transform: translateY(-1px);
+  color: #041018;
+  -webkit-text-fill-color: #041018;
   text-decoration: none;
+  box-shadow:
+    0 6px 14px rgba(16, 33, 62, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 .cta:focus-visible {
