@@ -238,4 +238,63 @@ describe('LandingPage', () => {
       expect(getByAltText('Coach lifestyle')).toBeInTheDocument();
     });
   });
+
+  it('uses the Why PeakUp override for hosted columns sections too', async () => {
+    const data = {
+      sections: [
+        {
+          sectionType: 'columns',
+          sectionId: 'why-peakup-sports',
+          numColumns: 2,
+          blocks: [
+            {
+              blockType: 'defaultBlock',
+              blockId: 'athlete-column',
+              media: {
+                fieldType: 'image',
+                alt: 'Athlete poster',
+                image: imagePlaceholder(1200, 800, 'athlete-column'),
+              },
+            },
+            {
+              blockType: 'defaultBlock',
+              blockId: 'coach-column',
+              media: {
+                fieldType: 'image',
+                alt: 'Coach poster',
+                image: imagePlaceholder(1200, 800, 'coach-column'),
+              },
+              callToAction: {
+                fieldType: 'internalButtonLink',
+                content: 'Old coach CTA',
+                href: '/p/become-a-coach',
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const { getByAltText, getByText } = render(
+      <LandingPageComponent
+        pageAssetsData={{ landingPage: { data } }}
+        inProgress={false}
+        error={null}
+      />
+    );
+
+    await waitFor(() => {
+      expect(getByAltText('Athlete poster')).toBeInTheDocument();
+      expect(getByAltText('Coach poster')).toBeInTheDocument();
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'a' &&
+            /Find your coach|LandingWhyPeakupSection\.cardAthleteCta/.test(node?.textContent || '')
+          );
+        })
+      ).toBeInTheDocument();
+    });
+  });
 });

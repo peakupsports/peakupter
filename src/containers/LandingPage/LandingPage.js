@@ -15,6 +15,7 @@ import { fetchFeaturedListings } from '../../ducks/featuredListings.duck';
 import { getListingsById } from '../../ducks/marketplaceData.duck';
 import { getFeaturedListingsProps } from '../../util/data';
 
+import SectionColumns from '../PageBuilder/SectionBuilder/SectionColumns';
 import SectionFeatures from '../PageBuilder/SectionBuilder/SectionFeatures';
 import SectionListings from '../PageBuilder/SectionBuilder/SectionListings';
 import SectionPeakupFeaturedCoaches from '../PageBuilder/SectionBuilder/SectionPeakupFeaturedCoaches';
@@ -74,6 +75,14 @@ export const LandingPageComponent = props => {
     () => ({
       hero: {
         component: forwardedProps => <LandingHeroSection {...forwardedProps} />,
+      },
+      columns: {
+        component: forwardedProps =>
+          isPeakupWhySection(forwardedProps) ? (
+            <LandingWhyPeakupSection {...forwardedProps} />
+          ) : (
+            <SectionColumns {...forwardedProps} />
+          ),
       },
       features: {
         component: forwardedProps =>
