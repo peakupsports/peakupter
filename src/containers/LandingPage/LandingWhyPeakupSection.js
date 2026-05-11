@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import classNames from 'classnames';
 
 import { NamedLink } from '../../components';
@@ -8,28 +8,106 @@ import SectionContainer from '../PageBuilder/SectionBuilder/SectionContainer';
 
 import css from './LandingWhyPeakupSection.module.css';
 
+const AURORA_ATMOSPHERE_IMAGE_URL = '/CoachPagePic/aurora.jpg';
+
 const trustItems = [
   {
     id: 'LandingWhyPeakupSection.trustVerified',
     defaultMessage: 'Verified Coaches',
+    icon: 'shield',
   },
   {
     id: 'LandingWhyPeakupSection.trustCommunity',
     defaultMessage: 'Global Community',
+    icon: 'globe',
   },
   {
     id: 'LandingWhyPeakupSection.trustExperiences',
     defaultMessage: 'Top Experiences',
+    icon: 'star',
   },
   {
     id: 'LandingWhyPeakupSection.trustBooking',
     defaultMessage: 'Secure Booking',
+    icon: 'lock',
   },
   {
     id: 'LandingWhyPeakupSection.trustSupport',
     defaultMessage: '24/7 Support',
+    icon: 'support',
   },
 ];
+
+const GradientLineIcon = ({ icon, className }) => {
+  const gradientId = useId();
+  const stroke = `url(#${gradientId})`;
+
+  const iconPaths = {
+    pin: (
+      <>
+        <path d="M12 20.2s5.4-4.8 5.4-9.2A5.4 5.4 0 0 0 12 5.6 5.4 5.4 0 0 0 6.6 11c0 4.4 5.4 9.2 5.4 9.2Z" />
+        <circle cx="12" cy="11" r="1.9" />
+      </>
+    ),
+    shield: (
+      <>
+        <path d="M12 3.5L18 6.2V11c0 4.3-2.6 8.2-6 9.5-3.4-1.3-6-5.2-6-9.5V6.2L12 3.5Z" />
+        <path d="M9.4 12.2l1.7 1.7 3.5-3.8" />
+      </>
+    ),
+    globe: (
+      <>
+        <circle cx="12" cy="12" r="8.5" />
+        <path d="M3.8 12h16.4" />
+        <path d="M12 3.5c2.3 2.2 3.6 5.3 3.6 8.5S14.3 18.3 12 20.5c-2.3-2.2-3.6-5.3-3.6-8.5S9.7 5.7 12 3.5Z" />
+      </>
+    ),
+    star: (
+      <path d="M12 4.6l2.1 4.3 4.8.7-3.4 3.3.8 4.7-4.3-2.3-4.3 2.3.8-4.7-3.4-3.3 4.8-.7L12 4.6Z" />
+    ),
+    lock: (
+      <>
+        <rect x="6.2" y="10.6" width="11.6" height="8.4" rx="2.2" />
+        <path d="M8.7 10.6V8.9a3.3 3.3 0 0 1 6.6 0v1.7" />
+        <path d="M12 13.8v2.4" />
+      </>
+    ),
+    support: (
+      <>
+        <path d="M5 12a7 7 0 0 1 14 0" />
+        <path d="M6.4 12.4v3.4a1.6 1.6 0 0 0 1.6 1.6h1.2v-6.6H8a1.6 1.6 0 0 0-1.6 1.6Z" />
+        <path d="M17.6 12.4v3.4a1.6 1.6 0 0 1-1.6 1.6h-1.2v-6.6H16a1.6 1.6 0 0 1 1.6 1.6Z" />
+        <path d="M14.8 18.2c-.4 1.3-1.6 2.3-2.8 2.3H10.8" />
+      </>
+    ),
+  };
+
+  return (
+    <svg
+      className={classNames(css.trustIconSvg, className)}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id={gradientId} x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#9dff2e" />
+          <stop offset="50%" stopColor="#22e6b8" />
+          <stop offset="100%" stopColor="#159bff" />
+        </linearGradient>
+      </defs>
+      <g
+        fill="none"
+        stroke={stroke}
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {iconPaths[icon] || null}
+      </g>
+    </svg>
+  );
+};
 
 const cardContent = [
   {
@@ -41,6 +119,7 @@ const cardContent = [
     ctaDefault: 'Find your coach',
     toneClassName: css.cardAthlete,
     ctaClassName: css.cardCtaPrimary,
+    icon: 'pin',
   },
   {
     titleId: 'LandingWhyPeakupSection.cardCoachTitle',
@@ -51,6 +130,7 @@ const cardContent = [
     ctaDefault: 'More info',
     toneClassName: css.cardCoach,
     ctaClassName: css.cardCtaSecondary,
+    icon: 'star',
   },
 ];
 
@@ -76,6 +156,10 @@ const LandingWhyPeakupSection = props => {
     block: blocks[index] || null,
   }));
 
+  const auroraAtmosphereStyle = {
+    '--peakupAuroraAtmosphereImage': `url("${AURORA_ATMOSPHERE_IMAGE_URL}")`,
+  };
+
   return (
     <SectionContainer
       id={sectionId}
@@ -83,6 +167,7 @@ const LandingWhyPeakupSection = props => {
       rootClassName={rootClassName}
       appearance={appearance}
       options={fieldOptions}
+      style={auroraAtmosphereStyle}
     >
       <header className={classNames(defaultClasses.sectionDetails, css.sectionDetails)}>
         <div className={css.titleWrap}>
@@ -94,7 +179,7 @@ const LandingWhyPeakupSection = props => {
             </span>{' '}
             <FormattedMessage
               id="LandingWhyPeakupSection.titleSports"
-              defaultMessage="Sports?"
+              defaultMessage="Sports"
             />
           </h2>
         </div>
@@ -139,6 +224,9 @@ const LandingWhyPeakupSection = props => {
                   options={fieldOptions}
                 />
               ) : null}
+              <div className={css.cardIconBadge} aria-hidden="true">
+                <GradientLineIcon icon={card.icon} className={css.cardIconSvg} />
+              </div>
               <div className={css.cardBackground} aria-hidden="true" />
               <div className={css.cardContent}>
                 <h3 className={css.cardTitle}>
@@ -172,7 +260,9 @@ const LandingWhyPeakupSection = props => {
         <div className={css.trustBar} role="list">
           {trustItems.map(item => (
             <div key={item.id} className={css.trustItem} role="listitem">
-              <span className={css.trustDot} aria-hidden="true" />
+              <span className={css.trustIcon} aria-hidden="true">
+                <GradientLineIcon icon={item.icon} />
+              </span>
               <span className={css.trustLabel}>
                 <FormattedMessage id={item.id} defaultMessage={item.defaultMessage} />
               </span>

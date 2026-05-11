@@ -238,7 +238,7 @@ const LandingHeroSection = props => {
             <span className={css.headlineLine}>
               <FormattedMessage
                 id="LandingHeroSection.headlineLineOne"
-                defaultMessage="Find the right Coach."
+                defaultMessage="Find the right Coach"
               />
             </span>
             <span className={css.headlineLine}>
@@ -250,7 +250,7 @@ const LandingHeroSection = props => {
               </span>{' '}
               <FormattedMessage
                 id="LandingHeroSection.headlineLineTwoRest"
-                defaultMessage="you travel."
+                defaultMessage="you travel"
               />
             </span>
           </h1>

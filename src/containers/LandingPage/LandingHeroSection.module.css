@@ -592,6 +592,12 @@
   justify-content: flex-end;
 }
 
+@media (--viewportMedium) {
+  .featureItem:last-child {
+    transform: translateX(-8%);
+  }
+}
+
 .featureItem:not(:last-child)::after {
   content: '';
   position: absolute;
@@ -613,6 +619,10 @@
     max-width: 800px;
     column-gap: 42px;
     margin-top: 34px;
+  }
+
+  .featureItem:last-child {
+    transform: translateX(-12%);
   }
 }
 
