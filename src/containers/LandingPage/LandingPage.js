@@ -15,9 +15,11 @@ import { fetchFeaturedListings } from '../../ducks/featuredListings.duck';
 import { getListingsById } from '../../ducks/marketplaceData.duck';
 import { getFeaturedListingsProps } from '../../util/data';
 
+import SectionFeatures from '../PageBuilder/SectionBuilder/SectionFeatures';
 import SectionListings from '../PageBuilder/SectionBuilder/SectionListings';
 import SectionPeakupFeaturedCoaches from '../PageBuilder/SectionBuilder/SectionPeakupFeaturedCoaches';
 import LandingHeroSection from './LandingHeroSection';
+import LandingWhyPeakupSection from './LandingWhyPeakupSection';
 
 import css from './LandingPage.module.css';
 
@@ -39,6 +41,9 @@ const PageBuilder = loadable(() =>
 const includesCoach = value =>
   typeof value === 'string' && /coach/i.test(value);
 
+const includesWhyPeakup = value =>
+  typeof value === 'string' && /why[\s-]*peakup/i.test(value);
+
 const isPeakupCoachListingsSection = section => {
   if (!section) return false;
   if (section.peakupRenderAs === 'listings') return false;
@@ -51,6 +56,16 @@ const isPeakupCoachListingsSection = section => {
   return true;
 };
 
+const isPeakupWhySection = section => {
+  if (!section) return false;
+  if (section.peakupRenderAs === 'defaultFeatures') return false;
+  if (section.peakupRenderAs === 'whyPeakup') return true;
+  if (includesWhyPeakup(section.sectionId)) return true;
+  if (includesWhyPeakup(section.sectionName)) return true;
+  if (includesWhyPeakup(section.title?.content)) return true;
+  return false;
+};
+
 export const LandingPageComponent = props => {
   const { pageAssetsData, inProgress, error, featuredCoachesProps } = props;
 
@@ -59,6 +74,14 @@ export const LandingPageComponent = props => {
     () => ({
       hero: {
         component: forwardedProps => <LandingHeroSection {...forwardedProps} />,
+      },
+      features: {
+        component: forwardedProps =>
+          isPeakupWhySection(forwardedProps) ? (
+            <LandingWhyPeakupSection {...forwardedProps} />
+          ) : (
+            <SectionFeatures {...forwardedProps} />
+          ),
       },
       listings: {
         component: forwardedProps =>

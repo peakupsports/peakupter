@@ -7,6 +7,25 @@ import { LandingPageComponent } from './LandingPage';
 
 const { waitFor } = testingLibrary;
 
+const imagePlaceholder = (width, height, label = 'test-image') => ({
+  id: `${label}-${width}x${height}`,
+  type: 'imageAsset',
+  attributes: {
+    variants: {
+      default: {
+        width,
+        height,
+        url: `https://fake.imgix.net/${label}-${width}x${height}.jpg`,
+      },
+      [`${label}-2x`]: {
+        width: width * 2,
+        height: height * 2,
+        url: `https://fake.imgix.net/${label}-${width * 2}x${height * 2}.jpg`,
+      },
+    },
+  },
+});
+
 describe('LandingPage', () => {
   it('renders the Fallback page on error', async () => {
     const errorMessage = 'LandingPage failed';
@@ -65,6 +84,158 @@ describe('LandingPage', () => {
       expect(getByText('This is the description of the section')).toBeInTheDocument();
       expect(getByText('Block title here')).toBeInTheDocument();
       expect(getByText('Lorem ipsum')).toBeInTheDocument();
+    });
+  });
+
+  it('renders the premium Why PeakUp section override', async () => {
+    const data = {
+      sections: [
+        {
+          sectionType: 'features',
+          sectionId: 'why-peakup-sports',
+          title: { fieldType: 'heading2', content: 'Why PeakUp Sports?' },
+          description: {
+            fieldType: 'paragraph',
+            content: 'Hosted copy that should be replaced by the custom landing section.',
+          },
+          blocks: [
+            {
+              blockType: 'defaultBlock',
+              blockId: 'athlete-card',
+              callToAction: {
+                fieldType: 'internalButtonLink',
+                content: 'Old CTA',
+                href: '/s',
+              },
+            },
+            {
+              blockType: 'defaultBlock',
+              blockId: 'coach-card',
+              callToAction: {
+                fieldType: 'internalButtonLink',
+                content: 'Old coach CTA',
+                href: '/p/become-a-coach',
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const { getByText, getAllByText } = render(
+      <LandingPageComponent
+        pageAssetsData={{ landingPage: { data } }}
+        inProgress={false}
+        error={null}
+      />
+    );
+
+    await waitFor(() => {
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'h2' &&
+            /PeakUp|LandingWhyPeakupSection\.titlePeakUp/.test(node?.textContent || '')
+          );
+        })
+      ).toBeInTheDocument();
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'p' &&
+            /One platform\. Two journeys\. Built for athletes and coaches\.|LandingWhyPeakupSection\.subtitle/.test(
+              node?.textContent || ''
+            )
+          );
+        })
+      ).toBeInTheDocument();
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'a' &&
+            /Find your coach|LandingWhyPeakupSection\.cardAthleteCta/.test(node?.textContent || '')
+          );
+        })
+      ).toBeInTheDocument();
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'h3' &&
+            /Become a coach|LandingWhyPeakupSection\.cardCoachTitle/.test(node?.textContent || '')
+          );
+        })
+      ).toBeInTheDocument();
+      expect(
+        getAllByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'span' &&
+            /Secure Booking|LandingWhyPeakupSection\.trustBooking/.test(node?.textContent || '')
+          );
+        })[0]
+      ).toBeInTheDocument();
+      expect(
+        getAllByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'span' &&
+            /24\/7 Support|LandingWhyPeakupSection\.trustSupport/.test(node?.textContent || '')
+          );
+        })[0]
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('renders hosted block images inside Why PeakUp cards when media is provided', async () => {
+    const data = {
+      sections: [
+        {
+          sectionType: 'features',
+          sectionId: 'why-peakup-sports',
+          blocks: [
+            {
+              blockType: 'defaultBlock',
+              blockId: 'athlete-card',
+              media: {
+                fieldType: 'image',
+                alt: 'Athlete journey',
+                image: imagePlaceholder(1200, 800, 'athlete-card'),
+              },
+            },
+            {
+              blockType: 'defaultBlock',
+              blockId: 'coach-card',
+              media: {
+                fieldType: 'image',
+                alt: 'Coach lifestyle',
+                image: imagePlaceholder(1200, 800, 'coach-card'),
+              },
+              callToAction: {
+                fieldType: 'internalButtonLink',
+                content: 'Old coach CTA',
+                href: '/p/become-a-coach',
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const { getByAltText } = render(
+      <LandingPageComponent
+        pageAssetsData={{ landingPage: { data } }}
+        inProgress={false}
+        error={null}
+      />
+    );
+
+    await waitFor(() => {
+      expect(getByAltText('Athlete journey')).toBeInTheDocument();
+      expect(getByAltText('Coach lifestyle')).toBeInTheDocument();
     });
   });
 });
