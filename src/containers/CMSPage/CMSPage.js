@@ -19,8 +19,10 @@ const PageBuilder = loadable(() =>
 );
 
 const HOW_IT_WORKS_PAGE_IDS = new Set(['howitworks']);
+const INSTRUCTORS_PAGE_IDS = new Set(['4_instructors']);
 
 const isHowItWorksPage = pageId => HOW_IT_WORKS_PAGE_IDS.has(String(pageId || '').toLowerCase());
+const isInstructorsPage = pageId => INSTRUCTORS_PAGE_IDS.has(String(pageId || '').toLowerCase());
 
 const getHowItWorksPageData = pageData => {
   if (!pageData?.sections?.length) {
@@ -73,6 +75,8 @@ export const CMSPageComponent = props => {
   const { params, pageAssetsData, inProgress, error } = props;
   const pageId = params.pageId || props.pageId;
   const isPremiumHowItWorks = isHowItWorksPage(pageId);
+  const isPremiumInstructors = isInstructorsPage(pageId);
+  const isPremiumCMSPage = isPremiumHowItWorks || isPremiumInstructors;
   const pageData = pageAssetsData?.[pageId]?.data;
   const themedPageData = isPremiumHowItWorks ? getHowItWorksPageData(pageData) : pageData;
 
@@ -80,6 +84,9 @@ export const CMSPageComponent = props => {
     console.info('[CMSPage] pageId:', pageId);
     if (isPremiumHowItWorks) {
       console.info('[CMSPage] activating howItWorksPremium for:', pageId);
+    }
+    if (isPremiumInstructors) {
+      console.info('[CMSPage] activating instructorsPremiumPage for:', pageId);
     }
   }
 
@@ -90,9 +97,15 @@ export const CMSPageComponent = props => {
   return (
     <PageBuilder
       className={
-        isPremiumHowItWorks ? classNames(sportTheme.sportPremium, css.howItWorksPremium) : null
+        isPremiumCMSPage
+          ? classNames(
+              sportTheme.sportPremium,
+              isPremiumHowItWorks ? css.howItWorksPremium : null,
+              isPremiumInstructors ? css.instructorsPremiumPage : null
+            )
+          : null
       }
-      chromeTheme={isPremiumHowItWorks ? 'sportPremium' : null}
+      chromeTheme={isPremiumCMSPage ? 'sportPremium' : null}
       pageAssetsData={themedPageData}
       inProgress={inProgress}
       schemaType="Article"
