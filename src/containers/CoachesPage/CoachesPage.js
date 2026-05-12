@@ -25,6 +25,7 @@ import { getSportHeroImage } from '../../config/configSportMedia';
 import { fetchCoachesExploreThunk } from '../CoachesExplorePage/CoachesExplorePage.duck';
 
 import css from './CoachesPage.module.css';
+import sportTheme from '../SportPagesTheme.module.css';
 
 /** Pixels scrolled per arrow click (≈ one card + gap). Matches the
  * Landing Page Featured Coaches carousel for visual consistency. */
@@ -144,8 +145,13 @@ const CoachesPage = props => {
   };
 
   return (
-    <Page title={schemaTitle} description={schemaDescription} scrollingDisabled={scrollingDisabled}>
-      <TopbarContainer currentPage="CoachesPage" />
+    <Page
+      title={schemaTitle}
+      description={schemaDescription}
+      scrollingDisabled={scrollingDisabled}
+      className={sportTheme.sportPremium}
+    >
+      <TopbarContainer currentPage="CoachesPage" chromeTheme="sportPremium" />
 
       {/* ============================================================
           Full-page sport-lifestyle backdrop.

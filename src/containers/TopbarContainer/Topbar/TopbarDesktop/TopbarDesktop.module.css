@@ -43,6 +43,121 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
+.rootSportPremium {
+  background-color: transparent;
+  background-image: linear-gradient(180deg, #0b101c 0%, #0a0d14 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.rootSportPremium .topbarLink,
+.rootSportPremium .profileMenuLabel,
+.rootSportPremium .search {
+  color: rgba(244, 246, 250, 0.86);
+}
+
+.rootSportPremium .topbarLink:hover,
+.rootSportPremium .profileMenuLabel:hover {
+  color: #ffffff;
+}
+
+.rootSportPremium .profileMenuContent {
+  background:
+    linear-gradient(180deg, rgba(11, 18, 30, 0.98) 0%, rgba(8, 13, 23, 0.99) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  box-shadow:
+    0 22px 42px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.rootSportPremium .menuLink,
+.rootSportPremium .logoutButton {
+  color: rgba(228, 235, 243, 0.78);
+}
+
+.rootSportPremium .menuLink:hover,
+.rootSportPremium .logoutButton:hover {
+  color: #ffffff;
+  background: linear-gradient(
+    90deg,
+    rgba(24, 200, 255, 0.08) 0%,
+    rgba(33, 230, 193, 0.06) 52%,
+    rgba(183, 255, 63, 0.04) 100%
+  );
+}
+
+.rootSportPremium .logoutButton {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.rootSportPremium .currentPage {
+  color: #ffffff;
+}
+
+.rootSportPremium .currentPage .menuItemBorder,
+.rootSportPremium .currentPage:hover .menuItemBorder {
+  background-color: rgba(33, 230, 193, 0.72);
+}
+
+.rootSportPremium .logoLink:hover {
+  border-bottom-color: rgba(33, 230, 193, 0.78);
+}
+
+.rootSportPremium .logoImage {
+  width: auto;
+  height: 56px;
+  max-width: min(100%, 340px);
+  max-height: 60px;
+  object-fit: contain;
+}
+
+.rootSportPremium :global([class*='LinksMenu_linkMenuLabel']) {
+  color: rgba(244, 246, 250, 0.86);
+}
+
+.rootSportPremium :global([class*='LinksMenu_linkMenuLabel']:hover) {
+  color: #ffffff;
+  border-bottom-color: rgba(33, 230, 193, 0.78);
+}
+
+.rootSportPremium :global([class*='LinksMenu_linkMenuContent']) {
+  background:
+    linear-gradient(180deg, rgba(11, 18, 30, 0.98) 0%, rgba(8, 13, 23, 0.99) 100%);
+  border: 1px solid rgba(24, 200, 255, 0.14);
+  border-radius: 18px;
+  box-shadow:
+    0 22px 42px rgba(0, 0, 0, 0.36),
+    0 0 26px rgba(24, 200, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.rootSportPremium :global([class*='LinksMenu_menuLink']) {
+  color: rgba(228, 235, 243, 0.78);
+}
+
+.rootSportPremium :global([class*='LinksMenu_menuLink']:hover) {
+  color: #ffffff;
+  background: linear-gradient(
+    90deg,
+    rgba(24, 200, 255, 0.08) 0%,
+    rgba(33, 230, 193, 0.06) 52%,
+    rgba(183, 255, 63, 0.04) 100%
+  );
+}
+
+.rootSportPremium :global([class*='LinksMenu_menuLink']:hover [class*='LinksMenu_menuItemBorder']) {
+  background-color: rgba(33, 230, 193, 0.78);
+}
+
+.rootSportPremium :global([class*='LinksMenu_currentPage']) {
+  color: #ffffff;
+}
+
+.rootSportPremium :global([class*='LinksMenu_currentPage'] [class*='LinksMenu_menuItemBorder']) {
+  background-color: rgba(33, 230, 193, 0.72);
+}
+
 .rootCoachMap .centerSlot {
   border-left-color: rgba(255, 255, 255, 0.08);
 }

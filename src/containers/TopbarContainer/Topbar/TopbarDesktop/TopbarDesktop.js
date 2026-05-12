@@ -142,6 +142,7 @@ const TopbarDesktop = props => {
     customLinks,
     currentUser,
     currentPage,
+    chromeTheme,
     rootClassName,
     notificationCount = 0,
     intl,
@@ -167,6 +168,7 @@ const TopbarDesktop = props => {
   const giveSpaceForSearch = customLinks == null || customLinks?.length === 0;
   const classes = classNames(
     rootClassName || css.root,
+    chromeTheme === 'sportPremium' ? css.rootSportPremium : null,
     currentPage === 'CoachMapPage' ? css.rootCoachMap : null,
     className
   );

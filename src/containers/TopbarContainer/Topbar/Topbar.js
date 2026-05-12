@@ -158,6 +158,7 @@ const TopbarComponent = props => {
     showGenericError,
     disableSearch,
     topbarCenterContent,
+    chromeTheme,
     config,
     routeConfiguration,
   } = props;
@@ -241,6 +242,7 @@ const TopbarComponent = props => {
   const sortedCustomLinks = sortCustomLinks(config.topbar?.customLinks);
   const customLinks = getResolvedCustomLinks(sortedCustomLinks, routeConfiguration);
   const resolvedCurrentPage = currentPage || getResolvedCurrentPage(location, routeConfiguration);
+  const isSportPremiumChrome = chromeTheme === 'sportPremium';
 
   // Pages that render the global SportBar inside the topbar instead of an
   // inline filter row. CoachMapPage owns its own (with winter variants) and
@@ -446,6 +448,7 @@ const TopbarComponent = props => {
       <nav
         className={classNames(
           mobileRootClassName || css.container,
+          isSportPremiumChrome ? css.containerSportPremium : null,
           resolvedCurrentPage === 'CoachMapPage' ? css.containerCoachMap : null,
           mobileClassName
         )}
@@ -473,6 +476,7 @@ const TopbarComponent = props => {
       <div className={css.desktop}>
         <TopbarDesktop
           className={desktopClassName}
+          chromeTheme={chromeTheme}
           currentUserHasListings={currentUserHasListings}
           currentUser={currentUser}
           currentPage={resolvedCurrentPage}
@@ -502,7 +506,10 @@ const TopbarComponent = props => {
       </div>
       <Modal
         id="TopbarMobileMenu"
-        containerClassName={css.modalContainer}
+        containerClassName={classNames(
+          css.modalContainer,
+          isSportPremiumChrome ? css.modalContainerSportPremium : null
+        )}
         isOpen={isMobileMenuOpen}
         onClose={() => redirectToURLWithoutModalState(history, location, 'mobilemenu')}
         usePortal

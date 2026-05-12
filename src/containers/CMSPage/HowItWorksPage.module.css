@@ -1,0 +1,1600 @@
+@import '../../styles/customMediaQueries.css';
+
+.howItWorksPremium {
+  --howItWorksBgTop: #07111d;
+  --howItWorksBgMid: #09131f;
+  --howItWorksBgBottom: #090f18;
+  --howItWorksCardBg:
+    linear-gradient(180deg, rgba(12, 19, 31, 0.82) 0%, rgba(8, 13, 23, 0.9) 100%);
+  --howItWorksCardBorder: rgba(255, 255, 255, 0.08);
+  --howItWorksCardShadow:
+    0 24px 54px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --howItWorksTextPrimary: rgba(248, 251, 255, 0.96);
+  --howItWorksTextSecondary: rgba(224, 232, 241, 0.74);
+  --howItWorksAccent:
+    linear-gradient(135deg, #18c8ff 0%, #21e6c1 45%, #b7ff3f 100%);
+  --howItWorksIconUsers: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9.5' cy='7' r='3.25'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16.8 3.2a3.25 3.25 0 0 1 0 6.3'/%3E%3C/svg%3E");
+  --howItWorksIconRocket: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 19.5c1.8-.4 3.8-1 5.5-2.7l4.2-4.2c1.7-1.7 2.5-4.3 2.4-6.8-2.5-.1-5.1.7-6.8 2.4l-4.2 4.2C3.9 14.1 3.3 16.1 2.9 17.9'/%3E%3Cpath d='M12.5 7.5l4 4'/%3E%3Cpath d='M6 18l-2 4 4-2'/%3E%3C/svg%3E");
+  --howItWorksIconSearch: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10.5' cy='10.5' r='5.75'/%3E%3Cpath d='M15 15l5.5 5.5'/%3E%3C/svg%3E");
+  --howItWorksIconCalendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='3'/%3E%3Cpath d='M8 3v4M16 3v4M3 10h18'/%3E%3C/svg%3E");
+  --howItWorksIconTrend: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19h16'/%3E%3Cpath d='M6 15l4-4 3 3 5-6'/%3E%3Cpath d='M15 8h3v3'/%3E%3C/svg%3E");
+  --howItWorksIconEye: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+  --howItWorksIconWallet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7.5h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z'/%3E%3Cpath d='M4 9.5V7a2 2 0 0 1 2-2h10'/%3E%3Cpath d='M15 13h5'/%3E%3Ccircle cx='15.5' cy='13' r='.7' fill='black' stroke='none'/%3E%3C/svg%3E");
+  --howItWorksIconClock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.5v5l3 2'/%3E%3C/svg%3E");
+}
+
+@media (--viewportLarge) {
+  .howItWorksPremium :global(header) [class*='TopbarDesktop_logoLink'][class*='LinkedLogo_root'] {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    min-width: max-content;
+    padding-left: 24px;
+    padding-right: 20px;
+  }
+
+  .howItWorksPremium
+    :global(header)
+    [class*='TopbarDesktop_logoLink'][class*='LinkedLogo_root']
+    [class*='Logo_root'] {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    max-width: none;
+    min-width: max-content;
+    margin: 0;
+  }
+
+  .howItWorksPremium
+    :global(header)
+    [class*='TopbarDesktop_logoLink'][class*='LinkedLogo_root']
+    [class*='Logo_logo'] {
+    width: auto;
+    height: 58px;
+    max-width: min(100%, 352px);
+    max-height: 62px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 12px rgba(24, 200, 255, 0.08));
+  }
+}
+
+.howItWorksPremium :global(main) {
+  background:
+    radial-gradient(88% 68% at 16% 0%, rgba(21, 155, 255, 0.14) 0%, transparent 54%),
+    radial-gradient(84% 70% at 82% 12%, rgba(34, 230, 184, 0.08) 0%, transparent 56%),
+    linear-gradient(
+      180deg,
+      var(--howItWorksBgTop) 0%,
+      var(--howItWorksBgMid) 40%,
+      var(--howItWorksBgBottom) 100%
+    );
+}
+
+.howItWorksPremium :global(main) > :global(section) {
+  position: relative;
+  overflow: hidden;
+}
+
+.howItWorksPremium :global(main) > :global(section):not(:first-of-type) {
+  background:
+    radial-gradient(82% 60% at 50% 0%, rgba(21, 155, 255, 0.06) 0%, transparent 58%),
+    linear-gradient(180deg, rgba(7, 12, 20, 0.94) 0%, rgba(7, 11, 18, 0.98) 100%);
+}
+
+.howItWorksPremium :global(main) > :global(section):nth-of-type(2)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: clamp(116px, 14vw, 180px);
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(72% 80% at 50% 0%, rgba(21, 155, 255, 0.06) 0%, transparent 72%),
+    linear-gradient(
+      180deg,
+      rgba(7, 11, 18, 0.54) 0%,
+      rgba(7, 11, 18, 0.22) 42%,
+      rgba(7, 11, 18, 0) 100%
+    );
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type)
+  > [class*='SectionContainer_sectionContent'] {
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  > [class*='SectionContainer_sectionContent'] {
+  padding-top: 24px;
+}
+
+@media (--viewportMedium) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):not(:first-of-type)
+    > [class*='SectionContainer_sectionContent'] {
+    padding-top: 72px;
+    padding-bottom: 72px;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    > [class*='SectionContainer_sectionContent'] {
+    padding-top: 32px;
+  }
+}
+
+.howItWorksPremium :global(main) > :global(section):first-of-type {
+  min-height: 84vh;
+  background-color: #07111d;
+  overflow: visible;
+  isolation: isolate;
+  z-index: 4;
+}
+
+.howItWorksPremium :global(main) > :global(section):first-of-type::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: clamp(144px, 18vw, 220px);
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(84% 72% at 50% 0%, rgba(21, 155, 255, 0.08) 0%, transparent 64%),
+    linear-gradient(
+      180deg,
+      rgba(7, 12, 20, 0) 0%,
+      rgba(7, 12, 20, 0.08) 22%,
+      rgba(7, 11, 18, 0.22) 48%,
+      rgba(7, 11, 18, 0.48) 72%,
+      rgba(7, 11, 18, 0.82) 100%
+    );
+}
+
+.howItWorksPremium :global(main) > :global(section):first-of-type::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(78% 58% at 72% 14%, rgba(24, 200, 255, 0.12) 0%, transparent 56%),
+    linear-gradient(
+      90deg,
+      rgba(4, 10, 18, 0.9) 0%,
+      rgba(6, 12, 21, 0.82) 24%,
+      rgba(7, 13, 22, 0.54) 52%,
+      rgba(7, 13, 22, 0.18) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(7, 13, 22, 0.42) 0%,
+      rgba(7, 13, 22, 0.44) 24%,
+      rgba(7, 13, 22, 0.58) 62%,
+      rgba(7, 13, 22, 0.8) 100%
+    );
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  [class*='CustomAppearance_backgroundImageWrapper'] {
+  opacity: 0.94;
+  filter: saturate(1.08) contrast(1.06) brightness(0.92);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  > [class*='SectionContainer_sectionContent'] {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  flex: 1 0 100%;
+  display: flex;
+  justify-content: flex-start;
+  overflow: visible;
+  padding: 0;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SectionBuilder_sectionDetails'] {
+  width: 100%;
+  max-width: min(var(--contentMaxWidthPages), 1144px);
+  margin: 0 auto 0 0;
+  padding: 96px 32px 72px;
+  box-sizing: border-box;
+  align-items: start;
+  justify-content: start;
+  text-align: left;
+  transform: translateY(clamp(-20px, -3vw, -44px));
+  overflow: visible;
+  z-index: 6;
+}
+
+@media (--viewportMedium) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_sectionDetails'] {
+    padding-top: 116px;
+    padding-bottom: 88px;
+  }
+}
+
+@media (--viewportLarge) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_sectionDetails'] {
+    padding-top: 128px;
+    padding-bottom: 96px;
+  }
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SectionBuilder_title'],
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SectionBuilder_description'],
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SearchCTA_searchBarContainer'] {
+  align-self: start;
+  justify-self: start;
+  text-align: left;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SectionBuilder_title'] {
+  position: relative;
+  display: block;
+  margin: 0;
+  max-width: 12.2ch;
+  color: #ffffff;
+  font-size: clamp(34px, 5.9vw, 76px);
+  font-weight: 600;
+  letter-spacing: -0.028em;
+  line-height: 0.96;
+  text-shadow: none;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SectionBuilder_title']::before {
+  content: 'HOW IT WORKS';
+  display: block;
+  width: max-content;
+  margin-bottom: 18px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  background-image: var(--howItWorksAccent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(33, 230, 193, 0.12));
+}
+
+@media (--viewportMedium) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_title'] {
+    max-width: 12.2ch;
+    font-size: clamp(34px, 5.9vw, 76px);
+  }
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SectionBuilder_description'] {
+  max-width: 44ch;
+  margin: 28px 0 0;
+  color: rgba(245, 247, 250, 0.84);
+  font-size: clamp(16px, 2vw, 20px);
+  letter-spacing: normal;
+  line-height: 1.55;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.22);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type)
+  [class*='SectionBuilder_title'] {
+  color: var(--howItWorksTextPrimary);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type)
+  [class*='SectionBuilder_description'] {
+  color: var(--howItWorksTextSecondary);
+  letter-spacing: 0.004em;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SearchCTA_searchBarContainer'] {
+  position: relative;
+  overflow: visible;
+  background:
+    linear-gradient(180deg, rgba(12, 19, 31, 0.76) 0%, rgba(8, 13, 23, 0.88) 100%);
+  border: 1px solid rgba(24, 200, 255, 0.14);
+  border-radius: 20px;
+  box-shadow:
+    0 24px 52px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(33, 230, 193, 0.04);
+  backdrop-filter: blur(16px) saturate(130%);
+  width: min(100%, 1060px);
+  margin-top: 32px;
+  margin-left: 0;
+  margin-right: auto;
+  padding: 8px;
+  z-index: 12;
+}
+
+@media (--viewportLarge) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SearchCTA_searchBarContainer'] {
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SearchCTA_searchBarContainer'][class*='SearchCTA_gridCol4'] {
+    min-width: 0;
+  }
+}
+
+.howItWorksPremium :global(main) [class*='SearchCTA_gridContainer'] > *:not(:last-child):not(:nth-last-child(2)) {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  :is(
+    [class*='FilterCategories_root'],
+    [class*='FilterCategories_dropdownContainer'],
+    [class*='SearchCTA_gridContainer'],
+    [class*='SearchCTA_filterField']
+  ) {
+  position: relative;
+  overflow: visible;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):first-of-type
+  :is(
+    [class*='FilterCategories_dropdownContent'],
+    [class*='FilterLocation_predictions'],
+    [class*='FilterDateRange_datePicker'],
+    [class*='LocationAutocompleteInput_predictionsRoot']
+  ) {
+  z-index: 40;
+}
+
+.howItWorksPremium :global(main) > :global(section):not(:first-of-type) {
+  z-index: 1;
+}
+
+.howItWorksPremium :global(main) [class*='SearchCTA_filterField'] {
+  color: rgba(244, 246, 250, 0.72);
+}
+
+.howItWorksPremium :global(main) [class*='FilterCategories_toggleButton'],
+.howItWorksPremium :global(main) [class*='FilterDateRange_toggleButton'],
+.howItWorksPremium :global(main) [class*='FilterKeyword_input'],
+.howItWorksPremium :global(main) [class*='FilterLocation_input'],
+.howItWorksPremium :global(main) [class*='FilterLocation_inputWithCurrentLocation'] {
+  color: rgba(244, 246, 250, 0.92);
+  background: transparent;
+}
+
+.howItWorksPremium :global(main) [class*='FilterCategories_toggleButton'] {
+  font-weight: 600;
+}
+
+.howItWorksPremium :global(main) [class*='FilterKeyword_input']::placeholder,
+.howItWorksPremium :global(main) [class*='FilterLocation_input']::placeholder,
+.howItWorksPremium :global(main) [class*='FilterLocation_inputWithCurrentLocation']::placeholder {
+  color: rgba(214, 224, 235, 0.54);
+}
+
+.howItWorksPremium :global(main) [class*='FilterDateRange_label'],
+.howItWorksPremium :global(main) [class*='FilterCategories_unselected'],
+.howItWorksPremium :global(main) [class*='FilterCategories_placeholderOpened'] {
+  color: rgba(214, 224, 235, 0.66);
+}
+
+.howItWorksPremium :global(main) [class*='FilterCategories_chevron']::before {
+  border-right-color: rgba(214, 224, 235, 0.68);
+  border-bottom-color: rgba(214, 224, 235, 0.68);
+}
+
+.howItWorksPremium :global(main) [class*='FilterLocation_locationAutocompleteInputIconWrapper'] {
+  background: transparent;
+}
+
+.howItWorksPremium :global(main) [class*='FilterLocation_customIconLocation'],
+.howItWorksPremium :global(main) [class*='FilterDateRange_iconDate'] {
+  stroke: rgba(33, 230, 193, 0.84);
+  color: rgba(33, 230, 193, 0.84);
+}
+
+.howItWorksPremium :global(main) [class*='FilterCategories_dropdownContent'],
+.howItWorksPremium :global(main) [class*='FilterLocation_predictions'],
+.howItWorksPremium :global(main) [class*='FilterDateRange_datePicker'] {
+  background:
+    linear-gradient(180deg, rgba(11, 18, 30, 0.96) 0%, rgba(8, 13, 23, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  box-shadow:
+    0 24px 50px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px) saturate(130%);
+}
+
+.howItWorksPremium :global(main) [class*='FilterCategories_option'] {
+  background: transparent;
+  color: rgba(228, 235, 243, 0.78);
+}
+
+.howItWorksPremium :global(main) [class*='FilterCategories_option']:hover,
+.howItWorksPremium :global(main) [class*='FilterCategories_activeOption'] {
+  color: #ffffff;
+}
+
+.howItWorksPremium :global(main) [class*='FilterCategories_dropdownItemBorder'] {
+  background-image: linear-gradient(180deg, #18c8ff 0%, #21e6c1 100%);
+}
+
+.howItWorksPremium :global(main) [class*='FilterCategories_dropdownItemBorderSelected'] {
+  background-image: linear-gradient(180deg, #21e6c1 0%, #b7ff3f 100%);
+}
+
+.howItWorksPremium :global(main) [class*='LocationAutocompleteInput_predictionsRoot'],
+.howItWorksPremium :global(main) [class*='LocationAutocompleteInput_predictionsRootGoogle'],
+.howItWorksPremium :global(main) [class*='LocationAutocompleteInput_predictionsRootMapbox'] {
+  background: transparent;
+}
+
+.howItWorksPremium :global(main) [class*='LocationAutocompleteInput_predictions'] {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.howItWorksPremium :global(main) [class*='LocationAutocompleteInput_predictions'] :global(li) {
+  color: rgba(228, 235, 243, 0.8);
+}
+
+.howItWorksPremium
+  :global(main)
+  [class*='LocationAutocompleteInput_predictions']
+  :global(li:hover),
+.howItWorksPremium
+  :global(main)
+  [class*='LocationAutocompleteInput_predictions']
+  :global(li.highlighted) {
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+}
+
+.howItWorksPremium :global(main) [class*='FilterDateRange_datePicker'] [class*='DatePicker_root'],
+.howItWorksPremium :global(main) [class*='FilterDateRange_datePicker'] [class*='DateRangeController_root'] {
+  background: transparent;
+  border-color: transparent;
+  color: rgba(228, 235, 243, 0.84);
+}
+
+.howItWorksPremium :global(main) [class*='FilterDateRange_datePicker'] [class*='DatePicker_monthName'],
+.howItWorksPremium :global(main) [class*='FilterDateRange_datePicker'] [class*='DatePicker_weekday'] > :global(span) {
+  color: rgba(244, 246, 250, 0.84);
+}
+
+.howItWorksPremium :global(main) [class*='FilterDateRange_datePicker'] [class*='DatePicker_arrowIcon'] {
+  stroke: #21e6c1;
+  fill: #21e6c1;
+}
+
+.howItWorksPremium
+  :global(main)
+  [class*='FilterDateRange_datePicker']
+  [class*='DatePicker_dateSelected']
+  [class*='DatePicker_renderedDay'],
+.howItWorksPremium
+  :global(main)
+  [class*='FilterDateRange_datePicker']
+  [class*='DatePicker_dateStart']
+  [class*='DatePicker_renderedDay'],
+.howItWorksPremium
+  :global(main)
+  [class*='FilterDateRange_datePicker']
+  [class*='DatePicker_dateEnd']
+  [class*='DatePicker_renderedDay'],
+.howItWorksPremium
+  :global(main)
+  [class*='FilterDateRange_datePicker']
+  [class*='DatePicker_dateInRange']
+  [class*='DatePicker_renderedDay'] {
+  background-image: linear-gradient(135deg, #18c8ff 0%, #21e6c1 48%, #b7ff3f 100%);
+  color: #041018;
+}
+
+.howItWorksPremium :global(main) [class*='SearchCTA_submitButton'] {
+  min-height: 50px;
+  padding-left: 24px;
+  padding-right: 24px;
+  border: none;
+  border-radius: 999px;
+  background-image: linear-gradient(135deg, #18c8ff 0%, #21e6c1 45%, #b7ff3f 100%);
+  color: #041018;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.22),
+    0 0 24px rgba(33, 230, 193, 0.08);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.howItWorksPremium :global(main) [class*='SearchCTA_submitButton']:hover,
+.howItWorksPremium :global(main) [class*='SearchCTA_submitButton']:focus-visible {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+@media (max-width: 767px) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_sectionDetails'] {
+    padding-top: 88px;
+    padding-bottom: 56px;
+    transform: translateY(-16px);
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_title'] {
+    max-width: 10.5ch;
+    font-size: clamp(31px, 8.6vw, 40px);
+    line-height: 0.98;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SearchCTA_searchBarContainer'] {
+    margin-top: 26px;
+    border-radius: 18px;
+  }
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type):not(:last-of-type)
+  [class*='SectionBuilder_blockContainer'] {
+  gap: 24px;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(2)
+  [class*='SectionBuilder_title'],
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_title'] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 10px;
+  margin-bottom: -10px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(2)
+  [class*='SectionBuilder_title']::before,
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_title']::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 16px);
+  transform: translateX(-50%);
+  display: block;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  margin: 0;
+  background-image: var(--howItWorksAccent);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  filter: drop-shadow(0 0 20px rgba(33, 230, 193, 0.24))
+    drop-shadow(0 0 30px rgba(24, 200, 255, 0.16));
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(2)
+  [class*='SectionBuilder_title']::before {
+  -webkit-mask-image: var(--howItWorksIconUsers);
+  mask-image: var(--howItWorksIconUsers);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_title']::before {
+  -webkit-mask-image: var(--howItWorksIconRocket);
+  mask-image: var(--howItWorksIconRocket);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):is(:nth-of-type(2), :nth-of-type(3))
+  [class*='SectionBuilder_description'] {
+  max-width: 38ch;
+  margin: 12px auto 0;
+  text-align: center;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_title'] {
+  margin-top: -10px;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_description'] {
+  margin-top: 10px;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_blockContainer'] {
+  padding-top: 28px;
+}
+
+@media (--viewportMedium) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):not(:first-of-type):not(:last-of-type)
+    [class*='SectionBuilder_blockContainer'] {
+    gap: 32px;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionBuilder_blockContainer'] {
+    padding-top: 36px;
+  }
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type):not(:last-of-type)
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+  position: relative;
+  height: 100%;
+  padding: 20px 28px 26px;
+  border-radius: 28px;
+  background: var(--howItWorksCardBg);
+  border: 1px solid var(--howItWorksCardBorder);
+  box-shadow: var(--howItWorksCardShadow);
+  backdrop-filter: blur(14px) saturate(130%);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+  min-height: auto;
+  padding: 20px 28px 26px;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type):not(:last-of-type)
+  :is([class*='BlockDefault_text'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6):first-child {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  :is([class*='BlockDefault_text'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6):first-child {
+  display: block;
+  margin-top: 4px;
+  margin-bottom: 0;
+  text-wrap: balance;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type):not(:last-of-type)
+  :is([class*='BlockDefault_text'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6):first-child::before {
+  content: '';
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  margin: 0;
+  background-image: var(--howItWorksAccent);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  filter: drop-shadow(0 0 18px rgba(33, 230, 193, 0.18))
+    drop-shadow(0 0 26px rgba(24, 200, 255, 0.12));
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  :is([class*='BlockDefault_text'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6):first-child::before {
+  display: block;
+  width: 46px;
+  height: 46px;
+  margin: 0 0 16px;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(2)
+  [class*='SectionBuilder_blockContainer']
+  > *:nth-child(1)
+  :is([class*='BlockDefault_text'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6):first-child::before {
+  -webkit-mask-image: var(--howItWorksIconSearch);
+  mask-image: var(--howItWorksIconSearch);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(2)
+  [class*='SectionBuilder_blockContainer']
+  > *:nth-child(2)
+  :is([class*='BlockDefault_text'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6):first-child::before {
+  -webkit-mask-image: var(--howItWorksIconCalendar);
+  mask-image: var(--howItWorksIconCalendar);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(2)
+  [class*='SectionBuilder_blockContainer']
+  > *:nth-child(3)
+  :is([class*='BlockDefault_text'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6):first-child::before {
+  -webkit-mask-image: var(--howItWorksIconTrend);
+  mask-image: var(--howItWorksIconTrend);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_blockContainer']
+  > *:nth-child(1)
+  :is([class*='BlockDefault_text'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6):first-child::before {
+  -webkit-mask-image: var(--howItWorksIconEye);
+  mask-image: var(--howItWorksIconEye);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_blockContainer']
+  > *:nth-child(2)
+  :is([class*='BlockDefault_text'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6):first-child::before {
+  -webkit-mask-image: var(--howItWorksIconWallet);
+  mask-image: var(--howItWorksIconWallet);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_blockContainer']
+  > *:nth-child(3)
+  :is([class*='BlockDefault_text'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6):first-child::before {
+  -webkit-mask-image: var(--howItWorksIconClock);
+  mask-image: var(--howItWorksIconClock);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type):not(:last-of-type)
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']):hover {
+  transform: translateY(-2px);
+  border-color: rgba(33, 230, 193, 0.14);
+  box-shadow:
+    0 28px 56px rgba(0, 0, 0, 0.34),
+    0 0 0 1px rgba(33, 230, 193, 0.04),
+    0 0 22px rgba(21, 155, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type):not(:last-of-type)
+  [class*='BlockDefault_media'] {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type):not(:last-of-type)
+  [class*='BlockDefault_text'] {
+  margin-top: 0;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='BlockDefault_text'] {
+  display: block;
+  height: auto;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type):not(:last-of-type)
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--howItWorksTextPrimary);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type):not(:last-of-type)
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])
+  :is(p, li, span) {
+  color: rgba(232, 239, 246, 0.84);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])
+  :is(p, li) {
+  max-width: none;
+  font-size: 15px;
+  line-height: 1.74;
+  color: rgba(236, 242, 248, 0.88);
+  text-wrap: pretty;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):nth-of-type(3)
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])
+  :is(h1, h2, h3, h4, h5, h6)
+  + :is(p, ul, ol) {
+  margin-top: 14px;
+}
+
+@media (--viewportMedium) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+    min-height: auto;
+  }
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type)
+  [class*='SectionBuilder_ctaButton'] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(180deg, rgba(13, 20, 31, 0.92) 0%, rgba(8, 13, 23, 0.96) 100%) padding-box,
+    linear-gradient(135deg, rgba(24, 200, 255, 0.26) 0%, rgba(33, 230, 193, 0.22) 45%, rgba(183, 255, 63, 0.2) 100%)
+      border-box;
+  color: rgba(244, 246, 250, 0.94);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 24px rgba(0, 0, 0, 0.22);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type)
+  [class*='SectionBuilder_ctaButton']:hover,
+.howItWorksPremium
+  :global(main)
+  > :global(section):not(:first-of-type)
+  [class*='SectionBuilder_ctaButton']:focus-visible {
+  color: #ffffff;
+  text-decoration: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 14px 28px rgba(0, 0, 0, 0.28),
+    0 0 22px rgba(33, 230, 193, 0.08);
+}
+
+.howItWorksPremium :global(main) > :global(section):last-of-type {
+  background:
+    radial-gradient(88% 68% at 50% 0%, rgba(21, 155, 255, 0.08) 0%, transparent 58%),
+    linear-gradient(180deg, rgba(7, 12, 20, 0.96) 0%, rgba(7, 11, 18, 1) 100%);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  > [class*='SectionContainer_sectionContent'] {
+  padding-top: 40px;
+  padding-bottom: 56px;
+}
+
+@media (--viewportMedium) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):last-of-type
+    > [class*='SectionContainer_sectionContent'] {
+    padding-top: 56px;
+    padding-bottom: 72px;
+  }
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer'] {
+  position: relative;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 32px;
+  background:
+    linear-gradient(180deg, rgba(10, 16, 28, 0.84) 0%, rgba(6, 10, 18, 0.94) 100%) padding-box,
+    linear-gradient(
+        120deg,
+        rgba(24, 200, 255, 0.62) 0%,
+        rgba(129, 232, 255, 0.24) 18%,
+        rgba(255, 255, 255, 0.18) 48%,
+        rgba(179, 255, 119, 0.24) 78%,
+        rgba(125, 255, 99, 0.58) 100%
+      )
+      border-box;
+  border: 1px solid transparent;
+  box-shadow:
+    0 32px 70px rgba(0, 0, 0, 0.38),
+    0 0 38px rgba(24, 200, 255, 0.13),
+    0 0 38px rgba(125, 255, 99, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  isolation: isolate;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(
+      66% 170% at 50% 50%,
+      rgba(5, 9, 16, 0.56) 0%,
+      rgba(5, 9, 16, 0.46) 16%,
+      rgba(5, 9, 16, 0.33) 32%,
+      rgba(5, 9, 16, 0.18) 50%,
+      rgba(5, 9, 16, 0.08) 68%,
+      rgba(5, 9, 16, 0) 88%
+    ),
+    radial-gradient(
+      86% 136% at 50% 100%,
+      rgba(6, 10, 18, 0.3) 0%,
+      rgba(6, 10, 18, 0.16) 36%,
+      rgba(6, 10, 18, 0.05) 62%,
+      rgba(6, 10, 18, 0) 84%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(7, 11, 18, 0.02) 0%,
+      rgba(7, 11, 18, 0.06) 24%,
+      rgba(7, 11, 18, 0.14) 38%,
+      rgba(7, 11, 18, 0.24) 50%,
+      rgba(7, 11, 18, 0.14) 62%,
+      rgba(7, 11, 18, 0.06) 76%,
+      rgba(7, 11, 18, 0.02) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 22px 0 44px rgba(24, 200, 255, 0.02),
+    inset -22px 0 44px rgba(33, 230, 193, 0.018);
+}
+
+@media (--viewportMedium) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):last-of-type
+    [class*='SectionBuilder_blockContainer'][class*='SectionColumns_twoColumns'] {
+    gap: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    align-items: stretch;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):last-of-type
+    [class*='SectionBuilder_blockContainer']
+    > * {
+    min-width: 0;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):last-of-type
+    [class*='SectionBuilder_blockContainer'][class*='SectionColumns_twoColumns']::after {
+    content: '';
+    position: absolute;
+    top: 18px;
+    bottom: 18px;
+    left: 50%;
+    width: 3px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 3;
+    background: linear-gradient(
+      180deg,
+      rgba(24, 200, 255, 0) 0%,
+      rgba(24, 200, 255, 0.42) 12%,
+      rgba(24, 200, 255, 0.7) 30%,
+      rgba(245, 253, 255, 0.58) 50%,
+      rgba(105, 246, 169, 0.62) 68%,
+      rgba(125, 255, 99, 0.46) 86%,
+      rgba(125, 255, 99, 0) 100%
+    );
+    box-shadow:
+      0 0 10px rgba(24, 200, 255, 0.26),
+      0 0 28px rgba(125, 255, 99, 0.2);
+    opacity: 1;
+  }
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+  position: relative;
+  min-height: 276px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 0;
+  background: rgba(8, 14, 24, 0.44);
+  border: none;
+  box-shadow: none;
+}
+
+@media (--viewportMedium) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):last-of-type
+    :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+    min-height: 322px;
+  }
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(68% 48% at 50% 18%, rgba(21, 155, 255, 0.12) 0%, transparent 56%),
+    linear-gradient(
+      180deg,
+      rgba(8, 13, 23, 0.08) 0%,
+      rgba(8, 13, 23, 0.26) 38%,
+      rgba(6, 10, 18, 0.84) 100%
+    );
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:first-child
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])::before {
+  background:
+    radial-gradient(74% 56% at 28% 18%, rgba(21, 155, 255, 0.1) 0%, transparent 58%),
+    radial-gradient(38% 34% at 74% 28%, rgba(8, 12, 20, 0.26) 0%, rgba(8, 12, 20, 0.14) 52%, rgba(8, 12, 20, 0) 100%),
+    linear-gradient(90deg, rgba(8, 13, 23, 0.02) 0%, rgba(8, 13, 23, 0.04) 36%, rgba(8, 13, 23, 0.16) 72%, rgba(8, 13, 23, 0.3) 100%),
+    linear-gradient(
+      180deg,
+      rgba(8, 13, 23, 0.04) 0%,
+      rgba(8, 13, 23, 0.2) 40%,
+      rgba(6, 10, 18, 0.82) 100%
+    );
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:last-child
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])::before {
+  background:
+    radial-gradient(74% 56% at 72% 18%, rgba(33, 230, 193, 0.085) 0%, transparent 58%),
+    linear-gradient(90deg, rgba(8, 13, 23, 0.3) 0%, rgba(8, 13, 23, 0.16) 26%, rgba(8, 13, 23, 0.04) 60%, rgba(8, 13, 23, 0.02) 100%),
+    linear-gradient(
+      180deg,
+      rgba(8, 13, 23, 0.04) 0%,
+      rgba(8, 13, 23, 0.2) 40%,
+      rgba(6, 10, 18, 0.82) 100%
+    );
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:first-child
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])::after {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 12%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 97%, rgba(24, 200, 255, 0.06) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset -1px 0 0 rgba(24, 200, 255, 0.05);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:last-child
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])::after {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 12%),
+    linear-gradient(90deg, rgba(33, 230, 193, 0.06) 0%, rgba(255, 255, 255, 0) 3%, rgba(255, 255, 255, 0) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 1px 0 0 rgba(33, 230, 193, 0.05);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:first-child:hover
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+  box-shadow:
+    inset 0 0 0 1px rgba(24, 200, 255, 0.08),
+    0 0 16px rgba(24, 200, 255, 0.04);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:last-child:hover
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+  box-shadow:
+    inset 0 0 0 1px rgba(33, 230, 193, 0.08),
+    0 0 16px rgba(33, 230, 193, 0.04);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_media'] {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_media']
+  :global(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text'] {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  isolation: isolate;
+  margin-top: 0;
+  padding: 28px 24px;
+  display: grid;
+  grid-template-rows: auto minmax(4.9rem, auto) auto;
+  justify-items: start;
+  align-content: start;
+  align-items: start;
+  text-align: left;
+  row-gap: 18px;
+  column-gap: 0;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text']::before {
+  content: none;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text']
+  > * {
+  position: relative;
+  z-index: 1;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text']
+  > :first-child {
+  grid-row: 1;
+  width: 100%;
+  align-self: start;
+  justify-self: start;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text']
+  > :nth-child(2) {
+  grid-row: 2;
+  width: 100%;
+  min-height: 4.9rem;
+  align-self: start;
+  justify-self: start;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text']
+  > [class*='SectionBuilder_ctaButton'] {
+  grid-row: 3;
+  justify-self: start;
+}
+
+@media (--viewportMedium) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):last-of-type
+    [class*='BlockDefault_text'] {
+    top: 34px;
+    bottom: auto;
+    padding: 30px 24px;
+    row-gap: 20px;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):last-of-type
+    [class*='SectionBuilder_blockContainer'][class*='SectionColumns_twoColumns']
+    > *:first-child
+    [class*='BlockDefault_text'] {
+    left: auto;
+    right: 6%;
+    width: min(38%, 356px);
+    max-width: 356px;
+    padding-left: 18px;
+    padding-right: 34px;
+    align-items: flex-start;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):last-of-type
+    [class*='SectionBuilder_blockContainer'][class*='SectionColumns_twoColumns']
+    > *:last-child
+    [class*='BlockDefault_text'] {
+    left: 0;
+    right: auto;
+    width: min(38%, 356px);
+    max-width: 356px;
+    padding-left: 34px;
+    padding-right: 18px;
+    align-items: flex-start;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):last-of-type
+    [class*='BlockDefault_text']
+    :is(h1, h2, h3, h4, h5, h6) {
+    white-space: nowrap;
+  }
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text']
+  :is(h1, h2, h3, h4, h5, h6, p) {
+  margin: 0;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text']
+  > :not([class*='SectionBuilder_ctaButton']) {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text']
+  :is(h1, h2, h3, h4, h5, h6) {
+  color: #ffffff;
+  font-size: clamp(1.46rem, 1.34rem + 0.28vw, 1.66rem);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: 0.01em;
+  max-width: none;
+  text-wrap: pretty;
+  text-shadow: 0 14px 34px rgba(0, 0, 0, 0.36);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text']
+  :is(p, li, span) {
+  color: rgba(245, 248, 252, 0.88);
+  font-size: clamp(0.96rem, 0.94rem + 0.1vw, 1.02rem);
+  line-height: 1.56;
+  text-wrap: pretty;
+  max-width: 30ch;
+  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text']
+  [class*='SectionBuilder_ctaButton'] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  width: 188px;
+  max-width: 100%;
+  padding: 0 28px;
+  margin-top: 0;
+  align-self: flex-start;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  line-height: 1;
+  text-decoration: none;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:first-child
+  [class*='SectionBuilder_ctaButton'] {
+  background:
+    linear-gradient(135deg, #20d7ff 0%, #32c6ff 40%, #7dff63 100%) padding-box,
+    linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.96) 0%,
+        rgba(173, 244, 255, 0.82) 26%,
+        rgba(125, 255, 99, 0.8) 100%
+      )
+      border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -8px 18px rgba(12, 102, 182, 0.14),
+    0 12px 26px rgba(17, 118, 196, 0.32),
+    0 0 28px rgba(32, 215, 255, 0.3);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:last-child
+  [class*='SectionBuilder_ctaButton'] {
+  background:
+    linear-gradient(135deg, #27f3b5 0%, #35e9d5 38%, #7dff63 100%) padding-box,
+    linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.94) 0%,
+        rgba(159, 255, 228, 0.8) 30%,
+        rgba(125, 255, 99, 0.74) 100%
+      )
+      border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -8px 18px rgba(11, 126, 97, 0.12),
+    0 12px 26px rgba(18, 150, 114, 0.3),
+    0 0 28px rgba(39, 243, 181, 0.28);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:first-child
+  [class*='SectionBuilder_ctaButton']:hover,
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:first-child
+  [class*='SectionBuilder_ctaButton']:focus-visible {
+  background:
+    linear-gradient(135deg, #67e8ff 0%, #54d3ff 40%, #a4ff7f 100%) padding-box,
+    linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.98) 0%,
+        rgba(202, 247, 255, 0.9) 30%,
+        rgba(164, 255, 127, 0.86) 100%
+      )
+      border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    inset 0 -8px 18px rgba(12, 102, 182, 0.18),
+    0 14px 30px rgba(17, 118, 196, 0.34),
+    0 0 30px rgba(32, 215, 255, 0.36);
+  filter: saturate(1.08) brightness(1.06);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:last-child
+  [class*='SectionBuilder_ctaButton']:hover,
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:last-child
+  [class*='SectionBuilder_ctaButton']:focus-visible {
+  background:
+    linear-gradient(135deg, #74ffd8 0%, #58efdf 38%, #acff87 100%) padding-box,
+    linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.97) 0%,
+        rgba(191, 255, 237, 0.86) 30%,
+        rgba(172, 255, 135, 0.82) 100%
+      )
+      border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    inset 0 -8px 18px rgba(11, 126, 97, 0.16),
+    0 14px 30px rgba(18, 150, 114, 0.32),
+    0 0 30px rgba(39, 243, 181, 0.34);
+  filter: saturate(1.07) brightness(1.05);
+}

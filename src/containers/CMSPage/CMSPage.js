@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import loadable from '@loadable/component';
 
 import { bool, object } from 'prop-types';
@@ -9,15 +10,78 @@ import { withRouter } from 'react-router-dom';
 import { fetchFeaturedListings } from '../../ducks/featuredListings.duck';
 import { getListingsById } from '../../ducks/marketplaceData.duck';
 import { getFeaturedListingsProps } from '../../util/data';
+import sportTheme from '../SportPagesTheme.module.css';
+import css from './HowItWorksPage.module.css';
 
 import NotFoundPage from '../../containers/NotFoundPage/NotFoundPage';
 const PageBuilder = loadable(() =>
   import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')
 );
 
+const HOW_IT_WORKS_PAGE_IDS = new Set(['howitworks']);
+
+const isHowItWorksPage = pageId => HOW_IT_WORKS_PAGE_IDS.has(String(pageId || '').toLowerCase());
+
+const getHowItWorksPageData = pageData => {
+  if (!pageData?.sections?.length) {
+    return pageData;
+  }
+
+  const sections = pageData.sections.map((section, index) => {
+    const isHeroSection = index === 0 && section?.sectionType === 'hero';
+    const isCoachSection = index === 2;
+    const searchFields = section?.callToAction?.searchFields;
+
+    let nextSection = section;
+
+    if (isHeroSection && searchFields) {
+      nextSection = {
+        ...section,
+        callToAction: {
+          ...section.callToAction,
+          searchFields: {
+            ...searchFields,
+            categories: true,
+            keywordSearch: false,
+            locationSearch: true,
+            dateRange: true,
+          },
+        },
+      };
+    }
+
+    if (isCoachSection && nextSection?.description?.content) {
+      nextSection = {
+        ...nextSection,
+        description: {
+          ...nextSection.description,
+          content: 'Grow your business. Connect with new clients.',
+        },
+      };
+    }
+
+    return nextSection;
+  });
+
+  return {
+    ...pageData,
+    sections,
+  };
+};
+
 export const CMSPageComponent = props => {
   const { params, pageAssetsData, inProgress, error } = props;
   const pageId = params.pageId || props.pageId;
+  const isPremiumHowItWorks = isHowItWorksPage(pageId);
+  const pageData = pageAssetsData?.[pageId]?.data;
+  const themedPageData = isPremiumHowItWorks ? getHowItWorksPageData(pageData) : pageData;
+
+  if (process.env.NODE_ENV === 'development') {
+    console.info('[CMSPage] pageId:', pageId);
+    if (isPremiumHowItWorks) {
+      console.info('[CMSPage] activating howItWorksPremium for:', pageId);
+    }
+  }
 
   if (!inProgress && error?.status === 404) {
     return <NotFoundPage staticContext={props.staticContext} />;
@@ -25,7 +89,11 @@ export const CMSPageComponent = props => {
 
   return (
     <PageBuilder
-      pageAssetsData={pageAssetsData?.[pageId]?.data}
+      className={
+        isPremiumHowItWorks ? classNames(sportTheme.sportPremium, css.howItWorksPremium) : null
+      }
+      chromeTheme={isPremiumHowItWorks ? 'sportPremium' : null}
+      pageAssetsData={themedPageData}
       inProgress={inProgress}
       schemaType="Article"
       featuredListings={getFeaturedListingsProps(pageId, props)}

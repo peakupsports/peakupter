@@ -1,0 +1,108 @@
+@import '../styles/customMediaQueries.css';
+
+.sportPremium {
+  --peakupSportCanvasTop: #0b101c;
+  --peakupSportCanvasBottom: #0a0d14;
+  --peakupSportHairline: rgba(255, 255, 255, 0.08);
+  --peakupSportTextPrimary: rgba(244, 246, 250, 0.92);
+  --peakupSportTextSecondary: rgba(244, 246, 250, 0.78);
+  --peakupSportGlowSoft: rgba(21, 155, 255, 0.06);
+
+  background:
+    radial-gradient(82% 64% at 18% 0%, rgba(21, 155, 255, 0.08) 0%, transparent 58%),
+    radial-gradient(72% 56% at 82% 6%, rgba(34, 230, 184, 0.05) 0%, transparent 54%),
+    linear-gradient(
+      180deg,
+      var(--peakupSportCanvasTop) 0%,
+      var(--peakupSportCanvasBottom) 100%
+    );
+  background-color: var(--peakupSportCanvasBottom);
+  color: var(--peakupSportTextPrimary);
+}
+
+.sportPremium :global(footer) {
+  background-color: transparent;
+  background-image: linear-gradient(180deg, #090c14 0%, #0a0d14 40%, #0b1019 100%);
+  border-top: none;
+  position: relative;
+  overflow: visible;
+}
+
+.sportPremium :global(footer)::before {
+  display: none;
+}
+
+.sportPremium :global(footer) [class*='BlockFooter_text'] > :first-child:is(h1, h2, h3, h4, h5, h6),
+.sportPremium :global(footer) [class*='BlockFooter_text'] > p:first-child > strong:first-child,
+.sportPremium :global(footer) [class*='BlockFooter_text'] > ul:first-child > li:first-child > strong:first-child,
+.sportPremium :global(footer) :is(h1, h2, h3, h4, h5, h6) {
+  background-image: linear-gradient(90deg, #18c8ff 0%, #21e6c1 45%, #b7ff3f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(33, 230, 193, 0.12));
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.sportPremium :global(footer) [class*='BlockFooter_text'] > p:first-child,
+.sportPremium :global(footer) [class*='BlockFooter_text'] > ul:first-child > li:first-child {
+  color: rgba(244, 246, 250, 0.92);
+}
+
+.sportPremium :global(footer) [class*='SectionFooter_logoWrapper'] {
+  display: inline-flex;
+  align-items: center;
+  width: auto !important;
+  max-width: none !important;
+  min-width: max-content;
+}
+
+.sportPremium :global(footer) [class*='SectionFooter_logoImage'][class*='Logo_logo48'] {
+  display: block;
+  width: auto !important;
+  height: 84px !important;
+  max-height: none !important;
+  max-width: none !important;
+  filter:
+    drop-shadow(0 0 18px rgba(24, 200, 255, 0.08))
+    drop-shadow(0 0 24px rgba(183, 255, 63, 0.06));
+}
+
+.sportPremium :global(footer) :global(a) {
+  color: rgba(244, 246, 250, 0.82);
+  transition: color 0.15s ease;
+}
+
+.sportPremium :global(footer) :global(a):hover,
+.sportPremium :global(footer) :global(a):focus-visible {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.sportPremium :global(footer) :is(:global(p), :global(li), :global(span)) {
+  color: rgba(244, 246, 250, 0.72);
+}
+
+.sportPremium :global(footer) [class*='SectionFooter_copyright'] {
+  color: rgba(244, 246, 250, 0.55);
+}
+
+.sportPremium :global(footer) [class*='SectionFooter_slogan'] {
+  color: rgba(244, 246, 250, 0.78);
+}
+
+.sportPremium :global(footer) [class*='SectionFooter_icon'] {
+  transition: filter 0.18s ease, transform 0.18s ease;
+}
+
+.sportPremium :global(footer) [class*='SectionFooter_icon']:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+.sportPremium :global(footer)[class*='SectionFooter_root'],
+.sportPremium :global(footer) > [class*='SectionFooter_root'] {
+  border-top: none;
+}
