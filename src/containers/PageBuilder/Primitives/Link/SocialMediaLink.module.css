@@ -1,4 +1,31 @@
 .link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--marketplaceColor);
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease,
+    opacity 0.18s ease;
+
+  & svg {
+    display: block;
+    overflow: visible;
+    filter:
+      drop-shadow(0 0 10px rgba(24, 200, 255, 0.16))
+      drop-shadow(0 0 14px rgba(183, 255, 63, 0.08));
+    transition:
+      transform 0.18s ease,
+      filter 0.18s ease,
+      opacity 0.18s ease;
+  }
+
+  &:hover svg,
+  &:focus-visible svg {
+    transform: translateY(-1px);
+    filter:
+      brightness(1.06)
+      drop-shadow(0 0 12px rgba(24, 200, 255, 0.2))
+      drop-shadow(0 0 16px rgba(183, 255, 63, 0.1));
+  }
 }

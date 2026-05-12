@@ -82,26 +82,41 @@
 }
 
 /* Soft horizontal section divider — a quiet rhythm cue between
- * stacked content blocks, far more editorial than a hard rule. */
+ * stacked content blocks. Use a wide atmospheric veil instead of a hard
+ * 1px rule so every transition reads as one continuous cinematic canvas. */
 .landingPremium :global(main) :global(section) + :global(section) {
   position: relative;
+  overflow: visible;
+  isolation: isolate;
 }
 .landingPremium :global(main) :global(section) + :global(section)::before {
   content: '';
-  display: block;
   position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(960px, 78%);
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.10) 50%,
-    transparent 100%
-  );
+  top: -132px;
+  left: 0;
+  right: 0;
+  height: 184px;
+  background:
+    radial-gradient(
+      128% 60% at 50% 0%,
+      rgba(21, 155, 255, 0.055) 0%,
+      rgba(34, 230, 184, 0.032) 18%,
+      rgba(21, 155, 255, 0.014) 42%,
+      transparent 74%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(8, 13, 23, 0) 0%,
+      rgba(8, 13, 23, 0.10) 26%,
+      rgba(8, 13, 23, 0.26) 58%,
+      rgba(8, 13, 23, 0.78) 100%
+    );
   pointer-events: none;
+  z-index: 0;
+}
+
+.landingPremium :global(main) :global(section) + :global(section) [class*='sectionContent'] {
+  position: relative;
   z-index: 1;
 }
 
@@ -278,6 +293,441 @@
   border-radius: 14px;
   box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.65);
   overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+ * "How PeakUp Sports Works" — premium three-card treatment
+ *
+ * This section uses the generic SectionColumns + BlockDefault structure, so
+ * we upgrade the card *materials* at the block wrapper level without touching
+ * the layout/grid itself. The result should feel like a PeakUp object:
+ * darker glass, softer cyan/green atmospheric light, integrated icon orb,
+ * richer depth, and a smoother hover.
+ * ------------------------------------------------------------------------- */
+
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionColumns_threeColumns"])
+  [class*="sectionContent"] {
+  padding-top: 44px;
+  padding-bottom: 44px;
+}
+
+@media (--viewportMedium) {
+  .landingPremium
+    :global(main)
+    :global(section):has([class*="SectionColumns_threeColumns"])
+    [class*="sectionContent"] {
+    padding-top: 72px;
+    padding-bottom: 72px;
+  }
+}
+
+/* For the "How PeakUp Sports Works" section, soften the generic
+ * inter-section veil so it doesn't read as a luminous horizon cutting
+ * through the semi-transparent cards. Keep the atmosphere, but push it
+ * higher and diffuse it more broadly behind the composition. */
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionColumns_threeColumns"])::before {
+  top: -104px;
+  height: 136px;
+  background:
+    radial-gradient(
+      148% 74% at 50% 0%,
+      rgba(21, 155, 255, 0.03) 0%,
+      rgba(34, 230, 184, 0.02) 20%,
+      rgba(21, 155, 255, 0.008) 42%,
+      transparent 76%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(8, 13, 23, 0) 0%,
+      rgba(8, 13, 23, 0.04) 30%,
+      rgba(8, 13, 23, 0.12) 68%,
+      rgba(8, 13, 23, 0.26) 100%
+    );
+}
+
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionColumns_threeColumns"])::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 96px;
+  height: 220px;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    96% 62% at 50% 28%,
+    rgba(34, 230, 184, 0.028) 0%,
+    rgba(21, 155, 255, 0.018) 34%,
+    transparent 76%
+  );
+}
+
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionColumns_threeColumns"])
+  [class*="sectionDetails"] {
+  padding-bottom: 4px;
+}
+
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionColumns_threeColumns"])
+  [class*="sectionDetails"]
+  > * + * {
+  margin-top: 10px;
+}
+
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionColumns_threeColumns"])
+  [class*="SectionColumns_threeColumns"] {
+  gap: 24px;
+  padding-top: 36px;
+}
+
+@media (--viewportMedium) {
+  .landingPremium
+    :global(main)
+    :global(section):has([class*="SectionColumns_threeColumns"])
+    [class*="SectionColumns_threeColumns"] {
+    gap: 26px;
+    padding-top: 44px;
+  }
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > * {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+  padding: 22px 22px 20px;
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    linear-gradient(180deg, rgba(18, 26, 40, 0.38) 0%, rgba(10, 15, 24, 0.52) 100%),
+    radial-gradient(118% 84% at 14% 0%, rgba(255, 255, 255, 0.032) 0%, transparent 42%);
+  border: 1px solid rgba(255, 255, 255, 0.058);
+  box-shadow:
+    0 22px 44px -28px rgba(0, 0, 0, 0.68),
+    0 8px 18px -18px rgba(21, 155, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px) saturate(1.02);
+  -webkit-backdrop-filter: blur(12px) saturate(1.02);
+  transition:
+    box-shadow 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (--viewportMedium) {
+  .landingPremium
+    :global(main)
+    [class*="SectionColumns_threeColumns"]
+    > * {
+    padding: 24px 24px 22px;
+  }
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    84% 56% at 12% 0%,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.025) 22%,
+    transparent 52%
+  );
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.08;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.26) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 58% 28%, rgba(255, 255, 255, 0.20) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 76% 68%, rgba(21, 155, 255, 0.14) 0 1px, transparent 1.8px);
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  [class*="BlockDefault_media"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 20px;
+  box-shadow: none;
+  overflow: visible;
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  [class*="BlockDefault_media"]::before {
+  content: none;
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  [class*="BlockDefault_media"]::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 112px;
+  height: 72px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.24;
+  background: radial-gradient(
+    56% 56% at 50% 50%,
+    rgba(157, 255, 46, 0.07) 0%,
+    rgba(34, 230, 184, 0.05) 32%,
+    rgba(21, 155, 255, 0.04) 56%,
+    transparent 74%
+  );
+  filter: blur(20px);
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  [class*="BlockDefault_media"]
+  :is(img, svg) {
+  position: relative;
+  z-index: 1;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 10px 20px rgba(0, 0, 0, 0.22))
+    drop-shadow(0 0 10px rgba(157, 255, 46, 0.05))
+    drop-shadow(0 0 12px rgba(34, 230, 184, 0.06));
+}
+
+/* Fallback anchor icon for cards that don't have an explicit media field.
+ * Keeps the composition visually balanced without adding a heavy extra layer. */
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *:not(:has([class*="BlockDefault_media"])) {
+  --peakupHowCardIconMask: none;
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *:not(:has([class*="BlockDefault_media"])):nth-child(1) {
+  --peakupHowCardIconMask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m16 16 4 4'/%3E%3C/svg%3E");
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *:not(:has([class*="BlockDefault_media"])):nth-child(2) {
+  --peakupHowCardIconMask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.5' y='6.5' width='15' height='12.5' rx='2.4'/%3E%3Cpath d='M8 4.5v4'/%3E%3Cpath d='M16 4.5v4'/%3E%3Cpath d='M4.5 10.5h15'/%3E%3C/svg%3E");
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *:not(:has([class*="BlockDefault_media"])):nth-child(3) {
+  --peakupHowCardIconMask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 4 2.35 4.76 5.25.76-3.8 3.7.9 5.22L12 15.96l-4.7 2.48.9-5.22-3.8-3.7 5.25-.76L12 4Z'/%3E%3C/svg%3E");
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *:not(:has([class*="BlockDefault_media"]))
+  [class*="BlockDefault_text"]::before {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 18px;
+  background: linear-gradient(135deg, #159bff 0%, #22e6b8 42%, #9dff2e 100%);
+  -webkit-mask-image: var(--peakupHowCardIconMask);
+  mask-image: var(--peakupHowCardIconMask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  filter:
+    drop-shadow(0 10px 20px rgba(0, 0, 0, 0.18))
+    drop-shadow(0 0 10px rgba(157, 255, 46, 0.05))
+    drop-shadow(0 0 12px rgba(34, 230, 184, 0.06))
+    drop-shadow(0 0 14px rgba(21, 155, 255, 0.04));
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  [class*="BlockDefault_text"] {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin-top: 0;
+  padding: 0;
+  text-align: center;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  [class*="BlockDefault_text"]
+  > * + * {
+  margin-top: 16px;
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  [class*="BlockDefault_text"]
+  :is(h1, h2, h3, h4, h5, h6) + :is(p, ul, ol) {
+  margin-top: 18px;
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  [class*="BlockDefault_text"]
+  :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 750;
+  letter-spacing: -0.022em;
+  line-height: 1.08;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  [class*="BlockDefault_text"]
+  :is(p, li) {
+  color: rgba(236, 242, 250, 0.68);
+  line-height: 1.62;
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  [class*="BlockDefault_text"]
+  :is(p, ul, ol) {
+  max-width: 30ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  :global(a)[class*="ctaButton"] {
+  margin-top: 22px;
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *:hover {
+  border-color: rgba(72, 226, 190, 0.11);
+  box-shadow:
+    0 24px 48px -28px rgba(0, 0, 0, 0.70),
+    0 10px 22px -18px rgba(21, 155, 255, 0.08),
+    0 0 14px rgba(34, 230, 184, 0.035),
+    0 0 0 1px rgba(157, 255, 46, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *:hover
+  [class*="BlockDefault_media"],
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *:hover
+  [class*="BlockDefault_text"] {
+  transform: translateY(-1px) scale(1.006);
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *:hover:not(:has([class*="BlockDefault_media"]))
+  [class*="BlockDefault_text"]::before {
+  transform: translateY(-1px) scale(1.006);
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *:hover
+  [class*="BlockDefault_media"]::after {
+  opacity: 0.3;
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *:hover
+  [class*="BlockDefault_media"]
+  :is(img, svg) {
+  filter:
+    drop-shadow(0 12px 24px rgba(0, 0, 0, 0.24))
+    drop-shadow(0 0 8px rgba(21, 155, 255, 0.04));
 }
 
 /* ---------------------------------------------------------------------------
@@ -558,9 +1008,9 @@
     [class*="TopbarDesktop_logoLink"][class*="LinkedLogo_root"]
     [class*="Logo_logo"] {
     width: auto;
-    height: 48px;
-    max-width: min(100%, 300px);
-    max-height: 52px;
+    height: 56px;
+    max-width: min(100%, 340px);
+    max-height: 60px;
     object-fit: contain;
   }
 }
@@ -689,6 +1139,8 @@
   :global(main)
   :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
   [class*="sectionContent"] {
+  position: relative;
+  z-index: 1;
   padding-top: 72px;
   padding-bottom: 64px;
 }
@@ -701,6 +1153,113 @@
     padding-top: 120px;
     padding-bottom: 104px;
   }
+}
+
+/* HERO -> FEATURED COACHES continuity:
+ * replace the generic 1px divider with a taller atmospheric blend so the
+ * featured section feels like it rises naturally out of the hero image/canvas
+ * instead of starting after a hard horizontal cut. */
+.landingPremium
+  :global(main)
+  > :global(section):first-of-type
+  + :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])::before {
+  top: -132px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 172px;
+  transform: none;
+  background:
+    radial-gradient(
+      74% 42% at 50% 0%,
+      rgba(21, 155, 255, 0.10) 0%,
+      rgba(21, 155, 255, 0.04) 24%,
+      transparent 66%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(8, 13, 23, 0) 0%,
+      rgba(8, 13, 23, 0.14) 28%,
+      rgba(8, 13, 23, 0.42) 62%,
+      rgba(9, 13, 24, 0.92) 100%
+    );
+  z-index: 0;
+}
+
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"]) {
+  position: relative;
+  overflow: visible;
+}
+
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      64% 44% at 50% 18%,
+      rgba(34, 230, 184, 0.06) 0%,
+      rgba(21, 155, 255, 0.035) 34%,
+      transparent 72%
+    ),
+    radial-gradient(
+      72% 30% at 50% 98%,
+      rgba(34, 230, 184, 0.055) 0%,
+      rgba(21, 155, 255, 0.028) 30%,
+      transparent 74%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(8, 13, 23, 0.12) 0%,
+      rgba(8, 13, 23, 0.02) 32%,
+      rgba(8, 13, 23, 0) 58%,
+      rgba(8, 13, 23, 0.08) 100%
+    );
+  z-index: 0;
+}
+
+/* FEATURED COACHES -> WHY PEAKUP continuity:
+ * remove the perceived dark band by replacing the default section divider
+ * with a taller blended veil that starts inside the figurine area and
+ * continues into the aurora of the section below. */
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
+  + :global(section) {
+  position: relative;
+  overflow: visible;
+}
+
+.landingPremium
+  :global(main)
+  :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
+  + :global(section)::before {
+  top: -154px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 224px;
+  transform: none;
+  background:
+    radial-gradient(
+      70% 34% at 50% 0%,
+      rgba(34, 230, 184, 0.06) 0%,
+      rgba(21, 155, 255, 0.035) 26%,
+      transparent 68%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(6, 12, 20, 0) 0%,
+      rgba(6, 12, 20, 0.10) 26%,
+      rgba(6, 12, 20, 0.34) 58%,
+      rgba(6, 12, 20, 0.88) 100%
+    );
+  z-index: 0;
 }
 
 .landingPremium
@@ -834,8 +1393,9 @@
     #0a0d14 40%,
     #0b1019 100%
   );
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: none;
   position: relative;
+  overflow: visible;
 }
 
 /* Soft brand-accent divider on top of the footer, mirroring the
@@ -844,39 +1404,92 @@
 .landingPremium :global(footer)::before {
   content: '';
   position: absolute;
-  top: -1px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(960px, 78%);
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(34, 230, 184, 0.45) 50%,
-    transparent 100%
-  );
+  top: -168px;
+  left: 0;
+  right: 0;
+  height: 184px;
+  background:
+    radial-gradient(
+      172% 84% at 50% 100%,
+      rgba(21, 155, 255, 0.032) 0%,
+      rgba(34, 230, 184, 0.020) 18%,
+      rgba(21, 155, 255, 0.006) 40%,
+      transparent 78%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(21, 155, 255, 0.004) 14%,
+      rgba(34, 230, 184, 0.008) 32%,
+      rgba(21, 155, 255, 0.010) 50%,
+      rgba(34, 230, 184, 0.008) 68%,
+      rgba(21, 155, 255, 0.004) 86%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(9, 12, 20, 0) 0%,
+      rgba(9, 12, 20, 0.08) 34%,
+      rgba(9, 12, 20, 0.28) 68%,
+      rgba(9, 12, 20, 0.92) 100%
+    );
   pointer-events: none;
   z-index: 1;
 }
 
-/* Footer typography. Column titles (Sharetribe Console authors them as
- * `<h2>` blocks inside footer link sections) get a single subtle
- * PeakUp gradient so they read as "headings" without resorting to a
- * loud all-green color. `background-clip: text` keeps the text fully
- * selectable / accessible. */
+/* Footer typography.
+ * Footer blocks are authored as markdown (`footerBlock.text`), so the
+ * visible "titles" can be real headings OR bold text inside the first
+ * paragraph/list item. Style the actual rendered footer block subtree with
+ * landing-scoped specificity so the PeakUp gradient is clearly visible. */
+.landingPremium :global(footer) [class*="BlockFooter_text"] > :first-child:is(h1, h2, h3, h4, h5, h6),
+.landingPremium :global(footer) [class*="BlockFooter_text"] > p:first-child > strong:first-child,
+.landingPremium :global(footer) [class*="BlockFooter_text"] > ul:first-child > li:first-child > strong:first-child,
 .landingPremium :global(footer) :is(h1, h2, h3, h4, h5, h6) {
   background-image: linear-gradient(
     90deg,
-    #9dff2e 0%,
-    #22e6b8 55%,
-    #159bff 100%
+    #18c8ff 0%,
+    #21e6c1 45%,
+    #b7ff3f 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(33, 230, 193, 0.12));
   font-weight: 800;
-  letter-spacing: 0.005em;
+  letter-spacing: 0.04em;
+}
+
+.landingPremium :global(footer) [class*="BlockFooter_text"] > p:first-child,
+.landingPremium :global(footer) [class*="BlockFooter_text"] > ul:first-child > li:first-child {
+  color: rgba(244, 246, 250, 0.92);
+}
+
+/* Footer logo — target the actual rendered classes from SectionFooter +
+ * LinkedLogo/Logo. The `Logo_logo48` class caps the visible size, so
+ * override that cap directly on landing footer only. */
+.landingPremium
+  :global(footer)
+  [class*="SectionFooter_logoWrapper"] {
+  display: inline-flex;
+  align-items: center;
+  width: auto !important;
+  max-width: none !important;
+  min-width: max-content;
+}
+
+.landingPremium
+  :global(footer)
+  [class*="SectionFooter_logoImage"][class*="Logo_logo48"] {
+  display: block;
+  width: auto !important;
+  height: 84px !important;
+  max-height: none !important;
+  max-width: none !important;
+  filter:
+    drop-shadow(0 0 18px rgba(24, 200, 255, 0.08))
+    drop-shadow(0 0 24px rgba(183, 255, 63, 0.06));
 }
 
 /* Footer links + plain text. */

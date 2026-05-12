@@ -3,13 +3,17 @@
 .root {
   position: relative;
   isolation: isolate;
+  overflow: visible;
 }
 
 .root::before,
 .root::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: -128px;
+  right: 0;
+  bottom: 0;
+  left: 0;
   pointer-events: none;
 }
 
@@ -19,7 +23,7 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  opacity: 0.37;
+  opacity: 0.34;
   filter: blur(9px) saturate(1.08) brightness(0.84);
   transform: scale(1.03);
 }
@@ -27,6 +31,7 @@
 .root::after {
   z-index: 0;
   background:
+    radial-gradient(78% 34% at 50% 10%, rgba(34, 230, 184, 0.10) 0%, rgba(21, 155, 255, 0.05) 30%, transparent 72%),
     radial-gradient(80% 60% at 50% 48%, rgba(34, 230, 184, 0.16) 0%, rgba(34, 230, 184, 0.11) 26%, rgba(34, 230, 184, 0.04) 54%, transparent 74%),
     radial-gradient(54% 36% at 38% 46%, rgba(157, 255, 46, 0.09) 0%, rgba(157, 255, 46, 0.04) 42%, transparent 74%),
     radial-gradient(56% 38% at 64% 42%, rgba(21, 155, 255, 0.12) 0%, rgba(21, 155, 255, 0.05) 44%, transparent 76%),

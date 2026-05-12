@@ -114,17 +114,20 @@
   }
 }
 .logoWrapper {
-  max-width: 370px;
+  max-width: 444px;
 }
 .logoImage {
   height: auto;
   width: auto;
-  max-width: 100%;
+  max-width: min(100%, 332px);
   object-fit: contain;
   object-position: center;
+  filter:
+    drop-shadow(0 0 18px rgba(24, 200, 255, 0.08))
+    drop-shadow(0 0 24px rgba(183, 255, 63, 0.06));
 
   @media (--viewportLarge) {
-    max-width: min(100%, 298px);
+    max-width: min(100%, 372px);
   }
 }
 

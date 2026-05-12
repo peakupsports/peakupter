@@ -61,7 +61,8 @@ export const SocialMediaLink = React.forwardRef((props, ref) => {
   const classes = classNames(rootClassName || css.link, className);
   const titleMaybe = Icon ? { title: getIconTitle(platform) } : {};
   const ariaLabelMaybe = titleMaybe.title ? { ariaLabel: titleMaybe.title } : {};
-  const children = Icon ? <Icon {...ariaLabelMaybe} /> : platform;
+  const gradientId = React.useId().replace(/:/g, '');
+  const children = Icon ? <Icon {...ariaLabelMaybe} gradientId={`peakup-social-${gradientId}`} /> : platform;
   const linkProps = { className: classes, href, children, ...titleMaybe };
 
   // Markdown parser (rehype-sanitize) might return undefined href

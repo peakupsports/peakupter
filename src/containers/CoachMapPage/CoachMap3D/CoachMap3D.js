@@ -18,6 +18,24 @@ import css from './CoachMap3D.module.css';
 // geolocation pipeline keep working unchanged.
 const COACH_MAP_STYLE = 'mapbox://styles/mapbox/dark-v11';
 
+const INITIAL_CAMERA_PITCH = 67;
+const INITIAL_CAMERA_BEARING = -33;
+const INITIAL_MAP_ZOOM = 4.6;
+const BOUNDS_CAMERA_PITCH = 62;
+const BOUNDS_CAMERA_BEARING = -33;
+const INITIAL_CAMERA_DURATION_MS = 1900;
+const STANDARD_BOUNDS_DURATION_MS = 900;
+const USER_LOCATION_FLYTO_PITCH = 65;
+const USER_LOCATION_FLYTO_BEARING = -33;
+const USER_LOCATION_FLYTO_DURATION_MS = 2000;
+const USER_LOCATION_FLYTO_ZOOM = 12.1;
+const COACH_FLYTO_PITCH = 60;
+const COACH_FLYTO_BEARING = -33;
+const COACH_FLYTO_DURATION_MS = 1100;
+const COACH_FLYTO_ZOOM = 14;
+
+const cinematicCameraEasing = t => 1 - Math.pow(1 - t, 2.35);
+
 // Match the desktop / mobile breakpoint used elsewhere in the app
 // (`--viewportMedium` in `customMediaQueries.css` starts at 768px).
 // Mobile gets a lighter "premium" treatment (lower terrain exaggeration,
@@ -70,45 +88,61 @@ const installPremiumOutdoorLook = map => {
         maxzoom: 14,
       });
     }
-    // Exaggeration is intentionally subtle: 1.4 desktop / 1.15 mobile
+    // Exaggeration is intentionally subtle: slightly lifted so the alpine
+    // terrain reads with more cinematic depth once we add the sunrise pass,
+    // but still far from theme-park spikes on near-vertical pitches.
     // gives clear alpine relief without making the Alps look like
     // theme-park spikes when the camera is near-vertical.
     map.setTerrain({
       source: 'mapbox-dem',
-      exaggeration: mobile ? 1.15 : 1.4,
+      exaggeration: mobile ? 1.18 : 1.48,
     });
   }
 
   // 2. Sky / atmosphere ----------------------------------------------------
   // A `sky` layer of type `atmosphere` renders a physically-based sky
-  // gradient with the sun position we configure. For the dark map pass we
-  // keep the sun subtle so the horizon stays readable without reintroducing
-  // a daylight-blue map feel inside the dark CoachMap shell.
+  // gradient with the sun position we configure. For the alpine-sunrise pass
+  // we keep the upper sky dark navy, but pull a lower warmer sun near the
+  // horizon so the terrain gets more emotional dawn light without tipping
+  // into daylight-map territory.
   if (!map.getLayer('peakup-sky')) {
     map.addLayer({
       id: 'peakup-sky',
       type: 'sky',
       paint: {
         'sky-type': 'atmosphere',
-        'sky-atmosphere-sun': [0.0, 90.0],
-        'sky-atmosphere-sun-intensity': 5,
+        'sky-atmosphere-sun': [128.0, 12.0],
+        'sky-atmosphere-sun-intensity': 10,
       },
     });
   }
 
   // 3. Atmospheric fog (desktop only) --------------------------------------
   // `setFog` adds a soft haze along the horizon — distant terrain fades
-  // into the sky color, giving real depth at our 50° pitch. In the dark
-  // map pass we keep the haze cool and low-luminance so the map blends
-  // into the surrounding navy shell while preserving label readability.
+  // into the sky color, giving real depth at our 50° pitch. In the alpine
+  // sunrise pass we warm only the far horizon so the scene feels more
+  // emotional and mountain-like, while labels and nearby terrain stay crisp.
   if (!mobile && typeof map.setFog === 'function') {
     map.setFog({
-      range: [0.6, 10],
-      color: '#122032',
-      'high-color': '#1e3a56',
-      'horizon-blend': 0.1,
-      'space-color': '#040913',
+      range: [0.65, 10],
+      color: '#1b2b3f',
+      'high-color': '#b3774b',
+      'horizon-blend': 0.18,
+      'space-color': '#050b15',
       'star-intensity': 0.0,
+    });
+  }
+
+  // 4. Warm side light for 3D buildings ------------------------------------
+  // The dark basemap can otherwise make extrusions feel flat. A low warm side
+  // light gives buildings a subtle alpine-sunrise edge without changing the
+  // map style, markers, labels, or interaction logic.
+  if (typeof map.setLight === 'function') {
+    map.setLight({
+      anchor: 'map',
+      color: '#ffd6aa',
+      intensity: mobile ? 0.26 : 0.38,
+      position: [1.25, 130, 76],
     });
   }
 };
@@ -283,6 +317,7 @@ const CoachMap3D = props => {
   const onMarkerClickRef = useRef(onMarkerClick);
   const onPopupCloseRef = useRef(onPopupClose);
   const [isReady, setIsReady] = useState(false);
+  const hasAnimatedInitialBoundsRef = useRef(false);
 
   // Mapbox Popup instance + the DOM element React portals into.
   const popupRef = useRef(null);
@@ -322,9 +357,9 @@ const CoachMap3D = props => {
         container: containerRef.current,
         style: COACH_MAP_STYLE,
         center: initialCenter,
-        zoom: 4,
-        pitch: 50,
-        bearing: -17.6,
+        zoom: INITIAL_MAP_ZOOM,
+        pitch: INITIAL_CAMERA_PITCH,
+        bearing: INITIAL_CAMERA_BEARING,
         antialias: true,
       });
 
@@ -416,12 +451,23 @@ const CoachMap3D = props => {
     ) {
       return;
     }
+    const duration = hasAnimatedInitialBoundsRef.current
+      ? STANDARD_BOUNDS_DURATION_MS
+      : INITIAL_CAMERA_DURATION_MS;
+    hasAnimatedInitialBoundsRef.current = true;
     map.fitBounds(
       [
         [swLng, swLat],
         [neLng, neLat],
       ],
-      { padding: 80, duration: 600, pitch: 50, bearing: -17.6, maxZoom: 13 }
+      {
+        padding: 80,
+        duration,
+        pitch: BOUNDS_CAMERA_PITCH,
+        bearing: BOUNDS_CAMERA_BEARING,
+        maxZoom: 13,
+        easing: cinematicCameraEasing,
+      }
     );
   }, [bounds, isReady]);
 
@@ -620,15 +666,21 @@ const CoachMap3D = props => {
     if (!map || !flyToTarget) return;
     const { lat, lng } = flyToTarget;
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const targetIsUserLocation =
+      Number.isFinite(userLocation?.lat) &&
+      Number.isFinite(userLocation?.lng) &&
+      Math.abs(userLocation.lat - lat) < 0.000001 &&
+      Math.abs(userLocation.lng - lng) < 0.000001;
     map.flyTo({
       center: [lng, lat],
-      zoom: 14,
-      pitch: 55,
-      bearing: -17.6,
-      duration: 1100,
+      zoom: targetIsUserLocation ? USER_LOCATION_FLYTO_ZOOM : COACH_FLYTO_ZOOM,
+      pitch: targetIsUserLocation ? USER_LOCATION_FLYTO_PITCH : COACH_FLYTO_PITCH,
+      bearing: targetIsUserLocation ? USER_LOCATION_FLYTO_BEARING : COACH_FLYTO_BEARING,
+      duration: targetIsUserLocation ? USER_LOCATION_FLYTO_DURATION_MS : COACH_FLYTO_DURATION_MS,
+      easing: cinematicCameraEasing,
       essential: true,
     });
-  }, [flyToTarget, isReady]);
+  }, [flyToTarget, isReady, userLocation]);
 
   // "You are here" marker. Lives independently from the coach markers
   // pipeline so toggling user location on/off (e.g. permission revoked
