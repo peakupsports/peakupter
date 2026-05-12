@@ -2251,13 +2251,39 @@
   text-align: center;
 }
 
+/* ===========================================================================
+ * HOW IT WORKS — premium PeakUp onboarding flow
+ * Active markup (from live DOM):
+ *   section[3]
+ *   ├ SectionContainer_sectionContent
+ *   │ ├ SectionBuilder_sectionDetails (h2 + p)
+ *   │ └ SectionCarousel_carouselContainer
+ *   │   └ SectionCarousel_threeColumns
+ *   │     └ SectionCarousel_block × 3
+ *   │       └ BlockDefault_text (h3 + p, + cta inside step 2)
+ * =========================================================================== */
+
+/* Section shell: bring back a feathered cinematic darkening on the image */
 .instructorsPremiumPage :global(main) > :global(section):nth-of-type(3) {
   background: transparent;
+  isolation: isolate;
 }
 
 .instructorsPremiumPage :global(main) > :global(section):nth-of-type(3)::after {
-  content: none;
-  display: none;
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(82% 70% at 50% 38%, rgba(5, 9, 16, 0.18) 0%, transparent 76%),
+    linear-gradient(
+      180deg,
+      rgba(5, 9, 16, 0.08) 0%,
+      rgba(6, 10, 18, 0.34) 28%,
+      rgba(7, 11, 18, 0.52) 58%,
+      rgba(7, 11, 18, 0.7) 100%
+    );
 }
 
 .instructorsPremiumPage
@@ -2265,72 +2291,55 @@
   > :global(section):nth-of-type(3)
   [class*='CustomAppearance_backgroundImageWrapper'] {
   opacity: 1;
-  filter: none;
+  filter: saturate(1.04) contrast(1.04) brightness(0.82);
 }
 
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
   > [class*='SectionContainer_sectionContent'] {
+  position: relative;
   z-index: 1;
+  padding-top: clamp(72px, 9vw, 128px);
+  padding-bottom: clamp(96px, 12vw, 168px);
 }
 
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
   [class*='SectionBuilder_sectionDetails'] {
-  margin-bottom: 22px;
+  margin-bottom: clamp(40px, 5vw, 64px);
 }
 
+/* Carousel container: just a wrapper, give it some breathing room around */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
-  [class*='SectionBuilder_blockContainer'] {
-  position: relative;
-  gap: 14px;
-  padding-top: 0;
+  [class*='SectionCarousel_carouselContainer'] {
+  overflow: visible;
 }
 
-@media (--viewportMedium) {
-  .instructorsPremiumPage
-    :global(main)
-    > :global(section):nth-of-type(3)
-    [class*='SectionBuilder_blockContainer'] {
-    gap: 18px;
-  }
-
-  .instructorsPremiumPage
-    :global(main)
-    > :global(section):nth-of-type(3)
-    [class*='SectionBuilder_blockContainer']::before {
-    content: '';
-    position: absolute;
-    top: calc(50% - 6px);
-    left: calc(32px + 8%);
-    right: calc(32px + 8%);
-    height: 12px;
-    pointer-events: none;
-    z-index: 0;
-    background:
-      linear-gradient(90deg, transparent 0%, rgba(24, 200, 255, 0.24) 16%, rgba(33, 230, 193, 0.22) 50%, rgba(183, 255, 63, 0.2) 84%, transparent 100%)
-      center / 100% 1px no-repeat,
-      radial-gradient(circle, rgba(24, 200, 255, 0.32) 0%, rgba(24, 200, 255, 0.12) 42%, transparent 72%) 18% 50% / 8px 8px no-repeat,
-      radial-gradient(circle, rgba(33, 230, 193, 0.3) 0%, rgba(33, 230, 193, 0.12) 42%, transparent 72%) 50% 50% / 8px 8px no-repeat,
-      radial-gradient(circle, rgba(183, 255, 63, 0.24) 0%, rgba(183, 255, 63, 0.1) 42%, transparent 72%) 82% 50% / 8px 8px no-repeat;
-    box-shadow:
-      0 0 10px rgba(24, 200, 255, 0.05),
-      0 0 16px rgba(183, 255, 63, 0.04);
-  }
-}
-
+/* 3-column row + counter root for step numbers.
+ * Also the absolute-positioning anchor for the centered CTA below the cards.
+ * --instructorsStepCardHeight mirrors the cards' clamp() min-height so we can
+ * anchor the CTA at a stable 48–56px gap from the bottom of the row. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_threeColumns'] {
+  --instructorsStepCardHeight: clamp(150px, 13vw, 172px);
+  --instructorsStepGapToCta: clamp(48px, 5vw, 60px);
   position: relative;
   counter-reset: instructorsPremiumSteps;
+  overflow: visible;
+  padding-bottom: clamp(150px, 16vw, 188px);
 }
 
+/* Thin glowing PeakUp connector line between the 3 cards (desktop only).
+ * Badges span both grid rows and use align-self: center inside cards that are
+ * themselves flex-centred, so the badge centre always sits at exactly the
+ * card vertical centre — anchoring the connector there keeps it perfectly
+ * aligned with every step number regardless of description line count. */
 @media (--viewportMedium) {
   .instructorsPremiumPage
     :global(main)
@@ -2338,85 +2347,75 @@
     [class*='SectionCarousel_threeColumns']::before {
     content: '';
     position: absolute;
-    top: calc(50% - 6px);
-    left: 7%;
-    right: 7%;
-    height: 12px;
+    top: calc(var(--instructorsStepCardHeight) / 2);
+    left: 16.66%;
+    right: 16.66%;
+    height: 1px;
     pointer-events: none;
     z-index: 0;
-    background:
-      linear-gradient(90deg, transparent 0%, rgba(24, 200, 255, 0.24) 16%, rgba(33, 230, 193, 0.22) 50%, rgba(183, 255, 63, 0.2) 84%, transparent 100%)
-      center / 100% 1px no-repeat,
-      radial-gradient(circle, rgba(24, 200, 255, 0.28) 0%, rgba(24, 200, 255, 0.11) 42%, transparent 72%) 18% 50% / 8px 8px no-repeat,
-      radial-gradient(circle, rgba(33, 230, 193, 0.28) 0%, rgba(33, 230, 193, 0.11) 42%, transparent 72%) 50% 50% / 8px 8px no-repeat,
-      radial-gradient(circle, rgba(183, 255, 63, 0.22) 0%, rgba(183, 255, 63, 0.09) 42%, transparent 72%) 82% 50% / 8px 8px no-repeat;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(24, 200, 255, 0.2) 10%,
+      rgba(33, 230, 193, 0.26) 50%,
+      rgba(183, 255, 63, 0.2) 90%,
+      transparent 100%
+    );
     box-shadow:
-      0 0 10px rgba(24, 200, 255, 0.05),
-      0 0 16px rgba(183, 255, 63, 0.04);
+      0 0 14px rgba(24, 200, 255, 0.08),
+      0 0 22px rgba(33, 230, 193, 0.05);
   }
 }
 
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):nth-of-type(3)
-  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
-  --instructorsStepIconCurrent: var(--instructorsStepIconApply);
-  position: relative;
-  z-index: 1;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  min-height: clamp(120px, 11vw, 136px);
-  padding: 18px 20px;
-  border-radius: 24px;
-  background:
-    linear-gradient(180deg, rgba(12, 19, 31, 0.7) 0%, rgba(8, 13, 23, 0.88) 100%) padding-box,
-    linear-gradient(
-        135deg,
-        rgba(24, 200, 255, 0.28) 0%,
-        rgba(33, 230, 193, 0.22) 45%,
-        rgba(183, 255, 63, 0.18) 100%
-      )
-      border-box;
-  border: 1px solid transparent;
-  box-shadow:
-    0 22px 48px rgba(0, 0, 0, 0.24),
-    0 0 18px rgba(24, 200, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 0 18px rgba(24, 200, 255, 0.02);
-  backdrop-filter: blur(18px);
-}
-
+/* Onboarding cards: dark navy glass, narrower, taller, premium.
+ * NOTE: position: static is intentional so the CTA inside step 2 escapes
+ * upward to the threeColumns row (the next positioned ancestor) and ends up
+ * centered in the padding-bottom area, under the row of three cards. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_block'] {
   --instructorsStepIconCurrent: var(--instructorsStepIconApply);
   --instructorsStepTitle: 'Apply';
-  position: relative;
+  position: static;
   z-index: 1;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   align-items: center;
-  min-height: clamp(120px, 11vw, 136px);
-  padding: 18px 20px;
-  border-radius: 24px;
+  min-height: clamp(150px, 13vw, 172px);
+  padding: 22px 22px 24px;
+  border-radius: 28px;
   background:
-    linear-gradient(180deg, rgba(12, 19, 31, 0.7) 0%, rgba(8, 13, 23, 0.88) 100%) padding-box,
+    linear-gradient(180deg, rgba(10, 16, 26, 0.78) 0%, rgba(7, 11, 19, 0.92) 100%) padding-box,
     linear-gradient(
         135deg,
-        rgba(24, 200, 255, 0.28) 0%,
-        rgba(33, 230, 193, 0.22) 45%,
+        rgba(24, 200, 255, 0.34) 0%,
+        rgba(33, 230, 193, 0.22) 48%,
         rgba(183, 255, 63, 0.18) 100%
       )
       border-box;
   border: 1px solid transparent;
   box-shadow:
-    0 22px 48px rgba(0, 0, 0, 0.24),
-    0 0 18px rgba(24, 200, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 0 18px rgba(24, 200, 255, 0.02);
+    0 26px 56px rgba(0, 0, 0, 0.36),
+    0 0 24px rgba(24, 200, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transition:
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 260ms ease,
+    border-color 260ms ease;
+}
+
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionCarousel_block']:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 32px 68px rgba(0, 0, 0, 0.42),
+    0 0 32px rgba(24, 200, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
 }
 
 .instructorsPremiumPage
@@ -2435,22 +2434,31 @@
   --instructorsStepTitle: 'Start receiving bookings';
 }
 
+/* Inner card grid:
+ *   col 1 (44px) — number badge, vertically centred across both rows
+ *   col 2 (1fr)  — title (row 1) + description (row 2) stacked
+ *   col 3 (32px) — small icon chip, vertically centred across both rows
+ * Title and description are stacked in the centre column so the description
+ * never spans the full card width. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_block']
   > [class*='BlockDefault_text'] {
+  position: static;
   width: 100%;
   margin-top: 0;
   display: grid;
-  grid-template-columns: 42px 36px minmax(0, 1fr);
-  grid-template-rows: auto auto auto;
+  grid-template-columns: 44px minmax(0, 1fr) 32px;
+  grid-template-rows: auto auto;
   align-items: center;
-  column-gap: 12px;
-  row-gap: 4px;
+  align-content: center;
+  column-gap: 14px;
+  row-gap: 6px;
   text-align: left;
 }
 
+/* Circular step number (left, centred over both rows): dark gradient + thin lime border + soft glow */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
@@ -2462,63 +2470,69 @@
   align-items: center;
   justify-content: center;
   grid-column: 1;
-  grid-row: 1 / span 3;
-  width: 42px;
-  height: 42px;
+  grid-row: 1 / span 2;
+  align-self: center;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
   background:
-    linear-gradient(180deg, rgba(12, 22, 36, 0.92) 0%, rgba(8, 13, 23, 0.98) 100%) padding-box,
-    linear-gradient(135deg, rgba(24, 200, 255, 0.5) 0%, rgba(33, 230, 193, 0.34) 50%, rgba(183, 255, 63, 0.28) 100%)
+    linear-gradient(180deg, rgba(12, 22, 36, 0.96) 0%, rgba(7, 11, 19, 0.98) 100%) padding-box,
+    linear-gradient(140deg, rgba(24, 200, 255, 0.72) 0%, rgba(33, 230, 193, 0.5) 50%, rgba(183, 255, 63, 0.48) 100%)
       border-box;
   border: 1px solid transparent;
-  color: rgba(247, 250, 255, 0.88);
+  color: rgba(247, 250, 255, 0.94);
   font-size: 0.84rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   box-shadow:
-    0 0 18px rgba(24, 200, 255, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 0 18px rgba(24, 200, 255, 0.1),
+    0 0 22px rgba(183, 255, 63, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
+/* Small premium icon chip (right, centred over both rows) */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_block']
   > [class*='BlockDefault_text']::after {
   content: '';
-  grid-column: 2;
-  grid-row: 1 / span 3;
-  width: 36px;
-  height: 36px;
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  align-self: center;
+  justify-self: end;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
-  background:
-    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.1) 0%, transparent 40%),
-    linear-gradient(180deg, rgba(12, 22, 36, 0.84) 0%, rgba(8, 13, 23, 0.96) 100%);
+  background-color: rgba(10, 16, 26, 0.65);
   background-image:
-    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.1) 0%, transparent 40%),
-    linear-gradient(180deg, rgba(12, 22, 36, 0.84) 0%, rgba(8, 13, 23, 0.96) 100%),
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.08) 0%, transparent 42%),
     var(--instructorsStepIconCurrent);
-  background-position: center, center, center;
+  background-position: center, center;
   background-repeat: no-repeat;
-  background-size: auto, auto, 18px 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-size: auto, 16px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow:
-    0 0 14px rgba(24, 200, 255, 0.06),
+    0 0 12px rgba(24, 200, 255, 0.07),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
+/* The carousel renders an <h3> with the linked text "Join Peakup" (step 2);
+ * the visible step titles ("Apply" / "Get approved" / "Start receiving bookings")
+ * don't exist in CMS markup, so we paint them via a CSS variable for every step.
+ * The original heading text is squashed (font-size: 0) and replaced visually. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_block']
   > [class*='BlockDefault_text']
   > :is(h2, h3, h4, h5, h6) {
-  grid-column: 3;
+  grid-column: 2;
   grid-row: 1;
+  align-self: end;
   margin: 0;
   font-size: 0;
   line-height: 0;
-  text-align: left;
 }
 
 .instructorsPremiumPage
@@ -2529,10 +2543,12 @@
   > :is(h2, h3, h4, h5, h6)::before {
   content: var(--instructorsStepTitle);
   display: block;
-  color: var(--instructorsTextPrimary);
-  font-size: clamp(1.16rem, 1.06rem + 0.22vw, 1.34rem);
+  color: #ffffff;
+  font-size: clamp(1.06rem, 0.98rem + 0.22vw, 1.2rem);
+  font-weight: 700;
+  letter-spacing: -0.005em;
   line-height: 1.2;
-  text-align: left;
+  text-shadow: 0 0 12px rgba(24, 200, 255, 0.04);
 }
 
 .instructorsPremiumPage
@@ -2541,12 +2557,73 @@
   [class*='SectionCarousel_block']
   > [class*='BlockDefault_text']
   > p {
-  grid-column: 3;
+  grid-column: 2;
   grid-row: 2;
-  color: rgba(236, 244, 252, 0.78);
+  align-self: start;
+  justify-self: start;
   margin: 0;
-  line-height: 1.68;
-  text-align: left;
+  color: rgba(228, 238, 250, 0.78);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+/* The CTA lives inside step #2 in the CMS markup.
+ * Float it OUT of the card and center it under the row, anchored to the
+ * threeColumns row (the closest positioned ancestor, with padding-bottom
+ * to make space for the floating button + microcopy).
+ *
+ * `!important` on the position properties is intentional: it neutralises any
+ * cached/global premium-CTA rule (e.g. the hero CTA gets position: relative)
+ * and guarantees the link is fully detached from the inner card grid, so all
+ * 3 cards stay perfectly symmetric and no track is reserved for the CTA. */
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionCarousel_block']
+  > [class*='BlockDefault_text']
+  > [class*='SectionBuilder_ctaButton'] {
+  position: absolute !important;
+  left: 50% !important;
+  top: calc(var(--instructorsStepCardHeight) + var(--instructorsStepGapToCta)) !important;
+  bottom: auto !important;
+  right: auto !important;
+  transform: translateX(-50%);
+  grid-area: unset !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  align-self: auto !important;
+  justify-self: auto !important;
+  z-index: 5;
+  width: max-content;
+  max-width: min(90vw, 360px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  min-height: 62px;
+  padding-left: 44px;
+  padding-right: 44px;
+  font-size: 1.04rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(236, 250, 255, 0.34);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.12) 16%, rgba(255, 255, 255, 0) 44%),
+    linear-gradient(135deg, #18c8ff 0%, #21e6c1 45%, #b7ff3f 100%);
+  color: transparent;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 28px 64px rgba(2, 8, 16, 0.48),
+    0 0 32px rgba(24, 200, 255, 0.22),
+    0 0 56px rgba(33, 230, 193, 0.14),
+    0 0 80px rgba(183, 255, 63, 0.08);
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 320ms ease,
+    border-color 320ms ease,
+    filter 320ms ease;
 }
 
 .instructorsPremiumPage
@@ -2554,145 +2631,118 @@
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_block']
   > [class*='BlockDefault_text']
-  > [class*='SectionBuilder_ctaButton'] {
-  grid-column: 3;
-  grid-row: 3;
-  justify-self: start;
-  margin-top: 8px;
-}
-
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):nth-of-type(3)
-  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']):nth-child(2) {
-  --instructorsStepIconCurrent: var(--instructorsStepIconApproved);
-}
-
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):nth-of-type(3)
-  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']):nth-child(3) {
-  --instructorsStepIconCurrent: var(--instructorsStepIconBookings);
-}
-
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):nth-of-type(3)
-  :is([class*='BlockDefault_root'] > [class*='BlockDefault_text'], [class*='SectionFeatures_block']) {
-  width: 100%;
-  margin-top: 0;
-  display: grid;
-  grid-template-columns: 42px 36px minmax(0, 1fr);
-  grid-template-rows: auto auto;
-  align-items: center;
-  column-gap: 12px;
-  row-gap: 4px;
-  text-align: left;
-}
-
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):nth-of-type(3)
-  :is([class*='BlockDefault_root'] > [class*='BlockDefault_text'], [class*='SectionFeatures_block'])::before {
-  content: counter(instructorsPremiumSteps, decimal-leading-zero);
-  counter-increment: instructorsPremiumSteps;
+  > [class*='SectionBuilder_ctaButton']::before {
+  content: 'JOIN PEAKUP';
+  position: absolute;
+  inset: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  grid-column: 1;
-  grid-row: 1 / span 2;
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(12, 22, 36, 0.92) 0%, rgba(8, 13, 23, 0.98) 100%) padding-box,
-    linear-gradient(135deg, rgba(24, 200, 255, 0.5) 0%, rgba(33, 230, 193, 0.34) 50%, rgba(183, 255, 63, 0.28) 100%)
-      border-box;
-  border: 1px solid transparent;
-  color: rgba(247, 250, 255, 0.88);
-  font-size: 0.84rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  color: #041018;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionCarousel_block']
+  > [class*='BlockDefault_text']
+  > [class*='SectionBuilder_ctaButton']::after {
+  content: 'Apply in 2 minutes — reviewed within 48h';
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: rgba(232, 240, 252, 0.74);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.36),
+    0 0 10px rgba(24, 200, 255, 0.04);
+  pointer-events: none;
+}
+
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionCarousel_block']
+  > [class*='BlockDefault_text']
+  > [class*='SectionBuilder_ctaButton']:hover,
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionCarousel_block']
+  > [class*='BlockDefault_text']
+  > [class*='SectionBuilder_ctaButton']:focus-visible {
+  transform: translateX(-50%) translateY(-3px);
+  filter: brightness(1.06);
+  border-color: rgba(244, 252, 255, 0.46);
   box-shadow:
-    0 0 18px rgba(24, 200, 255, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 34px 76px rgba(2, 8, 16, 0.54),
+    0 0 44px rgba(24, 200, 255, 0.3),
+    0 0 70px rgba(33, 230, 193, 0.2),
+    0 0 110px rgba(183, 255, 63, 0.12);
 }
 
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):nth-of-type(3)
-  [class*='SectionBuilder_blockContainer'] {
-  counter-reset: instructorsPremiumSteps;
+@media (max-width: 767px) {
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block']
+    > [class*='BlockDefault_text']
+    > [class*='SectionBuilder_ctaButton'] {
+    min-height: 56px;
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 0.98rem;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block']
+    > [class*='BlockDefault_text']
+    > [class*='SectionBuilder_ctaButton']::after {
+    font-size: 0.86rem;
+    white-space: normal;
+    max-width: min(86vw, 360px);
+    text-align: center;
+  }
 }
 
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):nth-of-type(3)
-  :is([class*='BlockDefault_root'] > [class*='BlockDefault_text'], [class*='SectionFeatures_block'])::after {
-  content: '';
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.1) 0%, transparent 40%),
-    linear-gradient(180deg, rgba(12, 22, 36, 0.84) 0%, rgba(8, 13, 23, 0.96) 100%);
-  background-image:
-    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.1) 0%, transparent 40%),
-    linear-gradient(180deg, rgba(12, 22, 36, 0.84) 0%, rgba(8, 13, 23, 0.96) 100%),
-    var(--instructorsStepIconCurrent);
-  background-position: center, center, center;
-  background-repeat: no-repeat;
-  background-size: auto, auto, 18px 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 0 14px rgba(24, 200, 255, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):nth-of-type(3)
-  [class*='BlockDefault_root']::before {
-  content: none;
-}
-
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):nth-of-type(3)
-  :is([class*='BlockDefault_root'] > [class*='BlockDefault_text'], [class*='SectionFeatures_block'])
-  > :is(h2, h3, h4, h5, h6) {
-  grid-column: 3;
-  grid-row: 1;
-  color: var(--instructorsTextPrimary);
-  margin: 0;
-  font-size: clamp(1.16rem, 1.06rem + 0.22vw, 1.34rem);
-  line-height: 1.2;
-  text-align: left;
-}
-
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):nth-of-type(3)
-  :is([class*='BlockDefault_root'] > [class*='BlockDefault_text'], [class*='SectionFeatures_block'])
-  > :is(p, li, span) {
-  grid-column: 3;
-  grid-row: 2;
-  color: rgba(236, 244, 252, 0.78);
-  margin-top: 0;
-  line-height: 1.68;
-  text-align: left;
-}
-
+/* Smaller / mobile: keep the same layout but tighten dimensions slightly */
 @media (max-width: 479px) {
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_threeColumns'] {
+    --instructorsStepCardHeight: 138px;
+    --instructorsStepGapToCta: 36px;
+    padding-bottom: 146px;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block'] {
+    min-height: 138px;
+    padding: 18px 18px 20px;
+    border-radius: 24px;
+  }
+
   .instructorsPremiumPage
     :global(main)
     > :global(section):nth-of-type(3)
     [class*='SectionCarousel_block']
     > [class*='BlockDefault_text'] {
-    grid-template-columns: 38px 34px minmax(0, 1fr);
-    column-gap: 10px;
+    grid-template-columns: 40px minmax(0, 1fr) 30px;
+    column-gap: 12px;
+    row-gap: 4px;
   }
 
   .instructorsPremiumPage
@@ -2700,8 +2750,8 @@
     > :global(section):nth-of-type(3)
     [class*='SectionCarousel_block']
     > [class*='BlockDefault_text']::before {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     font-size: 0.78rem;
   }
 
@@ -2710,35 +2760,9 @@
     > :global(section):nth-of-type(3)
     [class*='SectionCarousel_block']
     > [class*='BlockDefault_text']::after {
-    width: 34px;
-    height: 34px;
-    background-size: auto, auto, 16px 16px;
-  }
-
-  .instructorsPremiumPage
-    :global(main)
-    > :global(section):nth-of-type(3)
-    :is([class*='BlockDefault_root'] > [class*='BlockDefault_text'], [class*='SectionFeatures_block']) {
-    grid-template-columns: 38px 34px minmax(0, 1fr);
-    column-gap: 10px;
-  }
-
-  .instructorsPremiumPage
-    :global(main)
-    > :global(section):nth-of-type(3)
-    :is([class*='BlockDefault_root'] > [class*='BlockDefault_text'], [class*='SectionFeatures_block'])::before {
-    width: 38px;
-    height: 38px;
-    font-size: 0.78rem;
-  }
-
-  .instructorsPremiumPage
-    :global(main)
-    > :global(section):nth-of-type(3)
-    :is([class*='BlockDefault_root'] > [class*='BlockDefault_text'], [class*='SectionFeatures_block'])::after {
-    width: 34px;
-    height: 34px;
-    background-size: auto, auto, 16px 16px;
+    width: 30px;
+    height: 30px;
+    background-size: auto, 14px 14px;
   }
 }
 
