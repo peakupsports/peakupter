@@ -34,6 +34,67 @@
   }
 }
 
+.rootCoachMap {
+  background:
+    linear-gradient(180deg, rgba(9, 16, 27, 0.96) 0%, rgba(7, 12, 20, 0.98) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.rootCoachMap .centerSlot {
+  border-left-color: rgba(255, 255, 255, 0.08);
+}
+
+.rootCoachMap .logoLink:hover {
+  border-bottom-color: rgba(157, 255, 46, 0.78);
+}
+
+.rootCoachMap .topbarLink,
+.rootCoachMap .profileMenuLabel {
+  color: rgba(234, 240, 247, 0.76);
+}
+
+.rootCoachMap .topbarLink:hover,
+.rootCoachMap .profileMenuLabel:hover {
+  color: #ffffff;
+  border-bottom-color: rgba(157, 255, 46, 0.78);
+}
+
+.rootCoachMap .profileMenuContent {
+  background:
+    linear-gradient(180deg, rgba(11, 19, 31, 0.98) 0%, rgba(8, 13, 23, 0.99) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  box-shadow:
+    0 22px 42px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.rootCoachMap .menuLink,
+.rootCoachMap .logoutButton {
+  color: rgba(228, 235, 243, 0.78);
+}
+
+.rootCoachMap .menuLink:hover,
+.rootCoachMap .logoutButton:hover {
+  color: #ffffff;
+}
+
+.rootCoachMap .logoutButton {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.rootCoachMap .currentPage {
+  color: #ffffff;
+}
+
+.rootCoachMap .currentPage .menuItemBorder,
+.rootCoachMap .currentPage:hover .menuItemBorder {
+  background-color: rgba(157, 255, 46, 0.78);
+}
+
 .leftSlot {
   min-width: 0;
   height: 100%;

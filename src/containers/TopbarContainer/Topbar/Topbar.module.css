@@ -64,6 +64,28 @@
   }
 }
 
+.containerCoachMap {
+  background:
+    linear-gradient(180deg, rgba(9, 16, 27, 0.96) 0%, rgba(7, 12, 20, 0.98) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.containerCoachMap .menu,
+.containerCoachMap .searchMenu {
+  color: rgba(240, 245, 250, 0.86);
+}
+
+.containerCoachMap .rootMenuIcon {
+  fill: rgba(240, 245, 250, 0.86);
+}
+
+.containerCoachMap .rootSearchIcon {
+  stroke: rgba(240, 245, 250, 0.86);
+}
+
 .logoutButton {
   margin: 0;
 }

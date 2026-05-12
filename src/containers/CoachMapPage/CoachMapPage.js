@@ -717,6 +717,7 @@ const CoachMapPage = props => {
                 <CoachCard
                   key={coach.authorUuid}
                   coach={coach}
+                  className={css.sidebarCoachCard}
                   isSelected={selectedCoachKey === coach.authorUuid}
                   onMouseEnter={() =>
                     setActiveListingId(coach.representativeListing?.id || null)
@@ -732,6 +733,7 @@ const CoachMapPage = props => {
         <div className={css.mapPanel}>
           <CoachMap3D
             coaches={filteredCoaches}
+            className={css.mapSurface}
             activeListingId={activeListingId}
             selectedListingId={selectedListingId}
             selectedSport={selectedSport}

@@ -165,7 +165,11 @@ const TopbarDesktop = props => {
   const isAuthenticatedOrJustHydrated = isAuthenticated || !mounted;
 
   const giveSpaceForSearch = customLinks == null || customLinks?.length === 0;
-  const classes = classNames(rootClassName || css.root, className);
+  const classes = classNames(
+    rootClassName || css.root,
+    currentPage === 'CoachMapPage' ? css.rootCoachMap : null,
+    className
+  );
 
   const inboxLinkMaybe = authenticatedOnClientSide ? (
     <InboxLink notificationCount={notificationCount} inboxTab={inboxTab} />

@@ -10,17 +10,13 @@ import { matchSportFilterKeys } from '../../../util/sportFilterKeys';
 import CoachMapPopup from './CoachMapPopup';
 import css from './CoachMap3D.module.css';
 
-// Mapbox base style. We use the v3 "Outdoors" style instead of "Streets":
-// it ships with topographic relief shading, contour lines, hiking trails
-// and ski runs at high zoom — exactly the alpine/sporty palette PeakUp's
-// map should evoke. Architecturally identical to streets-v12 (same v2
-// "composite" vector source), so our manual `peakup-3d-buildings`
-// fill-extrusion layer keeps working untouched, and so do markers,
-// popups, fitBounds, flyTo, hover and the geolocation pipeline.
-//
-// Tile bandwidth and tile cost are roughly the same as streets-v12.
-// Switching back is a one-line change.
-const COACH_MAP_STYLE = 'mapbox://styles/mapbox/outdoors-v12';
+// Mapbox base style. We intentionally use the dark core style so the map
+// reads as part of PeakUp's premium navy UI rather than as a bright map
+// embedded inside a dark page. `dark-v11` still ships the same `composite`
+// vector source used by streets/outdoors, so our custom 3D building layer,
+// terrain DEM, markers, popups, fitBounds, flyTo, hover sync and
+// geolocation pipeline keep working unchanged.
+const COACH_MAP_STYLE = 'mapbox://styles/mapbox/dark-v11';
 
 // Match the desktop / mobile breakpoint used elsewhere in the app
 // (`--viewportMedium` in `customMediaQueries.css` starts at 768px).
@@ -85,10 +81,9 @@ const installPremiumOutdoorLook = map => {
 
   // 2. Sky / atmosphere ----------------------------------------------------
   // A `sky` layer of type `atmosphere` renders a physically-based sky
-  // gradient with the sun position we configure. Costs nothing in tile
-  // bandwidth and very little GPU; safe on every viewport. The sun is
-  // pulled high (90° elevation, north azimuth) so we get a clean
-  // daylight horizon without harsh sunrise tones tinting the map.
+  // gradient with the sun position we configure. For the dark map pass we
+  // keep the sun subtle so the horizon stays readable without reintroducing
+  // a daylight-blue map feel inside the dark CoachMap shell.
   if (!map.getLayer('peakup-sky')) {
     map.addLayer({
       id: 'peakup-sky',
@@ -96,24 +91,23 @@ const installPremiumOutdoorLook = map => {
       paint: {
         'sky-type': 'atmosphere',
         'sky-atmosphere-sun': [0.0, 90.0],
-        'sky-atmosphere-sun-intensity': 15,
+        'sky-atmosphere-sun-intensity': 5,
       },
     });
   }
 
   // 3. Atmospheric fog (desktop only) --------------------------------------
   // `setFog` adds a soft haze along the horizon — distant terrain fades
-  // into the sky color, giving real depth at our 50° pitch. The palette
-  // is intentionally cool/alpine. Mobile skips this effect: on small
-  // screens the haze eats the limited horizon real-estate and on
-  // cellular it's wasted bandwidth on already-tiny markers.
+  // into the sky color, giving real depth at our 50° pitch. In the dark
+  // map pass we keep the haze cool and low-luminance so the map blends
+  // into the surrounding navy shell while preserving label readability.
   if (!mobile && typeof map.setFog === 'function') {
     map.setFog({
-      range: [0.5, 10],
-      color: '#dde6ee',
-      'high-color': '#bcd5e5',
-      'horizon-blend': 0.06,
-      'space-color': '#0a1426',
+      range: [0.6, 10],
+      color: '#122032',
+      'high-color': '#1e3a56',
+      'horizon-blend': 0.1,
+      'space-color': '#040913',
       'star-intensity': 0.0,
     });
   }
@@ -356,7 +350,7 @@ const CoachMap3D = props => {
               type: 'fill-extrusion',
               minzoom: 14,
               paint: {
-                'fill-extrusion-color': '#cad5e0',
+                'fill-extrusion-color': '#31465f',
                 'fill-extrusion-height': [
                   'interpolate',
                   ['linear'],
@@ -375,7 +369,7 @@ const CoachMap3D = props => {
                   14.5,
                   ['get', 'min_height'],
                 ],
-                'fill-extrusion-opacity': 0.65,
+                'fill-extrusion-opacity': 0.78,
               },
             },
             labelLayerId
@@ -539,9 +533,11 @@ const CoachMap3D = props => {
           if (tierColors) {
             el.style.setProperty('--tier-border', tierColors.border);
             el.style.setProperty('--tier-glow', tierColors.glow);
+            el.style.setProperty('--tier-rgb', tierColors.rgb);
           } else {
             el.style.removeProperty('--tier-border');
             el.style.removeProperty('--tier-glow');
+            el.style.removeProperty('--tier-rgb');
           }
         };
 
@@ -711,6 +707,22 @@ const CoachMap3D = props => {
     const map = mapRef.current;
     if (!map || !window.mapboxgl) return undefined;
 
+    const popupTierId = pickPrimaryTierId(selectedCoach?.author?.attributes?.profile?.publicData);
+    const popupTierColors = getTierColors(popupTierId);
+    const applyPopupTierVars = popupInstance => {
+      const popupEl = popupInstance?.getElement?.();
+      if (!popupEl) return;
+      if (popupTierColors) {
+        popupEl.style.setProperty('--popup-tier-border', popupTierColors.border);
+        popupEl.style.setProperty('--popup-tier-glow', popupTierColors.glow);
+        popupEl.style.setProperty('--popup-tier-rgb', popupTierColors.rgb);
+      } else {
+        popupEl.style.removeProperty('--popup-tier-border');
+        popupEl.style.removeProperty('--popup-tier-glow');
+        popupEl.style.removeProperty('--popup-tier-rgb');
+      }
+    };
+
     if (!selectedCoach) {
       if (popupRef.current) {
         popupRef.current.remove();
@@ -747,6 +759,7 @@ const CoachMap3D = props => {
     if (popupRef.current) {
       // Existing popup: just move it, the React portal re-renders the body.
       popupRef.current.setLngLat(lngLat);
+      applyPopupTierVars(popupRef.current);
       return undefined;
     }
 
@@ -780,6 +793,7 @@ const CoachMap3D = props => {
     });
 
     popupRef.current = popup;
+    applyPopupTierVars(popup);
     setPopupContainer(containerEl);
     return undefined;
     // We also depend on `isReady` so a popup created via ?coachId= deep-link
