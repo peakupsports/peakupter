@@ -24,6 +24,7 @@ import {
   Page,
   Heading,
   IconSpinner,
+  NamedLink,
   NamedRedirect,
   LinkTabNavHorizontal,
   ResponsiveBackgroundImageContainer,
@@ -332,6 +333,7 @@ export const AuthenticationPageComponent = props => {
 
   return (
     <Page
+      className={css.peakUpAuthPage}
       title={schemaTitle}
       scrollingDisabled={scrollingDisabled}
       schema={{
@@ -381,18 +383,51 @@ export const AuthenticationPageComponent = props => {
                   inProgress={authInProgress}
                 />
               ) : (
-                <SignupForm
-                  className={css.signupForm}
-                  onSubmit={getHandleSubmitSignup({
-                    submitSignup,
-                    userFields,
-                  })}
-                  inProgress={authInProgress}
-                  termsAndConditions={termsAndConditions}
-                  preselectedUserType={preselectedUserType}
-                  userTypes={userTypes}
-                  userFields={userFields}
-                />
+                <>
+                  <div className={css.signupChoice}>
+                    <p className={css.signupChoiceTitle}>
+                      <FormattedMessage id="AuthenticationPage.signupChoiceTitle" />
+                    </p>
+                    <p className={css.signupChoiceSubtitle}>
+                      <FormattedMessage id="AuthenticationPage.signupChoiceSubtitle" />
+                    </p>
+                    <NamedLink
+                      className={css.signupChoiceCoach}
+                      name="CMSPage"
+                      params={{ pageId: '4_instructors' }}
+                    >
+                      <span className={css.signupChoiceCoachLabel}>
+                        <FormattedMessage id="AuthenticationPage.signupChoiceCoach" />
+                      </span>
+                      <span className={css.signupChoiceCoachHint}>
+                        <FormattedMessage id="AuthenticationPage.signupChoiceCoachHint" />
+                      </span>
+                    </NamedLink>
+                    <div className={css.signupChoiceDivider} role="separator">
+                      <span>
+                        <FormattedMessage id="AuthenticationPage.signupChoiceDivider" />
+                      </span>
+                    </div>
+                    <p className={css.signupChoiceClientLabel}>
+                      <FormattedMessage id="AuthenticationPage.signupChoiceClient" />
+                    </p>
+                    <p className={css.signupChoiceClientHint}>
+                      <FormattedMessage id="AuthenticationPage.signupChoiceClientHint" />
+                    </p>
+                  </div>
+                  <SignupForm
+                    className={css.signupForm}
+                    onSubmit={getHandleSubmitSignup({
+                      submitSignup,
+                      userFields,
+                    })}
+                    inProgress={authInProgress}
+                    termsAndConditions={termsAndConditions}
+                    preselectedUserType={preselectedUserType}
+                    userTypes={userTypes}
+                    userFields={userFields}
+                  />
+                </>
               )}
 
               <SocialLoginButtons

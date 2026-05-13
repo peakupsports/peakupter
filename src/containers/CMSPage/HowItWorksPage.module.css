@@ -1898,17 +1898,30 @@
   text-shadow: 0 2px 26px rgba(0, 0, 0, 0.52);
 }
 
+/* Description sibling under the hero CTA — explicit `z-index: 6` keeps the
+ * white subtitle text strictly above the CTA's stacking context (the CTA
+ * is at z-index: 5 with `isolation: isolate`). Without this, the button's
+ * hover glow halo bleeds visually over the description text below.
+ *
+ * The strengthened layered text-shadow (deep navy near-glow + wider
+ * cinematic drop) is the second line of defence: even if the glow halo
+ * extends into the description's spatial area, the text reads crisp white
+ * over any colour. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):first-of-type
   [class*='SectionBuilder_description'] {
   grid-row: 3;
+  position: relative;
+  z-index: 6;
   max-width: 58ch;
   color: rgba(238, 246, 252, 0.86);
   font-size: clamp(1.06rem, 0.97rem + 0.4vw, 1.28rem);
   line-height: 1.7;
   text-wrap: pretty;
-  text-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.42),
+    0 12px 30px rgba(0, 0, 0, 0.3);
 }
 
 /* ===========================================================================
@@ -1925,8 +1938,9 @@
  * =========================================================================== */
 .instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton'] {
   position: relative;
-  overflow: hidden;
+  z-index: 5;
   isolation: isolate;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;

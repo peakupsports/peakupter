@@ -1,16 +1,254 @@
 @import '../../../../styles/customMediaQueries.css';
 
-.root {
-  border-top: 1px solid var(--colorGrey100);
+/* ============================================================================
+ * PeakUp premium footer.
+ *
+ * Rendering chain (verified):
+ *   FooterContainer.js
+ *     → <SectionBuilder sections={[{ sectionType: 'footer', ... }]} />
+ *       → SectionBuilder maps 'footer' → SectionFooter
+ *         → SectionFooter renders <SectionContainer as="footer" id="footer"
+ *             className={css.root} appearance={appearance}>
+ *           → DOM: <footer id="footer" class="SectionContainer_root
+ *                  SectionFooter_root">
+ *
+ * Why every override needs !important + #footer specificity:
+ *   1. `SectionContainer.module.css` paints odd-of-type siblings white via
+ *      `&:nth-of-type(odd) { background-color: var(--colorWhite) }`.
+ *   2. The CMS footer asset ships `appearance.customAppearance` with a
+ *      `backgroundColor` (and sometimes `backgroundImageOverlay`) that
+ *      `CustomAppearance` applies as INLINE STYLE on an absolutely-
+ *      positioned wrapper, which paints over any external background.
+ *   3. Headings inside footer blocks are rendered through the Heading
+ *      primitive which carries `color: var(--colorGrey900)` from
+ *      `Heading.module.css`.
+ *
+ * Targeting via `footer#footer.root` gives a specificity of (1,2,1) which
+ * beats anything inside SectionContainer.module.css (max (0,1,1)) and any
+ * inline style only when combined with !important.
+ * ========================================================================= */
+
+.root,
+.root:nth-of-type(odd),
+footer.root,
+:global(footer#footer).root {
+  position: relative;
+  background:
+    /* Center cyan/lime bloom that anchors the brand. */
+    radial-gradient(
+      60% 80% at 50% 0%,
+      rgba(23, 217, 255, 0.12) 0%,
+      rgba(157, 255, 79, 0.06) 32%,
+      rgba(6, 12, 24, 0) 70%
+    ),
+    /* Left vignette — deepens the edge into the navy. */
+    radial-gradient(
+      40% 70% at 0% 50%,
+      rgba(2, 6, 14, 0.55) 0%,
+      rgba(2, 6, 14, 0) 70%
+    ),
+    /* Right vignette — mirror of the left. */
+    radial-gradient(
+      40% 70% at 100% 50%,
+      rgba(2, 6, 14, 0.55) 0%,
+      rgba(2, 6, 14, 0) 70%
+    ),
+    linear-gradient(180deg, #0B1220 0%, #060C18 100%) !important;
+  background-color: #0B1220 !important;
+  border-top: 1px solid rgba(23, 217, 255, 0.22) !important;
+  color: rgba(228, 235, 243, 0.78);
+  overflow: hidden;
+  isolation: isolate;
 }
 
+/* Hairline gradient glow under the top border. */
+.root::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(23, 217, 255, 0) 0%,
+    rgba(23, 217, 255, 0.4) 28%,
+    rgba(157, 255, 79, 0.36) 72%,
+    rgba(157, 255, 79, 0) 100%
+  );
+  filter: blur(1px);
+  opacity: 0.85;
+  z-index: 2;
+}
+
+/* CMS-driven appearance neutralization.
+ *
+ * Hosted footer asset ships `appearance.customAppearance` with an inline
+ * `backgroundColor` AND in some setups a background <img>. Both bleed
+ * through our dark gradient. We force the absolute wrapper, its inner
+ * <img>, and any overlay to disappear so the PeakUp surface is the only
+ * thing the user sees. */
+.root [class*='CustomAppearance_backgroundImageWrapper'],
+:global(footer#footer) [class*='CustomAppearance_backgroundImageWrapper'] {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.root [class*='CustomAppearance_backgroundImage'],
+:global(footer#footer) [class*='CustomAppearance_backgroundImage'] {
+  display: none !important;
+}
+
+.root [class*='CustomAppearance_backgroundOverlay'],
+:global(footer#footer) [class*='CustomAppearance_backgroundOverlay'] {
+  background-color: transparent !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+/* Make sure the actual footer content sits above the CustomAppearance
+ * layer and above the top-border glow. */
 .footer {
-  max-width: var(--contentMaxWidthPages);
+  position: relative;
+  z-index: 1;
+}
+
+/* Footer links — PeakUp dark theme defaults with soft cyan hover glow. */
+.root a,
+:global(footer#footer) a {
+  color: rgba(228, 235, 243, 0.82) !important;
+  text-decoration: none !important;
+  transition: color 180ms ease, text-shadow 180ms ease;
+}
+
+.root a:hover,
+:global(footer#footer) a:hover {
+  color: #17d9ff !important;
+  text-decoration: none !important;
+  text-shadow: 0 0 10px rgba(23, 217, 255, 0.14);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Footer column titles — REAL RENDERED MARKUP
+ *
+ * The CMS authors of the footer write column titles as **bold paragraphs**
+ * (or the first item of a bulleted list), NOT as Markdown headings. The
+ * Sharetribe markdown processor therefore emits:
+ *
+ *   <nav class="BlockFooter_text__xxx">
+ *     <p><strong>Platform</strong></p>      ← THE TITLE
+ *     <ul>
+ *       <li><a>Find a coach</a></li>
+ *       …
+ *     </ul>
+ *   </nav>
+ *
+ * or, when the CMS author uses a top-level bullet list:
+ *
+ *   <nav class="BlockFooter_text__xxx">
+ *     <ul>
+ *       <li><strong>Platform</strong></li>  ← THE TITLE
+ *       <li><a>Find a coach</a></li>
+ *       …
+ *     </ul>
+ *   </nav>
+ *
+ * A previous version of this stylesheet targeted `h1–h6` and consequently
+ * matched NOTHING — leaving the strong fall through to the parent `<p>`'s
+ * `color: rgba(220,232,248,0.78)` rule and rendering as off-white. That is
+ * the "titoli ancora bianchi" bug.
+ *
+ * The selectors below mirror the proven LandingPage footer override and
+ * cover every CMS authoring style. Scoped to `.root` (CSS-module-local), so
+ * they CANNOT touch any other `<strong>` or `<h2>` anywhere else in the app.
+ * ────────────────────────────────────────────────────────────────────── */
+.root [class*='BlockFooter_text'] > :first-child:is(h1, h2, h3, h4, h5, h6),
+.root [class*='BlockFooter_text'] > p:first-child > strong:first-child,
+.root [class*='BlockFooter_text'] > ul:first-child > li:first-child > strong:first-child {
+  background-image: linear-gradient(
+    90deg,
+    #17d9ff 0%,
+    #39f3d1 45%,
+    #9dff4f 100%
+  );
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  filter: drop-shadow(0 0 10px rgba(57, 243, 209, 0.18));
+}
+
+/* The line that the bold-strong title lives on inherits the `<p>` or `<li>`
+ * color (off-white). Since the gradient does its own painting, we don't
+ * have to touch it — but we DO need to keep the surrounding body links
+ * looking right. That happens further down. */
+
+.root p,
+.root li,
+.root span,
+:global(footer#footer) p,
+:global(footer#footer) li,
+:global(footer#footer) span {
+  color: rgba(220, 232, 248, 0.78);
+}
+
+/* Outer footer container — wider than --contentMaxWidthPages so columns can
+ * breathe without splitting words like "Company & Le-gal" or "Terms & Con-
+ * ditions". Forced no-hyphenation on every descendant. */
+.footer {
+  max-width: 1440px;
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  gap: 32px;
+  gap: 40px;
   margin: 0 auto;
-  padding: 24px 32px;
+  padding: 56px 28px 40px;
+  position: relative;
+  z-index: 1;
+
+  @media (--viewportMedium) {
+    padding: 72px 40px 48px;
+    gap: 48px;
+  }
+
+  @media (--viewportLarge) {
+    padding: 88px 56px 56px;
+    gap: 56px;
+  }
+}
+
+/* Kill the default `hyphens: auto` + `word-break: break-word` inherited
+ * from h1–h6 / shared marketplace styles so column titles stay on one
+ * line and never render as "Com-pany" or "Le-gal". */
+.footer h1,
+.footer h2,
+.footer h3,
+.footer h4,
+.footer h5,
+.footer h6,
+.footer a,
+.footer p,
+.footer li,
+.footer span,
+.footer nav {
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+.footer h1,
+.footer h2,
+.footer h3,
+.footer h4,
+.footer h5,
+.footer h6 {
+  white-space: nowrap;
+}
+
+.footer a {
+  white-space: normal;
 }
 
 .footer ul {
@@ -24,13 +262,14 @@
   padding-left: 12px;
 }
 
+/* Mobile baseline: stacked single column. */
 .content {
   display: grid;
-  justify-content: center;
-  align-content: end;
+  justify-content: stretch;
+  align-content: start;
   grid-auto-rows: auto;
   grid-gap: 32px;
-  grid-row-gap: 16px;
+  grid-row-gap: 24px;
   grid-template-columns: 1fr;
   grid-template-areas:
     'logo'
@@ -42,10 +281,10 @@
 .grid {
   grid-area: grid;
   display: grid;
-  justify-content: center;
+  justify-content: stretch;
   align-content: start;
   grid-auto-rows: auto;
-  grid-gap: 32px;
+  grid-gap: 28px 48px;
 }
 
 .gridCol1,
@@ -81,13 +320,28 @@
 
 .logo {
   grid-area: logo;
+  min-width: 0;
+
+  /* Soft PeakUp halo BEHIND the logo block. Very subtle radial of cyan
+   * fading into lime so the wordmark sits inside a faint brand glow
+   * rather than floating on flat navy. Kept small so it stays elegant. */
+  position: relative;
+  isolation: isolate;
+  background: radial-gradient(
+    60% 60% at 35% 50%,
+    rgba(23, 217, 255, 0.1) 0%,
+    rgba(157, 255, 79, 0.05) 35%,
+    rgba(11, 18, 32, 0) 100%
+  );
+  padding: 4px 0;
+  margin: -4px 0 4px -8px;
 }
 
 .copyright {
   display: inline-block;
   font-size: 12px;
   line-height: 16px;
-  color: var(--colorGrey600);
+  color: rgba(195, 210, 226, 0.6);
   margin-top: 24px;
 }
 
@@ -113,22 +367,48 @@
     text-decoration: none;
   }
 }
-.logoWrapper {
-  max-width: 444px;
+/* ──────────────────────────────────────────────────────────────────────────
+ * Footer logo — FINAL SIZING SPEC
+ *
+ * Scope: `footer#footer` (id selector → specificity (1,0,1)) so this rule
+ * outranks even `.landingPremium :global(footer) [class*='...'][class*='...']`
+ * (specificity (0,3,1)) and `.sportPremium :global(footer) [...]`. The
+ * `!important` further defeats `Logo.js`'s inline `style="width:Npx"` on
+ * the wrapper.
+ *
+ *   Real DOM:
+ *     <a class="LinkedLogo_logoLink … SectionFooter_logoLink">
+ *       <div class="Logo_root … SectionFooter_logoWrapper"
+ *            style="width:200px">
+ *         <img class="Logo_logo … Logo_logo48 … SectionFooter_logoImage" />
+ *       </div>
+ *     </a>
+ *
+ *   The `[class*='Logo_root']` + `[class*='logoWrapper']` covers BOTH the
+ *   `Logo.module.css` root and the `SectionFooter.module.css` wrapper class
+ *   (mangled to `*logoWrapper*`).
+ *
+ *   The `img` fallback is safe here because the trust-strip icons and the
+ *   social-media icons are rendered as inline SVG (not `<img>`), so the
+ *   only `<img>` element actually present inside the footer is the logo. */
+:global(footer#footer) [class*='Logo_root'],
+:global(footer#footer) [class*='logoWrapper'] {
+  width: 300px !important;
+  max-width: 300px !important;
+  height: auto !important;
 }
-.logoImage {
-  height: auto;
-  width: auto;
-  max-width: min(100%, 332px);
-  object-fit: contain;
-  object-position: center;
-  filter:
-    drop-shadow(0 0 18px rgba(24, 200, 255, 0.08))
-    drop-shadow(0 0 24px rgba(183, 255, 63, 0.06));
 
-  @media (--viewportLarge) {
-    max-width: min(100%, 372px);
-  }
+:global(footer#footer) [class*='Logo_logo'],
+:global(footer#footer) img {
+  width: 100% !important;
+  max-width: 300px !important;
+  height: auto !important;
+  max-height: 92px !important;
+  object-fit: contain !important;
+
+  filter:
+    drop-shadow(0 0 18px rgba(23, 217, 255, 0.24))
+    drop-shadow(0 0 26px rgba(157, 255, 79, 0.12));
 }
 
 @media (min-width: 350px) {
@@ -153,45 +433,31 @@
 }
 
 @media (--viewportLarge) {
+  /* Desktop layout: 2 super-columns.
+   *   ┌──────────────┬──────────────────────────────────────┐
+   *   │ logo         │                                      │
+   *   │ slogan       │ <CMS link columns spread across>     │
+   *   │ social       │                                      │
+   *   │ copyright    │                                      │
+   *   └──────────────┴──────────────────────────────────────┘
+   * Left rail is a fixed 280–320 px column so the logo column never
+   * collapses; right column auto-fills with the CMS blocks. Generous
+   * 72 px horizontal gap. */
   .detailsInfo {
     grid-area: details;
   }
 
-  .contentCol1 {
-    /* 1/6 of space is for grid, and grid uses 1 column internally */
-    grid-template-columns: 2fr 3fr 1fr;
-    grid-template-areas:
-      'logo . .'
-      'details . grid'
-      'details . grid'
-      'details . grid';
-  }
-  .contentCol2 {
-    /* 2/6 of space is for grid, and grid splits it to 2 columns */
-    grid-template-columns: 2fr 2fr 2fr;
-    grid-template-areas:
-      'logo . .'
-      'details . grid'
-      'details . grid'
-      'details . grid';
-  }
-  .contentCol3 {
-    /* 3/6 of space is for grid, and grid splits it to 3 columns */
-    grid-template-columns: 2fr 1fr 1fr 2fr;
-    grid-template-areas:
-      'logo . . .'
-      'details . grid grid'
-      'details . grid grid'
-      'details . grid grid';
-  }
+  .contentCol1,
+  .contentCol2,
+  .contentCol3,
   .contentCol4 {
-    /* 4/6 of space is for grid, and grid splits it to 4 columns */
-    grid-template-columns: 2fr 2fr 2fr;
+    grid-template-columns: minmax(300px, 400px) 1fr;
     grid-template-areas:
-      'logo . .'
-      'details grid grid'
-      'details grid grid'
-      'details grid grid';
+      'logo grid'
+      'details grid';
+    grid-column-gap: 72px;
+    grid-row-gap: 24px;
+    align-items: start;
   }
 
   .gridCol1 {
@@ -199,14 +465,124 @@
   }
 
   .gridCol2 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .gridCol3 {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .gridCol4 {
-    grid-template-columns: repeat(4, 1fr);
+    /* 4 ordered link columns with extra spacing between them so labels
+     * like "Terms & Conditions" or "Company & Legal" fit on one line. */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-column-gap: 56px;
   }
+}
+
+/* ============================================================================
+ * Trust strip (4 premium cards at the bottom of the footer).
+ * Verified Coaches · Secure Bookings · Global Community · 24/7 Support.
+ * ========================================================================= */
+
+.trustStrip {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 24px 0 4px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+  border-top: 1px solid rgba(23, 217, 255, 0.12);
+
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  @media (--viewportLarge) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 36px 0 8px;
+    margin-top: 24px;
+  }
+}
+
+.trustItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  background: linear-gradient(180deg, rgba(17, 28, 46, 0.55) 0%, rgba(11, 18, 32, 0.7) 100%);
+  border: 1px solid rgba(23, 217, 255, 0.14);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 10px 24px rgba(2, 8, 16, 0.22);
+  transition: border-color 200ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+
+.trustItem:hover {
+  border-color: rgba(23, 217, 255, 0.32);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 14px 30px rgba(2, 8, 16, 0.28),
+    0 0 18px rgba(23, 217, 255, 0.12),
+    0 0 28px rgba(157, 255, 79, 0.06);
+  transform: translateY(-1px);
+}
+
+.trustIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  /* Brighter PeakUp cyan→lime chip with a soft outer glow. Inner
+   * highlight keeps the glass feel. */
+  background: linear-gradient(
+    135deg,
+    rgba(23, 217, 255, 0.26) 0%,
+    rgba(57, 243, 209, 0.18) 50%,
+    rgba(157, 255, 79, 0.18) 100%
+  );
+  border: 1px solid rgba(23, 217, 255, 0.36);
+  color: #d8faff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 14px rgba(23, 217, 255, 0.16),
+    0 0 22px rgba(157, 255, 79, 0.08);
+  transition: box-shadow 220ms ease, border-color 220ms ease, transform 220ms ease;
+}
+
+.trustItem:hover .trustIcon {
+  border-color: rgba(23, 217, 255, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 18px rgba(23, 217, 255, 0.26),
+    0 0 28px rgba(157, 255, 79, 0.14);
+  transform: translateY(-1px);
+}
+
+.trustText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.trustTitle {
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #ffffff;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+}
+
+.trustDescription {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: rgba(220, 232, 248, 0.7);
 }

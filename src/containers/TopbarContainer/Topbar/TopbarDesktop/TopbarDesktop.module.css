@@ -22,11 +22,13 @@
   column-gap: 12px;
   padding: 0 12px;
 
-  /* fill */
-  background-color: var(--colorWhite);
-
-  /* shadows */
-  box-shadow: var(--boxShadowLight);
+  /* PeakUp dark cinematic glass header (desktop baseline). */
+  background:
+    linear-gradient(180deg, rgba(6, 12, 24, 0.96) 0%, rgba(8, 18, 32, 0.92) 100%);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid rgba(23, 217, 255, 0.16);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28);
 
   @media (--viewportLarge) {
     column-gap: 18px;
@@ -247,7 +249,7 @@
   transition: var(--transitionStyleButton);
 }
 .logoLink:hover {
-  border-bottom: 4px solid var(--marketplaceColor);
+  border-bottom: 2px solid #39f3d1;
   border-radius: 0;
 }
 
@@ -259,11 +261,18 @@
   margin: 0;
 }
 
+/* Desktop topbar logo — PeakUp premium baseline.
+ *
+ * Bumped from the Sharetribe default (48 px) to 56 px so the wordmark
+ * carries more brand weight against the dark cinematic header. Bound to
+ * the `.logoImage` class — compiled to `.TopbarDesktop_logoImage__xxx`
+ * and therefore strictly scoped to THIS component. Mobile topbar, footer,
+ * landing/auth/sport overrides are untouched. */
 .logoImage {
   width: auto;
-  height: 48px;
-  max-width: min(100%, 320px);
-  max-height: 52px;
+  height: 56px;
+  max-width: min(100%, 340px);
+  max-height: 60px;
   object-fit: contain;
 }
 
@@ -274,7 +283,7 @@
   height: 100%;
   border-left-style: solid;
   border-left-width: 1px;
-  border-left-color: var(--colorGrey100);
+  border-left-color: rgba(255, 255, 255, 0.08);
 }
 
 .spacer {
@@ -289,7 +298,7 @@
   height: 100%;
   border-left-style: solid;
   border-left-width: 1px;
-  border-left-color: var(--colorGrey100);
+  border-left-color: rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -308,7 +317,7 @@
   font-size: 15px;
   line-height: 24px;
   letter-spacing: 0;
-  color: var(--colorGrey700);
+  color: rgba(244, 246, 250, 0.82);
 
   display: inline-block;
   margin: 28px 0;
@@ -338,26 +347,29 @@
   }
 }
 
-/* These is used with Inbox, Sign up, and Log in */
+/* These is used with Inbox, Sign up, and Log in.
+ *
+ * In the PeakUp dark topbar the default text colour is light grey, hover
+ * paints a thin cyan/lime underline (driven via the topbarLinkLabel
+ * pseudo-element below so the height of the bar never jumps). */
 .topbarLink {
   flex-shrink: 0;
 
   border-bottom: 0px solid;
-  transition: var(--transitionStyleButton);
+  transition: var(--transitionStyleButton), color 180ms ease;
 
   font-weight: var(--fontWeightMedium);
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0;
-  color: var(--colorGrey700);
+  color: rgba(244, 246, 250, 0.82);
 
   height: 100%;
   padding: 0 12px 0 12px;
   margin: 0;
 
   &:hover {
-    color: var(--colorBlack);
-    border-bottom: 4px solid var(--marketplaceColor);
+    color: #17d9ff;
     border-radius: 0;
     text-decoration: none;
   }
@@ -366,6 +378,122 @@
     line-height: 16px;
     margin: 0;
   }
+}
+
+/* Cyan→lime underline under the active hover link (height-stable). */
+.topbarLink .topbarLinkLabel::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #17d9ff 0%, #39f3d1 50%, #9dff4f 100%);
+  opacity: 0;
+  transform: scaleX(0.5);
+  transform-origin: center;
+  transition: opacity 180ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.topbarLink:hover .topbarLinkLabel::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* Sign up button — full PeakUp gradient CTA pill. */
+.root :global(#signup-link).topbarLink,
+.rootCoachMap :global(#signup-link).topbarLink,
+.rootSportPremium :global(#signup-link).topbarLink {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  height: auto;
+  min-height: 38px;
+  padding: 8px 18px;
+  margin: 0 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 248, 255, 0.26);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 30%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(90deg, #17d9ff 0%, #39f3d1 45%, #9dff4f 100%);
+  color: #06101C;
+  font-weight: 800;
+  letter-spacing: 0.005em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 8px 22px rgba(2, 8, 16, 0.34),
+    0 0 18px rgba(23, 217, 255, 0.2),
+    0 0 28px rgba(157, 255, 79, 0.1);
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms ease, filter 200ms ease;
+}
+
+.root :global(#signup-link).topbarLink:hover,
+.rootCoachMap :global(#signup-link).topbarLink:hover,
+.rootSportPremium :global(#signup-link).topbarLink:hover {
+  color: #06101C;
+  border-color: rgba(239, 251, 255, 0.34);
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    0 10px 26px rgba(2, 8, 16, 0.4),
+    0 0 24px rgba(23, 217, 255, 0.28),
+    0 0 38px rgba(157, 255, 79, 0.14);
+}
+
+.root :global(#signup-link).topbarLink .topbarLinkLabel,
+.rootCoachMap :global(#signup-link).topbarLink .topbarLinkLabel,
+.rootSportPremium :global(#signup-link).topbarLink .topbarLinkLabel {
+  margin: 0;
+  color: inherit;
+}
+
+/* Gradient pill should not have the generic underline animation. */
+.root :global(#signup-link).topbarLink .topbarLinkLabel::after,
+.rootCoachMap :global(#signup-link).topbarLink .topbarLinkLabel::after,
+.rootSportPremium :global(#signup-link).topbarLink .topbarLinkLabel::after {
+  display: none;
+}
+
+/* Log in — clean glass outline button (sits next to the gradient pill). */
+.root :global(#login-link).topbarLink,
+.rootCoachMap :global(#login-link).topbarLink,
+.rootSportPremium :global(#login-link).topbarLink {
+  display: inline-flex;
+  align-items: center;
+  height: auto;
+  min-height: 38px;
+  padding: 8px 16px;
+  margin: 0 4px 0 2px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(247, 250, 255, 0.94);
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease, transform 200ms ease;
+}
+
+.root :global(#login-link).topbarLink:hover,
+.rootCoachMap :global(#login-link).topbarLink:hover,
+.rootSportPremium :global(#login-link).topbarLink:hover {
+  color: #17d9ff;
+  border-color: rgba(23, 217, 255, 0.48);
+  background: rgba(23, 217, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.root :global(#login-link).topbarLink .topbarLinkLabel,
+.rootCoachMap :global(#login-link).topbarLink .topbarLinkLabel,
+.rootSportPremium :global(#login-link).topbarLink .topbarLinkLabel {
+  margin: 0;
+}
+
+.root :global(#login-link).topbarLink .topbarLinkLabel::after,
+.rootCoachMap :global(#login-link).topbarLink .topbarLinkLabel::after,
+.rootSportPremium :global(#login-link).topbarLink .topbarLinkLabel::after {
+  display: none;
 }
 
 .topbarLinkLabel {
@@ -411,16 +539,16 @@
   }
 }
 
-/* Profile menu */
+/* Profile menu — PeakUp dark theme default. */
 .profileMenuLabel {
   border-bottom: 0px solid;
-  transition: var(--transitionStyleButton);
+  transition: var(--transitionStyleButton), color 180ms ease;
 
   font-weight: var(--fontWeightMedium);
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0;
-  color: var(--colorGrey700);
+  color: rgba(244, 246, 250, 0.86);
 
   flex-shrink: 0;
   display: flex;
@@ -430,7 +558,7 @@
   padding: 0 12px 0 12px;
 
   &:hover {
-    border-bottom: 4px solid var(--marketplaceColor);
+    color: #17d9ff;
     border-radius: 0;
     text-decoration: none;
   }
@@ -453,6 +581,16 @@
 .profileMenuContent {
   min-width: 276px;
   padding-top: 20px;
+
+  /* PeakUp dark dropdown glass surface. */
+  background:
+    linear-gradient(180deg, rgba(11, 18, 30, 0.98) 0%, rgba(8, 13, 23, 0.99) 100%);
+  border: 1px solid rgba(23, 217, 255, 0.18);
+  border-radius: 18px;
+  box-shadow:
+    0 22px 42px rgba(0, 0, 0, 0.36),
+    0 0 26px rgba(23, 217, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* left animated "border" like hover element */
@@ -476,18 +614,24 @@
   margin: 0;
   padding: 4px 24px;
 
-  /* Layout details */
-  color: var(--colorGrey700);
+  /* PeakUp dark dropdown rows. */
+  color: rgba(228, 235, 243, 0.82);
   text-align: left;
-  transition: var(--transitionStyleButton);
+  transition: var(--transitionStyleButton), color 180ms ease, background 180ms ease;
 
   &:hover {
-    color: var(--colorBlack);
+    color: #ffffff;
     text-decoration: none;
+    background: linear-gradient(
+      90deg,
+      rgba(23, 217, 255, 0.08) 0%,
+      rgba(57, 243, 209, 0.06) 52%,
+      rgba(157, 255, 79, 0.04) 100%
+    );
 
     & .menuItemBorder {
       width: 6px;
-      background-color: var(--marketplaceColor);
+      background-color: #39f3d1;
     }
   }
 
@@ -516,27 +660,28 @@
   padding: 20px 24px;
 
   /* Layout details */
-  color: var(--colorGrey600);
+  color: rgba(214, 224, 235, 0.74);
   text-align: left;
   white-space: nowrap;
-  transition: var(--transitionStyleButton);
+  transition: var(--transitionStyleButton), color 180ms ease;
 
   /* Borders */
   border: none;
   border-top-width: 1px;
   border-top-style: solid;
-  border-top-color: var(--colorGrey100);
+  border-top-color: rgba(255, 255, 255, 0.08);
+  background-color: transparent;
 
   &:hover {
     cursor: pointer;
-    color: var(--colorBlack);
+    color: #ffffff;
     text-decoration: none;
 
     & .menuItemBorder {
       height: 100%;
       width: 6px;
       top: 0;
-      background-color: var(--marketplaceColor);
+      background-color: #39f3d1;
     }
   }
 
@@ -548,17 +693,17 @@
 }
 
 .currentPage {
-  color: var(--colorBlack);
+  color: #ffffff;
   position: relative;
 
   & .menuItemBorder {
     width: 6px;
-    background-color: var(--colorBlack);
+    background: linear-gradient(180deg, #17d9ff 0%, #9dff4f 100%);
   }
 
   &:hover {
     & .menuItemBorder {
-      background-color: var(--colorBlack);
+      background: linear-gradient(180deg, #17d9ff 0%, #9dff4f 100%);
     }
   }
 }

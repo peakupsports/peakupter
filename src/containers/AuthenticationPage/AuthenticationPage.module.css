@@ -254,3 +254,444 @@
 
 .confirmInfoText {
 }
+
+/* ============================================================================
+ * PeakUp premium auth theme
+ *
+ * Scoped to `.peakUpAuthPage` (applied to <Page>'s root <div id="page">).
+ * All overrides below target attribute selectors so the changes don't leak
+ * to other pages that share the same global classes (e.g. other modals
+ * composing `marketplaceModalBaseStyles`, generic `PrimaryButton`, etc.).
+ *
+ * Palette:
+ *   bg deep        #0B1220
+ *   bg mid         #111C2E
+ *   PeakUp cyan    #17D9FF
+ *   PeakUp teal    #39F3D1
+ *   PeakUp lime    #9DFF4F
+ *
+ * Logic, form behaviour and Sharetribe auth flow are NOT touched — only
+ * the visual layer.
+ * ========================================================================= */
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Auth-page topbar logo — REAL RENDERED MARKUP
+ *
+ *   <header class="LayoutSingleColumn_topbar__…">
+ *     <TopbarContainer>
+ *       <header class="TopbarDesktop_root__…">
+ *         <a class="LinkedLogo_root__… TopbarDesktop_logoLink__…">
+ *           <div class="Logo_root__…" style="width:200px">       ← inline
+ *             <img class="Logo_logo__… Logo_logo48__…" />        ← max-h 48
+ *           </div>
+ *         </a>
+ *
+ * `Logo.js` writes the inline `width` based on the CMS asset variant, and
+ * `Logo_logo48` caps `max-height: 48px`. We need a slightly more "premium"
+ * size on the auth pages without spilling anywhere else.
+ *
+ * Scope: `.peakUpAuthPage :global(header)` — `.peakUpAuthPage` is a class
+ * local to THIS module (only ever applied to `<Page>` on the auth route),
+ * and we further narrow to descendants of any `<header>` so the override
+ * cannot reach the footer logo (which is in `<footer>`).
+ *
+ * Specificity (0,2,1) beats Logo.module.css `.logo`/`.logo48` (0,1,0);
+ * `!important` defeats `Logo.js`'s inline `style="width:Npx"`. */
+.peakUpAuthPage :global(header) [class*='Logo_root'] {
+  width: 220px !important;
+  max-width: 220px !important;
+}
+
+.peakUpAuthPage :global(header) [class*='Logo_logo'] {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 56px !important;
+  object-fit: contain;
+}
+
+.peakUpAuthPage {
+  /* Token palette consumed by every nested override below. */
+  --peakUpAuthBgTop: #0B1220;
+  --peakUpAuthBgMid: #111C2E;
+  --peakUpAuthBgBottom: #07101D;
+  --peakUpAuthCyan: #17D9FF;
+  --peakUpAuthTeal: #39F3D1;
+  --peakUpAuthLime: #9DFF4F;
+  --peakUpAuthCardBg: linear-gradient(180deg, rgba(17, 28, 46, 0.78) 0%, rgba(11, 18, 32, 0.88) 100%);
+  --peakUpAuthCardBorder: rgba(23, 217, 255, 0.28);
+  --peakUpAuthTextPrimary: rgba(247, 250, 255, 0.96);
+  --peakUpAuthTextSecondary: rgba(220, 232, 248, 0.74);
+  --peakUpAuthTextMuted: rgba(195, 210, 226, 0.5);
+  --peakUpAuthInputBg: rgba(8, 14, 24, 0.6);
+  --peakUpAuthInputBorder: rgba(255, 255, 255, 0.16);
+
+  background:
+    radial-gradient(72% 60% at 18% 0%, rgba(23, 217, 255, 0.12) 0%, transparent 56%),
+    radial-gradient(64% 52% at 86% 8%, rgba(157, 255, 79, 0.06) 0%, transparent 54%),
+    linear-gradient(180deg, var(--peakUpAuthBgTop) 0%, var(--peakUpAuthBgMid) 48%, var(--peakUpAuthBgBottom) 100%);
+}
+
+/* Background image container: keep the brand image if any, but lay down a
+ * cinematic dark navy overlay so the centre stays readable. */
+.peakUpAuthPage [class*='ResponsiveBackgroundImageContainer_root'],
+.peakUpAuthPage [class*='ResponsiveBackgroundImageContainer_container'] {
+  position: relative;
+  background-color: transparent;
+}
+
+.peakUpAuthPage [class*='ResponsiveBackgroundImageContainer_overlay'] {
+  background:
+    radial-gradient(70% 55% at 50% 38%, rgba(7, 11, 22, 0.62) 0%, rgba(7, 11, 22, 0.84) 70%, rgba(7, 11, 22, 0.94) 100%),
+    linear-gradient(180deg, rgba(7, 11, 22, 0.7) 0%, rgba(7, 11, 22, 0.86) 60%, rgba(7, 11, 22, 0.94) 100%) !important;
+  opacity: 1 !important;
+}
+
+/* Glassmorphism auth card — replaces the default white modal sheet. */
+.peakUpAuthPage .content,
+.peakUpAuthPage [class*='AuthenticationPage_content'] {
+  position: relative;
+  background: var(--peakUpAuthCardBg) !important;
+  background-color: transparent !important;
+  border: 1px solid var(--peakUpAuthCardBorder);
+  border-radius: 24px;
+  border-bottom: 1px solid var(--peakUpAuthCardBorder);
+  box-shadow:
+    0 24px 64px rgba(2, 8, 16, 0.48),
+    0 0 24px rgba(23, 217, 255, 0.1),
+    0 0 48px rgba(157, 255, 79, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  color: var(--peakUpAuthTextPrimary);
+}
+
+@media (--viewportMedium) {
+  .peakUpAuthPage .content,
+  .peakUpAuthPage [class*='AuthenticationPage_content'] {
+    flex-basis: 520px;
+    padding: 44px 40px;
+    margin-top: 7vh;
+    margin-bottom: 7vh;
+  }
+}
+
+/* Tabs (LinkTabNavHorizontal). Active tab paints a cyan→teal→lime underline. */
+.peakUpAuthPage [class*='TabNavHorizontal_tab'] {
+  position: relative;
+  color: var(--peakUpAuthTextSecondary);
+  transition: color 200ms ease;
+}
+
+.peakUpAuthPage [class*='TabNavHorizontal_tab']:hover {
+  color: var(--peakUpAuthCyan);
+}
+
+.peakUpAuthPage [class*='TabNavHorizontal_selectedTabContent'],
+.peakUpAuthPage [class*='TabNavHorizontal_tab'][aria-selected='true'] {
+  color: #ffffff;
+}
+
+.peakUpAuthPage .tab,
+.peakUpAuthPage [class*='AuthenticationPage_tab'] {
+  color: inherit;
+  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.36);
+}
+
+/* Active tab underline — PeakUp gradient line under the selected tab. */
+.peakUpAuthPage [class*='TabNavHorizontal_tab'][aria-selected='true']::after,
+.peakUpAuthPage [class*='TabNavHorizontal_selectedTabContent']::after {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: -4px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--peakUpAuthCyan) 0%, var(--peakUpAuthTeal) 50%, var(--peakUpAuthLime) 100%);
+  box-shadow: 0 0 12px rgba(23, 217, 255, 0.36);
+}
+
+/* Inputs (FieldTextInput renders a <label> + <input>). */
+.peakUpAuthPage label,
+.peakUpAuthPage [class*='FieldTextInput_label'] {
+  color: var(--peakUpAuthTextSecondary);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.peakUpAuthPage input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']),
+.peakUpAuthPage textarea,
+.peakUpAuthPage select {
+  background-color: var(--peakUpAuthInputBg);
+  border: 1px solid var(--peakUpAuthInputBorder);
+  border-radius: 12px;
+  color: #ffffff;
+  padding: 12px 16px;
+  font-size: 1rem;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.peakUpAuthPage input::placeholder,
+.peakUpAuthPage textarea::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.peakUpAuthPage input:hover,
+.peakUpAuthPage textarea:hover,
+.peakUpAuthPage select:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.peakUpAuthPage input:focus,
+.peakUpAuthPage textarea:focus,
+.peakUpAuthPage select:focus {
+  outline: none;
+  border-color: var(--peakUpAuthCyan);
+  box-shadow:
+    0 0 0 3px rgba(23, 217, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Disabled state */
+.peakUpAuthPage input:disabled,
+.peakUpAuthPage textarea:disabled,
+.peakUpAuthPage select:disabled {
+  opacity: 0.5;
+}
+
+/* Helper texts / paragraphs */
+.peakUpAuthPage p,
+.peakUpAuthPage [class*='marketplaceModalHelperText'],
+.peakUpAuthPage [class*='AuthenticationPage_modalMessage'] {
+  color: var(--peakUpAuthTextSecondary);
+}
+
+.peakUpAuthPage [class*='marketplaceModalHelperLink'],
+.peakUpAuthPage [class*='AuthenticationPage_modalHelperLink'],
+.peakUpAuthPage [class*='LoginForm_recoveryLink'] {
+  color: var(--peakUpAuthCyan);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 160ms ease, text-shadow 160ms ease;
+}
+
+.peakUpAuthPage [class*='marketplaceModalHelperLink']:hover,
+.peakUpAuthPage [class*='LoginForm_recoveryLink']:hover {
+  color: var(--peakUpAuthLime);
+  text-shadow: 0 0 12px rgba(157, 255, 79, 0.32);
+}
+
+/* Headings inside the auth card */
+.peakUpAuthPage h1,
+.peakUpAuthPage h2,
+.peakUpAuthPage h3,
+.peakUpAuthPage [class*='AuthenticationPage_modalTitle'],
+.peakUpAuthPage [class*='AuthenticationPage_signupWithIdpTitle'] {
+  color: #ffffff;
+}
+
+/* Primary submit button — unified PeakUp gradient pill. */
+.peakUpAuthPage [class*='Button_primaryButtonRoot'] {
+  position: relative;
+  z-index: 5;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(232, 248, 255, 0.26);
+  border-radius: 999px;
+  min-height: 52px;
+  padding: 0 28px;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.11) 16%, rgba(255, 255, 255, 0) 44%),
+    linear-gradient(90deg, var(--peakUpAuthCyan) 0%, var(--peakUpAuthTeal) 45%, var(--peakUpAuthLime) 100%);
+  color: #06101C;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 18px 36px rgba(2, 8, 16, 0.4),
+    0 0 24px rgba(23, 217, 255, 0.22),
+    0 0 42px rgba(157, 255, 79, 0.14);
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease, border-color 260ms ease, filter 220ms ease;
+}
+
+.peakUpAuthPage [class*='Button_primaryButtonRoot']:hover:not(:disabled),
+.peakUpAuthPage [class*='Button_primaryButtonRoot']:focus-visible {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  border-color: rgba(239, 251, 255, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 22px 44px rgba(2, 8, 16, 0.46),
+    0 0 30px rgba(23, 217, 255, 0.32),
+    0 0 52px rgba(157, 255, 79, 0.18);
+}
+
+.peakUpAuthPage [class*='Button_primaryButtonRoot']:disabled {
+  background-image: linear-gradient(90deg, rgba(23, 217, 255, 0.36), rgba(157, 255, 79, 0.32));
+  color: rgba(6, 16, 28, 0.7);
+  opacity: 0.78;
+  cursor: not-allowed;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 8px 18px rgba(2, 8, 16, 0.28);
+}
+
+/* Social login buttons — keep them but reskin to dark glass. */
+.peakUpAuthPage [class*='Button_socialButtonRoot'] {
+  background-color: rgba(255, 255, 255, 0.04);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  font-weight: 600;
+  transition: border-color 180ms ease, background-color 180ms ease, transform 200ms ease;
+}
+
+.peakUpAuthPage [class*='Button_socialButtonRoot']:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--peakUpAuthCyan);
+  transform: translateY(-1px);
+}
+
+/* "or" divider between social buttons and form */
+.peakUpAuthPage [class*='SocialLoginButtons_socialButtonsOr'],
+.peakUpAuthPage [class*='SocialLoginButtons_lineBefore'],
+.peakUpAuthPage [class*='SocialLoginButtons_lineAfter'] {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.peakUpAuthPage [class*='SocialLoginButtons_socialButtonsOrText'] {
+  color: var(--peakUpAuthTextMuted);
+  background-color: transparent;
+}
+
+/* ====================================================================
+ * Signup choice card — premium "Apply as Coach" CTA + "Join as Client"
+ * teaser, rendered above the SignupForm on the signup tab only.
+ * ==================================================================== */
+.signupChoice {
+  margin-top: 12px;
+  margin-bottom: 28px;
+  padding: 22px 22px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(17, 28, 46, 0.52) 0%, rgba(11, 18, 32, 0.66) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.signupChoiceTitle {
+  margin: 0 0 4px;
+  color: #ffffff;
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+}
+
+.signupChoiceSubtitle {
+  margin: 0 0 16px;
+  color: rgba(220, 232, 248, 0.7);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.signupChoiceCoach {
+  position: relative;
+  z-index: 5;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border: 1px solid rgba(232, 248, 255, 0.26);
+  border-radius: 16px;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 30%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(90deg, #17d9ff 0%, #39f3d1 45%, #9dff4f 100%);
+  color: #06101C;
+  text-decoration: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 14px 28px rgba(2, 8, 16, 0.32),
+    0 0 22px rgba(23, 217, 255, 0.18),
+    0 0 36px rgba(157, 255, 79, 0.1);
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 240ms ease, filter 220ms ease;
+}
+
+.signupChoiceCoach:hover,
+.signupChoiceCoach:focus-visible {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    0 18px 34px rgba(2, 8, 16, 0.4),
+    0 0 28px rgba(23, 217, 255, 0.26),
+    0 0 46px rgba(157, 255, 79, 0.16);
+  color: #06101C;
+  text-decoration: none;
+}
+
+.signupChoiceCoachLabel {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.signupChoiceCoachHint {
+  font-size: 0.84rem;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  opacity: 0.86;
+}
+
+.signupChoiceDivider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 12px;
+  color: rgba(195, 210, 226, 0.5);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.signupChoiceDivider::before,
+.signupChoiceDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-image: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.18) 50%, transparent 100%);
+}
+
+.signupChoiceClientLabel {
+  margin: 0 0 2px;
+  color: #ffffff;
+  font-size: 0.94rem;
+  font-weight: 700;
+}
+
+.signupChoiceClientHint {
+  margin: 0;
+  color: rgba(220, 232, 248, 0.68);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+/* Small / mobile: tighten paddings */
+@media (max-width: 767px) {
+  .peakUpAuthPage .content,
+  .peakUpAuthPage [class*='AuthenticationPage_content'] {
+    border-radius: 20px;
+    padding: 28px 22px;
+  }
+
+  .signupChoice {
+    padding: 18px 16px 14px;
+    border-radius: 18px;
+  }
+
+  .signupChoiceCoach {
+    padding: 12px 14px;
+  }
+}

@@ -49,11 +49,13 @@
   justify-content: space-between;
   align-items: center;
 
-  /* fill */
-  background-color: var(--colorWhite);
-
-  /* shadows */
-  box-shadow: var(--boxShadow);
+  /* PeakUp dark cinematic glass header (mobile baseline). */
+  background:
+    linear-gradient(180deg, rgba(6, 12, 24, 0.96) 0%, rgba(8, 18, 32, 0.92) 100%);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid rgba(23, 217, 255, 0.16);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28);
 
   @media (--viewportMedium) {
     height: var(--topbarHeightDesktop);
@@ -115,7 +117,7 @@
 .searchMenu {
   /* Font */
   composes: h5 from global;
-  color: var(--colorGrey700);
+  color: rgba(244, 246, 250, 0.86);
 
   /* Layout */
   display: flex;
@@ -213,12 +215,12 @@
   transform-origin: center;
 }
 
-/* Icon component styles */
+/* Icon component styles — PeakUp dark topbar uses light icons by default. */
 .rootMenuIcon {
-  fill: var(--colorGrey700);
+  fill: rgba(244, 246, 250, 0.92);
 }
 .rootSearchIcon {
-  stroke: var(--colorGrey700);
+  stroke: rgba(244, 246, 250, 0.92);
 }
 
 .searchContainer {
@@ -246,13 +248,23 @@
   padding: 0;
   padding: var(--modalPadding);
 
+  /* PeakUp dark mobile menu surface (matches the dark topbar). */
+  background:
+    linear-gradient(180deg, rgba(10, 16, 27, 0.98) 0%, rgba(7, 12, 20, 0.995) 100%);
+  border-bottom: 1px solid rgba(23, 217, 255, 0.16);
+  box-shadow:
+    0 24px 54px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
   @media (--viewportMedium) {
     flex-basis: 576px;
     flex-grow: 1;
     min-height: max(100%, 100vh);
     height: auto;
     padding: 24px;
-    background-color: var(--colorWhite);
+    background:
+      linear-gradient(180deg, rgba(10, 16, 27, 0.98) 0%, rgba(7, 12, 20, 0.995) 100%);
+    border: 1px solid rgba(23, 217, 255, 0.14);
     border-bottom: none;
   }
 }

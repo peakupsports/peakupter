@@ -32,8 +32,10 @@
   left: 0;
   width: 100vw;
   padding: 24px;
-  background-color: var(--colorWhite);
-  box-shadow: var(--boxShadowTop);
+  background:
+    linear-gradient(180deg, rgba(10, 16, 27, 0.96) 0%, rgba(7, 12, 20, 0.99) 100%);
+  border-top: 1px solid rgba(23, 217, 255, 0.16);
+  box-shadow: 0 -18px 36px rgba(0, 0, 0, 0.34);
 }
 
 .avatar {
@@ -52,6 +54,9 @@
   margin-bottom: 1px;
   margin-top: 16px;
 
+  /* PeakUp dark menu — white headline. */
+  color: #ffffff;
+
   @media (--viewportMedium) {
     font-size: 40px;
     line-height: 56px;
@@ -67,6 +72,7 @@
 
   /* Borders */
   border: none;
+  background-color: transparent;
 
   /* Text size should be inherited */
   text-decoration: none;
@@ -76,7 +82,8 @@
   font-size: 18px;
   line-height: 24px;
 
-  color: var(--colorGrey600);
+  color: rgba(214, 224, 235, 0.7);
+  transition: color 180ms ease;
 
   /* Position component */
   width: initial;
@@ -84,6 +91,7 @@
   padding: 0;
 
   &:hover {
+    color: #ffffff;
     text-decoration: underline;
     cursor: pointer;
   }
@@ -114,24 +122,34 @@
 .inbox {
   /* Font */
   composes: customLinkFont;
-  color: var(--marketplaceColor);
+  color: rgba(228, 235, 243, 0.82);
   position: relative;
 
   margin-top: auto;
   margin-bottom: 13px;
+  transition: color 180ms ease;
+
+  &:hover {
+    color: #17d9ff;
+  }
 }
 
 .navigationLink {
   /* Font */
   composes: customLinkFont;
-  color: var(--marketplaceColor);
+  color: rgba(228, 235, 243, 0.82);
+  transition: color 180ms ease;
 
   /* Layout */
   margin-top: 0;
   margin-bottom: 11px;
+
+  &:hover {
+    color: #17d9ff;
+  }
 }
 .currentPageLink {
-  color: var(--marketplaceColorDark);
+  color: #ffffff;
 }
 
 .notificationBadge {
@@ -153,6 +171,9 @@
   /* Font */
   composes: h1 from global;
 
+  /* PeakUp dark menu — white welcome line. */
+  color: #ffffff;
+
   margin-bottom: 48px;
   margin-top: var(--TopbarMobileMenu_topMargin);
 }
@@ -161,21 +182,61 @@
 }
 
 .signupLink {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
   white-space: nowrap;
-  color: var(--marketplaceColor);
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 248, 255, 0.26);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 30%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(90deg, #17d9ff 0%, #39f3d1 45%, #9dff4f 100%);
+  color: #06101C;
+  font-weight: 800;
+  letter-spacing: 0.005em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 10px 24px rgba(2, 8, 16, 0.34),
+    0 0 18px rgba(23, 217, 255, 0.2),
+    0 0 28px rgba(157, 255, 79, 0.1);
+  transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
 }
+
+.signupLink:hover {
+  color: #06101C;
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
 .loginLink {
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
   white-space: nowrap;
-  color: var(--marketplaceColor);
+  padding: 10px 18px;
+  margin-left: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background-color: rgba(255, 255, 255, 0.04);
+  color: rgba(247, 250, 255, 0.94);
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.loginLink:hover {
+  color: #17d9ff;
+  border-color: rgba(23, 217, 255, 0.48);
+  background-color: rgba(23, 217, 255, 0.06);
+  transform: translateY(-1px);
 }
 
 .currentPage {
-  color: var(--colorBlack);
+  color: #ffffff;
 
-  /* black left border */
-  border-left: 5px solid black;
+  /* PeakUp accent left border on the active item. */
+  border-left: 5px solid #39f3d1;
   margin-left: -24px;
   padding-left: 19px;
 }
