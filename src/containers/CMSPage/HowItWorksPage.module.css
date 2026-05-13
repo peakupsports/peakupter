@@ -1614,8 +1614,18 @@
   background:
     radial-gradient(84% 66% at 50% 0%, rgba(21, 155, 255, 0.08) 0%, transparent 58%),
     radial-gradient(72% 56% at 86% 20%, rgba(33, 230, 193, 0.05) 0%, transparent 54%),
-    linear-gradient(180deg, rgba(8, 13, 23, 0.76) 0%, rgba(7, 11, 18, 0.94) 100%);
+    linear-gradient(
+      180deg,
+      rgba(8, 13, 23, 0.76) 0%,
+      rgba(7, 11, 18, 0.94) 78%,
+      rgba(7, 11, 18, 0.62) 92%,
+      rgba(7, 11, 18, 0.46) 100%
+    );
 }
+
+/* Benefits (section 2) keeps the shared :not(:first-of-type) dark gradient.
+ * The transition into How it works is intentional: a 1px PeakUp gradient
+ * divider line sits at the boundary (see section 3 ::before below). */
 
 .instructorsPremiumPage :global(main) > :global(section):not(:first-of-type)::before {
   content: '';
@@ -1656,30 +1666,12 @@
     );
 }
 
+/* No pseudo-element between Benefits and How it works.
+ * We want a perfectly invisible seam — the bottom divider line of Benefits
+ * is removed entirely, the top divider above Benefits (::before) stays. */
 .instructorsPremiumPage :global(main) > :global(section):nth-of-type(2)::after {
-  bottom: 0;
-  height: clamp(18px, 2.6vw, 32px);
-  background:
-    radial-gradient(66% 146% at 50% 50%, rgba(24, 200, 255, 0.1) 0%, rgba(33, 230, 193, 0.06) 28%, rgba(183, 255, 63, 0.03) 50%, transparent 80%),
-    linear-gradient(
-      180deg,
-      rgba(7, 11, 18, 0) 0%,
-      rgba(7, 11, 18, 0.012) 34%,
-      rgba(7, 11, 18, 0.032) 66%,
-      rgba(7, 11, 18, 0.085) 100%
-    ),
-    linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(24, 200, 255, 0.18) 14%,
-      rgba(33, 230, 193, 0.2) 50%,
-      rgba(183, 255, 63, 0.14) 86%,
-      transparent 100%
-    )
-    center bottom / 100% 1px no-repeat;
-  filter:
-    drop-shadow(0 0 7px rgba(24, 200, 255, 0.07))
-    drop-shadow(0 0 12px rgba(33, 230, 193, 0.035));
+  content: none;
+  display: none;
 }
 
 .instructorsPremiumPage :global(main) > :global(section):nth-of-type(2)::before {
@@ -1698,9 +1690,30 @@
   filter: drop-shadow(0 0 6px rgba(24, 200, 255, 0.06));
 }
 
+/* Intentional 1px PeakUp separator line between Benefits and How it works.
+ * Crisp cyan → teal → lime gradient with a single soft drop-shadow.
+ * Pseudo is 1px tall (no dark padding around the line); the only thing
+ * painted is the line itself + its very soft glow.
+ * Important: this is the ONLY element at the boundary. The general
+ * :not(:first-of-type)::before top fade is overridden by this rule. */
 .instructorsPremiumPage :global(main) > :global(section):nth-of-type(3)::before {
-  content: none;
-  display: none;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(24, 200, 255, 0.4) 16%,
+    rgba(33, 230, 193, 0.46) 50%,
+    rgba(183, 255, 63, 0.36) 84%,
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 5px rgba(33, 230, 193, 0.18));
 }
 
 .instructorsPremiumPage
@@ -1898,40 +1911,39 @@
   text-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
 }
 
+/* ===========================================================================
+ * Unified premium CTA — single source of truth.
+ *
+ * Every "JOIN PEAKUP" CTA on the 4_instructors page reads identically from
+ * this base rule: same width (max-content), height, padding, border-radius,
+ * font-size/weight, gradient, glow and hover. Section-specific rules below
+ * MUST only adjust positioning (margin, grid placement, position: absolute
+ * trick, etc.) — never appearance.
+ *
+ * Gradient spec: PeakUp Premium 90deg horizontal — #17d9ff → #39f3d1 → #9dff4f
+ * Top white sheen overlay (12-22% alpha, 0% → 44%) gives the glass highlight.
+ * =========================================================================== */
 .instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton'] {
-  min-height: 50px;
-  padding-left: 24px;
-  padding-right: 24px;
-  border: none;
-  border-radius: 999px;
-  background-image: linear-gradient(135deg, #18c8ff 0%, #21e6c1 45%, #b7ff3f 100%);
-  color: #041018;
-  box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.22),
-    0 0 24px rgba(33, 230, 193, 0.08);
-  font-weight: 800;
-  letter-spacing: 0.01em;
-}
-
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):first-of-type
-  [class*='SectionBuilder_ctaButton'] {
-  grid-row: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 46px;
-  margin-bottom: 24px;
-  margin-left: auto;
-  margin-right: auto;
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  max-width: min(92vw, 360px);
+  min-height: 50px;
+  padding-left: 24px;
+  padding-right: 24px;
   border: 1px solid rgba(232, 248, 255, 0.26);
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: transparent;
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.11) 16%, rgba(255, 255, 255, 0) 44%),
-    linear-gradient(135deg, #18c8ff 0%, #21e6c1 45%, #b7ff3f 100%);
+    linear-gradient(90deg, #17d9ff 0%, #39f3d1 45%, #9dff4f 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
     0 18px 38px rgba(2, 8, 16, 0.36),
@@ -1942,7 +1954,16 @@
     filter 320ms ease,
     box-shadow 320ms ease,
     border-color 320ms ease;
-  color: transparent;
+}
+
+/* Hero CTA — positioning only. Visual styling inherited from the generic
+ * `[class*='SectionBuilder_ctaButton']` rule above. */
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SectionBuilder_ctaButton'] {
+  grid-row: 2;
+  margin: 46px auto 24px;
 }
 
 .instructorsPremiumPage
@@ -1984,25 +2005,16 @@
 .instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton']:hover,
 .instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton']:focus-visible {
   transform: translateY(-1px);
-  filter: brightness(1.03);
-}
-
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):first-of-type
-  [class*='SectionBuilder_ctaButton']:hover,
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):first-of-type
-  [class*='SectionBuilder_ctaButton']:focus-visible {
+  filter: brightness(1.04);
   border-color: rgba(239, 251, 255, 0.34);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 20px 40px rgba(2, 8, 16, 0.4),
     0 0 20px rgba(24, 200, 255, 0.16),
     0 0 32px rgba(33, 230, 193, 0.1);
-  filter: brightness(1.04);
 }
+
+/* Hero CTA hover — fully inherited from the unified generic CTA :hover rule above. */
 
 .instructorsPremiumPage
   :global(main)
@@ -2048,8 +2060,8 @@
   display: grid;
   align-content: center;
   box-sizing: border-box;
-  padding-top: 34px;
-  padding-bottom: 42px;
+  padding-top: 32px;
+  padding-bottom: 40px;
 }
 
 @media (--viewportMedium) {
@@ -2057,8 +2069,8 @@
     :global(main)
     > :global(section):nth-of-type(2)
     > [class*='SectionContainer_sectionContent'] {
-    padding-top: 54px;
-    padding-bottom: 62px;
+    padding-top: 48px;
+    padding-bottom: 52px;
   }
 }
 
@@ -2066,7 +2078,7 @@
   :global(main)
   > :global(section):nth-of-type(2)
   [class*='SectionBuilder_sectionDetails'] {
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .instructorsPremiumPage
@@ -2084,6 +2096,80 @@
   filter: drop-shadow(0 0 10px rgba(33, 230, 193, 0.06));
 }
 
+/* Section 3 title — PeakUp gradient applied to the whole heading.
+ * The CMS renders the title as plain text inside an <h2>, so CSS cannot
+ * isolate a single word ("PeakUp" / "works") without a wrapping <strong>
+ * in the markdown source. The gradient is therefore applied to the full
+ * title and tuned to read cleanly over the sky/climbing background:
+ *  - background-clip: text + transparent text-fill produces the gradient
+ *  - layered text-shadow (deep navy + cyan halo) protects contrast over sky
+ *  - drop-shadow + lime tail give the premium PeakUp branded feel
+ * The gradient sweeps cyan → teal → lime left → right, which naturally
+ * brightens the trailing word ("works" in EN). To gradient ONLY the word
+ * "PeakUp", wrap it as **PeakUp** in the Console title field — markdown
+ * <strong> would then be styleable on its own. */
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_title'] {
+  background-image: linear-gradient(96deg, #18c8ff 0%, #21e6c1 48%, #b7ff3f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 2px 6px rgba(2, 7, 14, 0.32),
+    0 12px 28px rgba(0, 0, 0, 0.36),
+    0 0 22px rgba(24, 200, 255, 0.1);
+  filter:
+    drop-shadow(0 0 12px rgba(33, 230, 193, 0.1))
+    drop-shadow(0 0 18px rgba(183, 255, 63, 0.06));
+}
+
+/* If/when the CMS title contains markdown bold (e.g. "How **PeakUp** Works"),
+ * this rule lifts the gradient onto only the bolded word and resets the rest
+ * of the heading back to a clean white for maximum readability — matching the
+ * user's "gradient on 'PeakUp' / 'works' only" spec. Falls back gracefully
+ * when no <strong> is present (above whole-title gradient still applies). */
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_title']:has(strong) {
+  background-image: none;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  filter: none;
+}
+
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionBuilder_title'] strong {
+  font-weight: inherit;
+  background-image: linear-gradient(96deg, #18c8ff 0%, #21e6c1 48%, #b7ff3f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter:
+    drop-shadow(0 0 10px rgba(33, 230, 193, 0.12))
+    drop-shadow(0 0 16px rgba(24, 200, 255, 0.08));
+}
+
+/* Horizontal centering pass:
+ * The benefits row is rendered with `[class*='SectionColumns_threeColumns']`,
+ * whose `grid-template-columns: repeat(3, calc((100% - 2 * 32px) / 3))` was
+ * authored assuming `gap: 32px`. Our overrides below use a much tighter gap
+ * (10px mobile / 14px desktop), so the sum of card tracks + actual gap is
+ * smaller than the wrapper's content width, leaving ~24–36px of unallocated
+ * inline-space. With the grid default `justify-content: start`, that residual
+ * space all collects on the right edge, pushing the cards visually leftward
+ * inside the dark glass shell (and vice-versa depending on viewport).
+ *
+ * Fix: `justify-content: center` splits that residual space symmetrically on
+ * both sides without resizing any card or changing the inter-card gap.
+ * `justify-items: stretch` and `margin: 0 auto` further guarantee that the
+ * shell itself is page-centered and that grid items don't get offset. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(2)
@@ -2093,6 +2179,10 @@
   min-height: 0;
   gap: 10px;
   padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
+  justify-items: stretch;
   border-radius: 22px;
   background:
     linear-gradient(180deg, rgba(12, 19, 31, 0.52) 0%, rgba(8, 13, 23, 0.74) 100%) padding-box,
@@ -2263,35 +2353,147 @@
  *   │       └ BlockDefault_text (h3 + p, + cta inside step 2)
  * =========================================================================== */
 
-/* Section shell: bring back a feathered cinematic darkening on the image */
+/* Section shell.
+ * `!important` overrides SectionContainer_root :nth-of-type(odd) which sets
+ * a white background-color on every odd section. The negative margin-top
+ * eliminates any sub-pixel gap / SSR-induced 1px line at the seam with the
+ * Benefits section, so the two sections feel structurally continuous. */
 .instructorsPremiumPage :global(main) > :global(section):nth-of-type(3) {
-  background: transparent;
+  background: transparent !important;
+  background-color: transparent !important;
   isolation: isolate;
+  margin-top: 0;
+  border-top: 0;
 }
 
+/* Vanishing readability support under the cards only.
+ *
+ * CRITICAL: the parent rule `.instructorsPremiumPage main > section:not(:first-of-type)::after`
+ * sets `bottom: -1px; height: clamp(104px, 12vw, 168px)`. Because `height`
+ * was authored there, simply using `inset: 0` in this override is NOT
+ * enough — the parent's explicit `height` keeps winning (cascade: longer
+ * dimension over inset auto-height), so the pseudo-element becomes a 104–168px
+ * band anchored to `top: 0`, not a full-section overlay. Its radial then
+ * paints in the upper-middle area, producing the visible dark band crossing
+ * the title.
+ *
+ * Fix: explicitly reset every offset and dimension below. We also bump
+ * `top: 100%` + `height: 0` + `bottom: auto` to render the radial as a
+ * tiny halo ONLY at the bottom edge of the section — the title area then
+ * cannot receive any darkening from this layer at all. */
 .instructorsPremiumPage :global(main) > :global(section):nth-of-type(3)::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: auto !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: clamp(120px, 14vw, 180px) !important;
   pointer-events: none;
   z-index: 0;
-  background:
-    radial-gradient(82% 70% at 50% 38%, rgba(5, 9, 16, 0.18) 0%, transparent 76%),
-    linear-gradient(
-      180deg,
-      rgba(5, 9, 16, 0.08) 0%,
-      rgba(6, 10, 18, 0.34) 28%,
-      rgba(7, 11, 18, 0.52) 58%,
-      rgba(7, 11, 18, 0.7) 100%
-    );
+  background: radial-gradient(
+    52% 100% at 50% 100%,
+    rgba(5, 9, 16, 0.08) 0%,
+    rgba(5, 9, 16, 0.03) 52%,
+    transparent 82%
+  ) !important;
 }
 
+/* Background image wrapper: lift brightness a touch and shift focal point
+ * upward so more sky/peak frames the title and the climber is well-framed.
+ * Also force the wrapper's own background to transparent — the Console may
+ * have authored a `section.appearance.backgroundColor` which the
+ * `CustomAppearance` primitive applies as an INLINE style on this wrapper.
+ * That dark inline colour would otherwise show wherever the image (object-fit
+ * cover) doesn't repaint over it on resize/SSR/transition frames and create
+ * a momentary dark band. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
   [class*='CustomAppearance_backgroundImageWrapper'] {
   opacity: 1;
-  filter: saturate(1.04) contrast(1.04) brightness(0.82);
+  filter: saturate(1.04) contrast(1.02) brightness(1);
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Kill any CMS-authored alpha background overlay on section 3.
+ * The CustomAppearance primitive renders a dedicated `backgroundOverlay`
+ * <div> stretched across the section whenever the Console section appearance
+ * has a non-zero alpha overlay colour. That div is the typical cause of the
+ * visible "horizontal dark band" crossing the top of the section — it sits
+ * above the climbing image but below the content, darkening everything from
+ * the divider line all the way down. We force it transparent here so the
+ * only readability support left in section 3 is the very small bottom-pinned
+ * radial in ::after (defined above). */
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='CustomAppearance_backgroundOverlay'] {
+  background-color: transparent !important;
+  background-image: none !important;
+  opacity: 0 !important;
+  display: none !important;
+}
+
+/* Belt-and-suspenders: nuke the section 3 SectionContainer_sectionContent
+ * background. Some Sharetribe builds and CSS resets paint a dark colour
+ * here when the section is wrapped by a customAppearance with an alpha
+ * overlay or by `:nth-of-type(odd)` fallback rules. */
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  > [class*='SectionContainer_sectionContent'] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Title-readability overlay layer.
+ * Painted as `::after` on the backgroundImageWrapper so it sits ABOVE the
+ * climbing image but BELOW the sectionContent (which has its own
+ * `position: relative; z-index: 1`). The section has `isolation: isolate`
+ * so this overlay is fully scoped inside section 3.
+ *
+ * Composition (top → bottom of the stack):
+ *  1) soft top-center radial: darker exactly where the centered title sits
+ *     (50% 30%), feathered out to transparent — no horizontal band edges
+ *  2) gentle 180deg fade at the very top: subtle darkening for the upper
+ *     ~38% of the section, fully transparent by mid-section
+ *  3) discrete cyan PeakUp glow at top-center for premium brand accent
+ *
+ * The bottom of the image is intentionally NOT darkened here — the
+ * existing section::after halo already covers the cards area at the bottom. */
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='CustomAppearance_backgroundImageWrapper']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(60% 44% at 50% 24%, rgba(24, 200, 255, 0.05) 0%, rgba(33, 230, 193, 0.025) 40%, transparent 78%),
+    radial-gradient(72% 56% at 50% 30%, rgba(3, 8, 18, 0.6) 0%, rgba(3, 8, 18, 0.4) 36%, rgba(3, 8, 18, 0.16) 64%, rgba(3, 8, 18, 0.04) 88%, transparent 100%),
+    linear-gradient(180deg, rgba(3, 8, 18, 0.34) 0%, rgba(3, 8, 18, 0.18) 22%, rgba(3, 8, 18, 0.05) 44%, rgba(3, 8, 18, 0) 62%);
+}
+
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='CustomAppearance_backgroundImage'] {
+  object-position: 58% 38%;
+}
+
+@media (max-width: 767px) {
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='CustomAppearance_backgroundImage'] {
+    object-position: 62% 42%;
+  }
 }
 
 .instructorsPremiumPage
@@ -2300,15 +2502,15 @@
   > [class*='SectionContainer_sectionContent'] {
   position: relative;
   z-index: 1;
-  padding-top: clamp(72px, 9vw, 128px);
-  padding-bottom: clamp(96px, 12vw, 168px);
+  padding-top: clamp(56px, 7vw, 96px);
+  padding-bottom: clamp(56px, 7vw, 96px);
 }
 
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
   [class*='SectionBuilder_sectionDetails'] {
-  margin-bottom: clamp(40px, 5vw, 64px);
+  margin-bottom: clamp(20px, 3vw, 36px);
 }
 
 /* Carousel container: just a wrapper, give it some breathing room around */
@@ -2327,12 +2529,12 @@
   :global(main)
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_threeColumns'] {
-  --instructorsStepCardHeight: clamp(150px, 13vw, 172px);
-  --instructorsStepGapToCta: clamp(48px, 5vw, 60px);
+  --instructorsStepCardHeight: clamp(108px, 9.5vw, 132px);
+  --instructorsStepGapToCta: clamp(42px, 4.6vw, 58px);
   position: relative;
   counter-reset: instructorsPremiumSteps;
   overflow: visible;
-  padding-bottom: clamp(150px, 16vw, 188px);
+  padding-bottom: clamp(108px, 12vw, 140px);
 }
 
 /* Thin glowing PeakUp connector line between the 3 cards (desktop only).
@@ -2370,7 +2572,11 @@
 /* Onboarding cards: dark navy glass, narrower, taller, premium.
  * NOTE: position: static is intentional so the CTA inside step 2 escapes
  * upward to the threeColumns row (the next positioned ancestor) and ends up
- * centered in the padding-bottom area, under the row of three cards. */
+ * centered in the padding-bottom area, under the row of three cards.
+ * Layout: locked to a fixed `height` (not min-height) so all three cards
+ * always render at exactly the same vertical extent. Hover changes only
+ * the box-shadow / border colour — no transform, no margin, no padding
+ * mutation — to guarantee zero layout shift on scroll/resize/hover. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
@@ -2382,9 +2588,10 @@
   overflow: visible;
   display: flex;
   align-items: center;
-  min-height: clamp(150px, 13vw, 172px);
-  padding: 22px 22px 24px;
-  border-radius: 28px;
+  height: clamp(108px, 9.5vw, 132px);
+  min-height: clamp(108px, 9.5vw, 132px);
+  padding: 16px 22px;
+  border-radius: 24px;
   background:
     linear-gradient(180deg, rgba(10, 16, 26, 0.78) 0%, rgba(7, 11, 19, 0.92) 100%) padding-box,
     linear-gradient(
@@ -2402,7 +2609,6 @@
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   transition:
-    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 260ms ease,
     border-color 260ms ease;
 }
@@ -2411,7 +2617,6 @@
   :global(main)
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_block']:hover {
-  transform: translateY(-4px);
   box-shadow:
     0 32px 68px rgba(0, 0, 0, 0.42),
     0 0 32px rgba(24, 200, 255, 0.12),
@@ -2449,12 +2654,12 @@
   width: 100%;
   margin-top: 0;
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 32px;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
   grid-template-rows: auto auto;
   align-items: center;
   align-content: center;
   column-gap: 14px;
-  row-gap: 6px;
+  row-gap: 4px;
   text-align: left;
 }
 
@@ -2472,8 +2677,8 @@
   grid-column: 1;
   grid-row: 1 / span 2;
   align-self: center;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
   background:
     linear-gradient(180deg, rgba(12, 22, 36, 0.96) 0%, rgba(7, 11, 19, 0.98) 100%) padding-box,
@@ -2481,7 +2686,7 @@
       border-box;
   border: 1px solid transparent;
   color: rgba(247, 250, 255, 0.94);
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   box-shadow:
@@ -2501,20 +2706,22 @@
   grid-row: 1 / span 2;
   align-self: center;
   justify-self: end;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
-  background-color: rgba(10, 16, 26, 0.65);
+  background-color: rgba(10, 16, 26, 0.7);
   background-image:
-    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.08) 0%, transparent 42%),
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.1) 0%, transparent 42%),
     var(--instructorsStepIconCurrent);
   background-position: center, center;
   background-repeat: no-repeat;
-  background-size: auto, 16px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background-size: auto, 20px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
   box-shadow:
-    0 0 12px rgba(24, 200, 255, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 0 16px rgba(24, 200, 255, 0.16),
+    0 0 22px rgba(33, 230, 193, 0.09),
+    0 0 28px rgba(183, 255, 63, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* The carousel renders an <h3> with the linked text "Join Peakup" (step 2);
@@ -2544,10 +2751,10 @@
   content: var(--instructorsStepTitle);
   display: block;
   color: #ffffff;
-  font-size: clamp(1.06rem, 0.98rem + 0.22vw, 1.2rem);
+  font-size: clamp(1rem, 0.94rem + 0.18vw, 1.12rem);
   font-weight: 700;
   letter-spacing: -0.005em;
-  line-height: 1.2;
+  line-height: 1.18;
   text-shadow: 0 0 12px rgba(24, 200, 255, 0.04);
 }
 
@@ -2562,9 +2769,11 @@
   align-self: start;
   justify-self: start;
   margin: 0;
-  color: rgba(228, 238, 250, 0.78);
-  font-size: 0.92rem;
-  line-height: 1.55;
+  color: rgba(228, 238, 250, 0.74);
+  font-size: 0.86rem;
+  font-weight: 400;
+  line-height: 1.42;
+  max-width: 100%;
 }
 
 /* The CTA lives inside step #2 in the CMS markup.
@@ -2576,6 +2785,11 @@
  * cached/global premium-CTA rule (e.g. the hero CTA gets position: relative)
  * and guarantees the link is fully detached from the inner card grid, so all
  * 3 cards stay perfectly symmetric and no track is reserved for the CTA. */
+/* Section 3 "JOIN PEAKUP" CTA — positioning ONLY.
+ * Floats below the row of 3 step cards via absolute positioning anchored to
+ * the threeColumns row. Appearance (gradient, size, padding, border, glow,
+ * font, hover) is fully inherited from the unified generic CTA rule above,
+ * so this button is visually identical to the hero CTA. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
@@ -2594,36 +2808,7 @@
   align-self: auto !important;
   justify-self: auto !important;
   z-index: 5;
-  width: max-content;
-  max-width: min(90vw, 360px);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   margin: 0;
-  min-height: 62px;
-  padding-left: 44px;
-  padding-right: 44px;
-  font-size: 1.04rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  overflow: hidden;
-  isolation: isolate;
-  border: 1px solid rgba(236, 250, 255, 0.34);
-  background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.12) 16%, rgba(255, 255, 255, 0) 44%),
-    linear-gradient(135deg, #18c8ff 0%, #21e6c1 45%, #b7ff3f 100%);
-  color: transparent;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    0 28px 64px rgba(2, 8, 16, 0.48),
-    0 0 32px rgba(24, 200, 255, 0.22),
-    0 0 56px rgba(33, 230, 193, 0.14),
-    0 0 80px rgba(183, 255, 63, 0.08);
-  transition:
-    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 320ms ease,
-    border-color 320ms ease,
-    filter 320ms ease;
 }
 
 .instructorsPremiumPage
@@ -2640,7 +2825,7 @@
   justify-content: center;
   color: #041018;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.01em;
   pointer-events: none;
 }
 
@@ -2652,7 +2837,7 @@
   > [class*='SectionBuilder_ctaButton']::after {
   content: 'Apply in 2 minutes — reviewed within 48h';
   position: absolute;
-  top: calc(100% + 14px);
+  top: calc(100% + 26px);
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -2666,6 +2851,10 @@
   pointer-events: none;
 }
 
+/* Section 3 hover — same hover as hero (border-color, shadow, brightness
+ * are inherited from the generic CTA :hover rule above). We only override
+ * `transform` here to preserve the horizontal centering trick
+ * (`translateX(-50%)`) while applying the hero's -1px lift. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):nth-of-type(3)
@@ -2678,30 +2867,14 @@
   [class*='SectionCarousel_block']
   > [class*='BlockDefault_text']
   > [class*='SectionBuilder_ctaButton']:focus-visible {
-  transform: translateX(-50%) translateY(-3px);
-  filter: brightness(1.06);
-  border-color: rgba(244, 252, 255, 0.46);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 34px 76px rgba(2, 8, 16, 0.54),
-    0 0 44px rgba(24, 200, 255, 0.3),
-    0 0 70px rgba(33, 230, 193, 0.2),
-    0 0 110px rgba(183, 255, 63, 0.12);
+  transform: translateX(-50%) translateY(-1px);
 }
 
+/* Mobile: only the microcopy under the CTA is adapted (wraps + smaller
+ * font). The CTA itself stays identical to the hero CTA on mobile too,
+ * because all size/padding/font properties live on the unified generic
+ * rule (which is mobile-first 50px high / 24px horizontal padding). */
 @media (max-width: 767px) {
-  .instructorsPremiumPage
-    :global(main)
-    > :global(section):nth-of-type(3)
-    [class*='SectionCarousel_block']
-    > [class*='BlockDefault_text']
-    > [class*='SectionBuilder_ctaButton'] {
-    min-height: 56px;
-    padding-left: 32px;
-    padding-right: 32px;
-    font-size: 0.98rem;
-  }
-
   .instructorsPremiumPage
     :global(main)
     > :global(section):nth-of-type(3)
@@ -2802,4 +2975,42 @@
     radial-gradient(74% 70% at 50% 100%, rgba(24, 200, 255, 0.06) 0%, transparent 62%),
     radial-gradient(66% 58% at 50% 100%, rgba(183, 255, 63, 0.04) 0%, transparent 66%),
     linear-gradient(180deg, rgba(9, 12, 20, 0) 0%, rgba(9, 12, 20, 0.86) 100%);
+}
+
+/* Footer spacing refinement — pull the footer content block upward.
+ * The footer is rendered as a SectionBuilder section with `sectionType:
+ * "footer"` inside the page-level <footer> element. Its inner wrapper uses
+ * `SectionContainer_sectionContent` with default vertical padding of
+ * `32px 0` (mobile) / `64px 0` (desktop). Combined with `SectionFooter_footer`
+ * inner padding of `24px 32px`, that's 56–88px of empty dark space above the
+ * first row of footer content (logo + links + social icons).
+ *
+ * We trim ONLY the SectionContainer top padding (preserving columns/grid
+ * layout, logo, links, social icons exactly as authored) so the footer feels
+ * connected to the end of "How it works" instead of sinking into a large
+ * empty dark band. Bottom padding is left intact to preserve breathing
+ * room under the social icons. */
+.instructorsPremiumPage
+  :global(footer)
+  [class*='SectionContainer_sectionContent'] {
+  padding-top: 12px;
+  padding-bottom: 24px;
+}
+
+@media (--viewportMedium) {
+  .instructorsPremiumPage
+    :global(footer)
+    [class*='SectionContainer_sectionContent'] {
+    padding-top: 20px;
+    padding-bottom: 44px;
+  }
+}
+
+/* Inner SectionFooter padding-top slightly tightened too, so the footer
+ * content sits closer to the top edge of its wrapper without altering the
+ * horizontal padding (32px) that controls column alignment. */
+.instructorsPremiumPage
+  :global(footer)
+  [class*='SectionFooter_footer'] {
+  padding-top: 16px;
 }
