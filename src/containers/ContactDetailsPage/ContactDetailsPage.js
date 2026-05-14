@@ -25,6 +25,7 @@ import {
   resetPassword,
 } from './ContactDetailsPage.duck';
 import css from './ContactDetailsPage.module.css';
+import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 
 /**
  * @param {Object} props
@@ -114,7 +115,7 @@ export const ContactDetailsPageComponent = props => {
   };
 
   return (
-    <Page title={title} scrollingDisabled={scrollingDisabled}>
+    <Page className={accountShellCss.pageShell} title={title} scrollingDisabled={scrollingDisabled}>
       <LayoutSideNavigation
         topbar={
           <>

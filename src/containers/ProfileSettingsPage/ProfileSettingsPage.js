@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 
@@ -170,8 +171,13 @@ export const ProfileSettingsPageComponent = props => {
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
 
   return (
-    <Page className={css.root} title={title} scrollingDisabled={scrollingDisabled}>
+    <Page
+      className={classNames(css.root, css.peakUpPage)}
+      title={title}
+      scrollingDisabled={scrollingDisabled}
+    >
       <LayoutSingleColumn
+        mainColumnClassName={css.peakUpMainColumn}
         topbar={
           <>
             <TopbarContainer />
@@ -184,13 +190,22 @@ export const ProfileSettingsPageComponent = props => {
         footer={<FooterContainer />}
       >
         <div className={css.content}>
-          <div className={css.headingContainer}>
-            <H3 as="h1" className={css.heading}>
-              <FormattedMessage id="ProfileSettingsPage.heading" />
-            </H3>
-
-            <ViewProfileLink userUUID={user?.id?.uuid} isUnauthorizedUser={isUnauthorizedUser} />
-          </div>
+          <header className={css.pageHeader}>
+            <div className={css.pageHeaderText}>
+              <p className={css.pageLabel}>
+                <FormattedMessage id="ProfileSettingsPage.pageLabel" />
+              </p>
+              <H3 as="h1" className={css.heading}>
+                <FormattedMessage id="ProfileSettingsPage.heading" />
+              </H3>
+              <p className={css.pageSubtitle}>
+                <FormattedMessage id="ProfileSettingsPage.pageSubtitle" />
+              </p>
+            </div>
+            <div className={css.pageHeaderAside}>
+              <ViewProfileLink userUUID={user?.id?.uuid} isUnauthorizedUser={isUnauthorizedUser} />
+            </div>
+          </header>
           {profileSettingsForm}
         </div>
       </LayoutSingleColumn>

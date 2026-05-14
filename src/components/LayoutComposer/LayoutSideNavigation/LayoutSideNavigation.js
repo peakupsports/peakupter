@@ -41,7 +41,9 @@ const LayoutSideNavigation = props => {
     ...rest
   } = props;
 
-  const classes = classNames(rootClassName || css.root, className);
+  const classes = classNames(rootClassName || css.root, className, {
+    [css.accountSettingsPeakUp]: useAccountSettingsNav,
+  });
   const containerClasses = containerClassName || css.container;
 
   // TODO: since responsiveAreas are still experimental,

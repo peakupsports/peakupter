@@ -1053,6 +1053,8 @@
   "ProfileSettingsForm.yourName": "Votre nom",
   "ProfileSettingsForm.yourProfilePicture": "Votre photo de profil",
   "ProfileSettingsPage.heading": "Profil",
+  "ProfileSettingsPage.pageLabel": "Profil coach PeakUp",
+  "ProfileSettingsPage.pageSubtitle": "Construisez votre profil coach et soyez visible pour vos clients.",
   "ProfileSettingsPage.title": "Profil",
   "ProfileSettingsPage.viewProfileLink": "Voir votre profil",
   "RequestChangesForm.messagePlaceholder": "Décrivez ce qui doit être corrigé…",

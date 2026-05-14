@@ -21,6 +21,7 @@ import PaymentMethodsForm from './PaymentMethodsForm/PaymentMethodsForm';
 import { createStripeSetupIntent, stripeCustomer } from './PaymentMethodsPage.duck.js';
 
 import css from './PaymentMethodsPage.module.css';
+import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 
 /**
  * The payment methods page.
@@ -171,7 +172,7 @@ const PaymentMethodsPageComponent = props => {
   };
 
   return (
-    <Page title={title} scrollingDisabled={scrollingDisabled}>
+    <Page className={accountShellCss.pageShell} title={title} scrollingDisabled={scrollingDisabled}>
       <LayoutSideNavigation
         topbar={
           <>

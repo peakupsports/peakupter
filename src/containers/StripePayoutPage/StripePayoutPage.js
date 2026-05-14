@@ -32,6 +32,7 @@ import FooterContainer from '../../containers/FooterContainer/FooterContainer';
 import { savePayoutDetails } from './StripePayoutPage.duck';
 
 import css from './StripePayoutPage.module.css';
+import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 
 const STRIPE_ONBOARDING_RETURN_URL_SUCCESS = 'success';
 const STRIPE_ONBOARDING_RETURN_URL_FAILURE = 'failure';
@@ -185,7 +186,7 @@ export const StripePayoutPageComponent = props => {
   };
 
   return (
-    <Page title={title} scrollingDisabled={scrollingDisabled}>
+    <Page className={accountShellCss.pageShell} title={title} scrollingDisabled={scrollingDisabled}>
       <LayoutSideNavigation
         topbar={
           <>

@@ -1,0 +1,13 @@
+@import '../styles/customMediaQueries.css';
+
+/* Shared Page shell for all Account Settings routes (Contact, Password, Payout, Payments, Manage).
+ * Matches Profile Settings dark cinematic canvas. */
+.pageShell {
+  min-height: 100%;
+  background:
+    radial-gradient(72% 48% at 18% 0%, rgba(23, 217, 255, 0.08) 0%, transparent 55%),
+    radial-gradient(60% 40% at 88% 12%, rgba(157, 255, 79, 0.05) 0%, transparent 50%),
+    linear-gradient(180deg, #0b1220 0%, #060c18 55%, #050a14 100%);
+  background-color: #060c18;
+  color: rgba(228, 235, 243, 0.92);
+}

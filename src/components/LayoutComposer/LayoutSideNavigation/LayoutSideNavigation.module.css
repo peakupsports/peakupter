@@ -123,3 +123,749 @@
     margin-left: 0;
   }
 }
+
+/* =============================================================================
+ * PeakUp Account Settings (Contact / Password / Payout / Payments / Manage)
+ *
+ * Applied only when `useAccountSettingsNav` is true — does NOT affect Inbox
+ * or other LayoutSideNavigation consumers.
+ * ============================================================================= */
+
+.accountSettingsPeakUp {
+  flex: 1;
+  min-height: 0;
+}
+
+.accountSettingsPeakUp .container {
+  background: transparent;
+  min-width: 0;
+}
+
+/* Mobile: horizontal category strip — glass instead of flat white */
+.accountSettingsPeakUp .sideNav {
+  border-top: 1px solid rgba(54, 233, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(11, 18, 32, 0.88) 0%, rgba(6, 10, 18, 0.94) 100%);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  @media (--viewportLarge) {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    border: none;
+    padding-top: 40px;
+    padding-bottom: 72px;
+  }
+
+  @media (--viewportLargeWithPaddings) {
+    padding-top: 40px;
+    padding-bottom: 72px;
+  }
+}
+
+/* Desktop: vertical nav as glass card (TabNav lives inside .tabs) */
+@media (--viewportLarge) {
+  .accountSettingsPeakUp .tabs {
+    margin-top: 0;
+    padding: 12px 10px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(23, 217, 255, 0.16);
+    background:
+      linear-gradient(180deg, rgba(17, 28, 46, 0.72) 0%, rgba(11, 18, 32, 0.9) 100%);
+    box-shadow:
+      0 14px 40px rgba(0, 0, 0, 0.28),
+      0 0 28px rgba(23, 217, 255, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    gap: 2px;
+    min-width: 0;
+    max-width: 300px;
+  }
+
+  .accountSettingsPeakUp .tab {
+    width: 100%;
+    margin-left: 0;
+    align-items: stretch;
+  }
+}
+
+/* TabNav links (hashed TabNav_link / TabNav_selectedLink) — account settings only */
+.accountSettingsPeakUp :global([class*='TabNav_link']) {
+  background-image: none !important;
+  color: rgba(210, 222, 238, 0.82) !important;
+  border-bottom: 2px solid transparent;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.accountSettingsPeakUp :global([class*='TabNav_link']):hover,
+.accountSettingsPeakUp :global([class*='TabNav_link']):focus {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.96) !important;
+  border-bottom-color: rgba(23, 217, 255, 0.25);
+}
+
+@media (--viewportLarge) {
+  .accountSettingsPeakUp :global([class*='TabNav_link']) {
+    width: 100%;
+    max-width: none;
+    margin-bottom: 4px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: var(--fontWeightMedium);
+  }
+
+  .accountSettingsPeakUp :global([class*='TabNav_link']):hover,
+  .accountSettingsPeakUp :global([class*='TabNav_link']):focus {
+    border-bottom-color: transparent;
+    border-left-color: rgba(23, 217, 255, 0.35);
+    background: rgba(23, 217, 255, 0.06);
+  }
+}
+
+.accountSettingsPeakUp :global([class*='TabNav_selectedLink']) {
+  color: rgba(247, 250, 255, 0.98) !important;
+  font-weight: var(--fontWeightSemiBold);
+  border-bottom-color: transparent;
+  text-shadow:
+    0 0 12px rgba(23, 217, 255, 0.25),
+    0 0 20px rgba(157, 255, 79, 0.1);
+}
+
+.accountSettingsPeakUp :global([class*='TabNav_selectedLink'])::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #17d9ff 0%, #39f3d1 50%, #9dff4f 100%);
+  box-shadow: 0 0 14px rgba(23, 217, 255, 0.35);
+}
+
+@media (--viewportLarge) {
+  .accountSettingsPeakUp :global([class*='TabNav_selectedLink'])::after {
+    display: none;
+  }
+
+  .accountSettingsPeakUp :global([class*='TabNav_selectedLink']) {
+    border-left: 3px solid #39f3d1;
+    background: rgba(23, 217, 255, 0.1);
+    box-shadow:
+      0 0 20px rgba(23, 217, 255, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    text-shadow: none;
+  }
+}
+
+.accountSettingsPeakUp :global([class*='TabNav_link']),
+.accountSettingsPeakUp :global([class*='TabNav_selectedLink']) {
+  position: relative;
+}
+
+@media (max-width: 1023px) {
+  .accountSettingsPeakUp :global([class*='TabNav_selectedLink'])::after {
+    left: 0;
+    right: 0;
+    bottom: 2px;
+  }
+}
+
+.accountSettingsPeakUp :global([class*='TabNav_disabled']) {
+  color: rgba(228, 235, 243, 0.35) !important;
+}
+
+/* Main column — remove Sharetribe white panel */
+.accountSettingsPeakUp .main {
+  min-width: 0;
+  overflow-x: hidden;
+
+  @media (--viewportLarge) {
+    background: transparent !important;
+    border-left: 1px solid rgba(54, 233, 255, 0.12) !important;
+    padding-top: 40px;
+    padding-bottom: 88px;
+  }
+
+  @media (--viewportLargeWithPaddings) {
+    padding-top: 40px;
+    padding-bottom: 88px;
+  }
+}
+
+/* Single content wrapper from each account page */
+.accountSettingsPeakUp main#main-content > div {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 22px 18px 28px;
+  border-radius: 20px;
+  border: 1px solid rgba(23, 217, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(17, 28, 46, 0.55) 0%, rgba(11, 18, 32, 0.78) 100%);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.32),
+    0 0 32px rgba(23, 217, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+
+  @media (--viewportMedium) {
+    padding: 28px 28px 36px;
+  }
+
+  @media (--viewportLarge) {
+    margin: 0;
+    margin-left: 8px;
+    max-width: 720px;
+  }
+}
+
+.accountSettingsPeakUp main#main-content :global([class*='Heading_h1']),
+.accountSettingsPeakUp main#main-content :global([class*='Heading_h2']),
+.accountSettingsPeakUp main#main-content :global([class*='Heading_h3']) {
+  margin: 0 0 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background-image: linear-gradient(90deg, #17d9ff 0%, #39f3d1 45%, #9dff4f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(23, 217, 255, 0.12));
+}
+
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) :global([class*='Heading_h']) {
+  margin-top: 0;
+  margin-bottom: 12px;
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: rgba(255, 210, 210, 0.96) !important;
+  color: rgba(255, 210, 210, 0.96) !important;
+  filter: none;
+}
+
+.accountSettingsPeakUp main#main-content p,
+.accountSettingsPeakUp main#main-content li {
+  color: rgba(210, 222, 238, 0.82);
+}
+
+.accountSettingsPeakUp main#main-content hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 28px 0;
+}
+
+/* Form fields (shared Field* components) */
+.accountSettingsPeakUp :global([class*='FieldTextInput_root']) > label,
+.accountSettingsPeakUp :global([class*='FieldSelect_root']) > label,
+.accountSettingsPeakUp :global([class*='FieldCheckbox_root']) > label,
+.accountSettingsPeakUp :global([class*='FieldBoolean_root']) > label {
+  color: rgba(228, 235, 243, 0.88) !important;
+  font-weight: 600;
+}
+
+.accountSettingsPeakUp :global([class*='FieldTextInput_root']) input,
+.accountSettingsPeakUp :global([class*='FieldTextInput_root']) textarea,
+.accountSettingsPeakUp :global([class*='FieldSelect_root']) select {
+  color: rgba(247, 250, 255, 0.96) !important;
+  background-color: rgba(8, 14, 24, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.accountSettingsPeakUp :global([class*='FieldTextInput_root']) input::placeholder,
+.accountSettingsPeakUp :global([class*='FieldTextInput_root']) textarea::placeholder {
+  color: rgba(195, 210, 226, 0.45);
+}
+
+.accountSettingsPeakUp :global([class*='FieldTextInput_root']) input:focus,
+.accountSettingsPeakUp :global([class*='FieldTextInput_root']) textarea:focus,
+.accountSettingsPeakUp :global([class*='FieldSelect_root']) select:focus {
+  outline: none;
+  border-color: rgba(23, 217, 255, 0.5) !important;
+  box-shadow:
+    0 0 0 1px rgba(23, 217, 255, 0.2),
+    0 0 18px rgba(23, 217, 255, 0.12);
+}
+
+.accountSettingsPeakUp :global([class*='HelpText_root']) {
+  color: rgba(195, 210, 226, 0.68) !important;
+}
+
+.accountSettingsPeakUp :global([class*='ValidationError_root']) {
+  color: #ff9a9a !important;
+}
+
+.accountSettingsPeakUp fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.accountSettingsPeakUp fieldset legend {
+  color: rgba(228, 235, 243, 0.9);
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.accountSettingsPeakUp input[type='checkbox'] {
+  accent-color: #39f3d1;
+}
+
+/* Danger zone intro (heading outside DeleteAccountForm) */
+.accountSettingsPeakUp :global([class*='ManageAccountPage_deleteAccountSubtitle']) {
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: rgba(255, 210, 200, 0.92) !important;
+  color: rgba(255, 210, 200, 0.92) !important;
+  filter: none;
+}
+
+/* Primary CTA */
+.accountSettingsPeakUp :global([class*='Button_primaryButtonRoot']) {
+  border: none !important;
+  border-radius: 14px !important;
+  color: #061018 !important;
+  font-weight: 700 !important;
+  background-image: linear-gradient(135deg, #17d9ff 0%, #39f3d1 48%, #9dff4f 100%) !important;
+  background-color: transparent !important;
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.35),
+    0 0 24px rgba(23, 217, 255, 0.2) !important;
+  transition:
+    box-shadow 200ms ease,
+    filter 200ms ease !important;
+}
+
+.accountSettingsPeakUp :global([class*='Button_primaryButtonRoot']):hover:not(:disabled),
+.accountSettingsPeakUp :global([class*='Button_primaryButtonRoot']):focus-visible:not(:disabled) {
+  filter: brightness(1.06);
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.4),
+    0 0 32px rgba(23, 217, 255, 0.28) !important;
+}
+
+/* Secondary / inline */
+.accountSettingsPeakUp :global([class*='Button_secondaryButtonRoot']),
+.accountSettingsPeakUp :global([class*='Button_secondaryButtonInlineRoot']) {
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  background: rgba(11, 18, 32, 0.55) !important;
+  color: rgba(228, 235, 243, 0.9) !important;
+}
+
+.accountSettingsPeakUp :global([class*='Button_secondaryButtonRoot']):hover,
+.accountSettingsPeakUp :global([class*='Button_secondaryButtonInlineRoot']):hover {
+  border-color: rgba(23, 217, 255, 0.35) !important;
+  color: #ffffff !important;
+}
+
+.accountSettingsPeakUp :global([class*='Button_inlineTextButtonRoot']) {
+  color: rgba(23, 217, 255, 0.9) !important;
+}
+
+.accountSettingsPeakUp :global([class*='Button_inlineTextButtonRoot']):hover {
+  color: #ffffff !important;
+}
+
+/*
+ * Default <Button> submit (e.g. Stripe payout “Save details”) uses global .buttonDefault,
+ * not PrimaryButton — must not match [class*='Button_primaryButtonRoot'] (incl. delete account).
+ */
+.accountSettingsPeakUp button[type='submit']:not([class*='Button_primaryButtonRoot']),
+.accountSettingsPeakUp input[type='submit'],
+.accountSettingsPeakUp [class*='Button_root'][type='submit'] {
+  min-height: 56px;
+  padding: 0 22px !important;
+  background: linear-gradient(100deg, #18d7ff 0%, #39f3d1 48%, #c8ff00 100%) !important;
+  background-image: linear-gradient(100deg, #18d7ff 0%, #39f3d1 48%, #c8ff00 100%) !important;
+  color: #06101a !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  font-weight: 800 !important;
+  box-shadow:
+    0 16px 36px rgba(24, 215, 255, 0.18),
+    0 10px 30px rgba(200, 255, 0, 0.14) !important;
+  cursor: pointer;
+  transition:
+    filter 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease !important;
+}
+
+.accountSettingsPeakUp button[type='submit']:not([class*='Button_primaryButtonRoot']):hover:not(:disabled),
+.accountSettingsPeakUp input[type='submit']:hover:not(:disabled),
+.accountSettingsPeakUp [class*='Button_root'][type='submit']:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.accountSettingsPeakUp button[type='submit']:not([class*='Button_primaryButtonRoot']):focus-visible:not(:disabled),
+.accountSettingsPeakUp input[type='submit']:focus-visible:not(:disabled),
+.accountSettingsPeakUp [class*='Button_root'][type='submit']:focus-visible:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.accountSettingsPeakUp button[type='submit']:not([class*='Button_primaryButtonRoot']):disabled,
+.accountSettingsPeakUp input[type='submit']:disabled,
+.accountSettingsPeakUp [class*='Button_root'][type='submit']:disabled {
+  background: rgba(15, 26, 42, 0.72) !important;
+  background-image: none !important;
+  color: rgba(228, 235, 243, 0.45) !important;
+  border: 1px solid rgba(57, 243, 209, 0.14) !important;
+  box-shadow: none !important;
+  transform: none;
+  filter: none;
+  cursor: not-allowed;
+}
+
+/* Danger zone — premium warning strip */
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 82, 82, 0.35);
+  background: linear-gradient(
+    180deg,
+    rgba(40, 12, 16, 0.55) 0%,
+    rgba(18, 8, 10, 0.75) 100%
+  );
+  box-shadow:
+    0 0 24px rgba(255, 60, 60, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  padding: 20px 18px 24px;
+}
+
+/* ── Payout / Payment / Manage — kill residual white panels (scoped) ───────── */
+
+/* Global compose from marketplaceDefaults: Stripe card mount + similar */
+.accountSettingsPeakUp :global(.marketplaceInputStyles) {
+  background-color: rgba(8, 14, 24, 0.88) !important;
+  border: 1px dashed rgba(23, 217, 255, 0.38) !important;
+  border-radius: 12px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 22px rgba(23, 217, 255, 0.08) !important;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.accountSettingsPeakUp :global(.marketplaceInputStyles):hover {
+  border-color: rgba(23, 217, 255, 0.52) !important;
+}
+
+.accountSettingsPeakUp :global(.marketplaceInputStyles):focus-within {
+  border-color: rgba(23, 217, 255, 0.55) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(23, 217, 255, 0.22),
+    0 0 20px rgba(23, 217, 255, 0.14) !important;
+}
+
+.accountSettingsPeakUp :global([class*='PaymentMethodsForm_cardError']) {
+  border: 1px solid rgba(255, 110, 110, 0.55) !important;
+}
+
+/* Stripe Connect — payout form copy + saved labels */
+.accountSettingsPeakUp :global([class*='StripeConnectAccountForm_accountInformationTitle']) {
+  display: block;
+  margin: 0 0 4px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(170, 190, 214, 0.85) !important;
+}
+
+.accountSettingsPeakUp :global([class*='StripeConnectAccountForm_savedCountry']) {
+  color: rgba(236, 240, 248, 0.94) !important;
+}
+
+.accountSettingsPeakUp :global([class*='StripeConnectAccountForm_savedBankAccount']) {
+  color: rgba(236, 240, 248, 0.96) !important;
+}
+
+.accountSettingsPeakUp :global([class*='StripeConnectAccountForm_termsText']) {
+  color: rgba(195, 210, 226, 0.78) !important;
+}
+
+.accountSettingsPeakUp :global([class*='StripeConnectAccountForm_error']) {
+  color: #ff9a9a !important;
+}
+
+/* Radio labels (account type) */
+.accountSettingsPeakUp :global([class*='FieldRadioButton_text']) {
+  color: rgba(228, 235, 243, 0.92) !important;
+}
+
+/* Stripe Connect verification banners */
+.accountSettingsPeakUp :global([class*='StripeConnectAccountStatusBox_verificiationBox']) {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px !important;
+  box-shadow:
+    0 10px 36px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+.accountSettingsPeakUp :global([class*='StripeConnectAccountStatusBox_verficiationNeededBox']) {
+  border: 1px solid rgba(255, 200, 120, 0.45) !important;
+  background: linear-gradient(
+    125deg,
+    rgba(52, 36, 12, 0.55) 0%,
+    rgba(10, 16, 30, 0.9) 100%
+  ) !important;
+}
+
+.accountSettingsPeakUp :global([class*='StripeConnectAccountStatusBox_verficiationSuccessBox']) {
+  border: 1px solid rgba(90, 220, 170, 0.45) !important;
+  background: linear-gradient(
+    125deg,
+    rgba(8, 42, 32, 0.55) 0%,
+    rgba(10, 18, 28, 0.9) 100%
+  ) !important;
+}
+
+.accountSettingsPeakUp :global([class*='StripeConnectAccountStatusBox_verficiationErrorBox']) {
+  border: 1px solid rgba(255, 95, 95, 0.5) !important;
+  background: linear-gradient(
+    125deg,
+    rgba(48, 12, 16, 0.58) 0%,
+    rgba(14, 10, 18, 0.92) 100%
+  ) !important;
+}
+
+.accountSettingsPeakUp :global([class*='StripeConnectAccountStatusBox_verificationBoxTitle']),
+.accountSettingsPeakUp :global([class*='StripeConnectAccountStatusBox_verificationBoxText']) {
+  color: rgba(236, 240, 248, 0.96) !important;
+}
+
+.accountSettingsPeakUp :global([class*='StripeConnectAccountStatusBox_editVerificationButton']) {
+  color: rgba(23, 217, 255, 0.95) !important;
+}
+
+.accountSettingsPeakUp :global([class*='StripeConnectAccountStatusBox_iconEditPencil']) {
+  stroke: rgba(23, 217, 255, 0.85) !important;
+}
+
+/* Payment methods — saved card + dropdown */
+.accountSettingsPeakUp :global([class*='SavedCardDetails_savedPaymentMethodTitle']) {
+  color: rgba(236, 240, 248, 0.96) !important;
+}
+
+.accountSettingsPeakUp :global([class*='SavedCardDetails_menuLabel']) {
+  background: rgba(10, 16, 28, 0.88) !important;
+  border: 1px solid rgba(23, 217, 255, 0.28) !important;
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.accountSettingsPeakUp :global([class*='SavedCardDetails_menuLabel']):hover {
+  border-color: rgba(23, 217, 255, 0.48) !important;
+}
+
+.accountSettingsPeakUp :global([class*='SavedCardDetails_menuLabel']):focus {
+  background: rgba(12, 20, 34, 0.95) !important;
+  border-color: rgba(23, 217, 255, 0.45) !important;
+}
+
+.accountSettingsPeakUp :global([class*='SavedCardDetails_menuContent']) {
+  background: rgba(12, 18, 32, 0.97) !important;
+  border: 1px solid rgba(23, 217, 255, 0.22) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45) !important;
+}
+
+.accountSettingsPeakUp :global([class*='SavedCardDetails_menuItem']):hover {
+  background-color: rgba(23, 217, 255, 0.1) !important;
+}
+
+.accountSettingsPeakUp :global([class*='SavedCardDetails_menuText']),
+.accountSettingsPeakUp :global([class*='SavedCardDetails_menuTextReplaceCard']) {
+  color: rgba(228, 235, 243, 0.92) !important;
+}
+
+.accountSettingsPeakUp :global([class*='SavedCardDetails_menuDivider']) {
+  color: rgba(170, 190, 214, 0.75) !important;
+}
+
+.accountSettingsPeakUp :global([class*='SavedCardDetails_savedPaymentMethodDelete']) {
+  color: rgba(255, 170, 170, 0.88) !important;
+}
+
+.accountSettingsPeakUp :global([class*='SavedCardDetails_savedPaymentMethodDelete']):hover {
+  color: #ffb4b4 !important;
+}
+
+.accountSettingsPeakUp :global([class*='SavedCardDetails_paymentMethodPlaceholderDesktop']),
+.accountSettingsPeakUp :global([class*='SavedCardDetails_paymentMethodPlaceholderMobile']) {
+  color: rgba(228, 235, 243, 0.9) !important;
+}
+
+/* PaymentMethodsForm — headings + helper copy */
+.accountSettingsPeakUp :global([class*='PaymentMethodsForm_paymentHeading']),
+.accountSettingsPeakUp :global([class*='PaymentMethodsForm_messageHeading']) {
+  color: rgba(200, 214, 232, 0.88) !important;
+}
+
+.accountSettingsPeakUp :global([class*='PaymentMethodsForm_messageOptional']) {
+  color: rgba(170, 188, 210, 0.65) !important;
+}
+
+.accountSettingsPeakUp :global([class*='PaymentMethodsForm_infoText']) {
+  color: rgba(195, 210, 226, 0.72) !important;
+}
+
+.accountSettingsPeakUp :global([class*='PaymentMethodsForm_error']),
+.accountSettingsPeakUp :global([class*='PaymentMethodsForm_errorMessage']) {
+  color: #ff9a9a !important;
+}
+
+/* Manage account — divider + ambassador / private form save */
+.accountSettingsPeakUp :global([class*='ManageAccountPage_accountPageDivider']) {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(23, 217, 255, 0.25),
+    transparent
+  ) !important;
+  height: 1px;
+}
+
+.accountSettingsPeakUp :global([class*='PrivateDetailsForm_error']) {
+  color: #ff9a9a !important;
+}
+
+/* Section headings H4 (billing details, Stripe sections) */
+.accountSettingsPeakUp main#main-content :global([class*='Heading_h4']) {
+  margin: 0 0 14px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background-image: linear-gradient(90deg, #17d9ff 0%, #39f3d1 45%, #9dff4f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(23, 217, 255, 0.12));
+}
+
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_confirmChangesTitle']) {
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: rgba(255, 220, 205, 0.96) !important;
+  color: rgba(255, 220, 205, 0.96) !important;
+  filter: none;
+}
+
+/* Delete account — danger primary overrides generic PeakUp gradient */
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) :global([class*='Button_primaryButtonRoot']) {
+  background-image: none !important;
+  background-color: rgba(28, 6, 10, 0.92) !important;
+  color: #ffc9c9 !important;
+  border: 1px solid rgba(255, 95, 95, 0.48) !important;
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.45),
+    0 0 22px rgba(255, 70, 70, 0.18) !important;
+}
+
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) :global([class*='Button_primaryButtonRoot']):hover:not(:disabled),
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) :global([class*='Button_primaryButtonRoot']):focus-visible:not(:disabled) {
+  filter: brightness(1.08);
+  border-color: rgba(255, 130, 130, 0.65) !important;
+  color: #ffe0e0 !important;
+  box-shadow:
+    0 10px 34px rgba(0, 0, 0, 0.5),
+    0 0 32px rgba(255, 80, 80, 0.28) !important;
+}
+
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) :global([class*='Button_primaryButtonRoot']):disabled {
+  opacity: 0.42;
+  filter: grayscale(0.15);
+}
+
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_confirmChangesInfo']),
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_confirmChangesSection']) :global(p) {
+  color: rgba(210, 220, 236, 0.82) !important;
+}
+
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_helperLink']) {
+  color: rgba(23, 217, 255, 0.88) !important;
+}
+
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_helperLink']):hover {
+  color: #ffffff !important;
+}
+
+/* Delete checkbox: danger accent instead of success green */
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) :global([class*='FieldCheckbox_boxSuccess']) {
+  stroke: rgba(255, 130, 130, 0.9) !important;
+}
+
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) :global([class*='FieldCheckbox_input']:checked + label .boxSuccess) {
+  stroke: #ff8b8b !important;
+}
+
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) :global([class*='FieldCheckbox_input']:hover + label .boxSuccess),
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) :global([class*='FieldCheckbox_input']:focus + label .boxSuccess) {
+  stroke: #ffb0b0 !important;
+}
+
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) :global([class*='FieldCheckbox_checkedSuccess']) {
+  stroke: #ff9a9a !important;
+  fill: rgba(255, 90, 90, 0.35) !important;
+}
+
+.accountSettingsPeakUp :global([class*='DeleteAccountForm_root']) :global([class*='FieldCheckbox_textRoot']) {
+  color: rgba(236, 240, 248, 0.92) !important;
+}
+
+.accountSettingsPeakUp
+  :global(
+    [class*='DeleteAccountForm_root']
+      [class*='FieldCheckbox_input']:checked
+      + label
+      [class*='FieldCheckbox_textRoot']
+  ) {
+  color: rgba(248, 250, 255, 0.98) !important;
+}
+
+.accountSettingsPeakUp
+  :global(
+    [class*='DeleteAccountForm_root']
+      [class*='FieldCheckbox_input']:hover
+      + label
+      [class*='FieldCheckbox_textRoot']
+  ) {
+  color: rgba(248, 250, 255, 0.98) !important;
+}
+
+.accountSettingsPeakUp
+  :global(
+    [class*='DeleteAccountForm_root']
+      [class*='FieldCheckbox_input']:focus
+      + label
+      [class*='FieldCheckbox_textRoot']
+  ) {
+  color: rgba(248, 250, 255, 0.98) !important;
+}
+

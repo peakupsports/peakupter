@@ -17,6 +17,7 @@ import PasswordChangeForm from './PasswordChangeForm/PasswordChangeForm';
 
 import { changePassword, changePasswordClear, resetPassword } from './PasswordChangePage.duck';
 import css from './PasswordChangePage.module.css';
+import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 
 /**
  * The change-password page.
@@ -76,7 +77,7 @@ export const PasswordChangePageComponent = props => {
   };
 
   return (
-    <Page title={title} scrollingDisabled={scrollingDisabled}>
+    <Page className={accountShellCss.pageShell} title={title} scrollingDisabled={scrollingDisabled}>
       <LayoutSideNavigation
         topbar={
           <>

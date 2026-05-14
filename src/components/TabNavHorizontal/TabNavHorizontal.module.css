@@ -6,8 +6,16 @@
   overflow-x: auto;
 }
 
+/* UserNav (Manage listings / Profile / Account) — PeakUp glass strip under topbar.
+ * Replaces legacy Sharetribe flat grey700 bar. Only applied when skin="dark". */
 .darkSkin {
-  background-color: var(--colorGrey700);
+  background: rgba(6, 10, 18, 0.55);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid rgba(54, 233, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.18);
 }
 
 .tab {
@@ -74,22 +82,69 @@
   text-decoration: none;
 }
 
-/* Dark skin */
-.tabContentDarkSkin {
-  color: var(--colorGrey200);
+/* Dark skin — PeakUp tab typography & states (UserNav under cinematic topbar). */
+.darkSkin .tabContent.tabContentDarkSkin {
+  position: relative;
+  font-weight: var(--fontWeightMedium);
+  letter-spacing: 0.01em;
+  border-bottom-width: 2px;
+  color: rgba(210, 222, 238, 0.78);
+
+  @media (--viewportMedium) {
+    border-bottom-width: 2px;
+    padding: 14px 14px 12px;
+  }
 
   &:hover,
   &:focus {
-    color: var(--colorWhite);
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.96);
+    border-bottom-color: rgba(23, 217, 255, 0.22);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(23, 217, 255, 0.55);
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 }
 
+.tabContentDarkSkin {
+  /* Base dark-tab color — superseded by .darkSkin .tabContent chain above when both apply */
+  color: rgba(210, 222, 238, 0.78);
+
+  &:hover,
+  &:focus {
+    color: rgba(255, 255, 255, 0.96);
+  }
+}
+
+.darkSkin .tabContent.selectedTabContent.selectedTabContentDarkSkin,
+.darkSkin .selectedTabContentDarkSkin,
 .selectedTabContentDarkSkin {
-  border-bottom-color: var(--colorWhite);
-  color: var(--colorWhite);
+  border-bottom-color: transparent;
+  color: rgba(247, 250, 255, 0.98);
+  font-weight: var(--fontWeightSemiBold);
+  text-shadow:
+    0 0 14px rgba(23, 217, 255, 0.28),
+    0 0 22px rgba(157, 255, 79, 0.12);
+}
+
+.darkSkin .selectedTabContentDarkSkin::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #17d9ff 0%, #39f3d1 50%, #9dff4f 100%);
+  box-shadow:
+    0 0 14px rgba(23, 217, 255, 0.45),
+    0 0 22px rgba(57, 243, 209, 0.2);
 }
 
 .disabledDarkSkin {
-  color: var(--colorBlack);
-  opacity: 0.3;
+  color: rgba(228, 235, 243, 0.35);
+  opacity: 1;
 }

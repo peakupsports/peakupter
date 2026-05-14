@@ -1,17 +1,42 @@
 @import '../../../../../styles/customMediaQueries.css';
 
+/* ──────────────────────────────────────────────────────────────────────────
+ * Topbar "Menu" dropdown — PeakUp premium dark glass.
+ *
+ * Real DOM (rendered by Menu + MenuContent components):
+ *   <div class="MenuContent_root LinksMenu_linkMenuContent MenuContent_isOpen"
+ *        style="position:absolute; top/left:Npx">
+ *     <ul class="MenuContent_content" role="menu">
+ *       <li class="MenuItem_root">
+ *         <a class="LinksMenu_menuLink">
+ *           <span class="LinksMenu_menuItemBorder" />
+ *           Find a coach
+ *         </a>
+ *       </li>
+ *       …
+ *     </ul>
+ *   </div>
+ *
+ * `MenuContent_root` ships a white background + grey border. We override it
+ * on the `LinksMenu_linkMenuContent` class (applied to the same `<div>`).
+ * Since `LinksMenu.module.css` is loaded AFTER `MenuContent.module.css` in
+ * the bundle (LinksMenu depends on MenuContent), our rule wins on equal
+ * specificity without needing `!important`.
+ *
+ * Scope: nothing outside this dropdown is touched — the class
+ * `LinksMenu_linkMenuContent` only ever lives on this popover. */
 .currentPage {
-  color: var(--colorBlack);
+  color: #17d9ff;
   position: relative;
 
   & .menuItemBorder {
     width: 6px;
-    background-color: var(--colorBlack);
+    background-color: #17d9ff;
   }
 
   &:hover {
     & .menuItemBorder {
-      background-color: var(--colorBlack);
+      background-color: #39f3d1;
     }
   }
 }
@@ -63,9 +88,34 @@
   margin-left: 8px;
 }
 
+/* The dropdown surface.
+ *
+ * `MenuContent_root` (white background, grey 1 px top border, square radius)
+ * applies to the same DOM element. To beat it deterministically — regardless
+ * of CSS bundle order across builds — we use `!important` on the four
+ * properties it actually sets. Layout properties (min-width, padding, etc.)
+ * are unique to this rule so no !important needed there. */
 .linkMenuContent {
   min-width: 276px;
-  padding: 20px 0;
+  padding: 14px 0;
+  margin-top: 6px;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(11, 18, 32, 0.96) 0%,
+      rgba(17, 28, 46, 0.94) 100%
+    ) !important;
+  background-color: rgba(11, 18, 32, 0.96) !important;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(23, 217, 255, 0.16) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.42),
+    0 0 22px rgba(23, 217, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
 }
 
 /* left animated "border" like hover element */
@@ -87,20 +137,26 @@
   width: 100%;
   min-width: 276px;
   margin: 0;
-  padding: 4px 24px;
+  padding: 8px 24px;
 
-  /* Layout details */
-  color: var(--colorGrey700);
+  /* Dark-glass dropdown: soft grey body text, cyan hover. */
+  color: rgba(228, 235, 243, 0.82);
   text-align: left;
-  transition: var(--transitionStyleButton);
+  transition: color 180ms ease, background-color 180ms ease;
 
   &:hover {
-    color: var(--colorBlack);
+    color: #ffffff;
     text-decoration: none;
+    background: linear-gradient(
+      90deg,
+      rgba(23, 217, 255, 0.10) 0%,
+      rgba(57, 243, 209, 0.07) 52%,
+      rgba(157, 255, 79, 0.05) 100%
+    );
 
     & .menuItemBorder {
       width: 6px;
-      background-color: var(--marketplaceColor);
+      background: linear-gradient(180deg, #17d9ff 0%, #39f3d1 50%, #9dff4f 100%);
     }
   }
 

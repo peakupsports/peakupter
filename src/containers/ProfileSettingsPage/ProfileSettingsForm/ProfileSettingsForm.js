@@ -298,7 +298,7 @@ class ProfileSettingsFormComponent extends Component {
             </div>
           ) : null;
 
-          const classes = classNames(rootClassName || css.root, className);
+          const classes = classNames(rootClassName || css.root, className, css.peakUpForm);
           const submitInProgress = updateInProgress;
           const submittedOnce = Object.keys(this.submittedValues).length > 0;
           const pristineSinceLastSubmit = submittedOnce && isEqual(values, this.submittedValues);

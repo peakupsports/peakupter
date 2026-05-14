@@ -27,6 +27,7 @@ import DeleteAccountForm from './DeleteAccountForm/DeleteAccountForm';
 
 import { deleteAccount, resetPassword, updateProfile } from './ManageAccountPage.duck';
 import css from './ManageAccountPage.module.css';
+import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 import PrivateDetailsForm from './PrivateDetailsForm/PrivateDetailsForm';
 
 /**
@@ -117,7 +118,7 @@ export const ManageAccountPageComponent = props => {
   };
 
   return (
-    <Page title={title} scrollingDisabled={scrollingDisabled}>
+    <Page className={accountShellCss.pageShell} title={title} scrollingDisabled={scrollingDisabled}>
       <LayoutSideNavigation
         topbar={
           <>
