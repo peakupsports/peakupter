@@ -680,14 +680,143 @@
   line-height: 1.35;
 }
 
-@media (max-width: 767px) {
+/* Tablet + phone: SearchCTA uses `calc(100vw - 83px)` below `--viewportLarge`,
+ * which can force horizontal page scroll inside the padded hero. Clamp to the
+ * hero column — desktop (1024+) unchanged. */
+@media (max-width: 1023px) {
+  /* Compact hero (phone + tablet): less vertical scroll before first fold.
+   * `align-items: flex-start` must win over the base `center`: a tall hero
+   * column vertically centered can spill upward under the sticky topbar after
+   * fonts / SearchCTA finish laying out — reserve a stable top alignment. */
+  .root {
+    /* `vh` fallback for engines without `svh`; where `svh` exists it wins and
+     * avoids the classic mobile “toolbar hides → vh jumps → hero stretches” shift. */
+    min-height: min(74vh, 560px);
+    min-height: min(74svh, 560px);
+    align-items: flex-start !important;
+  }
+
+  .root > [class*='sectionContent'] {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
+    align-self: stretch;
+  }
+
   .heroLayout {
-    padding-top: 88px;
-    padding-bottom: 56px;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    /* Breathing room below the global sticky header; safe-area for notched devices */
+    padding-top: calc(
+      max(
+        clamp(56px, 10vw, 88px),
+        env(safe-area-inset-top, 0px) + clamp(40px, 8vw, 56px)
+      )
+    );
+    padding-bottom: clamp(26px, 4.5vw, 44px);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
   }
 
   .contentColumn {
-    transform: translateY(-16px);
+    max-width: 100%;
+    min-width: 0;
+    transform: none;
+  }
+
+  .eyebrow {
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    margin-top: 16px;
+    font-size: clamp(15px, 1.65vw + 0.55rem, 18px);
+  }
+
+  .ctaRow {
+    margin-top: 18px;
+    gap: 10px;
+  }
+
+  .searchRow {
+    max-width: 100%;
+    width: 100%;
+    min-width: 0;
+    margin-top: 18px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .searchRow [class*='SearchCTA_searchBarContainer'] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-top: 0 !important;
+    padding: 5px 5px 6px !important;
+    border-radius: 16px !important;
+    box-sizing: border-box;
+  }
+
+  .searchRow [class*='SearchCTA_gridContainer'] {
+    min-width: 0;
+    width: 100%;
+    gap: 4px !important;
+    row-gap: 2px !important;
+    align-items: stretch;
+  }
+
+  .searchRow [class*='SearchCTA_gridCol4'] {
+    min-width: 0 !important;
+  }
+
+  .searchRow [class*='SearchCTA_filterField'] {
+    min-height: 38px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .searchRow [class*='SearchCTA_submitButton'] {
+    min-height: 42px !important;
+    border-radius: 12px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    justify-self: stretch !important;
+    flex-shrink: 0;
+  }
+
+  .featureRow {
+    margin-top: 18px;
+  }
+}
+
+@media (max-width: 767px) {
+  .root {
+    min-height: min(66vh, 480px);
+    min-height: min(66svh, 480px);
+  }
+
+  .heroLayout {
+    padding-top: calc(
+      max(
+        clamp(52px, 14vw, 72px),
+        env(safe-area-inset-top, 0px) + clamp(36px, 10vw, 52px)
+      )
+    );
+    padding-bottom: clamp(22px, 5vw, 36px);
+  }
+
+  .contentColumn {
+    transform: none;
+  }
+
+  .eyebrow {
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    margin-top: 12px;
   }
 
   .headline {
@@ -700,24 +829,38 @@
   }
 
   .ctaRow {
-    margin-top: 26px;
+    margin-top: 14px;
+    gap: 8px;
   }
 
   .searchRow {
-    margin-top: 26px;
+    margin-top: 14px;
   }
 
   .searchRow [class*='SearchCTA_searchBarContainer'] {
-    border-radius: 18px;
+    border-radius: 14px !important;
+    padding: 4px 4px 5px !important;
+  }
+
+  .searchRow [class*='SearchCTA_filterField'] {
+    min-height: 36px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .searchRow [class*='SearchCTA_submitButton'] {
+    min-height: 40px !important;
+    max-width: 100% !important;
+    justify-self: stretch !important;
   }
 
   .featureRow {
     grid-template-columns: 1fr;
-    margin-top: 24px;
+    margin-top: 14px;
   }
 
   .featureItem {
-    padding: 12px 0;
+    padding: 10px 0;
   }
 
   .featureItem:not(:last-child)::after {

@@ -10,7 +10,15 @@ import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import { isMainSearchTypeKeywords, isOriginInUse } from '../../../util/search';
 import { parse, stringify } from '../../../util/urlHelpers';
 import { createResourceLocatorString, matchPathname, pathByRouteName } from '../../../util/routes';
-import { parseCoachExploreSearch } from '../../../util/coachExplore';
+import {
+  buildCoachMapPageBuilderLinkTo,
+  coachMapSearchForFreshGeolocationIntent,
+  COACH_MAP_DIRECT_GEO_EVENT,
+  COACH_MAP_SCROLL_PANEL_EVENT,
+  debugCoachMapLocate,
+  isLocationFieldCurrentLocation,
+  parseCoachExploreSearch,
+} from '../../../util/coachExplore';
 import {
   Button,
   IconArrowHead,
@@ -70,8 +78,11 @@ const sortCustomLinks = customLinks => {
 };
 
 // Resolves in-app links against route configuration
-const getResolvedCustomLinks = (customLinks, routeConfiguration) => {
+const getResolvedCustomLinks = (customLinks, routeConfiguration, location) => {
   const links = Array.isArray(customLinks) ? customLinks : [];
+  const loc = location
+    ? { pathname: location.pathname, search: location.search }
+    : { pathname: '', search: '' };
   return links.map(linkConfig => {
     const { type, href } = linkConfig;
     const isInternalLink = type === 'internal' || href.charAt(0) === '/';
@@ -82,7 +93,10 @@ const getResolvedCustomLinks = (customLinks, routeConfiguration) => {
         const matchedRoutes = matchPathname(testURL.pathname, routeConfiguration);
         if (matchedRoutes.length > 0) {
           const found = matchedRoutes[0];
-          const to = { search: testURL.search, hash: testURL.hash };
+          const to =
+            found.route?.name === 'CoachMapPage'
+              ? buildCoachMapPageBuilderLinkTo(loc, href)
+              : { search: testURL.search, hash: testURL.hash };
           return {
             ...linkConfig,
             route: {
@@ -166,6 +180,25 @@ const TopbarComponent = props => {
   const handleSubmit = values => {
     const { currentSearchParams, history, location, config, routeConfiguration } = props;
 
+    const resolvedPage = currentPage || getResolvedCurrentPage(location, routeConfiguration);
+    if (
+      !isMainSearchTypeKeywords(config) &&
+      resolvedPage === 'CoachMapPage' &&
+      isLocationFieldCurrentLocation(values?.location)
+    ) {
+      debugCoachMapLocate('current location clicked', { source: 'TopbarSearchForm', pathname: location.pathname });
+      debugCoachMapLocate('requesting geolocation', { source: 'TopbarSearchForm', via: 'URL intent + CoachMapPage effect' });
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event(COACH_MAP_DIRECT_GEO_EVENT));
+      }
+      const nextSearch = coachMapSearchForFreshGeolocationIntent(location.search);
+      history.push(`${location.pathname}${nextSearch}`);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent(COACH_MAP_SCROLL_PANEL_EVENT));
+      }
+      return;
+    }
+
     const topbarSearchParams = () => {
       if (isMainSearchTypeKeywords(config)) {
         return { keywords: values?.keywords };
@@ -240,7 +273,7 @@ const TopbarComponent = props => {
 
   // Custom links are sorted so that group="primary" are always at the beginning of the list.
   const sortedCustomLinks = sortCustomLinks(config.topbar?.customLinks);
-  const customLinks = getResolvedCustomLinks(sortedCustomLinks, routeConfiguration);
+  const customLinks = getResolvedCustomLinks(sortedCustomLinks, routeConfiguration, location);
   const resolvedCurrentPage = currentPage || getResolvedCurrentPage(location, routeConfiguration);
   const isSportPremiumChrome = chromeTheme === 'sportPremium';
 

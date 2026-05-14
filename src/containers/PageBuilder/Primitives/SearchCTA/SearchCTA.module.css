@@ -31,7 +31,11 @@
   color: var(--colorGrey500);
   border-radius: 8px;
   box-shadow: var(--boxShadowPopup);
-  width: calc(100vw - 83px);
+  /* `100vw` includes the vertical scrollbar gutter when it appears — layout “widens” after load.
+   * Use the parent width (hero / search column) instead of the viewport. */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 0 8px 8px 8px;
   margin-top: 40px;
   @media (--viewportMedium) {

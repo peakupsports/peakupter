@@ -95,6 +95,7 @@ const initialWinterAccordion = (value, includeWinterVariants) => {
  * @param {boolean} [props.includeWinterVariants=false]
  * @param {boolean} [props.inTopbar=false]
  * @param {boolean} [props.winterBare=false]
+ * @param {'default'|'coachMapMobileRail'} [props.variant='default'] — `coachMapMobileRail`: full-width chip rail for Coach Map sidebar (scroll + snap).
  * @param {Array<{key:string,label:string,emoji:string,variants?:Array<{key:string,label:string,emoji?:string}>}>} [props.disciplines]
  *        Main row chip list. Items with `variants` show a conditional
  *        secondary row when active. CoachMap-only.
@@ -108,6 +109,7 @@ export const SportBar = props => {
     includeWinterVariants = false,
     inTopbar = false,
     winterBare = false,
+    variant = 'default',
     disciplines = null,
   } = props;
 
@@ -196,10 +198,21 @@ export const SportBar = props => {
       className={classNames(css.root, {
         [css.rootInTopbar]: inTopbar,
         [css.rootWinterBare]: winterBare,
+        [css.rootCoachMapMobileRail]: variant === 'coachMapMobileRail',
       })}
     >
-      <div className={classNames(css.wrap, { [css.wrapInTopbar]: inTopbar })}>
-        <div className={classNames(css.inner, { [css.innerInTopbar]: inTopbar })}>
+      <div
+        className={classNames(css.wrap, {
+          [css.wrapInTopbar]: inTopbar,
+          [css.wrapCoachMapMobileRail]: variant === 'coachMapMobileRail',
+        })}
+      >
+        <div
+          className={classNames(css.inner, {
+            [css.innerInTopbar]: inTopbar,
+            [css.innerCoachMapMobileRail]: variant === 'coachMapMobileRail',
+          })}
+        >
           {showAll ? (
             <button
               type="button"

@@ -5,7 +5,7 @@ import debounce from 'lodash/debounce';
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 
-import { IconSpinner } from '../../components';
+import IconSpinner from '../IconSpinner/IconSpinner';
 
 import IconLookingGlass from './IconLookingGlass';
 import IconCurrentLocation from './IconCurrentLocation';

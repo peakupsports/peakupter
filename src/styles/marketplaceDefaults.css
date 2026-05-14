@@ -203,6 +203,14 @@
   --carouselWidth: 100vw;
 }
 
+/* Phone + tablet: keep horizontal layout stable when the vertical scrollbar appears
+ * (e.g. after footer / long content paints). Avoids `100vw` blocks growing ~15px wider. */
+@media (max-width: 1023px) {
+  html {
+    scrollbar-gutter: stable;
+  }
+}
+
 /* ================ Global element styles ================ */
 /**
  * Here are the global styles: for elements as well as some

@@ -3,14 +3,19 @@
 .root {
   position: relative;
   isolation: isolate;
-  overflow: visible;
+  /* Allow vertical glows; clip X so title/card glows and scaled ::before
+   * never widen the document (especially after images / figurine row paint). */
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .root::before,
 .root::after {
   content: '';
   position: absolute;
-  top: -128px;
+  /* Keep atmosphere inside Why — negative top used to bleed into Featured and painted
+   * over the figurine carousel (Why follows Featured in DOM → stacks above it). */
+  top: 0;
   right: 0;
   bottom: 0;
   left: 0;
@@ -26,6 +31,21 @@
   opacity: 0.34;
   filter: blur(9px) saturate(1.08) brightness(0.84);
   transform: scale(1.03);
+}
+
+@media (max-width: 1023px) {
+  .root::before {
+    /* Stronger scale bleeds past the section and can widen the whole page on mobile. */
+    transform: scale(1.01);
+    /* Light touch only: keep desktop atmosphere stack on `::after` unchanged below. */
+    opacity: 0.3;
+    filter: blur(9px) saturate(1.06) brightness(0.86);
+  }
+
+  .titleGlow {
+    /* Wide negative inset extends past the viewport and widens the page. */
+    inset: -18px -18px;
+  }
 }
 
 .root::after {
@@ -108,11 +128,14 @@
 }
 
 .cardsGrid {
-  max-width: 1080px;
+  /* Match `.trustWrap` / page content rail so card photos read the same width as the bar below. */
+  max-width: var(--contentMaxWidthPages);
+  width: 100%;
   margin: 40px auto 0;
   padding-top: 0;
   display: grid;
   gap: 22px;
+  box-sizing: border-box;
 }
 
 .card {
@@ -183,8 +206,8 @@
   top: 18px;
   left: 18px;
   z-index: 2;
-  width: 45px;
-  height: 45px;
+  width: 41px;
+  height: 41px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -221,8 +244,8 @@
 .cardIconSvg {
   position: relative;
   z-index: 1;
-  width: 33px;
-  height: 33px;
+  width: 30px;
+  height: 30px;
   filter:
     brightness(1.08)
     saturate(1.08)
@@ -472,6 +495,103 @@
   text-transform: uppercase;
 }
 
+@media (max-width: 767px) {
+  .root > :global([class*='sectionContent']) {
+    padding-top: 22px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
+  }
+
+  .sectionDetails {
+    max-width: 100%;
+  }
+
+  .subtitle {
+    max-width: min(42ch, 100%);
+  }
+
+  .cardsGrid {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 28px;
+    gap: 18px;
+    box-sizing: border-box;
+  }
+
+  /* Same horizontal inset as `.trustWrap` (overrides `.blockContainer` 32px gutters). */
+  .cardsGrid[class*='blockContainer'] {
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  .card {
+    aspect-ratio: 16 / 11;
+    min-height: 0;
+    border-radius: 22px;
+  }
+
+  .cardMedia img {
+    transform: none;
+    object-position: 50% 22%;
+  }
+
+  .card:hover,
+  .cardAthlete:hover,
+  .cardCoach:hover {
+    transform: none;
+  }
+
+  .card:hover .cardMedia img {
+    transform: none;
+  }
+
+  .cardContent {
+    left: 20px;
+    right: 20px;
+    bottom: 9px;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .cardIconBadge {
+    top: 12px;
+    left: 16px;
+    width: 43px;
+    height: 43px;
+  }
+
+  .cardIconSvg {
+    width: 29px;
+    height: 29px;
+  }
+
+  .cardTitle {
+    margin-top: 29px;
+    font-size: clamp(22px, 6.4vw, 30px);
+    line-height: 1.09;
+    letter-spacing: -0.022em;
+  }
+
+  .cardText {
+    margin-top: 7px;
+    font-size: 14px;
+    line-height: 1.52;
+    max-width: 36ch;
+  }
+
+  .cardCta {
+    margin-top: 9px;
+  }
+
+  .trustWrap {
+    padding: 0 max(16px, env(safe-area-inset-left, 0px)) 0 max(16px, env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
+  }
+}
+
 @media (--viewportMedium) {
   .root > :global([class*='sectionContent']) {
     padding-top: 56px;
@@ -492,13 +612,13 @@
   .cardIconBadge {
     top: 22px;
     left: 22px;
-    width: 50px;
-    height: 50px;
+    width: 45px;
+    height: 45px;
   }
 
   .cardIconSvg {
-    width: 35px;
-    height: 35px;
+    width: 32px;
+    height: 32px;
   }
 
   .cardCta {
@@ -513,6 +633,40 @@
   .trustItem + .trustItem {
     border-top: none;
     border-left: 1px solid rgba(255, 255, 255, 0.032);
+  }
+}
+
+/* Tablet only (after `--viewportMedium` so these win over 768+ defaults): icon → title
+ * rhythm; badge slightly larger than medium for this range only. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cardContent {
+    bottom: 17px;
+  }
+
+  .cardIconBadge {
+    top: 16px;
+    left: 20px;
+    width: 47px;
+    height: 47px;
+  }
+
+  .cardIconSvg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .cardTitle {
+    margin-top: 27px;
+    line-height: 1.07;
+    letter-spacing: -0.019em;
+  }
+
+  .cardText {
+    margin-top: 9px;
+  }
+
+  .cardCta {
+    margin-top: 18px;
   }
 }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import loadable from '@loadable/component';
 
 import getPageDataLoadingAPI from '../containers/pageDataLoadingAPI';
+import LandingPage from '../containers/LandingPage/LandingPage';
 import NotFoundPage from '../containers/NotFoundPage/NotFoundPage';
 import PreviewResolverPage from '../containers/PreviewResolverPage/PreviewResolverPage';
 
@@ -20,7 +21,6 @@ const EditListingPage = loadable(() => import(/* webpackChunkName: "EditListingP
 const EmailVerificationPage = loadable(() => import(/* webpackChunkName: "EmailVerificationPage" */ '../containers/EmailVerificationPage/EmailVerificationPage'));
 const InboxPage = loadable(() => import(/* webpackChunkName: "InboxPage" */ '../containers/InboxPage/InboxPage'));
 const MakeOfferPage = loadable(() => import(/* webpackChunkName: "MakeOfferPage" */ '../containers/MakeOfferPage/MakeOfferPage'));
-const LandingPage = loadable(() => import(/* webpackChunkName: "LandingPage" */ '../containers/LandingPage/LandingPage'));
 const ListingPageCoverPhoto = loadable(() => import(/* webpackChunkName: "ListingPageCoverPhoto" */ /* webpackPrefetch: true */ '../containers/ListingPage/ListingPageCoverPhoto'));
 const ListingPageCarousel = loadable(() => import(/* webpackChunkName: "ListingPageCarousel" */ /* webpackPrefetch: true */ '../containers/ListingPage/ListingPageCarousel'));
 const ManageListingsPage = loadable(() => import(/* webpackChunkName: "ManageListingsPage" */ '../containers/ManageListingsPage/ManageListingsPage'));
@@ -87,12 +87,16 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       name: 'LandingPage',
       component: LandingPage,
       loadData: pageDataLoadingAPI.LandingPage.loadData,
+      // Hero SearchCTA / FilterLocation use Mapbox geocoding before any map is shown; deferring
+      // mapbox-gl-js breaks predictions and throws "Mapbox libraries are required for GeocoderMapbox".
+      prioritizeMapLibraryLoading: true,
     },
     {
       path: '/p/:pageId',
       name: 'CMSPage',
       component: CMSPage,
       loadData: pageDataLoadingAPI.CMSPage.loadData,
+      prioritizeMapLibraryLoading: true,
     },
     // NOTE: when the private marketplace feature is enabled, the '/s' route is disallowed by the robots.txt resource.
     // If you add new routes that start with '/s*' (e.g. /support), you should add them to the robotsPrivateMarketplace.txt file.

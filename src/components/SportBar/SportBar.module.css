@@ -188,6 +188,27 @@
   display: none;
 }
 
+/* Coach Map mobile sidebar: full-bleed chip rail, horizontal scroll + light snap */
+.rootCoachMapMobileRail {
+  position: relative;
+  top: auto;
+  z-index: 1;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border-bottom: none;
+}
+
+.wrapCoachMapMobileRail {
+  max-width: 100%;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Coach Map mobile rail visuals live at end of file (cascade over generic `.inner` / `.chipSm`). */
+
 .wrap {
   /* Keep it visually shorter than full page width */
   max-width: clamp(320px, 82vw, 860px);
@@ -608,5 +629,252 @@
 .wrap::after {
   right: 0;
   background: linear-gradient(to left, rgba(8, 11, 18, 0.98) 30%, rgba(8, 11, 18, 0));
+}
+
+/*
+ * Coach Map mobile sidebar only (`variant="coachMapMobileRail"`).
+ * Must load after generic `.inner` / `.chip` / `.chipSm .chipLabel` so cascade wins.
+ * Desktop Coach Map keeps SportBar in the topbar — this variant is not used there.
+ */
+.rootCoachMapMobileRail {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rootCoachMapMobileRail .wrapCoachMapMobileRail {
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(165deg, rgba(14, 24, 40, 0.52) 0%, rgba(8, 14, 26, 0.68) 100%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  backdrop-filter: blur(18px) saturate(145%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 14px 36px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(0, 0, 0, 0.22),
+    0 0 40px rgba(34, 230, 184, 0.04);
+}
+
+.rootCoachMapMobileRail .wrap::before,
+.rootCoachMapMobileRail .wrap::after {
+  top: 1px;
+  bottom: 1px;
+  width: 24px;
+  z-index: 3;
+}
+
+.rootCoachMapMobileRail .wrap::before {
+  background: linear-gradient(
+    to right,
+    rgba(7, 12, 22, 0.96) 0%,
+    rgba(7, 12, 22, 0.55) 45%,
+    transparent 100%
+  );
+}
+
+.rootCoachMapMobileRail .wrap::after {
+  background: linear-gradient(
+    to left,
+    rgba(7, 12, 22, 0.96) 0%,
+    rgba(7, 12, 22, 0.55) 45%,
+    transparent 100%
+  );
+}
+
+.rootCoachMapMobileRail .inner.innerCoachMapMobileRail {
+  align-items: center;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 18px;
+  padding: 14px 16px 16px 20px;
+  gap: 12px;
+}
+
+.rootCoachMapMobileRail .inner.innerCoachMapMobileRail .chip {
+  scroll-snap-align: start;
+  min-height: 44px;
+  height: auto;
+  padding: 10px 18px;
+  gap: 10px;
+  border-radius: 999px;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    transform 140ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
+}
+
+.rootCoachMapMobileRail .inner.innerCoachMapMobileRail .chipEmoji {
+  font-size: 20px;
+}
+
+.rootCoachMapMobileRail .inner.innerCoachMapMobileRail .chipLabel {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+@media (hover: hover) {
+  .rootCoachMapMobileRail .inner.innerCoachMapMobileRail .chip:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 10px 26px rgba(0, 0, 0, 0.32),
+      0 0 0 1px rgba(120, 255, 180, 0.14),
+      0 0 20px rgba(34, 230, 184, 0.12),
+      0 0 28px rgba(21, 155, 255, 0.1);
+  }
+}
+
+.rootCoachMapMobileRail .inner.innerCoachMapMobileRail .chip:active {
+  transform: scale(0.98);
+  transition-duration: 90ms;
+}
+
+.rootCoachMapMobileRail .inner.innerCoachMapMobileRail .chipActive {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 32px rgba(0, 0, 0, 0.36),
+    0 0 0 1px rgba(157, 255, 46, 0.22),
+    0 0 22px rgba(34, 230, 184, 0.2),
+    0 0 34px rgba(21, 155, 255, 0.14);
+}
+
+.rootCoachMapMobileRail .accordionPanel {
+  margin-top: 4px;
+  padding: 16px 0 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(5, 12, 24, 0.45) 0%, rgba(8, 14, 24, 0.55) 100%);
+  -webkit-backdrop-filter: blur(14px) saturate(135%);
+  backdrop-filter: blur(14px) saturate(135%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.rootCoachMapMobileRail .accordionPanel .subinner {
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 18px;
+  padding: 0 20px 18px;
+  gap: 12px;
+}
+
+.rootCoachMapMobileRail .accordionPanel .subinner .chipSm {
+  scroll-snap-align: start;
+}
+
+/* Variant pills: style the <button>, not a nested white label surface */
+.rootCoachMapMobileRail .accordionPanel .chipSm {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(18, 28, 44, 0.9) 0%, rgba(10, 16, 28, 0.95) 100%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+  color: rgba(242, 248, 255, 0.94);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-font-smoothing: antialiased;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 20px rgba(0, 0, 0, 0.28);
+  transition:
+    transform 140ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.rootCoachMapMobileRail .accordionPanel .chipSm .chipLabel {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: inherit;
+}
+
+.rootCoachMapMobileRail .accordionPanel .chipSm .chipEmoji {
+  flex: 0 0 auto;
+  font-size: 16px;
+  line-height: 1;
+}
+
+@media (hover: hover) {
+  .rootCoachMapMobileRail .accordionPanel .chipSm:hover {
+    transform: translateY(-1px);
+    border-color: rgba(157, 255, 46, 0.28);
+    background: linear-gradient(180deg, rgba(22, 34, 52, 0.94) 0%, rgba(12, 20, 34, 0.98) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 10px 24px rgba(0, 0, 0, 0.32),
+      0 0 18px rgba(34, 230, 184, 0.12);
+    color: #ffffff;
+  }
+
+  .rootCoachMapMobileRail .accordionPanel .chipSm:hover .chipLabel {
+    border: none;
+    box-shadow: none;
+    color: inherit;
+  }
+}
+
+.rootCoachMapMobileRail .accordionPanel .chipSm:active {
+  transform: scale(0.98);
+  transition-duration: 90ms;
+}
+
+.rootCoachMapMobileRail .accordionPanel .chipSm:focus-visible {
+  outline: 2px solid rgba(157, 255, 46, 0.75);
+  outline-offset: 2px;
+}
+
+.rootCoachMapMobileRail .accordionPanel .chipSmActive {
+  border-color: rgba(34, 230, 184, 0.45);
+  background: linear-gradient(
+    125deg,
+    rgba(10, 32, 62, 0.96) 0%,
+    rgba(14, 48, 92, 0.92) 42%,
+    rgba(18, 72, 58, 0.55) 100%
+  );
+  color: #f4fffd;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 0 1px rgba(157, 255, 46, 0.18),
+    0 0 24px rgba(34, 230, 184, 0.22),
+    0 0 36px rgba(21, 155, 255, 0.12),
+    0 10px 26px rgba(0, 0, 0, 0.34);
+}
+
+.rootCoachMapMobileRail .accordionPanel .chipSmActive .chipLabel {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font-weight: 800;
+}
+
+@media (hover: hover) {
+  .rootCoachMapMobileRail .accordionPanel .chipSmActive:hover {
+    border-color: rgba(157, 255, 46, 0.5);
+    color: #ffffff;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.11),
+      0 0 0 1px rgba(157, 255, 46, 0.22),
+      0 0 28px rgba(34, 230, 184, 0.26),
+      0 12px 30px rgba(0, 0, 0, 0.38);
+  }
 }
 

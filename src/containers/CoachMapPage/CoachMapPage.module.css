@@ -12,6 +12,8 @@
    Desktop (≥ viewportLarge): row — fixed-width sidebar left, map right. */
 .fullScreen {
   width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   background:
@@ -34,6 +36,8 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  min-width: 0;
+  max-width: 100%;
   background:
     linear-gradient(180deg, rgba(10, 18, 30, 0.92) 0%, rgba(8, 14, 24, 0.96) 100%);
   /* Mobile: appears below the map */
@@ -72,11 +76,64 @@
   text-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
 }
 
-.subtitle {
-  margin: 6px 0 0;
+.sidebarLocationRow {
+  margin-top: 12px;
+}
+
+/* SportBar for viewports below desktop topbar (hidden ≥ viewportLarge — chips stay in topbar there). */
+.mobileCoachMapSportBar {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-top: 14px;
+  overflow: hidden;
+}
+
+@media (--viewportLarge) {
+  .mobileCoachMapSportBar {
+    display: none;
+  }
+}
+
+.currentLocationButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(157, 255, 46, 0.35);
+  background: rgba(157, 255, 46, 0.08);
+  color: #e8fff0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.currentLocationButton:hover {
+  background: rgba(157, 255, 46, 0.14);
+  border-color: rgba(157, 255, 46, 0.55);
+}
+
+.currentLocationButton:focus-visible {
+  outline: 2px solid rgba(34, 230, 184, 0.85);
+  outline-offset: 2px;
+}
+
+/* When sport + anchor has no coaches within the nearby radius */
+.proximityNotice {
+  margin: 0 14px 12px;
+  padding: 12px 14px;
   font-size: 13px;
   line-height: 1.4;
-  color: rgba(226, 234, 244, 0.7);
+  font-weight: 600;
+  color: rgba(248, 252, 255, 0.94);
+  background: rgba(255, 200, 120, 0.1);
+  border: 1px solid rgba(255, 200, 100, 0.28);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 @media (--viewportLarge) {
@@ -114,6 +171,8 @@
 .mapPanel {
   position: relative;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   /* Mobile: take a comfortable portion of the viewport so list peeks below */
   height: 60vh;
   min-height: 320px;

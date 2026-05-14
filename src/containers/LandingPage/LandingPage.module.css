@@ -1190,7 +1190,9 @@
   :global(main)
   :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"]) {
   position: relative;
-  overflow: visible;
+  min-width: 0;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .landingPremium
@@ -1224,42 +1226,67 @@
 }
 
 /* FEATURED COACHES -> WHY PEAKUP continuity:
- * remove the perceived dark band by replacing the default section divider
- * with a taller blended veil that starts inside the figurine area and
- * continues into the aurora of the section below. */
+ * Soft veil at the **top of Why only** (`top: 0`). A tall negative offset was painting
+ * this pseudo above the figurine carousel (later sibling stacks on top of Featured). */
 .landingPremium
   :global(main)
   :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
   + :global(section) {
   position: relative;
-  overflow: visible;
+  min-width: 0;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .landingPremium
   :global(main)
   :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
   + :global(section)::before {
-  top: -154px;
+  top: 0;
   left: 0;
   right: 0;
   width: 100%;
-  height: 224px;
+  height: 168px;
   transform: none;
   background:
     radial-gradient(
-      70% 34% at 50% 0%,
-      rgba(34, 230, 184, 0.06) 0%,
-      rgba(21, 155, 255, 0.035) 26%,
-      transparent 68%
+      78% 52% at 50% 0%,
+      rgba(34, 230, 184, 0.055) 0%,
+      rgba(21, 155, 255, 0.032) 28%,
+      transparent 72%
     ),
     linear-gradient(
       180deg,
       rgba(6, 12, 20, 0) 0%,
-      rgba(6, 12, 20, 0.10) 26%,
-      rgba(6, 12, 20, 0.34) 58%,
-      rgba(6, 12, 20, 0.88) 100%
+      rgba(6, 12, 20, 0.08) 32%,
+      rgba(6, 12, 20, 0.28) 62%,
+      rgba(6, 12, 20, 0.72) 100%
     );
   z-index: 0;
+}
+
+/* Mobile/tablet: slightly softer bridge (geometry unchanged from desktop rule above). */
+@media (max-width: 1023px) {
+  .landingPremium
+    :global(main)
+    :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
+    + :global(section)::before {
+    background:
+      radial-gradient(
+        74% 44% at 50% 0%,
+        rgba(34, 230, 184, 0.042) 0%,
+        rgba(21, 155, 255, 0.026) 30%,
+        transparent 72%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(6, 12, 20, 0) 0%,
+        rgba(6, 12, 20, 0) 14%,
+        rgba(6, 12, 20, 0.055) 34%,
+        rgba(6, 12, 20, 0.22) 62%,
+        rgba(6, 12, 20, 0.62) 100%
+      );
+  }
 }
 
 .landingPremium
@@ -1533,4 +1560,30 @@
 .landingPremium :global(footer)[class*="SectionFooter_root"],
 .landingPremium :global(footer) > [class*="SectionFooter_root"] {
   border-top: none;
+}
+
+/* Mobile / tablet: clip stray horizontal overflow on landing only (1024+ unchanged). */
+@media (max-width: 1023px) {
+  .landingPremium {
+    overflow-x: clip;
+    /* Inherit into PageBuilder carousels/listings so `var(--carouselWidth)` is not `100vw`. */
+    --carouselWidth: 100%;
+  }
+
+  .landingPremium :global(main) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Default `section + section { overflow: visible }` lets wide pseudo-veils spill sideways on narrow viewports. */
+  .landingPremium :global(main) :global(section) + :global(section) {
+    overflow-x: clip;
+  }
+
+  .landingPremium
+    :global(main)
+    [class*='SectionPeakupFeaturedCoaches_scrollViewport']::before {
+    inset: -16px 0;
+  }
 }

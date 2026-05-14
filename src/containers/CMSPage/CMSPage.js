@@ -18,10 +18,25 @@ const PageBuilder = loadable(() =>
   import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')
 );
 
-const HOW_IT_WORKS_PAGE_IDS = new Set(['howitworks']);
-const INSTRUCTORS_PAGE_IDS = new Set(['4_instructors']);
+/**
+ * CMS page slugs that should get the Grow with PeakUp / How it works premium layout.
+ * Sharetribe page id in the URL is `/p/:pageId` — operators may rename the page in Console.
+ * We match a normalized slug (lowercase, strip separators) against this set.
+ */
+const HOW_IT_WORKS_PAGE_SLUGS = new Set([
+  'howitworks',
+  'howitworkspeakup',
+  'growwithpeakup',
+  'peakupgrow',
+]);
 
-const isHowItWorksPage = pageId => HOW_IT_WORKS_PAGE_IDS.has(String(pageId || '').toLowerCase());
+const normalizeCmsPageSlug = pageId =>
+  String(pageId || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+
+const isHowItWorksPage = pageId => HOW_IT_WORKS_PAGE_SLUGS.has(normalizeCmsPageSlug(pageId));
+const INSTRUCTORS_PAGE_IDS = new Set(['4_instructors']);
 const isInstructorsPage = pageId => INSTRUCTORS_PAGE_IDS.has(String(pageId || '').toLowerCase());
 
 const getHowItWorksPageData = pageData => {

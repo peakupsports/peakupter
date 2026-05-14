@@ -203,26 +203,35 @@
   width: 100%;
   flex: 1 0 100%;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   overflow: visible;
   padding: 0;
 }
 
-.howItWorksPremium
-  :global(main)
-  > :global(section):first-of-type
-  [class*='SectionBuilder_sectionDetails'] {
-  width: 100%;
-  max-width: min(var(--contentMaxWidthPages), 1144px);
-  margin: 0 auto 0 0;
-  padding: 96px 32px 72px;
-  box-sizing: border-box;
-  align-items: start;
-  justify-content: start;
-  text-align: left;
-  transform: translateY(clamp(-20px, -3vw, -44px));
-  overflow: visible;
-  z-index: 6;
+@media (min-width: 1024px) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    > [class*='SectionContainer_sectionContent'] {
+    justify-content: flex-start;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_sectionDetails'] {
+    width: 100%;
+    max-width: min(var(--contentMaxWidthPages), 1144px);
+    margin: 0 auto 0 0;
+    padding: 96px 32px 72px;
+    box-sizing: border-box;
+    align-items: start;
+    justify-content: start;
+    text-align: left;
+    transform: translateY(clamp(-20px, -3vw, -44px));
+    overflow: visible;
+    z-index: 6;
+  }
 }
 
 @media (--viewportMedium) {
@@ -245,21 +254,23 @@
   }
 }
 
-.howItWorksPremium
-  :global(main)
-  > :global(section):first-of-type
-  [class*='SectionBuilder_title'],
-.howItWorksPremium
-  :global(main)
-  > :global(section):first-of-type
-  [class*='SectionBuilder_description'],
-.howItWorksPremium
-  :global(main)
-  > :global(section):first-of-type
-  [class*='SearchCTA_searchBarContainer'] {
-  align-self: start;
-  justify-self: start;
-  text-align: left;
+@media (min-width: 1024px) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_title'],
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_description'],
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SearchCTA_searchBarContainer'] {
+    align-self: start;
+    justify-self: start;
+    text-align: left;
+  }
 }
 
 .howItWorksPremium
@@ -359,10 +370,20 @@
   backdrop-filter: blur(16px) saturate(130%);
   width: min(100%, 1060px);
   margin-top: 32px;
-  margin-left: 0;
+  margin-left: auto;
   margin-right: auto;
   padding: 8px;
   z-index: 12;
+}
+
+@media (min-width: 1024px) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SearchCTA_searchBarContainer'] {
+    margin-left: 0;
+    margin-right: auto;
+  }
 }
 
 @media (--viewportLarge) {
@@ -579,6 +600,362 @@
   filter: brightness(1.03);
 }
 
+/* Phone + tablet: hero centrato, benefits centrati, sezione 3 carousel → stack verticale.
+ * Desktop (1024+) invariato. */
+@media (max-width: 1023px) {
+  .howItWorksPremium :global(main) {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .howItWorksPremium :global(main) > :global(section):first-of-type > [class*='SectionContainer_sectionContent'] {
+    justify-content: center;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_sectionDetails'] {
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center !important;
+    justify-items: center !important;
+    align-content: center;
+    align-items: center;
+    text-align: center;
+    padding-left: max(22px, env(safe-area-inset-left, 0px));
+    padding-right: max(22px, env(safe-area-inset-right, 0px));
+    transform: translateY(-10px);
+    box-sizing: border-box;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_title'],
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_description'],
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SearchCTA_searchBarContainer'] {
+    align-self: center !important;
+    justify-self: center !important;
+    text-align: center;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_title'] {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: min(20ch, 100%);
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_title']::before {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_description'] {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: min(40ch, 100%);
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SearchCTA_searchBarContainer'] {
+    margin-top: 28px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100% !important;
+    max-width: min(100%, 560px) !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SearchCTA_gridContainer'] {
+    min-width: 0;
+    width: 100%;
+    justify-items: stretch;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SearchCTA_gridContainer']
+    > [class*='SearchCTA_submitButton'] {
+    justify-self: center;
+    width: auto;
+    min-width: min(240px, 100%);
+    max-width: 100%;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_ctaButton'] {
+    align-self: center;
+    justify-self: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Benefits (sezione 2): titolo + testo + griglia card centrati, padding simmetrico */
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(2)
+    [class*='SectionBuilder_sectionDetails'] {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center !important;
+    justify-items: center !important;
+    align-items: center;
+    text-align: center;
+    padding-left: max(22px, env(safe-area-inset-left, 0px));
+    padding-right: max(22px, env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(2)
+    [class*='SectionBuilder_title'] {
+    justify-self: center !important;
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(2)
+    [class*='SectionBuilder_description'] {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: min(40ch, 100%);
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(2)
+    [class*='SectionBuilder_blockContainer'] {
+    justify-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding-left: max(18px, env(safe-area-inset-left, 0px));
+    padding-right: max(18px, env(safe-area-inset-right, 0px));
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(2)
+    :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionBuilder_sectionDetails'] {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center !important;
+    justify-items: center !important;
+    align-items: center;
+    text-align: center;
+    padding-left: max(22px, env(safe-area-inset-left, 0px));
+    padding-right: max(22px, env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionBuilder_title'] {
+    justify-self: center !important;
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionBuilder_description'] {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: min(40ch, 100%);
+    text-align: center;
+  }
+
+  /* Sezione 3 — SectionColumns (How it works spesso è "columns" nel CMS) */
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    :is(
+      [class*='SectionColumns_oneColumn'],
+      [class*='SectionColumns_twoColumns'],
+      [class*='SectionColumns_threeColumns'],
+      [class*='SectionColumns_fourColumns']
+    ) {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: max(18px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(18px, env(safe-area-inset-right, 0px)) !important;
+    gap: 24px !important;
+    justify-items: stretch !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Sezione 3 — SectionFeatures: da 768px il blocco va in row; forziamo colonna */
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionFeatures_featuresMain'] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: max(18px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(18px, env(safe-area-inset-right, 0px)) !important;
+    justify-items: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionFeatures_block'] {
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    gap: 18px !important;
+    box-sizing: border-box !important;
+  }
+
+  /*
+   * Sezione 3 — SectionCarousel: su tablet le media query del modulo riattivano
+   * larghezze orizzontali; forziamo colonna + niente snap/translate fino a 1023px.
+   */
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_carouselContainer'] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding-top: 28px;
+    overflow-x: hidden !important;
+    box-sizing: border-box;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_carouselArrows'],
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_carouselArrowPrev'],
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_carouselArrowNext'] {
+    display: none !important;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    :is(
+      [class*='SectionCarousel_oneColumn'],
+      [class*='SectionCarousel_twoColumns'],
+      [class*='SectionCarousel_threeColumns'],
+      [class*='SectionCarousel_fourColumns']
+    ) {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    scroll-snap-type: none !important;
+    scroll-padding-inline: 0 !important;
+    gap: 26px !important;
+    padding-bottom: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block'] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    transform: none !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    padding-right: 0 !important;
+    scroll-snap-align: none !important;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block']
+    :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):nth-of-type(3)
+    > [class*='SectionContainer_sectionContent'] {
+    max-width: 100%;
+    overflow-x: clip;
+    box-sizing: border-box;
+  }
+}
+
 @media (max-width: 767px) {
   .howItWorksPremium
     :global(main)
@@ -586,14 +963,14 @@
     [class*='SectionBuilder_sectionDetails'] {
     padding-top: 88px;
     padding-bottom: 56px;
-    transform: translateY(-16px);
+    transform: translateY(-12px);
   }
 
   .howItWorksPremium
     :global(main)
     > :global(section):first-of-type
     [class*='SectionBuilder_title'] {
-    max-width: 10.5ch;
+    max-width: min(16ch, 100%);
     font-size: clamp(31px, 8.6vw, 40px);
     line-height: 0.98;
   }
@@ -602,8 +979,15 @@
     :global(main)
     > :global(section):first-of-type
     [class*='SearchCTA_searchBarContainer'] {
-    margin-top: 26px;
+    margin-top: 24px;
     border-radius: 18px;
+  }
+
+  .howItWorksPremium
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SearchCTA_gridContainer'] {
+    min-width: 0;
   }
 }
 
@@ -2950,6 +3334,395 @@
     width: 30px;
     height: 30px;
     background-size: auto, 14px 14px;
+  }
+}
+
+/*
+ * 4_instructors (/p/4_instructors) — phone + tablet only (≤1023px).
+ * Centered hero + benefits; "How it works" as vertical stack (no horizontal
+ * carousel / snap / translateX). Desktop (1024+) unchanged.
+ */
+@media (max-width: 1023px) {
+  .instructorsPremiumPage :global(main) {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .instructorsPremiumPage :global(main) > :global(section) {
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  /* Hero: hide vertical center line on small screens */
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):first-of-type
+    > [class*='SectionContainer_sectionContent']::before {
+    display: none;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_sectionDetails'] {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    justify-content: center !important;
+    justify-items: center !important;
+    align-content: center;
+    row-gap: 8px;
+    padding-top: clamp(72px, 16vw, 108px);
+    padding-bottom: clamp(44px, 10vw, 72px);
+    padding-left: max(22px, env(safe-area-inset-left, 0px));
+    padding-right: max(22px, env(safe-area-inset-right, 0px));
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_title'] {
+    max-width: min(18ch, 100%);
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_description'] {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: min(40ch, 100%);
+    text-align: center;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_ctaButton'] {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):first-of-type
+    [class*='SectionBuilder_ctaButton']::after {
+    white-space: normal;
+    max-width: min(90vw, 300px);
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    line-height: 1.38;
+  }
+
+  /* Benefits */
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(2)
+    [class*='SectionBuilder_sectionDetails'] {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center !important;
+    justify-items: center !important;
+    align-items: center;
+    text-align: center;
+    padding-left: max(18px, env(safe-area-inset-left, 0px));
+    padding-right: max(18px, env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(2)
+    [class*='SectionBuilder_title'] {
+    justify-self: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(2)
+    [class*='SectionBuilder_description'] {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    max-width: min(44ch, 100%);
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(2)
+    :is(
+      [class*='SectionColumns_oneColumn'],
+      [class*='SectionColumns_twoColumns'],
+      [class*='SectionColumns_threeColumns'],
+      [class*='SectionColumns_fourColumns']
+    ) {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+    justify-items: stretch !important;
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+    gap: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(2)
+    [class*='SectionFeatures_featuresMain'] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    justify-items: stretch !important;
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+    box-sizing: border-box !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(2)
+    [class*='SectionFeatures_block'] {
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* How it works — section header */
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionBuilder_sectionDetails'] {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center !important;
+    justify-items: center !important;
+    text-align: center;
+    padding-left: max(18px, env(safe-area-inset-left, 0px));
+    padding-right: max(18px, env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionBuilder_title'] {
+    justify-self: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionBuilder_description'] {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    max-width: min(40ch, 100%);
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    > [class*='SectionContainer_sectionContent'] {
+    overflow-x: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* SectionCarousel → vertical stack */
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_carouselContainer'] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    padding-top: 8px;
+    box-sizing: border-box;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_carouselArrows'],
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_carouselArrowPrev'],
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_carouselArrowNext'] {
+    display: none !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    :is(
+      [class*='SectionCarousel_oneColumn'],
+      [class*='SectionCarousel_twoColumns'],
+      [class*='SectionCarousel_threeColumns'],
+      [class*='SectionCarousel_fourColumns']
+    ) {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    scroll-snap-type: none !important;
+    scroll-padding-inline: 0 !important;
+    scroll-behavior: auto !important;
+    gap: clamp(18px, 4.5vw, 26px) !important;
+    /* Room for JOIN PEAKUP + microcopy below the 3 stacked cards (CTA is position:absolute vs this row). */
+    padding-bottom: clamp(120px, 32vw, 168px) !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_threeColumns']::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block'] {
+    /* static = positioned CTA inside block 2 still anchors to .threeColumns, not this card */
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    transform: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+    scroll-snap-align: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block']:last-of-type {
+    padding-right: 0 !important;
+  }
+
+  /* JOIN PEAKUP: DOM lives in step-2 block, but visually sits under all 3 cards */
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block']
+    > [class*='BlockDefault_text']
+    > [class*='SectionBuilder_ctaButton'] {
+    position: absolute !important;
+    left: 50% !important;
+    right: auto !important;
+    top: calc(100% + clamp(20px, 5vw, 28px)) !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+    z-index: 6 !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block']
+    > [class*='BlockDefault_text']
+    > [class*='SectionBuilder_ctaButton']:hover,
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block']
+    > [class*='BlockDefault_text']
+    > [class*='SectionBuilder_ctaButton']:focus-visible {
+    transform: translateX(-50%) translateY(-1px) !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block']
+    > [class*='BlockDefault_text']
+    > [class*='SectionBuilder_ctaButton']::after {
+    white-space: normal;
+    max-width: min(90vw, 320px);
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* If CMS uses columns/features for steps */
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    :is(
+      [class*='SectionColumns_oneColumn'],
+      [class*='SectionColumns_twoColumns'],
+      [class*='SectionColumns_threeColumns'],
+      [class*='SectionColumns_fourColumns']
+    ) {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    gap: clamp(18px, 4.5vw, 26px) !important;
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+    box-sizing: border-box !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionFeatures_featuresMain'] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    justify-items: stretch !important;
+    box-sizing: border-box !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionFeatures_block'] {
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
   }
 }
 

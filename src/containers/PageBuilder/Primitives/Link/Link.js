@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { useLocation } from 'react-router-dom';
 
 import { useRouteConfiguration } from '../../../../context/routeConfigurationContext.js';
+import { buildCoachMapPageBuilderLinkTo, debugCoachMapLocate } from '../../../../util/coachExplore.js';
 import { matchPathname } from '../../../../util/routes.js';
 
 import { NamedLink, ExternalLink } from '../../../../components/index.js';
@@ -39,7 +40,18 @@ export const Link = React.forwardRef((props, ref) => {
     const matchedRoutes = matchPathname(testURL.pathname, routes);
     if (matchedRoutes.length > 0) {
       const found = matchedRoutes[0];
-      const to = { search: testURL.search, hash: testURL.hash };
+      const to =
+        found.route.name === 'CoachMapPage'
+          ? buildCoachMapPageBuilderLinkTo(location, href)
+          : { search: testURL.search, hash: testURL.hash };
+      if (found.route.name === 'CoachMapPage') {
+        debugCoachMapLocate('PageBuilder Link → CoachMapPage', {
+          href,
+          pathname: location.pathname,
+          locationSearch: location.search,
+          to,
+        });
+      }
       return (
         <NamedLink name={found.route.name} params={found.params} to={to} {...linkProps} ref={ref} />
       );

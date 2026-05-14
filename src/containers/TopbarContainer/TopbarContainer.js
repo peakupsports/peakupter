@@ -2,13 +2,14 @@ import React from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import loadable from '@loadable/component';
 
 import { sendVerificationEmail, hasCurrentUserErrors } from '../../ducks/user.duck';
 import { logout, authenticationInProgress } from '../../ducks/auth.duck';
 import { manageDisableScrolling } from '../../ducks/ui.duck';
 
-const Topbar = loadable(() => import(/* webpackChunkName: "Topbar" */ './Topbar/Topbar'));
+// Eager import: a lazy Topbar left the layout row at ~0px until the chunk loaded, so `<main>`
+// (hero) started at the top of the viewport and then jumped down when the bar appeared (~1–2s).
+import Topbar from './Topbar/Topbar';
 
 /**
  * Topbar container component, which is connected to Redux Store.

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { Form as FinalForm } from 'react-final-form';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 // Contexts
 import { useRouteConfiguration } from '../../../../context/routeConfigurationContext';
@@ -10,7 +10,17 @@ import { useConfiguration } from '../../../../context/configurationContext';
 // Utility
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { getPeakUpTopLevelSportOptions } from '../../../../util/peakupSportTaxonomy';
-import { createResourceLocatorString } from '../../../../util/routes';
+import {
+  buildCoachMapSearchWithManualLocation,
+  coachMapSearchForFreshGeolocationIntent,
+  debugCoachMapLocate,
+  isLocationFieldCurrentLocation,
+  mergeResolvedSportIntoPageSearchForCoachMap,
+  normalizeGeocoderOriginLatLng,
+  resolveCoachMapSportKeyFromLandingForm,
+  startCoachMapLandingGeolocationPrimed,
+} from '../../../../util/coachExplore';
+import { pathByRouteName } from '../../../../util/routes';
 
 // Shared components
 import { Form, PrimaryButton } from '../../../../components';
@@ -38,6 +48,7 @@ const getGridCount = numberOfFields => {
 
 export const SearchCTA = React.forwardRef((props, ref) => {
   const history = useHistory();
+  const location = useLocation();
   const routeConfiguration = useRouteConfiguration();
   const config = useConfiguration();
 
@@ -125,14 +136,56 @@ export const SearchCTA = React.forwardRef((props, ref) => {
   // to convert the hero's sport/location/date/keyword fields into a
   // `/s?...` URL has been intentionally removed: SearchPage is not the
   // destination for this CTA anymore, and CoachMapPage exposes its own
-  // (different) URL param schema. Using `createResourceLocatorString` with
-  // the route name `CoachMapPage` keeps the path relative ("/coach-map"),
-  // so it works identically on localhost, staging, and production. Other
-  // entry points to SearchPage (Topbar keyword search, etc.) are unaffected
-  // because they live outside this primitive.
-  const onSubmit = () => {
-    const to = createResourceLocatorString('CoachMapPage', routeConfiguration, {}, {});
-    history.push(to);
+  // (different) URL param schema. `pathByRouteName('CoachMapPage', …)`
+  // keeps the path relative ("/coach-map"), so it works identically on
+  // localhost, staging, and production.
+  //
+  // Submit builds the query from Final Form values — **not** from
+  // `location.search` alone:
+  //  – Manual geocoder place → `?sport=&lat=&lng=&location=` (no `locate=1`).
+  //  – Current location or bare submit → `coachMapSearchForFreshGeolocationIntent`
+  //    (`locate=1`, `_locatenonce`, primed `getCurrentPosition` gesture).
+  // Sport: hero dropdown wins, else existing landing `?sport=` (Topbar).
+  const onSubmit = values => {
+    const sportKey = resolveCoachMapSportKeyFromLandingForm(
+      values?.pub_categoryLevel1,
+      location.search
+    );
+    const path = pathByRouteName('CoachMapPage', routeConfiguration, {});
+    const loc = values?.location;
+
+    const hasManualPlace =
+      loc?.selectedPlace && String(loc.selectedPlace.address || '').trim() !== '';
+    if (hasManualPlace) {
+      const ll = normalizeGeocoderOriginLatLng(loc.selectedPlace.origin);
+      if (ll) {
+        const label = String(loc.selectedPlace.address || loc.search || '').trim();
+        const search = buildCoachMapSearchWithManualLocation({
+          sportKey,
+          lat: ll.lat,
+          lng: ll.lng,
+          locationLabel: label,
+        });
+        debugCoachMapLocate('SearchCTA submit → CoachMapPage (manual place)', {
+          path,
+          search,
+          sportKey,
+        });
+        history.push(`${path}${search}`);
+        return;
+      }
+    }
+
+    startCoachMapLandingGeolocationPrimed();
+    const mergedPageSearch = mergeResolvedSportIntoPageSearchForCoachMap(location.search, sportKey);
+    const search = coachMapSearchForFreshGeolocationIntent(mergedPageSearch);
+    debugCoachMapLocate('SearchCTA submit → CoachMapPage (locate intent)', {
+      path,
+      search,
+      sportKey,
+      currentLocationField: isLocationFieldCurrentLocation(loc),
+    });
+    history.push(`${path}${search}`);
   };
 
   return (

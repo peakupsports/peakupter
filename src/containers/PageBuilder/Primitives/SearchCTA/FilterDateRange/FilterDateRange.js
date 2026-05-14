@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import classNames from 'classnames';
 
 import { useIntl } from '../../../../../util/reactIntl';
@@ -40,12 +40,6 @@ const FilterDateRange = props => {
   const toggleButtonRef = useRef(null);
   const { className, rootClassName, config, alignLeft } = props;
   const intl = useIntl();
-
-  useEffect(() => {
-    if (FieldDateRangeController.preload) {
-      FieldDateRangeController.preload();
-    }
-  }, []);
 
   const classes = classNames(rootClassName || css.root, className);
 

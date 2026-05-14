@@ -13,11 +13,18 @@ import { Page, SportBar, CoachCard } from '../../components';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 
 import {
+  COACH_MAP_APPLY_PRIMED_GEO_EVENT,
+  COACH_MAP_DIRECT_GEO_EVENT,
+  COACH_MAP_LANDING_PRIMED_GEO_STORAGE_KEY,
+  COACH_MAP_SCROLL_PANEL_EVENT,
+  coachMapSearchForFreshGeolocationIntent,
+  debugCoachMapLocate,
   filterCoachesBySport,
   formatCoachExploreSportSlug,
   haversineDistanceKm,
+  logCoachMapLocateVerbose,
   parseCoachExploreSearch,
-  sortCoachRowsByDistanceKm,
+  stripCoachMapLocateParamsFromSearch,
 } from '../../util/coachExplore';
 import { sortByPeakUpTopLevelSportOrder } from '../../util/peakupSportTaxonomy';
 import { getCoachCoordinates } from '../../util/profileCoachSticker';
@@ -276,6 +283,66 @@ const computeBoundsForCoachesNear = (coaches, centerLat, centerLng, radiusKm) =>
 };
 
 /**
+ * Plain bounds covering only the given coach rows (same coordinate source as
+ * markers: {@link getCoachCoordinates}). Returns `null` when none have coords.
+ *
+ * @param {Object[]} coachRows
+ * @returns {{ swLat:number, swLng:number, neLat:number, neLng:number }|null}
+ */
+const computePlainBoundsFromCoachRows = coachRows => {
+  if (!coachRows?.length) return null;
+  let swLat = Infinity;
+  let swLng = Infinity;
+  let neLat = -Infinity;
+  let neLng = -Infinity;
+  let count = 0;
+  coachRows.forEach(c => {
+    const coords = getCoachCoordinates(c);
+    if (!coords) return;
+    if (coords.lat < swLat) swLat = coords.lat;
+    if (coords.lng < swLng) swLng = coords.lng;
+    if (coords.lat > neLat) neLat = coords.lat;
+    if (coords.lng > neLng) neLng = coords.lng;
+    count += 1;
+  });
+  if (count === 0) return null;
+  if (count === 1) {
+    const pad = 0.08;
+    return {
+      swLat: swLat - pad,
+      swLng: swLng - pad,
+      neLat: neLat + pad,
+      neLng: neLng + pad,
+    };
+  }
+  return { swLat, swLng, neLat, neLng };
+};
+
+/**
+ * Expand plain bounds so they include `(lat, lng)` (e.g. user reference point).
+ *
+ * @param {{ swLat:number, swLng:number, neLat:number, neLng:number }} b
+ * @param {number} lat
+ * @param {number} lng
+ */
+const unionPlainBoundsWithPoint = (b, lat, lng) => {
+  if (!b || !Number.isFinite(lat) || !Number.isFinite(lng)) return b;
+  return {
+    swLat: Math.min(b.swLat, lat),
+    swLng: Math.min(b.swLng, lng),
+    neLat: Math.max(b.neLat, lat),
+    neLng: Math.max(b.neLng, lng),
+  };
+};
+
+// Sport + map anchor: never fitBounds all filtered coaches worldwide. Prefer
+// coaches within `NEARBY_COACH_RADIUS_KM`; if none, zoom to user + nearest few.
+const NEARBY_COACH_RADIUS_KM = 100;
+const MAP_FIT_DISTANT_COACH_COUNT = 5;
+// ~13 km — local view when the filtered set has no geocoded coaches.
+const USER_ANCHOR_ONLY_BOUNDS_PAD_DEG = 0.12;
+
+/**
  * Coach map: full-page layout.
  * - Desktop: fixed-width left sidebar with all coach cards (independent scroll)
  *   + 3D Mapbox map filling the remaining width.
@@ -284,7 +351,7 @@ const computeBoundsForCoachesNear = (coaches, centerLat, centerLng, radiusKm) =>
  * SportBar lives in the desktop topbar (see Topbar.js). It still drives the
  * in-page list/map filter via local `selectedSport`.
  *
- * Same query params as Coaches list: ?sport=&lat=&lng=&location=
+ * Same query params as Coaches list: ?sport=&lat=&lng=&location=&locate=
  */
 const CoachMapPage = props => {
   const intl = useIntl();
@@ -292,6 +359,30 @@ const CoachMapPage = props => {
   const location = useLocation();
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const mapPanelRef = useRef(null);
+
+  const scrollCoachMapPanelMobileIntoView = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia?.('(max-width: 1023px)');
+    if (!mq?.matches) return;
+    const el = mapPanelRef.current;
+    if (!el || typeof el.scrollIntoView !== 'function') return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new Event('resize'));
+    });
+  }, []);
+
+  useEffect(() => {
+    const handler = () => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => scrollCoachMapPanelMobileIntoView());
+      });
+    };
+    window.addEventListener(COACH_MAP_SCROLL_PANEL_EVENT, handler);
+    return () => window.removeEventListener(COACH_MAP_SCROLL_PANEL_EVENT, handler);
+  }, [scrollCoachMapPanelMobileIntoView]);
 
   const scrollingDisabled = useSelector(isScrollingDisabled);
   const { coaches: realCoaches, fetchStatus, boundsPlain } = useSelector(
@@ -305,6 +396,29 @@ const CoachMapPage = props => {
   const coaches = useMemo(() => mergeDemoIntoCoaches(realCoaches), [realCoaches]);
 
   const queryExplore = useMemo(() => parseCoachExploreSearch(location.search), [location.search]);
+
+  const locateGeoAppliedForSearchRef = useRef('');
+
+  /** `_locatenonce` for which locate geolocation already succeeded; sport-only URL edits must not re-poll GPS. */
+  const locateIntentNonceResolvedRef = useRef(null);
+
+  useEffect(() => {
+    if (!parseCoachExploreSearch(location.search).locate) {
+      locateGeoAppliedForSearchRef.current = '';
+      locateIntentNonceResolvedRef.current = null;
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    debugCoachMapLocate('CoachMapPage URL → queryExplore', {
+      locationSearch: location.search,
+      locate: queryExplore.locate,
+      sportKey: queryExplore.sportKey,
+      coachId: queryExplore.coachId || null,
+      userLat: queryExplore.userLat,
+      userLng: queryExplore.userLng,
+    });
+  }, [location.search, queryExplore]);
 
   // Seasonal main-row order (winter Nov–Apr puts Snowboard/Ski first; summer
   // May–Oct leads with MTB/Surf). Computed once per session via `useMemo`
@@ -335,6 +449,110 @@ const CoachMapPage = props => {
   // in CoachMap3D and (conditionally) an auto-flyTo on first resolve.
   const [userLocation, setUserLocation] = useState(null);
 
+  /** When true, the `?locate=` URL effect must not start a second `getCurrentPosition` (sidebar / topbar already did, same gesture). */
+  const ignoreLocateUrlEffectOnceRef = useRef(false);
+
+  const applyUserGeolocationFromLocateFlow = useCallback((lat, lng, meta = {}) => {
+    logCoachMapLocateVerbose('set userLocation', { lat, lng, ...meta });
+    setUserLocation({ lat, lng });
+    // Same camera on mobile and desktop (product parity).
+    setFlyToTarget({
+      lat,
+      lng,
+      ts: Date.now(),
+      zoom: 12.5,
+      pitch: 65,
+      bearing: -25,
+      duration: 1600,
+    });
+    logCoachMapLocateVerbose('flyTo user location', {
+      zoom: 12.5,
+      pitch: 65,
+      bearing: -25,
+      duration: 1600,
+      ...meta,
+    });
+    if (typeof window !== 'undefined') {
+      locateGeoAppliedForSearchRef.current = window.location.search || '';
+      try {
+        const sp = new URLSearchParams(window.location.search.replace(/^\?/, ''));
+        locateIntentNonceResolvedRef.current = sp.get('_locatenonce') || '';
+      } catch (e) {
+        locateIntentNonceResolvedRef.current = '';
+      }
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(COACH_MAP_SCROLL_PANEL_EVENT));
+    }
+  }, []);
+
+  const tryConsumePrimedLandingGeo = useCallback(() => {
+    const parsed = parseCoachExploreSearch(location.search);
+    if (!parsed.locate) return false;
+    if (locateGeoAppliedForSearchRef.current === location.search) return false;
+    try {
+      const raw = sessionStorage.getItem(COACH_MAP_LANDING_PRIMED_GEO_STORAGE_KEY);
+      if (!raw) return false;
+      const j = JSON.parse(raw);
+      sessionStorage.removeItem(COACH_MAP_LANDING_PRIMED_GEO_STORAGE_KEY);
+      if (!Number.isFinite(j.lat) || !Number.isFinite(j.lng)) return false;
+      applyUserGeolocationFromLocateFlow(j.lat, j.lng, { branch: 'landing-primed' });
+      logCoachMapLocateVerbose('applied primed landing geolocation from sessionStorage', {
+        lat: j.lat,
+        lng: j.lng,
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }, [location.search, applyUserGeolocationFromLocateFlow]);
+
+  const runDirectCoachMapGeolocation = useCallback(
+    meta => {
+      logCoachMapLocateVerbose('CURRENT LOCATION CLICKED', meta);
+      ignoreLocateUrlEffectOnceRef.current = true;
+      logCoachMapLocateVerbose('mapRef ready?', {
+        note: 'CoachMap3D applies flyTo when flyToTarget updates',
+        ...meta,
+      });
+      if (typeof window === 'undefined' || !navigator?.geolocation?.getCurrentPosition) {
+        logCoachMapLocateVerbose('requesting geolocation', { error: 'API unavailable', ...meta });
+        return;
+      }
+      logCoachMapLocateVerbose('requesting geolocation', { ...meta, branch: 'direct user gesture' });
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos?.coords?.latitude;
+          const lng = pos?.coords?.longitude;
+          logCoachMapLocateVerbose('geo success lat/lng', { lat, lng, ...meta });
+          if (Number.isFinite(lat) && Number.isFinite(lng)) {
+            applyUserGeolocationFromLocateFlow(lat, lng, meta);
+          }
+        },
+        err => {
+          logCoachMapLocateVerbose('geo error', {
+            code: err?.code,
+            message: err?.message,
+            ...meta,
+          });
+          if (typeof window !== 'undefined' && parseCoachExploreSearch(window.location.search).locate) {
+            const stripped = stripCoachMapLocateParamsFromSearch(window.location.search);
+            history.replace(`${window.location.pathname}${stripped}`);
+          }
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+      );
+    },
+    [applyUserGeolocationFromLocateFlow, history]
+  );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const onDirect = () => runDirectCoachMapGeolocation({ source: 'TopbarSearchForm' });
+    window.addEventListener(COACH_MAP_DIRECT_GEO_EVENT, onDirect);
+    return () => window.removeEventListener(COACH_MAP_DIRECT_GEO_EVENT, onDirect);
+  }, [runDirectCoachMapGeolocation]);
+
   // Ensure data is loaded when entering the map page directly (e.g. from "Current location").
   useEffect(() => {
     if (fetchStatus === 'idle') {
@@ -352,6 +570,7 @@ const CoachMapPage = props => {
   // the user's interactions take over.
   const consumedCoachIdRef = useRef(null);
   useEffect(() => {
+    if (queryExplore.locate) return;
     const targetCoachId = queryExplore.coachId;
     if (!targetCoachId) return;
     if (!coaches || coaches.length === 0) return;
@@ -367,61 +586,226 @@ const CoachMapPage = props => {
     if (coords) {
       setFlyToTarget({ lat: coords.lat, lng: coords.lng, ts: Date.now() });
     }
-  }, [queryExplore.coachId, coaches]);
+  }, [queryExplore.coachId, queryExplore.locate, coaches]);
 
-  // Ask the browser for the user's current location once on mount. The
-  // request is fire-and-forget – we never block page rendering on it.
-  // Permission denial, missing API, or timeout are all handled silently:
-  // `userLocation` simply stays `null`, the existing default centring
-  // (bounds-fit on coaches) takes over, and no "You are here" marker is
-  // drawn. We use a low-precision request with a 5-minute cache window
-  // so revisiting the page within the same session doesn't re-prompt.
-  const geolocationRequestedRef = useRef(false);
+  // Geolocation: `?locate=1` (landing "Find a coach") requests a fresh fix
+  // (`maximumAge: 0`) even when `?sport=` is present. Implemented in a
+  // dedicated effect with a StrictMode-safe `cancelled` flag — the old
+  // `locateIntentGeoStartedRef` guard could skip the second mount's
+  // `getCurrentPosition` call entirely after a strict unmount. Plain
+  // `/coach-map` visits use the softer cached read in a separate effect.
+  const geolocationSoftRequestedRef = useRef(false);
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (geolocationRequestedRef.current) return;
     if (!navigator?.geolocation?.getCurrentPosition) return;
 
-    geolocationRequestedRef.current = true;
+    const parsed = parseCoachExploreSearch(location.search);
+    if (!parsed.locate) return;
+
+    const explicitUserGeo =
+      parsed.userLat != null &&
+      parsed.userLng != null &&
+      Number.isFinite(parsed.userLat) &&
+      Number.isFinite(parsed.userLng);
+
+    debugCoachMapLocate('geolocation effect (locate URL)', {
+      locate: parsed.locate,
+      explicitUserGeo,
+      hasApi: !!navigator?.geolocation?.getCurrentPosition,
+    });
+
+    if (explicitUserGeo) return;
+
+    const locateNonce =
+      new URLSearchParams(location.search.replace(/^\?/, '')).get('_locatenonce') || '';
+
+    if (
+      parsed.locate &&
+      userLocation &&
+      locateNonce &&
+      locateIntentNonceResolvedRef.current === locateNonce
+    ) {
+      logCoachMapLocateVerbose(
+        'locate URL effect skipped (same _locatenonce; userLocation already set — sport or other params changed)',
+        { locateNonce }
+      );
+      debugCoachMapLocate('geolocation effect (locate URL): skipped — same locate session', {
+        locateNonce,
+      });
+      return;
+    }
+
+    const onPrimedEvent = () => {
+      tryConsumePrimedLandingGeo();
+    };
+    window.addEventListener(COACH_MAP_APPLY_PRIMED_GEO_EVENT, onPrimedEvent);
+
+    const removePrimedListener = () => {
+      window.removeEventListener(COACH_MAP_APPLY_PRIMED_GEO_EVENT, onPrimedEvent);
+    };
+
+    if (tryConsumePrimedLandingGeo()) {
+      return removePrimedListener;
+    }
+
+    if (ignoreLocateUrlEffectOnceRef.current) {
+      ignoreLocateUrlEffectOnceRef.current = false;
+      logCoachMapLocateVerbose('locate URL geolocation effect skipped (direct tap already invoked getCurrentPosition)', {
+        search: location.search,
+      });
+      debugCoachMapLocate('geolocation effect (locate URL): skipped — direct handler owns this gesture', {
+        search: location.search,
+      });
+      return removePrimedListener;
+    }
+
+    let cancelled = false;
+    logCoachMapLocateVerbose('requesting geolocation', { branch: 'locate-url-effect' });
+    debugCoachMapLocate('requesting geolocation', { branch: 'locate-url-effect', maximumAge: 0 });
+    debugCoachMapLocate('requesting geolocation (locate intent, fresh fix)', {
+      maximumAge: 0,
+    });
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        if (cancelled) return;
+        const qs = typeof window !== 'undefined' ? window.location.search : '';
+        const nonceNow = new URLSearchParams(qs.replace(/^\?/, '')).get('_locatenonce') || '';
+        if (nonceNow && locateIntentNonceResolvedRef.current === nonceNow) {
+          logCoachMapLocateVerbose('locate URL geo callback skipped (nonce already resolved)', {
+            nonceNow,
+          });
+          return;
+        }
+        const lat = pos?.coords?.latitude;
+        const lng = pos?.coords?.longitude;
+        logCoachMapLocateVerbose('geo success lat/lng', { lat, lng, branch: 'locate-url-effect' });
+        debugCoachMapLocate('geo success', { lat, lng });
+        debugCoachMapLocate('geolocation success (locate intent)', { lat, lng });
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          applyUserGeolocationFromLocateFlow(lat, lng, { branch: 'locate-url-effect' });
+        }
+      },
+      err => {
+        if (cancelled) return;
+        logCoachMapLocateVerbose('geo error', { code: err?.code, message: err?.message });
+        debugCoachMapLocate('geo error', { code: err?.code, message: err?.message });
+        debugCoachMapLocate('geolocation error (locate intent)', {
+          code: err?.code,
+          message: err?.message,
+        });
+        const stripped = stripCoachMapLocateParamsFromSearch(location.search);
+        history.replace(`${location.pathname}${stripped}`);
+      },
+      { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 }
+    );
+
+    return () => {
+      cancelled = true;
+      removePrimedListener();
+    };
+  }, [
+    location.pathname,
+    location.search,
+    history,
+    userLocation,
+    tryConsumePrimedLandingGeo,
+    applyUserGeolocationFromLocateFlow,
+  ]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!navigator?.geolocation?.getCurrentPosition) return;
+
+    const parsed = parseCoachExploreSearch(location.search);
+    if (parsed.locate) return;
+
+    debugCoachMapLocate('geolocation effect (non-locate URL)', {
+      locate: parsed.locate,
+      hasApi: !!navigator?.geolocation?.getCurrentPosition,
+    });
+
+    if (geolocationSoftRequestedRef.current) return;
+    geolocationSoftRequestedRef.current = true;
+    debugCoachMapLocate('requesting geolocation', { branch: 'soft-url-effect' });
+    debugCoachMapLocate('requesting geolocation (soft / cached-friendly)', {});
     navigator.geolocation.getCurrentPosition(
       pos => {
         const lat = pos?.coords?.latitude;
         const lng = pos?.coords?.longitude;
+        debugCoachMapLocate('geo success', { lat, lng, branch: 'soft' });
+        debugCoachMapLocate('geolocation success (soft)', { lat, lng });
         if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          debugCoachMapLocate('setting userLocation', { lat, lng, branch: 'soft' });
           setUserLocation({ lat, lng });
         }
       },
-      // Permission denied, position unavailable, timeout — graceful no-op.
-      // Existing fallback (fit to coach bounds / Alpine default) stays
-      // active.
-      () => {},
+      err => {
+        debugCoachMapLocate('geo error', { code: err?.code, message: err?.message, branch: 'soft' });
+        debugCoachMapLocate('geolocation error (soft)', {
+          code: err?.code,
+          message: err?.message,
+        });
+      },
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 }
     );
-  }, []);
+  }, [location.search]);
 
   // Auto-centre on the user once geolocation resolves, but only when no
   // higher-priority focus is implied by the URL. Order of precedence:
   //   – `?coachId=…` (deep-link from a Coach Profile) wins.
   //   – `?lat=&lng=` (user already provided an explicit location) wins.
-  //   – `?sport=…` (active SportBar filter) wins — the camera must stay
-  //     fitted to the filtered coach set, otherwise a late-arriving
-  //     geolocation result silently hijacks the view a second or two
-  //     after the user picked their sport.
+  //   – `?sport=…` (active SportBar filter) wins — unless `?locate=1`
+  //     explicitly requests centring on the user (landing CTA).
   // With none of the above (a clean visit to /coach-map) we fly to the
   // user. The ref guards so we only consume the resolved position once
   // per session — subsequent filter changes still refit to the filtered
   // coach set via the bounds-driven `fitBounds` effect inside CoachMap3D.
   const flyToUserLocationConsumedRef = useRef(false);
   useEffect(() => {
+    if (parseCoachExploreSearch(location.search).locate) {
+      flyToUserLocationConsumedRef.current = false;
+      debugCoachMapLocate('locate in URL: reset flyToUserLocation consumed gate', {
+        search: location.search,
+      });
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    if (queryExplore.locate) {
+      return;
+    }
     if (flyToUserLocationConsumedRef.current) return;
     if (!userLocation) return;
-    if (queryExplore.coachId) return;
-    if (queryExplore.userLat != null || queryExplore.userLng != null) return;
-    // Active sport filter takes precedence over the user's geolocation.
-    // The bounds pipeline already fitted the camera to the filtered
-    // coaches; we must NOT fly elsewhere on top of that.
-    if (queryExplore.sportKey) return;
+    if (queryExplore.coachId) {
+      debugCoachMapLocate('flyTo user: blocked (coachId)', { coachId: queryExplore.coachId });
+      return;
+    }
+    if (queryExplore.userLat != null || queryExplore.userLng != null) {
+      debugCoachMapLocate('flyTo user: blocked (explicit lat/lng in URL)', {
+        userLat: queryExplore.userLat,
+        userLng: queryExplore.userLng,
+      });
+      return;
+    }
+    if (queryExplore.sportKey && !queryExplore.locate) {
+      debugCoachMapLocate('flyTo user: blocked (sport filter, no locate)', {
+        sportKey: queryExplore.sportKey,
+      });
+      return;
+    }
 
+    debugCoachMapLocate('flyTo user location', {
+      lat: userLocation.lat,
+      lng: userLocation.lng,
+      locate: queryExplore.locate,
+      sportKey: queryExplore.sportKey || null,
+    });
+    debugCoachMapLocate('flyTo user: setFlyToTarget', {
+      lat: userLocation.lat,
+      lng: userLocation.lng,
+      locate: queryExplore.locate,
+      sportKey: queryExplore.sportKey || null,
+    });
     flyToUserLocationConsumedRef.current = true;
     setFlyToTarget({
       lat: userLocation.lat,
@@ -430,19 +814,50 @@ const CoachMapPage = props => {
     });
   }, [
     userLocation,
+    queryExplore.locate,
     queryExplore.coachId,
     queryExplore.userLat,
     queryExplore.userLng,
     queryExplore.sportKey,
   ]);
 
+  // Browser geolocation wins over explicit `?lat=&lng=` for list ordering and
+  // for sport-scoped map bounds (nearest coaches + user anchor).
+  const geoReference = useMemo(() => {
+    if (
+      userLocation &&
+      Number.isFinite(userLocation.lat) &&
+      Number.isFinite(userLocation.lng)
+    ) {
+      return { lat: userLocation.lat, lng: userLocation.lng };
+    }
+    if (
+      queryExplore.userLat != null &&
+      queryExplore.userLng != null &&
+      Number.isFinite(queryExplore.userLat) &&
+      Number.isFinite(queryExplore.userLng)
+    ) {
+      return { lat: queryExplore.userLat, lng: queryExplore.userLng };
+    }
+    return null;
+  }, [userLocation, queryExplore.userLat, queryExplore.userLng]);
+
   const filteredCoaches = useMemo(() => {
     const bySport = filterCoachesBySport(coaches, selectedSport);
-    if (queryExplore.userLat != null && queryExplore.userLng != null) {
-      return sortCoachRowsByDistanceKm(bySport, queryExplore.userLat, queryExplore.userLng);
-    }
-    return bySport;
-  }, [coaches, selectedSport, queryExplore.userLat, queryExplore.userLng]);
+    if (!geoReference) return bySport;
+    const refLat = geoReference.lat;
+    const refLng = geoReference.lng;
+    return [...bySport].sort((a, b) => {
+      const ca = getCoachCoordinates(a);
+      const cb = getCoachCoordinates(b);
+      const daKm = ca ? haversineDistanceKm(refLat, refLng, ca.lat, ca.lng) : null;
+      const dbKm = cb ? haversineDistanceKm(refLat, refLng, cb.lat, cb.lng) : null;
+      const da = daKm == null || !Number.isFinite(daKm) ? Infinity : daKm;
+      const db = dbKm == null || !Number.isFinite(dbKm) ? Infinity : dbKm;
+      if (da !== db) return da - db;
+      return String(a.authorUuid || '').localeCompare(String(b.authorUuid || ''));
+    });
+  }, [coaches, selectedSport, geoReference]);
 
   // Bounds derived from the *filtered* coach set so changing the SportBar
   // (or any other filter) refits the map to only the visible coaches.
@@ -503,29 +918,99 @@ const CoachMapPage = props => {
     return clipped || filteredBoundsPlain;
   }, [filteredBoundsPlain, filteredCoaches, userLocation]);
 
-  // Bounds resolution rules:
-  //  – No active sport filter (`/coach-map` or `/coach-map?sport=`):
-  //    prefer the filtered bounds; if the filtered set is empty (e.g.
-  //    waiting for the first fetch), fall back to the global bounds
-  //    from the duck so the map at least shows a sensible coach
-  //    distribution on first paint.
-  //  – Active sport filter (`/coach-map?sport=ski` etc.) with results:
-  //    use the filtered bounds, so the map fits to the visible coaches.
-  //  – Active sport filter with NO results: pass `null`. Inside
-  //    CoachMap3D the `fitBounds` effect short-circuits on `!bounds`,
-  //    so the map keeps its current camera (last filtered view, user
-  //    geolocation, or the alpine fallback) instead of jumping to the
-  //    global all-coaches bounds. The cinematic empty state in the
-  //    sidebar is the user-facing signal — the map staying put is the
-  //    coherent map-side counterpart.
-  //
-  // In every branch we pass `safeFilteredBoundsPlain` (the F1a-clipped
-  // version) instead of the raw `filteredBoundsPlain`, so the camera
-  // stays regional whenever the filter result happens to span continents.
   const isSportFilterActive = !!selectedSport;
-  const effectiveBoundsPlain = isSportFilterActive
-    ? safeFilteredBoundsPlain
-    : safeFilteredBoundsPlain || boundsPlain || null;
+
+  // Coaches with map coords + distance from anchor (`userLocation` or `?lat=&lng=`).
+  // `filteredCoaches` is already distance-sorted when `geoReference` is set.
+  const geoAnchoredCoachDistances = useMemo(() => {
+    if (!isSportFilterActive || !geoReference) return [];
+    const refLat = geoReference.lat;
+    const refLng = geoReference.lng;
+    const out = [];
+    for (const c of filteredCoaches) {
+      const coords = getCoachCoordinates(c);
+      if (!coords) continue;
+      const km = haversineDistanceKm(refLat, refLng, coords.lat, coords.lng);
+      if (!Number.isFinite(km)) continue;
+      out.push({ coach: c, km });
+    }
+    return out;
+  }, [isSportFilterActive, geoReference, filteredCoaches]);
+
+  const nearbyCoachRowsForMap = useMemo(
+    () => geoAnchoredCoachDistances.filter(x => x.km <= NEARBY_COACH_RADIUS_KM).map(x => x.coach),
+    [geoAnchoredCoachDistances]
+  );
+
+  const sportMapFitCoachRows = useMemo(() => {
+    if (!isSportFilterActive || !geoReference) return [];
+    if (nearbyCoachRowsForMap.length > 0) return nearbyCoachRowsForMap;
+    return geoAnchoredCoachDistances.slice(0, MAP_FIT_DISTANT_COACH_COUNT).map(x => x.coach);
+  }, [isSportFilterActive, geoReference, nearbyCoachRowsForMap, geoAnchoredCoachDistances]);
+
+  const showNoNearbyCoachesNotice = useMemo(
+    () =>
+      isSportFilterActive &&
+      !!geoReference &&
+      fetchStatus !== 'loading' &&
+      geoAnchoredCoachDistances.length > 0 &&
+      nearbyCoachRowsForMap.length === 0,
+    [
+      isSportFilterActive,
+      geoReference,
+      fetchStatus,
+      geoAnchoredCoachDistances.length,
+      nearbyCoachRowsForMap.length,
+    ]
+  );
+
+  // With `?sport=` + map anchor: fit only nearby coaches (+ anchor), or if none
+  // nearby the nearest few worldwide for that sport — never all filtered rows.
+  const sportUserAnchoredMapBounds = useMemo(() => {
+    if (!isSportFilterActive || !geoReference) {
+      return null;
+    }
+    const refLat = geoReference.lat;
+    const refLng = geoReference.lng;
+    const fromCoaches = computePlainBoundsFromCoachRows(sportMapFitCoachRows);
+    if (fromCoaches) {
+      return unionPlainBoundsWithPoint(fromCoaches, refLat, refLng);
+    }
+    const p = USER_ANCHOR_ONLY_BOUNDS_PAD_DEG;
+    return {
+      swLat: refLat - p,
+      swLng: refLng - p,
+      neLat: refLat + p,
+      neLng: refLng + p,
+    };
+  }, [isSportFilterActive, geoReference, sportMapFitCoachRows]);
+
+  // Bounds resolution rules:
+  //  – No sport filter: `safeFilteredBoundsPlain` (F1a-clipped) or Redux
+  //    `boundsPlain` on first paint.
+  //  – Sport filter + geo reference: `sportUserAnchoredMapBounds` — within
+  //    `NEARBY_COACH_RADIUS_KM` fit user + all nearby filtered coaches; if none
+  //    nearby, fit user + nearest `MAP_FIT_DISTANT_COACH_COUNT` only (never all
+  //    worldwide filtered markers).
+  //  – Sport filter + no geo: `safeFilteredBoundsPlain` (legacy: full filtered
+  //    envelope, F1a still clips when `userLocation` exists and bounds are wide).
+  //  – Empty filtered set with sport + geo: small pad around user (still not
+  //    global bounds).
+  const effectiveBoundsPlain = useMemo(() => {
+    if (!isSportFilterActive) {
+      return safeFilteredBoundsPlain || boundsPlain || null;
+    }
+    if (geoReference) {
+      return sportUserAnchoredMapBounds;
+    }
+    return safeFilteredBoundsPlain;
+  }, [
+    isSportFilterActive,
+    geoReference,
+    sportUserAnchoredMapBounds,
+    safeFilteredBoundsPlain,
+    boundsPlain,
+  ]);
 
   const center = useMemo(() => {
     const b = effectiveBoundsPlain;
@@ -535,6 +1020,22 @@ const CoachMapPage = props => {
       lng: (b.neLng + b.swLng) / 2,
     };
   }, [effectiveBoundsPlain]);
+
+  // After `?locate=1` resolves to a real user fix, stop driving the camera with
+  // `fitBounds` on coach envelopes — a late Redux/coach update refits bounds
+  // and would override the flyTo to the user.
+  const mapFitBoundsPlain = useMemo(
+    () => (queryExplore.locate ? null : effectiveBoundsPlain),
+    [queryExplore.locate, effectiveBoundsPlain]
+  );
+
+  useEffect(() => {
+    if (queryExplore.locate && mapFitBoundsPlain == null) {
+      logCoachMapLocateVerbose('default fitBounds skipped because locate intent active', {
+        hadEffectiveBounds: !!effectiveBoundsPlain,
+      });
+    }
+  }, [queryExplore.locate, mapFitBoundsPlain, effectiveBoundsPlain]);
 
   const onRetry = useCallback(() => {
     dispatch(fetchCoachesExploreThunk({ config }));
@@ -625,14 +1126,8 @@ const CoachMapPage = props => {
     Number.isFinite(queryExplore.userLng);
   const hasPlaceLabel = !hasGeoProximity && queryExplore.locationLabel.length > 0;
 
-  // SportBar lives in the desktop topbar (same row as logo + menu, à la
-  // LandingPage). Click handler updates `?sport=` *in place* on the
-  // current URL, preserving every other search param (lat / lng /
-  // location / coachId). The local `selectedSport` mirror is kept in
-  // sync via the existing `useEffect(queryExplore.sportKey)` upstream,
-  // so the chip active state and the in-memory filter both follow the
-  // URL change. The wrapper applies the same scale used on LandingPage
-  // to keep visual size aligned.
+  // `parse` / `stringify` keep every existing query key (locate, _locatenonce, coachId, …).
+  // Sport filter only touches `sport` — map camera stays driven by locate / Current location.
   const handleSportBarChange = useCallback(
     next => {
       setActiveListingId(null);
@@ -648,6 +1143,16 @@ const CoachMapPage = props => {
     },
     [history, location.pathname, location.search]
   );
+
+  const handleCurrentLocationToolbarClick = useCallback(() => {
+    debugCoachMapLocate('current location clicked', { source: 'CoachMapPage.sidebar' });
+    runDirectCoachMapGeolocation({ source: 'CoachMapPage.sidebar' });
+    const nextSearch = coachMapSearchForFreshGeolocationIntent(location.search);
+    history.push(`${location.pathname}${nextSearch}`);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(COACH_MAP_SCROLL_PANEL_EVENT));
+    }
+  }, [history, location.pathname, location.search, runDirectCoachMapGeolocation]);
 
   const topbarSportBar = (
     <div className={css.topbarSportBarScale}>
@@ -692,6 +1197,32 @@ const CoachMapPage = props => {
           <header className={css.sidebarHeader}>
             <h1 className={css.title}>{titleNode}</h1>
             <p className={css.subtitle}>{subtitleNode}</p>
+            <div
+              className={css.mobileCoachMapSportBar}
+              role="region"
+              aria-label={intl.formatMessage({ id: 'CoachMapPage.mobileSportBarA11y' })}
+            >
+              <SportBar
+                variant="coachMapMobileRail"
+                value={selectedSport}
+                onChange={handleSportBarChange}
+                allLabel={intl.formatMessage({ id: 'CoachMapPage.sportAll' })}
+                disciplines={coachMapDisciplines}
+                inTopbar={false}
+              />
+            </div>
+            <div className={css.sidebarLocationRow}>
+              <button
+                type="button"
+                className={css.currentLocationButton}
+                onClick={handleCurrentLocationToolbarClick}
+              >
+                <FormattedMessage
+                  id="CoachMapPage.currentLocation"
+                  defaultMessage="Current location"
+                />
+              </button>
+            </div>
           </header>
 
           {loading ? (
@@ -712,25 +1243,39 @@ const CoachMapPage = props => {
               <FormattedMessage id="CoachesPage.empty" />
             </p>
           ) : (
-            <div className={css.sidebarList}>
-              {filteredCoaches.map(coach => (
-                <CoachCard
-                  key={coach.authorUuid}
-                  coach={coach}
-                  className={css.sidebarCoachCard}
-                  isSelected={selectedCoachKey === coach.authorUuid}
-                  onMouseEnter={() =>
-                    setActiveListingId(coach.representativeListing?.id || null)
-                  }
-                  onMouseLeave={() => setActiveListingId(null)}
-                  onMapClick={handleMapClick}
-                />
-              ))}
-            </div>
+            <>
+              {showNoNearbyCoachesNotice ? (
+                <p className={css.proximityNotice} role="status">
+                  <FormattedMessage
+                    id="CoachMapPage.noNearbyCoachesForSport"
+                    values={{
+                      sport:
+                        headlineSportPhrase ||
+                        formatCoachExploreSportSlug(selectedSport),
+                    }}
+                  />
+                </p>
+              ) : null}
+              <div className={css.sidebarList}>
+                {filteredCoaches.map(coach => (
+                  <CoachCard
+                    key={coach.authorUuid}
+                    coach={coach}
+                    className={css.sidebarCoachCard}
+                    isSelected={selectedCoachKey === coach.authorUuid}
+                    onMouseEnter={() =>
+                      setActiveListingId(coach.representativeListing?.id || null)
+                    }
+                    onMouseLeave={() => setActiveListingId(null)}
+                    onMapClick={handleMapClick}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </aside>
 
-        <div className={css.mapPanel}>
+        <div className={css.mapPanel} ref={mapPanelRef}>
           <CoachMap3D
             coaches={filteredCoaches}
             className={css.mapSurface}
@@ -738,8 +1283,8 @@ const CoachMapPage = props => {
             selectedListingId={selectedListingId}
             selectedSport={selectedSport}
             flyToTarget={flyToTarget}
-            bounds={effectiveBoundsPlain}
-            center={center}
+            bounds={mapFitBoundsPlain}
+            center={queryExplore.locate ? null : center}
             userLocation={userLocation}
             onMarkerHover={handleMarkerHover}
             onMarkerClick={handleMarkerClick}

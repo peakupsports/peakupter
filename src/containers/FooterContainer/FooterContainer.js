@@ -1,13 +1,7 @@
 import React from 'react';
 import { useConfiguration } from '../../context/configurationContext';
-import loadable from '@loadable/component';
 
-const SectionBuilder = loadable(
-  () => import(/* webpackChunkName: "SectionBuilder" */ '../PageBuilder/PageBuilder'),
-  {
-    resolveComponent: components => components.SectionBuilder,
-  }
-);
+import SectionBuilder from '../PageBuilder/SectionBuilder/SectionBuilder';
 
 const FooterComponent = () => {
   const { footer = {}, topbar } = useConfiguration();

@@ -1,6 +1,8 @@
 import React, { useEffect, useId, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { FormattedMessage } from '../../util/reactIntl';
+import { debugCoachMapLocate, mergeCoachMapLocateIntentSearch } from '../../util/coachExplore';
 
 import { NamedLink } from '../../components';
 
@@ -161,6 +163,16 @@ const LandingHeroSection = props => {
   const searchProps =
     callToAction?.fieldType === 'search' ? validProps(callToAction, fieldOptions) : null;
 
+  const location = useLocation();
+  const coachMapLocateSearch = useMemo(() => {
+    const merged = mergeCoachMapLocateIntentSearch(location.search);
+    debugCoachMapLocate('LandingHero primary CTA (NamedLink) search', {
+      locationSearch: location.search,
+      merged,
+    });
+    return merged;
+  }, [location.search]);
+
   const nextSectionId = useMemo(() => {
     const currentIndex = allSections.findIndex(section => section.sectionId === sectionId);
     if (currentIndex < 0) return null;
@@ -182,11 +194,59 @@ const LandingHeroSection = props => {
       return undefined;
     }
 
-    const interval = window.setInterval(() => {
-      setActiveSlideIndex(prevIndex => (prevIndex + 1) % heroSlides.length);
-    }, LANDING_HERO_MEDIA.rotationIntervalMs || 6000);
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
 
-    return () => window.clearInterval(interval);
+    const tick = () => {
+      setActiveSlideIndex(prevIndex => (prevIndex + 1) % heroSlides.length);
+    };
+
+    if (typeof window.matchMedia !== 'function') {
+      const intervalId = window.setInterval(tick, LANDING_HERO_MEDIA.rotationIntervalMs || 6000);
+      return () => window.clearInterval(intervalId);
+    }
+
+    // Mobile/tablet: keep the first hero slide only. Rotating backgrounds and
+    // long cross-fades change perceived layout density after a few seconds;
+    // desktop (1024+) keeps the cinematic rotation.
+    const mq = window.matchMedia('(max-width: 1023px)');
+    let intervalId;
+
+    const clear = () => {
+      if (intervalId != null) {
+        window.clearInterval(intervalId);
+        intervalId = undefined;
+      }
+    };
+
+    const apply = () => {
+      clear();
+      if (mq.matches) {
+        return;
+      }
+      intervalId = window.setInterval(() => {
+        setActiveSlideIndex(prevIndex => (prevIndex + 1) % heroSlides.length);
+      }, LANDING_HERO_MEDIA.rotationIntervalMs || 6000);
+    };
+
+    apply();
+
+    const onMq = () => apply();
+    if (mq.addEventListener) {
+      mq.addEventListener('change', onMq);
+    } else {
+      mq.addListener(onMq);
+    }
+
+    return () => {
+      clear();
+      if (mq.removeEventListener) {
+        mq.removeEventListener('change', onMq);
+      } else {
+        mq.removeListener(onMq);
+      }
+    };
   }, [hasHeroRotation, heroSlides.length]);
 
   return (
@@ -267,7 +327,11 @@ const LandingHeroSection = props => {
           )}
 
           <div className={css.ctaRow}>
-            <NamedLink className={css.primaryCta} name="CoachMapPage">
+            <NamedLink
+              className={css.primaryCta}
+              name="CoachMapPage"
+              to={{ search: coachMapLocateSearch }}
+            >
               <FormattedMessage
                 id="LandingHeroSection.primaryCta"
                 defaultMessage="Find a Coach"

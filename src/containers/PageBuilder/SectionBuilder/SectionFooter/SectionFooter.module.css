@@ -586,3 +586,93 @@ footer.root,
   line-height: 1.4;
   color: rgba(220, 232, 248, 0.7);
 }
+
+/* --------------------------------------------------------------------------
+ * Phone + tablet (≤1023px): single-column link stack — no narrow 2-col grid.
+ * Desktop (--viewportLarge, 1024px+) keeps existing grid + trust layout.
+ * -------------------------------------------------------------------------- */
+@media (max-width: 1023px) {
+  .footer {
+    gap: 32px;
+    padding-top: 48px;
+    padding-bottom: 36px;
+    padding-left: max(22px, env(safe-area-inset-left, 0px));
+    padding-right: max(22px, env(safe-area-inset-right, 0px));
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  .content {
+    grid-gap: 28px;
+    grid-row-gap: 20px;
+    min-width: 0;
+  }
+
+  .logo {
+    margin-left: 0;
+    justify-self: center;
+  }
+
+  .grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 32px !important;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  /* Kill multi-column templates from .gridCol2–4 on the same node */
+  .grid.gridCol1,
+  .grid.gridCol2,
+  .grid.gridCol3,
+  .grid.gridCol4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grid > * {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    flex: 0 0 auto;
+  }
+
+  .grid [class*='BlockFooter_text'] {
+    text-align: left;
+  }
+
+  .grid [class*='BlockFooter_text'] ul {
+    margin-top: 10px;
+  }
+
+  .grid [class*='BlockFooter_text'] li {
+    padding: 5px 0;
+    line-height: 1.5;
+    list-style-position: outside;
+    padding-left: 4px;
+    margin-left: 0;
+  }
+
+  .grid [class*='BlockFooter_text'] a {
+    display: inline-block;
+    padding: 2px 0;
+  }
+
+  /* Long column titles must wrap; desktop keeps nowrap in rule above */
+  .footer h1,
+  .footer h2,
+  .footer h3,
+  .footer h4,
+  .footer h5,
+  .footer h6 {
+    white-space: normal;
+  }
+
+  .trustStrip {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+    padding-top: 20px;
+    margin-top: 4px;
+  }
+}

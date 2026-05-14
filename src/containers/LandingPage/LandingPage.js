@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import loadable from '@loadable/component';
 
 import { bool, object } from 'prop-types';
 import { compose } from 'redux';
@@ -21,12 +20,9 @@ import SectionListings from '../PageBuilder/SectionBuilder/SectionListings';
 import SectionPeakupFeaturedCoaches from '../PageBuilder/SectionBuilder/SectionPeakupFeaturedCoaches';
 import LandingHeroSection from './LandingHeroSection';
 import LandingWhyPeakupSection from './LandingWhyPeakupSection';
+import PageBuilder from '../PageBuilder/PageBuilder';
 
 import css from './LandingPage.module.css';
-
-const PageBuilder = loadable(() =>
-  import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')
-);
 
 /**
  * On the **landing page** the “Featured listings” block is repurposed to display PeakUp coach

@@ -1,13 +1,11 @@
 import React from 'react';
 import { Field } from 'react-final-form';
-import loadable from '@loadable/component';
 import { ValidationError } from '../../components';
 
-// LocationAutocompleteInputImpl is a big component that includes code for both Mapbox and Google Maps
-// It is loaded dynamically - i.e. it is splitted to its own code chunk.
-const LocationAutocompleteInputImpl = loadable(() =>
-  import(/* webpackChunkName: "LocationAutocompleteInputImpl" */ './LocationAutocompleteInputImpl')
-);
+// Eager import: a loadable split here caused hero / SearchCTA layout shift on mobile when the
+// geocoder chunk arrived ~1–2s after first paint. Mapbox/Google code stays in the main client
+// graph for any route that imports `LocationAutocompleteInput` from `components`.
+import LocationAutocompleteInputImpl from './LocationAutocompleteInputImpl';
 
 /**
  * LocationAutocompleteInput component.

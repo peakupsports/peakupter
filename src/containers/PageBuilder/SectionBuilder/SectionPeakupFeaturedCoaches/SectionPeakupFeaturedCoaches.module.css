@@ -29,13 +29,25 @@
   text-align: center;
 }
 
+/* Same node composes `defaultClasses.sectionDetails` — SectionBuilder uses
+ * `justify-content: start` below `--viewportMedium`, which left-aligns this header. */
+.showcaseHeader[class*='sectionDetails'] {
+  justify-content: center;
+  justify-items: center;
+  text-align: center;
+  width: 100%;
+}
+
 .showcaseHeader::before {
   content: '';
   position: absolute;
   left: 50%;
   top: -34px;
   transform: translateX(-50%);
-  width: min(720px, calc(100% + 48px));
+  /* `100% + 48px` is wider than the section — centered, it spills ~24px each side and
+   * forces horizontal scroll / “page widens” once the section paints. */
+  width: min(720px, 100%);
+  max-width: 100%;
   height: 188px;
   border-radius: 999px;
   pointer-events: none;
@@ -79,15 +91,20 @@
   margin: 0;
   position: relative;
   z-index: 1;
-  display: inline-flex;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   color: var(--colorWhite);
   font-size: clamp(30px, 4.6vw, 44px);
   font-weight: 800;
   line-height: 1.04;
   letter-spacing: -0.02em;
+  text-align: center;
 }
 
 .showcaseTitleIcon {
@@ -113,7 +130,7 @@
 }
 
 .showcaseSubtitle {
-  width: fit-content;
+  width: 100%;
   max-width: min(34ch, 100%);
   margin: 12px auto 0;
   position: relative;
@@ -124,6 +141,7 @@
   line-height: 1.45;
   letter-spacing: 0.01em;
   text-align: center;
+  box-sizing: border-box;
 }
 
 /* Carousel orizzontale: una sola riga con scroll laterale + snap.
@@ -197,6 +215,28 @@
 
 .scrollerItem > * {
   width: 100%;
+}
+
+@media (max-width: 767px) {
+  .scrollViewport {
+    max-width: 100%;
+    padding: 12px max(14px, env(safe-area-inset-left, 0px)) 0
+      max(14px, env(safe-area-inset-right, 0px));
+    margin-top: -12px;
+    box-sizing: border-box;
+  }
+
+  .scroller {
+    gap: 14px;
+    padding: 6px 4px 16px;
+    scroll-padding-inline: 14px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .scrollerItem {
+    width: min(292px, calc(100% - 28px));
+    scroll-snap-align: center;
+  }
 }
 
 /* Frecce di navigazione su desktop */

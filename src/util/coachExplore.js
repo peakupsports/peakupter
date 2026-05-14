@@ -984,6 +984,7 @@ export const filterCoachesBySport = (coaches, selectedSport) => {
  * Deep-link query for coach directory / map (?sport=&lat=&lng=&location=).
  *
  * @param {string} search window.location.search or equivalent
+ * @returns {{ sportKey: string, userLat: number|null, userLng: number|null, locationLabel: string, coachId: string, locate: boolean }}
  */
 export const parseCoachExploreSearch = search => {
   const raw =
@@ -1005,7 +1006,286 @@ export const parseCoachExploreSearch = search => {
   // is matched against the loaded coaches.
   const coachId = String(params.get('coachId') || '').trim();
 
-  return { sportKey, userLat, userLng, locationLabel, coachId };
+  const locateRaw = String(params.get('locate') || '')
+    .trim()
+    .toLowerCase();
+  const locate = locateRaw === '1' || locateRaw === 'true' || locateRaw === 'yes';
+
+  return { sportKey, userLat, userLng, locationLabel, coachId, locate };
+};
+
+/**
+ * Merge `locate=1` into a search string so landing / hero links preserve
+ * e.g. `?sport=` from the global SportBar while signalling a one-shot
+ * geolocation intent to CoachMapPage.
+ *
+ * @param {string} [search] `location.search` style, with or without leading `?`
+ * @returns {string} `?` + merged query (always includes `locate=1`)
+ */
+export const mergeCoachMapLocateIntentSearch = search => {
+  const raw =
+    typeof search === 'string' && search.startsWith('?') ? search.slice(1) : String(search || '');
+  const params = new URLSearchParams(raw);
+  params.set('locate', '1');
+  const qs = params.toString();
+  return qs ? `?${qs}` : '?locate=1';
+};
+
+/**
+ * `LocationAutocompleteInput` / geocoder contract: “Current location” resolves
+ * to a place with an empty `address` string once details are loaded.
+ *
+ * @param {{ selectedPlace?: { address?: string, origin?: unknown } }|null|undefined} locationField
+ * @returns {boolean}
+ */
+export const isLocationFieldCurrentLocation = locationField => {
+  const sp = locationField?.selectedPlace;
+  return !!(
+    sp &&
+    typeof sp.address === 'string' &&
+    sp.address === '' &&
+    sp.origin != null
+  );
+};
+
+/**
+ * Normalise geocoder `selectedPlace.origin` (Sharetribe SDK `LatLng` or plain
+ * `{ lat, lng }`) for Coach Map query params.
+ *
+ * @param {unknown} origin
+ * @returns {{ lat: number, lng: number }|null}
+ */
+export const normalizeGeocoderOriginLatLng = origin => {
+  if (!origin) return null;
+  const latRaw = typeof origin.lat === 'function' ? origin.lat() : origin.lat;
+  const lngRaw = typeof origin.lng === 'function' ? origin.lng() : origin.lng;
+  const lat = typeof latRaw === 'number' ? latRaw : Number.parseFloat(latRaw);
+  const lng = typeof lngRaw === 'number' ? lngRaw : Number.parseFloat(lngRaw);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return { lat, lng };
+};
+
+/**
+ * Hero SearchCTA sport: dropdown (`pub_categoryLevel1`) wins; otherwise reuse
+ * `?sport=` already on the landing URL (e.g. global SportBar).
+ *
+ * @param {unknown} pubCategoryLevel1 Final Form value from FilterCategories
+ * @param {string} [pageSearch] `location.search` on `/`
+ * @returns {string} normalised sport slug or ''
+ */
+export const resolveCoachMapSportKeyFromLandingForm = (pubCategoryLevel1, pageSearch) => {
+  const fromForm = String(pubCategoryLevel1 || '')
+    .trim()
+    .toLowerCase();
+  if (fromForm) return fromForm;
+  const raw =
+    typeof pageSearch === 'string' && pageSearch.startsWith('?')
+      ? pageSearch.slice(1)
+      : String(pageSearch || '');
+  return String(new URLSearchParams(raw).get('sport') || '')
+    .trim()
+    .toLowerCase();
+};
+
+/**
+ * Copy landing query keys (e.g. Topbar `?sport=`) and set `sport` when the
+ * hero resolved a non-empty key.
+ *
+ * @param {string} [pageSearch]
+ * @param {string} resolvedSportKey from {@link resolveCoachMapSportKeyFromLandingForm}
+ * @returns {string} `?` + query or `''`
+ */
+export const mergeResolvedSportIntoPageSearchForCoachMap = (pageSearch, resolvedSportKey) => {
+  const raw =
+    typeof pageSearch === 'string' && pageSearch.startsWith('?')
+      ? pageSearch.slice(1)
+      : String(pageSearch || '');
+  const params = new URLSearchParams(raw);
+  if (resolvedSportKey) {
+    params.set('sport', resolvedSportKey);
+  }
+  const qs = params.toString();
+  return qs ? `?${qs}` : '';
+};
+
+/**
+ * Coach Map URL for a **manual** geocoder place: `lat`/`lng`/`location` + optional
+ * `sport`. Never includes `locate` / `_locatenonce` (camera follows explicit coords).
+ *
+ * @param {{ sportKey?: string, lat: number, lng: number, locationLabel?: string }} args
+ * @returns {string} `?` + query (or `?` when nothing serialised)
+ */
+export const buildCoachMapSearchWithManualLocation = ({ sportKey, lat, lng, locationLabel }) => {
+  const params = new URLSearchParams();
+  const sk = String(sportKey || '')
+    .trim()
+    .toLowerCase();
+  if (sk) params.set('sport', sk);
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    params.set('lat', String(lat));
+    params.set('lng', String(lng));
+  }
+  const label = typeof locationLabel === 'string' ? locationLabel.trim() : '';
+  if (label) params.set('location', label);
+  params.delete('locate');
+  params.delete('_locatenonce');
+  const qs = params.toString();
+  return qs ? `?${qs}` : '?';
+};
+
+/** Fired from Topbar (same user-gesture tick) so CoachMapPage runs geolocation before URL push. */
+export const COACH_MAP_DIRECT_GEO_EVENT = 'peakup-coachmap:direct-geolocation';
+
+/** Fired when landing/hero submit stored fresh coords in sessionStorage — Coach Map applies after navigation. */
+export const COACH_MAP_APPLY_PRIMED_GEO_EVENT = 'peakup-coachmap:apply-primed-geo';
+
+/** sessionStorage key — set from the landing "Find your coach" submit handler (user gesture). */
+export const COACH_MAP_LANDING_PRIMED_GEO_STORAGE_KEY = 'peakupCoachMapPrimedUserCoords';
+
+/** Fired after Coach Map geolocation intent so the map panel can scroll into view on narrow viewports. */
+export const COACH_MAP_SCROLL_PANEL_EVENT = 'peakup-coachmap:scroll-map-panel';
+
+/**
+ * Removes `locate` / `_locatenonce` so map can fall back to coach bounds after geolocation failure.
+ *
+ * @param {string} [search]
+ * @returns {string} `?` + remaining query or `''`
+ */
+export const stripCoachMapLocateParamsFromSearch = search => {
+  const raw =
+    typeof search === 'string' && search.startsWith('?') ? search.slice(1) : String(search || '');
+  const params = new URLSearchParams(raw);
+  params.delete('locate');
+  params.delete('_locatenonce');
+  const qs = params.toString();
+  return qs ? `?${qs}` : '';
+};
+
+/**
+ * Starts `navigator.geolocation.getCurrentPosition` from the current stack (form submit / click).
+ * On success, writes {@link COACH_MAP_LANDING_PRIMED_GEO_STORAGE_KEY} and emits {@link COACH_MAP_APPLY_PRIMED_GEO_EVENT}.
+ * CoachMapPage consumes this after `history.push` to `/coach-map?…&locate=1` without losing the iOS/Safari gesture gate.
+ */
+export const startCoachMapLandingGeolocationPrimed = () => {
+  if (typeof window === 'undefined' || !navigator?.geolocation?.getCurrentPosition) {
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos?.coords?.latitude;
+      const lng = pos?.coords?.longitude;
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return;
+      }
+      try {
+        window.sessionStorage.setItem(
+          COACH_MAP_LANDING_PRIMED_GEO_STORAGE_KEY,
+          JSON.stringify({ lat, lng, t: Date.now() })
+        );
+      } catch (e) {
+        // private mode / quota
+      }
+      window.dispatchEvent(new CustomEvent(COACH_MAP_APPLY_PRIMED_GEO_EVENT));
+    },
+    () => {},
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+  );
+};
+
+/**
+ * Like {@link mergeCoachMapLocateIntentSearch} but always bumps `_locatenonce`
+ * so `location.search` changes even when `locate=1` was already present — needed
+ * for React Router to re-run the Coach Map geolocation effect on repeat clicks.
+ *
+ * Strips `mobilesearch` / `mobilemenu` query flags so a navigation from the
+ * mobile topbar search modal does not leave the modal “open” in the URL (which
+ * would cover the map).
+ *
+ * @param {string} [search]
+ * @returns {string} `?` + query string
+ */
+export const coachMapSearchForFreshGeolocationIntent = search => {
+  const merged = mergeCoachMapLocateIntentSearch(search);
+  const params = new URLSearchParams(merged.startsWith('?') ? merged.slice(1) : '');
+  params.delete('mobilesearch');
+  params.delete('mobilemenu');
+  params.set('_locatenonce', String(Date.now()));
+  return `?${params.toString()}`;
+};
+
+/**
+ * Opt-in / dev logging for the landing → coach-map geolocation flow.
+ * In production, set `localStorage.DEBUG_COACH_MAP_LOCATE = '1'` and reload.
+ *
+ * @param {string} label
+ * @param {unknown} [data]
+ */
+export const debugCoachMapLocate = (label, data) => {
+  if (typeof window === 'undefined') return;
+  const enabled =
+    process.env.NODE_ENV !== 'production' ||
+    window.localStorage?.getItem('DEBUG_COACH_MAP_LOCATE') === '1';
+  if (!enabled) return;
+  console.debug(`[PeakUp coach-map locate] ${label}`, data);
+};
+
+/**
+ * Loud `console.log` for coach-map geolocation / camera debugging.
+ * Enable with `localStorage.DEBUG_COACH_MAP_LOCATE = '1'` in production, or use a dev build.
+ *
+ * @param {string} label
+ * @param {unknown} [data]
+ */
+export const logCoachMapLocateVerbose = (label, data) => {
+  if (typeof window === 'undefined') return;
+  const enabled =
+    process.env.NODE_ENV !== 'production' ||
+    window.localStorage?.getItem('DEBUG_COACH_MAP_LOCATE') === '1';
+  if (!enabled) return;
+  // eslint-disable-next-line no-console
+  console.log(`[CoachMapLocate] ${label}`, data !== undefined ? data : '');
+};
+
+/**
+ * Search/hash for {@link ../containers/PageBuilder/Primitives/Link/Link.js} when the target
+ * is CoachMapPage. Hosted `internalButtonLink` CTAs often use `href: "/coach-map"` only — this
+ * appends `locate=1` and, on the landing path (`/`), copies `sport` from the current location
+ * when the href omits it (SportBar parity with `LandingHeroSection`).
+ *
+ * Deep links with `?coachId=` keep the href query unchanged (no `locate` injection).
+ *
+ * @param {{ pathname: string, search: string }} location `useLocation()` snapshot
+ * @param {string} href internal href (path + optional `?query` + optional `#hash`)
+ * @returns {{ search: string, hash: string }}
+ */
+export const buildCoachMapPageBuilderLinkTo = (location, href) => {
+  const safeHref = typeof href === 'string' ? href : '';
+  const hashIdx = safeHref.indexOf('#');
+  const withoutHash = hashIdx >= 0 ? safeHref.slice(0, hashIdx) : safeHref;
+  const hash = hashIdx >= 0 ? safeHref.slice(hashIdx) : '';
+
+  const dummy = new URL(withoutHash || '/', 'http://local.peakup');
+  const parsed = parseCoachExploreSearch(dummy.search);
+  if (parsed.coachId) {
+    return { search: dummy.search || '', hash };
+  }
+
+  const combined = new URLSearchParams(String(dummy.search || '').replace(/^\?/, ''));
+
+  if (location?.pathname === '/') {
+    const landing = new URLSearchParams(String(location.search || '').replace(/^\?/, ''));
+    const sportFromLanding = landing.get('sport');
+    if (sportFromLanding && !combined.get('sport')) {
+      combined.set('sport', sportFromLanding);
+    }
+  }
+
+  const qs = combined.toString();
+  const searchBeforeLocate = qs ? `?${qs}` : '';
+  return {
+    search: mergeCoachMapLocateIntentSearch(searchBeforeLocate),
+    hash,
+  };
 };
 
 /**

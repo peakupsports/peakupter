@@ -1,12 +1,18 @@
 import React, { useRef, useState } from 'react';
-import { Field } from 'react-final-form';
-import { useHistory } from 'react-router-dom';
+import { Field, useForm } from 'react-final-form';
+import { useHistory, useLocation } from 'react-router-dom';
 import { useIntl } from '../../../../../util/reactIntl';
 import classNames from 'classnames';
 
 import { LocationAutocompleteInput, IconLocation } from '../../../../../components';
 import { useRouteConfiguration } from '../../../../../context/routeConfigurationContext';
-import { createResourceLocatorString } from '../../../../../util/routes';
+import {
+  coachMapSearchForFreshGeolocationIntent,
+  mergeResolvedSportIntoPageSearchForCoachMap,
+  resolveCoachMapSportKeyFromLandingForm,
+  startCoachMapLandingGeolocationPrimed,
+} from '../../../../../util/coachExplore';
+import { pathByRouteName } from '../../../../../util/routes';
 import css from './FilterLocation.module.css';
 
 const identity = v => v;
@@ -63,9 +69,11 @@ const LocationSearchField = props => {
 };
 
 const FilterLocation = props => {
+  const form = useForm();
   const searchInpuRef = useRef(null);
   const intl = useIntl();
   const history = useHistory();
+  const pageLocation = useLocation();
   const routeConfiguration = useRouteConfiguration();
   const {
     appConfig,
@@ -89,8 +97,15 @@ const FilterLocation = props => {
     // PeakUp: selecting "Current location" should open the coach map instead of running listing search.
     // LocationAutocompleteInput returns current location with selectedPlace.address === ''.
     if (location?.selectedPlace && location.selectedPlace.address === '') {
-      const to = createResourceLocatorString('CoachMapPage', routeConfiguration, {}, {});
-      history.push(to);
+      startCoachMapLandingGeolocationPrimed();
+      const path = pathByRouteName('CoachMapPage', routeConfiguration, {});
+      const sportKey = resolveCoachMapSportKeyFromLandingForm(
+        form.getState().values?.pub_categoryLevel1,
+        pageLocation.search
+      );
+      const merged = mergeResolvedSportIntoPageSearchForCoachMap(pageLocation.search, sportKey);
+      const search = coachMapSearchForFreshGeolocationIntent(merged);
+      history.push(`${path}${search}`);
     }
   };
 

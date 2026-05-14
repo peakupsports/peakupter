@@ -10,10 +10,20 @@ import {
   getCoachShortLocationLabel,
   haversineDistanceKm,
   looksLikeCoordinates,
+  mergeCoachMapLocateIntentSearch,
   parseCoachExploreSearch,
+  buildCoachMapPageBuilderLinkTo,
+  buildCoachMapSearchWithManualLocation,
+  coachMapSearchForFreshGeolocationIntent,
+  isLocationFieldCurrentLocation,
+  mergeResolvedSportIntoPageSearchForCoachMap,
+  normalizeGeocoderOriginLatLng,
+  resolveCoachMapSportKeyFromLandingForm,
   sortCoachRowsByDistanceKm,
+  stripCoachMapLocateParamsFromSearch,
   SPORT_VARIANT_DISPLAY_LABELS,
 } from './coachExplore';
+import { parse as parseSearchParams, stringify as stringifySearchParams } from './urlHelpers';
 
 describe('parseCoachExploreSearch', () => {
   it('parses sport and geo query', () => {
@@ -23,7 +33,25 @@ describe('parseCoachExploreSearch', () => {
       userLng: 7.44,
       locationLabel: 'Bern',
       coachId: '',
+      locate: false,
     });
+  });
+
+  it('parses locate intent', () => {
+    expect(parseCoachExploreSearch('?sport=ski&locate=1')).toEqual({
+      sportKey: 'ski',
+      userLat: null,
+      userLng: null,
+      locationLabel: '',
+      coachId: '',
+      locate: true,
+    });
+    expect(parseCoachExploreSearch('?locate=true')).toEqual(
+      expect.objectContaining({ locate: true })
+    );
+    expect(parseCoachExploreSearch('?locate=yes')).toEqual(
+      expect.objectContaining({ locate: true })
+    );
   });
 
   it('ignores invalid lat/lng', () => {
@@ -33,7 +61,158 @@ describe('parseCoachExploreSearch', () => {
       userLng: null,
       locationLabel: '',
       coachId: '',
+      locate: false,
     });
+  });
+});
+
+describe('mergeCoachMapLocateIntentSearch', () => {
+  it('adds locate=1 and preserves existing params', () => {
+    expect(mergeCoachMapLocateIntentSearch('?sport=golf')).toBe('?sport=golf&locate=1');
+  });
+
+  it('accepts search without leading question mark', () => {
+    expect(mergeCoachMapLocateIntentSearch('sport=tennis')).toBe('?sport=tennis&locate=1');
+  });
+
+  it('overwrites an existing locate value', () => {
+    expect(mergeCoachMapLocateIntentSearch('?locate=0&sport=ski')).toBe('?locate=1&sport=ski');
+  });
+});
+
+describe('buildCoachMapPageBuilderLinkTo', () => {
+  it('adds locate=1 for bare /coach-map off landing', () => {
+    expect(buildCoachMapPageBuilderLinkTo({ pathname: '/p/foo', search: '' }, '/coach-map')).toEqual({
+      search: '?locate=1',
+      hash: '',
+    });
+  });
+
+  it('copies sport from / when href has no sport', () => {
+    expect(
+      buildCoachMapPageBuilderLinkTo({ pathname: '/', search: '?sport=ski' }, '/coach-map')
+    ).toEqual({
+      search: '?sport=ski&locate=1',
+      hash: '',
+    });
+  });
+
+  it('does not override sport already in href', () => {
+    expect(
+      buildCoachMapPageBuilderLinkTo({ pathname: '/', search: '?sport=ski' }, '/coach-map?sport=golf')
+    ).toEqual({
+      search: '?sport=golf&locate=1',
+      hash: '',
+    });
+  });
+
+  it('does not inject locate for coachId deep links', () => {
+    expect(
+      buildCoachMapPageBuilderLinkTo({ pathname: '/', search: '?sport=ski' }, '/coach-map?coachId=abc')
+    ).toEqual({
+      search: '?coachId=abc',
+      hash: '',
+    });
+  });
+
+  it('preserves hash on href', () => {
+    expect(buildCoachMapPageBuilderLinkTo({ pathname: '/', search: '' }, '/coach-map#x')).toEqual({
+      search: '?locate=1',
+      hash: '#x',
+    });
+  });
+});
+
+describe('isLocationFieldCurrentLocation', () => {
+  it('is true for geocoder current-location place', () => {
+    expect(
+      isLocationFieldCurrentLocation({
+        selectedPlace: { address: '', origin: { lat: 46, lng: 7 } },
+      })
+    ).toBe(true);
+  });
+
+  it('is false when address is non-empty', () => {
+    expect(
+      isLocationFieldCurrentLocation({
+        selectedPlace: { address: 'Bern', origin: { lat: 46.95, lng: 7.44 } },
+      })
+    ).toBe(false);
+  });
+});
+
+describe('Landing → Coach Map URL helpers', () => {
+  it('resolveCoachMapSportKeyFromLandingForm prefers hero dropdown over page sport', () => {
+    expect(resolveCoachMapSportKeyFromLandingForm('tennis', '?sport=ski')).toBe('tennis');
+  });
+
+  it('resolveCoachMapSportKeyFromLandingForm falls back to page ?sport=', () => {
+    expect(resolveCoachMapSportKeyFromLandingForm('', '?sport=yoga')).toBe('yoga');
+    expect(resolveCoachMapSportKeyFromLandingForm(null, 'sport=golf')).toBe('golf');
+  });
+
+  it('mergeResolvedSportIntoPageSearchForCoachMap sets sport and keeps other keys', () => {
+    expect(mergeResolvedSportIntoPageSearchForCoachMap('?foo=1', 'ski')).toBe('?foo=1&sport=ski');
+  });
+
+  it('buildCoachMapSearchWithManualLocation never includes locate', () => {
+    const q = buildCoachMapSearchWithManualLocation({
+      sportKey: 'tennis',
+      lat: 47.37,
+      lng: 8.54,
+      locationLabel: 'Zurich',
+    });
+    expect(q).toMatch(/sport=tennis/);
+    expect(q).toMatch(/lat=47\.37/);
+    expect(q).toMatch(/lng=8\.54/);
+    expect(q).toMatch(/location=/);
+    expect(q).not.toMatch(/locate/);
+    expect(q).not.toMatch(/_locatenonce/);
+  });
+
+  it('normalizeGeocoderOriginLatLng reads plain object', () => {
+    expect(normalizeGeocoderOriginLatLng({ lat: 1.5, lng: 2.25 })).toEqual({ lat: 1.5, lng: 2.25 });
+  });
+});
+
+describe('coachMapSearchForFreshGeolocationIntent', () => {
+  it('includes locate=1 and _locatenonce', () => {
+    const s = coachMapSearchForFreshGeolocationIntent('?sport=ski');
+    expect(s).toMatch(/[?&]sport=ski/);
+    expect(s).toMatch(/[?&]locate=1/);
+    expect(s).toMatch(/[?&]_locatenonce=\d+/);
+  });
+
+  it('strips mobile topbar modal query flags', () => {
+    const s = coachMapSearchForFreshGeolocationIntent('?sport=ski&mobilesearch=open&mobilemenu=open');
+    expect(s).not.toMatch(/mobilesearch/);
+    expect(s).not.toMatch(/mobilemenu/);
+    expect(s).toMatch(/[?&]locate=1/);
+  });
+});
+
+describe('stripCoachMapLocateParamsFromSearch', () => {
+  it('removes locate and _locatenonce while keeping sport', () => {
+    expect(stripCoachMapLocateParamsFromSearch('?sport=ski&locate=1&_locatenonce=123')).toBe('?sport=ski');
+  });
+
+  it('handles search without leading ?', () => {
+    expect(stripCoachMapLocateParamsFromSearch('sport=yoga&locate=true')).toBe('?sport=yoga');
+  });
+
+  it('returns empty when nothing remains', () => {
+    expect(stripCoachMapLocateParamsFromSearch('?locate=1&_locatenonce=1')).toBe('');
+  });
+});
+
+describe('Coach map URL merge (sport vs locate)', () => {
+  it('preserves locate and _locatenonce when only sport changes (CoachMapPage handleSportBarChange)', () => {
+    const merged = parseSearchParams('?sport=ski&locate=1&_locatenonce=12345');
+    merged.sport = 'tennis';
+    const q = stringifySearchParams(merged);
+    expect(q).toMatch(/sport=tennis/);
+    expect(q).toMatch(/locate=1/);
+    expect(q).toMatch(/_locatenonce=12345/);
   });
 });
 

@@ -1,7 +1,9 @@
-import React, { useId } from 'react';
+import React, { useId, useMemo } from 'react';
 import classNames from 'classnames';
+import { useLocation } from 'react-router-dom';
 
 import { NamedLink } from '../../components';
+import { mergeCoachMapLocateIntentSearch, debugCoachMapLocate } from '../../util/coachExplore';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import Field, { hasDataInFields } from '../PageBuilder/Field';
 import SectionContainer from '../PageBuilder/SectionBuilder/SectionContainer';
@@ -9,6 +11,13 @@ import SectionContainer from '../PageBuilder/SectionBuilder/SectionContainer';
 import css from './LandingWhyPeakupSection.module.css';
 
 const AURORA_ATMOSPHERE_IMAGE_URL = '/CoachPagePic/aurora.jpg';
+
+/** `Field` / ResponsiveImage `sizes`: matches `.cardsGrid` rail + `blockContainer` horizontal padding. */
+const WHY_PEAKUP_CARD_MEDIA_SIZES = [
+  '(max-width: 767px) calc(100vw - 64px)',
+  '(max-width: 1023px) calc((100vw - 88px) / 2)',
+  '520px',
+].join(', ');
 
 const trustItems = [
   {
@@ -151,6 +160,16 @@ const LandingWhyPeakupSection = props => {
   const fieldOptions = { fieldComponents };
   const hasSectionCta = hasDataInFields([callToAction], fieldOptions);
 
+  const location = useLocation();
+  const coachMapLocateSearch = useMemo(() => {
+    const merged = mergeCoachMapLocateIntentSearch(location.search);
+    debugCoachMapLocate('LandingWhyPeakup athlete CTA (NamedLink) search', {
+      locationSearch: location.search,
+      merged,
+    });
+    return merged;
+  }, [location.search]);
+
   const cards = cardContent.map((content, index) => ({
     ...content,
     block: blocks[index] || null,
@@ -220,7 +239,7 @@ const LandingWhyPeakupSection = props => {
                 <Field
                   data={card.block.media}
                   className={css.cardMedia}
-                  sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 600px"
+                  sizes={WHY_PEAKUP_CARD_MEDIA_SIZES}
                   options={fieldOptions}
                 />
               ) : null}
@@ -240,6 +259,7 @@ const LandingWhyPeakupSection = props => {
                   <NamedLink
                     name="CoachMapPage"
                     className={classNames(defaultClasses.ctaButton, css.cardCta, card.ctaClassName)}
+                    to={{ search: coachMapLocateSearch }}
                   >
                     <FormattedMessage id={card.ctaId} defaultMessage={card.ctaDefault} />
                   </NamedLink>

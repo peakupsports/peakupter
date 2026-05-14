@@ -20,17 +20,86 @@ const PLACE_TYPE_BOUNDS_DISTANCES = {
   'poi.landmark': 2000,
 };
 
-const locationBounds = (latlng, distance) => {
-  if (!latlng) {
+const MAPBOX_SCRIPT_ID = 'mapbox_GL_JS';
+const MAPBOX_GEOCODER_LIB_TIMEOUT_MS = 20000;
+
+const mapboxGeocoderLibsReady = () =>
+  typeof window !== 'undefined' &&
+  !!window.mapboxgl &&
+  !!window.mapboxSdk &&
+  !!window.mapboxgl.accessToken;
+
+/**
+ * Waits for mapbox-gl-js + static mapbox-sdk (and access token) after deferred script load
+ * (e.g. first paint on Landing). Without this, `getPlacePredictions` throws while the user
+ * types or before "Current location" details finish.
+ *
+ * @returns {Promise<void>}
+ */
+const waitForMapboxGeocoderLibraries = () => {
+  if (typeof window === 'undefined') {
+    return Promise.reject(new Error('Mapbox libraries are required for GeocoderMapbox'));
+  }
+  if (mapboxGeocoderLibsReady()) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    let finished = false;
+    const finishOk = () => {
+      if (finished || !mapboxGeocoderLibsReady()) {
+        return;
+      }
+      finished = true;
+      window.clearInterval(iv);
+      window.clearTimeout(to);
+      script?.removeEventListener('load', onScriptLoad);
+      resolve();
+    };
+    const finishErr = () => {
+      if (finished) {
+        return;
+      }
+      finished = true;
+      window.clearInterval(iv);
+      script?.removeEventListener('load', onScriptLoad);
+      reject(new Error('Mapbox libraries are required for GeocoderMapbox'));
+    };
+    const onScriptLoad = () => finishOk();
+    const script = document.getElementById(MAPBOX_SCRIPT_ID);
+    if (script) {
+      script.addEventListener('load', onScriptLoad, { once: true });
+    }
+    const iv = window.setInterval(finishOk, 50);
+    const to = window.setTimeout(finishErr, MAPBOX_GEOCODER_LIB_TIMEOUT_MS);
+    finishOk();
+  });
+};
+
+/**
+ * Square bounds in meters around a point using Sharetribe SDK types only (no mapbox-gl-js).
+ * Matches the previous `LngLat#toBounds(distance)` usage close enough for search / fit hints.
+ *
+ * @param {{ lat: number, lng: number }} latlng
+ * @param {number} distanceMeters edge length of the square (Mapbox toBounds semantics)
+ * @returns {InstanceType<typeof SDKLatLngBounds>|null}
+ */
+const sdkBoundsAroundPoint = (latlng, distanceMeters) => {
+  if (!latlng || latlng.lat == null || latlng.lng == null) {
     return null;
   }
-
-  const bounds = new window.mapboxgl.LngLat(latlng.lng, latlng.lat).toBounds(distance);
-  return new SDKLatLngBounds(
-    new SDKLatLng(bounds.getNorth(), bounds.getEast()),
-    new SDKLatLng(bounds.getSouth(), bounds.getWest())
-  );
+  const { lat, lng } = latlng;
+  const half = distanceMeters / 2;
+  const latDelta = half / 111320;
+  const cosLat = Math.max(Math.cos((lat * Math.PI) / 180), 1e-6);
+  const lngDelta = half / (111320 * cosLat);
+  const north = lat + latDelta;
+  const south = lat - latDelta;
+  const east = lng + lngDelta;
+  const west = lng - lngDelta;
+  return new SDKLatLngBounds(new SDKLatLng(north, east), new SDKLatLng(south, west));
 };
+
+const locationBounds = (latlng, distance) => sdkBoundsAroundPoint(latlng, distance);
 
 const placeOrigin = prediction => {
   if (prediction && Array.isArray(prediction.center) && prediction.center.length === 2) {
@@ -99,20 +168,22 @@ class GeocoderMapbox {
   getPlacePredictions(search, countryLimit, locale) {
     const limitCountriesMaybe = countryLimit ? { countries: countryLimit } : {};
 
-    return this.getClient()
-      .geocoding.forwardGeocode({
-        query: search,
-        limit: 5,
-        ...limitCountriesMaybe,
-        language: [locale],
-      })
-      .send()
-      .then(response => {
-        return {
-          search,
-          predictions: response.body.features,
-        };
-      });
+    return waitForMapboxGeocoderLibraries().then(() => {
+      return this.getClient()
+        .geocoding.forwardGeocode({
+          query: search,
+          limit: 5,
+          ...limitCountriesMaybe,
+          language: [locale],
+        })
+        .send()
+        .then(response => {
+          return {
+            search,
+            predictions: response.body.features,
+          };
+        });
+    });
   }
 
   /**

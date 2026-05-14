@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import { getCoachCoordinates } from '../../../util/profileCoachSticker';
 import { pickPrimaryTierId, getTierColors } from '../../../util/coachTier';
-import { normalizeSportKey, selectedSportToFilterHyphen } from '../../../util/coachExplore';
+import { normalizeSportKey, selectedSportToFilterHyphen, logCoachMapLocateVerbose } from '../../../util/coachExplore';
 import { matchSportFilterKeys } from '../../../util/sportFilterKeys';
 
 import CoachMapPopup from './CoachMapPopup';
@@ -274,8 +274,9 @@ const isMapboxAvailable = () =>
  *                                           so the map feels context-aware (a coach who teaches
  *                                           both Ski and MTB shows 🚵 under the MTB filter and
  *                                           🎿 under the Ski filter).
- * @param {Object} [props.flyToTarget]       { lat, lng, ts? } — `ts` is treated as a nonce so the
- *                                           camera re-flies even when the user re-clicks the same coach.
+ * @param {Object} [props.flyToTarget]       { lat, lng, ts?, zoom?, pitch?, bearing?, duration? } —
+ *                                           `ts` is a nonce so the camera re-flies on repeat clicks.
+ *                                           Optional camera fields override defaults (user locate flyTo).
  * @param {Object} [props.bounds]            Plain bounds { swLat, swLng, neLat, neLng }.
  * @param {Object} [props.center]            { lat, lng } fallback when bounds are missing.
  * @param {Object} [props.userLocation]      { lat, lng } — when set, draws a subtle pulsing
@@ -664,22 +665,55 @@ const CoachMap3D = props => {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !flyToTarget) return;
-    const { lat, lng } = flyToTarget;
+    const { lat, lng, zoom, pitch, bearing, duration } = flyToTarget;
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    logCoachMapLocateVerbose('mapRef ready?', { ready: true, hasMap: !!map });
     const targetIsUserLocation =
       Number.isFinite(userLocation?.lat) &&
       Number.isFinite(userLocation?.lng) &&
       Math.abs(userLocation.lat - lat) < 0.000001 &&
       Math.abs(userLocation.lng - lng) < 0.000001;
+    const zoomFinal = Number.isFinite(zoom)
+      ? zoom
+      : targetIsUserLocation
+      ? USER_LOCATION_FLYTO_ZOOM
+      : COACH_FLYTO_ZOOM;
+    const pitchFinal = Number.isFinite(pitch)
+      ? pitch
+      : targetIsUserLocation
+      ? USER_LOCATION_FLYTO_PITCH
+      : COACH_FLYTO_PITCH;
+    const bearingFinal = Number.isFinite(bearing)
+      ? bearing
+      : targetIsUserLocation
+      ? USER_LOCATION_FLYTO_BEARING
+      : COACH_FLYTO_BEARING;
+    const durationFinal = Number.isFinite(duration)
+      ? duration
+      : targetIsUserLocation
+      ? USER_LOCATION_FLYTO_DURATION_MS
+      : COACH_FLYTO_DURATION_MS;
+    logCoachMapLocateVerbose('flyTo user location (CoachMap3D executing map.flyTo)', {
+      center: [lng, lat],
+      zoom: zoomFinal,
+      pitch: pitchFinal,
+      bearing: bearingFinal,
+      duration: durationFinal,
+    });
     map.flyTo({
       center: [lng, lat],
-      zoom: targetIsUserLocation ? USER_LOCATION_FLYTO_ZOOM : COACH_FLYTO_ZOOM,
-      pitch: targetIsUserLocation ? USER_LOCATION_FLYTO_PITCH : COACH_FLYTO_PITCH,
-      bearing: targetIsUserLocation ? USER_LOCATION_FLYTO_BEARING : COACH_FLYTO_BEARING,
-      duration: targetIsUserLocation ? USER_LOCATION_FLYTO_DURATION_MS : COACH_FLYTO_DURATION_MS,
+      zoom: zoomFinal,
+      pitch: pitchFinal,
+      bearing: bearingFinal,
+      duration: durationFinal,
       easing: cinematicCameraEasing,
       essential: true,
     });
+    const onMoveEnd = () => {
+      const c = map.getCenter();
+      logCoachMapLocateVerbose('final map center after flyTo', { lng: c.lng, lat: c.lat, zoom: map.getZoom() });
+    };
+    map.once('moveend', onMoveEnd);
   }, [flyToTarget, isReady, userLocation]);
 
   // "You are here" marker. Lives independently from the coach markers
