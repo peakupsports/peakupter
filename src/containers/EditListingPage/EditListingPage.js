@@ -1,5 +1,6 @@
 import React from 'react';
 import { bool, func, object, shape, string, oneOf } from 'prop-types';
+import classNames from 'classnames';
 import { compose } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -46,6 +47,7 @@ import {
   savePayoutDetails,
 } from './EditListingPage.duck';
 import EditListingWizard from './EditListingWizard/EditListingWizard';
+import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 import css from './EditListingPage.module.css';
 
 const STRIPE_ONBOARDING_RETURN_URL_SUCCESS = 'success';
@@ -263,7 +265,11 @@ export const EditListingPageComponent = props => {
       : 'EditListingPage.titleEditListing';
 
     return (
-      <Page title={intl.formatMessage({ id: titleId })} scrollingDisabled={scrollingDisabled}>
+      <Page
+        className={classNames(accountShellCss.pageShell, css.pagePeakUp)}
+        title={intl.formatMessage({ id: titleId })}
+        scrollingDisabled={scrollingDisabled}
+      >
         <TopbarContainer
           mobileRootClassName={css.mobileTopbar}
           desktopClassName={css.desktopTopbar}

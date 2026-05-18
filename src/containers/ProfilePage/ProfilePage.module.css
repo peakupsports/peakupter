@@ -355,6 +355,7 @@
 
 /* ~26.5fr / 73.5fr — griglia pagina aside figurina / main. */
 .peakUpProfileLayoutDesktop {
+  background: transparent;
   /*
    * Token condiviso: aside + card usano la stessa larghezza arte; min-width colonna fa sì che
    * max-width della figurina possa effettivamente “attivarsi” (altrimenti la colonna < arte max
@@ -380,6 +381,13 @@
 /* ---- PeakUp coach figurina (sidebar) + contenuto sticker ---- */
 
 .asideProfilePeakUpCoach {
+  --peakUpPageBg: #030812;
+  --peakUpPageBgMid: #06101c;
+  --peakUpCyan: #19dff2;
+  background: var(--peakUpProfileBg, transparent) !important;
+  border-top-color: rgba(33, 230, 193, 0.12) !important;
+  box-shadow: none !important;
+
   @media (--viewportLarge) {
     position: sticky;
     top: calc(var(--topbarHeightDesktop) + 8px);
@@ -446,6 +454,22 @@
 
 /* Colonna contenuti destra su profilo PeakUp: più larghezza per bio / card */
 .mainPeakUpCoachContent {
+  position: relative;
+  --peakUpPageBg: #060b14;
+  --peakUpPageBgMid: #0a1019;
+  --peakUpGlass: rgba(10, 18, 32, 0.78);
+  --peakUpGlassHi: rgba(16, 28, 48, 0.88);
+  --peakUpGlassBorder: rgba(25, 223, 242, 0.16);
+  --peakUpTextPrimary: #f4f7fb;
+  --peakUpTextMuted: rgba(196, 210, 228, 0.78);
+  --peakUpCyan: #19dff2;
+  --peakUpCyanSoft: rgba(25, 223, 242, 0.22);
+  background-color: var(--peakUpPageBg);
+  background-image:
+    radial-gradient(90% 70% at 12% 0%, rgba(25, 223, 242, 0.07) 0%, transparent 52%),
+    radial-gradient(75% 55% at 100% 40%, rgba(21, 155, 255, 0.08) 0%, transparent 48%),
+    linear-gradient(180deg, var(--peakUpPageBg) 0%, var(--peakUpPageBgMid) 55%, #070c14 100%);
+
   @media (--viewportLarge) {
     width: auto;
     min-width: 0;
@@ -453,10 +477,9 @@
     flex: unset;
     position: relative;
     z-index: 1;
-    background-color: var(--colorWhite);
     /* Divider da layout Sharetribe: sopra questo layer non deve “tagliare” il testo */
     border-left: none !important;
-    box-shadow: inset 1px 0 0 rgba(16, 33, 62, 0.07);
+    box-shadow: inset 1px 0 0 rgba(25, 223, 242, 0.1);
     /* 48px (.main): un filo più in basso rispetto al bordo alto figurina. */
     padding-top: 24px !important;
     /* ~ +4% padding vs punto precedente: colonna contenuto ~4% più stretta sulle proporzioni 26/74 */
@@ -470,9 +493,8 @@
     flex: unset;
     position: relative;
     z-index: 1;
-    background-color: var(--colorWhite);
     border-left: none !important;
-    box-shadow: inset 1px 0 0 rgba(16, 33, 62, 0.07);
+    box-shadow: inset 1px 0 0 rgba(25, 223, 242, 0.1);
     padding-top: 24px !important;
     padding-left: clamp(47px, 4.1vw, 74px) !important;
     padding-right: max(27px, calc((100% - 1056px) / 2)) !important;
@@ -504,7 +526,12 @@
   --stickerGoldSoft: rgba(201, 162, 39, 0.5);
   --stickerNavy: #10213e;
   --stickerNavyMid: #1f3558;
-  --stickerFooterBlue: #e4edf7;
+  --stickerFooterBlue: #111a2b;
+  --stickerSurfaceTop: #18263f;
+  --stickerSurfaceMid: #111a2c;
+  --stickerSurfaceBottom: #0b1220;
+  --stickerSurfaceGlow: rgba(21, 155, 255, 0.14);
+  --stickerAmbientShadow: rgba(21, 64, 128, 0.22);
 
   width: 100%;
   align-self: stretch;
@@ -513,6 +540,8 @@
   gap: 0;
   padding: 0 20px 24px;
   box-sizing: border-box;
+  background: transparent;
+  border-bottom-color: rgba(33, 230, 193, 0.1) !important;
 
   @media (--viewportMedium) {
     padding: 0 28px 24px;
@@ -540,23 +569,27 @@
   font-size: 15px;
   font-weight: var(--fontWeightSemiBold);
   line-height: 1.25;
-  color: var(--stickerNavy) !important;
+  color: rgba(244, 247, 251, 0.9) !important;
   text-decoration: none !important;
-  border: 2px solid rgba(16, 33, 62, 0.18);
+  border: 1.5px solid rgba(25, 223, 242, 0.22);
   border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.95);
+  background: rgba(8, 14, 26, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  backdrop-filter: blur(12px) saturate(130%);
   cursor: pointer;
   position: relative;
   z-index: 2;
   transition:
     border-color 0.15s ease,
-    background-color 0.15s ease;
+    background-color 0.15s ease,
+    box-shadow 0.18s ease;
 }
 
 .stickerEditProfile:hover {
-  border-color: var(--stickerGold);
-  background-color: var(--colorWhite);
-  color: var(--stickerNavy) !important;
+  border-color: rgba(25, 223, 242, 0.42);
+  background: rgba(12, 22, 38, 0.72);
+  color: var(--colorWhite) !important;
+  box-shadow: 0 0 20px rgba(25, 223, 242, 0.12);
 }
 
 .stickerEditProfile:focus-visible {
@@ -564,7 +597,7 @@
   outline-offset: 2px;
 }
 
-/* PeakUp figurina cornice dorata — ispirazione layout “classic” sticker */
+/* PeakUp figurina — premium dark surface (PeakUpCoachFigurineCard / landing) */
 .stickerCard {
   position: relative;
   width: 100%;
@@ -573,10 +606,25 @@
   padding: 0;
   border-radius: 20px;
   border: 4px solid var(--stickerGold);
-  background: linear-gradient(165deg, #ffffff 0%, #eef3f9 100%);
-  box-shadow: 0 14px 40px rgba(16, 33, 62, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  background:
+    radial-gradient(circle at 18% 10%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 34%),
+    radial-gradient(circle at 84% 100%, var(--stickerSurfaceGlow) 0%, rgba(21, 155, 255, 0) 38%),
+    radial-gradient(circle at 50% 100%, rgba(12, 36, 72, 0.18) 0%, rgba(12, 36, 72, 0) 44%),
+    linear-gradient(
+      180deg,
+      #1b2b47 0%,
+      var(--stickerSurfaceTop) 18%,
+      var(--stickerSurfaceMid) 48%,
+      var(--stickerSurfaceBottom) 100%
+    );
+  box-shadow:
+    0 18px 44px rgba(3, 8, 16, 0.36),
+    0 8px 24px var(--stickerAmbientShadow),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   box-sizing: border-box;
   overflow: hidden;
+  isolation: isolate;
 
   @media (--viewportLarge) {
     margin-left: 0;
@@ -584,8 +632,54 @@
   }
 }
 
+.stickerCard::before,
+.stickerCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.stickerCard::before {
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse at 16% 7%,
+      rgba(255, 255, 255, 0.13) 0%,
+      rgba(255, 255, 255, 0.045) 26%,
+      rgba(255, 255, 255, 0) 56%
+    ),
+    linear-gradient(
+      140deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.02) 18%,
+      rgba(255, 255, 255, 0) 42%
+    );
+}
+
+.stickerCard::after {
+  z-index: 0;
+  background:
+    radial-gradient(circle at 76% 100%, rgba(21, 155, 255, 0.07) 0%, rgba(21, 155, 255, 0) 32%),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.02) 0%,
+      rgba(255, 255, 255, 0) 38%,
+      rgba(0, 0, 0, 0.16) 100%
+    );
+}
+
+/* Alone cyan interno (overflow hidden sulla card — inset 0, no blur esterno) */
 .stickerGlow {
-  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 16px;
+  background:
+    radial-gradient(72% 48% at 50% 0%, rgba(33, 230, 193, 0.07) 0%, transparent 56%),
+    radial-gradient(80% 55% at 50% 100%, rgba(0, 180, 255, 0.05) 0%, transparent 54%);
+  opacity: 1;
 }
 
 /* Slot fisso tra nome e badge: stessa larghezza/altezza per tutte le figurine;
@@ -638,33 +732,32 @@
   /* Altezza minima allineata allo slot logo (44px) + padding verticale header */
   min-height: 64px;
   padding: 10px 12px;
-  /* Blu che attenua lungo più altezza, così il ponte sulla foto può essere più morbido */
   background: linear-gradient(
     180deg,
-    var(--stickerNavyMid) 0%,
-    var(--stickerNavy) 56%,
-    rgba(39, 66, 102, 0.55) 82%,
-    rgba(228, 234, 244, 0.12) 100%
+    rgba(31, 53, 88, 0.98) 0%,
+    rgba(16, 33, 62, 0.96) 54%,
+    rgba(13, 23, 38, 0.86) 84%,
+    rgba(11, 18, 32, 0.72) 100%
   );
   border-bottom: none;
 }
 
-/* Ponte header → foto: fascia più alta e più passaggi per sfumatura lunga */
+/* Ponte header → foto — stessa sfumatura landing figurina */
 .stickerCardHeader::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
   top: 100%;
-  height: clamp(76px, 26vw, 108px);
+  height: clamp(60px, 22vw, 96px);
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(16, 33, 62, 0.52) 0%,
-    rgba(16, 33, 62, 0.22) 32%,
-    rgba(218, 228, 240, 0.28) 62%,
-    rgba(237, 242, 250, 0.08) 88%,
-    rgba(238, 243, 249, 0) 100%
+    rgba(16, 33, 62, 0.58) 0%,
+    rgba(16, 33, 62, 0.28) 32%,
+    rgba(11, 18, 32, 0.16) 64%,
+    rgba(11, 18, 32, 0.04) 88%,
+    rgba(11, 18, 32, 0) 100%
   );
   z-index: 4;
 }
@@ -882,6 +975,11 @@
   z-index: 1;
   padding: 4px 15px 0;
   box-sizing: border-box;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.015) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
 .stickerPhotoWrap {
@@ -894,11 +992,14 @@
   position: relative;
   border-radius: 16px;
   overflow: hidden;
-  background: var(--colorGrey100);
+  background: linear-gradient(180deg, rgba(10, 16, 28, 0.98) 0%, rgba(17, 26, 43, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   /* più larga vs altezza (meno colonna foto in verticale) */
   aspect-ratio: 6 / 7;
-  /* Nessun alone/bordo inset netto sul bordo foto */
-  box-shadow: none;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.24),
+    0 4px 14px rgba(21, 64, 128, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .stickerPhoto {
@@ -917,12 +1018,12 @@
   min-height: 200px;
   font-size: 56px;
   font-weight: var(--fontWeightBold);
-  color: rgba(16, 33, 62, 0.35);
+  color: rgba(244, 247, 251, 0.34);
   background: linear-gradient(
     160deg,
-    rgba(31, 53, 88, 0.14) 0%,
-    rgba(201, 162, 39, 0.1) 55%,
-    rgba(244, 247, 251, 0.95) 100%
+    rgba(31, 53, 88, 0.52) 0%,
+    rgba(21, 155, 255, 0.16) 45%,
+    rgba(11, 18, 32, 0.96) 100%
   );
 }
 
@@ -1061,14 +1162,18 @@
   z-index: 1;
   margin-top: 0;
   padding: 9px 12px 11px;
-  border-top: none;
-  background: linear-gradient(
-    180deg,
-    rgba(233, 240, 250, 0.35) 0%,
-    rgba(224, 233, 244, 0.72) 22%,
-    #eff4fb 52%,
-    var(--stickerFooterBlue) 100%
-  );
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background:
+    radial-gradient(circle at 16% 0%, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0) 34%),
+    linear-gradient(
+      180deg,
+      rgba(23, 35, 56, 0.94) 0%,
+      rgba(16, 25, 42, 0.97) 34%,
+      rgba(12, 19, 33, 0.99) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 18px 28px rgba(255, 255, 255, 0.012);
   box-sizing: border-box;
 }
 
@@ -1176,11 +1281,21 @@
   padding-bottom: 10px;
 }
 
-/* CTAs sotto figurina — navy + cornice oro (stessa famiglia tipica della sticker) */
+/* CTAs sotto figurina — PeakUp dark premium (tier border via .peakUpTierRoot) */
 .stickerActionPrimary {
-  background-image: linear-gradient(180deg, #2f5490 0%, var(--stickerNavy) 100%) !important;
-  border: 2px solid var(--stickerGold) !important;
-  color: var(--colorWhite) !important;
+  background-image: linear-gradient(
+    118deg,
+    #0f2138 0%,
+    #1a4a7a 42%,
+    #159bff 72%,
+    #19dff2 100%
+  ) !important;
+  border: 2px solid rgba(25, 223, 242, 0.45) !important;
+  color: #f4f7fb !important;
+  box-shadow:
+    0 10px 28px rgba(21, 155, 255, 0.28),
+    0 0 24px rgba(25, 223, 242, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .stickerActionPrimary:disabled {
@@ -1189,23 +1304,36 @@
 
 @media (hover: hover) {
   .stickerActionPrimary:hover:not(:disabled) {
-    filter: brightness(1.06);
+    filter: brightness(1.05) saturate(1.06);
     text-decoration: none;
     color: var(--colorWhite) !important;
+    box-shadow:
+      0 12px 32px rgba(21, 155, 255, 0.34),
+      0 0 28px rgba(25, 223, 242, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.28);
   }
 }
 
 .stickerActionSecondary {
-  background-color: var(--colorWhite) !important;
-  border: 2px solid rgba(201, 162, 39, 0.55) !important;
-  color: var(--stickerNavy) !important;
+  background: rgba(8, 16, 28, 0.62) !important;
+  border: 2px solid rgba(25, 223, 242, 0.38) !important;
+  color: #f4f7fb !important;
+  -webkit-backdrop-filter: blur(12px) saturate(135%);
+  backdrop-filter: blur(12px) saturate(135%);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 @media (hover: hover) {
   .stickerActionSecondary:hover {
-    border-color: var(--stickerGold) !important;
-    background-color: #fafbfc !important;
-    color: var(--stickerNavy) !important;
+    border-color: rgba(25, 223, 242, 0.55) !important;
+    background: rgba(12, 24, 42, 0.78) !important;
+    color: var(--colorWhite) !important;
+    box-shadow:
+      0 8px 22px rgba(0, 0, 0, 0.28),
+      0 0 18px rgba(25, 223, 242, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 }
 
@@ -1213,7 +1341,7 @@
   --stickerGold: #c9a227;
   --stickerNavy: #10213e;
   --stickerNavyMid: #1f3558;
-  --stickerFooterBlue: #e4edf7;
+  --stickerFooterBlue: #111a2b;
 
   width: 100%;
   box-sizing: border-box;
@@ -1313,17 +1441,21 @@
   padding-block: 10px;
   padding-inline: clamp(16px, 3vw, 24px);
   border-radius: 14px;
-  background: linear-gradient(
-    158deg,
-    var(--colorWhite) 0%,
-    rgba(248, 249, 252, 0.99) 52%,
-    #f2f6fb 118%
-  );
-  border: 1px solid rgba(16, 33, 62, 0.09);
-  border-top: 1px solid rgba(201, 162, 39, 0.24);
+  background:
+    radial-gradient(circle at 14% 0%, rgba(33, 230, 193, 0.05) 0%, transparent 42%),
+    linear-gradient(
+      158deg,
+      rgba(14, 24, 42, 0.92) 0%,
+      rgba(10, 18, 32, 0.88) 52%,
+      rgba(7, 12, 22, 0.94) 100%
+    );
+  border: 1px solid rgba(25, 223, 242, 0.12);
+  border-top: 1px solid rgba(25, 223, 242, 0.18);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.96) inset,
-    0 4px 16px rgba(16, 33, 62, 0.06);
+    0 10px 32px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
 
   @media (--viewportMedium) {
     padding-block: 13px;
@@ -1347,12 +1479,12 @@
   composes: p from global;
   margin: 0 0 6px;
   padding-bottom: 5px;
-  border-bottom: 1px solid rgba(201, 162, 39, 0.28);
+  border-bottom: 1px solid rgba(25, 223, 242, 0.22);
   font-size: 10px;
   font-weight: var(--fontWeightBold);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--stickerNavy);
+  color: #f4f7fb;
 
   @media (--viewportMedium) {
     margin-bottom: 7px;
@@ -1387,7 +1519,7 @@
 
 .stickerBioEmpty {
   composes: stickerBioText;
-  color: var(--colorGrey500);
+  color: rgba(196, 210, 228, 0.52);
   font-style: italic;
 }
 
@@ -1402,7 +1534,8 @@
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  color: var(--stickerGold);
+  color: #19dff2;
+  filter: drop-shadow(0 0 6px rgba(25, 223, 242, 0.18));
 
   @media (--viewportMedium) {
     width: 17px;
@@ -1419,7 +1552,8 @@
   width: 16px;
   height: 16px;
   display: block;
-  color: var(--stickerGold);
+  color: #19dff2;
+  filter: drop-shadow(0 0 6px rgba(25, 223, 242, 0.18));
 
   @media (--viewportMedium) {
     width: 18px;
@@ -1469,7 +1603,7 @@
   font-size: 12px;
   font-weight: var(--fontWeightRegular);
   line-height: 1.34;
-  color: var(--colorGrey900);
+  color: rgba(196, 210, 228, 0.78);
   overflow-wrap: anywhere;
 
   @media (--viewportMedium) {
@@ -1494,7 +1628,7 @@
   font-size: 12px;
   font-weight: var(--fontWeightSemiBold);
   line-height: 1.25;
-  color: var(--stickerNavy);
+  color: #19dff2;
   text-decoration: underline;
   text-underline-offset: 2px;
 
@@ -1504,7 +1638,7 @@
 }
 
 .stickerAboutReadMore:hover {
-  color: var(--stickerGold);
+  color: #7ae8f7;
 }
 
 .stickerAboutModalBody {
@@ -1520,7 +1654,7 @@
   margin: 0;
   font-size: 22px;
   line-height: 1.2;
-  color: var(--stickerNavy);
+  color: #f4f7fb;
 
   @media (--viewportMedium) {
     font-size: 26px;
@@ -1532,7 +1666,7 @@
   margin: 0;
   font-size: 15px;
   line-height: 1.5;
-  color: var(--colorGrey900);
+  color: rgba(196, 210, 228, 0.82);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -1558,7 +1692,7 @@
   pointer-events: none;
   z-index: 0;
   opacity: 0.94;
-  color: #dfe4ec;
+  color: rgba(255, 255, 255, 0.07);
 
   @media (--viewportMedium) {
     right: -4px;
@@ -1604,7 +1738,7 @@
   font-weight: var(--fontWeightBold);
   line-height: 1.12;
   letter-spacing: -0.02em;
-  color: var(--stickerNavy);
+  color: #f4f7fb;
 }
 
 .stickerExperienceSubtitle {
@@ -1614,7 +1748,7 @@
   font-size: 13px;
   font-weight: var(--fontWeightRegular);
   line-height: 1.42;
-  color: rgba(94, 108, 132, 0.92);
+  color: rgba(196, 210, 228, 0.78);
 
   @media (--viewportMedium) {
     font-size: 14px;
@@ -1634,7 +1768,8 @@
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  color: var(--stickerGold);
+  color: #19dff2;
+  filter: drop-shadow(0 0 6px rgba(25, 223, 242, 0.18));
 
   @media (--viewportMedium) {
     width: 17px;
@@ -1681,7 +1816,7 @@
   font-size: 12px;
   font-weight: var(--fontWeightRegular);
   line-height: 1.3;
-  color: rgba(16, 33, 62, 0.54);
+  color: rgba(196, 210, 228, 0.72);
 
   @media (--viewportMedium) {
     font-size: 13px;
@@ -1694,14 +1829,14 @@
   font-weight: var(--fontWeightBold);
   line-height: 1.08;
   letter-spacing: -0.02em;
-  color: var(--stickerNavy);
+  color: #f4f7fb;
 }
 
 .stickerPricePerHour {
   font-size: 12px;
   font-weight: var(--fontWeightRegular);
   line-height: 1.35;
-  color: rgba(16, 33, 62, 0.54);
+  color: rgba(196, 210, 228, 0.72);
   /* Oltre al gap della colonna: “per hour” un filo più verso il basso */
   margin-top: 6px;
 
@@ -1715,7 +1850,7 @@
   flex-shrink: 0;
   width: 100%;
   height: 1px;
-  background: rgba(16, 33, 62, 0.12);
+  background: rgba(25, 223, 242, 0.16);
 
   @media (--viewportMedium) {
     width: 1px;
@@ -1734,7 +1869,12 @@
   max-width: 100%;
   padding: 9px 14px;
   border-radius: 999px;
-  background: rgba(16, 33, 62, 0.06);
+  background: rgba(5, 16, 28, 0.82);
+  border: 1px solid rgba(120, 225, 255, 0.55);
+  color: #eaf9ff;
+  box-shadow: 0 0 18px rgba(67, 210, 255, 0.16);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 
   @media (--viewportMedium) {
     gap: 10px;
@@ -1742,22 +1882,19 @@
   }
 }
 
-/* Shield body uses `fill="currentColor"`. The base color is the brand
- * navy so the icon is never invisible if the chip ever renders outside
- * `.peakUpTierRoot`; the override further down inside `.peakUpTierRoot`
- * swaps in the active tier border so the icon picks up the coach's
- * tier identity (icy / gold / silver / bronze) on the public profile. */
+/* Shield body uses `fill="currentColor"`. Tier ring on pill via `.peakUpTierRoot`
+ * inset shadow only — icon stays readable cyan, not tier-fill fluorescent. */
 .stickerPriceVerifiedShield {
   flex-shrink: 0;
   display: block;
-  color: var(--stickerNavy);
+  color: #7ee7ff;
 }
 
 .stickerPriceVerifiedLabel {
   font-size: 13px;
   font-weight: var(--fontWeightSemiBold);
   line-height: 1.3;
-  color: var(--stickerNavy);
+  color: #eaf9ff;
   letter-spacing: 0.01em;
 
   @media (--viewportMedium) {
@@ -1776,8 +1913,9 @@
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  stroke: var(--stickerGold);
+  stroke: #19dff2;
   stroke-width: 2px;
+  filter: drop-shadow(0 0 5px rgba(25, 223, 242, 0.16));
 
   @media (--viewportMedium) {
     width: 17px;
@@ -1833,8 +1971,8 @@
   text-decoration: none;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(16, 33, 62, 0.1);
-  box-shadow: 0 2px 8px rgba(16, 33, 62, 0.08);
+  border: 1px solid rgba(25, 223, 242, 0.14);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32);
 
   @media (--viewportMedium) {
     border-radius: 11px;
@@ -1896,7 +2034,7 @@
   font-size: 14px;
   font-weight: var(--fontWeightSemiBold);
   line-height: 1.35;
-  color: var(--stickerNavy);
+  color: #19dff2;
   text-decoration: underline;
   text-underline-offset: 2px;
 
@@ -1908,7 +2046,7 @@
 
 @media (hover: hover) {
   .stickerLocationMapTextLink:hover {
-    color: #2f5490;
+    color: #7ae8f7;
   }
 }
 
@@ -1958,7 +2096,7 @@
   font-size: 16px;
   font-weight: var(--fontWeightBold);
   line-height: 1.28;
-  color: var(--stickerNavy);
+  color: #f4f7fb;
   overflow-wrap: anywhere;
 
   @media (--viewportMedium) {
@@ -1973,7 +2111,7 @@
   font-size: 14px;
   font-weight: var(--fontWeightRegular);
   line-height: 1.42;
-  color: rgba(16, 33, 62, 0.68);
+  color: rgba(196, 210, 228, 0.78);
 
   @media (--viewportMedium) {
     font-size: 15px;
@@ -1986,7 +2124,7 @@
   margin: 0;
   font-size: 13px;
   line-height: 1.45;
-  color: var(--colorGrey800);
+  color: rgba(196, 210, 228, 0.72);
 
   @media (--viewportMedium) {
     font-size: 14px;
@@ -2036,14 +2174,28 @@
   font-weight: var(--fontWeightSemiBold);
   letter-spacing: 0.015em;
   line-height: 1.35;
-  color: var(--stickerNavy);
-  background: rgba(255, 255, 255, 0.99);
-  border: 1.5px solid rgba(201, 162, 39, 0.55);
-  box-shadow: 0 2px 8px rgba(16, 33, 62, 0.08);
+  color: #f4f7fb;
+  background: rgba(8, 16, 28, 0.62);
+  border: 1.5px solid rgba(25, 223, 242, 0.32);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(10px) saturate(130%);
+  backdrop-filter: blur(10px) saturate(130%);
 
   @media (--viewportMedium) {
     font-size: 14px;
     padding: 8px 14px;
+  }
+}
+
+@media (hover: hover) {
+  .sportTag:hover {
+    border-color: rgba(120, 225, 255, 0.45);
+    box-shadow:
+      0 6px 16px rgba(0, 0, 0, 0.24),
+      0 0 10px rgba(67, 210, 255, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 }
 
@@ -2074,17 +2226,30 @@
   font-weight: var(--fontWeightSemiBold);
   line-height: 1.25;
   text-decoration: none !important;
-  background-image: linear-gradient(180deg, #2f5490 0%, var(--stickerNavy) 100%);
-  border: 2px solid var(--stickerGold);
-  color: var(--colorWhite) !important;
-  box-shadow: 0 6px 16px rgba(16, 33, 62, 0.18);
+  background-image: linear-gradient(
+    118deg,
+    #0f2138 0%,
+    #1a4a7a 42%,
+    #159bff 72%,
+    #19dff2 100%
+  );
+  border: 2px solid rgba(25, 223, 242, 0.45);
+  color: #f4f7fb !important;
+  box-shadow:
+    0 10px 28px rgba(21, 155, 255, 0.28),
+    0 0 20px rgba(25, 223, 242, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 @media (hover: hover) {
   .coachDetailBookBtn:hover {
-    filter: brightness(1.05);
+    filter: brightness(1.05) saturate(1.06);
     color: var(--colorWhite) !important;
     text-decoration: none !important;
+    box-shadow:
+      0 12px 32px rgba(21, 155, 255, 0.34),
+      0 0 24px rgba(25, 223, 242, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.26);
   }
 }
 
@@ -2129,9 +2294,10 @@
 .peakUpTierRoot .stickerCard {
   border-color: var(--tier-border, var(--stickerGold));
   box-shadow:
-    0 14px 40px rgba(16, 33, 62, 0.18),
-    0 0 0 2px var(--tier-glow, transparent),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+    0 18px 44px rgba(3, 8, 16, 0.36),
+    0 8px 24px var(--stickerAmbientShadow, rgba(21, 64, 128, 0.22)),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 0 2px var(--tier-glow, transparent);
 }
 
 /* ── Main-column detail cards ─────────────────────────────────────── */
@@ -2199,12 +2365,19 @@
    The white check inside the shield stays white at all tiers — it
    reads cleanly against any tier fill behind it. */
 .peakUpTierRoot .stickerPriceVerifiedShield {
-  color: var(--tier-border, var(--stickerGold));
+  color: #7ee7ff;
 }
 
 .peakUpTierRoot .stickerPriceVerifiedPill {
-  background: var(--tier-soft, rgba(16, 33, 62, 0.06));
-  box-shadow: inset 0 0 0 1px var(--tier-border, transparent);
+  background: rgba(5, 16, 28, 0.82);
+  color: #eaf9ff;
+  box-shadow:
+    inset 0 0 0 1px var(--tier-border, transparent),
+    0 0 18px rgba(67, 210, 255, 0.16);
+}
+
+.peakUpTierRoot .stickerPriceVerifiedLabel {
+  color: #eaf9ff;
 }
 
 /* Divider line between the price column and the "Verified coach" chip
@@ -2313,4 +2486,64 @@
 .peakUpTierRoot .stickerActionSecondary:focus-visible {
   outline: 2px solid var(--tier-accent, var(--stickerGold));
   outline-offset: 2px;
+}
+
+/*
+ * =====================================================================
+ * PeakUp profile — listings / reviews on dark canvas
+ * Tier border / glow overrides above stay untouched.
+ * ===================================================================== */
+
+.mainPeakUpCoachContent .listingsContainer {
+  border-top-color: rgba(25, 223, 242, 0.12);
+  background: transparent;
+}
+
+.mainPeakUpCoachContent .listingsTitle {
+  color: var(--peakUpTextPrimary);
+}
+
+.mainPeakUpCoachContent .listings :global([class*='ListingCard_title']) {
+  color: var(--peakUpTextPrimary);
+}
+
+.mainPeakUpCoachContent .listings :global([class*='ListingCard_price']),
+.mainPeakUpCoachContent .listings :global([class*='ListingCard_authorInfo']) {
+  color: var(--peakUpTextMuted);
+}
+
+.mainPeakUpCoachContent .listings :global([class*='ListingCard_priceValue']) {
+  color: var(--peakUpCyan);
+}
+
+.mainPeakUpCoachContent .desktopReviews,
+.mainPeakUpCoachContent .mobileReviews {
+  border-top-color: rgba(25, 223, 242, 0.12);
+}
+
+.mainPeakUpCoachContent .desktopReviewsTitle,
+.mainPeakUpCoachContent .mobileReviewsTitle {
+  color: var(--peakUpTextPrimary);
+}
+
+.mainPeakUpCoachContent .error {
+  color: #ff8a8a;
+}
+
+/* Figurina: profondità navy/cyan (struttura invariata) */
+.asideProfilePeakUpCoach .stickerCard {
+  background:
+    radial-gradient(circle at 16% 8%, rgba(33, 230, 193, 0.05) 0%, transparent 38%),
+    radial-gradient(circle at 84% 100%, rgba(21, 155, 255, 0.08) 0%, transparent 40%),
+    linear-gradient(
+      180deg,
+      #152238 0%,
+      var(--stickerSurfaceTop, #18263f) 20%,
+      var(--stickerSurfaceMid, #111a2c) 50%,
+      var(--stickerSurfaceBottom, #0b1220) 100%
+    );
+}
+
+.asideProfilePeakUpCoach .asideContentStickerOverrides {
+  background: transparent;
 }

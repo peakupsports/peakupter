@@ -927,13 +927,49 @@ export const hasPeakUpCoachProfilePublicData = (profilePublicData = {}) => {
  * Mostra figurina + layout coach se il profilo o i listing danno segnali PeakUp/coach.
  * Con i campi “Coach & sessions”, basta compilare il profilo: non serve un listing.
  */
-export const shouldShowPeakUpProfileSticker = (listings = [], profilePublicData = {}) => {
+const COACH_PROVIDER_USER_TYPE_IDS = new Set(['coach', 'provider', 'instructor', 'seller']);
+const CUSTOMER_USER_TYPE_IDS = new Set(['customer', 'member', 'buyer']);
+
+const normalizeProfileUserTypeId = profilePublicData => {
+  const raw = profilePublicData?.userType;
+  return raw != null ? String(raw).trim().toLowerCase() : '';
+};
+
+/** `publicData.userType` explicitly marks a coach/provider account. */
+export const isExplicitCoachProviderUserType = (profilePublicData = {}) => {
+  const userType = normalizeProfileUserTypeId(profilePublicData);
+  return userType.length > 0 && COACH_PROVIDER_USER_TYPE_IDS.has(userType);
+};
+
+/** `publicData.userType` explicitly marks a customer/member account. */
+export const isExplicitCustomerUserType = (profilePublicData = {}) => {
+  const userType = normalizeProfileUserTypeId(profilePublicData);
+  return userType.length > 0 && CUSTOMER_USER_TYPE_IDS.has(userType);
+};
+
+/**
+ * Coach-only profile signals (excludes sports/languages — members share those fields).
+ */
+export const hasPeakUpCoachOnlyProfilePublicData = (profilePublicData = {}) => {
   const pd = profilePublicData || {};
+  if (pd.coachLevel != null && String(pd.coachLevel).trim() !== '') return true;
+  if (pd.experience != null && String(pd.experience).trim() !== '') return true;
+  if (pd.priceFrom != null && String(pd.priceFrom).trim() !== '') return true;
+  if (pd.currency != null && String(pd.currency).trim() !== '') return true;
+  if (finiteNum(pd.lat) != null || finiteNum(pd.lng) != null) return true;
+  if (finiteNum(pd.latitude) != null || finiteNum(pd.longitude) != null) return true;
+  if (finiteNum(pd.location?.selectedPlace?.origin?.lat) != null) return true;
+  if (finiteNum(pd.location?.selectedPlace?.origin?.lng) != null) return true;
+  if (pd.coachCity != null && String(pd.coachCity).trim() !== '') return true;
+  if (pd.coachCityText != null && String(pd.coachCityText).trim() !== '') return true;
+  if (normalizeExtendedDataTextForDisplay(pd.location)) return true;
+  if (resolvePeakupCoachBadgeIds(pd).length > 0) return true;
+  return false;
+};
+
+export const hasPeakUpListingCoachHints = (listings = []) => {
   const list = Array.isArray(listings) ? listings : [];
-
-  const profileCoachHints = hasPeakUpCoachProfilePublicData(pd);
-
-  const listingCoachHints = list.some(l => {
+  return list.some(l => {
     const pub = l?.attributes?.publicData || {};
     return (
       listingHasPeakupBookingFlag(l) ||
@@ -941,6 +977,92 @@ export const shouldShowPeakUpProfileSticker = (listings = [], profilePublicData 
       (pub.coachLevel != null && String(pub.coachLevel).trim() !== '')
     );
   });
+};
+
+/**
+ * Coach figurina layout eligibility for ProfilePage (provider accounts use full hints).
+ */
+export const isCoachProfileStickerEligible = (
+  listings = [],
+  profilePublicData = {},
+  userTypeRoles = {}
+) => {
+  const pd = profilePublicData || {};
+  const coachOnlyProfile = hasPeakUpCoachOnlyProfilePublicData(pd);
+  const listingHints = hasPeakUpListingCoachHints(listings);
+  const isProvider = Boolean(userTypeRoles?.provider);
+  const isCustomer = Boolean(userTypeRoles?.customer);
+
+  if (isExplicitCustomerUserType(pd)) {
+    return coachOnlyProfile || listingHints;
+  }
+
+  if (isExplicitCoachProviderUserType(pd)) {
+    return shouldShowPeakUpProfileSticker(listings, pd);
+  }
+
+  if (isProvider && !isCustomer) {
+    return shouldShowPeakUpProfileSticker(listings, pd);
+  }
+
+  if (isProvider && isCustomer) {
+    return coachOnlyProfile || listingHints;
+  }
+
+  if (isCustomer && !isProvider) {
+    return coachOnlyProfile || listingHints;
+  }
+
+  return coachOnlyProfile || listingHints;
+};
+
+/**
+ * PeakUp member (customer) profile: community layout, not coach figurina.
+ *
+ * @param {Array} listings
+ * @param {Object} profilePublicData
+ * @param {{ customer?: boolean; provider?: boolean }} [userTypeRoles]
+ * @returns {boolean}
+ */
+export const isPeakUpCustomerMemberProfile = (
+  listings = [],
+  profilePublicData = {},
+  userTypeRoles = {}
+) => {
+  const pd = profilePublicData || {};
+
+  if (isExplicitCoachProviderUserType(pd)) {
+    return false;
+  }
+
+  if (isExplicitCustomerUserType(pd)) {
+    return true;
+  }
+
+  const isProvider = Boolean(userTypeRoles?.provider);
+  const isCustomer = Boolean(userTypeRoles?.customer);
+
+  if (isProvider && !isCustomer) {
+    return false;
+  }
+
+  const coachStickerEligible = isCoachProfileStickerEligible(listings, pd, userTypeRoles);
+
+  // PeakUp member accounts: marketplace config marks customer-only (not provider).
+  if (isCustomer && !isProvider) {
+    return !coachStickerEligible;
+  }
+
+  return false;
+};
+
+export const shouldShowPeakUpProfileSticker = (listings = [], profilePublicData = {}) => {
+  const pd = profilePublicData || {};
+  const list = Array.isArray(listings) ? listings : [];
+
+  const profileCoachHints = hasPeakUpCoachProfilePublicData(pd);
+
+  const listingCoachHints = hasPeakUpListingCoachHints(list);
 
   if (!list.length) {
     return profileCoachHints;

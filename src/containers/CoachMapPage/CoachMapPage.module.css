@@ -122,6 +122,18 @@
   outline-offset: 2px;
 }
 
+.sidebarGeoError {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: rgba(255, 232, 232, 0.96);
+  background: rgba(220, 60, 60, 0.16);
+  border: 1px solid rgba(255, 120, 120, 0.35);
+  border-radius: 12px;
+}
+
 /* When sport + anchor has no coaches within the nearby radius */
 .proximityNotice {
   margin: 0 14px 12px;

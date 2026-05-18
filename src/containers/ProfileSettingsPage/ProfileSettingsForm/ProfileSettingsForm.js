@@ -53,6 +53,13 @@ const PEAK_ROW_SPORTS_LANG_KEYS = new Set([PUB_SPORTS_KEY, PUB_LANGUAGES_KEY]);
 // Hidden / hard-removed keys: never rendered as user-editable form fields.
 const PEAK_HIDDEN_FIELD_KEYS = new Set([PUB_PEAK_BADGES_KEY, PUB_COACH_CITY_TEXT_KEY]);
 const PEAK_ROW_PRICING_KEYS = new Set([PUB_CURRENCY_KEY, PUB_PRICE_FROM_KEY]);
+/** Coach-only PeakUp public fields — hidden on client (customer) profile settings. */
+const PEAK_COACH_ONLY_FIELD_KEYS = new Set([
+  PUB_SPORTS_KEY,
+  PUB_CURRENCY_KEY,
+  PUB_PRICE_FROM_KEY,
+  addScopePrefix('public', 'coachTravelNearby'),
+]);
 
 /** Sport left, languages right (Console user-field order can list languages first). */
 const PEAK_SPORTS_LANG_COLUMN_ORDER = [PUB_SPORTS_KEY, PUB_LANGUAGES_KEY];
@@ -128,6 +135,7 @@ const DisplayNameMaybe = props => {
  * @param {propTypes.currentUser} props.currentUser - The current user
  * @param {Object} props.userTypeConfig - The user type config
  * @param {string} props.userTypeConfig.userType - The user type
+ * @param {boolean} [props.isCoachUser] - Provider-role user: show coach profile fields and copy
  * @param {Array<Object>} props.userFields - The user fields
  * @param {Object} [props.profileImage] - The profile image
  * @param {string} props.marketplaceName - The marketplace name
@@ -190,6 +198,7 @@ class ProfileSettingsFormComponent extends Component {
             values,
             userFields,
             userTypeConfig,
+            isCoachUser = true,
           } = fieldRenderProps;
 
           const user = ensureCurrentUser(currentUser);
@@ -314,9 +323,15 @@ class ProfileSettingsFormComponent extends Component {
           // Hard-hide any field listed in `PEAK_HIDDEN_FIELD_KEYS` even when it
           // still arrives from the Console-hosted user-fields asset
           // (Founder / Ambassador must remain admin-only).
-          const peakUpFieldProps = userFieldProps.filter(
-            p => PEAK_UP_PROFILE_FIELD_KEYS.has(p.key) && !PEAK_HIDDEN_FIELD_KEYS.has(p.key)
-          );
+          const peakUpFieldProps = userFieldProps.filter(p => {
+            if (!PEAK_UP_PROFILE_FIELD_KEYS.has(p.key) || PEAK_HIDDEN_FIELD_KEYS.has(p.key)) {
+              return false;
+            }
+            if (isCoachUser) {
+              return true;
+            }
+            return p.key === PUB_LANGUAGES_KEY || p.key === PUB_SPORTS_KEY;
+          });
           const coachPeakSportsLanguages = peakUpFieldProps
             .filter(p => PEAK_ROW_SPORTS_LANG_KEYS.has(p.key))
             .sort(
@@ -330,21 +345,34 @@ class ProfileSettingsFormComponent extends Component {
               (a, b) =>
                 PEAK_PRICING_DISPLAY_ORDER.indexOf(a.key) - PEAK_PRICING_DISPLAY_ORDER.indexOf(b.key)
             );
-          const coachPeakRemaining = peakUpFieldProps.filter(
-            p =>
-              !PEAK_ROW_SPORTS_LANG_KEYS.has(p.key) &&
-              !PEAK_ROW_PRICING_KEYS.has(p.key)
-          );
+          const coachPeakRemaining = peakUpFieldProps.filter(p => {
+            if (PEAK_ROW_SPORTS_LANG_KEYS.has(p.key) || PEAK_ROW_PRICING_KEYS.has(p.key)) {
+              return false;
+            }
+            if (!isCoachUser && PEAK_COACH_ONLY_FIELD_KEYS.has(p.key)) {
+              return false;
+            }
+            return true;
+          });
           const otherUserFieldProps = userFieldProps.filter(
             p => !PEAK_UP_PROFILE_FIELD_KEYS.has(p.key) && !PEAK_HIDDEN_FIELD_KEYS.has(p.key)
           );
-          const experienceFieldForHero = otherUserFieldProps.find(
-            p => p.key === PUB_EXPERIENCE_KEY
-          );
+          const experienceFieldForHero = isCoachUser
+            ? otherUserFieldProps.find(p => p.key === PUB_EXPERIENCE_KEY)
+            : null;
           const countryFieldForHero = otherUserFieldProps.find(p => p.key === PUB_COUNTRY_KEY);
-          const otherUserFieldPropsRest = otherUserFieldProps.filter(
-            p => p.key !== PUB_EXPERIENCE_KEY && p.key !== PUB_COUNTRY_KEY
-          );
+          const otherUserFieldPropsRest = otherUserFieldProps.filter(p => {
+            if (p.key === PUB_COUNTRY_KEY) {
+              return false;
+            }
+            if (p.key === PUB_EXPERIENCE_KEY) {
+              return false;
+            }
+            if (!isCoachUser && PEAK_COACH_ONLY_FIELD_KEYS.has(p.key)) {
+              return false;
+            }
+            return true;
+          });
           let experienceHeroFieldProps = null;
           if (experienceFieldForHero) {
             const { key, ...rest } = experienceFieldForHero;
@@ -498,7 +526,14 @@ class ProfileSettingsFormComponent extends Component {
                 </div>
               </div>
 
-              <div className={css.sectionContainer}>
+              <div
+                className={classNames(css.sectionContainer, {
+                  [css.lastSection]:
+                    !isCoachUser &&
+                    coachPeakSportsLanguages.length === 0 &&
+                    otherUserFieldPropsRest.length === 0,
+                })}
+              >
                 <H4 as="h2" className={css.sectionTitle}>
                   <FormattedMessage id="ProfileSettingsForm.bioHeading" />
                 </H4>
@@ -510,7 +545,14 @@ class ProfileSettingsFormComponent extends Component {
                   placeholder={bioPlaceholder}
                 />
                 <p className={css.extraInfo}>
-                  <FormattedMessage id="ProfileSettingsForm.bioInfo" values={{ marketplaceName }} />
+                  <FormattedMessage
+                    id={
+                      isCoachUser
+                        ? 'ProfileSettingsForm.bioInfo'
+                        : 'ProfileSettingsForm.bioInfoCustomer'
+                    }
+                    values={{ marketplaceName }}
+                  />
                 </p>
               </div>
               {otherUserFieldPropsRest.length > 0 ? (
@@ -522,9 +564,23 @@ class ProfileSettingsFormComponent extends Component {
               ) : null}
 
               {coachPeakSportsLanguages.length > 0 ? (
-                <div className={classNames(css.sectionContainer, css.coachSportsLangSection)}>
+                <div
+                  className={classNames(css.sectionContainer, css.coachSportsLangSection, {
+                    [css.lastSection]: !isCoachUser,
+                  })}
+                >
                   <H4 as="h2" className={css.sectionTitle}>
-                    <FormattedMessage id="ProfileSettingsForm.sportsAndLanguagesHeading" />
+                    <FormattedMessage
+                      id={
+                        isCoachUser
+                          ? 'ProfileSettingsForm.sportsAndLanguagesHeading'
+                          : coachHasSportsAndLanguages
+                          ? 'ProfileSettingsForm.clientSportsAndLanguagesHeading'
+                          : coachPeakSportsLanguages.some(p => p.key === PUB_SPORTS_KEY)
+                          ? 'ProfileSettingsForm.clientFavoriteSportsHeading'
+                          : 'ProfileSettingsForm.clientLanguagesHeading'
+                      }
+                    />
                   </H4>
                   <div
                     className={
@@ -547,7 +603,7 @@ class ProfileSettingsFormComponent extends Component {
               {/* Coach badges section removed: Founder / Ambassador are admin-only,
                   Top coach / Certified coach are auto-derived from experience. */}
 
-              {coachPeakPricing.length > 0 ? (
+              {isCoachUser && coachPeakPricing.length > 0 ? (
                 <div className={css.sectionContainer}>
                   <H4 as="h2" className={css.sectionTitle}>
                     <FormattedMessage id="ProfileSettingsForm.coachSessionPriceHeading" />
@@ -563,22 +619,24 @@ class ProfileSettingsFormComponent extends Component {
                 </div>
               ) : null}
 
-              <div className={classNames(css.sectionContainer, css.lastSection)}>
-                <H4 as="h2" className={css.sectionTitle}>
-                  <FormattedMessage id="ProfileSettingsForm.coachLocationHeading" />
-                </H4>
-                <p className={css.extraInfo}>
-                  {coachPeakPricing.length > 0 ? (
-                    <FormattedMessage id="ProfileSettingsForm.coachLocationSectionInfo" />
-                  ) : (
-                    <FormattedMessage id="ProfileSettingsForm.coachLocationOnlyInfo" />
-                  )}
-                </p>
-                {coachPeakRemaining.map(({ key, ...fieldProps }) => (
-                  <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
-                ))}
-                <FieldCoachMapLocation formId={formId} />
-              </div>
+              {isCoachUser ? (
+                <div className={classNames(css.sectionContainer, css.lastSection)}>
+                  <H4 as="h2" className={css.sectionTitle}>
+                    <FormattedMessage id="ProfileSettingsForm.coachLocationHeading" />
+                  </H4>
+                  <p className={css.extraInfo}>
+                    {coachPeakPricing.length > 0 ? (
+                      <FormattedMessage id="ProfileSettingsForm.coachLocationSectionInfo" />
+                    ) : (
+                      <FormattedMessage id="ProfileSettingsForm.coachLocationOnlyInfo" />
+                    )}
+                  </p>
+                  {coachPeakRemaining.map(({ key, ...fieldProps }) => (
+                    <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
+                  ))}
+                  <FieldCoachMapLocation formId={formId} />
+                </div>
+              ) : null}
               {submitError}
               <Button
                 className={css.submitButton}

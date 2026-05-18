@@ -9,34 +9,27 @@
 }
 
 .root {
-  /* Positioning */
   composes: coverEverything;
+  z-index: 3;
 }
 
 .overlay {
-  /* Positioning */
   composes: coverEverything;
-
-  /* Overlay background style */
-  background-color: var(--colorWhite);
-  opacity: 0.9;
+  background: rgba(6, 12, 22, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0.94;
 }
 
 .overlayContent {
   composes: h4 from global;
-  color: var(--colorGrey700);
-
-  /* Positioning */
+  color: #f4f7fb;
   composes: coverEverything;
-
-  /* Layout */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   cursor: default;
-
-  /* Remove default margins from font */
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -52,9 +45,10 @@
   composes: textXSmall from global;
   max-width: 220px;
   text-align: center;
+  color: rgba(196, 210, 228, 0.88);
 }
 
 .errorMessage {
   composes: message;
-  color: var(--colorFail);
+  color: #ff8a8a;
 }

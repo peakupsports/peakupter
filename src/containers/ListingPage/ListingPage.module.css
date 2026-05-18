@@ -1,5 +1,31 @@
 @import '../../styles/customMediaQueries.css';
 
+/* PeakUp public listing detail — extends account pageShell on <Page>. */
+.pagePeakUp {
+  min-height: 100vh;
+}
+
+.listingMain {
+  background: transparent;
+  overflow-x: hidden;
+
+  @media (--viewportLarge) {
+    overflow: visible;
+    overflow-x: visible;
+  }
+}
+
+.listingPeakUp {
+  --peakUpGlass: rgba(10, 18, 32, 0.78);
+  --peakUpGlassHi: rgba(14, 24, 42, 0.9);
+  --peakUpGlassBorder: rgba(25, 223, 242, 0.16);
+  --peakUpTextPrimary: #f4f7fb;
+  --peakUpTextMuted: rgba(196, 210, 228, 0.78);
+  --peakUpCyan: #19dff2;
+  --peakUpLime: #9dff4f;
+  color: rgba(228, 235, 243, 0.92);
+}
+
 .root {
 }
 
@@ -13,6 +39,7 @@
 
 .loadingText {
   margin: 24px;
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.78));
 }
 
 .errorText {
@@ -39,7 +66,22 @@
 
 .imageWrapperForSectionHero {
   composes: heroHeight;
-  background-color: var(--colorGrey100); /* Loading BG color */
+  background-color: #0a1019;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      rgba(6, 12, 22, 0.45) 0%,
+      transparent 22%,
+      transparent 78%,
+      rgba(6, 12, 22, 0.5) 100%
+    );
+  }
 
   /* Image carousel can be opened from the image, therefore we should show a pointer */
   cursor: pointer;
@@ -56,8 +98,13 @@
   justify-content: space-between;
   flex-direction: column;
   width: 100%;
-  color: var(--colorGrey100);
-  background-color: var(--colorGrey700);
+  color: var(--peakUpTextPrimary, #f4f7fb);
+  background:
+    radial-gradient(ellipse 90% 80% at 0% 0%, rgba(23, 217, 255, 0.1) 0%, transparent 55%),
+    rgba(8, 14, 26, 0.92);
+  border: 1px solid rgba(25, 223, 242, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 1; /* bring on top of mobile image */
   padding: 0 24px;
 
@@ -239,11 +286,17 @@
 
   @media (--viewportMedium) {
     object-fit: cover;
-    border-radius: var(--borderRadius);
+    border-radius: 16px;
+    border: 1px solid rgba(25, 223, 242, 0.2);
+    box-shadow:
+      0 16px 40px rgba(0, 0, 0, 0.35),
+      0 0 24px rgba(23, 217, 255, 0.08);
 
     &:hover {
       transform: scale(1.005);
-      box-shadow: var(--boxShadowListingCard);
+      box-shadow:
+        0 20px 48px rgba(0, 0, 0, 0.4),
+        0 0 28px rgba(23, 217, 255, 0.12);
     }
   }
 }
@@ -282,6 +335,8 @@
     max-width: calc(var(--contentMaxWidth) + 72px);
     padding: 0 36px;
     margin: 0 auto 117px;
+    align-items: flex-start;
+    overflow: visible;
   }
 
   @media (--viewportXLarge) {
@@ -294,11 +349,12 @@
   @media (--viewportMedium) {
   }
   @media (--viewportLarge) {
-    /* contentContainer's full width - (orderColumn + paddings + margin) */
-    max-width: calc(100% - 360px);
-    flex-basis: calc(100% - 360px);
-    flex-shrink: 0;
+    /* contentContainer's full width - (orderColumn max + column gap) */
+    max-width: calc(100% - 428px);
+    flex-basis: calc(100% - 428px);
+    flex-shrink: 1;
     flex-grow: 1;
+    min-width: 0;
   }
 }
 
@@ -308,8 +364,12 @@
   @media (--viewportLarge) {
     display: block;
     margin-left: 48px;
-    flex-basis: 312px;
-    flex-shrink: 0;
+    flex: 0 0 380px;
+    width: 380px;
+    min-width: 320px;
+    max-width: 380px;
+    overflow: visible;
+    align-self: flex-start;
   }
 }
 
@@ -326,10 +386,12 @@
   @media (--viewportLarge) {
     display: flex;
     flex-direction: row;
+    align-items: flex-start;
     max-width: unset;
     width: min(calc(var(--contentMaxWidth) + 72px), 100vw);
     padding: 64px 36px 0 36px;
     margin: 0 auto 117px auto;
+    overflow: visible;
   }
 }
 
@@ -346,11 +408,12 @@
   @media (--viewportLarge) {
     margin-top: 80px;
     margin-bottom: 0px;
-    /* contentContainer's full width - (orderColumn + two paddings + margin + border) */
-    max-width: calc(100% - 433px);
-    flex-basis: calc(100% - 433px);
-    flex-shrink: 0;
+    /* contentContainer's full width - (orderColumn max + column gap) */
+    max-width: calc(100% - 428px);
+    flex-basis: calc(100% - 428px);
+    flex-shrink: 1;
     flex-grow: 1;
+    min-width: 0;
   }
 }
 
@@ -360,15 +423,27 @@
   @media (--viewportLarge) {
     display: block;
     margin-top: 80px;
-    margin-left: 60px;
-    border-left: 1px solid var(--colorGrey100);
-    padding-left: 60px;
-    flex-basis: 312px;
-    flex-shrink: 0;
+    margin-left: 48px;
+    border-left: none;
+    padding-left: 0;
+    flex: 0 0 380px;
+    width: 380px;
+    min-width: 320px;
+    max-width: 380px;
+    overflow: visible;
+    align-self: flex-start;
   }
 }
 
 .orderPanel {
+  @media (--viewportLarge) {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 320px;
+    max-width: 380px;
+    overflow: visible;
+  }
+
   /* Note: panel height might be too much on small viewport - hence min-height */
   @media (--viewportLarge) and (min-height: 950px) {
     position: sticky;
@@ -379,6 +454,11 @@
 .productOrderPanel {
   @media (--viewportLarge) {
     display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 320px;
+    max-width: 380px;
+    overflow: visible;
   }
   /* Note: panel height might be too much on small viewport - hence min-height */
   @media (--viewportLarge) and (min-height: 950px) {
@@ -387,8 +467,15 @@
   }
   &.imagesEnabled {
     @media (--viewportLarge) {
-      margin-top: 24px;
+      margin-top: 0;
     }
+  }
+}
+
+/* Product layout: align booking panel top with gallery (left column has action bar above gallery). */
+.listingPeakUp .orderColumnForProductLayout:has(.imagesEnabled) {
+  @media (--viewportLarge) {
+    margin-top: 72px;
   }
 }
 
@@ -460,7 +547,7 @@
 .desktopPriceValue {
   /* Font */
   composes: marketplaceModalTitleStyles from global;
-  color: var(--marketplaceColor);
+  color: var(--peakUpCyan, #19dff2);
 
   @media (--viewportMedium) {
     margin-top: 0;
@@ -471,7 +558,7 @@
 .desktopPerUnit {
   /* Font */
   composes: h5 from global;
-  color: var(--colorGrey700);
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.78));
 
   @media (--viewportMedium) {
     margin-top: 0;
@@ -492,7 +579,7 @@
 .title {
   /* Font */
   composes: marketplaceModalTitleStyles from global;
-  color: var(--colorGrey700);
+  color: var(--peakUpTextPrimary, #f4f7fb);
 
   /* Layout */
   width: 100%;
@@ -514,13 +601,13 @@
   @media (--viewportMedium) {
     margin-top: 0;
     margin-bottom: 0;
-    color: var(--colorGrey700);
+    color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.78));
   }
 }
 
 .authorNameLink {
   composes: textSmall from global;
-  color: var(--colorGrey700);
+  color: rgba(120, 225, 255, 0.92);
 }
 
 .contactWrapper {
@@ -544,7 +631,7 @@
   border: none;
 
   /* Colors */
-  color: var(--marketplaceColor);
+  color: rgba(120, 225, 255, 0.92);
 
   /* Text size should be inherited */
   text-decoration: none;
@@ -581,6 +668,7 @@
   composes: p from global;
   padding: 0;
   font-weight: var(--fontWeightBold);
+  color: var(--peakUpTextPrimary, #f4f7fb);
 
   margin-top: 0;
   margin-bottom: 12px;
@@ -599,6 +687,7 @@
 
 .text {
   font-weight: var(--fontWeightRegular);
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.78));
   padding: 1px 0 5px 0;
   margin: 0;
 
@@ -613,6 +702,7 @@
 
 .ingress {
   composes: p from global;
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.85));
   margin: 0;
 
   /* Preserve newlines, but collapse other whitespace */
@@ -672,12 +762,13 @@
   width: 100%;
   list-style: none;
   font-weight: var(--fontWeightRegular);
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.78));
   line-height: 24px;
   padding: 7px 0px 10px;
   gap: 8px;
 
   &:not(:last-child) {
-    border-bottom: 1px solid var(--colorGrey100);
+    border-bottom: 1px solid rgba(25, 223, 242, 0.12);
   }
 
   @media (--viewportMedium) {
@@ -689,6 +780,7 @@
 .detailLabel {
   font-weight: var(--fontWeightSemiBold);
   letter-spacing: -0.09px;
+  color: var(--peakUpTextPrimary, #f4f7fb);
 }
 
 .inquiryModalContent {
@@ -714,7 +806,10 @@
   left: 0;
   right: 0;
   padding: 24px;
-  background-color: var(--colorWhite);
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(6, 12, 22, 0.96) 24%),
+    rgba(6, 12, 22, 0.98);
+  border-top: 1px solid rgba(25, 223, 242, 0.12);
 
   @media (--viewportMedium) {
     position: static;
@@ -775,17 +870,17 @@
 
 .peakupTopbarCenterTitle {
   font-weight: var(--fontWeightSemiBold);
-  color: var(--colorGrey900);
+  color: var(--peakUpTextPrimary, #f4f7fb);
   font-size: 14px;
   line-height: 18px;
 }
 
 .peakupTopbarCenterSep {
-  color: var(--colorGrey400);
+  color: rgba(196, 210, 228, 0.45);
 }
 
 .peakupTopbarCenterPrice {
-  color: var(--marketplaceColor);
+  color: var(--peakUpCyan, #19dff2);
   font-weight: var(--fontWeightSemiBold);
   font-variant-numeric: tabular-nums;
   font-size: 14px;
@@ -793,7 +888,7 @@
 }
 
 .peakupTopbarCenterUnit {
-  color: var(--colorGrey700);
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.78));
   font-weight: var(--fontWeightMedium);
 }
 
@@ -880,4 +975,502 @@
   right: 0;
   width: 100%;
   height: 100%;
+}
+
+/* =====================================================================
+ * PeakUp scoped overrides (order panel, forms, reviews, footer)
+ * ===================================================================== */
+
+.pagePeakUp :global(footer) {
+  background: linear-gradient(180deg, #050a14 0%, #040810 100%);
+  border-top: 1px solid rgba(25, 223, 242, 0.1);
+}
+
+.listingPeakUp .orderPanelTitle,
+.listingPeakUp .orderPanel :global([class*='OrderPanel_orderTitle']),
+.listingPeakUp .productOrderPanel :global([class*='OrderPanel_orderTitle']) {
+  color: var(--peakUpTextPrimary, #f4f7fb);
+}
+
+.listingPeakUp .sectionText,
+.listingPeakUp .sectionDetails,
+.listingPeakUp .sectionMultiEnum,
+.listingPeakUp .sectionEmbeddedYoutubeVideo,
+.listingPeakUp .sectionMap,
+.listingPeakUp .sectionReviews {
+  @media (--viewportLarge) {
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    border-radius: 16px;
+    border: 1px solid var(--peakUpGlassBorder, rgba(25, 223, 242, 0.16));
+    background:
+      radial-gradient(ellipse 100% 70% at 0% 0%, rgba(23, 217, 255, 0.06) 0%, transparent 52%),
+      var(--peakUpGlass, rgba(10, 18, 32, 0.78));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+      0 16px 40px rgba(0, 0, 0, 0.28),
+      0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  }
+}
+
+.listingPeakUp .productGallery {
+  @media (--viewportMedium) {
+    padding: 0 4px;
+  }
+}
+
+.listingPeakUp .viewPhotos {
+  background: rgba(8, 14, 26, 0.88);
+  border: 1px solid rgba(25, 223, 242, 0.28);
+  color: var(--peakUpTextPrimary, #f4f7fb);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  &:hover,
+  &:focus {
+    border-color: rgba(23, 217, 255, 0.45);
+    color: #ffffff;
+    background: rgba(12, 22, 38, 0.95);
+  }
+}
+
+.listingPeakUp .map {
+  background-color: rgba(8, 14, 24, 0.65);
+  border-radius: 12px;
+  border: 1px solid rgba(25, 223, 242, 0.14);
+  overflow: hidden;
+}
+
+.listingPeakUp .video {
+  border: 1px solid rgba(25, 223, 242, 0.14);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+/* Order panel — dark glass card + internal layout rhythm */
+.listingPeakUp .orderPanel,
+.listingPeakUp .productOrderPanel {
+  @media (--viewportLarge) {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 320px;
+    max-width: 380px;
+    padding: 28px 28px 24px;
+    overflow: visible;
+    border-radius: 20px;
+    border: 1px solid rgba(120, 225, 255, 0.22);
+    background: rgba(5, 16, 28, 0.86);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  }
+}
+
+.listingPeakUp .orderPanel :global([class*='OrderPanel_modalContainer']),
+.listingPeakUp .productOrderPanel :global([class*='OrderPanel_modalContainer']) {
+  @media (--viewportLarge) {
+    overflow: visible;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+}
+
+.listingPeakUp .orderPanel :global([class*='OrderPanel_orderHeading']),
+.listingPeakUp .productOrderPanel :global([class*='OrderPanel_orderHeading']) {
+  @media (--viewportLarge) {
+    margin: 0 0 12px;
+    padding: 0;
+  }
+}
+
+.listingPeakUp .orderPanel :global([class*='OrderPanel_orderTitle']),
+.listingPeakUp .productOrderPanel :global([class*='OrderPanel_orderTitle']),
+.listingPeakUp .orderPanel .orderPanelTitle,
+.listingPeakUp .productOrderPanel .orderPanelTitle {
+  @media (--viewportLarge) {
+    margin: 0 0 4px;
+    padding: 0;
+    line-height: 1.25;
+    word-break: break-word;
+  }
+}
+
+.listingPeakUp .orderPanel :global([class*='OrderPanel_price']),
+.listingPeakUp .productOrderPanel :global([class*='OrderPanel_price']) {
+  @media (--viewportLarge) {
+    margin: 0 0 14px;
+    padding: 0;
+  }
+}
+
+.listingPeakUp .orderPanel :global([class*='OrderPanel_priceContainer']),
+.listingPeakUp .productOrderPanel :global([class*='OrderPanel_priceContainer']) {
+  @media (--viewportLarge) {
+    margin: 0 0 14px;
+    padding: 0;
+  }
+}
+
+.listingPeakUp .orderPanel :global([class*='OrderPanel_author']),
+.listingPeakUp .productOrderPanel :global([class*='OrderPanel_author']) {
+  @media (--viewportLarge) {
+    width: 100%;
+    margin: 0 0 20px;
+    padding: 0;
+  }
+}
+
+.listingPeakUp .orderPanel :global([class*='OrderPanel_orderHelp']),
+.listingPeakUp .productOrderPanel :global([class*='OrderPanel_orderHelp']) {
+  @media (--viewportLarge) {
+    margin: 4px 0 0;
+    padding: 0;
+  }
+}
+
+.listingPeakUp .orderPanel :global([class*='OrderPanel_bookingForm']),
+.listingPeakUp .productOrderPanel :global([class*='OrderPanel_bookingForm']) {
+  @media (--viewportLarge) {
+    min-width: 0;
+    width: 100%;
+    padding: 0;
+    min-height: auto;
+  }
+}
+
+/* Date / time row — clean two-column grid inside panel */
+.listingPeakUp :global([class*='FieldDateAndTimeInput_formRow']) {
+  @media (--viewportLarge) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px 16px;
+    width: 100%;
+    margin-top: 16px;
+    padding: 0;
+    flex-wrap: unset;
+  }
+}
+
+.listingPeakUp :global([class*='FieldDateAndTimeInput_field']) {
+  @media (--viewportLarge) {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+.listingPeakUp :global([class*='FieldDateAndTimeInput_fieldDateInput']),
+.listingPeakUp :global([class*='FieldDateAndTimeInput_startTime']),
+.listingPeakUp :global([class*='FieldDateAndTimeInput_fieldSelect']) {
+  @media (--viewportLarge) {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+.listingPeakUp :global([class*='FieldDateAndTimeInput_fieldDatePopup']) {
+  @media (--viewportLarge) {
+    width: calc(200% + 16px);
+    margin: 0;
+    left: 0;
+  }
+}
+
+.listingPeakUp :global([class*='BookingDatesForm_bookingDates']),
+.listingPeakUp :global([class*='BookingTimeForm_bookingDates']),
+.listingPeakUp :global([class*='BookingFixedDurationForm_bookingDates']) {
+  @media (--viewportLarge) {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.listingPeakUp :global([class*='BookingDatesForm_fieldSeats']),
+.listingPeakUp :global([class*='BookingTimeForm_fieldSeats']),
+.listingPeakUp :global([class*='BookingFixedDurationForm_fieldSeats']) {
+  @media (--viewportLarge) {
+    width: 100%;
+    margin: 16px 0 0;
+    padding: 0;
+  }
+}
+
+.listingPeakUp :global([class*='BookingFixedDurationForm_peakupSessionBlock']) {
+  @media (--viewportLarge) {
+    margin: 16px 0 0;
+    padding: 0;
+  }
+}
+
+.listingPeakUp :global([class*='BookingDatesForm_priceBreakdownContainer']),
+.listingPeakUp :global([class*='BookingTimeForm_priceBreakdownContainer']),
+.listingPeakUp :global([class*='BookingFixedDurationForm_receipt']) {
+  @media (--viewportLarge) {
+    margin: 16px 0 0;
+    padding: 0;
+  }
+}
+
+.listingPeakUp :global([class*='BookingDatesForm_submitButton']),
+.listingPeakUp :global([class*='BookingTimeForm_submitButton']),
+.listingPeakUp :global([class*='BookingFixedDurationForm_submitButton']),
+.listingPeakUp :global([class*='ProductOrderForm_submitButton']),
+.listingPeakUp :global([class*='InquiryWithoutPaymentForm_submitButton']) {
+  @media (--viewportLarge) {
+    width: 100%;
+    margin-top: 24px;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+
+.listingPeakUp :global([class*='BookingDatesForm_submitButton']) :global([class*='Button_root']),
+.listingPeakUp :global([class*='BookingTimeForm_submitButton']) :global([class*='Button_root']),
+.listingPeakUp :global([class*='BookingFixedDurationForm_submitButton']) :global([class*='Button_root']),
+.listingPeakUp :global([class*='ProductOrderForm_submitButton']) :global([class*='Button_root']) {
+  @media (--viewportLarge) {
+    width: 100%;
+  }
+}
+
+.listingPeakUp :global([class*='OrderPanel_error']),
+.listingPeakUp :global([class*='OrderPanel_errorSidebar']) {
+  @media (--viewportLarge) {
+    margin: 12px 0 0;
+    padding: 0;
+  }
+}
+
+.listingPeakUp :global([class*='PriceVariantPicker_root']) {
+  @media (--viewportLarge) {
+    margin-bottom: 16px;
+  }
+}
+
+.listingPeakUp :global([class*='OrderPanel_heading']),
+.listingPeakUp :global([class*='OrderPanel_orderHelp']),
+.listingPeakUp :global([class*='OrderPanel_author']) {
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.78));
+}
+
+.listingPeakUp :global([class*='OrderPanel_priceValue']),
+.listingPeakUp :global([class*='OrderPanel_priceValueInCTA']),
+.listingPeakUp :global([class*='OrderPanel_perUnit']),
+.listingPeakUp :global([class*='OrderPanel_perUnitInCTA']) {
+  color: var(--peakUpCyan, #19dff2);
+}
+
+.listingPeakUp :global([class*='OrderPanel_openOrderForm']) {
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(6, 12, 22, 0.97) 20%),
+    rgba(6, 12, 22, 0.98);
+  border-top: 1px solid rgba(25, 223, 242, 0.14);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.listingPeakUp :global([class*='OrderPanel_modalContainer']) {
+  @media (--viewportMedium) {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(23, 217, 255, 0.08) 0%, transparent 55%),
+      rgba(8, 14, 26, 0.98);
+    border: 1px solid rgba(25, 223, 242, 0.18);
+    border-radius: 16px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  }
+}
+
+.listingPeakUp :global([class*='OrderPanel_closedListingButton']) {
+  border-left-color: rgba(25, 223, 242, 0.14);
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.78));
+}
+
+/* Custom extended data sections */
+.listingPeakUp :global([class*='CustomExtendedDataSection_sectionHeading']),
+.listingPeakUp :global([class*='CustomExtendedDataSection_sectionHeadingWithExtraMargin']) {
+  color: var(--peakUpTextPrimary, #f4f7fb);
+}
+
+.listingPeakUp :global([class*='CustomExtendedDataSection_text']),
+.listingPeakUp :global([class*='CustomExtendedDataSection_ingress']) {
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.78));
+}
+
+/* Reviews */
+.listingPeakUp :global([class*='Reviews_reviewContent']) {
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.82));
+}
+
+.listingPeakUp :global([class*='Reviews_reviewInfo']) {
+  color: rgba(157, 176, 198, 0.72);
+}
+
+/* UserCard author section */
+.listingPeakUp :global([class*='UserCard_heading']) {
+  color: var(--peakUpTextPrimary, #f4f7fb);
+}
+
+.listingPeakUp :global([class*='UserCard_mobileBio']),
+.listingPeakUp :global([class*='UserCard_desktopBio']) {
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.82));
+}
+
+.listingPeakUp :global([class*='UserCard_showMore']),
+.listingPeakUp :global([class*='UserCard_contact']),
+.listingPeakUp :global([class*='UserCard_editProfileDesktop']),
+.listingPeakUp :global([class*='UserCard_editProfileMobile']) {
+  color: rgba(120, 225, 255, 0.92);
+}
+
+.listingPeakUp :global([class*='UserCard_linkSeparator']) {
+  color: rgba(25, 223, 242, 0.35);
+}
+
+/* Form fields inside order panel + inquiry modal */
+.listingPeakUp :global([class*='FieldTextInput_root']) > label,
+.listingPeakUp :global([class*='FieldSelect_root']) > label,
+.listingPeakUp :global([class*='FieldDateInput_root']) > label,
+.listingPeakUp :global([class*='FieldDateRangeInput_root']) > label,
+.listingPeakUp :global([class*='FieldNumber_root']) > label {
+  color: rgba(228, 235, 243, 0.9) !important;
+}
+
+.listingPeakUp :global([class*='FieldTextInput_root']) input,
+.listingPeakUp :global([class*='FieldTextInput_root']) textarea,
+.listingPeakUp :global([class*='FieldSelect_root']) select,
+.listingPeakUp :global([class*='FieldNumber_root']) input,
+.listingPeakUp :global(.marketplaceInputStyles),
+.listingPeakUp :global([class*='FieldDateInput_input']),
+.listingPeakUp :global([class*='FieldDateRangeInput_input']) input {
+  color: rgba(247, 250, 255, 0.96) !important;
+  background-color: rgba(8, 14, 24, 0.78) !important;
+  border: 1px solid rgba(120, 225, 255, 0.2) !important;
+  border-radius: 10px !important;
+  box-sizing: border-box;
+}
+
+/* Native date/time pickers — dark field shell; calendar popup may stay OS-themed */
+.listingPeakUp :global([class*='FieldDateInput_input']) input[type='date'],
+.listingPeakUp :global([class*='FieldDateInput_input']) input[type='time'],
+.listingPeakUp :global([class*='FieldDateAndTimeInput_fieldDateInput']) input {
+  color-scheme: dark;
+  min-height: 44px;
+  padding: 10px 12px 10px 36px !important;
+}
+
+.listingPeakUp :global([class*='FieldTextInput_root']) input:focus,
+.listingPeakUp :global([class*='FieldTextInput_root']) textarea:focus,
+.listingPeakUp :global([class*='FieldSelect_root']) select:focus,
+.listingPeakUp :global([class*='FieldNumber_root']) input:focus,
+.listingPeakUp :global(.marketplaceInputStyles):focus-within {
+  outline: none;
+  border-color: rgba(23, 217, 255, 0.55) !important;
+  box-shadow: 0 0 18px rgba(23, 217, 255, 0.12) !important;
+}
+
+.listingPeakUp :global([class*='HelpText_root']) {
+  color: rgba(157, 196, 220, 0.68) !important;
+}
+
+.listingPeakUp :global([class*='ValidationError_root']) {
+  color: #ff9a9a !important;
+}
+
+/* PeakUp CTA — navy → cyan/lime gradient */
+.listingPeakUp :global([class*='Button_root'])[type='submit'],
+.listingPeakUp button[type='submit'],
+.listingPeakUp :global([class*='Button_primaryButtonRoot']) {
+  border: 1px solid rgba(120, 225, 255, 0.35) !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #0f172a 0%, #12314d 42%, #1fb8ff 100%) !important;
+  background-image: linear-gradient(135deg, #0f172a 0%, #12314d 42%, #1fb8ff 100%) !important;
+  box-shadow: 0 0 22px rgba(31, 184, 255, 0.22) !important;
+}
+
+.listingPeakUp :global([class*='Button_root'])[type='submit']:hover:not(:disabled),
+.listingPeakUp button[type='submit']:hover:not(:disabled),
+.listingPeakUp :global([class*='Button_primaryButtonRoot']):hover:not(:disabled) {
+  filter: brightness(1.06);
+  border-color: rgba(120, 225, 255, 0.5) !important;
+  box-shadow: 0 0 30px rgba(31, 184, 255, 0.35) !important;
+}
+
+.listingPeakUp :global([class*='Button_secondaryButtonRoot']),
+.listingPeakUp :global([class*='Button_secondaryButtonInlineRoot']) {
+  border-radius: 12px !important;
+  border: 1px solid rgba(25, 223, 242, 0.32) !important;
+  background: rgba(8, 14, 26, 0.72) !important;
+  color: rgba(228, 235, 243, 0.92) !important;
+}
+
+.listingPeakUp :global([class*='Button_inlineTextButtonRoot']) {
+  color: rgba(120, 225, 255, 0.92) !important;
+}
+
+/* Booking calendar */
+.listingPeakUp :global([class*='WeeklyCalendar_grid']) {
+  border-color: rgba(120, 225, 255, 0.16) !important;
+  background: rgba(8, 14, 24, 0.5) !important;
+}
+
+.listingPeakUp :global([class*='WeeklyCalendar_dateLabel']),
+.listingPeakUp :global([class*='WeeklyCalendar_weekPicker']),
+.listingPeakUp :global([class*='WeeklyCalendar_sectionTitle']),
+.listingPeakUp :global([class*='WeeklyCalendar_timeRange']),
+.listingPeakUp :global([class*='WeeklyCalendar_dateAndMonth']) {
+  color: rgba(196, 210, 228, 0.82) !important;
+}
+
+.listingPeakUp :global([class*='WeeklyCalendar_button']),
+.listingPeakUp :global([class*='WeeklyCalendar_prev']),
+.listingPeakUp :global([class*='WeeklyCalendar_next']) {
+  background: rgba(8, 14, 24, 0.72) !important;
+  border-color: rgba(120, 225, 255, 0.2) !important;
+  color: rgba(228, 235, 243, 0.9) !important;
+}
+
+.listingPeakUp :global([class*='BookingDatesForm_totalDivider']),
+.listingPeakUp :global([class*='BookingTimeForm_totalDivider']),
+.listingPeakUp :global([class*='BookingFixedDurationForm_totalDivider']) {
+  background-color: rgba(25, 223, 242, 0.14) !important;
+}
+
+.listingPeakUp :global([class*='BookingDatesForm_bookingBreakdownTitle']),
+.listingPeakUp :global([class*='OrderBreakdown_root']) {
+  color: var(--peakUpTextMuted, rgba(196, 210, 228, 0.85));
+}
+
+.listingPeakUp :global([class*='SubmitFinePrint_finePrint']) {
+  color: rgba(157, 176, 198, 0.65) !important;
+}
+
+.listingPeakUp :global([class*='PriceVariantPicker_option']) {
+  background: rgba(8, 14, 24, 0.65) !important;
+  border-color: rgba(25, 223, 242, 0.2) !important;
+  color: var(--peakUpTextPrimary, #f4f7fb) !important;
+}
+
+/* Inquiry modal */
+.listingPeakUp :global([class*='InquiryForm_heading']) {
+  color: var(--peakUpTextPrimary, #f4f7fb);
+}
+
+.listingPeakUp :global([class*='Modal_base']) {
+  background-color: rgba(4, 8, 16, 0.88);
+}
+
+.listingPeakUp :global([class*='Modal_content']) {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(23, 217, 255, 0.08) 0%, transparent 55%),
+    rgba(8, 14, 26, 0.98);
+  border: 1px solid rgba(25, 223, 242, 0.18);
+  border-radius: 16px;
 }

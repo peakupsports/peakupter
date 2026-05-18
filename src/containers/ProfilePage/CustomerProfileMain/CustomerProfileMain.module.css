@@ -1,0 +1,371 @@
+/*
+ * Customer profile dashboard — separate from coach ProfilePage styles.
+ */
+
+.root {
+  --customerTextPrimary: #eefcff;
+  --customerTextMuted: rgba(200, 230, 240, 0.65);
+  --customerCyan: #19dff2;
+  --customerRowHeight: 118px;
+
+  width: 100%;
+  max-width: none;
+}
+
+/* Vertical stack of full-width sections + 2-col row wrappers */
+.dashboardStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.dashboardFullWidth {
+  width: 100%;
+}
+
+/* Paired cards: true 2-column grid on tablet+ */
+.customerDashboardTwoColRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.customerDashboardTwoColRow > * {
+  min-width: 0;
+  min-height: var(--customerRowHeight);
+  height: 100%;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(25, 223, 242, 0.1);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(25, 223, 242, 0.05) 0%, transparent 44%),
+    linear-gradient(168deg, rgba(12, 22, 38, 0.9) 0%, rgba(6, 11, 20, 0.95) 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.025) inset,
+    0 4px 16px rgba(0, 0, 0, 0.14);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+  min-height: 20px;
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(185, 235, 248, 0.88);
+}
+
+.cardTitleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  color: rgba(200, 245, 255, 0.9);
+  background: rgba(25, 223, 242, 0.1);
+  border: 1px solid rgba(25, 223, 242, 0.16);
+}
+
+.cardBody {
+  flex: 1;
+  min-height: 0;
+  color: rgba(220, 245, 255, 0.88);
+  font-size: 12px;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardBodyCentered {
+  justify-content: center;
+  align-items: center;
+}
+
+.cardAbout {
+  min-height: 88px;
+  max-height: 100px;
+}
+
+.cardAbout .cardBody {
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.cardSaved {
+  min-height: 72px;
+  max-height: 80px;
+}
+
+/* Sport mini cards */
+.sportGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+  gap: 5px;
+  flex: 1;
+  align-content: center;
+}
+
+.sportMini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 54px;
+  padding: 5px 3px;
+  border-radius: 9px;
+  text-align: center;
+  background: rgba(25, 223, 242, 0.05);
+  border: 1px solid rgba(25, 223, 242, 0.12);
+}
+
+.sportMiniIcon {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.sportMiniLabel {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(220, 245, 255, 0.85);
+  line-height: 1.15;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.langRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+}
+
+.langChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1.2;
+  color: rgba(230, 250, 255, 0.9);
+  background: rgba(25, 223, 242, 0.07);
+  border: 1px solid rgba(25, 223, 242, 0.14);
+}
+
+.emptyText,
+.cardHint {
+  margin: 0;
+  color: var(--customerTextMuted);
+  font-size: 11px;
+  line-height: 1.36;
+}
+
+.viewAllBtn {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(25, 223, 242, 0.85);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.viewAllBtn:hover {
+  color: rgba(200, 245, 255, 1);
+}
+
+.cardReviews {
+  min-height: 0;
+}
+
+.reviewsScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.reviewsCompact {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reviewsCompact :global(.reviewItem) {
+  list-style: none;
+}
+
+.reviewsCompact :global(.review) {
+  display: flex;
+  margin-bottom: 7px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(25, 223, 242, 0.07);
+}
+
+.reviewsCompact :global(.review:last-child) {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.reviewsCompact :global(.avatar) {
+  width: 28px;
+  height: 28px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.reviewsCompact :global(.reviewContent) {
+  margin: 0 0 3px;
+  font-size: 11px;
+  line-height: 1.36;
+  color: rgba(230, 248, 255, 0.9);
+}
+
+.reviewsCompact :global(.reviewInfo) {
+  margin: 0;
+  font-size: 10px;
+  color: var(--customerTextMuted);
+}
+
+.reviewsCompact :global(.mobileReviewRating) {
+  margin-bottom: 2px;
+}
+
+.reviewsCompact :global(.reviewRatingStar) {
+  width: 11px;
+  height: 11px;
+}
+
+.reviewsCompact :global(.desktopReviewRatingWrapper) {
+  display: none;
+}
+
+.cardBookings {
+  display: flex;
+  flex-direction: column;
+}
+
+.bookingsLink {
+  display: inline-flex;
+  margin-top: auto;
+  align-self: flex-start;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #f4fcff;
+  background: rgba(12, 22, 38, 0.85);
+  border: 1px solid rgba(25, 223, 242, 0.22);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bookingsLink:hover {
+  border-color: rgba(25, 223, 242, 0.4);
+  box-shadow: 0 0 14px rgba(25, 223, 242, 0.1);
+}
+
+.savedPlaceholder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.savedIcon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(25, 223, 242, 0.06);
+  border: 1px dashed rgba(25, 223, 242, 0.18);
+}
+
+.savedIcon::before {
+  content: '♥';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+  color: rgba(25, 223, 242, 0.65);
+}
+
+.savedSoon {
+  margin: 2px 0 0;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(25, 223, 242, 0.55);
+}
+
+@media (--viewportMedium) {
+  .customerDashboardTwoColRow {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .dashboardStack {
+    gap: 12px;
+    width: 100%;
+  }
+}
+
+@media (--viewportLarge) {
+  .root {
+    --customerRowHeight: 112px;
+  }
+
+  .customerDashboardTwoColRow {
+    gap: 16px;
+  }
+
+  .dashboardStack {
+    gap: 10px;
+  }
+}

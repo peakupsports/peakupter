@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import classNames from 'classnames';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 
@@ -34,6 +35,7 @@ import {
   getOwnListingsById,
   discardDraft,
 } from './ManageListingsPage.duck';
+import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 import css from './ManageListingsPage.module.css';
 import DiscardDraftModal from './DiscardDraftModal/DiscardDraftModal';
 
@@ -203,14 +205,17 @@ export const ManageListingsPageComponent = props => {
 
   return (
     <Page
+      className={classNames(accountShellCss.pageShell, css.pagePeakUp)}
       title={intl.formatMessage({ id: 'ManageListingsPage.title' })}
       scrollingDisabled={scrollingDisabled}
     >
       <LayoutSingleColumn
+        mainColumnClassName={css.mainColumn}
         topbar={
           <>
             <TopbarContainer />
             <UserNav
+              className={css.userNavPeakUp}
               currentPage="ManageListingsPage"
               showManageListingsLink={showManageListingsLink}
             />

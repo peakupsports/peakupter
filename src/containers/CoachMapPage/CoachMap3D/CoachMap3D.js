@@ -4,81 +4,101 @@ import classNames from 'classnames';
 
 import { getCoachCoordinates } from '../../../util/profileCoachSticker';
 import { pickPrimaryTierId, getTierColors } from '../../../util/coachTier';
-import { normalizeSportKey, selectedSportToFilterHyphen, logCoachMapLocateVerbose } from '../../../util/coachExplore';
+import {
+  debugCoachMapLocate,
+  logCoachMapLocateVerbose,
+  normalizeSportKey,
+  selectedSportToFilterHyphen,
+} from '../../../util/coachExplore';
 import { matchSportFilterKeys } from '../../../util/sportFilterKeys';
 
 import CoachMapPopup from './CoachMapPopup';
 import css from './CoachMap3D.module.css';
 
-// Mapbox base style. We intentionally use the dark core style so the map
-// reads as part of PeakUp's premium navy UI rather than as a bright map
-// embedded inside a dark page. `dark-v11` still ships the same `composite`
-// vector source used by streets/outdoors, so our custom 3D building layer,
-// terrain DEM, markers, popups, fitBounds, flyTo, hover sync and
-// geolocation pipeline keep working unchanged.
-const COACH_MAP_STYLE = 'mapbox://styles/mapbox/dark-v11';
+// Satellite + minimal vector overlay: soft premium daytime via fog/sky + light
+// CSS grade on the canvas (markers/popup sit outside canvas and stay vivid).
+const COACH_MAP_STYLE = 'mapbox://styles/mapbox/satellite-streets-v12';
 
-const INITIAL_CAMERA_PITCH = 67;
-const INITIAL_CAMERA_BEARING = -33;
-const INITIAL_MAP_ZOOM = 4.6;
-const BOUNDS_CAMERA_PITCH = 62;
-const BOUNDS_CAMERA_BEARING = -33;
+const INITIAL_CAMERA_PITCH = 76;
+const INITIAL_CAMERA_BEARING = -31;
+const INITIAL_MAP_ZOOM = 4.35;
+const BOUNDS_CAMERA_PITCH = 65;
+const BOUNDS_CAMERA_BEARING = -34;
 const INITIAL_CAMERA_DURATION_MS = 1900;
 const STANDARD_BOUNDS_DURATION_MS = 900;
-const USER_LOCATION_FLYTO_PITCH = 65;
-const USER_LOCATION_FLYTO_BEARING = -33;
+const USER_LOCATION_FLYTO_PITCH = 67;
+const USER_LOCATION_FLYTO_BEARING = -34;
 const USER_LOCATION_FLYTO_DURATION_MS = 2000;
 const USER_LOCATION_FLYTO_ZOOM = 12.1;
-const COACH_FLYTO_PITCH = 60;
-const COACH_FLYTO_BEARING = -33;
+const COACH_FLYTO_PITCH = 62;
+const COACH_FLYTO_BEARING = -34;
 const COACH_FLYTO_DURATION_MS = 1100;
 const COACH_FLYTO_ZOOM = 14;
 
 const cinematicCameraEasing = t => 1 - Math.pow(1 - t, 2.35);
 
-// Match the desktop / mobile breakpoint used elsewhere in the app
-// (`--viewportMedium` in `customMediaQueries.css` starts at 768px).
-// Mobile gets a lighter "premium" treatment (lower terrain exaggeration,
-// no atmospheric fog) so the map stays crisp on small screens and cheap
-// on cellular bandwidth.
+// Match the desktop / mobile breakpoint used elsewhere (`--viewportMedium`,
+// 768px): slightly gentler DEM / sky on narrow viewports; fog stays on.
 const isMobileViewport = () =>
   typeof window !== 'undefined' &&
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(max-width: 767px)').matches;
 
 /**
- * Apply the premium "alpine outdoor" visual layer on top of the base
- * Mapbox style. Idempotent: every step checks for an existing
- * source/layer first so a re-fired `style.load` (Mapbox can re-emit it
- * after `setStyle`) won't double-add. Safe no-op on browsers without
- * `setTerrain` / `setFog` support — the rest of the map continues to
- * work without these effects.
+ * Globe: atmosphere comes from fog. The style-spec `sky` layer is not reliably
+ * used on globe projection; keep sky only as a Mercator fallback.
  *
- * Effects added (all are GPU-only or use cached DEM tiles):
- *  – Terrain DEM via `mapbox-dem` raster-dem source + `setTerrain`,
- *    which lifts mountains so our 50° pitch reads as a true 3D relief
- *    instead of a flat tilted plane.
- *  – `sky` layer of type `atmosphere`, giving the horizon a real
- *    atmospheric gradient at high pitch (very cheap effect).
- *  – `setFog({…})` for a soft alpine haze that fades distant terrain
- *    into the sky color. Desktop only — on mobile we skip it to keep
- *    the map crisp and avoid the small extra GPU/network cost.
- *
- * Markers, popups, flyTo, hover and the geolocation pipeline are
- * deliberately untouched: they bind to the Map instance, not to the
- * style, so they keep working through any style upgrade.
- *
- * @param {object} map a live `mapboxgl.Map` instance, post `style.load`
+ * @param {object} map
+ * @returns {boolean}
  */
-const installPremiumOutdoorLook = map => {
+const projectionIsGlobe = map => {
+  if (!map || typeof map.getProjection !== 'function') return false;
+  const p = map.getProjection();
+  if (p === 'globe') return true;
+  if (p && typeof p === 'object') {
+    const n = String(p.name || '').toLowerCase();
+    return n === 'globe';
+  }
+  return false;
+};
+
+/**
+ * Label legibility on satellite + soft daytime grade. Markers unaffected (DOM
+ * above canvas).
+ *
+ * @param {object} map
+ */
+const applyPeakUpSatelliteLabelPass = map => {
+  if (!map?.getStyle) return;
+  const layers = map.getStyle().layers || [];
+
+  layers.forEach(layer => {
+    const { id, type } = layer;
+    if (!id) return;
+
+    try {
+      if (type === 'symbol' && layer.layout?.['text-field']) {
+        map.setPaintProperty(id, 'text-color', '#1e2a3a');
+        map.setPaintProperty(id, 'text-halo-color', 'rgba(255, 255, 255, 0.88)');
+        map.setPaintProperty(id, 'text-halo-width', 1.45);
+        map.setPaintProperty(id, 'text-halo-blur', 0.35);
+      }
+    } catch (e) {
+      // noop
+    }
+  });
+};
+
+/**
+ * Premium daytime visuals: DEM drape + fog (globe) + optional sky (Mercator)
+ * + global light. Does not touch markers, popups, or camera API.
+ *
+ * @param {object} map mapboxgl.Map instance after style.load
+ */
+const installCoachMapPremiumVisuals = map => {
   if (!map) return;
   const mobile = isMobileViewport();
 
-  // 1. Terrain DEM ---------------------------------------------------------
-  // The DEM raster source is shared across all Mapbox accounts and is
-  // already covered by our CSP allow-list (api.mapbox.com /
-  // *.tiles.mapbox.com). `maxzoom: 14` keeps the DEM lookups cheap —
-  // anything above that is flat-terrain at city level anyway.
   if (typeof map.setTerrain === 'function') {
     if (!map.getSource('mapbox-dem')) {
       map.addSource('mapbox-dem', {
@@ -88,63 +108,56 @@ const installPremiumOutdoorLook = map => {
         maxzoom: 14,
       });
     }
-    // Exaggeration is intentionally subtle: slightly lifted so the alpine
-    // terrain reads with more cinematic depth once we add the sunrise pass,
-    // but still far from theme-park spikes on near-vertical pitches.
-    // gives clear alpine relief without making the Alps look like
-    // theme-park spikes when the camera is near-vertical.
     map.setTerrain({
       source: 'mapbox-dem',
-      exaggeration: mobile ? 1.18 : 1.48,
+      exaggeration: mobile ? 1.08 : 1.22,
     });
   }
 
-  // 2. Sky / atmosphere ----------------------------------------------------
-  // A `sky` layer of type `atmosphere` renders a physically-based sky
-  // gradient with the sun position we configure. For the alpine-sunrise pass
-  // we keep the upper sky dark navy, but pull a lower warmer sun near the
-  // horizon so the terrain gets more emotional dawn light without tipping
-  // into daylight-map territory.
-  if (!map.getLayer('peakup-sky')) {
-    map.addLayer({
-      id: 'peakup-sky',
-      type: 'sky',
-      paint: {
-        'sky-type': 'atmosphere',
-        'sky-atmosphere-sun': [128.0, 12.0],
-        'sky-atmosphere-sun-intensity': 10,
-      },
-    });
+  // No extra hillshade on satellite — it muddles imagery; DEM + fog carry depth.
+
+  const onGlobe = projectionIsGlobe(map);
+
+  // Non-globe only: soft daytime sky dome (globe uses fog + light CSS grade).
+  if (!onGlobe && !map.getLayer('peakup-sky')) {
+    try {
+      map.addLayer({
+        id: 'peakup-sky',
+        type: 'sky',
+        paint: {
+          'sky-type': 'atmosphere',
+          'sky-atmosphere-sun': [168.0, 42.0],
+          'sky-atmosphere-sun-intensity': mobile ? 8 : 11,
+          'sky-atmosphere-color': 'rgba(255, 255, 255, 0.92)',
+          'sky-atmosphere-halo-color': 'rgba(255, 248, 235, 0.55)',
+        },
+      });
+    } catch (e) {
+      // Older GL builds: skip sky.
+    }
   }
 
-  // 3. Atmospheric fog (desktop only) --------------------------------------
-  // `setFog` adds a soft haze along the horizon — distant terrain fades
-  // into the sky color, giving real depth at our 50° pitch. In the alpine
-  // sunrise pass we warm only the far horizon so the scene feels more
-  // emotional and mountain-like, while labels and nearby terrain stay crisp.
-  if (!mobile && typeof map.setFog === 'function') {
+  if (typeof map.setFog === 'function') {
     map.setFog({
-      range: [0.65, 10],
-      color: '#1b2b3f',
-      'high-color': '#b3774b',
-      'horizon-blend': 0.18,
-      'space-color': '#050b15',
+      range: mobile ? [0.5, 10.5] : [0.45, 12.5],
+      color: '#dce8f4',
+      'high-color': '#a8c8e8',
+      'horizon-blend': mobile ? 0.22 : 0.28,
+      'space-color': '#c5daf0',
       'star-intensity': 0.0,
     });
   }
 
-  // 4. Warm side light for 3D buildings ------------------------------------
-  // The dark basemap can otherwise make extrusions feel flat. A low warm side
-  // light gives buildings a subtle alpine-sunrise edge without changing the
-  // map style, markers, labels, or interaction logic.
   if (typeof map.setLight === 'function') {
     map.setLight({
       anchor: 'map',
-      color: '#ffd6aa',
-      intensity: mobile ? 0.26 : 0.38,
-      position: [1.25, 130, 76],
+      color: '#fff6eb',
+      intensity: mobile ? 0.38 : 0.48,
+      position: [1.15, 145, 48],
     });
   }
+
+  applyPeakUpSatelliteLabelPass(map);
 };
 
 // Anti-stacking ("spiderfy") config. When 2+ coaches share the same
@@ -362,6 +375,7 @@ const CoachMap3D = props => {
         pitch: INITIAL_CAMERA_PITCH,
         bearing: INITIAL_CAMERA_BEARING,
         antialias: true,
+        projection: 'globe',
       });
 
       map.addControl(
@@ -376,48 +390,47 @@ const CoachMap3D = props => {
         );
         const labelLayerId = labelLayer ? labelLayer.id : undefined;
 
-        if (!map.getLayer('peakup-3d-buildings')) {
-          map.addLayer(
-            {
-              id: 'peakup-3d-buildings',
-              source: 'composite',
-              'source-layer': 'building',
-              filter: ['==', 'extrude', 'true'],
-              type: 'fill-extrusion',
-              minzoom: 14,
-              paint: {
-                'fill-extrusion-color': '#31465f',
-                'fill-extrusion-height': [
-                  'interpolate',
-                  ['linear'],
-                  ['zoom'],
-                  14,
-                  0,
-                  14.5,
-                  ['get', 'height'],
-                ],
-                'fill-extrusion-base': [
-                  'interpolate',
-                  ['linear'],
-                  ['zoom'],
-                  14,
-                  0,
-                  14.5,
-                  ['get', 'min_height'],
-                ],
-                'fill-extrusion-opacity': 0.78,
+        if (!map.getLayer('peakup-3d-buildings') && map.getSource('composite')) {
+          try {
+            map.addLayer(
+              {
+                id: 'peakup-3d-buildings',
+                source: 'composite',
+                'source-layer': 'building',
+                filter: ['==', 'extrude', 'true'],
+                type: 'fill-extrusion',
+                minzoom: 14,
+                paint: {
+                  'fill-extrusion-color': '#5a6f88',
+                  'fill-extrusion-height': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    14,
+                    0,
+                    14.5,
+                    ['get', 'height'],
+                  ],
+                  'fill-extrusion-base': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    14,
+                    0,
+                    14.5,
+                    ['get', 'min_height'],
+                  ],
+                  'fill-extrusion-opacity': 0.45,
+                },
               },
-            },
-            labelLayerId
-          );
+              labelLayerId
+            );
+          } catch (e) {
+            // Satellite styles may omit building extrusions in some tiles — skip.
+          }
         }
 
-        // Premium "alpine outdoor" pass: terrain DEM + sky/atmosphere
-        // (+ fog on desktop). Idempotent and fully isolated — does not
-        // touch the building-extrusion layer above, the marker pipeline,
-        // popups, fitBounds, flyTo, hover, or geolocation. See
-        // `installPremiumOutdoorLook` for the full rationale.
-        installPremiumOutdoorLook(map);
+        installCoachMapPremiumVisuals(map);
         setIsReady(true);
       });
 
@@ -734,12 +747,21 @@ const CoachMap3D = props => {
         userLocationMarkerRef.current.remove();
         userLocationMarkerRef.current = null;
       }
+      debugCoachMapLocate('user location marker: cleared (no coords)');
+      return undefined;
+    }
+
+    // Safari / mobile: adding markers before `style.load` can fail silently or
+    // lose sync with the map canvas — `isReady` is set only after style.load.
+    if (!isReady) {
+      debugCoachMapLocate('user location marker: waiting for map style.load', { lat, lng });
       return undefined;
     }
 
     const lngLat = [lng, lat];
     if (userLocationMarkerRef.current) {
       userLocationMarkerRef.current.setLngLat(lngLat);
+      debugCoachMapLocate('user location marker: moved', { lat, lng });
       return undefined;
     }
 
@@ -754,11 +776,13 @@ const CoachMap3D = props => {
     const marker = new window.mapboxgl.Marker({
       element: dot,
       anchor: 'center',
+      className: 'peakup-coachmap-user-location',
     })
       .setLngLat(lngLat)
       .addTo(map);
 
     userLocationMarkerRef.current = marker;
+    debugCoachMapLocate('user location marker: rendered', { lat, lng });
     return undefined;
   }, [userLocation, isReady]);
 

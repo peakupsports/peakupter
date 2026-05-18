@@ -1,0 +1,111 @@
+/*
+ * PeakUp customer profile — layout shell only.
+ * Do not add coach figurina / tier / sticker styles here.
+ */
+
+.customerProfilePageShell {
+  --peakUpCustomerProfileBg:
+    radial-gradient(circle at 20% 8%, rgba(25, 223, 242, 0.08), transparent 34%),
+    radial-gradient(circle at 78% 16%, rgba(0, 160, 220, 0.06), transparent 38%),
+    linear-gradient(180deg, #06101c 0%, #030812 100%);
+  --peakUpCustomerAsideWidth: 440px;
+  --peakUpCustomerCardMaxWidth: 100%;
+
+  background: var(--peakUpCustomerProfileBg);
+  min-height: 100vh;
+}
+
+/* Desktop grid — layout inspiration only; separate from coach `.peakUpProfileLayoutDesktop`. */
+.customerProfileLayoutDesktop {
+  background: transparent;
+
+  @media (--viewportLarge) {
+    display: grid !important;
+    align-items: start;
+    justify-items: stretch;
+    width: 100%;
+    max-width: none;
+    column-gap: clamp(24px, 3vw, 40px);
+    grid-template-columns: var(--peakUpCustomerAsideWidth) minmax(0, 1fr);
+  }
+
+  @media (--viewportLargeWithPaddings) {
+    display: grid !important;
+    align-items: start;
+    justify-items: stretch;
+    width: 100%;
+    max-width: none;
+    column-gap: clamp(24px, 3vw, 40px);
+    grid-template-columns: var(--peakUpCustomerAsideWidth) minmax(0, 1fr);
+  }
+}
+
+/*
+ * Customer sidebar `<aside>` — same node as LayoutSideNavigation `.sideNav`.
+ * Scope under `.customerProfilePageShell` so we beat global `.sideNav` rules
+ * (width: unset, calc() left padding on viewportLargeWithPaddings).
+ */
+.customerProfilePageShell .asideCustomerProfile {
+  box-sizing: border-box;
+  background: transparent !important;
+  border-top-color: rgba(25, 223, 242, 0.1) !important;
+  box-shadow: none !important;
+
+  width: 440px !important;
+  min-width: 440px !important;
+  max-width: 440px !important;
+  flex: 0 0 440px !important;
+
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+
+  @media (--viewportLarge) {
+    justify-content: flex-start;
+    border: none;
+    position: sticky;
+    top: calc(var(--topbarHeightDesktop) + 8px);
+    align-self: start;
+    padding-top: clamp(20px, 2.5vw, 28px) !important;
+    padding-bottom: 32px !important;
+  }
+
+  @media (--viewportLargeWithPaddings) {
+    padding-top: clamp(20px, 2.5vw, 28px) !important;
+    padding-bottom: 32px !important;
+  }
+}
+
+.mainCustomerProfile {
+  min-width: 0;
+  width: 100%;
+  background: transparent !important;
+  border-left-color: rgba(25, 223, 242, 0.1) !important;
+  padding-top: 8px;
+
+  @media (--viewportLarge) {
+    padding-top: clamp(20px, 2.5vw, 32px);
+    padding-right: clamp(16px, 2vw, 32px);
+    padding-bottom: 48px;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.longWord {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}

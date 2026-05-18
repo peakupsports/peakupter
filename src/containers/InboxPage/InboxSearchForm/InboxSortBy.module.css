@@ -5,6 +5,8 @@
 
 .iconArrow {
   transition: all 0.2s ease-out;
+  fill: #17d9ff;
+  stroke: #17d9ff;
 }
 
 .iconArrowAnimation {
@@ -13,63 +15,67 @@
 
 .menuContent {
   margin-top: 7px;
-  padding-top: 24px;
-  padding-bottom: 24px;
+  padding-top: 16px;
+  padding-bottom: 16px;
   min-width: 300px;
-  border-radius: var(--borderRadiusMedium);
+  border-radius: 12px;
+  background:
+    linear-gradient(165deg, rgba(14, 24, 40, 0.98) 0%, rgba(8, 14, 26, 0.99) 100%) !important;
+  border: 1px solid rgba(25, 223, 242, 0.22) !important;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.35),
+    0 0 24px rgba(23, 217, 255, 0.08) !important;
 }
 
-/* left animated "border" like hover element */
 .menuItemBorder {
   position: absolute;
   top: 2px;
-  left: 0px;
+  left: 0;
   height: calc(100% - 4px);
   width: 0;
-  background-color: var(--marketplaceColor);
+  background: linear-gradient(180deg, #17d9ff 0%, #9dff4f 100%);
   transition: width var(--transitionStyleButton);
 }
 
-/* left static border for selected element */
 .menuItemBorderSelected {
   position: absolute;
   top: 2px;
-  left: 0px;
+  left: 0;
   height: calc(100% - 7px);
-  width: 6px;
-  background-color: var(--colorBlack);
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #17d9ff 0%, #39f3d1 50%, #9dff4f 100%);
+  box-shadow: 0 0 10px rgba(23, 217, 255, 0.35);
 }
 
 .menuItem {
   composes: marketplaceListingAttributeFontStyles from global;
-  color: var(--colorGrey700);
-
-  /* Layout */
+  color: rgba(196, 210, 228, 0.88);
   position: relative;
   min-width: 300px;
   margin: 0;
-  padding: 4px 30px;
-
-  /* Override button styles */
+  padding: 8px 30px;
   outline: none;
   text-align: left;
   border: none;
-
+  background: transparent;
   cursor: pointer;
+  transition: color 180ms ease;
 
   &:focus,
   &:hover {
-    color: var(--colorBlack);
+    color: #f4f7fb;
   }
 
   &:hover .menuItemBorder {
-    width: 6px;
+    width: 3px;
   }
 
   &:disabled {
-    color: var(--colorGrey300);
+    color: rgba(196, 210, 228, 0.35);
     cursor: default;
   }
+
   &:disabled:hover .menuItemBorder {
     width: 0;
   }
@@ -78,61 +84,56 @@
 .sortLabel {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: auto;
-  height: 35px;
-  min-height: 35px;
-
-  padding: 0 18px;
-  margin: 0 9px 0 0;
-
-  transition: all var(--transitionStyleButton);
+  height: 38px;
+  min-height: 38px;
+  padding: 0 16px;
+  margin: 0;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
   cursor: pointer;
-
-  /* Font */
   font-weight: var(--fontWeightSemiBold);
   font-size: 13px;
   line-height: 18px;
-  letter-spacing: 0.2px;
-
-  /* Button text styles */
-  /* Default button text is centered without decorations */
+  letter-spacing: 0.02em;
   text-align: center;
   text-decoration: none;
-
-  /* Button borders */
-  border: 1px solid var(--colorGrey100);
-  border-radius: var(--borderRadiusMedium);
-
-  background-color: var(--colorWhite);
+  color: #f4f7fb;
+  border: 1px solid rgba(25, 223, 242, 0.28);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(23, 217, 255, 0.08) 0%, transparent 50%),
+    rgba(8, 14, 26, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 
   &:focus,
   &:hover {
     outline: none;
-    box-shadow: var(--boxShadowFilterButton);
+    border-color: rgba(25, 223, 242, 0.45);
+    box-shadow:
+      0 6px 20px rgba(0, 0, 0, 0.24),
+      0 0 16px rgba(23, 217, 255, 0.1);
     text-decoration: none;
-    border-color: var(--colorGrey300);
   }
 
   &:disabled {
     box-shadow: none;
     cursor: not-allowed;
+    opacity: 0.5;
   }
 
   @media (--viewportMedium) {
-    gap: 36px;
+    gap: 12px;
     height: auto;
-    min-height: 0;
-    padding: var(--marketplaceButtonSmallDesktopPadding);
-    margin: 0;
-
-    font-weight: var(--fontWeightMedium);
+    min-height: 38px;
+    padding: 8px 18px;
+    font-weight: var(--fontWeightSemiBold);
     font-size: 13px;
     line-height: 20px;
-
-    &:hover,
-    &:focus {
-      border-color: transparent;
-    }
   }
 }

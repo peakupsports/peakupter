@@ -4,12 +4,15 @@ import {
   comparePeakupFeaturedCoaches,
   formatCoachExperienceLabel,
   formatProfileLanguagesForSticker,
+  isCoachProfileStickerEligible,
+  isPeakUpCustomerMemberProfile,
   mergeCoachSports,
   parseExperienceMinYears,
   peakupCoachBadgePriorityFor,
   peakupCoachReviewScore,
   resolveDisplayBadgeIds,
   resolvePeakupCoachBadgeIds,
+  shouldShowPeakUpProfileSticker,
   sportsForFigurinaOverlay,
 } from './profileCoachSticker';
 
@@ -425,5 +428,41 @@ describe('formatProfileLanguagesForSticker', () => {
     expect(formatProfileLanguagesForSticker(intlCoachLanguagePassthrough, ['xx'])).toEqual([
       { key: 'xx', label: 'xx' },
     ]);
+  });
+});
+
+describe('ProfilePage layout gates (customer vs coach)', () => {
+  const customerRoles = { customer: true, provider: false };
+  const coachRoles = { customer: false, provider: true };
+  const dualRoles = { customer: true, provider: true };
+
+  it('treats member sports/languages as non-coach for customer-only roles', () => {
+    const publicData = { userType: 'member-id', sports: ['ski'], languages: ['en'] };
+    expect(shouldShowPeakUpProfileSticker([], publicData)).toBe(true);
+    expect(isCoachProfileStickerEligible([], publicData, customerRoles)).toBe(false);
+    expect(isPeakUpCustomerMemberProfile([], publicData, customerRoles)).toBe(true);
+  });
+
+  it('uses customer layout for explicit customer userType even with reviews/listings data', () => {
+    const publicData = { userType: 'customer', sports: ['ski'] };
+    expect(isPeakUpCustomerMemberProfile([{ id: 'l1' }], publicData, dualRoles)).toBe(true);
+  });
+
+  it('uses coach layout for provider-only roles with coach profile fields', () => {
+    const publicData = { sports: ['ski'], priceFrom: '50', currency: 'CHF' };
+    expect(isPeakUpCustomerMemberProfile([], publicData, coachRoles)).toBe(false);
+    expect(isCoachProfileStickerEligible([], publicData, coachRoles)).toBe(true);
+  });
+
+  it('uses coach layout for explicit provider userType', () => {
+    const publicData = { userType: 'provider', sports: ['ski'], languages: ['en'] };
+    expect(isPeakUpCustomerMemberProfile([], publicData, customerRoles)).toBe(false);
+    expect(isCoachProfileStickerEligible([], publicData, customerRoles)).toBe(true);
+  });
+
+  it('dual-role accounts do not use PeakUp customer layout (legacy/coach paths instead)', () => {
+    const publicData = { userType: 'a', sports: ['snowboard'], languages: ['de'] };
+    expect(isCoachProfileStickerEligible([], publicData, dualRoles)).toBe(false);
+    expect(isPeakUpCustomerMemberProfile([], publicData, dualRoles)).toBe(false);
   });
 });

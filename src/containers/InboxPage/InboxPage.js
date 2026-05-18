@@ -52,6 +52,8 @@ import {
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 import FooterContainer from '../../containers/FooterContainer/FooterContainer';
 import NotFoundPage from '../../containers/NotFoundPage/NotFoundPage';
+import layoutCss from '../../components/LayoutComposer/LayoutSideNavigation/LayoutSideNavigation.module.css';
+import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 import InboxSearchForm from './InboxSearchForm/InboxSearchForm';
 
 import { stateDataShape, getStateData } from './InboxPage.stateData';
@@ -378,8 +380,14 @@ export const InboxPageComponent = props => {
   const tabs = [...ordersTabMaybe, ...salesTabMaybe];
 
   return (
-    <Page title={title} scrollingDisabled={scrollingDisabled}>
+    <Page
+      className={classNames(accountShellCss.pageShell, css.pagePeakUp)}
+      title={title}
+      scrollingDisabled={scrollingDisabled}
+    >
       <LayoutSideNavigation
+        className={layoutCss.inboxPeakUpPageShell}
+        mainColumnClassName={css.mainColumn}
         sideNavClassName={css.navigation}
         topbar={
           <TopbarContainer
@@ -403,6 +411,7 @@ export const InboxPageComponent = props => {
         footer={<FooterContainer />}
       >
         <InboxSearchForm
+          className={css.searchForm}
           onSubmit={() => {}}
           onSelect={handleSortSelect(tab, routeConfiguration, history)}
           intl={intl}

@@ -508,7 +508,7 @@ class EditListingWizard extends Component {
       params.type
     );
     const rootClasses = rootClassName || css.root;
-    const classes = classNames(rootClasses, className);
+    const classes = classNames(rootClasses, className, css.editListingPeakUp);
     const currentListing = ensureListing(listing);
     const savedProcessAlias = currentListing.attributes?.publicData?.transactionProcessAlias;
     const transactionProcessAlias =

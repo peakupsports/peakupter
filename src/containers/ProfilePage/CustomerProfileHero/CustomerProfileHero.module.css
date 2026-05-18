@@ -1,0 +1,102 @@
+.root {
+  position: relative;
+  margin-bottom: 7px;
+  min-height: 152px;
+  border-radius: 12px;
+  border: 1px solid rgba(25, 223, 242, 0.1);
+  background:
+    radial-gradient(circle at 14% 30%, rgba(25, 223, 242, 0.07) 0%, transparent 50%),
+    linear-gradient(135deg, rgba(12, 22, 38, 0.94) 0%, rgba(6, 11, 20, 0.98) 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.025) inset,
+    0 6px 22px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 152px;
+  padding: 18px 20px;
+}
+
+.copy {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  padding-right: 12px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(150, 195, 215, 0.5);
+}
+
+.title {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: #f8feff;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(195, 225, 238, 0.52);
+  max-width: 40ch;
+}
+
+.visual {
+  position: relative;
+  flex: 0 0 min(28%, 140px);
+  min-width: 90px;
+  max-width: 160px;
+  align-self: stretch;
+  pointer-events: none;
+}
+
+.mountainGlow {
+  position: absolute;
+  inset: 25% 0 0 35%;
+  background: radial-gradient(circle at 70% 90%, rgba(25, 223, 242, 0.07) 0%, transparent 60%);
+  filter: blur(12px);
+  opacity: 0.5;
+}
+
+.mountainSvg {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 68%;
+  opacity: 0.22;
+}
+
+@media (--viewportMedium) {
+  .root {
+    min-height: 158px;
+  }
+
+  .inner {
+    min-height: 158px;
+    padding: 20px 22px;
+  }
+
+  .title {
+    font-size: 23px;
+  }
+}

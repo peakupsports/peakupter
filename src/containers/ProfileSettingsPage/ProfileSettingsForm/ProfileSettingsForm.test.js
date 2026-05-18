@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 
 import { renderWithProviders as render, testingLibrary } from '../../../util/testHelpers';
 import { createCurrentUser, fakeIntl } from '../../../util/testData';
+import { peakUpCoachUserFields } from '../../../config/configPeakUpCoachUserFields';
 import { initialValuesForUserFields } from '../../../util/userHelpers';
 
 import ProfileSettingsForm from './ProfileSettingsForm';
@@ -465,5 +466,56 @@ describe('ProfileSettingsForm', () => {
     await user.type(textInput2, 'Text 2 value');
     expect(textInput2).toHaveValue('Text 2 value');
     expect(screen.getByRole('button', { name: 'ProfileSettingsForm.saveChanges' })).toBeEnabled();
+  });
+
+  it('hides coach-only PeakUp fields for customer users', () => {
+    const u1 = createCurrentUser('userId');
+    const { firstName, lastName } = u1.attributes.profile;
+    const peakFields = peakUpCoachUserFields;
+
+    render(
+      <ProfileSettingsForm
+        intl={fakeIntl}
+        onSubmit={noop}
+        uploadInProgress={false}
+        updateInProgress={false}
+        currentUser={u1}
+        profileImage={{}}
+        userFields={[...userFieldConfig, ...peakFields]}
+        userTypeConfig={userTypeConfig}
+        isCoachUser={false}
+        initialValues={{ firstName, lastName }}
+      />
+    );
+
+    expect(screen.queryByText('ProfileSettingsForm.coachSessionPriceHeading')).toBeNull();
+    expect(screen.queryByText('ProfileSettingsForm.sportsAndLanguagesHeading')).toBeNull();
+    expect(screen.queryByText('ProfileSettingsForm.coachLocationHeading')).toBeNull();
+    expect(screen.getByText('ProfileSettingsForm.clientSportsAndLanguagesHeading')).toBeInTheDocument();
+  });
+
+  it('shows coach PeakUp fields for coach users', () => {
+    const u1 = createCurrentUser('userId');
+    const { firstName, lastName } = u1.attributes.profile;
+    const peakFields = peakUpCoachUserFields;
+
+    render(
+      <ProfileSettingsForm
+        intl={fakeIntl}
+        onSubmit={noop}
+        uploadInProgress={false}
+        updateInProgress={false}
+        currentUser={u1}
+        profileImage={{}}
+        userFields={[...userFieldConfig, ...peakFields]}
+        userTypeConfig={userTypeConfig}
+        isCoachUser={true}
+        initialValues={{ firstName, lastName }}
+      />
+    );
+
+    expect(screen.getByText('ProfileSettingsForm.coachSessionPriceHeading')).toBeInTheDocument();
+    expect(screen.getByText('ProfileSettingsForm.sportsAndLanguagesHeading')).toBeInTheDocument();
+    expect(screen.getByText('ProfileSettingsForm.coachLocationHeading')).toBeInTheDocument();
   });
 });

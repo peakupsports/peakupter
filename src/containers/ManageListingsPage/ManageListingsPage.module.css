@@ -1,6 +1,27 @@
 @import '../../styles/customMediaQueries.css';
 
-.root {
+/* PeakUp dark canvas — extends shared account pageShell on <Page>. */
+.pagePeakUp {
+  min-height: 100vh;
+}
+
+.mainColumn {
+  background: transparent;
+  flex: 1;
+  padding-bottom: 0;
+}
+
+/* Full-width glass tab rail (skin="dark" on LinkTabNavHorizontal). */
+.userNavPeakUp {
+  width: 100%;
+
+  @media (--viewportMedium) {
+    background:
+      radial-gradient(ellipse 80% 120% at 50% 0%, rgba(23, 217, 255, 0.06) 0%, transparent 55%),
+      rgba(6, 10, 18, 0.72);
+    border-bottom: 1px solid rgba(25, 223, 242, 0.1);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .tabs {
@@ -53,6 +74,14 @@
   }
 }
 
+.listingPanel {
+  padding-bottom: 48px;
+
+  @media (--viewportMedium) {
+    padding-bottom: 56px;
+  }
+}
+
 .noResultsContainer {
   margin: 0 24px;
 
@@ -66,20 +95,43 @@
 }
 
 .heading {
-  margin: 0 24px 24px 24px;
+  position: relative;
+  margin: 0 24px 28px 24px;
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #f4f7fb;
+  text-shadow: 0 0 24px rgba(23, 217, 255, 0.12);
+
+  &::after {
+    content: '';
+    display: block;
+    width: 56px;
+    height: 3px;
+    margin-top: 12px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #17d9ff 0%, #39f3d1 50%, #9dff4f 100%);
+    box-shadow:
+      0 0 12px rgba(23, 217, 255, 0.45),
+      0 0 20px rgba(57, 243, 209, 0.2);
+  }
 
   @media (--viewportMedium) {
-    margin: 0 24px 32px 24px;
+    margin: 0 24px 36px 24px;
+    font-size: 30px;
   }
 
   @media (--viewportLarge) {
-    margin: 0 36px 32px 36px;
+    margin: 0 36px 40px 36px;
+    font-size: 32px;
   }
 }
 
 .createListingParagraph,
 .headingNoListings {
   margin: 0 0 12px 0;
+  color: rgba(196, 210, 228, 0.88);
 
   @media (--viewportMedium) {
     margin: 0 0 8px 0;
@@ -87,6 +139,50 @@
 
   @media (--viewportLarge) {
     margin: 0 0 8px 0;
+  }
+}
+
+.headingNoListings {
+  position: relative;
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #f4f7fb;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 56px;
+    height: 3px;
+    margin-top: 12px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #17d9ff 0%, #39f3d1 50%, #9dff4f 100%);
+    box-shadow: 0 0 12px rgba(23, 217, 255, 0.4);
+  }
+
+  @media (--viewportMedium) {
+    font-size: 30px;
+  }
+
+  @media (--viewportLarge) {
+    font-size: 32px;
+  }
+}
+
+.createListingLink {
+  color: rgba(120, 225, 255, 0.92);
+  text-decoration: none;
+  font-weight: var(--fontWeightSemiBold);
+  transition:
+    color 180ms ease,
+    text-decoration-color 180ms ease;
+
+  &:hover,
+  &:focus {
+    color: #c8ff6a;
+    text-decoration: underline;
+    text-decoration-color: rgba(157, 255, 79, 0.75);
   }
 }
 
@@ -106,24 +202,20 @@
 
   @media (--viewportMedium) {
     grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
   }
 
   @media (--viewportLarge) {
     grid-template-columns: repeat(3, 1fr);
     padding: 0 36px;
+    gap: 32px;
   }
 }
 
 .listingCard {
-  margin-bottom: 36px;
+  margin-bottom: 0;
   width: 100%;
 }
-
-/**
- * Remove margin-right from listingCards on the last column
- * This is a special case in the world of breakpoints. Nth-of-type effects every nth item.
- * Here we take margin-right away, but we don't want it affect the next column breakpoint.
- */
 
 .listingCard:nth-of-type(2n) {
   @media screen and (min-width: 768px) and (max-width: 1920px) {
@@ -138,10 +230,60 @@
 }
 
 .pagination {
-  /* margin-top: auto; pushes pagination to the end of the page. */
-  margin: auto 24px 0 24px;
+  margin: 40px 24px 0 24px;
 
   @media (--viewportLarge) {
-    margin: auto 36px 0 36px;
+    margin: 48px 36px 0 36px;
   }
+}
+
+.pagination :global([class*='PaginationLinks_toPageLink']) {
+  color: rgba(196, 210, 228, 0.78);
+  transition: color 180ms ease;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.96);
+    text-decoration: none;
+  }
+}
+
+.pagination :global([class*='PaginationLinks_currentPage']) {
+  color: #f4f7fb;
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+.pagination :global([class*='PaginationLinks_currentPage'])::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  bottom: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #17d9ff 0%, #39f3d1 50%, #9dff4f 100%);
+  box-shadow: 0 0 10px rgba(23, 217, 255, 0.35);
+}
+
+.pagination :global([class*='PaginationLinks_paginationGap']) {
+  color: rgba(196, 210, 228, 0.55);
+}
+
+.pagination :global([class*='PaginationLinks_arrowIcon']) {
+  fill: #17d9ff;
+  stroke: #17d9ff;
+  transition:
+    fill 180ms ease,
+    stroke 180ms ease;
+
+  &:hover {
+    fill: #9dff4f;
+    stroke: #9dff4f;
+  }
+}
+
+.pagination :global([class*='PaginationLinks_disabled']),
+.pagination :global([class*='PaginationLinks_disabled']):hover {
+  fill: rgba(196, 210, 228, 0.28);
+  stroke: rgba(196, 210, 228, 0.28);
 }

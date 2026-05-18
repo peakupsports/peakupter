@@ -13,21 +13,25 @@
 
 .weekDay {
   composes: marketplaceTabNavHorizontalFontStyles from global;
-
-  /* Layout */
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
   align-items: flex-start;
   align-content: flex-start;
   gap: 12px;
-
   padding-top: 10px;
   padding-bottom: 13px;
-  border-top: solid 1px var(--colorGrey100);
+  border-top: 1px solid rgba(120, 225, 255, 0.08);
+  background: transparent;
+  color: rgba(196, 210, 228, 0.88);
+  transition: background-color 180ms ease;
+
+  &:hover {
+    background: rgba(67, 210, 255, 0.05);
+  }
 
   &:last-child {
-    border-bottom: solid 1px var(--colorGrey100);
+    border-bottom: 1px solid rgba(120, 225, 255, 0.08);
   }
 
   @media (--viewportSmall) {
@@ -42,7 +46,7 @@
 }
 
 .hasEntries {
-  background-color: var(--colorWhite);
+  background: transparent;
 }
 
 .dayOfWeek {
@@ -53,11 +57,13 @@
   max-width: 160px;
   width: 140px;
   flex-grow: 1;
+  color: #f4f7fb;
 
   @media (--viewportMedium) {
     height: 40px;
   }
 }
+
 .dayOfWeekContent {
   display: flex;
   flex-grow: 1;
@@ -65,7 +71,6 @@
 
 .planEntriesForDay {
   flex-grow: 1;
-
   display: flex;
   flex-direction: column;
   min-width: 264px;
@@ -80,23 +85,19 @@
 }
 
 .segmentWrapper {
-  /* parent aka root is flexbox, this container takes all available space */
   flex-grow: 1;
   flex-shrink: 0;
-
-  /* This container uses flexbox layout */
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   min-width: 264px;
-  padding: 0px 0px 17px 0px;
+  padding: 0 0 17px;
   gap: 18px;
-
   position: relative;
-  border-bottom: solid 1px var(--colorGrey100);
+  border-bottom: 1px solid rgba(120, 225, 255, 0.08);
 
   @media (--viewportMedium) {
-    padding: 0px 0px 16px 0px;
+    padding: 0 0 16px;
     gap: 16px;
   }
 }
@@ -109,20 +110,15 @@
 }
 
 .timeRangeRow {
-  /* parent aka segmentWrapper is flexbox, this container takes all available space */
   flex-grow: 1;
   flex-shrink: 0;
-
-  /* This container uses flexbox layout */
   display: flex;
   flex-wrap: nowrap;
   justify-content: flex-start;
   align-items: center;
   gap: 4px;
-
   width: 100%;
   position: relative;
-
   z-index: 1;
 }
 
@@ -133,11 +129,13 @@
 .seatsField {
   width: 100%;
 }
+
 .hourField {
   flex-grow: 1;
 }
+
 .dashBetweenTimes {
-  stroke: var(--colorGrey700);
+  stroke: rgba(120, 225, 255, 0.55);
 }
 
 .seatsInput {
@@ -147,12 +145,13 @@
 
 .fieldArrayDelete {
   cursor: pointer;
+  color: rgba(196, 210, 228, 0.7);
 
   &:hover {
-    color: var(--colorBlack);
+    color: #ffffff;
 
     .deleteIcon {
-      stroke: var(--colorFail);
+      stroke: #ff8a8a;
     }
   }
 }
@@ -160,37 +159,36 @@
 .deleteIcon {
   display: inline-block;
   box-sizing: content-box;
-  stroke: var(--colorGrey300);
-
-  /* align icon with the select fields */
-  padding: 1px 0 4px 0;
+  stroke: rgba(157, 196, 220, 0.55);
+  padding: 1px 0 4px;
   margin: 0 8px 0 0;
 
   &:hover {
-    stroke: var(--colorFail);
+    stroke: #ff8a8a;
   }
 
   @media (--viewportMedium) {
-    padding: 2px 0 6px 0;
+    padding: 2px 0 6px;
   }
 }
 
 .plus1Day {
   composes: marketplaceTinyFontStyles from global;
-  color: var(--colorGrey600);
+  color: rgba(157, 196, 220, 0.65);
   position: absolute;
   bottom: -24px;
-  right: 0px;
+  right: 0;
   visibility: hidden;
   opacity: 0;
-  padding: 5px 0 1px 0;
-  margin: 0 0px 0 8px;
+  padding: 5px 0 1px;
+  margin: 0 0 0 8px;
 
   @media (--viewportMedium) {
-    padding: 6px 0 2px 0;
-    margin: 0 0px 0 8px;
+    padding: 6px 0 2px;
+    margin: 0 0 0 8px;
   }
 }
+
 .showPlus1Day {
   visibility: visible;
   opacity: 1;
@@ -198,21 +196,28 @@
 
 .buttonAddNew {
   composes: h5 from global;
-  color: var(--colorGrey700);
+  color: rgba(120, 225, 255, 0.92);
   width: fit-content;
   margin: 0;
 }
 
 .fieldSelect {
   composes: marketplaceTabNavHorizontalFontStyles from global;
-  padding: 6px 12px 4px 12px;
+  padding: 6px 12px 4px;
   min-width: 87px;
   text-align: left;
+  color: #f4f7fb !important;
+  background-color: rgba(8, 14, 24, 0.82) !important;
+  border: 1px solid rgba(120, 225, 255, 0.22) !important;
+  border-radius: 10px !important;
 
-  &:select {
-    margin-right: 0;
+  &:focus {
+    border-color: rgba(23, 217, 255, 0.55) !important;
+    outline: none;
+    box-shadow: 0 0 14px rgba(23, 217, 255, 0.1) !important;
   }
 }
+
 .notSelected {
-  color: var(--colorGrey300);
+  color: rgba(157, 176, 198, 0.5) !important;
 }

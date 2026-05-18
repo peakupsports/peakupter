@@ -869,3 +869,75 @@
   color: rgba(248, 250, 255, 0.98) !important;
 }
 
+/* =============================================================================
+ * PeakUp coach ProfilePage — full-viewport dark canvas + layout panel reset
+ * (className on LayoutSideNavigation from ProfilePage.js only)
+ * ============================================================================= */
+
+.profilePeakUpPageShell {
+  --peakUpProfileBg:
+    radial-gradient(circle at 18% 10%, rgba(33, 230, 193, 0.1), transparent 32%),
+    radial-gradient(circle at 75% 18%, rgba(0, 180, 255, 0.08), transparent 36%),
+    linear-gradient(180deg, #06101c 0%, #030812 100%);
+  background: var(--peakUpProfileBg);
+  min-height: 100vh;
+}
+
+.profilePeakUpPageShell .container {
+  background: transparent;
+}
+
+.profilePeakUpPageShell .sideNav {
+  background: transparent !important;
+  border-top-color: rgba(33, 230, 193, 0.12) !important;
+  box-shadow: none !important;
+
+  @media (--viewportLarge) {
+    background: transparent !important;
+    border: none;
+    box-shadow: none;
+  }
+}
+
+.profilePeakUpPageShell .main {
+  background: transparent !important;
+  border-left-color: rgba(33, 230, 193, 0.12) !important;
+
+  @media (--viewportLarge) {
+    background: transparent !important;
+  }
+}
+
+/* =============================================================================
+ * PeakUp Inbox — dark canvas + layout panel reset (className from InboxPage.js)
+ * ============================================================================= */
+
+.inboxPeakUpPageShell {
+  background: transparent;
+}
+
+.inboxPeakUpPageShell .container {
+  background: transparent;
+}
+
+.inboxPeakUpPageShell .sideNav {
+  background: transparent !important;
+  border-top-color: rgba(25, 223, 242, 0.1) !important;
+  box-shadow: none !important;
+
+  @media (--viewportLarge) {
+    background: transparent !important;
+    border: none;
+    box-shadow: none;
+  }
+}
+
+.inboxPeakUpPageShell .main {
+  background: transparent !important;
+  border-left-color: rgba(120, 225, 255, 0.12) !important;
+
+  @media (--viewportLarge) {
+    background: transparent !important;
+  }
+}
+

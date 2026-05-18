@@ -58,6 +58,7 @@ import SectionGallery from './SectionGallery';
 import CustomListingFields from './CustomListingFields';
 import ListingPageAccessWrapper from './ListingPageAccessWrapper';
 
+import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 import css from './ListingPage.module.css';
 
 const MIN_LENGTH_FOR_LONG_WORDS_IN_TITLE = 16;
@@ -237,6 +238,7 @@ export const ListingPageComponent = props => {
 
   return (
     <Page
+      className={classNames(accountShellCss.pageShell, css.pagePeakUp)}
       title={schemaTitle}
       scrollingDisabled={scrollingDisabled}
       author={authorDisplayName}
@@ -258,7 +260,12 @@ export const ListingPageComponent = props => {
         },
       }}
     >
-      <LayoutSingleColumn className={css.pageRoot} topbar={topbar} footer={<FooterContainer />}>
+      <LayoutSingleColumn
+        className={classNames(css.pageRoot, css.listingPeakUp)}
+        mainColumnClassName={css.listingMain}
+        topbar={topbar}
+        footer={<FooterContainer />}
+      >
         <div className={css.contentWrapperForProductLayout}>
           <div className={css.mainColumnForProductLayout}>
             <Notifications

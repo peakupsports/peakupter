@@ -444,6 +444,8 @@ const CoachMapPage = props => {
   // click so the same coach can be re-flown by the user.
   const [selectedCoachKey, setSelectedCoachKey] = useState(null);
   const [flyToTarget, setFlyToTarget] = useState(null);
+  /** GeolocationPositionError.code, -1 = API missing, -2 = unknown error; null = none */
+  const [geolocationErrorCode, setGeolocationErrorCode] = useState(null);
   // Browser geolocation result. `null` while pending / on permission denial,
   // `{ lat, lng }` once the user accepts. Drives the "You are here" marker
   // in CoachMap3D and (conditionally) an auto-flyTo on first resolve.
@@ -453,7 +455,8 @@ const CoachMapPage = props => {
   const ignoreLocateUrlEffectOnceRef = useRef(false);
 
   const applyUserGeolocationFromLocateFlow = useCallback((lat, lng, meta = {}) => {
-    logCoachMapLocateVerbose('set userLocation', { lat, lng, ...meta });
+    setGeolocationErrorCode(null);
+    logCoachMapLocateVerbose('setUserLocation', { lat, lng, ...meta });
     setUserLocation({ lat, lng });
     // Same camera on mobile and desktop (product parity).
     setFlyToTarget({
@@ -509,6 +512,8 @@ const CoachMapPage = props => {
 
   const runDirectCoachMapGeolocation = useCallback(
     meta => {
+      setGeolocationErrorCode(null);
+      debugCoachMapLocate('CURRENT LOCATION CLICKED', meta);
       logCoachMapLocateVerbose('CURRENT LOCATION CLICKED', meta);
       ignoreLocateUrlEffectOnceRef.current = true;
       logCoachMapLocateVerbose('mapRef ready?', {
@@ -516,31 +521,50 @@ const CoachMapPage = props => {
         ...meta,
       });
       if (typeof window === 'undefined' || !navigator?.geolocation?.getCurrentPosition) {
+        debugCoachMapLocate('requesting geolocation', { error: 'API unavailable', ...meta });
         logCoachMapLocateVerbose('requesting geolocation', { error: 'API unavailable', ...meta });
+        setGeolocationErrorCode(-1);
         return;
       }
+      debugCoachMapLocate('requesting geolocation', { branch: 'direct user gesture', ...meta });
       logCoachMapLocateVerbose('requesting geolocation', { ...meta, branch: 'direct user gesture' });
       navigator.geolocation.getCurrentPosition(
         pos => {
           const lat = pos?.coords?.latitude;
           const lng = pos?.coords?.longitude;
+          debugCoachMapLocate('geo success lat/lng', { lat, lng, ...meta });
           logCoachMapLocateVerbose('geo success lat/lng', { lat, lng, ...meta });
           if (Number.isFinite(lat) && Number.isFinite(lng)) {
             applyUserGeolocationFromLocateFlow(lat, lng, meta);
+            debugCoachMapLocate('setUserLocation applied via applyUserGeolocationFromLocateFlow', {
+              lat,
+              lng,
+            });
+          } else {
+            debugCoachMapLocate('geo success but lat/lng not finite', { lat, lng });
+            setGeolocationErrorCode(2);
           }
         },
         err => {
+          debugCoachMapLocate('geo error', {
+            code: err?.code,
+            message: err?.message,
+            ...meta,
+          });
           logCoachMapLocateVerbose('geo error', {
             code: err?.code,
             message: err?.message,
             ...meta,
           });
+          setGeolocationErrorCode(typeof err?.code === 'number' ? err.code : -2);
           if (typeof window !== 'undefined' && parseCoachExploreSearch(window.location.search).locate) {
             const stripped = stripCoachMapLocateParamsFromSearch(window.location.search);
             history.replace(`${window.location.pathname}${stripped}`);
           }
         },
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+        // iOS/Android: high accuracy often times out or never resolves; match
+        // the locate-URL effect (so Current location matches landing behaviour).
+        { enableHighAccuracy: false, timeout: 30000, maximumAge: 0 }
       );
     },
     [applyUserGeolocationFromLocateFlow, history]
@@ -552,6 +576,15 @@ const CoachMapPage = props => {
     window.addEventListener(COACH_MAP_DIRECT_GEO_EVENT, onDirect);
     return () => window.removeEventListener(COACH_MAP_DIRECT_GEO_EVENT, onDirect);
   }, [runDirectCoachMapGeolocation]);
+
+  useEffect(() => {
+    if (!userLocation) return;
+    if (!Number.isFinite(userLocation.lat) || !Number.isFinite(userLocation.lng)) return;
+    debugCoachMapLocate('CoachMapPage → CoachMap3D userLocation prop', {
+      lat: userLocation.lat,
+      lng: userLocation.lng,
+    });
+  }, [userLocation]);
 
   // Ensure data is loaded when entering the map page directly (e.g. from "Current location").
   useEffect(() => {
@@ -693,6 +726,7 @@ const CoachMapPage = props => {
           code: err?.code,
           message: err?.message,
         });
+        setGeolocationErrorCode(typeof err?.code === 'number' ? err.code : -2);
         const stripped = stripCoachMapLocateParamsFromSearch(location.search);
         history.replace(`${location.pathname}${stripped}`);
       },
@@ -1223,6 +1257,23 @@ const CoachMapPage = props => {
                 />
               </button>
             </div>
+            {geolocationErrorCode != null ? (
+              <div className={css.sidebarGeoError} role="alert">
+                <FormattedMessage
+                  id={
+                    geolocationErrorCode === 1
+                      ? 'CoachMapPage.geolocationErrorPermission'
+                      : geolocationErrorCode === 3
+                        ? 'CoachMapPage.geolocationErrorTimeout'
+                        : geolocationErrorCode === 2
+                          ? 'CoachMapPage.geolocationErrorUnavailable'
+                          : geolocationErrorCode === -1
+                            ? 'CoachMapPage.geolocationErrorUnavailableApi'
+                            : 'CoachMapPage.geolocationErrorGeneric'
+                  }
+                />
+              </div>
+            ) : null}
           </header>
 
           {loading ? (

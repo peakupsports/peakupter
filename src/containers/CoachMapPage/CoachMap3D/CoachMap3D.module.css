@@ -9,12 +9,13 @@
   border-radius: 28px;
   border: 1px solid rgba(255, 255, 255, 0.09);
   background:
-    radial-gradient(84% 70% at 14% 14%, rgba(34, 230, 184, 0.1) 0%, transparent 48%),
-    radial-gradient(92% 72% at 86% 18%, rgba(21, 155, 255, 0.12) 0%, transparent 52%),
-    linear-gradient(180deg, rgba(8, 14, 23, 0.96) 0%, rgba(6, 11, 18, 0.99) 100%);
+    radial-gradient(88% 64% at 78% 6%, rgba(25, 223, 242, 0.05) 0%, transparent 46%),
+    radial-gradient(70% 50% at 12% 92%, rgba(156, 255, 46, 0.03) 0%, transparent 44%),
+    linear-gradient(180deg, #d8e4f0 0%, #c8d8ea 48%, #d0dce8 100%);
   box-shadow:
-    0 22px 52px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 24px 52px rgba(22, 38, 58, 0.22),
+    0 0 40px rgba(25, 223, 242, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
   isolation: isolate;
 }
 
@@ -29,42 +30,61 @@
   position: relative;
 }
 
+/* Soft daytime: leggermente attenuato, non pieno sole */
+.root :global(.mapboxgl-canvas) {
+  outline: none;
+  filter:
+    saturate(1.06) contrast(1.05) brightness(0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root :global(.mapboxgl-canvas) {
+    filter:
+      saturate(1.03) contrast(1.02) brightness(0.93);
+  }
+}
+
+/* Vignetta leggera + profondità senza look notturno */
+.root :global(.mapboxgl-canvas-container)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.42;
+  background:
+    radial-gradient(
+      78% 62% at 50% 50%,
+      rgba(255, 255, 255, 0) 42%,
+      rgba(38, 58, 82, 0.12) 100%
+    ),
+    linear-gradient(180deg, rgba(48, 72, 98, 0.08) 0%, transparent 38%, rgba(42, 64, 88, 0.06) 100%);
+}
+
+/* Alone diurno morbido in alto (orizzonte / cielo), molto sottile */
 .root :global(.mapboxgl-canvas-container)::after {
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 2;
   pointer-events: none;
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
   background:
     radial-gradient(
-      72% 56% at 84% 10%,
-      rgba(255, 185, 90, 0.14) 0%,
-      rgba(255, 120, 55, 0.08) 26%,
+      110% 48% at 50% -12%,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(200, 225, 248, 0.08) 36%,
       transparent 62%
     ),
-    linear-gradient(
-      135deg,
-      rgba(255, 185, 90, 0.1) 0%,
-      rgba(255, 120, 55, 0.04) 22%,
-      transparent 52%
-    ),
-    radial-gradient(
-      58% 46% at 50% 52%,
-      rgba(6, 12, 20, 0) 0%,
-      rgba(6, 12, 20, 0.015) 48%,
-      rgba(6, 12, 20, 0.08) 82%,
-      rgba(6, 12, 20, 0.14) 100%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(5, 10, 18, 0.1) 0%,
-      rgba(5, 10, 18, 0.015) 22%,
-      rgba(5, 10, 18, 0.03) 74%,
-      rgba(5, 10, 18, 0.12) 100%
-    );
+    radial-gradient(circle at 92% 8%, rgba(25, 223, 242, 0.05) 0%, transparent 42%);
 }
 
-.root :global(.mapboxgl-canvas) {
-  outline: none;
+@media (prefers-reduced-motion: reduce) {
+  .root :global(.mapboxgl-canvas-container)::after {
+    opacity: 0.42;
+  }
 }
 
 .root :global(.mapboxgl-ctrl-top-right) {
@@ -175,6 +195,11 @@
     0 0 0 4px rgba(var(--tier-rgb, 155, 231, 255), 0.06),
     0 0 26px var(--tier-glow, rgba(124, 58, 238, 0.22));
   z-index: 2;
+}
+
+/* Ensure the user dot sits above coach markers / map chrome on mobile WebKit */
+:global(.peakup-coachmap-user-location) {
+  z-index: 30;
 }
 
 /* "You are here" marker. Apple-/Google-Maps-style blue dot with a soft

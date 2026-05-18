@@ -11,9 +11,31 @@
 .thumbnailWrapper {
   position: relative;
   width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 42%;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(3, 8, 18, 0.35) 45%,
+      rgba(3, 8, 18, 0.72) 100%
+    );
+  }
+
+  @media (--viewportMedium) {
+    border-radius: 14px;
+  }
 }
 
-/* Root element for Thumbnail (button or div) – reset when button, fill space */
 .thumbnailTrigger {
   display: block;
   width: 100%;
@@ -28,25 +50,30 @@
 .rootForImage {
   composes: coverEverything;
   width: 100%;
-  border: solid 1px var(--colorGrey100);
-  border-radius: var(--borderRadiusMedium);
+  border: 1px solid rgba(25, 223, 242, 0.22);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+
+  @media (--viewportMedium) {
+    border-radius: 14px;
+  }
 }
 
 .menuOverlayWrapper {
   composes: coverEverything;
+  z-index: 2;
 }
 
 .menuOverlay {
   composes: coverEverything;
-
-  background-color: var(--colorGrey300);
-  mix-blend-mode: overlay;
+  background-color: rgba(6, 12, 22, 0.55);
+  mix-blend-mode: normal;
   opacity: 0;
   transition: var(--transitionStyleButton);
 }
 
 .menuOverlayOpen {
-  opacity: 0.4;
+  opacity: 0.55;
 }
 
 .draftNoImage {
@@ -55,13 +82,12 @@
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: var(--colorGrey700);
+  background: linear-gradient(165deg, rgba(18, 28, 48, 0.95) 0%, rgba(8, 14, 26, 0.98) 100%);
 }
 
 .openListingButton,
 .finishListingDraftLink {
   composes: buttonPrimaryInline from global;
-
   margin-top: 10px;
   margin-bottom: 8px;
 
@@ -75,13 +101,28 @@
   composes: a textSmall from global;
   display: inline-block;
   margin-top: 10px;
+  color: rgba(120, 225, 255, 0.92);
+
+  &:hover {
+    color: #c8ff6a;
+    text-decoration: underline;
+    text-decoration-color: rgba(157, 255, 79, 0.75);
+  }
 }
 
 .alternativeActionText {
   composes: h5 from global;
-  margin: 0px 24px;
+  margin: 0 24px;
+  color: #f4f7fb;
 }
 
 .alternativeActionLink {
   composes: a textSmall from global;
+  color: rgba(120, 225, 255, 0.92);
+
+  &:hover {
+    color: #c8ff6a;
+    text-decoration: underline;
+    text-decoration-color: rgba(157, 255, 79, 0.75);
+  }
 }

@@ -1,53 +1,96 @@
 @import '../../../styles/customMediaQueries.css';
 
 .root {
-  /* Layout */
   width: 100%;
-  height: 100%;
+  height: auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-
-  /* Content of EditListingWizard should have smaller z-index than Topbar */
   z-index: 0;
+  overflow: visible;
 }
 
+.editListingPeakUp {
+  flex-grow: 1;
+  color: rgba(228, 235, 243, 0.92);
+  overflow: visible;
+}
+
+/* Desktop: shared grid aligns sidebar card + form card on the same top edge */
 .tabsContainer {
   flex-grow: 1;
-  /* Layout */
   width: 100%;
-  height: 100%;
-
   display: flex;
   flex-direction: column;
+  overflow: visible;
 
   @media (--viewportLarge) {
-    flex-direction: row;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    align-items: start;
+    gap: 32px;
+    width: 100%;
+    max-width: 1128px;
+    margin: 0 auto;
+    padding: 24px 36px 72px;
+    box-sizing: border-box;
+  }
+
+  @media (--viewportLargeWithPaddings) {
+    max-width: none;
+    padding-left: calc((100% - 1056px) / 2);
+    padding-right: calc((100% - 1056px) / 2);
   }
 }
 
+/* Direct grid child — form column (EditListingWizardTab renders <main class="panel">) */
+.tabsContainer > main {
+  @media (--viewportLarge) {
+    margin: 0;
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* Step sidebar / horizontal tab bar */
 .nav {
-  /* Layout */
   display: flex;
   flex-direction: row;
   padding: 0;
   flex-shrink: 0;
-  background-color: var(--colorWhite);
-  box-shadow: var(--boxShadowLight);
-  border-top: 1px solid var(--colorGrey100);
-  overflow-x: scroll;
+  overflow-x: auto;
+  border-top: 1px solid rgba(120, 225, 255, 0.1);
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 0%, rgba(23, 217, 255, 0.06) 0%, transparent 55%),
+    rgba(8, 14, 26, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
 
   @media (--viewportLarge) {
-    padding: 72px 0 82px 36px;
+    position: sticky;
+    top: 120px;
+    align-self: start;
+    width: 100%;
+    height: fit-content;
+    max-height: calc(100vh - 144px);
+    margin: 0;
     flex-direction: column;
-    overflow-x: auto;
-    background-color: var(--colorGrey50);
-    box-shadow: none;
-    border-top: none;
-  }
-
-  @media (--viewportLargeWithPaddings) {
-    padding: 72px 0 82px calc((100% - 1056px) / 2);
+    overflow-x: visible;
+    overflow-y: auto;
+    padding: 32px 20px 40px;
+    z-index: calc(var(--zIndexTopbar) - 1);
+    border: 1px solid rgba(25, 223, 242, 0.14);
+    border-radius: 16px;
+    background:
+      radial-gradient(ellipse 100% 70% at 0% 0%, rgba(23, 217, 255, 0.08) 0%, transparent 52%),
+      linear-gradient(165deg, rgba(12, 20, 36, 0.94) 0%, rgba(6, 12, 22, 0.96) 100%);
+    box-shadow:
+      0 16px 40px rgba(0, 0, 0, 0.28),
+      0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
   }
 }
 
@@ -57,13 +100,10 @@
 
   &:first-child {
     margin-left: 0;
-
-    /* Padding added to tab so that it will be visible after call to scrollToTab */
     padding-left: 24px;
   }
 
   &:last-child {
-    /* Padding added to tab so that it will be visible after call to scrollToTab */
     padding-right: 24px;
   }
 
@@ -80,8 +120,78 @@
   }
 }
 
+/* TabNav — PeakUp step links */
+.nav :global([class*='TabNav_link']) {
+  color: rgba(196, 210, 228, 0.78);
+  border-bottom-color: transparent;
+  background-image: none !important;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.96);
+    text-decoration: none;
+    background-image: none !important;
+  }
+
+  @media (--viewportLarge) {
+    position: relative;
+    width: auto;
+    min-width: 180px;
+    margin-bottom: 10px;
+    padding: 10px 16px 10px 20px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease;
+
+    &:hover {
+      background-color: rgba(23, 217, 255, 0.06);
+      border-color: rgba(25, 223, 242, 0.12);
+    }
+  }
+}
+
+.nav :global([class*='TabNav_selectedLink']) {
+  color: #f4f7fb;
+  border-bottom-color: rgba(23, 217, 255, 0.55);
+  background-image: none !important;
+
+  @media (--viewportLarge) {
+    border-bottom-width: 0;
+    background-color: rgba(23, 217, 255, 0.08);
+    border-color: rgba(25, 223, 242, 0.28);
+    box-shadow:
+      0 0 18px rgba(23, 217, 255, 0.12),
+      inset 0 0 0 1px rgba(25, 223, 242, 0.08);
+  }
+}
+
+.nav :global([class*='TabNav_selectedLink'])::before {
+  @media (--viewportLarge) {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #17d9ff 0%, #39f3d1 50%, #9dff4f 100%);
+    box-shadow:
+      0 0 12px rgba(23, 217, 255, 0.45),
+      0 0 18px rgba(157, 255, 79, 0.18);
+  }
+}
+
+.nav :global([class*='TabNav_disabled']) {
+  color: rgba(196, 210, 228, 0.32);
+  opacity: 1;
+}
+
 .modalTitle {
   composes: marketplaceModalTitleStyles from global;
+  color: #f4f7fb;
 }
 
 .modalPayoutDetailsWrapper {
@@ -93,6 +203,7 @@
 
 .modalMessage {
   composes: marketplaceModalParagraphStyles from global;
+  color: rgba(196, 210, 228, 0.88);
 }
 
 .customFieldMultiEnum {
@@ -101,4 +212,447 @@
   @media (--viewportMedium) {
     margin-bottom: 40px;
   }
+}
+
+/* =====================================================================
+ * PeakUp form + typography overrides (all wizard panels)
+ * ===================================================================== */
+
+.editListingPeakUp :global([class*='Heading_h1']),
+.editListingPeakUp :global([class*='Heading_h2']),
+.editListingPeakUp :global([class*='Heading_h3']),
+.editListingPeakUp :global([class*='Heading_h4']),
+.editListingPeakUp :global([class*='Heading_h5']) {
+  color: #f4f7fb;
+}
+
+.editListingPeakUp p,
+.editListingPeakUp li {
+  color: rgba(196, 210, 228, 0.85);
+}
+
+.editListingPeakUp :global([class*='ListingLink']) {
+  color: rgba(120, 225, 255, 0.92);
+}
+
+.editListingPeakUp :global([class*='ListingLink']):hover {
+  color: #c8ff6a;
+}
+
+.editListingPeakUp :global([class*='FieldTextInput_root']) > label,
+.editListingPeakUp :global([class*='FieldSelect_root']) > label,
+.editListingPeakUp :global([class*='FieldCheckbox_root']) > label,
+.editListingPeakUp :global([class*='FieldBoolean_root']) > label,
+.editListingPeakUp :global([class*='FieldCurrencyInput_root']) > label,
+.editListingPeakUp :global([class*='FieldNumber_root']) > label,
+.editListingPeakUp :global([class*='FieldRadioButton_root']) > label,
+.editListingPeakUp :global([class*='FieldDateRangeInput_root']) > label,
+.editListingPeakUp :global([class*='FieldDateInput_root']) > label {
+  color: rgba(228, 235, 243, 0.9) !important;
+  font-weight: 600;
+}
+
+.editListingPeakUp :global([class*='FieldTextInput_root']) input,
+.editListingPeakUp :global([class*='FieldTextInput_root']) textarea,
+.editListingPeakUp :global([class*='FieldSelect_root']) select,
+.editListingPeakUp :global([class*='FieldCurrencyInput_root']) input,
+.editListingPeakUp :global([class*='FieldNumber_root']) input,
+.editListingPeakUp :global(.marketplaceInputStyles),
+.editListingPeakUp :global([class*='LocationAutocompleteInput_input']) {
+  color: rgba(247, 250, 255, 0.96) !important;
+  background-color: rgba(8, 14, 24, 0.78) !important;
+  border: 1px solid rgba(120, 225, 255, 0.2) !important;
+  border-radius: 10px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.editListingPeakUp :global([class*='FieldTextInput_root']) input::placeholder,
+.editListingPeakUp :global([class*='FieldTextInput_root']) textarea::placeholder {
+  color: rgba(157, 176, 198, 0.5) !important;
+}
+
+.editListingPeakUp :global([class*='FieldTextInput_root']) input:focus,
+.editListingPeakUp :global([class*='FieldTextInput_root']) textarea:focus,
+.editListingPeakUp :global([class*='FieldSelect_root']) select:focus,
+.editListingPeakUp :global([class*='FieldCurrencyInput_root']) input:focus,
+.editListingPeakUp :global([class*='FieldNumber_root']) input:focus,
+.editListingPeakUp :global(.marketplaceInputStyles):focus-within {
+  outline: none;
+  border-color: rgba(23, 217, 255, 0.55) !important;
+  box-shadow:
+    0 0 0 1px rgba(23, 217, 255, 0.2),
+    0 0 18px rgba(23, 217, 255, 0.12) !important;
+}
+
+.editListingPeakUp :global([class*='HelpText_root']) {
+  color: rgba(157, 196, 220, 0.68) !important;
+}
+
+.editListingPeakUp :global([class*='ValidationError_root']) {
+  color: #ff9a9a !important;
+}
+
+.editListingPeakUp fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.editListingPeakUp fieldset legend {
+  color: rgba(228, 235, 243, 0.9);
+  font-weight: 600;
+}
+
+.editListingPeakUp input[type='checkbox'],
+.editListingPeakUp input[type='radio'] {
+  accent-color: #39f3d1;
+}
+
+.editListingPeakUp :global([class*='FieldRadioButton_text']) {
+  color: rgba(228, 235, 243, 0.88) !important;
+}
+
+/* Primary / secondary buttons */
+.editListingPeakUp :global([class*='Button_primaryButtonRoot']) {
+  border: none !important;
+  border-radius: 12px !important;
+  color: #061018 !important;
+  font-weight: 700 !important;
+  background-image: linear-gradient(135deg, #17d9ff 0%, #39f3d1 48%, #9dff4f 100%) !important;
+  background-color: transparent !important;
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.32),
+    0 0 20px rgba(23, 217, 255, 0.18) !important;
+}
+
+.editListingPeakUp :global([class*='Button_primaryButtonRoot']):hover:not(:disabled),
+.editListingPeakUp :global([class*='Button_primaryButtonRoot']):focus-visible:not(:disabled) {
+  filter: brightness(1.06);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.36),
+    0 0 28px rgba(23, 217, 255, 0.24) !important;
+}
+
+.editListingPeakUp :global([class*='Button_secondaryButtonRoot']),
+.editListingPeakUp :global([class*='Button_secondaryButtonInlineRoot']) {
+  border-radius: 12px !important;
+  border: 1px solid rgba(25, 223, 242, 0.32) !important;
+  background: rgba(8, 14, 26, 0.72) !important;
+  color: rgba(228, 235, 243, 0.92) !important;
+}
+
+.editListingPeakUp :global([class*='Button_secondaryButtonRoot']):hover:not(:disabled),
+.editListingPeakUp :global([class*='Button_secondaryButtonInlineRoot']):hover:not(:disabled) {
+  border-color: rgba(157, 255, 79, 0.4) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(23, 217, 255, 0.1) !important;
+}
+
+.editListingPeakUp :global([class*='Button_primaryButtonRoot']):disabled,
+.editListingPeakUp :global([class*='Button_secondaryButtonRoot']):disabled,
+.editListingPeakUp :global([class*='Button_secondaryButtonInlineRoot']):disabled {
+  background: rgba(20, 28, 40, 0.65) !important;
+  background-image: none !important;
+  border-color: rgba(80, 96, 120, 0.25) !important;
+  color: rgba(140, 155, 175, 0.55) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.editListingPeakUp :global([class*='Button_inlineTextButtonRoot']) {
+  color: rgba(120, 225, 255, 0.92) !important;
+}
+
+.editListingPeakUp :global([class*='Button_inlineTextButtonRoot']):hover {
+  color: #c8ff6a !important;
+}
+
+/* Photos upload area */
+.editListingPeakUp :global([class*='EditListingPhotosForm_addImage']) {
+  background-color: rgba(8, 14, 24, 0.65) !important;
+  border-color: rgba(25, 223, 242, 0.28) !important;
+  border-style: dashed !important;
+}
+
+.editListingPeakUp :global([class*='EditListingPhotosForm_addImage']):hover {
+  border-color: rgba(23, 217, 255, 0.45) !important;
+  background-color: rgba(12, 22, 38, 0.75) !important;
+}
+
+.editListingPeakUp :global([class*='EditListingPhotosForm_chooseImage']),
+.editListingPeakUp :global([class*='EditListingPhotosForm_imageTypes']),
+.editListingPeakUp :global([class*='EditListingPhotosForm_tip']) {
+  color: rgba(196, 210, 228, 0.82) !important;
+}
+
+.editListingPeakUp :global([class*='EditListingPhotosForm_thumbnail']) {
+  background-color: rgba(12, 20, 36, 0.8) !important;
+}
+
+/* Style panel cards */
+.editListingPeakUp :global([class*='EditListingStyleForm_radioButtonLabel']) {
+  background: rgba(10, 18, 32, 0.75) !important;
+  border-color: rgba(25, 223, 242, 0.2) !important;
+}
+
+.editListingPeakUp :global([class*='EditListingStyleForm_radioButtonInput']:checked + [class*='EditListingStyleForm_radioButtonLabel']) {
+  border-color: rgba(23, 217, 255, 0.45) !important;
+  box-shadow: 0 0 16px rgba(23, 217, 255, 0.12) !important;
+}
+
+/* Availability calendar */
+.editListingPeakUp :global([class*='WeeklyCalendar_grid']) {
+  border-color: rgba(120, 225, 255, 0.16) !important;
+  background: rgba(8, 14, 24, 0.5) !important;
+}
+
+.editListingPeakUp :global([class*='WeeklyCalendar_dateLabel']),
+.editListingPeakUp :global([class*='WeeklyCalendar_weekPicker']),
+.editListingPeakUp :global([class*='WeeklyCalendar_sectionTitle']) {
+  color: rgba(196, 210, 228, 0.82) !important;
+}
+
+.editListingPeakUp :global([class*='WeeklyCalendar_button']),
+.editListingPeakUp :global([class*='WeeklyCalendar_prev']),
+.editListingPeakUp :global([class*='WeeklyCalendar_next']) {
+  background: rgba(8, 14, 24, 0.72) !important;
+  border-color: rgba(120, 225, 255, 0.2) !important;
+  color: rgba(228, 235, 243, 0.9) !important;
+}
+
+.editListingPeakUp :global([class*='WeeklyCalendar_button']):hover,
+.editListingPeakUp :global([class*='WeeklyCalendar_prev']):hover,
+.editListingPeakUp :global([class*='WeeklyCalendar_next']):hover {
+  background: rgba(14, 24, 40, 0.9) !important;
+  border-color: rgba(23, 217, 255, 0.35) !important;
+}
+
+.editListingPeakUp :global([class*='AvailabilityPlanEntries_dayOfWeek']) {
+  color: rgba(196, 210, 228, 0.85) !important;
+}
+
+.editListingPeakUp :global([class*='AvailabilityPlanEntries_row']) {
+  border-color: rgba(120, 225, 255, 0.12) !important;
+}
+
+.editListingPeakUp :global([class*='AvailabilityPlanEntries_planEntry']) {
+  background: rgba(8, 14, 24, 0.55) !important;
+}
+
+/* Stripe payout box in wizard modal flow */
+.editListingPeakUp :global([class*='StripeConnectAccountStatusBox_verificiationBox']),
+.editListingPeakUp :global([class*='StripeConnectAccountStatusBox_verficiationNeededBox']) {
+  background: rgba(10, 18, 32, 0.88) !important;
+  border: 1px solid rgba(25, 223, 242, 0.18) !important;
+}
+
+.editListingPeakUp :global([class*='StripeConnectAccountStatusBox_verificationBoxTitle']),
+.editListingPeakUp :global([class*='StripeConnectAccountStatusBox_verificationBoxText']) {
+  color: rgba(228, 235, 243, 0.9) !important;
+}
+
+/* =====================================================================
+ * Final polish — autocomplete, inputs, Next/submit, calendar rows
+ * ===================================================================== */
+
+/* Location autocomplete */
+.editListingPeakUp :global([class*='LocationAutocompleteInput_icon']) {
+  background-color: rgba(8, 14, 24, 0.82) !important;
+  border: 1px solid rgba(120, 225, 255, 0.22) !important;
+  border-bottom: 1px solid rgba(120, 225, 255, 0.22) !important;
+  border-radius: 10px 0 0 10px !important;
+}
+
+.editListingPeakUp :global([class*='LocationAutocompleteInput_iconSvgGroup']) {
+  stroke: #19dff2 !important;
+}
+
+.editListingPeakUp :global([class*='LocationAutocompleteInput_input']) {
+  border-radius: 0 10px 10px 0 !important;
+  border-bottom-width: 1px !important;
+}
+
+.editListingPeakUp :global([class*='LocationAutocompleteInput_predictionsRoot']),
+.editListingPeakUp :global([class*='LocationAutocompleteInput_predictionsRootGoogle']),
+.editListingPeakUp :global([class*='LocationAutocompleteInput_predictionsRootMapbox']) {
+  background: rgba(5, 16, 28, 0.96) !important;
+  border: 1px solid rgba(120, 225, 255, 0.25) !important;
+  border-radius: 12px !important;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.45),
+    0 0 24px rgba(23, 217, 255, 0.08) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.editListingPeakUp :global([class*='LocationAutocompleteInput_predictions']) {
+  padding: 8px 0 !important;
+}
+
+.editListingPeakUp :global([class*='LocationAutocompleteInput_predictions']) :global(li) {
+  color: rgba(228, 235, 243, 0.88) !important;
+  border-left: 3px solid transparent !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.editListingPeakUp
+  :global([class*='LocationAutocompleteInput_listItemBlackText']),
+.editListingPeakUp
+  :global([class*='LocationAutocompleteInput_listItemWhiteText']) {
+  color: rgba(228, 235, 243, 0.88) !important;
+}
+
+.editListingPeakUp
+  :global([class*='LocationAutocompleteInput_predictions'])
+  :global(li:hover),
+.editListingPeakUp
+  :global([class*='LocationAutocompleteInput_predictions'])
+  :global(li.highlighted),
+.editListingPeakUp
+  :global([class*='LocationAutocompleteInput_listItemBlackText']):hover,
+.editListingPeakUp
+  :global([class*='LocationAutocompleteInput_listItemWhiteText']):hover,
+.editListingPeakUp
+  :global([class*='LocationAutocompleteInput_listItemBlackText']).highlighted,
+.editListingPeakUp
+  :global([class*='LocationAutocompleteInput_listItemWhiteText']).highlighted {
+  color: #ffffff !important;
+  background: rgba(67, 210, 255, 0.1) !important;
+  border-left-color: rgba(57, 243, 209, 0.65) !important;
+}
+
+.editListingPeakUp :global([class*='LocationAutocompleteInput_currentLocation']) {
+  color: rgba(120, 225, 255, 0.92) !important;
+}
+
+/* Broad input sweep — pricing, selects, timezone, currency */
+.editListingPeakUp input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']),
+.editListingPeakUp select,
+.editListingPeakUp textarea {
+  color: rgba(247, 250, 255, 0.96) !important;
+  background-color: rgba(8, 14, 24, 0.82) !important;
+  border: 1px solid rgba(120, 225, 255, 0.22) !important;
+  border-radius: 10px !important;
+}
+
+.editListingPeakUp input::placeholder,
+.editListingPeakUp textarea::placeholder {
+  color: rgba(157, 176, 198, 0.5) !important;
+}
+
+.editListingPeakUp select option {
+  background-color: #0a1420;
+  color: #f4f7fb;
+}
+
+.editListingPeakUp :global([class*='FieldCurrencyInput_input']),
+.editListingPeakUp :global([class*='FieldNumber_input']) {
+  color: rgba(247, 250, 255, 0.96) !important;
+  background-color: rgba(8, 14, 24, 0.82) !important;
+  border: 1px solid rgba(120, 225, 255, 0.22) !important;
+  border-radius: 10px !important;
+}
+
+/* Next / submit — default Button uses buttonDefault (marketplace blue) */
+.editListingPeakUp :global([class*='Button_root'])[type='submit'],
+.editListingPeakUp button[type='submit'] {
+  border: 1px solid rgba(120, 225, 255, 0.35) !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #0f172a 0%, #12314d 42%, #1fb8ff 100%) !important;
+  background-color: transparent !important;
+  box-shadow: 0 0 22px rgba(31, 184, 255, 0.22) !important;
+  transition:
+    box-shadow 200ms ease,
+    filter 200ms ease,
+    border-color 200ms ease !important;
+}
+
+.editListingPeakUp :global([class*='Button_root'])[type='submit']:hover:not(:disabled),
+.editListingPeakUp :global([class*='Button_root'])[type='submit']:focus-visible:not(:disabled),
+.editListingPeakUp button[type='submit']:hover:not(:disabled),
+.editListingPeakUp button[type='submit']:focus-visible:not(:disabled) {
+  filter: brightness(1.06);
+  border-color: rgba(120, 225, 255, 0.5) !important;
+  box-shadow: 0 0 30px rgba(31, 184, 255, 0.35) !important;
+}
+
+.editListingPeakUp :global([class*='Button_root'])[type='submit']:disabled,
+.editListingPeakUp button[type='submit']:disabled {
+  background: rgba(20, 28, 40, 0.72) !important;
+  background-image: none !important;
+  border-color: rgba(80, 96, 120, 0.28) !important;
+  color: rgba(140, 155, 175, 0.55) !important;
+  box-shadow: none !important;
+}
+
+.editListingPeakUp :global([class*='Button_root'])[type='submit'] :global([class*='Button_spinner']),
+.editListingPeakUp :global([class*='Button_root'])[type='submit'] :global([class*='Button_checkmark']) {
+  stroke: #ffffff !important;
+}
+
+/* PrimaryButton variant — keep same premium Next style */
+.editListingPeakUp :global([class*='Button_primaryButtonRoot']) {
+  border: 1px solid rgba(120, 225, 255, 0.35) !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #0f172a 0%, #12314d 42%, #1fb8ff 100%) !important;
+  background-image: linear-gradient(135deg, #0f172a 0%, #12314d 42%, #1fb8ff 100%) !important;
+  box-shadow: 0 0 22px rgba(31, 184, 255, 0.22) !important;
+}
+
+.editListingPeakUp :global([class*='Button_primaryButtonRoot']):hover:not(:disabled),
+.editListingPeakUp :global([class*='Button_primaryButtonRoot']):focus-visible:not(:disabled) {
+  filter: brightness(1.06);
+  box-shadow: 0 0 30px rgba(31, 184, 255, 0.35) !important;
+}
+
+/* Calendar / schedule day rows on main availability panel */
+.editListingPeakUp :global([class*='WeeklyCalendar_date']) {
+  background: transparent !important;
+  border-bottom-color: rgba(120, 225, 255, 0.08) !important;
+}
+
+.editListingPeakUp :global([class*='WeeklyCalendar_date']):hover {
+  background: rgba(67, 210, 255, 0.05) !important;
+}
+
+.editListingPeakUp :global([class*='WeeklyCalendar_timeRange']),
+.editListingPeakUp :global([class*='WeeklyCalendar_dateAndMonth']) {
+  color: rgba(196, 210, 228, 0.82) !important;
+}
+
+.editListingPeakUp :global([class*='WeeklyCalendar_blockedDateLabel']) {
+  background-color: rgba(14, 24, 40, 0.65) !important;
+  color: rgba(157, 176, 198, 0.65) !important;
+}
+
+.editListingPeakUp :global([class*='AvailabilityPlanEntries_weekDay']) {
+  background: transparent !important;
+  border-top-color: rgba(120, 225, 255, 0.08) !important;
+}
+
+.editListingPeakUp :global([class*='AvailabilityPlanEntries_weekDay']):hover {
+  background: rgba(67, 210, 255, 0.05) !important;
+}
+
+.editListingPeakUp :global([class*='AvailabilityPlanEntries_hasEntries']) {
+  background: transparent !important;
+}
+
+.editListingPeakUp :global([class*='AvailabilityPlanEntries_fieldSelect']) {
+  color: #f4f7fb !important;
+  background-color: rgba(8, 14, 24, 0.82) !important;
+  border: 1px solid rgba(120, 225, 255, 0.22) !important;
+  border-radius: 10px !important;
+}
+
+/* Date pickers in exception modal (when portaled, modalContainer rules apply; this covers inline) */
+.editListingPeakUp :global([class*='DatePicker']) {
+  color: rgba(228, 235, 243, 0.9);
+}
+
+.editListingPeakUp :global([class*='EditListingPricingForm_coachCurrencyHint']) {
+  color: rgba(157, 196, 220, 0.68) !important;
 }

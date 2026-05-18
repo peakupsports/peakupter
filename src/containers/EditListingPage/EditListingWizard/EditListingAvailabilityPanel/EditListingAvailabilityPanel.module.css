@@ -11,6 +11,7 @@
 .heading {
   padding: 0;
   margin-bottom: 24px;
+
   @media (--viewportMedium) {
     margin-bottom: 16px;
   }
@@ -82,23 +83,227 @@
   }
 }
 
-.modalContainer {
-  composes: marketplaceModalBaseStyles from global;
-  min-height: 100vh;
-  height: 100%;
-
-  padding-left: 0;
-  padding-right: 0;
-
-  background-color: var(--colorGrey50);
+/* PeakUp dark availability modals (portaled — scoped via containerClassName) */
+.modalScrollLayer {
+  background-color: rgba(0, 0, 0, 0.72) !important;
+  background-image: none !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding: 24px 16px !important;
+  overflow-y: auto !important;
 
   @media (--viewportMedium) {
-    flex-basis: 576px;
-    min-height: auto;
-    height: auto;
+    background-color: rgba(0, 0, 0, 0.65) !important;
+    align-items: center !important;
+    padding: 32px 24px !important;
   }
 }
 
+.modalContainer {
+  composes: marketplaceModalBaseStyles from global;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 640px;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: calc(100vh - 48px);
+  margin: 0 auto;
+  padding: 0 !important;
+  color: rgba(228, 235, 243, 0.92);
+  background: linear-gradient(180deg, rgba(6, 16, 28, 0.96) 0%, rgba(4, 10, 18, 0.98) 100%) !important;
+  border: 1px solid rgba(120, 225, 255, 0.22) !important;
+  border-bottom: 1px solid rgba(120, 225, 255, 0.22) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+
+  @media (--viewportMedium) {
+    flex-basis: auto;
+    flex-grow: 0;
+    max-width: 720px;
+    max-height: calc(100vh - 80px);
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: calc(100vh - 120px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  @media (--viewportMedium) {
+    max-height: calc(100vh - 140px);
+  }
+}
+
+.modalContainer :global([class*='Heading_h1']),
+.modalContainer :global([class*='Heading_h2']),
+.modalContainer :global([class*='Heading_h3']),
+.modalContainer :global([class*='Heading_h4']),
+.modalContainer :global([class*='Heading_h5']) {
+  color: #f4f7fb !important;
+}
+
+.modalContainer p {
+  color: rgba(196, 210, 228, 0.85);
+}
+
+.modalContainer :global([class*='FieldTextInput_root']) > label,
+.modalContainer :global([class*='FieldSelect_root']) > label,
+.modalContainer :global([class*='FieldCheckbox_root']) > label,
+.modalContainer :global([class*='FieldBoolean_root']) > label,
+.modalContainer :global([class*='FieldNumber_root']) > label {
+  color: rgba(228, 235, 243, 0.9) !important;
+  font-weight: 600;
+}
+
+.modalContainer :global([class*='FieldTextInput_root']) input,
+.modalContainer :global([class*='FieldTextInput_root']) textarea,
+.modalContainer :global([class*='FieldSelect_root']) select,
+.modalContainer select,
+.modalContainer :global([class*='EditListingAvailabilityPlanForm_timeZoneSelect']),
+.modalContainer :global([class*='FieldNumber_root']) input,
+.modalContainer :global(.marketplaceInputStyles) {
+  color: rgba(247, 250, 255, 0.96) !important;
+  background-color: rgba(8, 14, 24, 0.92) !important;
+  border: 1px solid rgba(120, 225, 255, 0.28) !important;
+  border-radius: 10px !important;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.modalContainer :global([class*='FieldTextInput_root']) input::placeholder,
+.modalContainer :global([class*='FieldTextInput_root']) textarea::placeholder {
+  color: rgba(157, 176, 198, 0.5) !important;
+}
+
+.modalContainer :global([class*='FieldTextInput_root']) input:focus,
+.modalContainer :global([class*='FieldTextInput_root']) textarea:focus,
+.modalContainer :global([class*='FieldSelect_root']) select:focus,
+.modalContainer :global([class*='FieldNumber_root']) input:focus {
+  outline: none;
+  border-color: rgba(23, 217, 255, 0.55) !important;
+  box-shadow: 0 0 18px rgba(23, 217, 255, 0.12) !important;
+}
+
+.modalContainer select option {
+  background-color: #0a1420;
+  color: #f4f7fb;
+}
+
+.modalContainer :global([class*='Button_root'])[type='submit'],
+.modalContainer button[type='submit'] {
+  border: 1px solid rgba(120, 225, 255, 0.35) !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #0f172a 0%, #12314d 42%, #1fb8ff 100%) !important;
+  box-shadow: 0 0 22px rgba(31, 184, 255, 0.22) !important;
+}
+
+.modalContainer :global([class*='Button_root'])[type='submit']:hover:not(:disabled),
+.modalContainer button[type='submit']:hover:not(:disabled) {
+  box-shadow: 0 0 28px rgba(31, 184, 255, 0.35) !important;
+  filter: brightness(1.05);
+}
+
+.modalContainer :global([class*='marketplaceModalCloseNav']) :global([class*='Button_root']) {
+  color: rgba(196, 210, 228, 0.88) !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.modalContainer :global([class*='marketplaceModalCloseText']) {
+  color: rgba(196, 210, 228, 0.88) !important;
+}
+
+.modalContainer :global([class*='marketplaceModalCloseIcon']) {
+  stroke: rgba(196, 210, 228, 0.88) !important;
+}
+
+.modalContainer :global([class*='AvailabilityPlanEntries_weekDay']),
+.modalContainer :global([class*='AvailabilityPlanEntries_hasEntries']) {
+  background: transparent !important;
+}
+
+.modalContainer :global([class*='AvailabilityPlanEntries_weekDay']):hover {
+  background: rgba(67, 210, 255, 0.05) !important;
+}
+
+.modalContainer :global([class*='AvailabilityPlanEntries_fieldSelect']) {
+  color: #f4f7fb !important;
+  background-color: rgba(8, 14, 24, 0.82) !important;
+  border: 1px solid rgba(120, 225, 255, 0.22) !important;
+}
+
+.modalContainer :global([class*='DatePicker_root']),
+.modalContainer :global([class*='DateRangeController_root']) {
+  background: transparent !important;
+  color: rgba(228, 235, 243, 0.9) !important;
+}
+
+.modalContainer :global([class*='DatePicker_day']) {
+  color: rgba(196, 210, 228, 0.85) !important;
+}
+
+.modalContainer :global([class*='DatePicker_daySelected']) {
+  background: rgba(67, 210, 255, 0.18) !important;
+  color: #ffffff !important;
+}
+
+.modalContainer :global([class*='FieldRadioButton_text']) {
+  color: rgba(228, 235, 243, 0.88) !important;
+}
+
+/* Plan / exception forms inside scrollable modal body */
+.modalContent :global([class*='EditListingAvailabilityPlanForm_root']),
+.modalContent :global([class*='EditListingAvailabilityExceptionForm_root']) {
+  display: flex;
+  flex-direction: column;
+  min-height: min(100%, 480px);
+  margin-top: 0 !important;
+  padding-bottom: 8px;
+}
+
+.modalContent :global([class*='EditListingAvailabilityPlanForm_week']) {
+  margin-bottom: 24px !important;
+  flex: 1 1 auto;
+}
+
+.modalContent :global([class*='EditListingAvailabilityExceptionForm_section']) {
+  flex: 1 1 auto;
+}
+
+/* Sticky save footer — always visible at bottom of modal card */
+.modalContent :global([class*='EditListingAvailabilityPlanForm_submitButton']),
+.modalContent :global([class*='EditListingAvailabilityExceptionForm_submitButton']) {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  margin-top: 24px;
+  padding: 20px 24px 24px !important;
+  background: rgba(5, 16, 28, 0.96);
+  border-top: 1px solid rgba(120, 225, 255, 0.14);
+  box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.modalContainer :global([class*='marketplaceModalCloseNav']) {
+  flex-shrink: 0;
+  z-index: 4;
+  background: linear-gradient(180deg, rgba(6, 16, 28, 0.98) 0%, rgba(6, 16, 28, 0.92) 100%);
+}
+
 .error {
-  color: var(--colorFail);
+  color: #ff8a8a;
 }

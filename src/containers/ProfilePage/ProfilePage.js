@@ -46,6 +46,8 @@ import {
   resolveCoachStickerDisplay,
   resolveDisplayBadgeIds,
   shouldShowPeakUpProfileSticker,
+  isPeakUpCustomerMemberProfile,
+  isCoachProfileStickerEligible,
 } from '../../util/profileCoachSticker';
 import { pickPrimaryTierId, getTierStyleVars } from '../../util/coachTier';
 
@@ -77,6 +79,7 @@ import NotFoundPage from '../../containers/NotFoundPage/NotFoundPage';
 import layoutSideNavCss from '../../components/LayoutComposer/LayoutSideNavigation/LayoutSideNavigation.module.css';
 
 import PeakUpProfileTrustTopbar from './PeakUpProfileTrustTopbar';
+import CustomerProfileLayout from './CustomerProfileLayout/CustomerProfileLayout';
 import PeakupCoachBadgesHierarchyModal from '../../components/PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal';
 import peakUpFounderLogo from '../../assets/peakup-founder-logo.png';
 import css from './ProfilePage.module.css';
@@ -330,7 +333,13 @@ const StickerVerifiedShieldIcon = ({ rootClassName }) => (
 
 export const AsideContent = props => {
   const intl = useIntl();
-  const { user, displayName, showLinkToProfileSettingsPage, listings = [], reviews = [] } = props;
+  const {
+    user,
+    displayName,
+    showLinkToProfileSettingsPage,
+    listings = [],
+    reviews = [],
+  } = props;
   const [isBadgeHierarchyOpen, setBadgeHierarchyOpen] = useState(false);
 
   const profilePd = user?.attributes?.profile?.publicData || {};
@@ -1404,6 +1413,17 @@ export const ProfilePageComponent = props => {
   const hasNoViewingRightsOnPrivateMarketplace = isPrivateMarketplace && hasNoViewingRightsUser;
 
   const userTypeRoles = getCurrentUserTypeRoles(config, profileUser);
+  const profilePublicData = publicData || {};
+  const isCoachStickerEligible = isCoachProfileStickerEligible(
+    listings,
+    profilePublicData,
+    userTypeRoles
+  );
+  const peakUpCustomerLayout = isPeakUpCustomerMemberProfile(
+    listings,
+    profilePublicData,
+    userTypeRoles
+  );
 
   const isDataLoaded = isPreview
     ? currentUser != null || userShowError != null
@@ -1456,77 +1476,92 @@ export const ProfilePageComponent = props => {
     return null;
   }
 
-  // This is rendering normal profile page (not preview for pending-approval)
-  // The tier wrapper uses `display: contents` so it doesn't disrupt the
-  // LayoutSideNavigation grid/flex; CSS variables still inherit through the
-  // DOM tree, reaching both the figurina sidebar and the main column cards.
+  const pageSchema = {
+    '@context': 'http://schema.org',
+    '@type': 'ProfilePage',
+    mainEntity: {
+      '@type': 'Person',
+      name: profileUser?.attributes?.profile?.displayName,
+    },
+    name: schemaTitle,
+  };
+
+  if (peakUpCustomerLayout) {
+    return (
+      <Page scrollingDisabled={scrollingDisabled} title={schemaTitle} schema={pageSchema}>
+        <CustomerProfileLayout
+          profileUser={profileUser}
+          displayName={displayName}
+          bio={bio}
+          publicData={publicData}
+          reviews={reviews}
+          queryReviewsError={props.queryReviewsError}
+          hideReviews={hasNoViewingRightsOnPrivateMarketplace}
+          showEditProfileLink={mounted && isCurrentUser}
+          showBookingsLink={isCurrentUser}
+          intl={intl}
+        />
+      </Page>
+    );
+  }
+
+  // Coach + legacy profile (figurina, tier, trust topbar).
   const layoutNode = (
-      <LayoutSideNavigation
-        containerClassName={
-          peakUpCoachLayout
-            ? classNames(layoutSideNavCss.container, css.peakUpProfileLayoutDesktop)
-            : undefined
-        }
-        sideNavClassName={classNames(
-          css.aside,
-          peakUpCoachLayout && css.asideProfilePeakUpCoach,
-          peakUpCoachLayout && css.sideNavCoachPeakUpWide
-        )}
-        mainColumnClassName={peakUpCoachLayout ? css.mainPeakUpCoachContent : undefined}
-        topbar={<TopbarContainer topbarCenterContent={coachTrustTopbarSlots} />}
-        sideNav={
-          <AsideContent
-            user={profileUser}
-            showLinkToProfileSettingsPage={mounted && isCurrentUser}
-            displayName={displayName}
-            listings={listings}
-            reviews={reviews}
-          />
-        }
-        footer={<FooterContainer />}
-      >
-        <>
-          {peakUpCoachLayout && profileUser ? (
-            <PeakUpProfileTrustTopbar
-              intl={intl}
-              publicData={publicData || {}}
-              reviews={reviews}
-              variant="rail"
-            />
-          ) : null}
-          <MainContent
-            bio={bio}
-            displayName={displayName}
-            userShowError={userShowError}
-            publicData={publicData}
-            metadata={metadata}
-            userFieldConfig={userFields}
-            hideReviews={hasNoViewingRightsOnPrivateMarketplace}
+    <LayoutSideNavigation
+      className={peakUpCoachLayout ? layoutSideNavCss.profilePeakUpPageShell : undefined}
+      containerClassName={
+        peakUpCoachLayout
+          ? classNames(layoutSideNavCss.container, css.peakUpProfileLayoutDesktop)
+          : undefined
+      }
+      sideNavClassName={classNames(
+        css.aside,
+        peakUpCoachLayout && css.asideProfilePeakUpCoach,
+        peakUpCoachLayout && css.sideNavCoachPeakUpWide
+      )}
+      mainColumnClassName={peakUpCoachLayout ? css.mainPeakUpCoachContent : undefined}
+      topbar={<TopbarContainer topbarCenterContent={coachTrustTopbarSlots} />}
+      sideNav={
+        <AsideContent
+          user={profileUser}
+          showLinkToProfileSettingsPage={mounted && isCurrentUser}
+          displayName={displayName}
+          listings={listings}
+          reviews={reviews}
+        />
+      }
+      footer={<FooterContainer />}
+    >
+      <>
+        {peakUpCoachLayout && profileUser ? (
+          <PeakUpProfileTrustTopbar
             intl={intl}
-            userTypeRoles={userTypeRoles}
-            listings={listings}
+            publicData={publicData || {}}
             reviews={reviews}
-            profileUserUuid={profileUser?.id?.uuid}
-            {...rest}
+            variant="rail"
           />
-        </>
-      </LayoutSideNavigation>
+        ) : null}
+        <MainContent
+          bio={bio}
+          displayName={displayName}
+          userShowError={userShowError}
+          publicData={publicData}
+          metadata={metadata}
+          userFieldConfig={userFields}
+          hideReviews={hasNoViewingRightsOnPrivateMarketplace}
+          intl={intl}
+          userTypeRoles={userTypeRoles}
+          listings={listings}
+          reviews={reviews}
+          profileUserUuid={profileUser?.id?.uuid}
+          {...rest}
+        />
+      </>
+    </LayoutSideNavigation>
   );
 
   return (
-    <Page
-      scrollingDisabled={scrollingDisabled}
-      title={schemaTitle}
-      schema={{
-        '@context': 'http://schema.org',
-        '@type': 'ProfilePage',
-        mainEntity: {
-          '@type': 'Person',
-          name: profileUser?.attributes?.profile?.displayName,
-        },
-        name: schemaTitle,
-      }}
-    >
+    <Page scrollingDisabled={scrollingDisabled} title={schemaTitle} schema={pageSchema}>
       {peakUpCoachLayout && peakUpCoachTierStyle ? (
         <div className={css.peakUpTierRoot} style={peakUpCoachTierStyle}>
           {layoutNode}

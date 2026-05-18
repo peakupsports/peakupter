@@ -9,6 +9,7 @@ import { propTypes } from '../../util/types';
 import { PROFILE_PAGE_PENDING_APPROVAL_VARIANT } from '../../util/urlHelpers';
 import { ensureCurrentUser } from '../../util/data';
 import {
+  getCurrentUserTypeRoles,
   initialValuesForUserFields,
   isUserAuthorized,
   pickUserFieldsData,
@@ -136,6 +137,7 @@ export const ProfileSettingsPageComponent = props => {
   const profileImageId = user.profileImage ? user.profileImage.id : null;
   const profileImage = image || { imageId: profileImageId };
   const userTypeConfig = userTypes.find(config => config.userType === userType);
+  const { provider: isCoachUser } = getCurrentUserTypeRoles(config, currentUser);
   const isDisplayNameIncluded = userTypeConfig?.defaultUserFields?.displayName !== false;
   // ProfileSettingsForm decides if it's allowed to show the input field.
   const displayNameMaybe = isDisplayNameIncluded && displayName ? { displayName } : {};
@@ -163,6 +165,7 @@ export const ProfileSettingsPageComponent = props => {
       marketplaceName={config.marketplaceName}
       userFields={publicUserFields}
       userTypeConfig={userTypeConfig}
+      isCoachUser={isCoachUser}
     />
   ) : null;
 
@@ -193,13 +196,25 @@ export const ProfileSettingsPageComponent = props => {
           <header className={css.pageHeader}>
             <div className={css.pageHeaderText}>
               <p className={css.pageLabel}>
-                <FormattedMessage id="ProfileSettingsPage.pageLabel" />
+                <FormattedMessage
+                  id={
+                    isCoachUser
+                      ? 'ProfileSettingsPage.pageLabel'
+                      : 'ProfileSettingsPage.pageLabelCustomer'
+                  }
+                />
               </p>
               <H3 as="h1" className={css.heading}>
                 <FormattedMessage id="ProfileSettingsPage.heading" />
               </H3>
               <p className={css.pageSubtitle}>
-                <FormattedMessage id="ProfileSettingsPage.pageSubtitle" />
+                <FormattedMessage
+                  id={
+                    isCoachUser
+                      ? 'ProfileSettingsPage.pageSubtitle'
+                      : 'ProfileSettingsPage.pageSubtitleCustomer'
+                  }
+                />
               </p>
             </div>
             <div className={css.pageHeaderAside}>

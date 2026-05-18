@@ -364,7 +364,9 @@ const EditListingAvailabilityPanel = props => {
           onClose={() => setIsEditPlanModalOpen(false)}
           onManageDisableScrolling={onManageDisableScrolling}
           focusElementId={EDIT_AVAILABILITY_PLAN_BUTTON}
+          scrollLayerClassName={css.modalScrollLayer}
           containerClassName={css.modalContainer}
+          contentClassName={css.modalContent}
           usePortal
         >
           <EditListingAvailabilityPlanForm
@@ -390,7 +392,9 @@ const EditListingAvailabilityPanel = props => {
           onClose={() => setIsEditExceptionsModalOpen(false)}
           onManageDisableScrolling={onManageDisableScrolling}
           focusElementId={EDIT_AVAILABILITY_EXCEPTIONS_BUTTON}
+          scrollLayerClassName={css.modalScrollLayer}
           containerClassName={css.modalContainer}
+          contentClassName={css.modalContent}
           usePortal
         >
           <EditListingAvailabilityExceptionForm

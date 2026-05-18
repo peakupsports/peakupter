@@ -37,8 +37,11 @@ import {
   resolveLatestProcessName,
 } from '../../transactions/transaction';
 
+import classNames from 'classnames';
+
 import { Page, LayoutSingleColumn, NamedLink } from '../../components';
 import FooterContainer from '../../containers/FooterContainer/FooterContainer';
+import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 
 import css from './ListingPage.module.css';
 
@@ -536,8 +539,17 @@ export const handleSubmit = parameters => values => {
 const PlainPage = props => {
   const { title, topbar, scrollingDisabled, children } = props;
   return (
-    <Page title={title} scrollingDisabled={scrollingDisabled}>
-      <LayoutSingleColumn topbar={topbar} footer={<FooterContainer />}>
+    <Page
+      className={classNames(accountShellCss.pageShell, css.pagePeakUp)}
+      title={title}
+      scrollingDisabled={scrollingDisabled}
+    >
+      <LayoutSingleColumn
+        className={css.listingPeakUp}
+        mainColumnClassName={css.listingMain}
+        topbar={topbar}
+        footer={<FooterContainer />}
+      >
         {children}
       </LayoutSingleColumn>
     </Page>

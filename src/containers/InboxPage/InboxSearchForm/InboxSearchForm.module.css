@@ -1,16 +1,24 @@
 .root {
   display: flex;
   flex-direction: row;
-  margin-bottom: 24px;
+  margin-bottom: 0;
+  padding: 16px 16px 0;
+
+  @media (--viewportLarge) {
+    padding: 20px 20px 0;
+  }
 }
 
 .sortyByWrapper {
   display: inline-flex;
+  align-items: center;
   margin-left: auto;
+  gap: 8px;
 }
 
 .sortyBy {
   composes: marketplaceSmallFontStyles from global;
-  font-weight: var(--fontWeightRegular);
+  font-weight: var(--fontWeightMedium);
   padding: 8px 8px 8px 0;
+  color: rgba(196, 210, 228, 0.78);
 }
