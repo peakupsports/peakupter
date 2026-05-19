@@ -165,7 +165,7 @@ describe('LandingPage', () => {
           const tagName = node?.tagName?.toLowerCase();
           return (
             tagName === 'h3' &&
-            /Become a coach|LandingWhyPeakupSection\.cardCoachTitle/.test(node?.textContent || '')
+            /Grow with PeakUp|LandingWhyPeakupSection\.cardCoachTitle/.test(node?.textContent || '')
           );
         })
       ).toBeInTheDocument();

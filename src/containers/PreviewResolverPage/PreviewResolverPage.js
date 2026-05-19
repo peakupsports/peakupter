@@ -26,7 +26,7 @@ const PreviewResolverPage = props => {
   const pageAssetName = getPageAssetName(assetPath);
   const hasCMSPagePath = !!pageAssetName;
 
-  const toTermsOfServicePage = <NamedRedirect name="TermsOfServicePage" />;
+  const toTermsPage = <NamedRedirect name="TermsPage" />;
   const toPrivacyPolicyPage = <NamedRedirect name="PrivacyPolicyPage" />;
   const toCMSPage = <NamedRedirect name="CMSPage" params={{ pageId: pageAssetName }} />;
   const toLandingPage = <NamedRedirect name="LandingPage" />;
@@ -49,7 +49,7 @@ const PreviewResolverPage = props => {
   // Check if a specific page should be shown
   // If pageAssetName can't be detected, redirect to LandingPage
   return pageAssetName === 'terms-of-service'
-    ? toTermsOfServicePage
+    ? toTermsPage
     : pageAssetName === 'privacy-policy'
     ? toPrivacyPolicyPage
     : pageAssetName === 'landing-page'

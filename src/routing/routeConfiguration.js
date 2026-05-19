@@ -3,6 +3,18 @@ import loadable from '@loadable/component';
 
 import getPageDataLoadingAPI from '../containers/pageDataLoadingAPI';
 import LandingPage from '../containers/LandingPage/LandingPage';
+const AboutPage = loadable(() =>
+  import(/* webpackChunkName: "AboutPage" */ '../containers/AboutPage/AboutPage')
+);
+const TermsPage = loadable(() =>
+  import(/* webpackChunkName: "TermsPage" */ '../containers/TermsPage/TermsPage')
+);
+const PrivacyPage = loadable(() =>
+  import(/* webpackChunkName: "PrivacyPage" */ '../containers/PrivacyPage/PrivacyPage')
+);
+const CookiesPage = loadable(() =>
+  import(/* webpackChunkName: "CookiesPage" */ '../containers/CookiesPage/CookiesPage')
+);
 import NotFoundPage from '../containers/NotFoundPage/NotFoundPage';
 import PreviewResolverPage from '../containers/PreviewResolverPage/PreviewResolverPage';
 
@@ -42,7 +54,6 @@ const CoachMapPage = loadable(() =>
   import(/* webpackChunkName: "CoachMapPage" */ '../containers/CoachMapPage/CoachMapPage')
 );
 const StripePayoutPage = loadable(() => import(/* webpackChunkName: "StripePayoutPage" */ '../containers/StripePayoutPage/StripePayoutPage'));
-const TermsOfServicePage = loadable(() => import(/* webpackChunkName: "TermsOfServicePage" */ '../containers/TermsOfServicePage/TermsOfServicePage'));
 const TransactionPage = loadable(() => import(/* webpackChunkName: "TransactionPage" */ '../containers/TransactionPage/TransactionPage'));
 const NoAccessPage = loadable(() => import(/* webpackChunkName: "NoAccessPage" */ '../containers/NoAccessPage/NoAccessPage'));
 
@@ -90,6 +101,42 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       // Hero SearchCTA / FilterLocation use Mapbox geocoding before any map is shown; deferring
       // mapbox-gl-js breaks predictions and throws "Mapbox libraries are required for GeocoderMapbox".
       prioritizeMapLibraryLoading: true,
+    },
+    {
+      path: '/p/about',
+      name: 'AboutPage',
+      component: AboutPage,
+      loadData: pageDataLoadingAPI.AboutPage.loadData,
+    },
+    {
+      path: '/p/terms',
+      name: 'TermsPage',
+      component: TermsPage,
+      loadData: pageDataLoadingAPI.TermsPage.loadData,
+    },
+    {
+      path: '/p/privacy',
+      name: 'PrivacyPage',
+      component: PrivacyPage,
+      loadData: pageDataLoadingAPI.PrivacyPage.loadData,
+    },
+    {
+      path: '/p/cookies',
+      name: 'CookiesPage',
+      component: CookiesPage,
+      loadData: pageDataLoadingAPI.CookiesPage.loadData,
+    },
+    {
+      path: '/4_instructors',
+      name: 'InstructorsPageRedirect',
+      component: props => (
+        <NamedRedirect name="CMSPage" params={{ pageId: '4_instructors' }} search={props.location?.search} />
+      ),
+    },
+    {
+      path: '/about',
+      name: 'AboutPageRedirect',
+      component: props => <NamedRedirect name="AboutPage" search={props.location?.search} />,
     },
     {
       path: '/p/:pageId',
@@ -382,12 +429,6 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       auth: true,
       authPage: 'LoginPage',
       component: ManageAccountPage,
-    },
-    {
-      path: '/terms-of-service',
-      name: 'TermsOfServicePage',
-      component: TermsOfServicePage,
-      loadData: pageDataLoadingAPI.TermsOfServicePage.loadData,
     },
     {
       path: '/privacy-policy',

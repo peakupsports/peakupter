@@ -1,0 +1,130 @@
+@import '../styles/customMediaQueries.css';
+
+.main {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: calc(100vh - 200px);
+  padding: clamp(96px, 14vh, 120px) max(20px, 7vw) clamp(64px, 10vh, 96px);
+  box-sizing: border-box;
+}
+
+@media (--viewportMedium) {
+  .main {
+    padding-left: clamp(32px, 7vw, 96px);
+    padding-right: clamp(24px, 4vw, 64px);
+  }
+}
+
+.cardWrap {
+  position: relative;
+  width: 100%;
+  max-width: 740px;
+}
+
+.cardWrap::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 28%;
+  width: min(92%, 640px);
+  height: 72%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    ellipse 100% 80% at 50% 50%,
+    rgba(23, 217, 255, 0.14) 0%,
+    rgba(21, 155, 255, 0.06) 42%,
+    transparent 72%
+  );
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(28px);
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: clamp(40px, 6vw, 52px) clamp(36px, 5vw, 48px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%),
+    linear-gradient(180deg, rgba(12, 18, 30, 0.85) 0%, rgba(8, 13, 22, 0.95) 100%);
+  box-shadow:
+    0 24px 56px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #39f3d1;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: rgba(248, 250, 252, 0.98);
+}
+
+.subtitle {
+  margin: 16px 0 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: rgba(228, 235, 243, 0.78);
+}
+
+.description {
+  margin: 14px 0 0;
+  max-width: 52ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(228, 235, 243, 0.62);
+}
+
+.updated {
+  margin: 16px 0 0;
+  font-size: 14px;
+  color: rgba(228, 235, 243, 0.5);
+}
+
+.downloadButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32px;
+  min-height: 50px;
+  padding: 13px 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 248, 255, 0.28);
+  background-image: linear-gradient(90deg, #17d9ff 0%, #39f3d1 48%, #9dff4f 100%);
+  color: #06101c;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow:
+    0 10px 28px rgba(2, 8, 16, 0.34),
+    0 0 22px rgba(23, 217, 255, 0.18);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.downloadButton:hover,
+.downloadButton:focus-visible {
+  color: #06101c;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow:
+    0 14px 32px rgba(2, 8, 16, 0.4),
+    0 0 28px rgba(23, 217, 255, 0.28);
+}

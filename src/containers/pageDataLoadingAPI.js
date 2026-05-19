@@ -1,6 +1,10 @@
 /**
  * Export loadData calls from ducks modules of different containers
  */
+import { loadData as AboutPageLoader } from './AboutPage/AboutPage.duck';
+import { loadData as TermsPageLoader } from './TermsPage/TermsPage.duck';
+import { loadData as PrivacyPageLoader } from './PrivacyPage/PrivacyPage.duck';
+import { loadData as CookiesPageLoader } from './CookiesPage/CookiesPage.duck';
 import { loadData as AuthenticationPageLoader } from './AuthenticationPage/AuthenticationPage.duck';
 import { loadData as LandingPageLoader } from './LandingPage/LandingPage.duck';
 import { setInitialValues as CheckoutPageInitialValues } from './CheckoutPage/CheckoutPage.duck';
@@ -19,7 +23,6 @@ import { loadData as RequestQuotePageLoader } from './RequestQuotePage/RequestQu
 import { loadData as SearchPageLoader } from './SearchPage/SearchPage.duck';
 import { loadData as CoachesExplorePageLoader } from './CoachesExplorePage/CoachesExplorePage.duck';
 import { loadData as StripePayoutPageLoader } from './StripePayoutPage/StripePayoutPage.duck';
-import { loadData as TermsOfServicePageLoader } from './TermsOfServicePage/TermsOfServicePage.duck';
 import {
   loadData as TransactionPageLoader,
   setInitialValues as TransactionPageInitialValues,
@@ -27,6 +30,18 @@ import {
 
 const getPageDataLoadingAPI = () => {
   return {
+    AboutPage: {
+      loadData: AboutPageLoader,
+    },
+    TermsPage: {
+      loadData: TermsPageLoader,
+    },
+    PrivacyPage: {
+      loadData: PrivacyPageLoader,
+    },
+    CookiesPage: {
+      loadData: CookiesPageLoader,
+    },
     AuthenticationPage: {
       loadData: AuthenticationPageLoader,
     },
@@ -80,9 +95,6 @@ const getPageDataLoadingAPI = () => {
     },
     StripePayoutPage: {
       loadData: StripePayoutPageLoader,
-    },
-    TermsOfServicePage: {
-      loadData: TermsOfServicePageLoader,
     },
     TransactionPage: {
       loadData: TransactionPageLoader,

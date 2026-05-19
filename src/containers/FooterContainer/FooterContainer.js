@@ -1,5 +1,6 @@
 import React from 'react';
 import { useConfiguration } from '../../context/configurationContext';
+import { mergeFooterLegalLinks } from '../../util/footerLegalLinks';
 
 import SectionBuilder from '../PageBuilder/SectionBuilder/SectionBuilder';
 
@@ -15,7 +16,7 @@ const FooterComponent = () => {
   // expects sectionId and sectionType in order to identify the section. We add those
   // attributes here before passing the asset to SectionBuilder.
   const footerSection = {
-    ...footer,
+    ...mergeFooterLegalLinks(footer),
     sectionId: 'footer',
     sectionType: 'footer',
     linkLogoToExternalSite: topbar?.logoLink,

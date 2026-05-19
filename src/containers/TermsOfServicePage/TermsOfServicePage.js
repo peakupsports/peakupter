@@ -1,115 +1,167 @@
-import React from 'react';
-import loadable from '@loadable/component';
+import React, { useCallback, useEffect, useState } from 'react';
+import classNames from 'classnames';
+import { useSelector } from 'react-redux';
 
-import { bool, object } from 'prop-types';
-import { compose } from 'redux';
-import { connect } from 'react-redux';
+import { useConfiguration } from '../../context/configurationContext';
+import { FormattedMessage, useIntl } from '../../util/reactIntl';
+import { isScrollingDisabled } from '../../ducks/ui.duck';
 
-import { camelize } from '../../util/string';
-import { propTypes } from '../../util/types';
-import { getFeaturedListingsProps } from '../../util/data';
+import { Page } from '../../components';
+import TopbarContainer from '../TopbarContainer/TopbarContainer';
+import FooterContainer from '../FooterContainer/FooterContainer';
 
-import { fetchFeaturedListings } from '../../ducks/featuredListings.duck';
-import { getListingsById } from '../../ducks/marketplaceData.duck';
+import sportTheme from '../SportPagesTheme.module.css';
+import PeakUpTermsDocument from './PeakUpTermsDocument';
+import { TERMS_LAST_UPDATED, TERMS_NAV, TERMS_PDF_URL } from './termsContent';
+import css from './TermsOfServicePage.module.css';
 
-import { H1 } from '../PageBuilder/Primitives/Heading';
+const HERO_AURORA = '/CoachPagePic/aurora.jpg';
 
-const PageBuilder = loadable(() =>
-  import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')
+const TermsSideNav = ({ activeId, onNavigate }) => (
+  <nav className={css.sideNav} aria-label="Terms sections">
+    <ul className={css.sideNavList}>
+      {TERMS_NAV.map(item => (
+        <li key={item.id}>
+          <a
+            href={`#${item.id}`}
+            className={classNames(css.sideNavLink, activeId === item.id && css.sideNavLinkActive)}
+            onClick={event => onNavigate(event, item.id)}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
 );
-const SectionBuilder = loadable(
-  () => import(/* webpackChunkName: "SectionBuilder" */ '../PageBuilder/PageBuilder'),
-  {
-    resolveComponent: components => components.SectionBuilder,
-  }
-);
 
-import FallbackPage, { fallbackSections } from './FallbackPage';
-import { ASSET_NAME } from './TermsOfServicePage.duck';
+/**
+ * PeakUp Terms of Service — premium cinematic legal page.
+ */
+const TermsOfServicePage = () => {
+  const intl = useIntl();
+  const config = useConfiguration();
+  const scrollingDisabled = useSelector(isScrollingDisabled);
+  const marketplaceName = config.branding.marketplaceName || 'PeakUp';
+  const [activeNavId, setActiveNavId] = useState(TERMS_NAV[0]?.id);
 
-// This "content-only" component can be used in modals etc.
-const TermsOfServiceContent = props => {
-  const { inProgress, error, data, featuredListings } = props;
+  const title = intl.formatMessage({ id: 'TermsOfServicePage.schemaTitle' }, { marketplaceName });
+  const description = intl.formatMessage({ id: 'TermsOfServicePage.schemaDescription' });
 
-  // We don't want to add h1 heading twice to the HTML (SEO issue).
-  // Modal's header is mapped as h2
-  const hasContent = data => typeof data?.content === 'string';
-  const exposeContentAsChildren = data => {
-    return hasContent(data) ? { children: data.content } : {};
-  };
+  const handleNavClick = useCallback((event, id) => {
+    event.preventDefault();
+    const target = document.getElementById(id);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActiveNavId(id);
+      if (window.history?.replaceState) {
+        window.history.replaceState(null, '', `#${id}`);
+      }
+    }
+  }, []);
 
-  if (!hasContent && inProgress) {
-    return null;
-  }
+  useEffect(() => {
+    const hash = window.location.hash?.replace('#', '');
+    if (hash && TERMS_NAV.some(item => item.id === hash)) {
+      setActiveNavId(hash);
+      requestAnimationFrame(() => {
+        document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  }, []);
 
-  const CustomHeading1 = props => <H1 as="h2" {...props} />;
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') {
+      return undefined;
+    }
 
-  const hasData = error === null && data;
-  const sectionsData = hasData ? data : fallbackSections;
+    const elements = TERMS_NAV.map(item => document.getElementById(item.id)).filter(Boolean);
+    if (elements.length === 0) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      entries => {
+        const visible = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]?.target?.id) {
+          setActiveNavId(visible[0].target.id);
+        }
+      },
+      { rootMargin: '-20% 0px -55% 0px', threshold: [0, 0.15, 0.4] }
+    );
+
+    elements.forEach(element => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <SectionBuilder
-      {...sectionsData}
-      options={{
-        featuredListings,
-        fieldComponents: {
-          heading1: { component: CustomHeading1, pickValidProps: exposeContentAsChildren },
-        },
-        isInsideContainer: true,
-      }}
-    />
+    <Page
+      title={title}
+      description={description}
+      scrollingDisabled={scrollingDisabled}
+      className={classNames(sportTheme.sportPremium, css.termsPage)}
+    >
+      <TopbarContainer currentPage="TermsOfServicePage" chromeTheme="sportPremium" />
+
+      <main className={css.main}>
+        <header className={css.hero}>
+          <div className={css.heroBackdrop} aria-hidden="true">
+            <div
+              className={css.heroAuroraImage}
+              style={{ backgroundImage: `url('${HERO_AURORA}')` }}
+            />
+            <div className={css.heroAuroraGlow} />
+            <div className={css.heroFade} />
+          </div>
+          <div className={css.heroContent}>
+            <p className={css.eyebrow}>
+              <FormattedMessage id="TermsOfServicePage.heroEyebrow" />
+            </p>
+            <h1 className={css.heroTitle}>
+              <FormattedMessage id="TermsOfServicePage.heroTitle" />
+            </h1>
+            <p className={css.heroSubtitle}>
+              <FormattedMessage id="TermsOfServicePage.heroSubtitle" />
+            </p>
+            <p className={css.heroMeta}>
+              <FormattedMessage
+                id="TermsOfServicePage.lastUpdated"
+                values={{ date: TERMS_LAST_UPDATED }}
+              />
+            </p>
+            <div className={css.heroActions}>
+              <a
+                href={TERMS_PDF_URL}
+                className={css.downloadButton}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FormattedMessage id="TermsOfServicePage.downloadPdf" />
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <div className={css.contentLayout}>
+          <TermsSideNav activeId={activeNavId} onNavigate={handleNavClick} />
+          <div className={css.contentColumn}>
+            <PeakUpTermsDocument variant="page" />
+          </div>
+        </div>
+      </main>
+
+      <FooterContainer />
+    </Page>
   );
 };
 
-// Presentational component for TermsOfServicePage
-const TermsOfServicePageComponent = props => {
-  const { pageAssetsData, inProgress, error } = props;
+/**
+ * Modal-friendly Terms content (signup / auth flows).
+ */
+export const TermsOfServiceContent = () => <PeakUpTermsDocument variant="modal" />;
 
-  return (
-    <PageBuilder
-      pageAssetsData={pageAssetsData?.[camelize(ASSET_NAME)]?.data}
-      inProgress={inProgress}
-      error={error}
-      fallbackPage={<FallbackPage />}
-      featuredListings={getFeaturedListingsProps(camelize(ASSET_NAME), props)}
-    />
-  );
-};
-
-TermsOfServicePageComponent.propTypes = {
-  pageAssetsData: object,
-  inProgress: bool,
-  error: propTypes.error,
-};
-
-const mapStateToProps = state => {
-  const { pageAssetsData, inProgress, error } = state.hostedAssets || {};
-  const featuredListingData = state.featuredListings || {};
-
-  const getListingEntitiesById = listingIds => getListingsById(state, listingIds);
-
-  return { pageAssetsData, featuredListingData, getListingEntitiesById, inProgress, error };
-};
-
-const mapDispatchToProps = dispatch => ({
-  onFetchFeaturedListings: (sectionId, parentPage, listingImageConfig, allSections) =>
-    dispatch(fetchFeaturedListings({ sectionId, parentPage, listingImageConfig, allSections })),
-});
-
-// Note: it is important that the withRouter HOC is **outside** the
-// connect HOC, otherwise React Router won't rerender any Route
-// components since connect implements a shouldComponentUpdate
-// lifecycle hook.
-//
-// See: https://github.com/ReactTraining/react-router/issues/4671
-const TermsOfServicePage = compose(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
-)(TermsOfServicePageComponent);
-
-const TOS_ASSET_NAME = ASSET_NAME;
-export { TOS_ASSET_NAME, TermsOfServicePageComponent, TermsOfServiceContent };
-
+export { TermsOfServicePage as TermsOfServicePageComponent };
 export default TermsOfServicePage;

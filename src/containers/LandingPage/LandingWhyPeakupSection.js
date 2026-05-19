@@ -132,9 +132,9 @@ const cardContent = [
   },
   {
     titleId: 'LandingWhyPeakupSection.cardCoachTitle',
-    titleDefault: 'Become a coach',
+    titleDefault: 'Grow with PeakUp',
     textId: 'LandingWhyPeakupSection.cardCoachText',
-    textDefault: 'Get more bookings, grow your visibility, and stay fully independent.',
+    textDefault: 'Build your visibility, grow your bookings, and stay fully independent.',
     ctaId: 'LandingWhyPeakupSection.cardCoachCta',
     ctaDefault: 'More info',
     toneClassName: css.cardCoach,

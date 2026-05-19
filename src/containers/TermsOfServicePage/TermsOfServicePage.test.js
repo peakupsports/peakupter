@@ -3,24 +3,18 @@ import '@testing-library/jest-dom';
 
 import { renderWithProviders as render, testingLibrary } from '../../util/testHelpers';
 
-import { TermsOfServicePageComponent } from './TermsOfServicePage';
+import TermsOfServicePage from './TermsOfServicePage';
 
 const { waitFor } = testingLibrary;
 
 describe('TermsOfServicePage', () => {
-  it('renders the Fallback page on error', async () => {
-    const errorMessage = 'TermsOfServicePage failed';
-    let e = new Error(errorMessage);
-    e.type = 'error';
-    e.name = 'Test';
-
-    const { getByText } = render(
-      <TermsOfServicePageComponent pageAssetsData={null} inProgress={false} error={e} />
-    );
+  it('renders the premium terms hero and definitions section', async () => {
+    const { getByText, getByRole } = render(<TermsOfServicePage />);
 
     await waitFor(() => {
-      expect(getByText('Terms of Service')).toBeInTheDocument();
-      expect(getByText('An error occurred')).toBeInTheDocument();
+      expect(getByText('PeakUp Sports Terms of Service')).toBeInTheDocument();
+      expect(getByText('Download PDF')).toBeInTheDocument();
+      expect(getByRole('heading', { name: 'Definitions' })).toBeInTheDocument();
     });
   });
 });
