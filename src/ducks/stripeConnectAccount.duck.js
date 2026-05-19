@@ -3,7 +3,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as log from '../util/log';
 import { storableError } from '../util/errors';
-import { getStripeAccountTokenInfo } from '../util/stripeConnect';
+import { createStripeAccountToken, getStripeAccountTokenInfo } from '../util/stripeConnect';
 
 // ================ Async thunks ================ //
 
@@ -21,6 +21,24 @@ const createStripeAccountPayloadCreator = (params, { extra: sdk, rejectWithValue
     businessProfileURL,
     stripePublishableKey,
   } = params;
+
+  if (!stripePublishableKey) {
+    const err = new Error(
+      'Stripe publishable key is missing (REACT_APP_STRIPE_PUBLISHABLE_KEY). Contact the marketplace administrator.'
+    );
+    return rejectWithValue(storableError(err));
+  }
+
+  if (!country) {
+    const err = new Error('Country is required to save payout details.');
+    return rejectWithValue(storableError(err));
+  }
+
+  if (!accountType) {
+    const err = new Error('Account type is required to save payout details.');
+    return rejectWithValue(storableError(err));
+  }
+
   const stripe = window.Stripe(stripePublishableKey);
 
   // Capabilities are a collection of settings that can be requested for each provider.
@@ -35,11 +53,9 @@ const createStripeAccountPayloadCreator = (params, { extra: sdk, rejectWithValue
     tos_shown_and_accepted: true,
   };
 
-  return stripe
-    .createToken('account', accountInfo)
-    .then(response => {
-      const accountToken = response.token.id;
-      return sdk.stripeAccount.create(
+  return createStripeAccountToken(stripe, accountInfo)
+    .then(accountToken =>
+      sdk.stripeAccount.create(
         {
           country,
           accountToken,
@@ -48,8 +64,8 @@ const createStripeAccountPayloadCreator = (params, { extra: sdk, rejectWithValue
           businessProfileURL,
         },
         { expand: true }
-      );
-    })
+      )
+    )
     .then(response => {
       const stripeAccount = response.data.data;
       return stripeAccount;

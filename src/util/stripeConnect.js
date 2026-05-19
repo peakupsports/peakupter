@@ -58,3 +58,53 @@ export const getDisplayAccountType = stripeAccountData => {
     ? 'individual'
     : businessType;
 };
+
+const MISSING_TOKEN_MESSAGE =
+  'Stripe token was not created. Please check Stripe publishable key and country/account setup.';
+
+/**
+ * Creates a Stripe Connect account token via Stripe.js and returns the token id.
+ * Handles Stripe.js `{ error }` responses without throwing on undefined `token`.
+ *
+ * @param {Object} stripe Stripe.js instance from `window.Stripe(publishableKey)`
+ * @param {Object} accountInfo Payload for `stripe.createToken('account', accountInfo)`
+ * @returns {Promise<string>} account token id (tok_…)
+ */
+export const createStripeAccountToken = (stripe, accountInfo) => {
+  if (!stripe) {
+    return Promise.reject(new Error('Stripe is not initialized. Please reload the page and try again.'));
+  }
+
+  if (typeof stripe.createToken !== 'function') {
+    return Promise.reject(
+      new Error(
+        'Stripe account tokens are not available. Please check that Stripe.js loaded correctly.'
+      )
+    );
+  }
+
+  return stripe.createToken('account', accountInfo).then(response => {
+    /* eslint-disable no-console */
+    console.error('[PeakUp payout] Stripe token response:', response);
+    /* eslint-enable no-console */
+
+    if (response?.error) {
+      const message =
+        response.error.message ||
+        'Stripe could not create an account token for this country or account type.';
+      /* eslint-disable no-console */
+      console.error('[PeakUp payout] Stripe token error:', response.error);
+      /* eslint-enable no-console */
+      throw new Error(message);
+    }
+
+    if (!response || !response.token || !response.token.id) {
+      /* eslint-disable no-console */
+      console.error('[PeakUp payout] Missing Stripe token response:', response);
+      /* eslint-enable no-console */
+      throw new Error(MISSING_TOKEN_MESSAGE);
+    }
+
+    return response.token.id;
+  });
+};

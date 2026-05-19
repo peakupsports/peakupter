@@ -35,6 +35,10 @@ import css from './InquiryForm.module.css';
  * @param {string} [props.messageLabelMessageId] - Optional intl id for message label
  * @param {string} [props.messagePlaceholderMessageId] - Optional intl id for placeholder
  * @param {string} [props.submitButtonMessageId] - Optional intl id for submit button
+ * @param {boolean} [props.hideInquiryIcon] - Hide default inquiry icon (PeakUp contact modal)
+ * @param {string} [props.headingRootClassName] - Override heading class
+ * @param {string} [props.fieldClassName] - Override field wrapper class
+ * @param {string} [props.submitButtonRootClassName] - Override PrimaryButton root class
  * @param {propTypes.error} props.sendInquiryError - The send inquiry error
  * @returns {JSX.Element} inquiry form component
  */
@@ -57,6 +61,10 @@ const InquiryForm = props => (
         messageLabelMessageId = 'InquiryForm.messageLabel',
         messagePlaceholderMessageId = 'InquiryForm.messagePlaceholder',
         submitButtonMessageId = 'InquiryForm.submitButtonText',
+        hideInquiryIcon = false,
+        headingRootClassName,
+        fieldClassName,
+        submitButtonRootClassName,
       } = fieldRenderProps;
 
       const intl = useIntl();
@@ -86,15 +94,15 @@ const InquiryForm = props => (
 
       return (
         <Form className={classes} onSubmit={handleSubmit} enforcePagePreloadFor="OrderDetailsPage">
-          <IconInquiry className={css.icon} />
-          <Heading as="h2" rootClassName={css.heading}>
+          {hideInquiryIcon ? null : <IconInquiry className={css.icon} />}
+          <Heading as="h2" rootClassName={headingRootClassName || css.heading}>
             <FormattedMessage
               id={headingMessageId}
               values={headingValues || { listingTitle, coachName }}
             />
           </Heading>
           <FieldTextInput
-            className={css.field}
+            className={fieldClassName || css.field}
             type="textarea"
             name="message"
             id={formId ? `${formId}.message` : 'message'}
@@ -104,7 +112,12 @@ const InquiryForm = props => (
           />
           <div className={submitButtonWrapperClassName}>
             <ErrorMessage error={sendInquiryError} />
-            <PrimaryButton type="submit" inProgress={submitInProgress} disabled={submitDisabled}>
+            <PrimaryButton
+              type="submit"
+              inProgress={submitInProgress}
+              disabled={submitDisabled}
+              rootClassName={submitButtonRootClassName}
+            >
               <FormattedMessage id={submitButtonMessageId} />
             </PrimaryButton>
           </div>

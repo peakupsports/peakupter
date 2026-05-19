@@ -83,7 +83,7 @@ import layoutSideNavCss from '../../components/LayoutComposer/LayoutSideNavigati
 import PeakUpProfileTrustTopbar from './PeakUpProfileTrustTopbar';
 import CustomerProfileLayout from './CustomerProfileLayout/CustomerProfileLayout';
 import PeakupCoachBadgesHierarchyModal from '../../components/PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal';
-import InquiryForm from '../ListingPage/InquiryForm/InquiryForm';
+import ContactCoachModal from './ContactCoachModal/ContactCoachModal';
 import { sendInquiry, setInitialValues as setListingPageInitialValues } from '../ListingPage/ListingPage.duck';
 import peakUpFounderLogo from '../../assets/peakup-founder-logo.png';
 import {
@@ -469,7 +469,9 @@ export const AsideContent = props => {
   const listingSlug = listing ? createSlug(String(listingTitle)) : '';
   const listingId = listing?.id?.uuid;
   const coachNameForInquiry = displayName?.trim() || '';
-
+  const coachInquiryTierId = pickPrimaryTierId(profilePd);
+  const coachInquiryTierStyle = getTierStyleVars(coachInquiryTierId);
+  const coachInquirySports = formatProfileSportsForSticker(intl, stickerDisplay.sports);
   const onContactCoach = handleProfileCoachContact({
     currentUser,
     history,
@@ -701,31 +703,32 @@ export const AsideContent = props => {
         ) : null}
       </div>
 
-      <Modal
+      <ContactCoachModal
         id="ProfilePage.coachInquiry"
-        contentClassName={css.coachInquiryModalContent}
         isOpen={isInquiryModalOpen && Boolean(listing)}
         onClose={() => setInquiryModalOpen(false)}
-        usePortal
         onManageDisableScrolling={onManageDisableScrolling}
         focusElementId={PROFILE_COACH_INQUIRY_CONTACT_BUTTON_ID}
-      >
-        <InquiryForm
-          className={css.coachInquiryForm}
-          submitButtonWrapperClassName={css.coachInquirySubmitButtonWrapper}
-          formId="ProfilePage.coachInquiry"
-          listingTitle={coachNameForInquiry || listingTitle}
-          authorDisplayName={coachNameForInquiry || listingTitle}
-          headingMessageId="ProfilePage.coachInquiryHeading"
-          headingValues={{ coachName: coachNameForInquiry }}
-          messageLabelMessageId="ProfilePage.coachInquiryMessageLabel"
-          messagePlaceholderMessageId="ProfilePage.coachInquiryPlaceholder"
-          submitButtonMessageId="ProfilePage.coachInquirySubmit"
-          sendInquiryError={sendInquiryError}
-          onSubmit={onSubmitCoachInquiry}
-          inProgress={sendInquiryInProgress}
-        />
-      </Modal>
+        tierStyle={coachInquiryTierStyle}
+        tierId={coachInquiryTierId}
+        profilePublicData={profilePd}
+        coachDisplayName={coachNameForInquiry || listingTitle}
+        coachUser={avatarUser}
+        sports={coachInquirySports}
+        inquiryFormProps={{
+          formId: 'ProfilePage.coachInquiry',
+          listingTitle: coachNameForInquiry || listingTitle,
+          authorDisplayName: coachNameForInquiry || listingTitle,
+          headingMessageId: 'ProfilePage.coachInquiryHeading',
+          headingValues: { coachName: coachNameForInquiry },
+          messageLabelMessageId: 'ProfilePage.coachInquiryMessageLabel',
+          messagePlaceholderMessageId: 'ProfilePage.coachInquiryPlaceholder',
+          submitButtonMessageId: 'ProfilePage.coachInquirySubmit',
+          sendInquiryError,
+          onSubmit: onSubmitCoachInquiry,
+          inProgress: sendInquiryInProgress,
+        }}
+      />
 
       <PeakupCoachBadgesHierarchyModal
         id={badgeHierarchyModalId}

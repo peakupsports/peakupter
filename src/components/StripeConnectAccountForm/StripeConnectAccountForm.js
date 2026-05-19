@@ -4,6 +4,7 @@ import arrayMutators from 'final-form-arrays';
 import classNames from 'classnames';
 
 import { useConfiguration } from '../../context/configurationContext';
+import { defaultConnectCountry } from '../../config/configStripe';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { useRouteConfiguration } from '../../context/routeConfigurationContext';
 import { createResourceLocatorString } from '../../util/routes';
@@ -173,6 +174,8 @@ const ErrorsMaybe = props => {
       id="StripeConnectAccountForm.createStripeAccountFailedWithStripeError"
       values={{ stripeMessage: stripeAccountError.apiErrors[0].meta.stripeMessage }}
     />
+  ) : stripeAccountError?.message ? (
+    <div>{stripeAccountError.message}</div>
   ) : stripeAccountError ? (
     <FormattedMessage id="StripeConnectAccountForm.createStripeAccountFailed" />
   ) : isStripeError(stripeAccountLinkError) ? (
@@ -214,10 +217,24 @@ const StripeConnectAccountForm = props => {
   const isUpdate = props.stripeConnected;
   const stripePublishableKey = config.stripe.publishableKey;
   const supportedCountries = config.stripe.supportedCountries;
+  const supportedCountryCodes = getSupportedCountryCodes(supportedCountries);
+  const initialCountry =
+    supportedCountryCodes.includes(defaultConnectCountry)
+      ? defaultConnectCountry
+      : supportedCountryCodes[0];
+  const initialValues =
+    restOfProps.initialValues ||
+    (!isUpdate
+      ? {
+          country: initialCountry,
+          accountType: 'individual',
+        }
+      : undefined);
 
   return (
     <FinalForm
       {...restOfProps}
+      initialValues={initialValues}
       onSubmit={values => onSubmit({ ...values, stripePublishableKey }, isUpdate)}
       mutators={{
         ...arrayMutators,

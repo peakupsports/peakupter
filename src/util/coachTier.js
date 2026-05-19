@@ -43,6 +43,22 @@ import {
  * Coach's neutral titanium (#B8C2CF). Each level should feel one notch
  * less luminous than the one above it.
  */
+/** react-intl message ids for tier badge labels (shared by coach card, map popup, contact modal). */
+export const TIER_BADGE_MESSAGE_IDS = {
+  founder: 'PeakUpCoachFigurineCard.badge.founder',
+  ambassador: 'PeakUpCoachFigurineCard.badge.ambassador',
+  top_coach: 'PeakUpCoachFigurineCard.badge.topCoach',
+  certified_coach: 'PeakUpCoachFigurineCard.badge.certifiedCoach',
+};
+
+/** English fallbacks when a hosted translation is missing. */
+export const TIER_BADGE_DEFAULT_LABELS = {
+  founder: 'Founder',
+  ambassador: 'Ambassador',
+  top_coach: 'Top Coach',
+  certified_coach: 'Certified Coach',
+};
+
 export const TIER_COLORS = {
   founder: {
     border: '#9BE7FF',

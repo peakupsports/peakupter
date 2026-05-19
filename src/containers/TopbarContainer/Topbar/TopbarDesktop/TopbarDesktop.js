@@ -16,6 +16,7 @@ import {
 
 import TopbarSearchForm from '../TopbarSearchForm/TopbarSearchForm';
 import CustomLinksMenu from './CustomLinksMenu/CustomLinksMenu';
+import { CreateServiceProfileMenuItem } from '../TopbarCreateServiceLink';
 
 import css from './TopbarDesktop.module.css';
 
@@ -72,7 +73,14 @@ const InboxLink = ({
   );
 };
 
-const ProfileMenu = ({ currentPage, currentUser, onLogout, showManageListingsLink, intl }) => {
+const ProfileMenu = ({
+  currentPage,
+  currentUser,
+  onLogout,
+  showManageListingsLink,
+  showCreateListingsLink,
+  intl,
+}) => {
   const currentPageClass = page => {
     const isAccountSettingsPage =
       page === 'AccountSettingsPage' && ACCOUNT_SETTINGS_PAGES.includes(currentPage);
@@ -90,6 +98,11 @@ const ProfileMenu = ({ currentPage, currentUser, onLogout, showManageListingsLin
         <Avatar className={css.avatar} user={currentUser} disableProfileLink />
       </MenuLabel>
       <MenuContent className={css.profileMenuContent}>
+        {showCreateListingsLink ? (
+          <MenuItem key="NewListingPage">
+            <CreateServiceProfileMenuItem currentPageClass={currentPageClass} />
+          </MenuItem>
+        ) : null}
         {showManageListingsLink ? (
           <MenuItem key="ManageListingsPage">
             <NamedLink
@@ -206,6 +219,7 @@ const TopbarDesktop = props => {
       currentUser={currentUser}
       onLogout={onLogout}
       showManageListingsLink={showCreateListingsLink}
+      showCreateListingsLink={showCreateListingsLink}
       intl={intl}
     />
   ) : null;
@@ -248,7 +262,6 @@ const TopbarDesktop = props => {
         customLinks={customLinks}
         intl={intl}
         hasClientSideContentReady={authenticatedOnClientSide || !isAuthenticatedOrJustHydrated}
-        showCreateListingsLink={showCreateListingsLink}
       />
       {inboxLinkMaybe}
       {profileMenuMaybe}

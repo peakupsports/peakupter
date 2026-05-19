@@ -20,7 +20,7 @@ const defaultConfig = {
   // It should match one of the currencies listed in currencySettings.js
   // Note: The currency comes from localization asset nowadays by default.
   //       To use this built-in configuration, you need to remove the overwrite from configHelper.js (mergeCurrency func)
-  currency: 'USD',
+  currency: 'CHF',
 
   // Listing minimum price in currency sub units, e.g. cents.
   // By default, always try to take the value of listingMinimumPriceSubUnits from the transaction-size.json asset.

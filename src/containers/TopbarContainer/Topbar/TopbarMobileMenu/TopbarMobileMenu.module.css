@@ -163,8 +163,34 @@
   }
 }
 
-.createNewListingLink {
-  composes: buttonPrimary from global;
+.createServiceNavLink {
+  composes: navigationLink;
+}
+
+.createServiceNavInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.createServiceNavIcon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  fill: #17d9ff;
+  opacity: 0.92;
+  transition: fill 180ms ease, opacity 180ms ease;
+}
+
+.createServiceNavLink:hover .createServiceNavIcon,
+.createServiceNavLink:focus .createServiceNavIcon {
+  fill: #39f3d1;
+  opacity: 1;
+}
+
+.createServiceNavLink :global(a) {
+  display: inline-flex;
+  align-items: center;
 }
 
 .authenticationGreeting {

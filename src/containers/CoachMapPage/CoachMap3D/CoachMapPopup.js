@@ -10,7 +10,11 @@ import {
   resolveCoachStickerDisplay,
   splitCoachSportsForCoachMap,
 } from '../../../util/profileCoachSticker';
-import { pickPrimaryTierId, getTierStyleVars } from '../../../util/coachTier';
+import {
+  pickPrimaryTierId,
+  getTierStyleVars,
+  TIER_BADGE_MESSAGE_IDS,
+} from '../../../util/coachTier';
 
 import { Avatar } from '../../../components/Avatar/Avatar';
 import NamedLink from '../../../components/NamedLink/NamedLink';
@@ -28,14 +32,6 @@ import css from './CoachMapPopup.module.css';
 const { Money } = sdkTypes;
 
 const PROFILE_IMAGE_VARIANTS = ['square-small', 'square-small2x'];
-
-// Reuse existing badge translations, same as CoachCard.
-const BADGE_LABEL_KEYS = {
-  founder: 'PeakUpCoachFigurineCard.badge.founder',
-  ambassador: 'PeakUpCoachFigurineCard.badge.ambassador',
-  top_coach: 'PeakUpCoachFigurineCard.badge.topCoach',
-  certified_coach: 'PeakUpCoachFigurineCard.badge.certifiedCoach',
-};
 
 /**
  * Build a Money from `publicData.priceFrom` (major units) + `publicData.currency`.
@@ -187,7 +183,7 @@ const CoachMapPopup = ({ coach, onClose }) => {
           <div className={css.identityMeta}>
             {tierId ? (
               <span className={css.badge}>
-                <FormattedMessage id={BADGE_LABEL_KEYS[tierId]} />
+                <FormattedMessage id={TIER_BADGE_MESSAGE_IDS[tierId]} />
               </span>
             ) : null}
             {reviewCount > 0 && ratingNumber != null ? (

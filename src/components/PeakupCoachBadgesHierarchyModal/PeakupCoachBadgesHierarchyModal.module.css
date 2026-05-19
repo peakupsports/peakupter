@@ -1,106 +1,598 @@
 @import '../../styles/customMediaQueries.css';
 
-/* Affiancato a .container del Modal via classNames in JS. */
+@keyframes badgesModalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal:global(.isOpenInPortal) .scrollLayer,
+.scrollLayer {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(25, 227, 198, 0.1), transparent 55%),
+    rgba(2, 6, 14, 0.88) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  @media (--viewportMedium) {
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 12%, rgba(25, 227, 198, 0.12), transparent 58%),
+      rgba(2, 6, 14, 0.82) !important;
+  }
+}
+
+.modal:global(.isOpenInPortal) .container,
+.container {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: rgba(7, 12, 22, 0.94) !important;
+  border: 1px solid rgba(25, 227, 198, 0.35);
+  border-radius: 28px;
+  border-bottom: 1px solid rgba(25, 227, 198, 0.35) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 40px rgba(25, 227, 198, 0.14),
+    0 24px 56px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  animation: badgesModalEnter 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  min-height: auto;
+  height: auto;
+  max-height: calc(100vh - 80px);
+  max-height: calc(var(--vh, 1vh) * 100 - 80px);
+  padding: 0 !important;
+  margin: 0;
+
+  @media (--viewportMedium) {
+    flex-basis: 520px;
+    max-width: 520px;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
 .modalContainerNarrow {
   @media (--viewportMedium) {
-    flex-basis: auto;
+    flex-basis: 520px;
     width: 100%;
-    max-width: 420px;
+    max-width: 520px;
     margin-left: auto;
     margin-right: auto;
   }
 }
 
-.body {
-  position: relative;
-  padding: 0 4px 8px;
-  /* Stessi token delle figurine (PeakUpCoachFigurineCard / ProfilePage sticker). */
-  --stickerGold: #c9a227;
-  --stickerNavy: #10213e;
+.content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
   overflow: hidden;
 }
 
-.watermark {
-  position: absolute;
-  inset: 0;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: center 50%;
-  background-size: min(420px, 90%);
-  opacity: 0.22;
-  pointer-events: none;
-  z-index: 0;
-  filter: saturate(1) contrast(1.1);
+.modal :global(.marketplaceModalCloseNav) {
+  padding: 12px 12px 0 0;
+  flex-shrink: 0;
 }
 
-.title,
-.tier {
-  position: relative;
-  z-index: 1;
+.modal :global(.close) {
+  color: rgba(244, 247, 251, 0.72);
+  transition:
+    color 180ms ease,
+    filter 180ms ease,
+    transform 180ms ease;
+}
+
+.modal :global(.close):enabled:hover,
+.modal :global(.close):enabled:active {
+  color: #19e3c6;
+  filter: drop-shadow(0 0 8px rgba(25, 227, 198, 0.4));
+  transform: scale(1.04);
+}
+
+.modal :global(.closeIcon) {
+  stroke: currentColor;
+}
+
+.peakUpShell {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 18px 18px 20px;
+
+  @media (--viewportMedium) {
+    padding: 22px 24px 24px;
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .title {
-  margin: 0 0 16px;
-  font-size: 18px;
+  flex-shrink: 0;
+  margin: 0 0 14px;
+  font-size: 19px;
   font-weight: var(--fontWeightBold);
   line-height: 1.25;
-  color: var(--colorGrey900);
+  letter-spacing: -0.02em;
+  color: #f4f7fb;
+  text-align: left;
 }
 
-.tier {
-  margin: 0 0 16px;
+.titleAccent {
+  display: block;
+  width: 48px;
+  height: 2px;
+  margin-top: 8px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #19e3c6 0%, rgba(25, 227, 198, 0.12) 100%);
+  box-shadow: 0 0 8px rgba(25, 227, 198, 0.28);
 }
 
-.tier:last-child {
-  margin-bottom: 0;
+/* Scrollable badge list */
+.tierList {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 2px;
+  -webkit-overflow-scrolling: touch;
 }
 
-.tierHeader {
-  margin: 0 0 8px;
+.tierList::-webkit-scrollbar {
+  width: 5px;
+}
+
+.tierList::-webkit-scrollbar-thumb {
+  background: rgba(25, 227, 198, 0.28);
+  border-radius: 999px;
+}
+
+/* Compact card */
+.tierCard {
+  position: relative;
+  flex-shrink: 0;
+  margin: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(6, 10, 18, 0.65);
+  border: 1px solid rgba(var(--tier-rgb, 25, 227, 198), 0.32);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.tierCard::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 42%;
+  background: radial-gradient(
+    ellipse at 0% 50%,
+    rgba(var(--tier-rgb, 25, 227, 198), 0.1) 0%,
+    transparent 72%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tierCard_founder {
+  border-color: rgba(155, 231, 255, 0.38);
+}
+
+.tierCard_ambassador {
+  border-color: rgba(242, 201, 76, 0.38);
+}
+
+.tierCard_top_coach {
+  border-color: rgba(184, 194, 207, 0.34);
+}
+
+.tierCard_certified_coach {
+  border-color: rgba(205, 127, 50, 0.38);
+}
+
+.tierCardInner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 90px 1px minmax(0, 1fr);
+  align-items: center;
+  gap: 0 14px;
+  min-height: 0;
+  padding: 14px 18px;
+  text-align: left;
+}
+
+@media (--viewportMedium) {
+  .tierCardInner {
+    padding: 16px 22px;
+    min-height: 108px;
+  }
+}
+
+.tierDivider {
+  width: 1px;
+  align-self: stretch;
+  min-height: 48px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(var(--tier-rgb, 25, 227, 198), 0.28) 20%,
+    rgba(var(--tier-rgb, 25, 227, 198), 0.28) 80%,
+    transparent 100%
+  );
+}
+
+.emblemColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 90px;
+}
+
+.emblemPlateWrap {
+  position: relative;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  min-height: 28px;
+  justify-content: center;
+}
+
+.emblemGlow {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(var(--tier-rgb, 25, 227, 198), 0.22) 0%,
+    transparent 70%
+  );
+  opacity: 0.7;
+}
+
+/* Luxury glass circle emblem */
+.emblemPlate {
+  position: relative;
+  z-index: 1;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(var(--tier-rgb, 25, 227, 198), 0.08) 45%,
+    rgba(8, 12, 20, 0.55) 100%
+  );
+  border: 1px solid rgba(var(--tier-rgb, 25, 227, 198), 0.42);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 0 12px rgba(var(--tier-rgb, 25, 227, 198), 0.18);
+}
+
+.emblemPlate::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 38%);
+  pointer-events: none;
+}
+
+.emblemIcon {
+  position: relative;
+  z-index: 2;
+  display: block;
+}
+
+/* Crown — compact */
+.emblemIcon_founder {
+  width: 18px;
+  height: 14px;
+}
+
+.emblemIcon_founder::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 14px;
+  height: 5px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #eafbff, #9be7ff);
+  border-radius: 1px 1px 3px 3px;
+}
+
+.emblemIcon_founder::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 17px;
+  height: 9px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #eafbff, #9be7ff);
+  clip-path: polygon(
+    0% 100%,
+    14% 45%,
+    26% 100%,
+    38% 32%,
+    50% 100%,
+    62% 32%,
+    74% 100%,
+    86% 45%,
+    100% 100%
+  );
+}
+
+/* Star — compact */
+.emblemIcon_ambassador {
+  width: 18px;
+  height: 18px;
+}
+
+.emblemIcon_ambassador::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(180deg, #fff4cc, #f2c94c);
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+}
+
+/* Diamond — compact */
+.emblemIcon_top_coach {
+  width: 16px;
+  height: 16px;
+}
+
+.emblemIcon_top_coach::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 14px;
+  height: 14px;
+  transform: rotate(45deg);
+  background: linear-gradient(145deg, #f2f5f8, #b8c2cf);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.emblemIcon_top_coach::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 5px;
+  height: 5px;
+  transform: rotate(45deg);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+/* Check — compact */
+.emblemIcon_certified_coach {
+  width: 18px;
+  height: 18px;
+}
+
+.emblemIcon_certified_coach::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #e8a86a;
+  background: rgba(205, 127, 50, 0.18);
+}
+
+.emblemIcon_certified_coach::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 8px;
+  height: 5px;
+  border-left: 2px solid #ffe2c4;
+  border-bottom: 2px solid #ffe2c4;
+  transform: translate(-52%, -58%) rotate(-45deg);
+}
+
+.emblemRibbon {
+  display: inline-block;
+  max-width: 86px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 7px;
+  font-weight: var(--fontWeightBlack, 800);
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  color: rgba(244, 247, 251, 0.92);
+  background: rgba(var(--tier-rgb, 25, 227, 198), 0.12);
+  border: 1px solid rgba(var(--tier-rgb, 25, 227, 198), 0.32);
+}
+
+.tierCard_founder .emblemRibbon {
+  color: #eafbff;
+  border-color: rgba(155, 231, 255, 0.38);
+}
+
+.tierCard_ambassador .emblemRibbon {
+  color: #fff8e6;
+  border-color: rgba(242, 201, 76, 0.38);
+}
+
+.tierCard_top_coach .emblemRibbon {
+  color: #f2f5f8;
+  border-color: rgba(184, 194, 207, 0.34);
+}
+
+.tierCard_certified_coach .emblemRibbon {
+  color: #fff4eb;
+  border-color: rgba(205, 127, 50, 0.38);
+}
+
+.tierContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 0;
 }
 
 .tierName {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  margin: 0 0 6px;
+  font-size: 11px;
   font-weight: var(--fontWeightBlack, 800);
-  letter-spacing: 0.1em;
-  line-height: 1.1;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
   text-transform: uppercase;
-  color: var(--stickerNavy);
+  color: #f4f7fb;
 }
 
-/* Tier hierarchy bullet dot. The CSS variables are injected per-section
- * via inline style (see `getTierStyleVars(row.tier)` in the JS), so each
- * row carries its own tier identity (icy / gold / titanium / bronze):
- *   – fill        → `var(--tier-border)` solid disc
- *   – top sheen   → 1-px inset white highlight (slightly brighter center
- *                   that makes the disc feel like a polished gem stone)
- *   – soft halo   → 2-px tier ring at ~22% alpha
- *   – drop hint   → tiny tier-tinted shadow under the dot
- * Width / height / radius / position stay byte-identical to the previous
- * generic gold bullet — only colours and shadow layering changed. */
-.tierName::before {
-  content: '';
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--tier-border, var(--stickerGold));
-  box-shadow:
-    inset 0 1px 1.5px rgba(255, 255, 255, 0.55),
-    0 0 0 2px rgba(var(--tier-rgb, 201, 162, 39), 0.22),
-    0 2px 4px rgba(var(--tier-rgb, 201, 162, 39), 0.18);
+.tierCard_founder .tierName {
+  color: #eafbff;
+}
+
+.tierCard_ambassador .tierName {
+  color: #fff8e6;
+}
+
+.tierCard_top_coach .tierName {
+  color: #f2f5f8;
+}
+
+.tierCard_certified_coach .tierName {
+  color: #fff4eb;
 }
 
 .tierBody {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.45;
-  color: var(--colorGrey700);
+  color: rgba(244, 247, 251, 0.72);
+  text-align: left;
+}
+
+.footerNote {
+  flex-shrink: 0;
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(25, 227, 198, 0.12);
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(244, 247, 251, 0.5);
+  text-align: left;
+}
+
+@media (--viewportMedium) {
+  .title {
+    font-size: 21px;
+    margin-bottom: 16px;
+  }
+
+  .tierBody {
+    font-size: 14px;
+    line-height: 1.48;
+  }
+
+  .footerNote {
+    font-size: 13px;
+    margin-top: 16px;
+  }
+}
+
+/* Stack emblem above text only on very small screens */
+@media (max-width: 480px) {
+  .tierCardInner {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 12px 0;
+    padding: 14px 16px;
+    min-height: 0;
+  }
+
+  .emblemColumn {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .emblemRibbon {
+    max-width: none;
+    flex: 1;
+    align-self: center;
+    text-align: left;
+    font-size: 8px;
+    padding: 4px 8px;
+  }
+
+  .tierDivider {
+    width: 100%;
+    height: 1px;
+    min-height: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(var(--tier-rgb, 25, 227, 198), 0.28) 25%,
+      rgba(var(--tier-rgb, 25, 227, 198), 0.28) 75%,
+      transparent 100%
+    );
+  }
+}
+
+@media (max-width: 360px) {
+  .emblemColumn {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .emblemRibbon {
+    text-align: center;
+    width: 100%;
+  }
 }

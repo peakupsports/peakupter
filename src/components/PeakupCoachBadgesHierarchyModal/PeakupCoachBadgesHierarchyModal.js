@@ -7,10 +7,8 @@ import { manageDisableScrolling } from '../../ducks/ui.duck';
 import { getTierStyleVars } from '../../util/coachTier';
 
 import Modal from '../Modal/Modal';
-import modalCss from '../Modal/Modal.module.css';
 
 import css from './PeakupCoachBadgesHierarchyModal.module.css';
-import watermarkLogo from '../../assets/512X512_tm.png';
 
 /** Righe gerarchia: id badge (classe CSS) + chiave etichetta = PeakUpCoachFigurineCard.badge.* */
 const BADGE_HIERARCHY_ROWS = [
@@ -71,43 +69,79 @@ const PeakupCoachBadgesHierarchyModal = ({ id, isOpen, onClose }) => {
   return (
     <Modal
       id={id}
+      className={css.modal}
+      scrollLayerClassName={css.scrollLayer}
+      containerClassName={classNames(css.container, css.modalContainerNarrow)}
+      contentClassName={css.content}
       isOpen={isOpen}
       onClose={onClose}
       onManageDisableScrolling={onManageDisableScrolling}
       usePortal
       lightCloseButton
       closeOnOutsideClick
-      containerClassName={classNames(modalCss.container, css.modalContainerNarrow)}
     >
-      <div className={css.body}>
-        <div
-          className={css.watermark}
-          style={{ backgroundImage: `url(${watermarkLogo})` }}
-          aria-hidden
-        />
-        <h2 className={css.title}>
-          <FormattedMessage
-            id="PeakupCoachBadgesHierarchyModal.title"
-            defaultMessage="PeakUp Sports Coach Badges"
-          />
-        </h2>
+      <div className={css.peakUpShell}>
+        <div className={css.body}>
+          <h2 className={css.title}>
+            <FormattedMessage
+              id="PeakupCoachBadgesHierarchyModal.title"
+              defaultMessage="PeakUp Sports Coach Badges"
+            />
+            <span className={css.titleAccent} aria-hidden />
+          </h2>
 
-        {BADGE_HIERARCHY_ROWS.map(row => (
-          <section
-            key={row.tier}
-            className={css.tier}
-            style={getTierStyleVars(row.tier)}
-          >
-            <div className={css.tierHeader}>
-              <strong className={css.tierName}>
-                {intl.formatMessage({ id: row.labelId, defaultMessage: row.labelDefault })}
-              </strong>
-            </div>
-            <p className={css.tierBody}>
-              <FormattedMessage id={row.bodyId} defaultMessage={row.bodyDefault} />
-            </p>
-          </section>
-        ))}
+          <div className={css.tierList}>
+            {BADGE_HIERARCHY_ROWS.map(row => (
+              <section
+                key={row.tier}
+                className={classNames(css.tierCard, css[`tierCard_${row.tier}`])}
+                style={getTierStyleVars(row.tier)}
+              >
+                <div className={css.tierCardInner}>
+                  <div className={css.emblemColumn}>
+                    <div className={css.emblemPlateWrap}>
+                      <span className={css.emblemGlow} aria-hidden />
+                      <span
+                        className={classNames(css.emblemPlate, css[`emblemPlate_${row.tier}`])}
+                        aria-hidden
+                      >
+                        <span
+                          className={classNames(css.emblemIcon, css[`emblemIcon_${row.tier}`])}
+                          aria-hidden
+                        />
+                      </span>
+                    </div>
+                    <span className={css.emblemRibbon}>
+                      {intl.formatMessage({
+                        id: row.labelId,
+                        defaultMessage: row.labelDefault,
+                      })}
+                    </span>
+                  </div>
+                  <span className={css.tierDivider} aria-hidden />
+                  <div className={css.tierContent}>
+                    <strong className={css.tierName}>
+                      {intl.formatMessage({
+                        id: row.labelId,
+                        defaultMessage: row.labelDefault,
+                      })}
+                    </strong>
+                    <p className={css.tierBody}>
+                      <FormattedMessage id={row.bodyId} defaultMessage={row.bodyDefault} />
+                    </p>
+                  </div>
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <p className={css.footerNote}>
+            <FormattedMessage
+              id="PeakupCoachBadgesHierarchyModal.footerNote"
+              defaultMessage="Badges represent experience, trust and impact in the PeakUp community."
+            />
+          </p>
+        </div>
       </div>
     </Modal>
   );

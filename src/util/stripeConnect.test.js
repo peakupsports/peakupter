@@ -1,4 +1,5 @@
 import {
+  createStripeAccountToken,
   getDisplayAccountType,
   getStripeAccountTokenInfo,
   requiresSoleProprietorshipAccount,
@@ -52,5 +53,38 @@ describe('stripeConnect helpers', () => {
         },
       })
     ).toBe('company');
+  });
+
+  describe('createStripeAccountToken', () => {
+    it('returns token id when Stripe responds with a token', async () => {
+      const stripe = {
+        createToken: jest.fn(() =>
+          Promise.resolve({ token: { id: 'tok_test_123' } })
+        ),
+      };
+      await expect(
+        createStripeAccountToken(stripe, { business_type: 'individual' })
+      ).resolves.toBe('tok_test_123');
+    });
+
+    it('throws with Stripe error message when response.error is set', async () => {
+      const stripe = {
+        createToken: jest.fn(() =>
+          Promise.resolve({ error: { message: 'Invalid country' } })
+        ),
+      };
+      await expect(
+        createStripeAccountToken(stripe, { business_type: 'individual' })
+      ).rejects.toThrow('Invalid country');
+    });
+
+    it('throws when token is missing from the response', async () => {
+      const stripe = {
+        createToken: jest.fn(() => Promise.resolve({})),
+      };
+      await expect(
+        createStripeAccountToken(stripe, { business_type: 'individual' })
+      ).rejects.toThrow(/Stripe token was not created/);
+    });
   });
 });

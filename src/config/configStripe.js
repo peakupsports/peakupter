@@ -34,7 +34,18 @@ at https://stripe.com/global
 You can find the bank account formats from https://stripe.com/docs/connect/payouts-bank-accounts
 */
 
+// PeakUp default for new Stripe Connect accounts (payout details form).
+export const defaultConnectCountry = 'CH';
+
 export const supportedCountries = [
+  {
+    // Switzerland (PeakUp default)
+    code: 'CH',
+    currency: 'CHF',
+    accountConfig: {
+      iban: true,
+    },
+  },
   {
     //Australia
     code: 'AU',
@@ -307,14 +318,6 @@ export const supportedCountries = [
     // Sweden
     code: 'SE',
     currency: 'SEK',
-    accountConfig: {
-      iban: true,
-    },
-  },
-  {
-    // Switzerland
-    code: 'CH',
-    currency: 'CHF',
     accountConfig: {
       iban: true,
     },

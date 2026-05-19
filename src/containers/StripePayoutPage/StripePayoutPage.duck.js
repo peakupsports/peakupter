@@ -1,12 +1,37 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { pick } from '../../util/common';
+import { storableError } from '../../util/errors';
+import * as log from '../../util/log';
 import {
   createStripeAccount,
   updateStripeAccount,
   fetchStripeAccount,
 } from '../../ducks/stripeConnectAccount.duck';
 import { fetchCurrentUser } from '../../ducks/user.duck';
+
+const normalizePayoutSaveError = err => {
+  if (err && (err.apiErrors || err.type === 'error')) {
+    return err;
+  }
+  return storableError(err);
+};
+
+const logPayoutSaveError = (err, isUpdateCall) => {
+  const stored = normalizePayoutSaveError(err);
+  const stripeMessage = stored.apiErrors?.[0]?.meta?.stripeMessage;
+  log.error(err, 'save-payout-details-failed', { isUpdateCall, stripeMessage });
+  if (stored.apiErrors?.length) {
+    /* eslint-disable no-console */
+    console.error('[PeakUp payout] API errors:', stored.apiErrors);
+    /* eslint-enable no-console */
+  } else if (err?.message) {
+    /* eslint-disable no-console */
+    console.error('[PeakUp payout]', err.message);
+    /* eslint-enable no-console */
+  }
+  return stored;
+};
 
 // ================ Async thunks ================ //
 
@@ -16,21 +41,21 @@ const savePayoutDetailsPayloadCreator = (
 ) => {
   const upsertThunk = isUpdateCall ? updateStripeAccount : createStripeAccount;
 
-  return dispatch(upsertThunk(values, { expand: true }))
-    .then(response => {
-      return response;
-    })
-    .catch(() => {
-      return rejectWithValue('Failed to save payout details');
-    });
+  return dispatch(upsertThunk(values))
+    .catch(err => rejectWithValue(logPayoutSaveError(err, isUpdateCall)));
 };
 export const savePayoutDetailsThunk = createAsyncThunk(
   'StripePayoutPage/savePayoutDetails',
   savePayoutDetailsPayloadCreator
 );
 // Backward compatible wrapper function
-export const savePayoutDetails = (values, isUpdateCall) => dispatch => {
-  return dispatch(savePayoutDetailsThunk({ values, isUpdateCall })).unwrap();
+export const savePayoutDetails = (values, isUpdateCall) => async dispatch => {
+  try {
+    return await dispatch(savePayoutDetailsThunk({ values, isUpdateCall })).unwrap();
+  } catch {
+    // Errors are surfaced via stripeConnectAccount slice; avoid unhandled rejections.
+    return undefined;
+  }
 };
 
 // ================ Slice ================ //

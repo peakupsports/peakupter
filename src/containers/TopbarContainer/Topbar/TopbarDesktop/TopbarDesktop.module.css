@@ -603,6 +603,32 @@
   transition: width var(--transitionStyleButton);
 }
 
+.menuLinkWithIcon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menuLinkIcon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  fill: #17d9ff;
+  opacity: 0.92;
+  transition: fill 180ms ease, opacity 180ms ease;
+}
+
+.menuLinkText {
+  flex: 1;
+  min-width: 0;
+}
+
+.menuLinkWithIcon:hover .menuLinkIcon,
+.menuLinkWithIcon:focus .menuLinkIcon {
+  fill: #39f3d1;
+  opacity: 1;
+}
+
 .menuLink {
   composes: textSmall from global;
   position: relative;

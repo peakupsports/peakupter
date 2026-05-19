@@ -11,7 +11,11 @@ import {
   splitCoachSportsForCoachMap,
   LANGUAGE_FLAGS,
 } from '../../util/profileCoachSticker';
-import { pickPrimaryTierId, getTierStyleVars } from '../../util/coachTier';
+import {
+  pickPrimaryTierId,
+  getTierStyleVars,
+  TIER_BADGE_MESSAGE_IDS,
+} from '../../util/coachTier';
 
 import { Avatar } from '../Avatar/Avatar';
 import NamedLink from '../NamedLink/NamedLink';
@@ -86,14 +90,6 @@ const buildProfilePriceMoney = publicData => {
   } catch (e) {
     return null;
   }
-};
-
-// Reuse existing badge translations to avoid string duplication.
-const BADGE_LABEL_KEYS = {
-  founder: 'PeakUpCoachFigurineCard.badge.founder',
-  ambassador: 'PeakUpCoachFigurineCard.badge.ambassador',
-  top_coach: 'PeakUpCoachFigurineCard.badge.topCoach',
-  certified_coach: 'PeakUpCoachFigurineCard.badge.certifiedCoach',
 };
 
 /**
@@ -280,9 +276,9 @@ const CoachCard = props => {
                   {displayName || <FormattedMessage id="CoachCard.fallbackName" />}
                 </span>
               )}
-              {tierId && BADGE_LABEL_KEYS[tierId] ? (
+              {tierId && TIER_BADGE_MESSAGE_IDS[tierId] ? (
                 <span className={css.tierLabel} aria-hidden>
-                  <FormattedMessage id={BADGE_LABEL_KEYS[tierId]} />
+                  <FormattedMessage id={TIER_BADGE_MESSAGE_IDS[tierId]} />
                 </span>
               ) : null}
             </span>

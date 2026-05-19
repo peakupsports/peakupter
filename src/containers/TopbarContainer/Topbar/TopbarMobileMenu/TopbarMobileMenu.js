@@ -17,6 +17,8 @@ import {
   NotificationBadge,
 } from '../../../../components';
 
+import { CreateServiceMobileNavItem } from '../TopbarCreateServiceLink';
+
 import css from './TopbarMobileMenu.module.css';
 
 const CustomLinkComponent = ({ linkConfig, currentPage }) => {
@@ -95,12 +97,6 @@ const TopbarMobileMenu = props => {
     );
   });
 
-  const createListingsLinkMaybe = showCreateListingsLink ? (
-    <NamedLink className={css.createNewListingLink} name="NewListingPage">
-      <FormattedMessage id="TopbarMobileMenu.newListingLink" />
-    </NamedLink>
-  ) : null;
-
   if (!isAuthenticated) {
     const signup = (
       <NamedLink name="SignupPage" className={css.signupLink}>
@@ -136,7 +132,6 @@ const TopbarMobileMenu = props => {
 
           <div className={css.spacer} />
         </div>
-        <div className={css.footer}>{createListingsLinkMaybe}</div>
       </nav>
     );
   }
@@ -153,6 +148,10 @@ const TopbarMobileMenu = props => {
     const isInboxPage = currentPage?.indexOf('InboxPage') === 0 && page?.indexOf('InboxPage') === 0;
     return currentPage === page || isAccountSettingsPage || isInboxPage ? css.currentPage : null;
   };
+
+  const createServiceLinkMaybe = showCreateListingsLink ? (
+    <CreateServiceMobileNavItem currentPageClass={currentPageClass} />
+  ) : null;
 
   const manageListingsLinkMaybe = showCreateListingsLink ? (
     <li className={classNames(css.navigationLink, currentPageClass('ManageListingsPage'))}>
@@ -180,6 +179,7 @@ const TopbarMobileMenu = props => {
               {notificationCountBadge}
             </NamedLink>
           </li>
+          {createServiceLinkMaybe}
           {manageListingsLinkMaybe}
           <li className={classNames(css.navigationLink, currentPageClass('ProfileSettingsPage'))}>
             <NamedLink name="ProfileSettingsPage">
@@ -195,7 +195,6 @@ const TopbarMobileMenu = props => {
         <ul className={css.customLinksWrapper}>{extraLinks}</ul>
         <div className={css.spacer} />
       </div>
-      <div className={css.footer}>{createListingsLinkMaybe}</div>
     </div>
   );
 };
