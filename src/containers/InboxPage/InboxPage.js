@@ -33,11 +33,14 @@ import {
   isNegotiationProcess,
 } from '../../transactions/transaction';
 
+import { archiveConversation } from '../../ducks/archivedConversations.duck';
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
+import { filterTransactionsExcludingArchived } from '../../util/archivedConversations';
 import {
   H2,
   Avatar,
+  ConversationArchiveButton,
   NamedLink,
   NotificationBadge,
   Page,
@@ -163,6 +166,7 @@ export const InboxItem = props => {
     isPurchase,
     availabilityType,
     stockType = STOCK_MULTIPLE_ITEMS,
+    onArchiveConversation,
   } = props;
   const { customer, provider, listing } = tx;
   const {
@@ -230,6 +234,12 @@ export const InboxItem = props => {
           </div>
         </div>
       </NamedLink>
+      {onArchiveConversation ? (
+        <ConversationArchiveButton
+          className={css.itemArchive}
+          onArchive={() => onArchiveConversation(tx.id.uuid)}
+        />
+      ) : null}
     </div>
   );
 };
@@ -268,6 +278,7 @@ export const InboxPageComponent = props => {
     customerNotificationCount = 0,
     scrollingDisabled,
     transactions,
+    onArchiveConversation,
   } = props;
   const { tab } = params;
   const validTab = tab === 'orders' || tab === 'sales';
@@ -281,7 +292,9 @@ export const InboxPageComponent = props => {
   );
 
   const isOrders = tab === 'orders';
-  const hasNoResults = !fetchInProgress && transactions.length === 0 && !fetchOrdersOrSalesError;
+  const inboxTransactions = filterTransactionsExcludingArchived(transactions, currentUser);
+  const hasNoResults =
+    !fetchInProgress && inboxTransactions.length === 0 && !fetchOrdersOrSalesError;
   const ordersTitle = intl.formatMessage({ id: 'InboxPage.ordersTitle' });
   const salesTitle = intl.formatMessage({ id: 'InboxPage.salesTitle' });
   const title = isOrders ? ordersTitle : salesTitle;
@@ -324,6 +337,7 @@ export const InboxPageComponent = props => {
           availabilityType={availabilityType}
           isBooking={isBooking}
           isPurchase={isPurchase}
+          onArchiveConversation={onArchiveConversation}
         />
       </li>
     ) : null;
@@ -335,7 +349,7 @@ export const InboxPageComponent = props => {
       : user?.id && tx && tx.length > 0 && tx[0].provider.id.uuid === user?.id?.uuid;
   };
   const hasTransactions =
-    !fetchInProgress && hasOrderOrSaleTransactions(transactions, isOrders, currentUser);
+    !fetchInProgress && hasOrderOrSaleTransactions(inboxTransactions, isOrders, currentUser);
 
   const ordersTabMaybe = isCustomerUserType
     ? [
@@ -426,7 +440,7 @@ export const InboxPageComponent = props => {
         ) : null}
         <ul className={css.itemList}>
           {!fetchInProgress ? (
-            transactions.map(toTxItem)
+            inboxTransactions.map(toTxItem)
           ) : (
             <li className={css.listItemsLoading}>
               <IconSpinner />
@@ -473,6 +487,10 @@ const mapStateToProps = state => {
   };
 };
 
-const InboxPage = compose(connect(mapStateToProps))(InboxPageComponent);
+const mapDispatchToProps = dispatch => ({
+  onArchiveConversation: transactionId => dispatch(archiveConversation(transactionId)),
+});
+
+const InboxPage = compose(connect(mapStateToProps, mapDispatchToProps))(InboxPageComponent);
 
 export default InboxPage;

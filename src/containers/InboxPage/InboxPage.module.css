@@ -323,8 +323,14 @@
   }
 }
 
+.itemArchive {
+  align-self: center;
+  margin-right: 4px;
+}
+
 .itemLink {
   flex: 1;
+  min-width: 0;
   display: inline-grid;
   grid-template-columns: 22px auto;
   grid-template-areas:

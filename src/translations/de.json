@@ -605,6 +605,7 @@
   "InboxPage.sortBy.lastMessageAt": "Letzte Nachricht",
   "InboxPage.sortBy.lastTransitionedAt": "Letzte Statusänderung",
   "InboxPage.title": "Eingang",
+  "ConversationArchiveButton.deleteConversation": "Unterhaltung löschen",
   "InboxSearchForm.sortLabel": "Sortieren nach:",
   "InquiryForm.heading": "Nach {listingTitle} anfragen",
   "InquiryForm.messageLabel": "Nachricht an {authorDisplayName}",

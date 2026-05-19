@@ -70,6 +70,7 @@ import RequestChangesModal from './RequestChangesModal/RequestChangesModal';
 import MakeCounterOfferModal from './MakeCounterOfferModal/MakeCounterOfferModal';
 import TransactionPanel from './TransactionPanel/TransactionPanel';
 
+import { archiveConversation } from '../../ducks/archivedConversations.duck';
 import {
   makeTransition,
   sendMessage,
@@ -308,6 +309,7 @@ export const TransactionPageComponent = props => {
     nextTransitions,
     callSetInitialValues,
     onInitializeCardPaymentData,
+    onArchiveConversation,
     ...restOfProps
   } = props;
 
@@ -315,6 +317,18 @@ export const TransactionPageComponent = props => {
   const txTransitions = transaction?.attributes?.transitions || [];
   const isProviderRole = transactionRole === PROVIDER;
   const isCustomerRole = transactionRole === CUSTOMER;
+
+  const handleArchiveConversation = () => {
+    const txUuid = transaction?.id?.uuid;
+    if (!txUuid || !onArchiveConversation) {
+      return Promise.resolve();
+    }
+
+    const inboxTab = isCustomerRole ? 'orders' : 'sales';
+    return onArchiveConversation(txUuid).then(() => {
+      history.push(createResourceLocatorString('InboxPage', routeConfiguration, { tab: inboxTab }));
+    });
+  };
 
   const processName = resolveLatestProcessName(transaction?.attributes?.processName);
   let process = null;
@@ -741,6 +755,8 @@ export const TransactionPageComponent = props => {
       showBookingLocation={showBookingLocation}
       hasViewingRights={hasViewingRights}
       showListingImage={showListingImage}
+      onArchiveConversation={handleArchiveConversation}
+      archiveConversationDisabled={!transaction?.id?.uuid}
       actionButtons={containerId => (
         <ActionButtons
           containerId={containerId}
@@ -1018,6 +1034,7 @@ const mapDispatchToProps = dispatch => {
       dispatch(fetchTransactionLineItems(orderData, listingId, isOwnListing)), // for OrderPanel
     onFetchTimeSlots: (listingId, start, end, timeZone, options) =>
       dispatch(fetchTimeSlots(listingId, start, end, timeZone, options)), // for OrderPanel
+    onArchiveConversation: transactionId => dispatch(archiveConversation(transactionId)),
   };
 };
 

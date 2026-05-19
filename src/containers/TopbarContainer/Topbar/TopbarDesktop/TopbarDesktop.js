@@ -39,8 +39,26 @@ const LoginLink = () => {
   );
 };
 
-const InboxLink = ({ notificationCount, inboxTab }) => {
-  const notificationDot = notificationCount > 0 ? <div className={css.notificationDot} /> : null;
+const InboxLink = ({
+  saleNotificationCount = 0,
+  orderNotificationCount = 0,
+  currentUser,
+  inboxTab,
+}) => {
+  const totalNotificationCount = saleNotificationCount + orderNotificationCount;
+  const showInboxDot = totalNotificationCount > 0;
+  const notificationDot = showInboxDot ? <div className={css.notificationDot} /> : null;
+
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp DOT RENDER]', {
+      saleNotificationCount,
+      orderNotificationCount,
+      totalNotificationCount,
+      showInboxDot,
+      currentUserId: currentUser?.id?.uuid,
+    });
+  }
   return (
     <NamedLink
       id="inbox-link"
@@ -145,6 +163,8 @@ const TopbarDesktop = props => {
     chromeTheme,
     rootClassName,
     notificationCount = 0,
+    currentUserSaleNotificationCount = 0,
+    currentUserOrderNotificationCount = 0,
     intl,
     isAuthenticated,
     onLogout,
@@ -174,7 +194,12 @@ const TopbarDesktop = props => {
   );
 
   const inboxLinkMaybe = authenticatedOnClientSide ? (
-    <InboxLink notificationCount={notificationCount} inboxTab={inboxTab} />
+    <InboxLink
+      saleNotificationCount={currentUserSaleNotificationCount}
+      orderNotificationCount={currentUserOrderNotificationCount}
+      currentUser={currentUser}
+      inboxTab={inboxTab}
+    />
   ) : null;
 
   const profileMenuMaybe = authenticatedOnClientSide ? (

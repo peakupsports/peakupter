@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -29,10 +29,22 @@ import Topbar from './Topbar/Topbar';
  * @returns {JSX.Element}
  */
 export const TopbarContainerComponent = props => {
-  const { notificationCount = 0, hasGenericError, ...rest } = props;
+  const {
+    notificationCount = 0,
+    currentUserSaleNotificationCount = 0,
+    currentUserOrderNotificationCount = 0,
+    hasGenericError,
+    ...rest
+  } = props;
 
   return (
-    <Topbar notificationCount={notificationCount} showGenericError={hasGenericError} {...rest} />
+    <Topbar
+      notificationCount={notificationCount}
+      currentUserSaleNotificationCount={currentUserSaleNotificationCount}
+      currentUserOrderNotificationCount={currentUserOrderNotificationCount}
+      showGenericError={hasGenericError}
+      {...rest}
+    />
   );
 };
 
@@ -56,6 +68,8 @@ const mapStateToProps = state => {
     currentUserHasListings,
     currentUserHasOrders,
     notificationCount: currentUserSaleNotificationCount + currentUserOrderNotificationCount,
+    currentUserSaleNotificationCount,
+    currentUserOrderNotificationCount,
     isAuthenticated,
     isLoggedInAs,
     authScopes,

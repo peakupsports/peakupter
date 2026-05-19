@@ -9,7 +9,8 @@ import {
   getStatesNeedingProviderAttention,
   getStatesNeedingCustomerAttention,
 } from '../transactions/transaction';
-import { countTransactionNotifications } from '../util/transactionNotificationCount';
+import { filterTransactionsExcludingArchived } from '../util/archivedConversations';
+import { listUnreadInboxTransactions } from '../util/transactionNotificationCount';
 
 import { authInfo } from './auth.duck';
 import { updateStripeConnectAccount } from './stripeConnectAccount.duck';
@@ -116,10 +117,14 @@ export const fetchCurrentUserHasOrders = () => (dispatch, getState, sdk) => {
 // Notificaiton page size is max (100 items on page)
 const NOTIFICATION_PAGE_SIZE = 100;
 
+let inboxNotificationsFetchSeq = 0;
+
 const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, rejectWithValue }) => {
+  const fetchSeq = ++inboxNotificationsFetchSeq;
   const statesNeedingProviderAttention = getStatesNeedingProviderAttention() || [];
   const statesNeedingCustomerAttention = getStatesNeedingCustomerAttention() || [];
-  const currentUserId = getState().user?.currentUser?.id?.uuid;
+  const currentUser = getState().user?.currentUser;
+  const currentUserId = currentUser?.id?.uuid;
 
   const paramsForSales = {
     only: 'sale',
@@ -149,15 +154,41 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
 
   return Promise.all([salesQuery, ordersQuery])
     .then(async ([sales, orders]) => {
-      const saleTransactions = denormalisedResponseEntities(sales);
-      const orderTransactions = denormalisedResponseEntities(orders);
+      const saleTransactions = filterTransactionsExcludingArchived(
+        denormalisedResponseEntities(sales),
+        currentUser
+      );
+      const orderTransactions = filterTransactionsExcludingArchived(
+        denormalisedResponseEntities(orders),
+        currentUser
+      );
 
-      const [saleNotificationsCount, orderNotificationsCount] = await Promise.all([
-        countTransactionNotifications(saleTransactions, currentUserId, sdk),
-        countTransactionNotifications(orderTransactions, currentUserId, sdk),
+      const [saleUnread, orderUnread] = await Promise.all([
+        listUnreadInboxTransactions(saleTransactions, currentUserId, sdk),
+        listUnreadInboxTransactions(orderTransactions, currentUserId, sdk),
       ]);
 
-      return { saleNotificationsCount, orderNotificationsCount };
+      const saleNotificationsCount = saleUnread.length;
+      const orderNotificationsCount = orderUnread.length;
+      const countedTransactions = [...saleUnread, ...orderUnread];
+
+      if (typeof window !== 'undefined') {
+        // eslint-disable-next-line no-console
+        console.log('[PeakUp inbox notifications] fetchCurrentUserNotifications', {
+          fetchSeq,
+          currentUserId,
+          saleNotificationsCount,
+          orderNotificationsCount,
+          total: saleNotificationsCount + orderNotificationsCount,
+        });
+
+        if (countedTransactions.length > 0) {
+          // eslint-disable-next-line no-console
+          console.log('[PeakUp DOT COUNTED TRANSACTIONS]', countedTransactions);
+        }
+      }
+
+      return { saleNotificationsCount, orderNotificationsCount, fetchSeq };
     })
     .catch(e => rejectWithValue(storableError(e)));
 };
@@ -319,6 +350,7 @@ const userSlice = createSlice({
     currentUserHasListingsError: null,
     currentUserSaleNotificationCount: 0,
     currentUserOrderNotificationCount: 0,
+    lastAppliedInboxNotificationsFetchSeq: 0,
     currentUserNotificationCountError: null,
     currentUserHasOrders: null, // This is not fetched unless unverified emails exist
     currentUserHasOrdersError: null,
@@ -341,6 +373,26 @@ const userSlice = createSlice({
     },
     setCurrentUserHasOrders: state => {
       state.currentUserHasOrders = true;
+    },
+    /**
+     * Immediately lower inbox badge after the user opens a thread (before API recount).
+     * @param {{ inboxRole: 'sale' | 'order' }} action.payload
+     */
+    optimisticallyClearOneInboxNotification: (state, action) => {
+      const { inboxRole } = action.payload;
+      const countKey =
+        inboxRole === 'sale'
+          ? 'currentUserSaleNotificationCount'
+          : 'currentUserOrderNotificationCount';
+
+      if (state[countKey] > 0) {
+        state[countKey] -= 1;
+      }
+    },
+    setInboxNotificationCounts: (state, action) => {
+      const { saleNotificationsCount = 0, orderNotificationsCount = 0 } = action.payload;
+      state.currentUserSaleNotificationCount = saleNotificationsCount;
+      state.currentUserOrderNotificationCount = orderNotificationsCount;
     },
   },
   extraReducers: builder => {
@@ -373,8 +425,13 @@ const userSlice = createSlice({
         state.currentUserNotificationCountError = null;
       })
       .addCase(fetchCurrentUserNotificationsThunk.fulfilled, (state, action) => {
-        state.currentUserSaleNotificationCount = action.payload.saleNotificationsCount;
-        state.currentUserOrderNotificationCount = action.payload.orderNotificationsCount;
+        const { saleNotificationsCount, orderNotificationsCount, fetchSeq = 0 } = action.payload;
+        if (fetchSeq < state.lastAppliedInboxNotificationsFetchSeq) {
+          return;
+        }
+        state.lastAppliedInboxNotificationsFetchSeq = fetchSeq;
+        state.currentUserSaleNotificationCount = saleNotificationsCount;
+        state.currentUserOrderNotificationCount = orderNotificationsCount;
       })
       .addCase(fetchCurrentUserNotificationsThunk.rejected, (state, action) => {
         console.error(action.payload);
@@ -408,7 +465,13 @@ const userSlice = createSlice({
 
 export default userSlice.reducer;
 
-export const { clearCurrentUser, setCurrentUser, setCurrentUserHasOrders } = userSlice.actions;
+export const {
+  clearCurrentUser,
+  setCurrentUser,
+  setCurrentUserHasOrders,
+  optimisticallyClearOneInboxNotification,
+  setInboxNotificationCounts,
+} = userSlice.actions;
 
 // ================ Selectors ================ //
 

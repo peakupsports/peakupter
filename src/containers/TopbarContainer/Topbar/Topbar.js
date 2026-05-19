@@ -162,6 +162,8 @@ const TopbarComponent = props => {
     currentUserHasOrders,
     currentPage,
     notificationCount = 0,
+    currentUserSaleNotificationCount = 0,
+    currentUserOrderNotificationCount = 0,
     intl,
     history,
     location,
@@ -352,7 +354,21 @@ const TopbarComponent = props => {
     ]
   );
 
-  const notificationDot = notificationCount > 0 ? <div className={css.notificationDot} /> : null;
+  const totalNotificationCount =
+    currentUserSaleNotificationCount + currentUserOrderNotificationCount;
+  const showInboxDot = totalNotificationCount > 0;
+  const notificationDot = showInboxDot ? <div className={css.notificationDot} /> : null;
+
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp DOT RENDER]', {
+      saleNotificationCount: currentUserSaleNotificationCount,
+      orderNotificationCount: currentUserOrderNotificationCount,
+      totalNotificationCount,
+      showInboxDot,
+      currentUserId: currentUser?.id?.uuid,
+    });
+  }
 
   const hasMatchMedia = typeof window !== 'undefined' && window?.matchMedia;
   const isMobileLayout = hasMatchMedia
@@ -517,6 +533,8 @@ const TopbarComponent = props => {
           intl={intl}
           isAuthenticated={isAuthenticated}
           notificationCount={notificationCount}
+          currentUserSaleNotificationCount={currentUserSaleNotificationCount}
+          currentUserOrderNotificationCount={currentUserOrderNotificationCount}
           onLogout={handleLogout}
           onSearchSubmit={handleSubmit}
           config={config}

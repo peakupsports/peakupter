@@ -197,6 +197,8 @@ export class TransactionPanelComponent extends Component {
       config,
       hasViewingRights,
       transactionFieldsComponent,
+      onArchiveConversation,
+      archiveConversationDisabled,
     } = this.props;
 
     const isConversationView =
@@ -314,6 +316,8 @@ export class TransactionPanelComponent extends Component {
                       isViewingCoach={isCustomer}
                       listing={listing}
                       provider={provider}
+                      onArchiveConversation={onArchiveConversation}
+                      archiveDisabled={archiveConversationDisabled}
                     />
                     <div className={css.peakUpChatBody}>{conversationFeed}</div>
                     <div className={css.peakUpChatComposer}>{conversationSendForm}</div>

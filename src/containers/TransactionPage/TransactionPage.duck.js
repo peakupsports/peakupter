@@ -25,9 +25,14 @@ import {
   isNegotiationProcess,
 } from '../../transactions/transaction';
 
-import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
-import { fetchCurrentUserNotifications } from '../../ducks/user.duck';
-import { acknowledgeTransactionMessages } from '../../util/transactionNotificationCount';
+import { addMarketplaceEntities, getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
+import { unarchiveConversationIfIncomingMessage } from '../../ducks/archivedConversations.duck';
+import {
+  fetchCurrentUserNotifications,
+  setInboxNotificationCounts,
+} from '../../ducks/user.duck';
+import { getInboxRoleForTransaction } from '../../util/transactionNotificationCount';
+import { isTransactionRead, markTransactionReadOnOpen } from '../../util/unreadNotifications';
 
 const { UUID } = sdkTypes;
 
@@ -408,13 +413,72 @@ export const makeTransition = (txId, transitionName, params) => dispatch => {
   return dispatch(makeTransitionThunk({ txId, transitionName, params }));
 };
 
+const getTransactionUuid = txId => (typeof txId === 'object' && txId.uuid ? txId.uuid : txId);
+
+const resolveInboxRole = (transaction, currentUserId, transactionRole) => {
+  const roleFromTx = getInboxRoleForTransaction(transaction, currentUserId);
+  if (roleFromTx) {
+    return roleFromTx;
+  }
+  if (transactionRole === 'customer') {
+    return 'order';
+  }
+  if (transactionRole === 'provider') {
+    return 'sale';
+  }
+  return null;
+};
+
+const clearInboxDotForOpenedTransaction = (dispatch, getState, txId, transactionRole) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const state = getState();
+  const currentUserId = state.user?.currentUser?.id?.uuid;
+  const txUuid = getTransactionUuid(txId);
+
+  if (!currentUserId || !txUuid) {
+    return;
+  }
+
+  const wasAlreadyRead = isTransactionRead(currentUserId, txUuid);
+  markTransactionReadOnOpen(currentUserId, txUuid);
+
+  if (wasAlreadyRead) {
+    return;
+  }
+
+  const transactionRef = { id: txId, type: 'transaction' };
+  const transaction = getMarketplaceEntities(state, [transactionRef])[0];
+  const inboxRole = resolveInboxRole(transaction, currentUserId, transactionRole);
+
+  if (!inboxRole) {
+    return;
+  }
+
+  const sale = state.user?.currentUserSaleNotificationCount ?? 0;
+  const order = state.user?.currentUserOrderNotificationCount ?? 0;
+
+  dispatch(
+    setInboxNotificationCounts({
+      saleNotificationsCount: inboxRole === 'sale' ? Math.max(0, sale - 1) : sale,
+      orderNotificationsCount: inboxRole === 'order' ? Math.max(0, order - 1) : order,
+    })
+  );
+};
+
 ////////////////////
 // Fetch Messages //
 ////////////////////
 const fetchMessagesPayloadCreator = (
-  { txId, page, config },
-  { dispatch, rejectWithValue, extra: sdk }
+  { txId, page, config, transactionRole },
+  { dispatch, getState, rejectWithValue, extra: sdk }
 ) => {
+  if (page === 1) {
+    clearInboxDotForOpenedTransaction(dispatch, getState, txId, transactionRole);
+  }
+
   const paging = { page, perPage: MESSAGES_PAGE_SIZE };
 
   return sdk.messages
@@ -438,6 +502,10 @@ const fetchMessagesPayloadCreator = (
         dispatch(fetchMessagesThunk({ txId, page: 1, config })).catch(() => {
           // Background update, no need to to do anything atm.
         });
+      }
+
+      if (page === 1) {
+        unarchiveConversationIfIncomingMessage(dispatch, getState, txId, messages);
       }
 
       return { messages, pagination };
@@ -849,11 +917,13 @@ const isNonEmpty = value => {
 
 // loadData is a collection of async calls that need to be made
 // before page has all the info it needs to render itself
-export const loadData = (params, search, config) => (dispatch, getState) => {
+export const loadData = (params, search, config) => (dispatch, getState, sdk) => {
   const txId = new UUID(params.id);
   const state = getState().TransactionPage;
   const txRef = state.transactionRef;
   const txRole = params.transactionRole;
+
+  clearInboxDotForOpenedTransaction(dispatch, getState, txId, txRole);
 
   // In case a transaction reference is found from a previous
   // data load -> clear the state. Otherwise keep the non-null
@@ -864,14 +934,7 @@ export const loadData = (params, search, config) => (dispatch, getState) => {
   // Sale / order (i.e. transaction entity in API)
   return Promise.all([
     dispatch(fetchTransactionThunk({ id: txId, txRole, config })),
-    dispatch(fetchMessagesThunk({ txId, page: 1, config })),
+    dispatch(fetchMessagesThunk({ txId, page: 1, config, transactionRole: txRole })),
     dispatch(fetchTransitionsThunk({ id: txId })),
-  ]).then(() => {
-    const state = getState();
-    const currentUserId = state.user?.currentUser?.id?.uuid;
-    const messages = state.TransactionPage?.messages;
-
-    acknowledgeTransactionMessages(currentUserId, txId.uuid, messages);
-    return dispatch(fetchCurrentUserNotifications());
-  });
+  ]).then(() => dispatch(fetchCurrentUserNotifications()));
 };

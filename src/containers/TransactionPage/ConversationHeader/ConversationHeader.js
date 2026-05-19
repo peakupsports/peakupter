@@ -7,7 +7,7 @@ import {
   PROFILE_SPORT_EMOJI,
 } from '../../../util/profileCoachSticker';
 import { getConversationSportKey } from '../../../util/peakUpConversationView';
-import { Avatar, NamedLink, UserDisplayName } from '../../../components';
+import { Avatar, ConversationArchiveButton, NamedLink, UserDisplayName } from '../../../components';
 
 import css from './ConversationHeader.module.css';
 
@@ -22,7 +22,16 @@ import css from './ConversationHeader.module.css';
  * @returns {JSX.Element}
  */
 const ConversationHeader = props => {
-  const { otherUser, isViewingCoach, listing, provider, className, rootClassName } = props;
+  const {
+    otherUser,
+    isViewingCoach,
+    listing,
+    provider,
+    className,
+    rootClassName,
+    onArchiveConversation,
+    archiveDisabled,
+  } = props;
   const intl = useIntl();
 
   const sportKey = getConversationSportKey(listing, provider);
@@ -87,6 +96,14 @@ const ConversationHeader = props => {
           </span>
         ) : null}
       </div>
+      {onArchiveConversation ? (
+        <div className={css.actions}>
+          <ConversationArchiveButton
+            onArchive={onArchiveConversation}
+            disabled={archiveDisabled}
+          />
+        </div>
+      ) : null}
     </header>
   );
 };

@@ -1,11 +1,21 @@
 import { denormalisedResponseEntities } from './data';
 import { getProcess } from '../transactions/transaction';
 import { transitions as bookingTransitions } from '../transactions/transactionProcessBooking';
+import { transitions as inquiryTransitions } from '../transactions/transactionProcessInquiry';
+import { isTransactionRead } from './unreadNotifications';
 
 // Transaction states where inbox attention depends on messaging, not only process state.
 export const MESSAGE_ATTENTION_STATES = new Set(['inquiry', 'free-inquiry']);
 
 const ACK_STORAGE_PREFIX = 'peakupInboxMessageAck';
+const LATEST_MESSAGE_QUERY_PAGE_SIZE = 100;
+
+const debugInboxNotifications = (...args) => {
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp inbox notifications]', ...args);
+  }
+};
 
 export const getMessageAckStorageKey = (currentUserId, transactionId) =>
   `${ACK_STORAGE_PREFIX}:${currentUserId}:${transactionId}`;
@@ -26,10 +36,37 @@ export const setMessageAckAt = (currentUserId, transactionId, createdAt) => {
     return;
   }
   try {
+    const existingAckAt = getMessageAckAt(currentUserId, transactionId);
+    if (
+      existingAckAt &&
+      new Date(createdAt).getTime() <= new Date(existingAckAt).getTime()
+    ) {
+      return;
+    }
     window.sessionStorage.setItem(getMessageAckStorageKey(currentUserId, transactionId), createdAt);
   } catch (e) {
     // Ignore quota / privacy errors.
   }
+};
+
+const getMessageSenderUuid = message => {
+  const senderId = message?.sender?.id;
+  if (senderId?.uuid) {
+    return senderId.uuid;
+  }
+  if (typeof senderId === 'string') {
+    return senderId;
+  }
+
+  const relId = message?.relationships?.sender?.data?.id;
+  if (relId?.uuid) {
+    return relId.uuid;
+  }
+  if (typeof relId === 'string') {
+    return relId;
+  }
+
+  return null;
 };
 
 const getLatestMessage = messages => {
@@ -43,20 +80,204 @@ const getLatestMessage = messages => {
   });
 };
 
+const getLatestOtherPartyMessage = (messages, currentUserId) => {
+  if (!messages?.length || !currentUserId) {
+    return null;
+  }
+
+  return messages.reduce((latest, message) => {
+    const senderId = getMessageSenderUuid(message);
+    if (!senderId || senderId === currentUserId) {
+      return latest;
+    }
+    if (!latest) {
+      return message;
+    }
+    const latestAt = new Date(latest.attributes.createdAt).getTime();
+    const messageAt = new Date(message.attributes.createdAt).getTime();
+    return messageAt > latestAt ? message : latest;
+  }, null);
+};
+
+const pickNewestOtherPartyMessage = (a, b) => {
+  if (!a) {
+    return b || null;
+  }
+  if (!b) {
+    return a;
+  }
+  const aAt = new Date(a.attributes.createdAt).getTime();
+  const bAt = new Date(b.attributes.createdAt).getTime();
+  return bAt > aAt ? b : a;
+};
+
 /**
  * Mark all messages in a transaction thread as seen for the current user.
- * Used when TransactionPage loads messages so the inbox badge can clear.
+ * Uses the latest message from the other party when present.
  *
  * @param {string} currentUserId
  * @param {string} transactionId
  * @param {Array} messages
  */
 export const acknowledgeTransactionMessages = (currentUserId, transactionId, messages) => {
-  const latestMessage = getLatestMessage(messages);
-  if (!latestMessage) {
+  const latestOtherParty = getLatestOtherPartyMessage(messages, currentUserId);
+  if (latestOtherParty?.attributes?.createdAt) {
+    setMessageAckAt(currentUserId, transactionId, latestOtherParty.attributes.createdAt);
     return;
   }
-  setMessageAckAt(currentUserId, transactionId, latestMessage.attributes.createdAt);
+
+  const latestMessage = getLatestMessage(messages);
+  if (latestMessage?.attributes?.createdAt) {
+    setMessageAckAt(currentUserId, transactionId, latestMessage.attributes.createdAt);
+  }
+};
+
+const getInquiryAttentionTimestamp = tx => {
+  const transitionEntries = tx?.attributes?.transitions || [];
+  const bookingInquiry = transitionEntries.find(t => t.transition === bookingTransitions.INQUIRE);
+  if (bookingInquiry?.createdAt) {
+    return bookingInquiry.createdAt;
+  }
+
+  const freeInquiry = transitionEntries.find(
+    t => t.transition === inquiryTransitions.INQUIRE_WITHOUT_PAYMENT
+  );
+  if (freeInquiry?.createdAt) {
+    return freeInquiry.createdAt;
+  }
+
+  return tx?.attributes?.lastTransitionedAt;
+};
+
+/**
+ * Mark an inquiry-only thread as seen (no chat messages yet).
+ *
+ * @param {string} currentUserId
+ * @param {string} transactionId
+ * @param {Object} tx denormalised transaction
+ */
+export const acknowledgeTransactionInquiry = (currentUserId, transactionId, tx) => {
+  if (!currentUserId || !transactionId || !tx) {
+    return;
+  }
+
+  const processState = getTransactionProcessState(tx);
+  if (!MESSAGE_ATTENTION_STATES.has(processState)) {
+    return;
+  }
+
+  if (!hasInquiryAttentionFromOtherParty(tx, currentUserId)) {
+    return;
+  }
+
+  const inquiryAt = getInquiryAttentionTimestamp(tx);
+  if (inquiryAt) {
+    setMessageAckAt(currentUserId, transactionId, inquiryAt);
+  }
+};
+
+const fetchLatestOtherPartyMessageForTransaction = (sdk, txId, currentUserId) => {
+  return sdk.messages
+    .query({
+      transaction_id: txId,
+      perPage: LATEST_MESSAGE_QUERY_PAGE_SIZE,
+      page: 1,
+      include: ['sender'],
+    })
+    .then(response =>
+      getLatestOtherPartyMessage(denormalisedResponseEntities(response), currentUserId)
+    )
+    .catch(() => null);
+};
+
+/**
+ * Mark the latest other-party message as read when opening a transaction thread.
+ * Falls back to inquiry attention when there are no messages yet.
+ *
+ * @param {string} currentUserId
+ * @param {string} transactionId
+ * @param {Array} messages messages already loaded on TransactionPage
+ * @param {Object} [tx] denormalised transaction
+ * @param {Object} [sdk] Sharetribe SDK (used to confirm latest other-party message)
+ * @returns {Promise<{ ackBefore: string|null, ackAfter: string|null, cleared: boolean, latestOtherPartyMessageAt: string|null }>}
+ */
+export const acknowledgeThreadOnOpen = async (currentUserId, transactionId, messages, tx, sdk) => {
+  const ackBefore = getMessageAckAt(currentUserId, transactionId);
+
+  let latestOtherParty = getLatestOtherPartyMessage(messages, currentUserId);
+  if (sdk && transactionId) {
+    const fromApi = await fetchLatestOtherPartyMessageForTransaction(sdk, transactionId, currentUserId);
+    latestOtherParty = pickNewestOtherPartyMessage(latestOtherParty, fromApi);
+  }
+
+  let latestOtherPartyMessageAt = null;
+  let cleared = false;
+
+  if (latestOtherParty?.attributes?.createdAt) {
+    latestOtherPartyMessageAt = latestOtherParty.attributes.createdAt;
+    setMessageAckAt(currentUserId, transactionId, latestOtherPartyMessageAt);
+    cleared = true;
+  } else if (!messages?.length) {
+    acknowledgeTransactionInquiry(currentUserId, transactionId, tx);
+    if (getMessageAckAt(currentUserId, transactionId)) {
+      latestOtherPartyMessageAt = getInquiryAttentionTimestamp(tx) || null;
+      cleared = true;
+    }
+  } else {
+    const latestAny = getLatestMessage(messages);
+    if (latestAny?.attributes?.createdAt) {
+      setMessageAckAt(currentUserId, transactionId, latestAny.attributes.createdAt);
+      cleared = true;
+    }
+  }
+
+  const ackAfter = getMessageAckAt(currentUserId, transactionId);
+
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp inbox ack on open]', {
+      transactionId,
+      latestOtherPartyMessageAt,
+      ackAtBefore: ackBefore,
+      ackAtAfter: ackAfter,
+      cleared,
+    });
+  }
+
+  return { ackBefore, ackAfter, cleared, latestOtherPartyMessageAt };
+};
+
+/**
+ * Mark messages and/or inquiry attention as seen when opening a transaction thread.
+ *
+ * @param {string} currentUserId
+ * @param {string} transactionId
+ * @param {Array} messages
+ * @param {Object} [tx] denormalised transaction
+ * @param {Object} [sdk]
+ * @returns {Promise<{ ackBefore: string|null, ackAfter: string|null, cleared: boolean, latestOtherPartyMessageAt: string|null }>}
+ */
+export const acknowledgeTransactionThread = (currentUserId, transactionId, messages, tx, sdk) =>
+  acknowledgeThreadOnOpen(currentUserId, transactionId, messages, tx, sdk);
+
+/**
+ * Resolve inbox tab role for a transaction relative to the current user.
+ *
+ * @param {Object} tx
+ * @param {string} currentUserId
+ * @returns {'sale'|'order'|null}
+ */
+export const getInboxRoleForTransaction = (tx, currentUserId) => {
+  if (!tx || !currentUserId) {
+    return null;
+  }
+  if (tx.provider?.id?.uuid === currentUserId) {
+    return 'sale';
+  }
+  if (tx.customer?.id?.uuid === currentUserId) {
+    return 'order';
+  }
+  return null;
 };
 
 const getTransactionProcessState = tx => {
@@ -79,7 +300,7 @@ const isMessageAcknowledged = (currentUserId, transactionId, latestMessageCreate
   return new Date(latestMessageCreatedAt).getTime() <= new Date(ackAt).getTime();
 };
 
-const hasInquiryTransitionFromOtherParty = (tx, currentUserId) => {
+const hasInquiryAttentionFromOtherParty = (tx, currentUserId) => {
   const { customer, provider } = tx || {};
   const customerId = customer?.id?.uuid;
   const providerId = provider?.id?.uuid;
@@ -89,34 +310,43 @@ const hasInquiryTransitionFromOtherParty = (tx, currentUserId) => {
   }
 
   const lastTransition = tx?.attributes?.lastTransition;
-  if (lastTransition !== bookingTransitions.INQUIRE) {
+  const transitionEntries = tx?.attributes?.transitions || [];
+
+  if (lastTransition === bookingTransitions.INQUIRE) {
+    const inquiryTransition = transitionEntries.find(t => t.transition === bookingTransitions.INQUIRE);
+    const initiatedBy = inquiryTransition?.by;
+
+    if (initiatedBy === 'customer') {
+      return currentUserId === providerId;
+    }
+    if (initiatedBy === 'provider') {
+      return currentUserId === customerId;
+    }
     return false;
   }
 
-  const transitionEntries = tx?.attributes?.transitions || [];
-  const inquiryTransition = transitionEntries.find(t => t.transition === bookingTransitions.INQUIRE);
-  const initiatedBy = inquiryTransition?.by;
+  if (lastTransition === inquiryTransitions.INQUIRE_WITHOUT_PAYMENT) {
+    const inquiryTransition = transitionEntries.find(
+      t => t.transition === inquiryTransitions.INQUIRE_WITHOUT_PAYMENT
+    );
+    const initiatedBy = inquiryTransition?.by;
 
-  if (initiatedBy === 'customer') {
-    return currentUserId === providerId;
-  }
-  if (initiatedBy === 'provider') {
-    return currentUserId === customerId;
+    if (initiatedBy === 'customer') {
+      return currentUserId === providerId;
+    }
+    if (initiatedBy === 'provider') {
+      return currentUserId === customerId;
+    }
   }
 
   return false;
 };
 
-const fetchLatestMessageForTransaction = (sdk, txId) => {
-  return sdk.messages
-    .query({
-      transaction_id: txId,
-      perPage: 1,
-      page: 1,
-      include: ['sender'],
-    })
-    .then(response => denormalisedResponseEntities(response)[0] || null)
-    .catch(() => null);
+const isActivityAcknowledged = (currentUserId, transactionId, activityAt) => {
+  if (!activityAt) {
+    return true;
+  }
+  return isMessageAcknowledged(currentUserId, transactionId, activityAt);
 };
 
 const hasUnreadMessageActivity = async (tx, currentUserId, sdk) => {
@@ -125,26 +355,91 @@ const hasUnreadMessageActivity = async (tx, currentUserId, sdk) => {
     return false;
   }
 
-  const latestMessage = await fetchLatestMessageForTransaction(sdk, tx.id);
-
-  if (!latestMessage) {
-    return hasInquiryTransitionFromOtherParty(tx, currentUserId);
-  }
-
-  const senderId = latestMessage.sender?.id?.uuid;
-  if (senderId === currentUserId) {
+  if (isTransactionRead(currentUserId, txUuid)) {
     return false;
   }
 
-  if (isMessageAcknowledged(currentUserId, txUuid, latestMessage.attributes.createdAt)) {
+  const latestOtherPartyMessage = await fetchLatestOtherPartyMessageForTransaction(
+    sdk,
+    tx.id,
+    currentUserId
+  );
+
+  if (!latestOtherPartyMessage) {
     return false;
   }
 
-  return true;
+  const messageAt = latestOtherPartyMessage.attributes?.createdAt;
+  if (!messageAt) {
+    return false;
+  }
+
+  const unread = !isActivityAcknowledged(currentUserId, txUuid, messageAt);
+  debugInboxNotifications('hasUnreadMessageActivity other-party message', {
+    txUuid,
+    messageAt,
+    senderId: getMessageSenderUuid(latestOtherPartyMessage),
+    ackAt: getMessageAckAt(currentUserId, txUuid),
+    unread,
+  });
+  return unread;
 };
 
-const isMessageAttentionTransaction = (tx, processState) =>
-  MESSAGE_ATTENTION_STATES.has(processState);
+/**
+ * @param {Object} tx
+ * @param {string} currentUserId
+ * @param {Object} sdk
+ * @returns {Promise<boolean>}
+ */
+export const isTransactionUnreadForUser = (tx, currentUserId, sdk) =>
+  hasUnreadMessageActivity(tx, currentUserId, sdk);
+
+/**
+ * List transactions with an unread message from the other party (Topbar red dot source).
+ *
+ * @param {Array} transactions
+ * @param {string} currentUserId
+ * @param {Object} sdk
+ * @returns {Promise<Array<{ id: string, role: string|null, latestOtherPartyMessageAt: string|null, ackAt: string|null, isUnread: boolean }>>}
+ */
+export const listUnreadInboxTransactions = async (transactions, currentUserId, sdk) => {
+  if (!transactions?.length || !currentUserId) {
+    return [];
+  }
+
+  const unread = [];
+
+  for (const tx of transactions) {
+    const txUuid = tx?.id?.uuid;
+    if (!txUuid || isTransactionRead(currentUserId, txUuid)) {
+      continue;
+    }
+
+    const role = getInboxRoleForTransaction(tx, currentUserId);
+    const latestOtherPartyMessage = await fetchLatestOtherPartyMessageForTransaction(
+      sdk,
+      tx.id,
+      currentUserId
+    );
+    const latestOtherPartyMessageAt = latestOtherPartyMessage?.attributes?.createdAt ?? null;
+    const ackAt = getMessageAckAt(currentUserId, txUuid);
+    const isUnread =
+      !!latestOtherPartyMessageAt &&
+      !isActivityAcknowledged(currentUserId, txUuid, latestOtherPartyMessageAt);
+
+    if (isUnread) {
+      unread.push({
+        id: txUuid,
+        role,
+        latestOtherPartyMessageAt,
+        ackAt,
+        isUnread: true,
+      });
+    }
+  }
+
+  return unread;
+};
 
 /**
  * Count how many transactions should contribute to inbox notifications.
@@ -155,23 +450,14 @@ const isMessageAttentionTransaction = (tx, processState) =>
  * @returns {Promise<number>}
  */
 export const countTransactionNotifications = async (transactions, currentUserId, sdk) => {
-  if (!transactions?.length) {
-    return 0;
-  }
+  const unread = await listUnreadInboxTransactions(transactions, currentUserId, sdk);
 
-  if (!currentUserId) {
-    return transactions.length;
-  }
+  debugInboxNotifications('countTransactionNotifications', {
+    currentUserId,
+    transactionCount: transactions?.length ?? 0,
+    unreadCount: unread.length,
+    transactionIds: unread.map(entry => entry.id),
+  });
 
-  const results = await Promise.all(
-    transactions.map(async tx => {
-      const processState = getTransactionProcessState(tx);
-      if (isMessageAttentionTransaction(tx, processState)) {
-        return hasUnreadMessageActivity(tx, currentUserId, sdk);
-      }
-      return true;
-    })
-  );
-
-  return results.filter(Boolean).length;
+  return unread.length;
 };
