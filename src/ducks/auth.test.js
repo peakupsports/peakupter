@@ -234,12 +234,11 @@ describe('auth duck', () => {
         expect(actions[0].meta.arg).toEqual({ username, password });
 
         expect(actions[1].type).toEqual('user/fetchCurrentUser/pending');
-        expect(actions[2].type).toEqual('user/fetchCurrentUserNotifications/pending');
-        expect(actions[3].type).toBe('auth/authInfo/pending');
-        expect(actions[4].type).toBe('auth/authInfo/fulfilled');
-        expect(actions[5].type).toEqual('user/fetchCurrentUser/fulfilled');
-        expect(actions[5].payload).toEqual(fakeCurrentUser);
-
+        expect(actions[2].type).toBe('auth/authInfo/pending');
+        expect(actions[3].type).toBe('auth/authInfo/fulfilled');
+        expect(actions[4].type).toEqual('user/fetchCurrentUser/fulfilled');
+        expect(actions[4].payload).toEqual(fakeCurrentUser);
+        expect(actions[5].type).toEqual('user/fetchCurrentUserNotifications/pending');
         expect(actions[6].type).toEqual('user/fetchCurrentUserNotifications/fulfilled');
         expect(actions[7].type).toBe('auth/login/fulfilled');
       });
@@ -456,11 +455,11 @@ describe('auth duck', () => {
         expect(actions[1].type).toBe('auth/login/pending');
         expect(actions[2].type).toBe('user/fetchCurrentUser/pending');
         expect(actions[3].type).toBe('user/fetchCurrentUserHasListings/pending');
-        expect(actions[4].type).toBe('user/fetchCurrentUserNotifications/pending');
-        expect(actions[5].type).toBe('auth/authInfo/pending');
-        expect(actions[6].type).toBe('user/fetchCurrentUserHasListings/fulfilled');
-        expect(actions[7].type).toBe('auth/authInfo/fulfilled');
-        expect(actions[8].type).toBe('user/fetchCurrentUser/fulfilled');
+        expect(actions[4].type).toBe('auth/authInfo/pending');
+        expect(actions[5].type).toBe('user/fetchCurrentUserHasListings/fulfilled');
+        expect(actions[6].type).toBe('auth/authInfo/fulfilled');
+        expect(actions[7].type).toBe('user/fetchCurrentUser/fulfilled');
+        expect(actions[8].type).toBe('user/fetchCurrentUserNotifications/pending');
         expect(actions[9].type).toBe('user/fetchCurrentUserNotifications/fulfilled');
         expect(actions[10].type).toBe('auth/login/fulfilled');
       });

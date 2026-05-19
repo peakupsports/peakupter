@@ -167,16 +167,10 @@ export const InboxItem = props => {
     availabilityType,
     stockType = STOCK_MULTIPLE_ITEMS,
     onArchiveConversation,
+    isMessageUnread = false,
   } = props;
   const { customer, provider, listing } = tx;
-  const {
-    processName,
-    processState,
-    actionNeeded,
-    isSaleNotification,
-    isOrderNotification,
-    isFinal,
-  } = stateData;
+  const { processName, processState, actionNeeded, isFinal } = stateData;
   const isCustomer = transactionRole === TX_TRANSITION_ACTOR_CUSTOMER;
 
   const lineItems = tx.attributes?.lineItems;
@@ -188,8 +182,7 @@ export const InboxItem = props => {
   const otherUserDisplayName = <UserDisplayName user={otherUser} intl={intl} />;
   const isOtherUserBanned = otherUser.attributes.banned;
 
-  const rowNotificationDot =
-    isSaleNotification || isOrderNotification ? <div className={css.notificationDot} /> : null;
+  const rowNotificationDot = isMessageUnread ? <div className={css.notificationDot} /> : null;
 
   const linkClasses = classNames(css.itemLink, {
     [css.bannedUserLink]: isOtherUserBanned,
@@ -276,6 +269,8 @@ export const InboxPageComponent = props => {
     params,
     providerNotificationCount = 0,
     customerNotificationCount = 0,
+    unreadSaleTransactionIds = [],
+    unreadOrderTransactionIds = [],
     scrollingDisabled,
     transactions,
     onArchiveConversation,
@@ -323,7 +318,8 @@ export const InboxPageComponent = props => {
     const transactionProcess = resolveLatestProcessName(process);
     const isBooking = isBookingProcess(transactionProcess);
     const isPurchase = isPurchaseProcess(transactionProcess);
-    const isNegotiation = isNegotiationProcess(transactionProcess);
+    const unreadIds = isOrders ? unreadOrderTransactionIds : unreadSaleTransactionIds;
+    const isMessageUnread = unreadIds.includes(tx.id.uuid);
 
     // Render InboxItem only if the latest transition of the transaction is handled in the `txState` function.
     return stateData ? (
@@ -337,6 +333,7 @@ export const InboxPageComponent = props => {
           availabilityType={availabilityType}
           isBooking={isBooking}
           isPurchase={isPurchase}
+          isMessageUnread={isMessageUnread}
           onArchiveConversation={onArchiveConversation}
         />
       </li>
@@ -474,6 +471,8 @@ const mapStateToProps = state => {
     currentUser,
     currentUserSaleNotificationCount,
     currentUserOrderNotificationCount,
+    unreadSaleTransactionIds = [],
+    unreadOrderTransactionIds = [],
   } = state.user;
   return {
     currentUser,
@@ -482,6 +481,8 @@ const mapStateToProps = state => {
     pagination,
     providerNotificationCount: currentUserSaleNotificationCount,
     customerNotificationCount: currentUserOrderNotificationCount,
+    unreadSaleTransactionIds,
+    unreadOrderTransactionIds,
     scrollingDisabled: isScrollingDisabled(state),
     transactions: getMarketplaceEntities(state, transactionRefs),
   };

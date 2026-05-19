@@ -51,12 +51,10 @@ const InboxLink = ({
 
   if (typeof window !== 'undefined') {
     // eslint-disable-next-line no-console
-    console.log('[PeakUp DOT RENDER]', {
-      saleNotificationCount,
-      orderNotificationCount,
-      totalNotificationCount,
-      showInboxDot,
-      currentUserId: currentUser?.id?.uuid,
+    console.log('[PeakUp TOPBAR DOT]', {
+      saleCount: saleNotificationCount,
+      orderCount: orderNotificationCount,
+      totalCount: totalNotificationCount,
     });
   }
   return (

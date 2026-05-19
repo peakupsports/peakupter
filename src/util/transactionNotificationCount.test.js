@@ -74,9 +74,9 @@ describe('transactionNotificationCount', () => {
     expect(MESSAGE_ATTENTION_STATES.has('inquiry')).toBe(true);
   });
 
-  it('does not count inquiry transactions after messages are acknowledged', async () => {
+  it('does not count transactions after they have been marked read', async () => {
     const createdAt = '2026-05-19T10:00:00.000Z';
-    setMessageAckAt(providerId, txId, createdAt);
+    markTransactionReadOnOpen(providerId, txId, createdAt);
 
     const tx = createTx({
       lastTransition: bookingTransitions.INQUIRE,
@@ -160,7 +160,7 @@ describe('transactionNotificationCount', () => {
   });
 
   it('does not count a transaction after it has been marked read on open', async () => {
-    markTransactionReadOnOpen(providerId, txId);
+    markTransactionReadOnOpen(providerId, txId, '2026-05-19T10:00:00.000Z');
 
     const tx = createTx({
       lastTransition: bookingTransitions.INQUIRE,
@@ -230,7 +230,7 @@ describe('transactionNotificationCount', () => {
     expect(getMessageAckAt(providerId, txId)).toEqual(customerMessageAt);
   });
 
-  it('does not count when there is no other-party message activity', async () => {
+  it('does not count when the last message is from the current user', async () => {
     const tx = createTx({
       lastTransition: 'transition/confirm-payment',
       transitions: [{ transition: 'transition/confirm-payment', by: 'customer' }],
@@ -256,6 +256,36 @@ describe('transactionNotificationCount', () => {
 
     const count = await countTransactionNotifications([tx], providerId, sdk);
     expect(count).toBe(0);
+  });
+
+  it('counts again when a newer message arrives after the thread was read', async () => {
+    markTransactionReadOnOpen(providerId, txId, '2026-05-19T10:00:00.000Z');
+
+    const tx = createTx({
+      lastTransition: bookingTransitions.INQUIRE,
+      transitions: [{ transition: bookingTransitions.INQUIRE, by: 'customer' }],
+    });
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'message-new' },
+                type: 'message',
+                attributes: { createdAt: '2026-05-19T11:00:00.000Z', content: 'Newer' },
+                relationships: { sender: { data: { id: { uuid: customerId }, type: 'user' } } },
+              },
+            ],
+            included: [{ id: { uuid: customerId }, type: 'user' }],
+          },
+        }),
+      },
+    };
+
+    const count = await countTransactionNotifications([tx], providerId, sdk);
+    expect(count).toBe(1);
   });
 
   it('does not count non-inquiry attention states without unread messages', async () => {

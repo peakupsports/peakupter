@@ -37,7 +37,7 @@ import * as log from './util/log';
 // Import relevant global duck files
 import { authInfo } from './ducks/auth.duck';
 import { fetchAppAssets } from './ducks/hostedAssets.duck';
-import { fetchCurrentUser } from './ducks/user.duck';
+import { fetchCurrentUser, fetchInboxNotificationsIfReady } from './ducks/user.duck';
 
 // Route config
 import routeConfiguration from './routing/routeConfiguration';
@@ -63,7 +63,11 @@ const render = (store, shouldHydrate) => {
         store.dispatch(fetchCurrentUser()),
       ]);
     })
-    .then(([_, fetchedAppAssets, cu]) => {
+    .then(async ([_, fetchedAppAssets, cu]) => {
+      if (cu?.id?.uuid) {
+        await store.dispatch(fetchInboxNotificationsIfReady());
+      }
+
       const { translations: translationsRaw, ...rest } = fetchedAppAssets || {};
       // We'll handle translations as a separate data.
       // It's given to React Intl instead of pushing to config Context

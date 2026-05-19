@@ -3,17 +3,16 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
-import {
-  sendVerificationEmail,
-  hasCurrentUserErrors,
-  fetchCurrentUserNotifications,
-} from '../../ducks/user.duck';
+import { sendVerificationEmail, hasCurrentUserErrors } from '../../ducks/user.duck';
 import { logout, authenticationInProgress } from '../../ducks/auth.duck';
 import { manageDisableScrolling } from '../../ducks/ui.duck';
 
 // Eager import: a lazy Topbar left the layout row at ~0px until the chunk loaded, so `<main>`
 // (hero) started at the top of the viewport and then jumped down when the bar appeared (~1–2s).
 import Topbar from './Topbar/Topbar';
+
+// TEMP: Topbar auto-fetch disabled — counts come from Redux only (e.g. InboxPage / fetchCurrentUser).
+// Re-enable from a safer place outside Topbar after login flow is stable.
 
 /**
  * Topbar container component, which is connected to Redux Store.
@@ -84,7 +83,6 @@ const mapDispatchToProps = dispatch => ({
   onManageDisableScrolling: (componentId, disableScrolling) =>
     dispatch(manageDisableScrolling(componentId, disableScrolling)),
   onResendVerificationEmail: () => dispatch(sendVerificationEmail()),
-  onFetchCurrentUserNotifications: () => dispatch(fetchCurrentUserNotifications()),
 });
 
 // Note: it is important that the withRouter HOC is **outside** the

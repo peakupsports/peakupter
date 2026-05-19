@@ -1,55 +1,168 @@
-const READ_TX_STORAGE_PREFIX = 'peakupReadTransactions';
+const READ_AT_STORAGE_PREFIX = 'peakupInboxReadAt';
+const LEGACY_READ_TX_PREFIX = 'peakupReadTransactions';
 
-export const getReadTransactionsStorageKey = userId => `${READ_TX_STORAGE_PREFIX}:${userId}`;
+export const getReadAtStorageKey = userId => `${READ_AT_STORAGE_PREFIX}:${userId}`;
 
-/**
- * Transaction IDs the user has opened (read) this browser session.
- *
- * @param {string} userId
- * @returns {string[]}
- */
-export const getReadTransactionIds = userId => {
-  if (typeof window === 'undefined' || !userId) {
-    return [];
+const normalizeTxUuid = transactionId =>
+  typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
+
+export const getMessageSenderUuid = message => {
+  const senderId = message?.sender?.id;
+  if (senderId?.uuid) {
+    return senderId.uuid;
+  }
+  if (typeof senderId === 'string') {
+    return senderId;
+  }
+
+  const relId = message?.relationships?.sender?.data?.id;
+  if (relId?.uuid) {
+    return relId.uuid;
+  }
+  if (typeof relId === 'string') {
+    return relId;
+  }
+
+  return null;
+};
+
+const parseReadAtMap = raw => {
+  if (!raw) {
+    return {};
   }
   try {
-    const raw = window.sessionStorage.getItem(getReadTransactionsStorageKey(userId));
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed.filter(id => typeof id === 'string' && id.length > 0) : [];
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return Object.entries(parsed).reduce((map, [txId, readAt]) => {
+        if (typeof txId === 'string' && typeof readAt === 'string' && readAt.length > 0) {
+          map[txId] = readAt;
+        }
+        return map;
+      }, {});
+    }
+    if (Array.isArray(parsed)) {
+      return parsed.reduce((map, txId) => {
+        if (typeof txId === 'string' && txId.length > 0) {
+          map[txId] = new Date(0).toISOString();
+        }
+        return map;
+      }, {});
+    }
   } catch (e) {
-    return [];
+    // Ignore parse errors.
   }
-};
-
-export const isTransactionRead = (userId, transactionId) => {
-  const txUuid = typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
-  if (!userId || !txUuid) {
-    return false;
-  }
-  return getReadTransactionIds(userId).includes(txUuid);
+  return {};
 };
 
 /**
- * Mark a thread as read the moment the user opens it (before any API refresh).
- *
+ * @param {string} userId
+ * @returns {Record<string, string>}
+ */
+export const getTransactionReadAtMap = userId => {
+  if (typeof window === 'undefined' || !userId) {
+    return {};
+  }
+  try {
+    const raw = window.sessionStorage.getItem(getReadAtStorageKey(userId));
+    if (raw) {
+      return parseReadAtMap(raw);
+    }
+    const legacyRaw = window.sessionStorage.getItem(`${LEGACY_READ_TX_PREFIX}:${userId}`);
+    return parseReadAtMap(legacyRaw);
+  } catch (e) {
+    return {};
+  }
+};
+
+/**
  * @param {string} userId
  * @param {string} transactionId
+ * @returns {string|null}
  */
-export const markTransactionReadOnOpen = (userId, transactionId) => {
-  const txUuid = typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
-  if (typeof window === 'undefined' || !userId || !txUuid) {
+export const getTransactionReadAt = (userId, transactionId) => {
+  const txUuid = normalizeTxUuid(transactionId);
+  if (!userId || !txUuid) {
+    return null;
+  }
+  return getTransactionReadAtMap(userId)[txUuid] || null;
+};
+
+/**
+ * @param {string} userId
+ * @param {string} transactionId
+ * @param {string} readAt ISO timestamp
+ */
+export const markTransactionReadAt = (userId, transactionId, readAt) => {
+  const txUuid = normalizeTxUuid(transactionId);
+  if (typeof window === 'undefined' || !userId || !txUuid || !readAt) {
     return;
   }
-  const readIds = getReadTransactionIds(userId);
-  if (readIds.includes(txUuid)) {
+
+  const map = getTransactionReadAtMap(userId);
+  const existingReadAt = map[txUuid];
+  if (existingReadAt && new Date(readAt).getTime() <= new Date(existingReadAt).getTime()) {
     return;
   }
+
+  map[txUuid] = readAt;
+
   try {
-    window.sessionStorage.setItem(
-      getReadTransactionsStorageKey(userId),
-      JSON.stringify([...readIds, txUuid])
-    );
+    window.sessionStorage.setItem(getReadAtStorageKey(userId), JSON.stringify(map));
+    window.sessionStorage.removeItem(`${LEGACY_READ_TX_PREFIX}:${userId}`);
   } catch (e) {
     // Ignore quota / privacy errors.
   }
+};
+
+/**
+ * Mark a thread as read when the user opens it.
+ *
+ * @param {string} userId
+ * @param {string} transactionId
+ * @param {string} [lastMessageCreatedAt] ISO timestamp of the latest message in the thread
+ */
+export const markTransactionReadOnOpen = (userId, transactionId, lastMessageCreatedAt) => {
+  const readAt = lastMessageCreatedAt || new Date().toISOString();
+  markTransactionReadAt(userId, transactionId, readAt);
+};
+
+/**
+ * Whether a transaction should contribute to the inbox / Topbar notification dot.
+ *
+ * @param {string} currentUserId
+ * @param {string} transactionId
+ * @param {Object|null} lastMessage denormalised message entity
+ * @returns {boolean}
+ */
+export const shouldCountTransactionAsUnread = (currentUserId, transactionId, lastMessage) => {
+  const txUuid = normalizeTxUuid(transactionId);
+  const lastMessageAuthorId = lastMessage ? getMessageSenderUuid(lastMessage) : null;
+  const lastMessageCreatedAt = lastMessage?.attributes?.createdAt ?? null;
+  const isOwnMessage = !lastMessage || lastMessageAuthorId === currentUserId;
+  const readAt = getTransactionReadAt(currentUserId, txUuid);
+  const isRead =
+    !!readAt &&
+    !!lastMessageCreatedAt &&
+    new Date(lastMessageCreatedAt).getTime() <= new Date(readAt).getTime();
+  const shouldCount = !!lastMessage && !isOwnMessage && !isRead;
+
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp INBOX DOT SOURCE]', {
+      currentUserId,
+      transactionId: txUuid,
+      lastMessageAuthorId,
+      lastMessageCreatedAt,
+      isOwnMessage,
+      isRead,
+      shouldCount,
+    });
+  }
+
+  return shouldCount;
+};
+
+/** @deprecated Use getTransactionReadAt / shouldCountTransactionAsUnread */
+export const isTransactionRead = (userId, transactionId) => {
+  return !!getTransactionReadAt(userId, transactionId);
 };

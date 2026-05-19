@@ -120,11 +120,24 @@ const NOTIFICATION_PAGE_SIZE = 100;
 let inboxNotificationsFetchSeq = 0;
 
 const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, rejectWithValue }) => {
+  const state = getState();
+  const { isAuthenticated } = state.auth || {};
+  const currentUser = state.user?.currentUser;
+  const currentUserId = currentUser?.id?.uuid;
+
+  if (!isAuthenticated || !currentUser || !currentUserId) {
+    return Promise.resolve({
+      saleNotificationsCount: 0,
+      orderNotificationsCount: 0,
+      unreadSaleTransactionIds: [],
+      unreadOrderTransactionIds: [],
+      fetchSeq: inboxNotificationsFetchSeq,
+    });
+  }
+
   const fetchSeq = ++inboxNotificationsFetchSeq;
   const statesNeedingProviderAttention = getStatesNeedingProviderAttention() || [];
   const statesNeedingCustomerAttention = getStatesNeedingCustomerAttention() || [];
-  const currentUser = getState().user?.currentUser;
-  const currentUserId = currentUser?.id?.uuid;
 
   const paramsForSales = {
     only: 'sale',
@@ -174,34 +187,123 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
 
       if (typeof window !== 'undefined') {
         // eslint-disable-next-line no-console
-        console.log('[PeakUp inbox notifications] fetchCurrentUserNotifications', {
-          fetchSeq,
-          currentUserId,
-          saleNotificationsCount,
-          orderNotificationsCount,
-          total: saleNotificationsCount + orderNotificationsCount,
+        console.log('[PeakUp TOPBAR DOT]', {
+          saleCount: saleNotificationsCount,
+          orderCount: orderNotificationsCount,
+          totalCount: saleNotificationsCount + orderNotificationsCount,
         });
-
-        if (countedTransactions.length > 0) {
-          // eslint-disable-next-line no-console
-          console.log('[PeakUp DOT COUNTED TRANSACTIONS]', countedTransactions);
-        }
       }
 
-      return { saleNotificationsCount, orderNotificationsCount, fetchSeq };
+      return {
+        saleNotificationsCount,
+        orderNotificationsCount,
+        unreadSaleTransactionIds: saleUnread.map(entry => entry.id),
+        unreadOrderTransactionIds: orderUnread.map(entry => entry.id),
+        fetchSeq,
+      };
     })
     .catch(e => rejectWithValue(storableError(e)));
 };
 
 export const fetchCurrentUserNotificationsThunk = createAsyncThunk(
   'user/fetchCurrentUserNotifications',
-  fetchCurrentUserNotificationsPayloadCreator
+  fetchCurrentUserNotificationsPayloadCreator,
+  {
+    condition: (_, { getState }) => {
+      const state = getState();
+      const { isAuthenticated, loginInProgress, signupInProgress, confirmInProgress } =
+        state.auth || {};
+      const currentUserId = state.user?.currentUser?.id?.uuid;
+      const inProgress = state.user?.inboxNotificationsFetchInProgress;
+      const authSettling = loginInProgress || signupInProgress || confirmInProgress;
+
+      if (!currentUserId || inProgress) {
+        return false;
+      }
+      // After fetchCurrentUser during login/signup, isAuthenticated may still be settling.
+      if (authSettling) {
+        return true;
+      }
+      return !!isAuthenticated;
+    },
+  }
 );
 
 // Backward compatible wrapper for the thunk
-export const fetchCurrentUserNotifications = () => (dispatch, getState, sdk) => {
-  return dispatch(fetchCurrentUserNotificationsThunk()).unwrap();
+export const fetchCurrentUserNotifications =
+  (options = {}) =>
+  (dispatch, getState) => {
+  const state = getState();
+  const currentUserId = state.user?.currentUser?.id?.uuid;
+  const { isAuthenticated } = state.auth || {};
+  const authSettling = isAuthRouteInProgress(state.auth);
+
+  if (!currentUserId) {
+    return Promise.resolve(null);
+  }
+
+  if (!isAuthenticated && !authSettling && !options.allowDuringAuthSettling) {
+    return Promise.resolve(null);
+  }
+
+  return dispatch(fetchCurrentUserNotificationsThunk())
+    .unwrap()
+    .catch(error => {
+      if (typeof window !== 'undefined') {
+        // eslint-disable-next-line no-console
+        console.warn('[PeakUp INBOX NOTIFICATIONS FETCH ERROR]', error);
+      }
+      return null;
+    });
 };
+
+const isAuthRouteInProgress = authState => {
+  const { loginInProgress, signupInProgress, confirmInProgress } = authState || {};
+  return !!(loginInProgress || signupInProgress || confirmInProgress);
+};
+
+/**
+ * Fetch inbox notification counts when auth and currentUser are ready.
+ * Safe to call from app init / after fetchCurrentUser — never blocks auth.
+ *
+ * @param {{ skipAuthProgressCheck?: boolean }} [options]
+ *   When true (after fetchCurrentUser resolves), allow fetch even if login/signup thunk is still settling.
+ */
+export const fetchInboxNotificationsIfReady =
+  (options = {}) =>
+  (dispatch, getState) => {
+  const state = getState();
+  const { isAuthenticated } = state.auth || {};
+  const currentUser = state.user?.currentUser;
+  const currentUserId = currentUser?.id?.uuid;
+
+  if (!currentUser || !currentUserId) {
+    return Promise.resolve(null);
+  }
+
+  if (!options.skipAuthProgressCheck) {
+    if (!isAuthenticated || isAuthRouteInProgress(state.auth)) {
+      return Promise.resolve(null);
+    }
+  }
+
+  if (!isUserAuthorized(currentUser)) {
+    return Promise.resolve(null);
+  }
+
+  if (state.user?.inboxNotificationsLoaded || state.user?.inboxNotificationsFetchInProgress) {
+    return Promise.resolve(null);
+  }
+
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp INBOX NOTIFICATIONS FETCH]', { currentUserId });
+  }
+
+  return dispatch(
+    fetchCurrentUserNotifications({ allowDuringAuthSettling: !!options.skipAuthProgressCheck })
+  );
+  };
 
 const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
   const { getState, dispatch, extra: sdk, rejectWithValue } = thunkAPI;
@@ -273,10 +375,6 @@ const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
           dispatch(fetchCurrentUserHasListings());
         }
 
-        if (updateNotifications !== false) {
-          dispatch(fetchCurrentUserNotifications());
-        }
-
         if (!currentUser.attributes.emailVerified) {
           dispatch(fetchCurrentUserHasOrders());
         }
@@ -309,8 +407,15 @@ export const fetchCurrentUserThunk = createAsyncThunk(
  * @param {boolean} [options.afterLogin]          Fetch is no-op for unauthenticated users except after login() call
  * @param {boolean} [options.enforce]             Enforce the call even if the currentUser entity is freshly fetched.
  */
-export const fetchCurrentUser = options => (dispatch, getState, sdk) => {
-  return dispatch(fetchCurrentUserThunk(options)).unwrap();
+export const fetchCurrentUser = options => async (dispatch, getState) => {
+  const opts = options || {};
+  const currentUser = await dispatch(fetchCurrentUserThunk(opts)).unwrap();
+
+  if (opts.updateNotifications !== false && currentUser?.id?.uuid) {
+    dispatch(fetchInboxNotificationsIfReady({ skipAuthProgressCheck: true }));
+  }
+
+  return currentUser;
 };
 
 /////////////////////////////////////////////
@@ -350,7 +455,11 @@ const userSlice = createSlice({
     currentUserHasListingsError: null,
     currentUserSaleNotificationCount: 0,
     currentUserOrderNotificationCount: 0,
+    unreadSaleTransactionIds: [],
+    unreadOrderTransactionIds: [],
     lastAppliedInboxNotificationsFetchSeq: 0,
+    inboxNotificationsFetchInProgress: false,
+    inboxNotificationsLoaded: false,
     currentUserNotificationCountError: null,
     currentUserHasOrders: null, // This is not fetched unless unverified emails exist
     currentUserHasOrdersError: null,
@@ -365,6 +474,10 @@ const userSlice = createSlice({
       state.currentUserHasListingsError = null;
       state.currentUserSaleNotificationCount = 0;
       state.currentUserOrderNotificationCount = 0;
+      state.unreadSaleTransactionIds = [];
+      state.unreadOrderTransactionIds = [];
+      state.inboxNotificationsFetchInProgress = false;
+      state.inboxNotificationsLoaded = false;
 
       state.currentUserNotificationCountError = null;
     },
@@ -402,6 +515,18 @@ const userSlice = createSlice({
         state.currentUserShowError = null;
       })
       .addCase(fetchCurrentUserThunk.fulfilled, (state, action) => {
+        const prevUserId = state.currentUser?.id?.uuid;
+        const nextUserId = action.payload?.id?.uuid;
+        const userChanged =
+          (!!nextUserId && !prevUserId) || (!!prevUserId && !!nextUserId && prevUserId !== nextUserId);
+        if (userChanged) {
+          state.inboxNotificationsLoaded = false;
+          state.currentUserSaleNotificationCount = 0;
+          state.currentUserOrderNotificationCount = 0;
+          state.unreadSaleTransactionIds = [];
+          state.unreadOrderTransactionIds = [];
+          state.currentUserNotificationCountError = null;
+        }
         state.currentUser = mergeCurrentUser(state.currentUser, action.payload);
         state.currentUserShowTimestamp = action.payload ? new Date().getTime() : 0;
       })
@@ -423,19 +548,35 @@ const userSlice = createSlice({
       // fetchCurrentUserNotifications
       .addCase(fetchCurrentUserNotificationsThunk.pending, state => {
         state.currentUserNotificationCountError = null;
+        state.inboxNotificationsFetchInProgress = true;
       })
       .addCase(fetchCurrentUserNotificationsThunk.fulfilled, (state, action) => {
-        const { saleNotificationsCount, orderNotificationsCount, fetchSeq = 0 } = action.payload;
+        const {
+          saleNotificationsCount,
+          orderNotificationsCount,
+          unreadSaleTransactionIds = [],
+          unreadOrderTransactionIds = [],
+          fetchSeq = 0,
+        } = action.payload;
         if (fetchSeq < state.lastAppliedInboxNotificationsFetchSeq) {
           return;
         }
         state.lastAppliedInboxNotificationsFetchSeq = fetchSeq;
         state.currentUserSaleNotificationCount = saleNotificationsCount;
         state.currentUserOrderNotificationCount = orderNotificationsCount;
+        state.unreadSaleTransactionIds = unreadSaleTransactionIds;
+        state.unreadOrderTransactionIds = unreadOrderTransactionIds;
+        state.inboxNotificationsFetchInProgress = false;
+        state.inboxNotificationsLoaded = true;
       })
       .addCase(fetchCurrentUserNotificationsThunk.rejected, (state, action) => {
-        console.error(action.payload);
+        if (typeof window !== 'undefined') {
+          // eslint-disable-next-line no-console
+          console.warn('[PeakUp INBOX NOTIFICATIONS FETCH ERROR]', action.payload);
+        }
         state.currentUserNotificationCountError = action.payload;
+        state.inboxNotificationsFetchInProgress = false;
+        state.inboxNotificationsLoaded = true;
       })
       // fetchCurrentUserHasOrders
       .addCase(fetchCurrentUserHasOrdersThunk.pending, state => {
@@ -480,7 +621,6 @@ export const hasCurrentUserErrors = state => {
   return (
     user.currentUserShowError ||
     user.currentUserHasListingsError ||
-    user.currentUserNotificationCountError ||
     user.currentUserHasOrdersError
   );
 };

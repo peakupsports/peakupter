@@ -361,12 +361,10 @@ const TopbarComponent = props => {
 
   if (typeof window !== 'undefined') {
     // eslint-disable-next-line no-console
-    console.log('[PeakUp DOT RENDER]', {
-      saleNotificationCount: currentUserSaleNotificationCount,
-      orderNotificationCount: currentUserOrderNotificationCount,
-      totalNotificationCount,
-      showInboxDot,
-      currentUserId: currentUser?.id?.uuid,
+    console.log('[PeakUp TOPBAR DOT]', {
+      saleCount: currentUserSaleNotificationCount,
+      orderCount: currentUserOrderNotificationCount,
+      totalCount: totalNotificationCount,
     });
   }
 

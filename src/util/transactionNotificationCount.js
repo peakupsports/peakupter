@@ -2,7 +2,7 @@ import { denormalisedResponseEntities } from './data';
 import { getProcess } from '../transactions/transaction';
 import { transitions as bookingTransitions } from '../transactions/transactionProcessBooking';
 import { transitions as inquiryTransitions } from '../transactions/transactionProcessInquiry';
-import { isTransactionRead } from './unreadNotifications';
+import { getMessageSenderUuid, shouldCountTransactionAsUnread } from './unreadNotifications';
 
 // Transaction states where inbox attention depends on messaging, not only process state.
 export const MESSAGE_ATTENTION_STATES = new Set(['inquiry', 'free-inquiry']);
@@ -49,27 +49,9 @@ export const setMessageAckAt = (currentUserId, transactionId, createdAt) => {
   }
 };
 
-const getMessageSenderUuid = message => {
-  const senderId = message?.sender?.id;
-  if (senderId?.uuid) {
-    return senderId.uuid;
-  }
-  if (typeof senderId === 'string') {
-    return senderId;
-  }
+export { getMessageSenderUuid } from './unreadNotifications';
 
-  const relId = message?.relationships?.sender?.data?.id;
-  if (relId?.uuid) {
-    return relId.uuid;
-  }
-  if (typeof relId === 'string') {
-    return relId;
-  }
-
-  return null;
-};
-
-const getLatestMessage = messages => {
+export const getLatestMessage = messages => {
   if (!messages?.length) {
     return null;
   }
@@ -174,6 +156,18 @@ export const acknowledgeTransactionInquiry = (currentUserId, transactionId, tx) 
   if (inquiryAt) {
     setMessageAckAt(currentUserId, transactionId, inquiryAt);
   }
+};
+
+const fetchLatestMessageForTransaction = (sdk, txId) => {
+  return sdk.messages
+    .query({
+      transaction_id: txId,
+      perPage: LATEST_MESSAGE_QUERY_PAGE_SIZE,
+      page: 1,
+      include: ['sender'],
+    })
+    .then(response => getLatestMessage(denormalisedResponseEntities(response)))
+    .catch(() => null);
 };
 
 const fetchLatestOtherPartyMessageForTransaction = (sdk, txId, currentUserId) => {
@@ -351,38 +345,12 @@ const isActivityAcknowledged = (currentUserId, transactionId, activityAt) => {
 
 const hasUnreadMessageActivity = async (tx, currentUserId, sdk) => {
   const txUuid = tx?.id?.uuid;
-  if (!txUuid) {
+  if (!txUuid || !currentUserId) {
     return false;
   }
 
-  if (isTransactionRead(currentUserId, txUuid)) {
-    return false;
-  }
-
-  const latestOtherPartyMessage = await fetchLatestOtherPartyMessageForTransaction(
-    sdk,
-    tx.id,
-    currentUserId
-  );
-
-  if (!latestOtherPartyMessage) {
-    return false;
-  }
-
-  const messageAt = latestOtherPartyMessage.attributes?.createdAt;
-  if (!messageAt) {
-    return false;
-  }
-
-  const unread = !isActivityAcknowledged(currentUserId, txUuid, messageAt);
-  debugInboxNotifications('hasUnreadMessageActivity other-party message', {
-    txUuid,
-    messageAt,
-    senderId: getMessageSenderUuid(latestOtherPartyMessage),
-    ackAt: getMessageAckAt(currentUserId, txUuid),
-    unread,
-  });
-  return unread;
+  const latestMessage = await fetchLatestMessageForTransaction(sdk, tx.id);
+  return shouldCountTransactionAsUnread(currentUserId, txUuid, latestMessage);
 };
 
 /**
@@ -411,28 +379,20 @@ export const listUnreadInboxTransactions = async (transactions, currentUserId, s
 
   for (const tx of transactions) {
     const txUuid = tx?.id?.uuid;
-    if (!txUuid || isTransactionRead(currentUserId, txUuid)) {
+    if (!txUuid) {
       continue;
     }
 
     const role = getInboxRoleForTransaction(tx, currentUserId);
-    const latestOtherPartyMessage = await fetchLatestOtherPartyMessageForTransaction(
-      sdk,
-      tx.id,
-      currentUserId
-    );
-    const latestOtherPartyMessageAt = latestOtherPartyMessage?.attributes?.createdAt ?? null;
-    const ackAt = getMessageAckAt(currentUserId, txUuid);
-    const isUnread =
-      !!latestOtherPartyMessageAt &&
-      !isActivityAcknowledged(currentUserId, txUuid, latestOtherPartyMessageAt);
+    const latestMessage = await fetchLatestMessageForTransaction(sdk, tx.id);
+    const isUnread = shouldCountTransactionAsUnread(currentUserId, txUuid, latestMessage);
 
     if (isUnread) {
       unread.push({
         id: txUuid,
         role,
-        latestOtherPartyMessageAt,
-        ackAt,
+        latestOtherPartyMessageAt: latestMessage?.attributes?.createdAt ?? null,
+        lastMessageAuthorId: latestMessage ? getMessageSenderUuid(latestMessage) : null,
         isUnread: true,
       });
     }
