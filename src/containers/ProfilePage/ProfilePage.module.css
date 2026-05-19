@@ -2547,3 +2547,55 @@
 .asideProfilePeakUpCoach .asideContentStickerOverrides {
   background: transparent;
 }
+
+/* Coach inquiry modal (reuses ListingPage InquiryForm) */
+.coachInquiryModalContent {
+  flex-grow: 1;
+  display: flex;
+}
+
+.coachInquiryForm {
+  flex-grow: 1;
+  margin: 0;
+  width: 100%;
+
+  @media (--viewportMedium) {
+    display: flex;
+    flex-direction: column;
+    min-height: 320px;
+  }
+}
+
+.coachInquirySubmitButtonWrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(6, 12, 22, 0.96) 24%),
+    rgba(6, 12, 22, 0.98);
+  border-top: 1px solid rgba(25, 223, 242, 0.12);
+
+  @media (--viewportMedium) {
+    position: static;
+    margin-top: auto;
+    padding: 0;
+    background: transparent;
+    border-top: none;
+  }
+}
+
+.peakUpTierRoot :global([class*='InquiryForm_heading']) {
+  color: var(--peakUpTextPrimary, #f4f7fb);
+}
+
+.peakUpTierRoot .coachInquiryForm :global(textarea),
+.peakUpTierRoot .coachInquiryForm :global(label) {
+  color: var(--peakUpTextPrimary, #f4f7fb);
+}
+
+.stickerActionSecondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

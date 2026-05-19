@@ -524,3 +524,136 @@
     margin-top: 16px;
   }
 }
+
+/* PeakUp conversation layout (inquiry messaging) */
+.peakUpConversationRoot {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.peakUpConversationContainer {
+  display: block;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 16px;
+
+  @media (--viewportLarge) {
+    padding: 24px 32px 32px;
+  }
+}
+
+.peakUpConversationShell {
+  width: 100%;
+}
+
+.peakUpConversationGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  align-items: start;
+
+  @media (--viewportLarge) {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 300px);
+    gap: 24px;
+  }
+}
+
+.peakUpChatColumn {
+  min-width: 0;
+}
+
+.peakUpChatCard {
+  display: flex;
+  flex-direction: column;
+  min-height: min(68vh, 640px);
+  max-height: calc(100vh - var(--topbarHeight) - 48px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(25, 223, 242, 0.08) 0%, transparent 42%),
+    linear-gradient(165deg, rgba(12, 28, 48, 0.96) 0%, rgba(6, 14, 28, 0.98) 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 16px 40px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+
+  @media (--viewportMedium) {
+    min-height: min(72vh, 720px);
+    max-height: calc(100vh - var(--topbarHeightDesktop) - 64px);
+  }
+
+  @media (--viewportLarge) {
+    min-height: min(76vh, 760px);
+    padding-bottom: 32px;
+  }
+}
+
+.peakUpChatBody,
+.peakUpChatComposer {
+  padding-left: 16px;
+  padding-right: 16px;
+
+  @media (--viewportLarge) {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+.peakUpChatBody {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.peakUpChatComposer {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(6, 14, 28, 0.72) 0%, rgba(6, 14, 28, 0.98) 24%);
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.peakUpConversationFeed {
+  margin: 0;
+  padding: 0;
+}
+
+.feedContainerPeakUp {
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.peakUpConversationSendMessageForm {
+  margin: 0;
+  position: relative;
+  box-shadow: none;
+}
+
+.peakUpConversationSendMessageForm :global(textarea) {
+  min-height: 88px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--colorWhite);
+}
+
+.peakUpConversationSendMessageForm :global(textarea::placeholder) {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.peakUpConversationSendingNotAllowed {
+  composes: sendingMessageNotAllowed;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.55);
+}

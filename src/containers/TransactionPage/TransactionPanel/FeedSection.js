@@ -16,21 +16,26 @@ const FeedSection = props => {
     fetchMessagesError,
     hasMessages,
     isConversation,
+    hideSectionHeading,
   } = props;
 
   const showFeed = hasMessages || hasTransitions || fetchMessagesError;
 
-  const classes = classNames(rootClassName || css.feedContainer, className);
+  const classes = classNames(rootClassName || css.feedContainer, className, {
+    [css.feedContainerPeakUp]: hideSectionHeading,
+  });
 
   return showFeed ? (
     <div className={classes}>
-      <Heading as="h3" rootClassName={css.sectionHeading}>
-        {isConversation ? (
-          <FormattedMessage id="TransactionPanel.conversationHeading" />
-        ) : (
-          <FormattedMessage id="TransactionPanel.activityHeading" />
-        )}
-      </Heading>
+      {hideSectionHeading ? null : (
+        <Heading as="h3" rootClassName={css.sectionHeading}>
+          {isConversation ? (
+            <FormattedMessage id="TransactionPanel.conversationHeading" />
+          ) : (
+            <FormattedMessage id="TransactionPanel.activityHeading" />
+          )}
+        </Heading>
+      )}
       {fetchMessagesError ? (
         <p className={css.messageError}>
           <FormattedMessage id="TransactionPanel.messageLoadingFailed" />

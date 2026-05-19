@@ -30,6 +30,11 @@ import css from './InquiryForm.module.css';
  * @param {boolean} [props.inProgress] - Whether the inquiry is in progress
  * @param {string} props.listingTitle - The listing title
  * @param {string} props.authorDisplayName - The author display name
+ * @param {string} [props.headingMessageId] - Optional intl id for modal heading
+ * @param {Object} [props.headingValues] - Values for heading message
+ * @param {string} [props.messageLabelMessageId] - Optional intl id for message label
+ * @param {string} [props.messagePlaceholderMessageId] - Optional intl id for placeholder
+ * @param {string} [props.submitButtonMessageId] - Optional intl id for submit button
  * @param {propTypes.error} props.sendInquiryError - The send inquiry error
  * @returns {JSX.Element} inquiry form component
  */
@@ -47,20 +52,28 @@ const InquiryForm = props => (
         listingTitle,
         authorDisplayName,
         sendInquiryError,
+        headingMessageId = 'InquiryForm.heading',
+        headingValues,
+        messageLabelMessageId = 'InquiryForm.messageLabel',
+        messagePlaceholderMessageId = 'InquiryForm.messagePlaceholder',
+        submitButtonMessageId = 'InquiryForm.submitButtonText',
       } = fieldRenderProps;
 
       const intl = useIntl();
+      const coachName = authorDisplayName || listingTitle || '';
+      const intlValues = { authorDisplayName, coachName, listingTitle };
+
       const messageLabel = intl.formatMessage(
         {
-          id: 'InquiryForm.messageLabel',
+          id: messageLabelMessageId,
         },
-        { authorDisplayName }
+        intlValues
       );
       const messagePlaceholder = intl.formatMessage(
         {
-          id: 'InquiryForm.messagePlaceholder',
+          id: messagePlaceholderMessageId,
         },
-        { authorDisplayName }
+        intlValues
       );
       const messageRequiredMessage = intl.formatMessage({
         id: 'InquiryForm.messageRequired',
@@ -75,7 +88,10 @@ const InquiryForm = props => (
         <Form className={classes} onSubmit={handleSubmit} enforcePagePreloadFor="OrderDetailsPage">
           <IconInquiry className={css.icon} />
           <Heading as="h2" rootClassName={css.heading}>
-            <FormattedMessage id="InquiryForm.heading" values={{ listingTitle }} />
+            <FormattedMessage
+              id={headingMessageId}
+              values={headingValues || { listingTitle, coachName }}
+            />
           </Heading>
           <FieldTextInput
             className={css.field}
@@ -89,7 +105,7 @@ const InquiryForm = props => (
           <div className={submitButtonWrapperClassName}>
             <ErrorMessage error={sendInquiryError} />
             <PrimaryButton type="submit" inProgress={submitInProgress} disabled={submitDisabled}>
-              <FormattedMessage id="InquiryForm.submitButtonText" />
+              <FormattedMessage id={submitButtonMessageId} />
             </PrimaryButton>
           </div>
         </Form>

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as log from '../util/log';
-import { storableError } from '../util/errors';
+import { getAuthErrorMessage, storableError } from '../util/errors';
 import { clearCurrentUser, fetchCurrentUser } from './user.duck';
 import { createUserWithIdp } from '../util/api';
 
@@ -182,7 +182,7 @@ const authSlice = createSlice({
       })
       .addCase(loginThunk.rejected, (state, action) => {
         state.loginInProgress = false;
-        state.loginError = action.payload;
+        state.loginError = getAuthErrorMessage(action.payload);
       });
 
     // Logout
@@ -254,7 +254,7 @@ export const authenticationInProgress = (state, nextInProgress = 'any') => {
 // These maintain the same API as the original thunks
 
 export const login = (username, password) => dispatch => {
-  return dispatch(loginThunk({ username, password })).unwrap();
+  return dispatch(loginThunk({ username, password }));
 };
 
 export const logout = () => dispatch => {

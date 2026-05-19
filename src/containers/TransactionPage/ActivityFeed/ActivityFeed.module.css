@@ -5,6 +5,57 @@
   composes: clearfix from global;
 }
 
+.peakUpConversation {
+  padding: 4px 0 8px;
+}
+
+.peakUpConversation .messageContent {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  color: var(--colorGrey900);
+}
+
+.peakUpConversation .ownMessageContent {
+  background: linear-gradient(145deg, rgba(25, 223, 242, 0.95) 0%, rgba(0, 160, 200, 0.92) 100%);
+  color: var(--colorWhite);
+  border: 1px solid rgba(25, 223, 242, 0.4);
+  box-shadow: 0 4px 18px rgba(25, 223, 242, 0.22);
+}
+
+.peakUpConversation .messageDate,
+.peakUpConversation .ownMessageDate {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+}
+
+.peakUpConversation .messageItem {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.peakUpConversation .message {
+  max-width: 70%;
+  align-self: flex-start;
+  float: none;
+}
+
+.peakUpConversation .ownMessage {
+  max-width: 70%;
+  align-self: flex-end;
+  float: none;
+  margin-left: auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.peakUpConversation .ownMessageContentWrapper {
+  max-width: 100%;
+}
+
 .messageItem {
   margin-bottom: 20px;
 

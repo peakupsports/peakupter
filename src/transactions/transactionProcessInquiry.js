@@ -106,6 +106,5 @@ export const isRefunded = transition => {
   return false;
 };
 
-// NOTE: this functions is added just for the sake of consistency
-// We don't know if inquiry is on-going or complete
-export const statesNeedingProviderAttention = [];
+// Provider should see inbox/topbar notification while free-inquiry is open.
+export const statesNeedingProviderAttention = [states.FREE_INQUIRY];

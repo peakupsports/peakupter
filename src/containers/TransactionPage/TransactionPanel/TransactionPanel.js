@@ -7,6 +7,7 @@ import { userDisplayNameAsString } from '../../../util/data';
 import { isMobileSafari } from '../../../util/userAgent';
 import { createSlug } from '../../../util/urlHelpers';
 import { displayPrice } from '../../../util/configHelpers';
+import { isPeakUpConversationView } from '../../../util/peakUpConversationView';
 
 import { AvatarLarge, NamedLink, UserDisplayName } from '../../../components';
 
@@ -22,6 +23,9 @@ import BookingLocationMaybe from './BookingLocationMaybe';
 import FeedSection from './FeedSection';
 import DiminishedActionButtonMaybe from './DiminishedActionButtonMaybe';
 import PanelHeading from './PanelHeading';
+import ConversationHeader from '../ConversationHeader/ConversationHeader';
+import conversationHeaderCss from '../ConversationHeader/ConversationHeader.module.css';
+import ConversationParticipantCard from '../ConversationParticipantCard/ConversationParticipantCard';
 
 import css from './TransactionPanel.module.css';
 
@@ -164,6 +168,7 @@ export class TransactionPanelComponent extends Component {
       rootClassName,
       className,
       currentUser,
+      transaction,
       transactionRole,
       listing,
       customer,
@@ -186,12 +191,17 @@ export class TransactionPanelComponent extends Component {
       activityFeed,
       actionButtons,
       isInquiryProcess,
+      isConversationView: isConversationViewProp = false,
       orderBreakdown,
       orderPanel,
       config,
       hasViewingRights,
       transactionFieldsComponent,
     } = this.props;
+
+    const isConversationView =
+      isConversationViewProp ||
+      (transaction ? isPeakUpConversationView(transaction) : false);
 
     const hasTransitions = transitions.length > 0;
     const isCustomer = transactionRole === 'customer';
@@ -237,50 +247,128 @@ export class TransactionPanelComponent extends Component {
 
     // Only show order panel for users who have listing viewing rights, otherwise
     // show the detail card heading.
-    const showOrderPanel = stateData.showOrderPanel && hasViewingRights;
-    const showDetailCardHeadings = stateData.showDetailCardHeadings || !hasViewingRights;
+    const showOrderPanel =
+      stateData.showOrderPanel && hasViewingRights && !isConversationView;
+    const showDetailCardHeadings =
+      (stateData.showDetailCardHeadings || !hasViewingRights) && !isConversationView;
 
     const deliveryMethod = protectedData?.deliveryMethod || 'none';
     const priceVariantName = protectedData?.priceVariantName;
 
-    const classes = classNames(rootClassName || css.root, className);
+    const otherUser = isCustomer ? provider : customer;
+
+    const classes = classNames(rootClassName || css.root, className, {
+      [css.peakUpConversationRoot]: isConversationView,
+    });
+    const containerClasses = classNames(css.container, {
+      [css.peakUpConversationContainer]: isConversationView,
+    });
+    const txInfoClasses = classNames(css.txInfo);
+
+    const conversationFeed = (
+      <FeedSection
+        rootClassName={css.peakUpConversationFeed}
+        hasMessages={messages.length > 0}
+        hasTransitions={hasTransitions}
+        fetchMessagesError={fetchMessagesError}
+        activityFeed={activityFeed}
+        isConversation
+        hideSectionHeading
+      />
+    );
+
+    const conversationSendForm = showSendMessageForm ? (
+      <SendMessageForm
+        formId={this.sendMessageFormName}
+        rootClassName={css.peakUpConversationSendMessageForm}
+        messagePlaceholder={intl.formatMessage(
+          { id: 'TransactionPanel.sendMessagePlaceholder' },
+          { name: otherUserDisplayNameString }
+        )}
+        inProgress={sendMessageInProgress}
+        sendMessageError={sendMessageError}
+        onFocus={this.onSendMessageFormFocus}
+        onBlur={this.onSendMessageFormBlur}
+        onSubmit={this.onMessageSubmit}
+      />
+    ) : (
+      <div className={css.peakUpConversationSendingNotAllowed}>
+        <FormattedMessage id="TransactionPanel.sendingMessageNotAllowed" />
+      </div>
+    );
 
     return (
       <div className={classes}>
-        <div className={css.container}>
-          <div className={css.txInfo}>
-            <DetailCardImage
-              rootClassName={css.imageWrapperMobile}
-              avatarWrapperClassName={css.avatarWrapperMobile}
-              listingTitle={listingTitle}
-              image={firstImage}
-              provider={provider}
-              isCustomer={isCustomer}
-              showListingImage={showListingImage}
-              listingImageConfig={config.layout.listingImage}
-            />
-            {isProvider ? (
+        <div className={containerClasses}>
+          {isConversationView ? (
+            <div className={css.peakUpConversationShell}>
+              <div className={css.peakUpConversationGrid}>
+                <div className={css.peakUpChatColumn}>
+                  <article className={css.peakUpChatCard}>
+                    <ConversationHeader
+                      rootClassName={classNames(
+                        conversationHeaderCss.root,
+                        conversationHeaderCss.peakUpChatEmbedded
+                      )}
+                      otherUser={otherUser}
+                      isViewingCoach={isCustomer}
+                      listing={listing}
+                      provider={provider}
+                    />
+                    <div className={css.peakUpChatBody}>{conversationFeed}</div>
+                    <div className={css.peakUpChatComposer}>{conversationSendForm}</div>
+                  </article>
+                </div>
+                <ConversationParticipantCard
+                  otherUser={otherUser}
+                  isViewingCoach={isCustomer}
+                  listing={listing}
+                  provider={provider}
+                />
+              </div>
+              {stateData.showActionButtons ? (
+                <>
+                  <div className={css.mobileActionButtonSpacer} />
+                  <div className={css.mobileActionButtons}>{actionButtons('mobile')}</div>
+                </>
+              ) : null}
+            </div>
+          ) : (
+          <>
+          <div className={txInfoClasses}>
+              <DetailCardImage
+                rootClassName={css.imageWrapperMobile}
+                avatarWrapperClassName={css.avatarWrapperMobile}
+                listingTitle={listingTitle}
+                image={firstImage}
+                provider={provider}
+                isCustomer={isCustomer}
+                showListingImage={showListingImage}
+                listingImageConfig={config.layout.listingImage}
+              />
+            ) : null}
+            {!isConversationView && isProvider ? (
               <div className={css.avatarWrapperProviderDesktop}>
                 <AvatarLarge user={customer} className={css.avatarDesktop} />
               </div>
             ) : null}
 
             <PanelHeading
-              processName={stateData.processName}
-              processState={stateData.processState}
-              showExtraInfo={allowShowingExtraInfo(stateData.showExtraInfo, transactionPartyInfo)}
-              showPriceOnMobile={showPrice}
-              price={listing?.attributes?.price}
-              intl={intl}
-              deliveryMethod={deliveryMethod}
-              isPendingPayment={!!stateData.isPendingPayment}
-              transactionRole={transactionRole}
-              providerName={authorDisplayName}
-              customerName={customerDisplayName}
-              listingId={listing?.id?.uuid}
-              listingTitle={listingTitle}
-              listingDeleted={listingDeleted}
-            />
+                processName={stateData.processName}
+                processState={stateData.processState}
+                showExtraInfo={allowShowingExtraInfo(stateData.showExtraInfo, transactionPartyInfo)}
+                showPriceOnMobile={showPrice}
+                price={listing?.attributes?.price}
+                intl={intl}
+                deliveryMethod={deliveryMethod}
+                isPendingPayment={!!stateData.isPendingPayment}
+                transactionRole={transactionRole}
+                providerName={authorDisplayName}
+                customerName={customerDisplayName}
+                listingId={listing?.id?.uuid}
+                listingTitle={listingTitle}
+                listingDeleted={listingDeleted}
+              />
 
             {requestQuote}
             {offer}
@@ -331,17 +419,24 @@ export class TransactionPanelComponent extends Component {
               </div>
             ) : null}
             <FeedSection
-              rootClassName={css.feedContainer}
+              rootClassName={
+                isConversationView ? css.peakUpConversationFeed : css.feedContainer
+              }
               hasMessages={messages.length > 0}
               hasTransitions={hasTransitions}
               fetchMessagesError={fetchMessagesError}
               activityFeed={activityFeed}
-              isConversation={isInquiryProcess}
+              isConversation={isInquiryProcess || isConversationView}
+              hideSectionHeading={isConversationView}
             />
             {showSendMessageForm ? (
               <SendMessageForm
                 formId={this.sendMessageFormName}
-                rootClassName={css.sendMessageForm}
+                rootClassName={
+                  isConversationView
+                    ? css.peakUpConversationSendMessageForm
+                    : css.sendMessageForm
+                }
                 messagePlaceholder={intl.formatMessage(
                   { id: 'TransactionPanel.sendMessagePlaceholder' },
                   { name: otherUserDisplayNameString }
@@ -421,6 +516,8 @@ export class TransactionPanelComponent extends Component {
               />
             </div>
           </div>
+          </>
+          )}
         </div>
       </div>
     );

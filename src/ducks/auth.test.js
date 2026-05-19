@@ -1,5 +1,5 @@
 import * as log from '../util/log';
-import { storableError } from '../util/errors';
+import { getAuthErrorMessage, storableError } from '../util/errors';
 import { createCurrentUser } from '../util/testData';
 import configureStore from '../store';
 import { clearCurrentUser } from './user.duck';
@@ -62,11 +62,11 @@ describe('auth duck', () => {
       const error = new Error('test error');
       state = reducer(state, {
         type: 'auth/login/rejected',
-        payload: error,
+        payload: storableError(error),
         meta: { arg: { username: 'test', password: 'test' } },
       });
       expect(state.isAuthenticated).toEqual(false);
-      expect(state.loginError).toEqual(error);
+      expect(state.loginError).toEqual(getAuthErrorMessage(storableError(error)));
       expect(state.loginInProgress).toEqual(false);
       expect(authenticationInProgress({ auth: state })).toEqual(false);
     });
@@ -259,7 +259,7 @@ describe('auth duck', () => {
       const username = 'x.x@example.com';
       const password = 'pass';
 
-      return login(username, password)(dispatch, getState, sdk).catch(() => {
+      return login(username, password)(dispatch, getState, sdk).then(result => {
         expect(sdk.login.mock.calls).toEqual([[{ username, password }]]);
 
         expect(actions[0].type).toBe('auth/login/pending');
@@ -268,6 +268,9 @@ describe('auth duck', () => {
         expect(actions[1].type).toBe('auth/login/rejected');
         expect(actions[1].payload).toEqual(storableError(error));
         expect(actions[1].meta.arg).toEqual({ username, password });
+
+        expect(result.type).toBe('auth/login/rejected');
+        expect(getState().auth.loginError).toEqual(getAuthErrorMessage(storableError(error)));
       });
     });
     it('should reject if another login is in progress', () => {
@@ -288,16 +291,12 @@ describe('auth duck', () => {
       const username = 'x.x@example.com';
       const password = 'pass';
 
-      return login(username, password)(dispatch, getState, sdk).then(
-        () => {
-          throw new Error('should not succeed');
-        },
-        e => {
-          expect(e.message).toEqual('Aborted due to condition callback returning false.');
-          expect(sdk.login.mock.calls.length).toEqual(0);
-          expect(actions.length).toEqual(0);
-        }
-      );
+      return login(username, password)(dispatch, getState, sdk).then(result => {
+        expect(result.type).toBe('auth/login/rejected');
+        expect(result.meta?.condition).toBe(true);
+        expect(sdk.login.mock.calls.length).toEqual(0);
+        expect(actions.length).toEqual(0);
+      });
     });
     it('should reject if logout is in progress', () => {
       const initialState = reducer(undefined, { type: '@@INIT' });
@@ -314,16 +313,12 @@ describe('auth duck', () => {
       const username = 'x.x@example.com';
       const password = 'pass';
 
-      return login(username, password)(dispatch, getState, sdk).then(
-        () => {
-          throw new Error('should not succeed');
-        },
-        e => {
-          expect(e.message).toEqual('Aborted due to condition callback returning false.');
-          expect(sdk.login.mock.calls.length).toEqual(0);
-          expect(actions.length).toEqual(0);
-        }
-      );
+      return login(username, password)(dispatch, getState, sdk).then(result => {
+        expect(result.type).toBe('auth/login/rejected');
+        expect(result.meta?.condition).toBe(true);
+        expect(sdk.login.mock.calls.length).toEqual(0);
+        expect(actions.length).toEqual(0);
+      });
     });
   });
 

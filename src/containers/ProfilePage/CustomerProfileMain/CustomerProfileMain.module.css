@@ -24,7 +24,7 @@
   width: 100%;
 }
 
-/* Paired cards: true 2-column grid on tablet+ */
+/* Paired cards: stacked mobile, 2-column from tablet+ */
 .customerDashboardTwoColRow {
   display: grid;
   grid-template-columns: 1fr;
@@ -37,6 +37,79 @@
   min-width: 0;
   min-height: var(--customerRowHeight);
   height: 100%;
+}
+
+/* Favorite sports | Languages — asymmetric, compact row (customer only) */
+.customerSportsLanguagesRow > * {
+  min-height: 88px;
+}
+
+.customerSportsLanguagesRow .card {
+  padding: 8px 10px 10px;
+}
+
+.customerSportsLanguagesRow .cardHeader {
+  margin-bottom: 4px;
+}
+
+.customerSportsLanguagesRow .cardBody {
+  justify-content: center;
+}
+
+.customerSportsLanguagesRow .cardSports .cardBody {
+  align-items: stretch;
+}
+
+.customerSportsLanguagesRow .sportGrid {
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 8px;
+  width: 100%;
+  align-content: center;
+}
+
+.customerSportsLanguagesRow .sportMini {
+  min-height: 56px;
+  padding: 7px 5px;
+  gap: 5px;
+  border-radius: 10px;
+  background: rgba(25, 223, 242, 0.06);
+  border: 1px solid rgba(25, 223, 242, 0.14);
+  box-shadow: 0 0 10px rgba(25, 223, 242, 0.04);
+}
+
+.customerSportsLanguagesRow .sportMiniIcon {
+  font-size: 20px;
+}
+
+.customerSportsLanguagesRow .sportMiniLabel {
+  font-size: 9px;
+  letter-spacing: 0.03em;
+}
+
+.customerSportsLanguagesRow .cardLanguages .cardBodyCentered {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.customerSportsLanguagesRow .langRow {
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.customerSportsLanguagesRow .langChip {
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(235, 252, 255, 0.92);
+  background: rgba(8, 18, 32, 0.55);
+  border: 1px solid rgba(25, 223, 242, 0.22);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 0 14px rgba(25, 223, 242, 0.08);
 }
 
 .card {
@@ -350,6 +423,16 @@
     width: 100%;
   }
 
+  .customerSportsLanguagesRow {
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .customerSportsLanguagesRow > * {
+    min-height: 92px;
+  }
+
   .dashboardStack {
     gap: 12px;
     width: 100%;
@@ -363,6 +446,25 @@
 
   .customerDashboardTwoColRow {
     gap: 16px;
+  }
+
+  .customerSportsLanguagesRow {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.9fr);
+    gap: 14px;
+  }
+
+  .customerSportsLanguagesRow > * {
+    min-height: 96px;
+  }
+
+  .customerSportsLanguagesRow .sportGrid {
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 9px;
+  }
+
+  .customerSportsLanguagesRow .sportMini {
+    min-height: 58px;
+    padding: 8px 6px;
   }
 
   .dashboardStack {

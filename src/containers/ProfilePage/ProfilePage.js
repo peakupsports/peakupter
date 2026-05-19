@@ -24,9 +24,11 @@ import {
 } from '../../util/fieldHelpers';
 import {
   getCurrentUserTypeRoles,
+  hasPermissionToInitiateTransactions,
   hasPermissionToViewData,
   isUserAuthorized,
 } from '../../util/userHelpers';
+import { useRouteConfiguration } from '../../context/routeConfigurationContext';
 import { richText } from '../../util/richText';
 import { ensureUser } from '../../util/data';
 import { createSlug } from '../../util/urlHelpers';
@@ -81,7 +83,14 @@ import layoutSideNavCss from '../../components/LayoutComposer/LayoutSideNavigati
 import PeakUpProfileTrustTopbar from './PeakUpProfileTrustTopbar';
 import CustomerProfileLayout from './CustomerProfileLayout/CustomerProfileLayout';
 import PeakupCoachBadgesHierarchyModal from '../../components/PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal';
+import InquiryForm from '../ListingPage/InquiryForm/InquiryForm';
+import { sendInquiry, setInitialValues as setListingPageInitialValues } from '../ListingPage/ListingPage.duck';
 import peakUpFounderLogo from '../../assets/peakup-founder-logo.png';
+import {
+  handleProfileCoachContact,
+  handleProfileCoachSubmitInquiry,
+  PROFILE_COACH_INQUIRY_CONTACT_BUTTON_ID,
+} from './profilePageCoachInquiry';
 import css from './ProfilePage.module.css';
 
 /** Pill tier figurina — riferimenti statici per CSS Modules (no `css[\`badge_${id}\`]`). */
@@ -333,17 +342,54 @@ const StickerVerifiedShieldIcon = ({ rootClassName }) => (
 
 export const AsideContent = props => {
   const intl = useIntl();
+  const routes = useRouteConfiguration();
   const {
     user,
     displayName,
     showLinkToProfileSettingsPage,
     listings = [],
     reviews = [],
+    currentUser,
+    history,
+    location,
+    onSendInquiry,
+    sendInquiryInProgress,
+    sendInquiryError,
+    inquiryModalOpenForListingId,
+    onSetListingPageInitialValues,
+    onManageDisableScrolling,
   } = props;
   const [isBadgeHierarchyOpen, setBadgeHierarchyOpen] = useState(false);
+  const [isInquiryModalOpen, setInquiryModalOpen] = useState(false);
 
   const profilePd = user?.attributes?.profile?.publicData || {};
   const peakUpCoachAside = shouldShowPeakUpProfileSticker(listings, profilePd);
+  const representativeListingForInquiry = peakUpCoachAside
+    ? pickRepresentativeListing(listings)
+    : null;
+  const representativeListingId = representativeListingForInquiry?.id?.uuid;
+
+  useEffect(() => {
+    if (
+      !peakUpCoachAside ||
+      !representativeListingId ||
+      !inquiryModalOpenForListingId ||
+      inquiryModalOpenForListingId !== representativeListingId ||
+      !currentUser ||
+      !isUserAuthorized(currentUser) ||
+      !hasPermissionToInitiateTransactions(currentUser)
+    ) {
+      return;
+    }
+    setInquiryModalOpen(true);
+    onSetListingPageInitialValues({ inquiryModalOpenForListingId: null });
+  }, [
+    peakUpCoachAside,
+    representativeListingId,
+    inquiryModalOpenForListingId,
+    currentUser,
+    onSetListingPageInitialValues,
+  ]);
 
   if (!peakUpCoachAside) {
     return (
@@ -368,7 +414,7 @@ export const AsideContent = props => {
     );
   }
 
-  const listing = pickRepresentativeListing(listings);
+  const listing = representativeListingForInquiry;
   const listingPd = listing?.attributes?.publicData || {};
   const avatarUser = user ? ensureUser(user) : null;
   const profileImage = avatarUser?.profileImage;
@@ -422,6 +468,25 @@ export const AsideContent = props => {
   const listingTitle = listing?.attributes?.title || displayName || 'listing';
   const listingSlug = listing ? createSlug(String(listingTitle)) : '';
   const listingId = listing?.id?.uuid;
+  const coachNameForInquiry = displayName?.trim() || '';
+
+  const onContactCoach = handleProfileCoachContact({
+    currentUser,
+    history,
+    location,
+    routes,
+    listingId,
+    setInquiryModalOpen,
+    setListingPageInitialValues: onSetListingPageInitialValues,
+  });
+
+  const onSubmitCoachInquiry = handleProfileCoachSubmitInquiry({
+    listing,
+    onSendInquiry,
+    setInquiryModalOpen,
+    history,
+    routes,
+  });
 
   const flagDisplay = countryEmoji || '🌍';
 
@@ -597,19 +662,22 @@ export const AsideContent = props => {
 
       <div className={css.stickerActions}>
         <div className={css.stickerActionsCtas}>
-          <a
-            href="#profile-coach-listings"
+          <button
+            type="button"
+            id={PROFILE_COACH_INQUIRY_CONTACT_BUTTON_ID}
             className={classNames(css.secondaryBtn, css.stickerActionSecondary)}
+            onClick={onContactCoach}
+            disabled={!listingId}
           >
-            {displayName?.trim() ? (
+            {coachNameForInquiry ? (
               <FormattedMessage
                 id="ProfilePage.stickerContactCoachByName"
-                values={{ name: displayName.trim() }}
+                values={{ name: coachNameForInquiry }}
               />
             ) : (
               <FormattedMessage id="ProfilePage.stickerContactCoachGeneric" />
             )}
-          </a>
+          </button>
 
           {listingId ? (
             <NamedLink
@@ -632,6 +700,32 @@ export const AsideContent = props => {
           </NamedLink>
         ) : null}
       </div>
+
+      <Modal
+        id="ProfilePage.coachInquiry"
+        contentClassName={css.coachInquiryModalContent}
+        isOpen={isInquiryModalOpen && Boolean(listing)}
+        onClose={() => setInquiryModalOpen(false)}
+        usePortal
+        onManageDisableScrolling={onManageDisableScrolling}
+        focusElementId={PROFILE_COACH_INQUIRY_CONTACT_BUTTON_ID}
+      >
+        <InquiryForm
+          className={css.coachInquiryForm}
+          submitButtonWrapperClassName={css.coachInquirySubmitButtonWrapper}
+          formId="ProfilePage.coachInquiry"
+          listingTitle={coachNameForInquiry || listingTitle}
+          authorDisplayName={coachNameForInquiry || listingTitle}
+          headingMessageId="ProfilePage.coachInquiryHeading"
+          headingValues={{ coachName: coachNameForInquiry }}
+          messageLabelMessageId="ProfilePage.coachInquiryMessageLabel"
+          messagePlaceholderMessageId="ProfilePage.coachInquiryPlaceholder"
+          submitButtonMessageId="ProfilePage.coachInquirySubmit"
+          sendInquiryError={sendInquiryError}
+          onSubmit={onSubmitCoachInquiry}
+          inProgress={sendInquiryInProgress}
+        />
+      </Modal>
 
       <PeakupCoachBadgesHierarchyModal
         id={badgeHierarchyModalId}
@@ -1366,6 +1460,14 @@ export const ProfilePageComponent = props => {
     user,
     listings = [],
     reviews = [],
+    history,
+    location,
+    sendInquiryInProgress,
+    sendInquiryError,
+    inquiryModalOpenForListingId,
+    onSendInquiry,
+    onSetListingPageInitialValues,
+    onManageDisableScrolling,
     ...rest
   } = props;
 
@@ -1528,6 +1630,15 @@ export const ProfilePageComponent = props => {
           displayName={displayName}
           listings={listings}
           reviews={reviews}
+          currentUser={currentUser}
+          history={history}
+          location={location}
+          onSendInquiry={onSendInquiry}
+          sendInquiryInProgress={sendInquiryInProgress}
+          sendInquiryError={sendInquiryError}
+          inquiryModalOpenForListingId={inquiryModalOpenForListingId}
+          onSetListingPageInitialValues={onSetListingPageInitialValues}
+          onManageDisableScrolling={onManageDisableScrolling}
         />
       }
       footer={<FooterContainer />}
@@ -1591,6 +1702,9 @@ const mapStateToProps = state => {
   const useCurrentUser =
     isCurrentUser && !(isUserAuthorized(currentUser) && hasPermissionToViewData(currentUser));
 
+  const { sendInquiryInProgress, sendInquiryError, inquiryModalOpenForListingId } =
+    state.ListingPage || {};
+
   return {
     scrollingDisabled: isScrollingDisabled(state),
     currentUser,
@@ -1601,12 +1715,17 @@ const mapStateToProps = state => {
     listings: getMarketplaceEntities(state, userListingRefs),
     reviews,
     queryReviewsError,
+    sendInquiryInProgress: sendInquiryInProgress || false,
+    sendInquiryError: sendInquiryError || null,
+    inquiryModalOpenForListingId: inquiryModalOpenForListingId || null,
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   onManageDisableScrolling: (componentId, disableScrolling) =>
     dispatch(manageDisableScrolling(componentId, disableScrolling)),
+  onSendInquiry: (listing, message) => dispatch(sendInquiry(listing, message)),
+  onSetListingPageInitialValues: values => dispatch(setListingPageInitialValues(values)),
 });
 
 const ProfilePage = compose(connect(mapStateToProps, mapDispatchToProps))(ProfilePageComponent);

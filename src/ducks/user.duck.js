@@ -9,6 +9,7 @@ import {
   getStatesNeedingProviderAttention,
   getStatesNeedingCustomerAttention,
 } from '../transactions/transaction';
+import { countTransactionNotifications } from '../util/transactionNotificationCount';
 
 import { authInfo } from './auth.duck';
 import { updateStripeConnectAccount } from './stripeConnectAccount.duck';
@@ -115,30 +116,47 @@ export const fetchCurrentUserHasOrders = () => (dispatch, getState, sdk) => {
 // Notificaiton page size is max (100 items on page)
 const NOTIFICATION_PAGE_SIZE = 100;
 
-const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, rejectWithValue }) => {
+const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, rejectWithValue }) => {
   const statesNeedingProviderAttention = getStatesNeedingProviderAttention() || [];
   const statesNeedingCustomerAttention = getStatesNeedingCustomerAttention() || [];
+  const currentUserId = getState().user?.currentUser?.id?.uuid;
 
   const paramsForSales = {
     only: 'sale',
     states: statesNeedingProviderAttention.map(state => `state/${state}`).join(','),
     page: 1,
     perPage: NOTIFICATION_PAGE_SIZE,
+    include: ['customer', 'provider'],
+    'fields.transaction': ['processName', 'lastTransition', 'transitions'],
   };
   const paramsForOrders = {
     only: 'order',
     states: statesNeedingCustomerAttention.map(state => `state/${state}`).join(','),
     page: 1,
     perPage: NOTIFICATION_PAGE_SIZE,
+    include: ['customer', 'provider'],
+    'fields.transaction': ['processName', 'lastTransition', 'transitions'],
   };
 
-  return Promise.all([
-    sdk.transactions.query(paramsForSales),
-    sdk.transactions.query(paramsForOrders),
-  ])
-    .then(([sales, orders]) => {
-      const saleNotificationsCount = sales.data.data.length;
-      const orderNotificationsCount = orders.data.data.length;
+  const salesQuery =
+    statesNeedingProviderAttention.length > 0
+      ? sdk.transactions.query(paramsForSales)
+      : Promise.resolve({ data: { data: [] } });
+  const ordersQuery =
+    statesNeedingCustomerAttention.length > 0
+      ? sdk.transactions.query(paramsForOrders)
+      : Promise.resolve({ data: { data: [] } });
+
+  return Promise.all([salesQuery, ordersQuery])
+    .then(async ([sales, orders]) => {
+      const saleTransactions = denormalisedResponseEntities(sales);
+      const orderTransactions = denormalisedResponseEntities(orders);
+
+      const [saleNotificationsCount, orderNotificationsCount] = await Promise.all([
+        countTransactionNotifications(saleTransactions, currentUserId, sdk),
+        countTransactionNotifications(orderTransactions, currentUserId, sdk),
+      ]);
+
       return { saleNotificationsCount, orderNotificationsCount };
     })
     .catch(e => rejectWithValue(storableError(e)));

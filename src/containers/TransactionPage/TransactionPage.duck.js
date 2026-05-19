@@ -27,6 +27,7 @@ import {
 
 import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 import { fetchCurrentUserNotifications } from '../../ducks/user.duck';
+import { acknowledgeTransactionMessages } from '../../util/transactionNotificationCount';
 
 const { UUID } = sdkTypes;
 
@@ -482,7 +483,10 @@ const sendMessagePayloadCreator = (
       // We fetch the first page again to add sent message to the page data
       // and update possible incoming messages too.
       return dispatch(fetchMessagesThunk({ txId, page: 1, config }))
-        .then(() => messageId)
+        .then(() => {
+          dispatch(fetchCurrentUserNotifications());
+          return messageId;
+        })
         .catch(() => messageId);
     })
     .catch(e => {
@@ -862,5 +866,12 @@ export const loadData = (params, search, config) => (dispatch, getState) => {
     dispatch(fetchTransactionThunk({ id: txId, txRole, config })),
     dispatch(fetchMessagesThunk({ txId, page: 1, config })),
     dispatch(fetchTransitionsThunk({ id: txId })),
-  ]);
+  ]).then(() => {
+    const state = getState();
+    const currentUserId = state.user?.currentUser?.id?.uuid;
+    const messages = state.TransactionPage?.messages;
+
+    acknowledgeTransactionMessages(currentUserId, txId.uuid, messages);
+    return dispatch(fetchCurrentUserNotifications());
+  });
 };

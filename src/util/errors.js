@@ -364,6 +364,33 @@ export const isStripeDeletionFailedNonZeroBalance = error => {
   );
 };
 
+/**
+ * Human-readable message for auth/login errors (never return raw error objects to UI).
+ *
+ * @param {*} error
+ * @param {string} [fallback]
+ * @returns {string}
+ */
+export const getAuthErrorMessage = (
+  error,
+  fallback = 'Login failed. Please check your email and password.'
+) => {
+  if (!error) {
+    return null;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return (
+    error?.message ||
+    error?.apiErrors?.[0]?.detail ||
+    error?.apiErrors?.[0]?.title ||
+    error?.data?.errors?.[0]?.detail ||
+    error?.statusText ||
+    fallback
+  );
+};
+
 export const storableError = err => {
   const error = err || {};
   const { name, message, status, statusText } = error;

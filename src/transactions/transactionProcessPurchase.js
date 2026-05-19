@@ -276,4 +276,6 @@ export const isRefunded = transition => {
   return txRefundedTransitions.includes(transition);
 };
 
-export const statesNeedingProviderAttention = [states.PURCHASED];
+export const statesNeedingProviderAttention = [states.INQUIRY, states.PURCHASED];
+
+export const statesNeedingCustomerAttention = [states.INQUIRY];

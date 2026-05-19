@@ -3,6 +3,7 @@ import { storableError } from '../../util/errors';
 import { parse, getValidInboxSort } from '../../util/urlHelpers';
 import { getSupportedProcessesInfo } from '../../transactions/transaction';
 import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
+import { fetchCurrentUserNotifications } from '../../ducks/user.duck';
 
 const INBOX_PAGE_SIZE = 10;
 
@@ -108,5 +109,8 @@ export const loadDataThunk = createAsyncThunk('InboxPage/loadData', loadDataPayl
 
 // Backward compatible wrapper for the thunk
 export const loadData = (params, search) => (dispatch, getState, sdk) => {
-  return dispatch(loadDataThunk({ params, search }));
+  return dispatch(loadDataThunk({ params, search })).then(response => {
+    dispatch(fetchCurrentUserNotifications());
+    return response;
+  });
 };

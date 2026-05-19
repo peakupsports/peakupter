@@ -509,6 +509,7 @@ export const isRefunded = transition => {
 };
 
 export const statesNeedingProviderAttention = [
+  states.INQUIRY,
   states.QUOTE_REQUESTED,
   states.CUSTOMER_OFFER_PENDING,
   states.OFFER_ACCEPTED,

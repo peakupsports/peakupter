@@ -127,7 +127,12 @@ const CustomerProfileMain = props => {
           )}
         </DashboardCard>
 
-        <div className={css.customerDashboardTwoColRow}>
+        <div
+          className={classNames(
+            css.customerDashboardTwoColRow,
+            css.customerSportsLanguagesRow
+          )}
+        >
           <DashboardCard
             titleId="ProfilePage.memberFavoriteSportsHeading"
             icon={CARD_ICONS.sports}

@@ -10,6 +10,7 @@ import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { ensureCurrentUser, getFeaturedListingsProps } from '../../util/data';
 import {
+  getAuthErrorMessage,
   isSignupEmailTakenError,
   isTooManyEmailVerificationRequestsError,
 } from '../../util/errors';
@@ -97,11 +98,13 @@ const getAuthenticationTabs = ({ isLogin, signupRouteName, userTypeMaybe, fromSt
 const AuthenticationFormErrorMessage = props => {
   const { isLogin, idpAuthError, loginError, signupError } = props;
 
+  if (isLogin && loginError) {
+    return <div className={css.error}>{loginError}</div>;
+  }
+
   const translationId =
     isLogin && !!idpAuthError
       ? 'AuthenticationPage.idpAuthFailed'
-      : isLogin && !!loginError
-      ? 'AuthenticationPage.loginFailed'
       : !!signupError && isSignupEmailTakenError(signupError)
       ? 'AuthenticationPage.signupFailedEmailAlreadyTaken'
       : !!signupError
@@ -197,7 +200,10 @@ export const AuthenticationPageComponent = props => {
   const [tosModalOpen, setTosModalOpen] = useState(false);
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const [authInfo, setAuthInfo] = useState(getAuthInfoFromCookies());
-  const [authError, setAuthError] = useState(getAuthErrorFromCookies());
+  const cookieAuthError = getAuthErrorFromCookies();
+  const [authError, setAuthError] = useState(
+    cookieAuthError ? getAuthErrorMessage(cookieAuthError) : null
+  );
   const [mounted, setMounted] = useState(false);
 
   const config = useConfiguration();

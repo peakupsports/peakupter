@@ -292,7 +292,9 @@ export const ActivityFeed = props => {
     onOpenReviewModal,
     onShowOlderMessages,
   } = props;
-  const classes = classNames(rootClassName || css.root, className);
+  const classes = classNames(rootClassName || css.root, className, {
+    [css.peakUpConversation]: props.isPeakUpConversation,
+  });
   const processName = stateData.processName;
 
   // If stateData doesn't have processName, full tx data has not been fetched.

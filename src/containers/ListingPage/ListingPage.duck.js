@@ -28,7 +28,11 @@ import {
   isNegotiationProcessAlias,
   OFFER,
 } from '../../transactions/transaction';
-import { fetchCurrentUser, setCurrentUserHasOrders } from '../../ducks/user.duck';
+import {
+  fetchCurrentUser,
+  fetchCurrentUserNotifications,
+  setCurrentUserHasOrders,
+} from '../../ducks/user.duck';
 
 const { UUID } = sdkTypes;
 const MINUTE_IN_MS = 1000 * 60;
@@ -256,6 +260,7 @@ const sendInquiryPayloadCreator = (
       // Send the message to the created transaction
       return sdk.messages.send({ transactionId, content: message }).then(() => {
         dispatch(setCurrentUserHasOrders());
+        dispatch(fetchCurrentUserNotifications());
         return transactionId;
       });
     })

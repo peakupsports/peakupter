@@ -34,6 +34,8 @@ import {
 } from '../../transactions/transaction';
 
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
+import { userDisplayNameAsString } from '../../util/data';
+import { isPeakUpConversationView } from '../../util/peakUpConversationView';
 import { isScrollingDisabled, manageDisableScrolling } from '../../ducks/ui.duck';
 import { initializeCardPaymentData } from '../../ducks/stripe.duck.js';
 
@@ -535,7 +537,15 @@ export const TransactionPageComponent = props => {
     return <NamedRedirect name="InboxPage" params={{ tab }} />;
   }
 
+  const isConversationView = Boolean(
+    isDataAvailable && transaction && isPeakUpConversationView(transaction)
+  );
+
   const detailsClassName = classNames(css.tabContent, css.tabContentVisible);
+
+  const pageRootClassName = classNames(css.root, {
+    [css.peakUpConversationPage]: isConversationView,
+  });
 
   const fetchErrorMessage = isCustomerRole
     ? 'TransactionPage.fetchOrderFailed'
@@ -672,6 +682,39 @@ export const TransactionPageComponent = props => {
   });
 
   const actionButtonContainer = isMobile ? 'mobile' : 'desktop';
+
+  const counterpartyUser = isCustomerRole ? provider : customer;
+  const counterpartyName = userDisplayNameAsString(counterpartyUser, '');
+
+  const pageHeading = isDataAvailable
+    ? isConversationView
+      ? intl.formatMessage(
+          { id: 'TransactionPage.peakUpConversation.title' },
+          { otherUserName: counterpartyName }
+        )
+      : intl.formatMessage(
+          {
+            id: `TransactionPage.${processName}.${transactionRole}.${stateData.processState}.title`,
+          },
+          {
+            customerName: customer?.attributes.profile.displayName,
+            providerName: provider?.attributes.profile.displayName,
+          }
+        )
+    : null;
+
+  const pageTitle = isDataAvailable
+    ? isConversationView
+      ? intl.formatMessage(
+          { id: 'TransactionPage.peakUpConversation.schemaTitle' },
+          { otherUserName: counterpartyName }
+        )
+      : intl.formatMessage(
+          { id: 'TransactionPage.schemaTitle' },
+          { title: listingTitle, h1: pageHeading }
+        )
+    : intl.formatMessage({ id: 'TransactionPage.schemaTitle' }, { title: '', h1: '' });
+
   // TransactionPanel is presentational component
   // that currently handles showing everything inside layout's main view area.
   const panel = isDataAvailable ? (
@@ -679,6 +722,7 @@ export const TransactionPageComponent = props => {
       className={detailsClassName}
       currentUser={currentUser}
       transactionId={transaction?.id}
+      transaction={transaction}
       listing={listing}
       customer={customer}
       provider={provider}
@@ -727,6 +771,7 @@ export const TransactionPageComponent = props => {
           onOpenReviewModal={onOpenReviewModal}
           onShowOlderMessages={() => onShowMoreMessages(transaction.id, config)}
           fetchMessagesInProgress={fetchMessagesInProgress}
+          isPeakUpConversation={isConversationView}
         />
       }
       transactionFieldsComponent={
@@ -758,6 +803,7 @@ export const TransactionPageComponent = props => {
         />
       }
       isInquiryProcess={processName === INQUIRY_PROCESS_NAME}
+      isConversationView={isConversationView}
       config={config}
       {...orderBreakdownMaybe}
       orderPanel={
@@ -814,28 +860,12 @@ export const TransactionPageComponent = props => {
     (process?.transitions?.CUSTOMER_MAKE_COUNTER_OFFER ||
       process?.transitions?.PROVIDER_MAKE_COUNTER_OFFER);
 
-  const pageHeading = isDataAvailable
-    ? intl.formatMessage(
-        {
-          id: `TransactionPage.${processName}.${transactionRole}.${stateData.processState}.title`,
-        },
-        {
-          customerName: customer?.attributes.profile.displayName,
-          providerName: provider?.attributes.profile.displayName,
-        }
-      )
-    : null;
-
   return (
-    <Page
-      title={intl.formatMessage(
-        { id: 'TransactionPage.schemaTitle' },
-        { title: listingTitle, h1: pageHeading }
-      )}
+    <Page title={pageTitle}
       scrollingDisabled={scrollingDisabled}
     >
       <LayoutSingleColumn topbar={<TopbarContainer />} footer={<FooterContainer />}>
-        <div className={css.root}>{panel}</div>
+        <div className={pageRootClassName}>{panel}</div>
         <ReviewModal
           id="ReviewOrderModal"
           isOpen={isReviewModalOpen}
