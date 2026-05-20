@@ -1,26 +1,11 @@
-import appSettings from '../config/settings';
-
-/**
- * @param {string} label
- * @returns {boolean}
- */
-const isAllowedCoachCalendarSyncTrace = label => {
-  if (!label) {
-    return false;
-  }
-  return (
-    label.includes('sync all start') ||
-    label.includes('listing complete') ||
-    label.includes('sync all final')
-  );
-};
+import { isDevelopmentMode } from './isDevelopmentMode';
 
 /**
  * @param {string} label
  * @param {Object} [data]
  */
 export const logCoachCalendarDebug = (label, data) => {
-  if (!appSettings.dev && !appSettings.verbose) {
+  if (!isDevelopmentMode()) {
     return;
   }
 
@@ -34,13 +19,11 @@ export const logCoachCalendarDebug = (label, data) => {
 };
 
 /**
- * Minimal always-on sync summary logs (allowlisted labels only).
- *
  * @param {string} label
  * @param {Object} [data]
  */
 export const logCoachCalendarSyncTrace = (label, data) => {
-  if (!isAllowedCoachCalendarSyncTrace(label)) {
+  if (!isDevelopmentMode()) {
     return;
   }
 
@@ -59,6 +42,10 @@ export const logCoachCalendarSyncTrace = (label, data) => {
  * @param {Object} [data]
  */
 export const logCoachCalendarSyncError = (label, error, data) => {
+  if (!isDevelopmentMode()) {
+    return;
+  }
+
   if (data !== undefined) {
     // eslint-disable-next-line no-console
     console.error(`[PeakUp CoachCalendar] ${label}`, error, data);
@@ -80,7 +67,7 @@ export const logSkippedLegacyListing = () => {};
  * @param {Object} [data]
  */
 export const logBookingCalendarDebug = (label, data) => {
-  if (!appSettings.dev && !appSettings.verbose) {
+  if (!isDevelopmentMode()) {
     return;
   }
 

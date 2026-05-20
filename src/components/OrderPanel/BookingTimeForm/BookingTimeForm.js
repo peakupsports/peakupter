@@ -107,6 +107,7 @@ export const BookingTimeForm = props => {
     priceVariantFieldComponent: PriceVariantFieldComponent,
     preselectedPriceVariant,
     isPublishedListing,
+    listingId,
     ...rest
   } = props;
 
@@ -132,7 +133,6 @@ export const BookingTimeForm = props => {
           form,
           pristine,
           handleSubmit,
-          listingId,
           values,
           monthlyTimeSlots,
           timeSlotsForDate,

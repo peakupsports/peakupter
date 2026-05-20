@@ -3,19 +3,18 @@ import { Field } from 'react-final-form';
 import classNames from 'classnames';
 
 import appSettings from '../../../config/settings';
+import { isBookingSlotsDebugEnabled } from '../../../util/bookingSlotsDebug';
+import { isDevelopmentMode } from '../../../util/isDevelopmentMode';
 import {
   isInRange,
   isSameDate,
   timeOfDayFromLocalToTimeZone,
   timeOfDayFromTimeZoneToLocal,
   isDateSameOrAfter,
-  findNextBoundary,
   timestampToDate,
   monthIdString,
   getStartOf,
   stringifyDateToISO8601,
-  getBoundaries,
-  bookingTimeUnits,
 } from '../../../util/dates';
 import { propTypes } from '../../../util/types';
 import { timeSlotsPerDate } from '../../../util/generators';
@@ -24,7 +23,6 @@ import { FieldSingleDatePicker, FieldSelect } from '../../../components';
 
 import {
   TODAY,
-  isToday,
   nextMonthFn,
   prevMonthFn,
   endOfRange,
@@ -32,20 +30,16 @@ import {
   getMonthlyFetchRange,
   getAllTimeSlots,
   getTimeSlotsOnDate,
+  buildBookingTimeSlotsDebugSnapshot,
+  getAvailableStartTimesForFixedDuration,
+  findLastAdjacentSlotIndex,
+  getBookingTimeSlotsQueryRangeForDate,
   getTimeSlotsOnSelectedDate,
   showNextMonthStepper,
   showPreviousMonthStepper,
 } from '../booking.shared';
-
+import BookingTimeSlotsDebugPanel from '../BookingTimeSlotsDebugPanel';
 import css from './FieldDateAndTimeInput.module.css';
-
-const findLastAdjacent = (index, timeSlots) => {
-  const current = timeSlots[index];
-  const next = timeSlots[index + 1];
-  return next && isSameDate(current.attributes.end, next.attributes.start)
-    ? findLastAdjacent(index + 1, timeSlots)
-    : index;
-};
 
 // dayCountAvailableForBooking is the maximum number of days forwards during which a booking can be made.
 // This is limited due to Stripe holding funds up to 90 days from the
@@ -54,71 +48,6 @@ const findLastAdjacent = (index, timeSlots) => {
 //
 // See also the API reference for querying time slots:
 // https://www.sharetribe.com/api-reference/marketplace.html#query-time-slots
-
-const getAvailableStartTimes = params => {
-  const {
-    intl,
-    timeZone,
-    bookingStart,
-    timeSlotsOnSelectedDate,
-    bookingLengthInMinutes,
-    startTimeInterval,
-  } = params;
-
-  if (timeSlotsOnSelectedDate.length === 0 || !timeSlotsOnSelectedDate[0] || !bookingStart) {
-    return [];
-  }
-  const bookingStartDate = getStartOf(bookingStart, 'day', timeZone);
-  const nextDay = getStartOf(bookingStartDate, 'day', timeZone, 1, 'days');
-  const timeUnitConfig = bookingTimeUnits[startTimeInterval];
-  const overlapWithNextDay = !!timeUnitConfig?.timeUnitInMinutes
-    ? bookingLengthInMinutes - timeUnitConfig.timeUnitInMinutes
-    : bookingLengthInMinutes;
-  const nextDayPlusBookingLength = getStartOf(
-    nextDay,
-    'minute',
-    timeZone,
-    overlapWithNextDay,
-    'minutes'
-  );
-
-  const allStartTimes = timeSlotsOnSelectedDate.reduce((availableStartTimes, t, i) => {
-    const startDate = t.attributes.start;
-    const lastIndex = findLastAdjacent(i, timeSlotsOnSelectedDate);
-    const endDate =
-      lastIndex !== i ? timeSlotsOnSelectedDate[lastIndex].attributes.end : t.attributes.end;
-
-    // If the time slot starts before the selected booking start date, use bookingStartDate
-    const startLimit = isDateSameOrAfter(bookingStartDate, startDate)
-      ? bookingStartDate
-      : startDate;
-
-    // If the time slot ends after the next day, use nextDate.
-    const endOfTimeSlotOrDay = isDateSameOrAfter(endDate, nextDayPlusBookingLength)
-      ? nextDayPlusBookingLength
-      : endDate;
-    const endLimit = getStartOf(
-      endOfTimeSlotOrDay,
-      'minute',
-      timeZone,
-      -1 * bookingLengthInMinutes,
-      'minutes'
-    );
-
-    const startTimes = getBoundaries(
-      startLimit,
-      endLimit,
-      1,
-      timeUnitConfig.timeUnit,
-      timeZone,
-      intl
-    );
-    const pickedTimestamps = availableStartTimes.map(t => t.timestamp);
-    const uniqueStartTimes = startTimes.filter(t => !pickedTimestamps.includes(t.timestamp));
-    return availableStartTimes.concat(uniqueStartTimes);
-  }, []);
-  return allStartTimes;
-};
 
 const getBookingEndTimeAsDate = (bookingStartTime, bookingLengthInMinutes) => {
   const bookingEndTimeAsDate = new Date(
@@ -141,13 +70,14 @@ const getAllTimeValues = (
 ) => {
   const startTimes = selectedStartTime
     ? []
-    : getAvailableStartTimes({
+    : getAvailableStartTimesForFixedDuration({
         intl,
         timeZone,
         bookingStart: startDate,
-        timeSlotsOnSelectedDate: getTimeSlotsOnDate(timeSlots, startDate, timeZone),
+        timeSlotsOnSelectedDate: timeSlots,
         bookingLengthInMinutes,
         startTimeInterval,
+        seatsEnabled,
       });
 
   // Value selectedStartTime is a string when user has selected it through the form.
@@ -207,7 +137,7 @@ const getAllTimeValues = (
       return selectedTimeSlot.attributes.seats; // Return the seats for the selected time slot if end time and start time are within the same timeslot.
     }
 
-    const lastIndex = findLastAdjacent(selectedTimeSlotIndex, timeSlots);
+    const lastIndex = findLastAdjacentSlotIndex(selectedTimeSlotIndex, timeSlots);
 
     // Extract the relevant time slots to check (we choose all slots between the first )
     const relevantTimeSlots = timeSlots.slice(selectedTimeSlotIndex, lastIndex + 1);
@@ -233,7 +163,7 @@ const getAllTimeValues = (
     if (timeSlots.length === 1 || seatsEnabled === false) {
       return timeSlots[0];
     }
-    const lastIndex = findLastAdjacent(currentTimeSlotIndex, timeSlots);
+    const lastIndex = findLastAdjacentSlotIndex(currentTimeSlotIndex, timeSlots);
     const firstIndex = findFirstAdjacent(currentTimeSlotIndex, timeSlots);
 
     const smallestSeats = seatsEnabled
@@ -359,7 +289,8 @@ const updateBookingFieldsOnStartDateChange = params => {
     startDate,
     timeZone,
     seatsEnabled,
-    bookingLengthInMinutes
+    bookingLengthInMinutes,
+    { hasFetchedDateTimeSlots: params.hasFetchedDateTimeSlots }
   );
 
   const { startTime, endTime } = getAllTimeValues(
@@ -418,17 +349,12 @@ const onBookingStartDateChange = (props, setCurrentMonth) => value => {
   // This callback function (onBookingStartDateChange) is called from DatePicker component.
   // It gets raw value as a param - browser's local time instead of time in listing's timezone.
   const startDate = timeOfDayFromLocalToTimeZone(value.date, timeZone);
-  const nextDay = getStartOf(startDate, 'day', timeZone, 1, 'days');
+  const { dayStart, dayEnd, dateKey } = getBookingTimeSlotsQueryRangeForDate(startDate, timeZone);
 
-  const timeUnit = bookingTimeUnits[startTimeInterval]?.timeUnit || 'day';
-  const nextBoundaryToday = findNextBoundary(new Date(), 1, timeUnit, timeZone);
-  const nextBoundary = isToday(startDate, timeZone)
-    ? nextBoundaryToday
-    : findNextBoundary(startDate, 1, timeUnit, timeZone);
-  const startLimit = isDateSameOrAfter(startDate, nextBoundaryToday) ? startDate : nextBoundary;
-  const endLimit = getStartOf(nextDay, 'minute', timeZone, bookingLengthInMinutes, 'minutes');
-  const cachedTimeSlotsForDate =
-    timeSlotsForDate[stringifyDateToISO8601(startDate, timeZone)]?.timeSlots || [];
+  const cachedTimeSlotsForDate = timeSlotsForDate[dateKey]?.timeSlots || [];
+  const hadFetchedDateTimeSlots =
+    timeSlotsForDate[dateKey]?.fetchedAt != null &&
+    !timeSlotsForDate[dateKey]?.fetchTimeSlotsInProgress;
 
   const commonParamsForUpdateBookingFields = {
     monthlyTimeSlots,
@@ -441,32 +367,37 @@ const onBookingStartDateChange = (props, setCurrentMonth) => value => {
     startTimeInterval,
   };
 
-  // Update booking fields with the initial time slot from the reduced set of monthly time slots.
-  // Fetching date specific time slots and then line-items takes slightly longer
+  // Use monthly slots only until the date-specific fetch for this day completes.
   updateBookingFieldsOnStartDateChange({
     timeSlotsOnDate: cachedTimeSlotsForDate,
+    hasFetchedDateTimeSlots: hadFetchedDateTimeSlots,
     ...commonParamsForUpdateBookingFields,
   });
 
-  // Note: the first fetch for start-times (and line-items) is using monthlyTimeSlots.
-  // This fetches all the date-specific time slots, which are update to option list asynchronously.
-  onFetchTimeSlots(listingId, startLimit, endLimit, timeZone, {
+  onFetchTimeSlots(listingId, dayStart, dayEnd, timeZone, {
     useFetchTimeSlotsForDate: true,
-  }).then(timeSlots => {
-    const { startTime, endTime } = updateBookingFieldsOnStartDateChange({
-      timeSlotsOnDate: timeSlots,
-      ...commonParamsForUpdateBookingFields,
-    });
+    forceRefresh: true,
+    dateKey,
+  })
+    .then(timeSlots => {
+      const { startTime, endTime } = updateBookingFieldsOnStartDateChange({
+        timeSlotsOnDate: timeSlots,
+        hasFetchedDateTimeSlots: true,
+        ...commonParamsForUpdateBookingFields,
+      });
 
-    handleFetchLineItems({
-      values: {
-        priceVariantName,
-        bookingStartTime: startTime,
-        bookingEndTime: endTime,
-        seats: seatsEnabled ? 1 : undefined,
-      },
+      handleFetchLineItems({
+        values: {
+          priceVariantName,
+          bookingStartTime: startTime,
+          bookingEndTime: endTime,
+          seats: seatsEnabled ? 1 : undefined,
+        },
+      });
+    })
+    .catch(() => {
+      // Errors are stored on ListingPage.timeSlotsForDate[dateKey].fetchTimeSlotsError
     });
-  });
 };
 
 const onBookingStartTimeChange = props => value => {
@@ -587,6 +518,10 @@ const FieldDateAndTimeInput = props => {
   const bookingStartTime = values.bookingStartTime || null;
   const bookingEndTime = values.bookingEndTime || null;
 
+  const lookupDateKey = bookingStartDate
+    ? getBookingTimeSlotsQueryRangeForDate(bookingStartDate, timeZone).dateKey
+    : null;
+
   // Currently available monthly data (reduced set of time slots data using intervalDuration: P1D)
   const [startMonth, endMonth] = getMonthlyFetchRange(monthlyTimeSlots, timeZone);
   const options = { minDurationStartingInDay: minDurationStartingInInterval };
@@ -598,9 +533,12 @@ const FieldDateAndTimeInput = props => {
     options
   );
 
-  // Currently available date-specific data
-  const bookingStartIdString = stringifyDateToISO8601(bookingStartDate, timeZone);
-  const timeSlotsOnSelectedDate = timeSlotsForDate[bookingStartIdString]?.timeSlots || [];
+  // Currently available date-specific data (lookup key must match fetch dateKey)
+  const dateTimeSlotsState = lookupDateKey ? timeSlotsForDate[lookupDateKey] : null;
+  const timeSlotsOnSelectedDate = dateTimeSlotsState?.timeSlots || [];
+  const fetchTimeSlotsInProgress = Boolean(dateTimeSlotsState?.fetchTimeSlotsInProgress);
+  const hasFetchedDateTimeSlots =
+    Boolean(dateTimeSlotsState?.fetchedAt) && !fetchTimeSlotsInProgress;
 
   const timeSlotsOnDate = getTimeSlotsOnSelectedDate(
     timeSlotsOnSelectedDate,
@@ -608,17 +546,39 @@ const FieldDateAndTimeInput = props => {
     bookingStartDate,
     timeZone,
     seatsEnabled,
-    bookingLengthInMinutes
+    bookingLengthInMinutes,
+    { hasFetchedDateTimeSlots }
   );
 
-  const availableStartTimes = getAvailableStartTimes({
+  const availableStartTimes = getAvailableStartTimesForFixedDuration({
     intl,
     timeZone,
     bookingStart: bookingStartDate,
     timeSlotsOnSelectedDate: timeSlotsOnDate,
     bookingLengthInMinutes,
     startTimeInterval,
+    seatsEnabled,
   });
+
+  const bookingTimeSlotsDebugSnapshot =
+    isBookingSlotsDebugEnabled() && bookingStartDate
+      ? buildBookingTimeSlotsDebugSnapshot({
+          timeZone,
+          bookingStartDate,
+          lookupDateKey,
+          timeSlotsForDateKeys: Object.keys(timeSlotsForDate || {}),
+          rawTimeSlotsOnSelectedDate: timeSlotsOnSelectedDate,
+          timeSlotsUsedForStartTimes: timeSlotsOnDate,
+          availableStartTimes,
+          seatsEnabled,
+          fetchTimeSlotsInProgress,
+          hasFetchedDateTimeSlots,
+          fetchTimeSlotsError: dateTimeSlotsState?.fetchTimeSlotsError,
+          lastTimeslotsQuery: dateTimeSlotsState?.lastQuery,
+          lastTimeslotsResponseCount: dateTimeSlotsState?.lastResponseCount,
+          storedRawTimeSlotsCount: timeSlotsOnSelectedDate.length,
+        })
+      : null;
 
   const firstAvailableStartTime =
     availableStartTimes.length > 0 && availableStartTimes[0] && availableStartTimes[0].timestamp
@@ -650,7 +610,7 @@ const FieldDateAndTimeInput = props => {
   useEffect(() => {
     // Log time slots marked for each day for debugging
     if (
-      appSettings.dev &&
+      isDevelopmentMode() &&
       appSettings.verbose &&
       !currentMonthInProgress &&
       !nextMonthInProgress &&
@@ -808,6 +768,7 @@ const FieldDateAndTimeInput = props => {
           <FieldHidden name="bookingEndTime" value={bookingEndTime} />
         </div>
       </div>
+      <BookingTimeSlotsDebugPanel snapshot={bookingTimeSlotsDebugSnapshot} />
     </div>
   );
 };

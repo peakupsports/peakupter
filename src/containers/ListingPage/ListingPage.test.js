@@ -18,6 +18,7 @@ import {
 } from '../../util/testHelpers';
 
 import { storableError } from '../../util/errors';
+import { parseDateFromISO8601 } from '../../util/dates';
 
 import {
   LISTING_STATE_PENDING_APPROVAL,
@@ -27,7 +28,13 @@ import {
 
 import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 
-import reducer, { showListing, loadData, setInitialValues } from './ListingPage.duck';
+import reducer, {
+  showListing,
+  loadData,
+  setInitialValues,
+  listingIdToString,
+  resolveListingIdForTimeslotsQuery,
+} from './ListingPage.duck';
 
 import ActionBar from './Notifications/ActionBar';
 
@@ -455,6 +462,67 @@ describe('Duck', () => {
       });
 
       expect(state.fetchReviewsError).toBe(error);
+    });
+
+    it('resolves listing id from ListingPage state when arg is missing', () => {
+      const listingUuid = '6a0ddf4d-994d-49cb-aac5-2e34c059aa93';
+      const getState = () => ({
+        ListingPage: { id: new UUID(listingUuid) },
+      });
+
+      const resolved = resolveListingIdForTimeslotsQuery(undefined, getState);
+
+      expect(resolved).toBeInstanceOf(UUID);
+      expect(resolved.uuid).toBe(listingUuid);
+      expect(listingIdToString(resolved)).toBe(listingUuid);
+    });
+
+    it('stores date-specific time slots under options.dateKey with query debug metadata', () => {
+      const timeZone = 'Europe/Helsinki';
+      const dateKey = '2026-05-23';
+      const dayStart = parseDateFromISO8601('2026-05-23', timeZone);
+      const dayEnd = parseDateFromISO8601('2026-05-24', timeZone);
+      const listingId = new UUID('11111111-1111-1111-1111-111111111111');
+      const slot = {
+        id: { uuid: 'slot-1' },
+        type: 'timeSlot',
+        attributes: {
+          start: parseDateFromISO8601('2026-05-23', timeZone),
+          end: parseDateFromISO8601('2026-05-23T11:00:00+03:00', timeZone),
+          seats: 1,
+        },
+      };
+      const metaArg = {
+        listingId,
+        start: dayStart,
+        end: dayEnd,
+        timeZone,
+        options: { useFetchTimeSlotsForDate: true, dateKey, forceRefresh: true },
+      };
+
+      let state = reducer(undefined, {
+        type: 'ListingPage/fetchTimeSlots/pending',
+        meta: { arg: metaArg },
+      });
+
+      expect(state.timeSlotsForDate[dateKey].fetchTimeSlotsInProgress).toBe(true);
+      expect(state.timeSlotsForDate[dateKey].lastQuery).toEqual(
+        expect.objectContaining({
+          listingId: listingId.uuid,
+          dateKey,
+        })
+      );
+
+      state = reducer(state, {
+        type: 'ListingPage/fetchTimeSlots/fulfilled',
+        payload: [slot],
+        meta: { arg: metaArg },
+      });
+
+      expect(state.timeSlotsForDate[dateKey].timeSlots).toHaveLength(1);
+      expect(state.timeSlotsForDate[dateKey].lastResponseCount).toBe(1);
+      expect(state.timeSlotsForDate[dateKey].fetchTimeSlotsInProgress).toBe(false);
+      expect(state.timeSlotsForDate[dateKey].fetchedAt).toBeTruthy();
     });
   });
 

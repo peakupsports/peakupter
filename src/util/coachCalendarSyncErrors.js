@@ -157,6 +157,7 @@ export const serializeCoachCalendarSyncError = (error, context = {}) => {
     unwrapped?.data?.errors ||
     unwrapped?.response?.data?.errors ||
     null;
+  const firstApiError = Array.isArray(apiErrors) && apiErrors.length > 0 ? apiErrors[0] : null;
 
   return {
     message: extractCoachCalendarSyncErrorMessage(error),
@@ -164,6 +165,9 @@ export const serializeCoachCalendarSyncError = (error, context = {}) => {
     status: unwrapped?.status ?? unwrapped?.response?.status ?? error?.status ?? null,
     statusText: unwrapped?.statusText ?? unwrapped?.response?.statusText ?? error?.statusText ?? null,
     apiErrors,
+    apiErrorCode: firstApiError?.code ?? null,
+    apiErrorTitle: firstApiError?.title ?? null,
+    apiErrorDetail: firstApiError?.detail ?? firstApiError?.details ?? null,
     data: unwrapped?.data ?? unwrapped?.response?.data ?? error?.data ?? null,
     stack: unwrapped?.stack || error?.stack || null,
     raw: safeRawStringify(unwrapped || error),
@@ -172,6 +176,35 @@ export const serializeCoachCalendarSyncError = (error, context = {}) => {
     requestPayload: serializeCoachCalendarSyncRequestPayload(
       context.requestPayload ?? error?.requestPayload ?? null
     ),
+  };
+};
+
+/**
+ * Flat fields for the dev Force sync error panel (readable above JSON dump).
+ *
+ * @param {Object|null} serialized
+ * @returns {Object|null}
+ */
+export const formatCoachCalendarForceSyncErrorPanel = serialized => {
+  if (!serialized) {
+    return null;
+  }
+
+  const firstApiError =
+    Array.isArray(serialized.apiErrors) && serialized.apiErrors.length > 0
+      ? serialized.apiErrors[0]
+      : null;
+
+  return {
+    failedStep: serialized.failedStep ?? null,
+    listingId: serialized.listingId ?? null,
+    status: serialized.status ?? null,
+    apiErrorCode: serialized.apiErrorCode ?? firstApiError?.code ?? null,
+    apiErrorTitle: serialized.apiErrorTitle ?? firstApiError?.title ?? null,
+    apiErrorDetail:
+      serialized.apiErrorDetail ?? firstApiError?.detail ?? firstApiError?.details ?? null,
+    requestPayload: serialized.requestPayload ?? null,
+    message: serialized.message ?? null,
   };
 };
 

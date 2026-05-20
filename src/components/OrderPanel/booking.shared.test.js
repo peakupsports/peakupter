@@ -1,8 +1,9 @@
 import { fakeIntl } from '../../util/testData';
 import moment from 'moment-timezone';
-import { parseDateFromISO8601, parseDateTimeString } from '../../util/dates';
+import { getStartOf, parseDateFromISO8601, parseDateTimeString } from '../../util/dates';
 import {
   getAvailableStartTimesForFixedDuration,
+  getBookingTimeSlotsQueryRangeForDate,
   getTimeSlotsOnSelectedDate,
   normalizeTimeSlotsArray,
 } from './booking.shared';
@@ -34,29 +35,66 @@ describe('booking.shared', () => {
 
     it('does not crash when date-specific slots are undefined', () => {
       expect(() =>
-        getTimeSlotsOnSelectedDate(
-          undefined,
-          {},
-          bookingDate,
-          TZ,
-          false,
-          60,
-          { useMonthlyFallback: false }
-        )
+        getTimeSlotsOnSelectedDate(undefined, {}, bookingDate, TZ, false, 60)
       ).not.toThrow();
-      expect(
-        getTimeSlotsOnSelectedDate(undefined, {}, bookingDate, TZ, false, 60, {
-          useMonthlyFallback: false,
-        })
-      ).toEqual([]);
+      expect(getTimeSlotsOnSelectedDate(undefined, {}, bookingDate, TZ, false, 60)).toEqual(
+        []
+      );
     });
 
     it('returns [] for zero slots without monthly fallback', () => {
-      expect(
-        getTimeSlotsOnSelectedDate([], {}, bookingDate, TZ, false, 60, {
-          useMonthlyFallback: false,
-        })
-      ).toEqual([]);
+      expect(getTimeSlotsOnSelectedDate([], {}, bookingDate, TZ, false, 60)).toEqual([]);
+    });
+
+    it('uses only date-specific slots after fetch completed (no monthly fallback)', () => {
+      const monthlySlot = {
+        attributes: {
+          start: parseDateFromISO8601('2026-05-21', TZ),
+          end: parseDateFromISO8601('2026-05-22', TZ),
+          seats: 1,
+        },
+      };
+      const dateSlot = {
+        attributes: {
+          start: parseDateTimeString('2026-05-21 11:00', TZ),
+          end: parseDateTimeString('2026-05-21 14:00', TZ),
+          seats: 1,
+        },
+      };
+
+      const withoutFetch = getTimeSlotsOnSelectedDate(
+        [dateSlot],
+        { '2026-05': { timeSlots: [monthlySlot] } },
+        bookingDate,
+        TZ,
+        false,
+        60,
+        { hasFetchedDateTimeSlots: false }
+      );
+      expect(withoutFetch.length).toBeGreaterThan(0);
+
+      const afterFetch = getTimeSlotsOnSelectedDate(
+        [dateSlot],
+        { '2026-05': { timeSlots: [monthlySlot] } },
+        bookingDate,
+        TZ,
+        false,
+        60,
+        { hasFetchedDateTimeSlots: true }
+      );
+      expect(afterFetch).toHaveLength(1);
+      expect(afterFetch[0].attributes.start).toEqual(dateSlot.attributes.start);
+    });
+  });
+
+  describe('getBookingTimeSlotsQueryRangeForDate', () => {
+    it('returns full calendar day bounds and stable dateKey', () => {
+      const startDate = parseDateFromISO8601('2026-05-23', TZ);
+      const range = getBookingTimeSlotsQueryRangeForDate(startDate, TZ);
+
+      expect(range.dateKey).toBe('2026-05-23');
+      expect(range.dayStart).toEqual(parseDateFromISO8601('2026-05-23', TZ));
+      expect(range.dayEnd).toEqual(parseDateFromISO8601('2026-05-24', TZ));
     });
   });
 
@@ -117,6 +155,37 @@ describe('booking.shared', () => {
           startTimeInterval: 'hour',
         })
       ).toEqual([]);
+    });
+
+    it('includes start times from every disjoint interval after a partial block gap', () => {
+      const bookingDate = parseDateFromISO8601('2026-05-23', TZ);
+      const slots = [
+        createTimeSlot(
+          parseDateTimeString('2026-05-23 00:00', TZ),
+          parseDateTimeString('2026-05-23 08:00', TZ)
+        ),
+        createTimeSlot(
+          parseDateTimeString('2026-05-23 11:00', TZ),
+          parseDateTimeString('2026-05-24 00:00', TZ)
+        ),
+      ];
+
+      const startTimes = getAvailableStartTimesForFixedDuration({
+        intl,
+        timeZone: TZ,
+        bookingStart: bookingDate,
+        timeSlotsOnSelectedDate: slots,
+        bookingLengthInMinutes: 60,
+        startTimeInterval: 'hour',
+      });
+
+      const labels = startTimes.map(st => moment(st.timestamp).tz(TZ).format('HH:mm'));
+
+      expect(labels).toContain('07:00');
+      expect(labels).toContain('11:00');
+      expect(labels).toContain('23:00');
+      expect(labels).not.toContain('08:00');
+      expect(labels).not.toContain('09:00');
     });
 
     it('removes only the blocked hour and keeps slots after it', () => {

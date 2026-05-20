@@ -1,5 +1,6 @@
 import {
   extractCoachCalendarSyncErrorMessage,
+  formatCoachCalendarForceSyncErrorPanel,
   isAvailabilityExceptionOverlapError,
   serializeCoachCalendarSyncError,
 } from './coachCalendarSyncErrors';
@@ -34,6 +35,16 @@ describe('coachCalendarSyncErrors', () => {
     expect(serialized.listingId).toBe('listing-a');
     expect(serialized.requestPayload).toEqual({ tab: 'availability' });
     expect(JSON.stringify(serialized.apiErrors)).toContain('validation-invalid-value');
+    expect(serialized.apiErrorCode).toBe('validation-invalid-value');
+    expect(serialized.apiErrorTitle).toBe('Invalid value');
+
+    const panel = formatCoachCalendarForceSyncErrorPanel(serialized);
+    expect(panel.failedStep).toBe('updateAvailabilityPlan');
+    expect(panel.listingId).toBe('listing-a');
+    expect(panel.status).toBe(400);
+    expect(panel.apiErrorCode).toBe('validation-invalid-value');
+    expect(panel.apiErrorDetail).toContain('endTime is invalid');
+    expect(panel.requestPayload).toEqual({ tab: 'availability' });
   });
 
   it('does not return [object Object] when message is an object', () => {

@@ -11,8 +11,10 @@ import {
   findNextBoundary,
   getStartOf,
   monthIdString,
+  stringifyDateTimeToISO8601,
   stringifyDateToISO8601,
 } from '../../util/dates';
+import { isDevelopmentMode } from '../../util/isDevelopmentMode';
 import {
   hasPermissionToInitiateTransactions,
   hasPermissionToViewData,
@@ -37,13 +39,110 @@ import {
 const { UUID } = sdkTypes;
 const MINUTE_IN_MS = 1000 * 60;
 
+const logBookingTimeSlotsFetch = (phase, data) => {
+  if (!isDevelopmentMode()) {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp booking timeSlots]', phase, data);
+};
+
+const logBookingTimeSlotsListingId = (phase, data) => {
+  if (!isDevelopmentMode()) {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp booking listingId]', phase, data);
+};
+
+/**
+ * Normalize listing id from UUID instance, SDK object, string, or listing entity.
+ *
+ * @param {*} listingIdOrListing
+ * @returns {string|null}
+ */
+export const listingIdToString = listingIdOrListing => {
+  if (listingIdOrListing == null) {
+    return null;
+  }
+
+  if (
+    typeof listingIdOrListing === 'object' &&
+    listingIdOrListing.id != null &&
+    listingIdOrListing.attributes != null
+  ) {
+    return listingIdToString(listingIdOrListing.id);
+  }
+
+  const candidate = listingIdOrListing;
+
+  if (typeof candidate === 'string') {
+    const trimmed = candidate.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  if (candidate instanceof UUID) {
+    return candidate.uuid;
+  }
+
+  if (typeof candidate === 'object' && candidate.uuid) {
+    return candidate.uuid;
+  }
+
+  return null;
+};
+
+/**
+ * Resolve listing id for sdk.timeslots.query (UUID instance).
+ *
+ * @param {*} listingIdOrListing
+ * @param {Function} [getState]
+ * @returns {UUID|null}
+ */
+export const resolveListingIdForTimeslotsQuery = (listingIdOrListing, getState) => {
+  const candidates = [listingIdOrListing];
+
+  if (typeof getState === 'function') {
+    const pageListingId = getState()?.ListingPage?.id;
+    if (pageListingId != null) {
+      candidates.push(pageListingId);
+    }
+  }
+
+  for (const candidate of candidates) {
+    const idString = listingIdToString(candidate);
+    if (!idString) {
+      continue;
+    }
+    if (candidate instanceof UUID) {
+      return candidate;
+    }
+    return new UUID(idString);
+  }
+
+  return null;
+};
+
+const buildLastTimeslotsQueryDebug = ({ listingId, start, end, timeZone, options }) => {
+  const dateKey = options?.dateKey || stringifyDateToISO8601(start, timeZone);
+  return {
+    listingId: listingIdToString(listingId),
+    start: start ? stringifyDateTimeToISO8601(start, timeZone) : null,
+    end: end ? stringifyDateTimeToISO8601(end, timeZone) : null,
+    dateKey,
+  };
+};
+
 // Day-based time slots queries are cached for 1 minute.
 const removeOutdatedDateData = timeSlotsForDate => {
   const now = new Date().getTime();
   const minuteAgo = now - MINUTE_IN_MS;
   return Object.fromEntries(
-    Object.entries(timeSlotsForDate).filter(([dateId, data]) => {
-      return data.fetchedAt && data.fetchedAt > minuteAgo;
+    Object.entries(timeSlotsForDate).filter(([, data]) => {
+      if (data?.fetchTimeSlotsInProgress) {
+        return true;
+      }
+      return data?.fetchedAt && data.fetchedAt > minuteAgo;
     })
   );
 };
@@ -152,18 +251,30 @@ export const fetchReviews = listingId => (dispatch, getState, sdk) => {
 // Fetch Time Slots //
 //////////////////////
 
-const timeSlotsRequest = createAsyncThunk(
-  'ListingPage/timeSlotsRequest',
-  (params, { extra: sdk }) => {
-    return sdk.timeslots.query(params).then(response => {
-      return denormalisedResponseEntities(response);
-    });
-  }
-);
-
-const fetchTimeSlotsPayloadCreator = ({ listingId, start, end, timeZone, options }, thunkAPI) => {
-  const { dispatch, getState } = thunkAPI;
+const fetchTimeSlotsPayloadCreator = async (
+  { listingId, start, end, timeZone, options },
+  { getState, rejectWithValue, extra: sdk }
+) => {
   const { extraQueryParams = null, useFetchTimeSlotsForDate = false } = options || {};
+  const resolvedListingId = resolveListingIdForTimeslotsQuery(listingId, getState);
+
+  logBookingTimeSlotsListingId('resolve', {
+    originalListingId: listingId,
+    originalType: typeof listingId,
+    originalUuid: listingIdToString(listingId),
+    listingPageStateId: getState().ListingPage?.id,
+    listingPageStateIdString: listingIdToString(getState().ListingPage?.id),
+    resolvedListingId,
+    resolvedType: resolvedListingId == null ? 'undefined' : typeof resolvedListingId,
+    resolvedIsUuidInstance: resolvedListingId instanceof UUID,
+    resolvedUuid: listingIdToString(resolvedListingId),
+    sdkReceives: resolvedListingId == null ? undefined : 'UUID',
+  });
+
+  if (!resolvedListingId) {
+    logBookingTimeSlotsFetch('skip', { reason: 'missingListingId', listingId });
+    return [];
+  }
 
   // The maximum pagination page size for timeSlots is 500
   const extraParams = extraQueryParams || {
@@ -171,32 +282,75 @@ const fetchTimeSlotsPayloadCreator = ({ listingId, start, end, timeZone, options
     page: 1,
   };
 
+  const queryParams = {
+    listingId: resolvedListingId,
+    start,
+    end,
+    ...extraParams,
+  };
+
+  const queryParamsForLog = {
+    ...queryParams,
+    start: start ? stringifyDateTimeToISO8601(start, timeZone) : null,
+    end: end ? stringifyDateTimeToISO8601(end, timeZone) : null,
+  };
+
   // For small time units, we fetch the data per date.
   // This is to avoid fetching too much data (with 15 minute intervals, there can be 24*4*31 = 2928 time slots)
   if (useFetchTimeSlotsForDate) {
-    const dateId = stringifyDateToISO8601(start, timeZone);
+    const dateId = options?.dateKey || stringifyDateToISO8601(start, timeZone);
+    const forceRefresh = options?.forceRefresh !== false;
     const dateData = getState().ListingPage.timeSlotsForDate[dateId];
     const minuteAgo = new Date().getTime() - MINUTE_IN_MS;
-    const hasRecentlyFetchedData = dateData?.fetchedAt > minuteAgo;
+    const hasRecentlyFetchedData =
+      !forceRefresh && dateData?.fetchedAt > minuteAgo && Array.isArray(dateData?.timeSlots);
+
     if (hasRecentlyFetchedData) {
-      return Promise.resolve(dateData?.timeSlots || []);
+      logBookingTimeSlotsFetch('cacheHit', {
+        dateId,
+        count: dateData.timeSlots.length,
+        fetchedAt: dateData.fetchedAt,
+      });
+      return dateData.timeSlots;
     }
 
-    return dispatch(timeSlotsRequest({ listingId, start, end, ...extraParams }))
-      .then(response => {
-        return response.payload;
-      })
-      .catch(e => {
-        return [];
+    logBookingTimeSlotsFetch('query', {
+      dateId,
+      forceRefresh,
+      useFetchTimeSlotsForDate: true,
+      queryParams: queryParamsForLog,
+    });
+
+    try {
+      const response = await sdk.timeslots.query(queryParams);
+      const timeSlots = denormalisedResponseEntities(response);
+      logBookingTimeSlotsFetch('response', {
+        dateId,
+        count: Array.isArray(timeSlots) ? timeSlots.length : 0,
+        reduxWillUseDateKey: dateId,
       });
-  } else {
-    return dispatch(timeSlotsRequest({ listingId, start, end, ...extraParams }))
-      .then(response => {
-        return response.payload;
-      })
-      .catch(e => {
-        return [];
-      });
+      return timeSlots;
+    } catch (e) {
+      logBookingTimeSlotsFetch('error', { dateId, error: e });
+      return rejectWithValue(storableError(e));
+    }
+  }
+
+  logBookingTimeSlotsFetch('query', {
+    useFetchTimeSlotsForDate: false,
+    queryParams: queryParamsForLog,
+  });
+
+  try {
+    const response = await sdk.timeslots.query(queryParams);
+    const timeSlots = denormalisedResponseEntities(response);
+    logBookingTimeSlotsFetch('response', {
+      count: Array.isArray(timeSlots) ? timeSlots.length : 0,
+    });
+    return timeSlots;
+  } catch (e) {
+    logBookingTimeSlotsFetch('error', { error: e });
+    return rejectWithValue(storableError(e));
   }
 };
 
@@ -210,7 +364,10 @@ export const fetchTimeSlots = (listingId, start, end, timeZone, options) => (
   getState,
   sdk
 ) => {
-  return dispatch(fetchTimeSlotsThunk({ listingId, start, end, timeZone, options })).unwrap();
+  const resolvedListingId = resolveListingIdForTimeslotsQuery(listingId, getState);
+  return dispatch(
+    fetchTimeSlotsThunk({ listingId: resolvedListingId, start, end, timeZone, options })
+  ).unwrap();
 };
 
 //////////////////
@@ -410,12 +567,24 @@ const listingPageSlice = createSlice({
     setInitialValues: (state, action) => {
       return { ...initialState, ...action.payload };
     },
+    invalidateTimeSlotsCache: state => {
+      state.timeSlotsForDate = {};
+      state.monthlyTimeSlots = {};
+    },
+    invalidateTimeSlotsForDate: (state, action) => {
+      const dateKey = action.payload?.dateKey;
+      if (dateKey && state.timeSlotsForDate[dateKey]) {
+        delete state.timeSlotsForDate[dateKey];
+      }
+    },
   },
   extraReducers: builder => {
     builder
       .addCase(showListingThunk.pending, (state, action) => {
         state.id = action.meta.arg.listingId;
         state.showListingError = null;
+        state.timeSlotsForDate = {};
+        state.monthlyTimeSlots = {};
       })
       .addCase(showListingThunk.fulfilled, (state, action) => {
         // Data is handled by addMarketplaceEntities in the thunk
@@ -438,15 +607,25 @@ const listingPageSlice = createSlice({
         const { useFetchTimeSlotsForDate = false } = options || {};
 
         if (useFetchTimeSlotsForDate) {
-          const dateId = stringifyDateToISO8601(start, timeZone);
+          const dateId = options?.dateKey || stringifyDateToISO8601(start, timeZone);
           state.timeSlotsForDate = removeOutdatedDateData(state.timeSlotsForDate);
-          if (!state.timeSlotsForDate[dateId]) {
-            state.timeSlotsForDate[dateId] = {};
+          const previousEntry = state.timeSlotsForDate[dateId];
+          if (!previousEntry) {
+            state.timeSlotsForDate[dateId] = { timeSlots: [] };
           }
           state.timeSlotsForDate[dateId].fetchTimeSlotsError = null;
           state.timeSlotsForDate[dateId].fetchedAt = null;
           state.timeSlotsForDate[dateId].fetchTimeSlotsInProgress = true;
-          state.timeSlotsForDate[dateId].timeSlots = [];
+          state.timeSlotsForDate[dateId].lastQuery = buildLastTimeslotsQueryDebug(
+            action.meta.arg
+          );
+          state.timeSlotsForDate[dateId].lastResponseCount = null;
+          logBookingTimeSlotsFetch('pending', {
+            dateId,
+            previousSlotCount: previousEntry?.timeSlots?.length ?? 0,
+            reduxKeys: Object.keys(state.timeSlotsForDate),
+            lastQuery: state.timeSlotsForDate[dateId].lastQuery,
+          });
         } else {
           const monthId = monthIdString(start, timeZone);
           if (!state.monthlyTimeSlots[monthId]) {
@@ -461,13 +640,30 @@ const listingPageSlice = createSlice({
         const { useFetchTimeSlotsForDate = false } = options || {};
 
         if (useFetchTimeSlotsForDate) {
-          const dateId = stringifyDateToISO8601(start, timeZone);
+          const dateId = options?.dateKey || stringifyDateToISO8601(start, timeZone);
           if (!state.timeSlotsForDate[dateId]) {
             state.timeSlotsForDate[dateId] = {};
           }
           state.timeSlotsForDate[dateId].fetchTimeSlotsInProgress = false;
           state.timeSlotsForDate[dateId].fetchedAt = new Date().getTime();
-          state.timeSlotsForDate[dateId].timeSlots = action.payload;
+          state.timeSlotsForDate[dateId].timeSlots = Array.isArray(action.payload)
+            ? action.payload
+            : [];
+          state.timeSlotsForDate[dateId].lastResponseCount =
+            state.timeSlotsForDate[dateId].timeSlots.length;
+          if (!state.timeSlotsForDate[dateId].lastQuery) {
+            state.timeSlotsForDate[dateId].lastQuery = buildLastTimeslotsQueryDebug(
+              action.meta.arg
+            );
+          }
+          logBookingTimeSlotsFetch('fulfilled', {
+            dateId,
+            count: state.timeSlotsForDate[dateId].timeSlots.length,
+            lastResponseCount: state.timeSlotsForDate[dateId].lastResponseCount,
+            fetchedAt: state.timeSlotsForDate[dateId].fetchedAt,
+            reduxKeys: Object.keys(state.timeSlotsForDate),
+            lastQuery: state.timeSlotsForDate[dateId].lastQuery,
+          });
         } else {
           const monthId = monthIdString(start, timeZone);
           if (!state.monthlyTimeSlots[monthId]) {
@@ -482,12 +678,23 @@ const listingPageSlice = createSlice({
         const { useFetchTimeSlotsForDate = false } = options || {};
 
         if (useFetchTimeSlotsForDate) {
-          const dateId = stringifyDateToISO8601(start, timeZone);
+          const dateId = options?.dateKey || stringifyDateToISO8601(start, timeZone);
           if (!state.timeSlotsForDate[dateId]) {
             state.timeSlotsForDate[dateId] = {};
           }
           state.timeSlotsForDate[dateId].fetchTimeSlotsInProgress = false;
           state.timeSlotsForDate[dateId].fetchTimeSlotsError = action.payload;
+          state.timeSlotsForDate[dateId].lastResponseCount = null;
+          if (!state.timeSlotsForDate[dateId].lastQuery) {
+            state.timeSlotsForDate[dateId].lastQuery = buildLastTimeslotsQueryDebug(
+              action.meta.arg
+            );
+          }
+          logBookingTimeSlotsFetch('rejected', {
+            dateId,
+            error: action.payload,
+            lastQuery: state.timeSlotsForDate[dateId].lastQuery,
+          });
         } else {
           const monthId = monthIdString(start, timeZone);
           if (!state.monthlyTimeSlots[monthId]) {
@@ -524,7 +731,11 @@ const listingPageSlice = createSlice({
   },
 });
 
-export const { setInitialValues } = listingPageSlice.actions;
+export const { setInitialValues, invalidateTimeSlotsCache, invalidateTimeSlotsForDate } =
+  listingPageSlice.actions;
+
+/** Clear cached monthly/date time slots (e.g. after Coach Calendar availability sync). */
+export const invalidateListingPageTimeSlotsCache = () => invalidateTimeSlotsCache();
 
 export default listingPageSlice.reducer;
 

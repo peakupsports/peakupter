@@ -3,6 +3,7 @@ import { Form as FinalForm } from 'react-final-form';
 import classNames from 'classnames';
 
 import appSettings from '../../../config/settings';
+import { isDevelopmentMode } from '../../../util/isDevelopmentMode';
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import { required, bookingDatesRequired, composeValidators } from '../../../util/validators';
 import {
@@ -564,7 +565,7 @@ export const BookingDatesForm = props => {
   useEffect(() => {
     // Log time slots marked for each day for debugging
     if (
-      appSettings.dev &&
+      isDevelopmentMode() &&
       appSettings.verbose &&
       !currentMonthInProgress &&
       !nextMonthInProgress &&

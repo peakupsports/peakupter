@@ -1,15 +1,38 @@
 import {
   isInRange,
   isDateSameOrAfter,
+  isSameDate,
   findNextBoundary,
   formatDateIntoPartials,
+  getBoundaries,
+  getStartHours,
   getStartOf,
   parseDateFromISO8601,
+  stringifyDateTimeToISO8601,
   stringifyDateToISO8601,
+  bookingTimeUnits,
 } from '../../util/dates';
 import { timeSlotsPerDate } from '../../util/generators';
 
 export const TODAY = new Date();
+
+/**
+ * Full calendar-day window for Sharetribe timeslots.query (date-specific booking fetch).
+ *
+ * @param {Date} startDate booking day in listing timezone
+ * @param {string} timeZone
+ * @returns {{ dayStart: Date, dayEnd: Date, dateKey: string }}
+ */
+export const getBookingTimeSlotsQueryRangeForDate = (startDate, timeZone) => {
+  const dayStart = getStartOf(startDate, 'day', timeZone);
+  const dayEnd = getStartOf(startDate, 'day', timeZone, 1, 'days');
+
+  return {
+    dayStart,
+    dayEnd,
+    dateKey: stringifyDateToISO8601(startDate, timeZone),
+  };
+};
 
 export const isToday = (date, timeZone) => {
   if (!date) {
@@ -61,13 +84,42 @@ export const getMonthlyFetchRange = (monthlyTimeSlots, timeZone) => {
 };
 
 /**
- * This merges the time slots, when consecutive time slots are back to back with same "seats" count.
+ * @param {*} value
+ * @returns {Array}
+ */
+export const normalizeTimeSlotsArray = value => (Array.isArray(value) ? value : []);
+
+/**
+ * Sharetribe timeslots with seats:0 are blocking-only and must not be merged into bookable ranges.
  *
  * @param {Array<TimeSlot>} timeSlots
- * @returns {Array<TimeSlot>} array of time slots where unnecessary boundaries have been removed.
+ * @returns {Array<TimeSlot>}
+ */
+export const filterBookableTimeSlots = timeSlots =>
+  normalizeTimeSlotsArray(timeSlots).filter(ts => (ts?.attributes?.seats ?? 0) > 0);
+
+/**
+ * @param {number} index
+ * @param {Array<TimeSlot>} timeSlots
+ * @returns {number}
+ */
+export const findLastAdjacentSlotIndex = (index, timeSlots) => {
+  const current = timeSlots[index];
+  const next = timeSlots[index + 1];
+  return next && isSameDate(current?.attributes?.end, next?.attributes?.start)
+    ? findLastAdjacentSlotIndex(index + 1, timeSlots)
+    : index;
+};
+
+/**
+ * Merge consecutive back-to-back slots with the same seats count (never bridge seats:0 gaps).
+ *
+ * @param {Array<TimeSlot>} timeSlots
+ * @param {boolean} seatsEnabled
+ * @returns {Array<TimeSlot>}
  */
 export const removeUnnecessaryBoundaries = (timeSlots, seatsEnabled) => {
-  return timeSlots.reduce((picked, ts) => {
+  return filterBookableTimeSlots(timeSlots).reduce((picked, ts) => {
     const hasPicked = picked.length > 0;
     if (hasPicked) {
       const rest = picked.slice(0, -1);
@@ -77,17 +129,31 @@ export const removeUnnecessaryBoundaries = (timeSlots, seatsEnabled) => {
       const hasSameSeatsCount = lastPicked.attributes.seats === ts.attributes.seats;
       const createJoinedTimeSlot = (ts1, ts2, seats) => ({
         ...ts1,
-        attributes: { ...ts1.attributes, end: ts2.attributes.end, seats: seats },
+        attributes: { ...ts1.attributes, end: ts2.attributes.end, seats },
       });
-      const hasValidSeatsCount = seatsEnabled && hasSameSeatsCount;
-      const isSingleSeatMode = !seatsEnabled;
-      const seatsForJoinedTimeSlot = isSingleSeatMode ? 1 : ts.attributes.seats;
-      return isBackToBack && (hasValidSeatsCount || isSingleSeatMode)
-        ? [...rest, createJoinedTimeSlot(lastPicked, ts, seatsForJoinedTimeSlot)]
+
+      const canMerge = isBackToBack && hasSameSeatsCount;
+
+      return canMerge
+        ? [...rest, createJoinedTimeSlot(lastPicked, ts, ts.attributes.seats)]
         : [...picked, ts];
     }
     return [ts];
   }, []);
+};
+
+/**
+ * Sort bookable slots and keep every disjoint interval (e.g. before and after partial blocks).
+ *
+ * @param {Array<TimeSlot>} timeSlots
+ * @param {boolean} seatsEnabled
+ * @returns {Array<TimeSlot>}
+ */
+export const prepareBookableTimeSlotsOnDate = (timeSlots, seatsEnabled) => {
+  const sorted = filterBookableTimeSlots(timeSlots).sort(
+    (a, b) => a.attributes.start.getTime() - b.attributes.start.getTime()
+  );
+  return removeUnnecessaryBoundaries(sorted, seatsEnabled);
 };
 
 /**
@@ -142,33 +208,301 @@ const getMonthlyTimeSlotsOnDate = (
   return monthlyTimeSlotsData[startIdString]?.timeSlots || [];
 };
 
+/**
+ * @param {Object} timeSlot
+ * @param {string} timeZone
+ * @returns {{ start: string|null, end: string|null, seats: number|null }}
+ */
+export const formatTimeSlotForBookingDebug = (timeSlot, timeZone) => {
+  const start = timeSlot?.attributes?.start;
+  const end = timeSlot?.attributes?.end;
+
+  return {
+    start: start ? stringifyDateTimeToISO8601(start, timeZone) : null,
+    end: end ? stringifyDateTimeToISO8601(end, timeZone) : null,
+    seats: timeSlot?.attributes?.seats ?? null,
+  };
+};
+
+/**
+ * @param {Array<TimeSlot>} timeSlots
+ * @param {number} headCount
+ * @param {number} tailCount
+ * @returns {{ head: Array, tail: Array, total: number }}
+ */
+export const sliceTimeSlotsForBookingDebug = (timeSlots, headCount = 20, tailCount = 20) => {
+  const list = normalizeTimeSlotsArray(timeSlots);
+  const total = list.length;
+
+  if (total <= headCount + tailCount) {
+    return { head: list, tail: [], total };
+  }
+
+  return {
+    head: list.slice(0, headCount),
+    tail: list.slice(-tailCount),
+    total,
+  };
+};
+
+/**
+ * Dev snapshot: raw Sharetribe slots vs prepared intervals vs dropdown start times.
+ *
+ * @param {Object} params
+ * @returns {Object}
+ */
+export const buildBookingTimeSlotsDebugSnapshot = params => {
+  const {
+    timeZone,
+    bookingStartDate,
+    rawTimeSlotsOnSelectedDate,
+    timeSlotsUsedForStartTimes,
+    availableStartTimes,
+    seatsEnabled,
+    fetchTimeSlotsInProgress = false,
+    hasFetchedDateTimeSlots = false,
+    lookupDateKey = null,
+    timeSlotsForDateKeys = [],
+    fetchTimeSlotsError = null,
+    lastTimeslotsQuery = null,
+    lastTimeslotsResponseCount = null,
+    storedRawTimeSlotsCount = null,
+  } = params;
+
+  const selectedDate = bookingStartDate
+    ? stringifyDateToISO8601(bookingStartDate, timeZone)
+    : null;
+  const raw = normalizeTimeSlotsArray(rawTimeSlotsOnSelectedDate);
+  const rawOnDay = raw.filter(t =>
+    bookingStartDate
+      ? isInRange(bookingStartDate, t.attributes.start, t.attributes.end, 'day', timeZone)
+      : false
+  );
+  const rawSlice = sliceTimeSlotsForBookingDebug(rawOnDay);
+  const preparedBookableIntervals = prepareBookableTimeSlotsOnDate(rawOnDay, seatsEnabled);
+  const usedIntervals = normalizeTimeSlotsArray(timeSlotsUsedForStartTimes);
+  const storedCount =
+    storedRawTimeSlotsCount != null ? storedRawTimeSlotsCount : raw.length;
+  const sdkResponseCount =
+    lastTimeslotsResponseCount != null ? lastTimeslotsResponseCount : null;
+  const reduxLookupMismatch =
+    sdkResponseCount != null && sdkResponseCount > 0 && storedCount === 0;
+  const dayFilterMismatch = storedCount > 0 && rawOnDay.length === 0;
+
+  return {
+    selectedDate,
+    lookupDateKey,
+    timeSlotsForDateKeys,
+    fetchTimeSlotsInProgress,
+    hasFetchedDateTimeSlots,
+    fetchTimeSlotsError: fetchTimeSlotsError?.message || fetchTimeSlotsError || null,
+    lastTimeslotsQuery,
+    lastTimeslotsResponseCount: sdkResponseCount,
+    storedRawTimeSlotsCount: storedCount,
+    reduxLookupMismatch,
+    dayFilterMismatch,
+    rawTimeSlotsOnSelectedDateCount: rawOnDay.length,
+    rawTimeSlotsFirst20: rawSlice.head.map(ts => formatTimeSlotForBookingDebug(ts, timeZone)),
+    rawTimeSlotsLast20:
+      rawSlice.tail.length > 0
+        ? rawSlice.tail.map(ts => formatTimeSlotForBookingDebug(ts, timeZone))
+        : null,
+    rawTimeSlotsTruncated: rawSlice.tail.length > 0,
+    preparedBookableIntervalsCount: preparedBookableIntervals.length,
+    preparedBookableIntervals: preparedBookableIntervals.map(ts =>
+      formatTimeSlotForBookingDebug(ts, timeZone)
+    ),
+    timeSlotsUsedForStartTimesCount: usedIntervals.length,
+    timeSlotsUsedForStartTimes: usedIntervals.map(ts =>
+      formatTimeSlotForBookingDebug(ts, timeZone)
+    ),
+    availableStartTimesCount: (availableStartTimes || []).length,
+    availableStartTimes: (availableStartTimes || []).map(entry => ({
+      timestamp: entry?.timestamp?.toISOString?.() || entry?.timestamp,
+      timeOfDay: entry?.timeOfDay || null,
+    })),
+  };
+};
+
 export const getTimeSlotsOnSelectedDate = (
   timeSlotsOnSelectedDate,
   monthlyTimeSlots,
   bookingStartDate,
   timeZone,
   seatsEnabled,
-  minDurationStartingInDay
+  minDurationStartingInDay,
+  options = {}
 ) => {
-  const safeTimeSlotsOnSelectedDate = Array.isArray(timeSlotsOnSelectedDate)
-    ? timeSlotsOnSelectedDate
-    : [];
-
   if (!bookingStartDate) {
     return [];
   }
 
-  return safeTimeSlotsOnSelectedDate.length > 0
-    ? removeUnnecessaryBoundaries(safeTimeSlotsOnSelectedDate, seatsEnabled)
-    : bookingStartDate
-    ? getMonthlyTimeSlotsOnDate(
-        monthlyTimeSlots,
-        bookingStartDate,
+  const { hasFetchedDateTimeSlots = false } = options;
+
+  const dateBookable = prepareBookableTimeSlotsOnDate(
+    normalizeTimeSlotsArray(timeSlotsOnSelectedDate).filter(t =>
+      isInRange(bookingStartDate, t.attributes.start, t.attributes.end, 'day', timeZone)
+    ),
+    seatsEnabled
+  );
+
+  if (hasFetchedDateTimeSlots) {
+    return dateBookable;
+  }
+
+  if (dateBookable.length > 0) {
+    return dateBookable;
+  }
+
+  return getMonthlyTimeSlotsOnDate(
+    monthlyTimeSlots,
+    bookingStartDate,
+    timeZone,
+    seatsEnabled,
+    minDurationStartingInDay
+  );
+};
+
+/**
+ * Build start-time options from every bookable interval on the selected day.
+ *
+ * @param {Object} params
+ * @param {Function} params.buildStartTimesForInterval
+ * @returns {Array}
+ */
+export const getAvailableStartTimesFromSlots = params => {
+  const { slots, buildStartTimesForInterval } = params;
+
+  if (!slots || slots.length === 0) {
+    return [];
+  }
+
+  let availableStartTimes = [];
+  let slotIndex = 0;
+
+  while (slotIndex < slots.length) {
+    const lastIndex = findLastAdjacentSlotIndex(slotIndex, slots);
+    const intervalStart = slots[slotIndex].attributes.start;
+    const intervalEnd = slots[lastIndex].attributes.end;
+    const startTimes = buildStartTimesForInterval({
+      intervalStart,
+      intervalEnd,
+      slotIndex,
+      lastIndex,
+      slots,
+    });
+    const pickedTimestamps = availableStartTimes.map(t => t.timestamp);
+    const uniqueStartTimes = startTimes.filter(t => !pickedTimestamps.includes(t.timestamp));
+    availableStartTimes = availableStartTimes.concat(uniqueStartTimes);
+    slotIndex = lastIndex + 1;
+  }
+
+  return availableStartTimes;
+};
+
+/**
+ * @param {Object} params
+ * @returns {Array}
+ */
+export const getAvailableStartTimesForFixedDuration = params => {
+  const {
+    intl,
+    timeZone,
+    bookingStart,
+    timeSlotsOnSelectedDate,
+    bookingLengthInMinutes,
+    startTimeInterval,
+    seatsEnabled = false,
+  } = params;
+
+  if (!bookingStart) {
+    return [];
+  }
+
+  const slots = prepareBookableTimeSlotsOnDate(
+    normalizeTimeSlotsArray(timeSlotsOnSelectedDate),
+    seatsEnabled
+  );
+
+  if (slots.length === 0) {
+    return [];
+  }
+
+  const bookingStartDate = getStartOf(bookingStart, 'day', timeZone);
+  const nextDay = getStartOf(bookingStartDate, 'day', timeZone, 1, 'days');
+  const timeUnitConfig = bookingTimeUnits[startTimeInterval];
+
+  if (!timeUnitConfig) {
+    return [];
+  }
+
+  const overlapWithNextDay = timeUnitConfig.timeUnitInMinutes
+    ? bookingLengthInMinutes - timeUnitConfig.timeUnitInMinutes
+    : bookingLengthInMinutes;
+  const nextDayPlusBookingLength = getStartOf(
+    nextDay,
+    'minute',
+    timeZone,
+    overlapWithNextDay,
+    'minutes'
+  );
+
+  return getAvailableStartTimesFromSlots({
+    slots,
+    buildStartTimesForInterval: ({ intervalStart, intervalEnd }) => {
+      const startLimit = isDateSameOrAfter(bookingStartDate, intervalStart)
+        ? bookingStartDate
+        : intervalStart;
+      const endOfTimeSlotOrDay = isDateSameOrAfter(intervalEnd, nextDayPlusBookingLength)
+        ? nextDayPlusBookingLength
+        : intervalEnd;
+      const endLimit = getStartOf(
+        endOfTimeSlotOrDay,
+        'minute',
         timeZone,
-        seatsEnabled,
-        minDurationStartingInDay
-      )
-    : [];
+        -1 * bookingLengthInMinutes,
+        'minutes'
+      );
+
+      return getBoundaries(startLimit, endLimit, 1, timeUnitConfig.timeUnit, timeZone, intl);
+    },
+  });
+};
+
+/**
+ * @param {Object} params
+ * @returns {Array}
+ */
+export const getAvailableStartTimesForHourlyBooking = params => {
+  const { intl, timeZone, bookingStart, timeSlotsOnSelectedDate, seatsEnabled = false } = params;
+
+  if (!bookingStart) {
+    return [];
+  }
+
+  const slots = prepareBookableTimeSlotsOnDate(
+    normalizeTimeSlotsArray(timeSlotsOnSelectedDate),
+    seatsEnabled
+  );
+
+  if (slots.length === 0) {
+    return [];
+  }
+
+  const bookingStartDate = getStartOf(bookingStart, 'day', timeZone);
+  const nextDate = getStartOf(bookingStartDate, 'day', timeZone, 1, 'days');
+
+  return getAvailableStartTimesFromSlots({
+    slots,
+    buildStartTimesForInterval: ({ intervalStart, intervalEnd }) => {
+      const startLimit = isDateSameOrAfter(bookingStartDate, intervalStart)
+        ? bookingStartDate
+        : intervalStart;
+      const endLimit = isDateSameOrAfter(intervalEnd, nextDate) ? nextDate : intervalEnd;
+
+      return getStartHours(startLimit, endLimit, timeZone, intl);
+    },
+  });
 };
 
 export const showNextMonthStepper = (currentMonth, dayCountAvailableForBooking, timeZone) => {

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import appSettings from '../../config/settings';
+import { isDevelopmentMode } from '../../util/isDevelopmentMode';
 import { useConfiguration } from '../../context/configurationContext';
 import { useRouteConfiguration } from '../../context/routeConfigurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
@@ -22,9 +22,12 @@ import {
   persistCoachCalendarSyncTargetIfCompatible,
 } from '../../util/coachCalendarAllListingsSync';
 import { isCoachCalendarCompatibleListing } from '../../util/coachCalendarListingCompatibility';
+import { formatCoachCalendarForceSyncErrorPanel } from '../../util/coachCalendarSyncErrors';
 import {
+  buildCoachCalendarExceptionBuildDebug,
   getCoachCalendarSyncApiErrorSummary,
   getCoachCalendarSyncErrorMessage,
+  pruneAvailableDaysFromDaySettings,
   syncCoachCalendarToAllListings,
 } from '../../util/coachCalendarSharetribeSync';
 import {
@@ -51,6 +54,7 @@ import {
   requestFetchOwnListingsForCoachCalendarSync,
   requestUpdateListing,
 } from '../EditListingPage/EditListingPage.duck';
+import { invalidateListingPageTimeSlotsCache } from '../ListingPage/ListingPage.duck';
 
 import css from './CoachCalendarPage.module.css';
 import { getCoachCalendarBookingEventsForDate } from './coachCalendarBookingEvents';
@@ -185,14 +189,20 @@ const LISTING_WIZARD_AVAILABILITY_TAB = 'availability';
  * On-screen summary for dev-only force sync (proves Sharetribe write path).
  *
  * @param {Object} syncResult
+ * @param {{ daySettings: Object, timezone: string }} context
  * @returns {Object}
  */
-const buildForceSyncResultSummary = syncResult => {
+const buildForceSyncResultSummary = (syncResult, context = {}) => {
+  const { daySettings = {}, timezone } = context;
   const listingCount = syncResult.listingCount ?? syncResult.listingIdsAttempted?.length ?? 0;
 
   const createdExceptionDatesByListing = {};
   const existingExceptionDatesByListing = {};
   const deletedExceptionDatesByListing = {};
+  const exceptionBuildDebugByListing = {};
+  const exceptionSyncAuditByListing = {};
+  const expansionExceptionAuditByListing = {};
+  const listingSyncMetaByListing = {};
   (syncResult.results || []).forEach(result => {
     if (!result?.listingId) {
       return;
@@ -204,6 +214,21 @@ const buildForceSyncResultSummary = syncResult => {
         result.exceptionStats?.existingExceptionDates || [];
       deletedExceptionDatesByListing[result.listingId] =
         result.exceptionStats?.deletedExceptionDates || [];
+      if (result.exceptionBuildDebug) {
+        exceptionBuildDebugByListing[result.listingId] = result.exceptionBuildDebug;
+      }
+      if (result.exceptionStats?.exceptionSyncAudit) {
+        exceptionSyncAuditByListing[result.listingId] = result.exceptionStats.exceptionSyncAudit;
+      }
+      if (result.exceptionStats?.expansionExceptionAudit) {
+        expansionExceptionAuditByListing[result.listingId] =
+          result.exceptionStats.expansionExceptionAudit;
+      }
+      listingSyncMetaByListing[result.listingId] = {
+        useFullDays: result.useFullDays ?? null,
+        unitType: result.unitType ?? null,
+        timezone: result.planPayload?.availabilityPlan?.timezone ?? null,
+      };
     }
   });
 
@@ -212,7 +237,33 @@ const buildForceSyncResultSummary = syncResult => {
     ? firstFailed.serializedError ||
       getCoachCalendarSyncApiErrorSummary(firstFailed.error, {
         listingId: firstFailed.listingId,
+        failedStep: firstFailed.error?.failedStep,
+        requestPayload: firstFailed.error?.requestPayload,
       })
+    : null;
+  const forceSyncErrorPanel = formatCoachCalendarForceSyncErrorPanel(firstApiError);
+
+  const partialBlockDays = Object.entries(pruneAvailableDaysFromDaySettings(daySettings)).filter(
+    ([, raw]) => {
+      const slots = raw?.blockedSlots;
+      return raw?.allDayBlocked || (Array.isArray(slots) && slots.length > 0);
+    }
+  );
+
+  const firstSyncedMeta = Object.values(listingSyncMetaByListing)[0];
+  const exceptionBuildDebug = timezone
+    ? buildCoachCalendarExceptionBuildDebug(pruneAvailableDaysFromDaySettings(daySettings), {
+        timezone,
+        useFullDays: firstSyncedMeta?.useFullDays ?? false,
+      })
+    : null;
+
+  const partialBlockExpansionPreview = exceptionBuildDebug
+    ? Object.fromEntries(
+        Object.entries(exceptionBuildDebug)
+          .map(([dateKey, dayDebug]) => [dateKey, dayDebug?.partialBlockExpansion || null])
+          .filter(([, value]) => value != null)
+      )
     : null;
 
   return {
@@ -225,9 +276,69 @@ const buildForceSyncResultSummary = syncResult => {
     createdExceptionDatesByListing,
     existingExceptionDatesByListing,
     deletedExceptionDatesByListing,
+    exceptionBuildDebug,
+    exceptionBuildDebugByListing,
+    partialBlockExpansionPreview,
+    partialBlockExpansionByListing: Object.fromEntries(
+      Object.entries(exceptionBuildDebugByListing).map(([listingId, byDate]) => [
+        listingId,
+        Object.fromEntries(
+          Object.entries(byDate || {})
+            .map(([dateKey, dayDebug]) => [dateKey, dayDebug?.partialBlockExpansion || null])
+            .filter(([, value]) => value != null)
+        ),
+      ])
+    ),
+    exceptionSyncAuditByListing,
+    expansionExceptionAuditByListing,
+    listingSyncMetaByListing,
+    partialBlockDayCount: partialBlockDays.length,
+    forceSyncErrorPanel,
     firstApiError,
     rateLimited: Boolean(syncResult.rateLimited),
   };
+};
+
+/**
+ * @param {Object|null} panel
+ * @returns {JSX.Element|null}
+ */
+const ForceSyncErrorPanel = ({ panel }) => {
+  if (!panel) {
+    return null;
+  }
+
+  const rows = [
+    ['failedStep', panel.failedStep],
+    ['listingId', panel.listingId],
+    ['status', panel.status],
+    ['apiErrors[0].code', panel.apiErrorCode],
+    ['apiErrors[0].title', panel.apiErrorTitle],
+    ['apiErrors[0].detail', panel.apiErrorDetail],
+    ['message', panel.message],
+  ];
+
+  return (
+    <div className={css.devForceSyncErrorPanel} role="alert">
+      <p className={css.devForceSyncErrorPanelTitle}>Force sync API error</p>
+      <dl className={css.devForceSyncErrorPanelList}>
+        {rows.map(([label, value]) => (
+          <div key={label} className={css.devForceSyncErrorPanelRow}>
+            <dt>{label}</dt>
+            <dd>{value != null && value !== '' ? String(value) : '—'}</dd>
+          </div>
+        ))}
+      </dl>
+      {panel.requestPayload ? (
+        <>
+          <p className={css.devForceSyncErrorPanelSubtitle}>requestPayload</p>
+          <pre className={css.devForceSyncErrorPayload}>
+            {JSON.stringify(panel.requestPayload, null, 2)}
+          </pre>
+        </>
+      ) : null}
+    </div>
+  );
 };
 
 const CoachCalendarPageComponent = () => {
@@ -313,7 +424,7 @@ const CoachCalendarPageComponent = () => {
   const [forceSyncError, setForceSyncError] = useState(null);
   const [rateLimitRemainingMs, setRateLimitRemainingMs] = useState(0);
 
-  const isDevMode = appSettings.dev;
+  const isDevMode = isDevelopmentMode();
   const isForceSyncBlocked = rateLimitRemainingMs > 0;
 
   const selectedDateKey = toDateKey(selectedDate);
@@ -717,7 +828,7 @@ const CoachCalendarPageComponent = () => {
   };
 
   const handleForceSyncAllListings = () => {
-    if (!config || forceSyncInProgress || isForceSyncBlocked) {
+    if (!isDevMode || !config || forceSyncInProgress || isForceSyncBlocked) {
       return;
     }
 
@@ -734,13 +845,32 @@ const CoachCalendarPageComponent = () => {
 
     runSharetribeSyncAllListings('force-sync-manual')
       .then(syncResult => {
-        const summary = buildForceSyncResultSummary(syncResult);
+        const wizardReturn = getEffectiveListingWizardReturn();
+        const wizardListingId = wizardReturn?.id?.uuid || wizardReturn?.id || null;
+        const summary = buildForceSyncResultSummary(syncResult, {
+          daySettings,
+          timezone: resolveSyncTimezone(wizardListingId),
+        });
         setForceSyncSummary(summary);
+        if ((syncResult.succeededListingIds || []).length > 0) {
+          dispatch(invalidateListingPageTimeSlotsCache());
+        }
         if (syncResult.rateLimited) {
           setForceSyncError('Rate limited, wait 60 seconds');
           setRateLimitRemainingMs(getCoachCalendarSyncRateLimitRemainingMs());
-        } else if (summary.firstApiError?.message) {
-          setForceSyncError(summary.firstApiError.message);
+        } else if (summary.forceSyncErrorPanel?.message || summary.firstApiError?.message) {
+          const panel = summary.forceSyncErrorPanel;
+          setForceSyncError(
+            panel
+              ? [
+                  panel.failedStep && `Step: ${panel.failedStep}`,
+                  panel.status && `HTTP ${panel.status}`,
+                  panel.apiErrorDetail || panel.apiErrorTitle || panel.message,
+                ]
+                  .filter(Boolean)
+                  .join(' — ')
+              : summary.firstApiError.message
+          );
         }
       })
       .catch(error => {
@@ -760,6 +890,7 @@ const CoachCalendarPageComponent = () => {
           failedListingIds: [],
           skippedListingIds: [],
           createdExceptionDatesByListing: {},
+          forceSyncErrorPanel: formatCoachCalendarForceSyncErrorPanel(serializedTopLevelError),
           firstApiError: serializedTopLevelError,
           rateLimited: isRateLimit,
         });
@@ -906,6 +1037,9 @@ const CoachCalendarPageComponent = () => {
                 <p className={css.devForceSyncError} role="alert">
                   {forceSyncError}
                 </p>
+              ) : null}
+              {forceSyncSummary?.forceSyncErrorPanel ? (
+                <ForceSyncErrorPanel panel={forceSyncSummary.forceSyncErrorPanel} />
               ) : null}
               {forceSyncSummary ? (
                 <pre className={css.devForceSyncSummary}>

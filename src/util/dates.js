@@ -652,6 +652,15 @@ export const stringifyDateToISO8601 = (date, timeZone = null) => {
     : moment(date).format('YYYY-MM-DD');
 };
 
+/**
+ * @param {Date} date
+ * @param {string} [timeZone]
+ * @returns {string}
+ */
+export const stringifyDateTimeToISO8601 = (date, timeZone = null) => {
+  return timeZone ? moment(date).tz(timeZone).format() : moment(date).format();
+};
+
 ///////////////////////
 // Time unit helpers //
 ///////////////////////

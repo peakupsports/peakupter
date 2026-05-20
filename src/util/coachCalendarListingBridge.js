@@ -21,7 +21,11 @@ export const COACH_CALENDAR_LISTING_TYPE = 'listingType';
 
 export const COACH_CALENDAR_CONNECTED = 'coachCalendarConnected';
 
-/** Hourly/fixed listings: full-day bookable window (API endTime must be 00:00 for midnight, not 24:00). */
+/**
+ * Hourly/fixed listings: one full-day plan entry (00:00–00:00 = through midnight).
+ * Partial blocks use seats:0 exceptions; open windows use seats:1 expansion exceptions
+ * (Sharetribe timeslots do not resume after a block without explicit expansion).
+ */
 const HOURLY_DEFAULT_START = '00:00';
 const HOURLY_DEFAULT_END = '00:00';
 /** Day/night unit types: 00:00–00:00 means through end of calendar day. */
