@@ -33,6 +33,7 @@ import { richText } from '../../util/richText';
 import { ensureUser } from '../../util/data';
 import { createSlug } from '../../util/urlHelpers';
 import {
+  filterListingsForPublicBrowsing,
   pickRepresentativeListing,
   countryCodeToFlagEmoji,
   deriveCountryCodeFromPlace,
@@ -928,7 +929,8 @@ export const MainContent = props => {
 
   const marketplaceConfig = useConfiguration();
 
-  const hasListings = listings.length > 0;
+  const publicBrowseListings = filterListingsForPublicBrowsing(listings);
+  const hasListings = publicBrowseListings.length > 0;
   const isPeakUpCoachProfile = shouldShowPeakUpProfileSticker(listings, publicData);
   const hasMatchMedia = typeof window !== 'undefined' && window?.matchMedia;
   const isMobileLayout =
@@ -1400,10 +1402,13 @@ export const MainContent = props => {
           className={listingsContainerClasses}
         >
           <H4 as="h2" className={css.listingsTitle}>
-            <FormattedMessage id="ProfilePage.listingsTitle" values={{ count: listings.length }} />
+            <FormattedMessage
+              id="ProfilePage.listingsTitle"
+              values={{ count: publicBrowseListings.length }}
+            />
           </H4>
           <ul className={css.listings}>
-            {listings.map(l => (
+            {publicBrowseListings.map(l => (
               <li className={css.listing} key={l.id.uuid}>
                 <ListingCard listing={l} showAuthorInfo={false} />
               </li>

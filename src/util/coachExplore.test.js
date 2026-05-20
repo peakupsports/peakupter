@@ -15,6 +15,9 @@ import {
   buildCoachMapPageBuilderLinkTo,
   buildCoachMapSearchWithManualLocation,
   coachMapSearchForFreshGeolocationIntent,
+  filterListingsForPublicBrowsing,
+  isListingHiddenFromPublic,
+  pickRepresentativeListing,
   isLocationFieldCurrentLocation,
   mergeResolvedSportIntoPageSearchForCoachMap,
   normalizeGeocoderOriginLatLng,
@@ -924,5 +927,43 @@ describe('getCoachMapLocationLabel', () => {
     expect(
       getCoachMapLocationLabel({ author: { attributes: { profile: { publicData: {} } } } })
     ).toBeNull();
+  });
+});
+
+describe('public listing visibility', () => {
+  const publicListing = {
+    id: { uuid: 'public-1' },
+    attributes: { publicData: { listingType: 'camp' } },
+  };
+  const bookingListing = {
+    id: { uuid: 'booking-1' },
+    attributes: { publicData: { peakupBookingListing: true } },
+  };
+  const hiddenListing = {
+    id: { uuid: 'hidden-1' },
+    attributes: { publicData: { hiddenFromPublic: true } },
+  };
+
+  it('flags peakup booking and hiddenFromPublic listings', () => {
+    expect(isListingHiddenFromPublic(publicListing)).toBe(false);
+    expect(isListingHiddenFromPublic(bookingListing)).toBe(true);
+    expect(isListingHiddenFromPublic(hiddenListing)).toBe(true);
+    expect(
+      isListingHiddenFromPublic({
+        attributes: { publicData: { hiddenFromPublic: 'true' } },
+      })
+    ).toBe(true);
+  });
+
+  it('filterListingsForPublicBrowsing removes hidden listings only', () => {
+    expect(
+      filterListingsForPublicBrowsing([publicListing, bookingListing, hiddenListing]).map(
+        l => l.id.uuid
+      )
+    ).toEqual(['public-1']);
+  });
+
+  it('pickRepresentativeListing still prefers peakup booking when present in full set', () => {
+    expect(pickRepresentativeListing([publicListing, bookingListing])?.id?.uuid).toBe('booking-1');
   });
 });

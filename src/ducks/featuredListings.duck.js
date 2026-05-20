@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as log from '../util/log';
 import { storableError } from '../util/errors';
 import { addMarketplaceEntities } from './marketplaceData.duck';
+import { isListingHiddenFromPublic } from '../util/coachExplore';
 import { createImageVariantConfig } from '../util/sdkLoader';
 
 const MAX_LISTING_COUNT = 10;
@@ -67,6 +68,8 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
           'publicData.shippingEnabled',
           'publicData.priceVariationsEnabled',
           'publicData.priceVariants',
+          'publicData.peakupBookingListing',
+          'publicData.hiddenFromPublic',
         ],
         'fields.image': [
           'variants.listing-card',
@@ -175,7 +178,9 @@ const featuredListingsSlice = createSlice({
         if (!selectionType) return;
 
         const affectedSections = getAffectedSectionKeys(allSections, sectionId, selectionType);
-        const listingIds = apiResponse.data.data.map(listing => listing.id);
+        const listingIds = apiResponse.data.data
+          .filter(listing => !isListingHiddenFromPublic(listing))
+          .map(listing => listing.id);
 
         affectedSections.forEach(sectionKey => {
           updateSectionState(state, parentPage, sectionKey, selectionType, {

@@ -7,6 +7,7 @@ import { lazyLoadWithDimensions } from '../../../../util/uiHelpers';
 import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 
 import { ListingCard, IconSpinner, ErrorMessage, NamedLink } from '../../../../components';
+import { filterListingsForPublicBrowsing } from '../../../../util/coachExplore';
 
 import Field, { hasDataInFields } from '../../Field';
 import SectionContainer from '../SectionContainer';
@@ -253,7 +254,9 @@ const SectionListings = props => {
   } = featuredListings;
 
   const listingIds = featuredListingData?.[sectionId]?.listingIds;
-  const listingEntities = listingIds ? getListingEntitiesById(listingIds) : [];
+  const listingEntities = listingIds
+    ? filterListingsForPublicBrowsing(getListingEntitiesById(listingIds))
+    : [];
 
   const fetched = featuredListingData?.[sectionId]?.fetched || false;
   const inProgress = featuredListingData?.[sectionId]?.inProgress;

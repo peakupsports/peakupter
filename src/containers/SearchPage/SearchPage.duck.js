@@ -15,6 +15,7 @@ import { hasPermissionToViewData, isUserAuthorized } from '../../util/userHelper
 import { parse } from '../../util/urlHelpers';
 
 import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
+import { isListingHiddenFromPublic } from '../../util/coachExplore';
 
 // Pagination page size might need to be dynamic on responsive page layouts
 // Current design has max 3 columns 12 is divisible by 2 and 3
@@ -27,6 +28,7 @@ const resultIds = data => {
   const listings = data.data;
   return listings
     .filter(l => !l.attributes.deleted && l.attributes.state === 'published')
+    .filter(l => !isListingHiddenFromPublic(l))
     .map(l => l.id);
 };
 

@@ -9,6 +9,28 @@ export const listingHasPeakupBookingFlag = listing => {
   return false;
 };
 
+const isTruthyPublicDataFlag = value => {
+  if (value === true) return true;
+  if (typeof value === 'string') return value.toLowerCase() === 'true';
+  return false;
+};
+
+/**
+ * Technical / internal listings hidden from public browse UI (search, coaches, map, profile gallery).
+ * Does not affect pickRepresentativeListing, contact, checkout, or inbox when passed the full listing set.
+ */
+export const isListingHiddenFromPublic = listing => {
+  if (listingHasPeakupBookingFlag(listing)) return true;
+  const pd = listing?.attributes?.publicData || {};
+  return isTruthyPublicDataFlag(pd.hiddenFromPublic);
+};
+
+/** @param {Object[]} listings */
+export const filterListingsForPublicBrowsing = (listings = []) => {
+  const list = Array.isArray(listings) ? listings : [];
+  return list.filter(l => !isListingHiddenFromPublic(l));
+};
+
 // Normalises a free-form sport label into a comparable key.
 // Strips emojis, punctuation, accents-as-separators, whitespace, hyphens and
 // underscores. Both sides of the SportBar filter pass through this, so the
@@ -920,8 +942,9 @@ export const pickRepresentativeListing = listings => {
  * @returns {Object[]} coach summaries
  */
 export const mergeListingsByAuthor = denormalisedListings => {
+  const publicListings = filterListingsForPublicBrowsing(denormalisedListings);
   const byAuthor = new Map();
-  for (const listing of denormalisedListings) {
+  for (const listing of publicListings) {
     const author = listing.author;
     const uuid = author?.id?.uuid;
     if (!uuid) continue;
