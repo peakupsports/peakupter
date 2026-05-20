@@ -181,6 +181,19 @@ export const serializeCoachCalendarSyncError = (error, context = {}) => {
  * @param {*} error
  * @returns {boolean}
  */
+/**
+ * @param {*} error
+ * @returns {boolean}
+ */
+export const isAvailabilityExceptionNotFoundError = error => {
+  const unwrapped = unwrapCoachCalendarSyncError(error);
+  if (unwrapped?.status === 404) {
+    return true;
+  }
+  const apiErrors = unwrapped?.apiErrors || unwrapped?.data?.errors || [];
+  return apiErrors.some(item => item?.code === 'not-found' || item?.code === 'resource-not-found');
+};
+
 export const isAvailabilityExceptionOverlapError = error => {
   const unwrapped = unwrapCoachCalendarSyncError(error);
   const haystack = [

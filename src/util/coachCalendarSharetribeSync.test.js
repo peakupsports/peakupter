@@ -1,5 +1,6 @@
 import {
   blockingExceptionCoversAvailabilityParam,
+  blockingExceptionCoversDateKey,
   buildAvailabilityExceptionParamsFromDaySettings,
   createSharetribeAvailabilityFromCoachCalendar,
   daySettingsHasBlocks,
@@ -7,6 +8,7 @@ import {
   getAvailableDateKeysInVisibleMonth,
   getCoachCalendarExceptionCleanupRange,
   getCoachCalendarVisibleMonthRange,
+  shouldDeleteBlockingExceptionForVisibleMonth,
 } from './coachCalendarSharetribeSync';
 import { isAvailabilityExceptionOverlapError } from './coachCalendarSyncErrors';
 import {
@@ -100,6 +102,54 @@ describe('coachCalendarSharetribeSync', () => {
       });
       expect(keys).toContain('2026-05-20');
       expect(keys).not.toContain('2026-05-21');
+    });
+  });
+
+  describe('shouldDeleteBlockingExceptionForVisibleMonth', () => {
+    it('deletes exception when coach calendar day is available in visible month', () => {
+      const start = parseDateFromISO8601('2026-06-01', TZ);
+      const end = getStartOf(start, 'day', TZ, 1, 'days');
+      const exception = {
+        attributes: { start, end, seats: 0 },
+      };
+
+      expect(
+        shouldDeleteBlockingExceptionForVisibleMonth(
+          exception,
+          {},
+          2026,
+          5,
+          TZ
+        )
+      ).toBe(true);
+    });
+
+    it('keeps exception when coach calendar still blocks that day', () => {
+      const start = parseDateFromISO8601('2026-06-01', TZ);
+      const end = getStartOf(start, 'day', TZ, 1, 'days');
+      const exception = {
+        attributes: { start, end, seats: 0 },
+      };
+
+      expect(
+        shouldDeleteBlockingExceptionForVisibleMonth(
+          exception,
+          { '2026-06-01': { allDayBlocked: true, blockedSlots: [] } },
+          2026,
+          5,
+          TZ
+        )
+      ).toBe(false);
+    });
+  });
+
+  describe('blockingExceptionCoversDateKey', () => {
+    it('matches all-day exception to its calendar day', () => {
+      const start = parseDateFromISO8601('2026-06-01', TZ);
+      const end = getStartOf(start, 'day', TZ, 1, 'days');
+      const exception = { attributes: { start, end, seats: 0 } };
+
+      expect(blockingExceptionCoversDateKey(exception, '2026-06-01', TZ)).toBe(true);
     });
   });
 

@@ -1,3 +1,4 @@
+import { isNotFoundError } from './errors';
 import { getStartOf, parseDateFromISO8601, parseDateTimeString, stringifyDateToISO8601 } from './dates';
 import { types as sdkTypes } from './sdkLoader';
 import { partitionListingProfilesForSync } from './coachCalendarAllListingsSync';
@@ -12,6 +13,7 @@ import {
 import {
   CoachCalendarSyncStepError,
   extractCoachCalendarSyncErrorMessage,
+  isAvailabilityExceptionNotFoundError,
   isAvailabilityExceptionOverlapError,
   serializeCoachCalendarSyncError,
   serializeCoachCalendarSyncRequestPayload,
@@ -155,19 +157,75 @@ export const getCoachCalendarVisibleMonthRange = (year, monthIndex, timezone) =>
  * @param {Object<string, Object>} daySettings
  * @returns {string[]}
  */
-export const getAvailableDateKeysInVisibleMonth = (year, monthIndex, daySettings) => {
+/**
+ * @param {number} year
+ * @param {number} monthIndex 0–11
+ * @returns {string[]}
+ */
+export const getVisibleMonthDateKeys = (year, monthIndex) => {
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
   const keys = [];
 
   for (let day = 1; day <= daysInMonth; day += 1) {
-    const dateKey = `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    if (!daySettingsHasBlocks(daySettings[dateKey])) {
-      keys.push(dateKey);
-    }
+    keys.push(`${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
   }
 
   return keys;
 };
+
+/**
+ * @param {string} dateKey
+ * @param {Object<string, Object>} daySettings
+ * @returns {boolean}
+ */
+export const isDateBlockedInCoachCalendar = (dateKey, daySettings) =>
+  daySettingsHasBlocks(daySettings[dateKey]);
+
+export const getAvailableDateKeysInVisibleMonth = (year, monthIndex, daySettings) =>
+  getVisibleMonthDateKeys(year, monthIndex).filter(
+    dateKey => !isDateBlockedInCoachCalendar(dateKey, daySettings)
+  );
+
+/**
+ * @param {Object} exception
+ * @param {string} dateKey
+ * @param {string} timezone
+ * @returns {boolean}
+ */
+export const blockingExceptionCoversDateKey = (exception, dateKey, timezone) => {
+  const dayStart = parseDateFromISO8601(dateKey, timezone);
+  const dayEnd = getStartOf(dayStart, 'day', timezone, 1, 'days');
+
+  return blockingExceptionCoversAvailabilityParam(
+    exception,
+    { start: dayStart, end: dayEnd, seats: 0 },
+    timezone
+  );
+};
+
+/**
+ * Delete when exception blocks any available (unblocked) day in the visible month.
+ *
+ * @param {Object} exception
+ * @param {Object<string, Object>} daySettings
+ * @param {number} viewYear
+ * @param {number} viewMonth
+ * @param {string} timezone
+ * @returns {boolean}
+ */
+export const shouldDeleteBlockingExceptionForVisibleMonth = (
+  exception,
+  daySettings,
+  viewYear,
+  viewMonth,
+  timezone
+) =>
+  getVisibleMonthDateKeys(viewYear, viewMonth).some(dateKey => {
+    if (isDateBlockedInCoachCalendar(dateKey, daySettings)) {
+      return false;
+    }
+    return blockingExceptionCoversDateKey(exception, dateKey, timezone);
+  });
 
 const getExceptionDateKey = (exception, timezone) => {
   const start = exception?.attributes?.start;
@@ -258,8 +316,11 @@ export const getCoachCalendarExceptionFetchRange = (exceptionParams, viewYear, v
   let rangeEnd = monthRange.end;
 
   (exceptionParams || []).forEach(param => {
-    if (param?.start && param.start < rangeStart) {
-      rangeStart = getStartOf(param.start, 'day', timezone);
+    if (param?.start) {
+      const paramDayStart = getStartOf(param.start, 'day', timezone);
+      if (paramDayStart < rangeStart) {
+        rangeStart = paramDayStart;
+      }
     }
     if (param?.end && param.end > rangeEnd) {
       rangeEnd = param.end;
@@ -414,10 +475,6 @@ export const syncCoachCalendarExceptions = async ({
     viewMonth,
     timezone
   );
-  const availableDateKeysInMonth = new Set(
-    getAvailableDateKeysInVisibleMonth(viewYear, viewMonth, daySettings)
-  );
-
   if (onFetchAllAvailabilityExceptions) {
     assertCoachCalendarSyncNotRateLimited();
     const fetchPayload = {
@@ -462,26 +519,58 @@ export const syncCoachCalendarExceptions = async ({
     paramsToCreate.push(param);
   });
 
-  const deleteIds = [];
-  existingBlocking.forEach(exception => {
-    const dateKey = getExceptionDateKey(exception, timezone);
-    if (dateKey && availableDateKeysInMonth.has(dateKey)) {
-      const exceptionId = getExceptionId(exception);
-      if (exceptionId) {
-        deleteIds.push(exceptionId);
-      }
-    }
-  });
+  const exceptionsToDelete = existingBlocking.filter(exception =>
+    shouldDeleteBlockingExceptionForVisibleMonth(
+      exception,
+      daySettings,
+      viewYear,
+      viewMonth,
+      timezone
+    )
+  );
 
+  const deletedExceptionDates = [];
+  const removedExceptionIds = new Set();
   let deletedCount = 0;
-  for (let index = 0; index < deleteIds.length; index += 1) {
+  let skippedNotFoundCount = 0;
+
+  for (let index = 0; index < exceptionsToDelete.length; index += 1) {
     assertCoachCalendarSyncNotRateLimited();
-    const deleteId = typeof deleteIds[index] === 'string' ? new UUID(deleteIds[index]) : deleteIds[index];
-    const deletePayload = { id: deleteIds[index] };
+    const exception = exceptionsToDelete[index];
+    const exceptionId = getExceptionId(exception);
+    if (!exceptionId) {
+      continue;
+    }
+
+    const deletePayload = {
+      id: exceptionId,
+      start: stringifyDateToISO8601(exception?.attributes?.start, timezone),
+      end: stringifyDateToISO8601(exception?.attributes?.end, timezone),
+      seats: exception?.attributes?.seats ?? 0,
+    };
+
     try {
-      await onDeleteAvailabilityException({ id: deleteId });
+      await onDeleteAvailabilityException({
+        id: typeof exceptionId === 'string' ? new UUID(exceptionId) : exceptionId,
+      });
       deletedCount += 1;
+      removedExceptionIds.add(exceptionId);
+      deletedExceptionDates.push({
+        start: deletePayload.start,
+        end: deletePayload.end,
+        seats: deletePayload.seats,
+      });
     } catch (error) {
+      if (isNotFoundError(error) || isAvailabilityExceptionNotFoundError(error)) {
+        skippedNotFoundCount += 1;
+        removedExceptionIds.add(exceptionId);
+        logCoachCalendarDebug('deleteException not-found skipped', {
+          listingId: listingIdString,
+          requestPayload: deletePayload,
+        });
+        continue;
+      }
+
       logSharetribeSyncApiFailure(listingIdString, 'deleteException', error, deletePayload);
       throwCoachCalendarSyncStepError({
         failedStep: 'deleteException',
@@ -549,14 +638,15 @@ export const syncCoachCalendarExceptions = async ({
     }
   }
 
-  const deletedIdSet = new Set(deleteIds);
   const keptIds = existingBlocking
     .map(getExceptionId)
-    .filter(id => id && !deletedIdSet.has(id));
+    .filter(id => id && !removedExceptionIds.has(id));
   saveCoachCalendarExceptionIds(listingIdString, [...keptIds, ...newIds]);
 
   return {
     deletedCount,
+    deletedExceptionDates,
+    skippedNotFoundCount,
     createdCount: newIds.length,
     existingExceptionDates,
     skippedOverlapCount,

@@ -192,6 +192,7 @@ const buildForceSyncResultSummary = syncResult => {
 
   const createdExceptionDatesByListing = {};
   const existingExceptionDatesByListing = {};
+  const deletedExceptionDatesByListing = {};
   (syncResult.results || []).forEach(result => {
     if (!result?.listingId) {
       return;
@@ -201,6 +202,8 @@ const buildForceSyncResultSummary = syncResult => {
         result.exceptionStats?.createdExceptionDates || [];
       existingExceptionDatesByListing[result.listingId] =
         result.exceptionStats?.existingExceptionDates || [];
+      deletedExceptionDatesByListing[result.listingId] =
+        result.exceptionStats?.deletedExceptionDates || [];
     }
   });
 
@@ -221,6 +224,7 @@ const buildForceSyncResultSummary = syncResult => {
     skippedListingIds: syncResult.skippedListingIds || [],
     createdExceptionDatesByListing,
     existingExceptionDatesByListing,
+    deletedExceptionDatesByListing,
     firstApiError,
     rateLimited: Boolean(syncResult.rateLimited),
   };
