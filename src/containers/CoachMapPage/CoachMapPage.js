@@ -795,6 +795,8 @@ const CoachMapPage = props => {
   // per session — subsequent filter changes still refit to the filtered
   // coach set via the bounds-driven `fitBounds` effect inside CoachMap3D.
   const flyToUserLocationConsumedRef = useRef(false);
+  const flyToExplicitLocationConsumedRef = useRef(false);
+
   useEffect(() => {
     if (parseCoachExploreSearch(location.search).locate) {
       flyToUserLocationConsumedRef.current = false;
@@ -802,6 +804,7 @@ const CoachMapPage = props => {
         search: location.search,
       });
     }
+    flyToExplicitLocationConsumedRef.current = false;
   }, [location.search]);
 
   useEffect(() => {
@@ -855,16 +858,7 @@ const CoachMapPage = props => {
     queryExplore.sportKey,
   ]);
 
-  // Browser geolocation wins over explicit `?lat=&lng=` for list ordering and
-  // for sport-scoped map bounds (nearest coaches + user anchor).
-  const geoReference = useMemo(() => {
-    if (
-      userLocation &&
-      Number.isFinite(userLocation.lat) &&
-      Number.isFinite(userLocation.lng)
-    ) {
-      return { lat: userLocation.lat, lng: userLocation.lng };
-    }
+  const explicitLocationReference = useMemo(() => {
     if (
       queryExplore.userLat != null &&
       queryExplore.userLng != null &&
@@ -874,7 +868,59 @@ const CoachMapPage = props => {
       return { lat: queryExplore.userLat, lng: queryExplore.userLng };
     }
     return null;
-  }, [userLocation, queryExplore.userLat, queryExplore.userLng]);
+  }, [queryExplore.userLat, queryExplore.userLng]);
+
+  const isExplicitLocationSearch = useMemo(
+    () =>
+      explicitLocationReference &&
+      String(queryExplore.locationLabel || '').trim().length > 0,
+    [explicitLocationReference, queryExplore.locationLabel]
+  );
+
+  useEffect(() => {
+    if (!isExplicitLocationSearch) return;
+    if (queryExplore.locate) return;
+    if (queryExplore.coachId) return;
+    if (flyToExplicitLocationConsumedRef.current) return;
+
+    flyToExplicitLocationConsumedRef.current = true;
+    const { lat, lng } = explicitLocationReference;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+    debugCoachMapLocate('flyTo explicit location search', {
+      lat,
+      lng,
+      locationLabel: queryExplore.locationLabel,
+    });
+    setFlyToTarget({
+      lat,
+      lng,
+      ts: Date.now(),
+      zoom: 12.5,
+      pitch: 65,
+      bearing: -34,
+      duration: 1400,
+    });
+  }, [
+    explicitLocationReference,
+    isExplicitLocationSearch,
+    queryExplore.coachId,
+    queryExplore.locate,
+    queryExplore.locationLabel,
+  ]);
+
+  // Explicit searched location coordinates win over browser geolocation.
+  const geoReference = useMemo(() => {
+    if (explicitLocationReference) return explicitLocationReference;
+    if (
+      userLocation &&
+      Number.isFinite(userLocation.lat) &&
+      Number.isFinite(userLocation.lng)
+    ) {
+      return { lat: userLocation.lat, lng: userLocation.lng };
+    }
+    return null;
+  }, [explicitLocationReference, userLocation]);
 
   const filteredCoaches = useMemo(() => {
     const bySport = filterCoachesBySport(coaches, selectedSport);
@@ -930,34 +976,37 @@ const CoachMapPage = props => {
 
   // F1a (defensive viewport guard). When the raw `filteredBoundsPlain`
   // would force fitBounds to a globe view (filtered coaches scattered
-  // across continents) AND we have the user's geolocation, we replace
-  // them with bounds derived from coaches within `USER_REGION_CLIP_KM`
-  // of the user. The faraway coach markers are still rendered — only
-  // the camera is regionalized. Clicking a faraway marker still fires
-  // `flyTo` to that coach via `handleMarkerClick` / `handleMapClick`.
+  // across continents) AND we have an anchor reference (searched location
+  // coords or user geolocation), we replace them with bounds derived from
+  // coaches within `USER_REGION_CLIP_KM` of that anchor. The faraway coach
+  // markers are still rendered — only the camera is regionalized.
+  // Clicking a faraway marker still fires `flyTo` to that coach via
+  // `handleMarkerClick` / `handleMapClick`.
   //
-  // This guard is fail-soft: if userLocation is unknown OR no coach
+  // This guard is fail-soft: if the anchor ref is unknown OR no coach
   // falls within the radius, we keep the original `filteredBoundsPlain`
   // (so under normal data conditions — i.e. with the F2 demo cleanup —
   // this branch is essentially never reached).
   const safeFilteredBoundsPlain = useMemo(() => {
     if (!isWideBounds(filteredBoundsPlain)) return filteredBoundsPlain;
-    if (!userLocation) return filteredBoundsPlain;
+    if (!geoReference) return filteredBoundsPlain;
     const clipped = computeBoundsForCoachesNear(
       filteredCoaches,
-      userLocation.lat,
-      userLocation.lng,
+      geoReference.lat,
+      geoReference.lng,
       USER_REGION_CLIP_KM
     );
     return clipped || filteredBoundsPlain;
-  }, [filteredBoundsPlain, filteredCoaches, userLocation]);
+  }, [filteredBoundsPlain, filteredCoaches, geoReference]);
 
   const isSportFilterActive = !!selectedSport;
 
   // Coaches with map coords + distance from anchor (`userLocation` or `?lat=&lng=`).
   // `filteredCoaches` is already distance-sorted when `geoReference` is set.
+  const shouldUseAnchoredGeo = isSportFilterActive || explicitLocationReference;
+
   const geoAnchoredCoachDistances = useMemo(() => {
-    if (!isSportFilterActive || !geoReference) return [];
+    if (!shouldUseAnchoredGeo || !geoReference) return [];
     const refLat = geoReference.lat;
     const refLng = geoReference.lng;
     const out = [];
@@ -969,7 +1018,7 @@ const CoachMapPage = props => {
       out.push({ coach: c, km });
     }
     return out;
-  }, [isSportFilterActive, geoReference, filteredCoaches]);
+  }, [shouldUseAnchoredGeo, geoReference, filteredCoaches]);
 
   const nearbyCoachRowsForMap = useMemo(
     () => geoAnchoredCoachDistances.filter(x => x.km <= NEARBY_COACH_RADIUS_KM).map(x => x.coach),
@@ -977,10 +1026,10 @@ const CoachMapPage = props => {
   );
 
   const sportMapFitCoachRows = useMemo(() => {
-    if (!isSportFilterActive || !geoReference) return [];
+    if (!shouldUseAnchoredGeo || !geoReference) return [];
     if (nearbyCoachRowsForMap.length > 0) return nearbyCoachRowsForMap;
     return geoAnchoredCoachDistances.slice(0, MAP_FIT_DISTANT_COACH_COUNT).map(x => x.coach);
-  }, [isSportFilterActive, geoReference, nearbyCoachRowsForMap, geoAnchoredCoachDistances]);
+  }, [shouldUseAnchoredGeo, geoReference, nearbyCoachRowsForMap, geoAnchoredCoachDistances]);
 
   const showNoNearbyCoachesNotice = useMemo(
     () =>
@@ -998,10 +1047,11 @@ const CoachMapPage = props => {
     ]
   );
 
-  // With `?sport=` + map anchor: fit only nearby coaches (+ anchor), or if none
-  // nearby the nearest few worldwide for that sport — never all filtered rows.
+  // With a map anchor (searched location or sport filter + geo anchor): fit
+  // only nearby coaches (+ anchor), or if none nearby the nearest few
+  // worldwide for the current anchor — never all filtered rows.
   const sportUserAnchoredMapBounds = useMemo(() => {
-    if (!isSportFilterActive || !geoReference) {
+    if (!shouldUseAnchoredGeo || !geoReference) {
       return null;
     }
     const refLat = geoReference.lat;
@@ -1017,7 +1067,7 @@ const CoachMapPage = props => {
       neLat: refLat + p,
       neLng: refLng + p,
     };
-  }, [isSportFilterActive, geoReference, sportMapFitCoachRows]);
+  }, [shouldUseAnchoredGeo, geoReference, sportMapFitCoachRows]);
 
   // Bounds resolution rules:
   //  – No sport filter: `safeFilteredBoundsPlain` (F1a-clipped) or Redux
@@ -1031,7 +1081,7 @@ const CoachMapPage = props => {
   //  – Empty filtered set with sport + geo: small pad around user (still not
   //    global bounds).
   const effectiveBoundsPlain = useMemo(() => {
-    if (!isSportFilterActive) {
+    if (!isSportFilterActive && !explicitLocationReference) {
       return safeFilteredBoundsPlain || boundsPlain || null;
     }
     if (geoReference) {
@@ -1040,6 +1090,7 @@ const CoachMapPage = props => {
     return safeFilteredBoundsPlain;
   }, [
     isSportFilterActive,
+    explicitLocationReference,
     geoReference,
     sportUserAnchoredMapBounds,
     safeFilteredBoundsPlain,
@@ -1047,13 +1098,17 @@ const CoachMapPage = props => {
   ]);
 
   const center = useMemo(() => {
-    const b = effectiveBoundsPlain;
-    if (!b) return null;
-    return {
-      lat: (b.neLat + b.swLat) / 2,
-      lng: (b.neLng + b.swLng) / 2,
-    };
-  }, [effectiveBoundsPlain]);
+    if (effectiveBoundsPlain) {
+      return {
+        lat: (effectiveBoundsPlain.neLat + effectiveBoundsPlain.swLat) / 2,
+        lng: (effectiveBoundsPlain.neLng + effectiveBoundsPlain.swLng) / 2,
+      };
+    }
+    if (explicitLocationReference) {
+      return explicitLocationReference;
+    }
+    return null;
+  }, [effectiveBoundsPlain, explicitLocationReference]);
 
   // After `?locate=1` resolves to a real user fix, stop driving the camera with
   // `fitBounds` on coach envelopes — a late Redux/coach update refits bounds
