@@ -74,8 +74,28 @@
   grid-area: details;
   min-width: 0;
   display: grid;
-  gap: 7px;
-  padding: 12px;
+  row-gap: 8px;
+  column-gap: 0;
+  padding: 10px 12px;
+}
+
+.dayDetailsHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin: 0;
+  padding-bottom: 59px;
+}
+
+.dayDetailsTitle {
+  margin: 0;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(195, 210, 226, 0.55);
 }
 
 .dayPanel {
@@ -133,9 +153,11 @@
 
 .dayDetailsDate {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
+  line-height: 1.3;
   color: rgba(195, 210, 226, 0.72);
+  text-align: right;
 }
 
 .dayDetailsWeekday {
@@ -150,9 +172,13 @@
 }
 
 .dayDetailsCard .savedHint {
-  margin-top: 2px;
-  padding-top: 6px;
+  margin: 0;
+  padding-top: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dayDetailsCard .blockedSlotItem {
+  padding: 5px 8px;
 }
 
 .calendarToolbar {
@@ -381,8 +407,35 @@
 .legendSwatch {
   width: 10px;
   height: 10px;
-  border-radius: 3px;
+  border-radius: 50%;
   flex-shrink: 0;
+}
+
+.legendSwatch.dayAvailable {
+  background: linear-gradient(145deg, #3ee8ff 0%, #9dff4f 100%);
+  box-shadow:
+    0 0 0 1px rgba(23, 217, 255, 0.42),
+    0 0 6px rgba(23, 217, 255, 0.5),
+    0 0 12px rgba(157, 255, 79, 0.22),
+    inset 0 1px 1px rgba(255, 255, 255, 0.38);
+}
+
+.legendSwatch.dayPartial {
+  background: linear-gradient(180deg, #ffd080 0%, #ffb84a 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 188, 80, 0.45),
+    0 0 6px rgba(255, 176, 64, 0.48),
+    0 0 10px rgba(255, 176, 64, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.32);
+}
+
+.legendSwatch.dayUnavailable {
+  background: linear-gradient(180deg, #ffa8a8 0%, #ff7878 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 150, 150, 0.45),
+    0 0 6px rgba(255, 120, 120, 0.45),
+    0 0 10px rgba(255, 100, 100, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.28);
 }
 
 .panelHeader {
@@ -694,35 +747,42 @@
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 5px;
+  gap: 4px;
 }
 
 .blockedSlotItem {
-  display: grid;
-  grid-template-columns: 1fr 28px;
-  gap: 7px;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  padding: 7px 9px;
+  gap: 6px 8px;
+  padding: 6px 8px;
   border-radius: 9px;
   border: 1px solid rgba(255, 176, 64, 0.2);
   background: rgba(255, 176, 64, 0.05);
 }
 
-.blockedSlotInfo {
-  display: grid;
-  gap: 1px;
-  min-width: 0;
-}
-
 .blockedSlotTime {
-  font-size: 0.82rem;
+  flex-shrink: 0;
+  font-size: 0.84rem;
   font-weight: 700;
+  line-height: 1.2;
   color: #ffe8c4;
 }
 
 .blockedSlotReason {
+  flex: 1;
+  min-width: 0;
   font-size: 0.74rem;
+  line-height: 1.2;
   color: rgba(255, 224, 180, 0.75);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dayDetailsCard .blockedSlotReasonMuted {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -730,10 +790,20 @@
 
 .agendaNote {
   margin: 0;
-  padding: 7px 9px;
+  padding: 6px 8px;
   border-radius: 9px;
   font-size: 0.78rem;
-  line-height: 1.35;
+  line-height: 1.3;
+}
+
+.dayDetailsCard .blockedSlotsList,
+.dayDetailsCard .emptySlots {
+  margin: 0;
+}
+
+.dayDetailsCard .agendaNote {
+  margin: 0;
+  padding: 5px 8px;
 }
 
 .agendaNoteUnavailable {
@@ -747,6 +817,11 @@
   font-size: 0.78rem;
   line-height: 1.4;
   color: rgba(195, 210, 226, 0.55);
+}
+
+.dayDetailsCard .removeButton {
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .removeButton {

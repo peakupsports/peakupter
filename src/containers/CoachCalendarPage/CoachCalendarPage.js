@@ -405,16 +405,18 @@ const CoachCalendarPageComponent = () => {
             </section>
 
             <section className={classNames(css.card, css.dayDetailsCard)} aria-live="polite">
-              <p className={css.panelSectionTitle}>
-                <FormattedMessage
-                  id="CoachCalendarPage.blockedSlotsTitle"
-                  defaultMessage="Blocked time on this day"
-                />
-              </p>
-              <p className={css.dayDetailsDate}>
-                {selectedDateLabel}
-                <span className={css.dayDetailsWeekday}> · {selectedWeekday}</span>
-              </p>
+              <div className={css.dayDetailsHeader}>
+                <p className={css.dayDetailsTitle}>
+                  <FormattedMessage
+                    id="CoachCalendarPage.blockedSlotsTitle"
+                    defaultMessage="Blocked time on this day"
+                  />
+                </p>
+                <p className={css.dayDetailsDate}>
+                  {selectedDateLabel}
+                  <span className={css.dayDetailsWeekday}> · {selectedWeekday}</span>
+                </p>
+              </div>
               {selectedDaySettings.allDayBlocked ? (
                 <div className={classNames(css.agendaNote, css.agendaNoteUnavailable)}>
                   <FormattedMessage
@@ -433,21 +435,19 @@ const CoachCalendarPageComponent = () => {
                 <ul className={css.blockedSlotsList}>
                   {selectedDaySettings.blockedSlots.map(slot => (
                     <li key={slot.id} className={css.blockedSlotItem}>
-                      <div className={css.blockedSlotInfo}>
-                        <span className={css.blockedSlotTime}>
-                          {slot.start}–{slot.end}
+                      <span className={css.blockedSlotTime}>
+                        {slot.start}–{slot.end}
+                      </span>
+                      {slot.reason ? (
+                        <span className={css.blockedSlotReason}>{slot.reason}</span>
+                      ) : (
+                        <span className={css.blockedSlotReasonMuted}>
+                          <FormattedMessage
+                            id="CoachCalendarPage.noBlockReason"
+                            defaultMessage="No note"
+                          />
                         </span>
-                        {slot.reason ? (
-                          <span className={css.blockedSlotReason}>{slot.reason}</span>
-                        ) : (
-                          <span className={css.blockedSlotReasonMuted}>
-                            <FormattedMessage
-                              id="CoachCalendarPage.noBlockReason"
-                              defaultMessage="No note"
-                            />
-                          </span>
-                        )}
-                      </div>
+                      )}
                       <button
                         type="button"
                         className={css.removeButton}
