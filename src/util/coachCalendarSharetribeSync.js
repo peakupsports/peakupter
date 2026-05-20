@@ -26,6 +26,7 @@ import {
 } from './coachCalendarSyncErrors';
 import { createMinimalAvailabilityPlanPayload } from './coachCalendarListingBridge';
 import { saveCoachCalendarExceptionIds } from './coachCalendarStorage';
+import { isCalendarSyncDebugEnabled } from './coachCalendarSyncDebug';
 
 const { UUID } = sdkTypes;
 
@@ -220,6 +221,63 @@ const isBlockingException = exception => Number(exception?.attributes?.seats ?? 
 
 const isExpansionExceptionParam = param =>
   Boolean(param?.blockKey && String(param.blockKey).startsWith('expand-'));
+
+/**
+ * @param {{ blockKey?: string }} param
+ * @returns {boolean}
+ */
+export const isAllDayAvailabilityExceptionParam = param =>
+  Boolean(param?.blockKey && String(param.blockKey).startsWith('allday-'));
+
+/**
+ * @param {Object<string, Object>} daySettings
+ * @returns {string[]}
+ */
+export const getAllDayBlockedDateKeysFromDaySettings = daySettings =>
+  Object.entries(pruneAvailableDaysFromDaySettings(daySettings || {}))
+    .filter(([, raw]) => normalizeCoachCalendarDaySettings(raw).allDayBlocked)
+    .map(([dateKey]) => dateKey);
+
+/**
+ * Any stored exception (seats:0 or seats:1) overlapping a full-day blocked calendar date.
+ *
+ * @param {Array<Object>} exceptions
+ * @param {string[]} dateKeys
+ * @param {string} timezone
+ * @returns {Object[]}
+ */
+export const collectExceptionsOverlappingAllDayBlockedDates = (exceptions, dateKeys, timezone) => {
+  const byId = new Map();
+
+  (dateKeys || []).forEach(dateKey => {
+    (exceptions || []).forEach(exception => {
+      if (!availabilityExceptionOverlapsCalendarDate(exception, dateKey, timezone)) {
+        return;
+      }
+      const exceptionId = getExceptionId(exception);
+      if (exceptionId) {
+        byId.set(exceptionId, exception);
+      }
+    });
+  });
+
+  return Array.from(byId.values());
+};
+
+/**
+ * @param {Object} exception
+ * @param {{ blockKey?: string, start?: Date, end?: Date, seats?: number }} param
+ * @param {string} timezone
+ * @returns {boolean}
+ */
+export const exceptionOverlapsDesiredParamForSync = (exception, param, timezone) => {
+  if (isAllDayAvailabilityExceptionParam(param)) {
+    const dateKey = String(param.blockKey).slice('allday-'.length);
+    return availabilityExceptionOverlapsCalendarDate(exception, dateKey, timezone);
+  }
+
+  return availabilityExceptionOverlapsParamRange(exception, param, timezone);
+};
 
 /**
  * Sharetribe timeslots truncate at seats:0 exception starts but do not resume after the
@@ -487,6 +545,10 @@ export const getBlockedDateKeysFromExceptionParams = (exceptionParams, timezone)
   const keys = new Set();
 
   (exceptionParams || []).forEach(param => {
+    if (isAllDayAvailabilityExceptionParam(param)) {
+      keys.add(String(param.blockKey).slice('allday-'.length));
+      return;
+    }
     if (param?.start) {
       keys.add(stringifyDateToISO8601(param.start, timezone));
     }
@@ -652,7 +714,19 @@ export const collectExceptionsToDeleteForCoachCalendarSync = (
   exceptionParams
 ) => {
   const blockedDateKeys = getBlockedDateKeysFromExceptionParams(exceptionParams, timezone);
+  const allDayBlockedDateKeys = getAllDayBlockedDateKeysFromDaySettings(daySettings);
   const byId = new Map();
+
+  collectExceptionsOverlappingAllDayBlockedDates(
+    exceptions,
+    allDayBlockedDateKeys,
+    timezone
+  ).forEach(exception => {
+    const exceptionId = getExceptionId(exception);
+    if (exceptionId) {
+      byId.set(exceptionId, exception);
+    }
+  });
 
   collectBlockingExceptionsOverlappingDateKeys(exceptions, blockedDateKeys, timezone).forEach(
     exception => {
@@ -1217,6 +1291,68 @@ export const createSharetribeAvailabilityFromCoachCalendar = (daySettings, optio
 };
 
 /**
+ * Dev-only audit for full-day (allday-*) exception sync.
+ *
+ * @param {Object} args
+ * @param {Array} args.exceptionParams
+ * @param {string} args.timezone
+ * @param {Array} args.exceptionSyncAudit
+ * @param {Array} args.createdExceptionDates
+ * @param {Array} args.existingExceptionDates
+ * @param {Array} args.deletedExceptionDates
+ * @returns {Object}
+ */
+export const buildAllDayExceptionSyncDebug = ({
+  exceptionParams,
+  timezone,
+  exceptionSyncAudit,
+  createdExceptionDates,
+  existingExceptionDates,
+  deletedExceptionDates,
+}) => {
+  const isAllDayBlockKey = blockKey => Boolean(blockKey && String(blockKey).startsWith('allday-'));
+  const isAllDayAuditEntry = entry =>
+    isAllDayBlockKey(entry?.blockKey) || isAllDayBlockKey(entry?.forBlockKey);
+
+  const generatedAllDayExceptions = (exceptionParams || [])
+    .filter(isAllDayAvailabilityExceptionParam)
+    .map(param => ({
+      blockKey: param.blockKey,
+      seats: 0,
+      ...formatAvailabilityParamDates(param, timezone),
+    }));
+
+  const sharetribeCreatePayloads = (exceptionSyncAudit || [])
+    .filter(entry => entry.phase === 'create' && isAllDayBlockKey(entry.blockKey))
+    .map(entry => ({
+      blockKey: entry.blockKey,
+      outcome: entry.outcome,
+      seats: entry.seats,
+      start: entry.start,
+      end: entry.end,
+      exceptionId: entry.exceptionId || null,
+      sharetribeError: entry.sharetribeError || null,
+    }));
+
+  return {
+    generatedAllDayExceptions,
+    createdAllDayExceptions: (createdExceptionDates || []).filter(entry =>
+      isAllDayBlockKey(entry.blockKey)
+    ),
+    skippedAllDayExceptions: (existingExceptionDates || []).filter(entry =>
+      isAllDayBlockKey(entry.blockKey)
+    ),
+    deletedAllDayExceptions: [
+      ...(deletedExceptionDates || []).filter(entry => Number(entry.seats) === 0),
+      ...(exceptionSyncAudit || []).filter(
+        entry => entry.phase === 'delete' && isAllDayAuditEntry(entry)
+      ),
+    ],
+    sharetribeCreatePayloads,
+  };
+};
+
+/**
  * Incremental exception sync: create missing blocks, delete only unblocked days in visible month.
  *
  * @param {Object} args
@@ -1291,6 +1427,7 @@ export const syncCoachCalendarExceptions = async ({
     timezone,
     exceptionParams
   );
+  const allDayBlockedDateKeysForAudit = getAllDayBlockedDateKeysFromDaySettings(daySettings);
 
   const exceptionSyncAudit = [];
   const describeDesiredParam = param => ({
@@ -1341,7 +1478,14 @@ export const syncCoachCalendarExceptions = async ({
       });
       deletedCount += 1;
       removedExceptionIds.add(exceptionId);
-      const deleteReason = isBlockingException(exception) ? 'blockingCleanup' : 'expansionCleanup';
+      const overlapsAllDayBlockedDate = allDayBlockedDateKeysForAudit.some(dateKey =>
+        availabilityExceptionOverlapsCalendarDate(exception, dateKey, timezone)
+      );
+      const deleteReason = overlapsAllDayBlockedDate
+        ? 'allDayBlockedCleanup'
+        : isBlockingException(exception)
+        ? 'blockingCleanup'
+        : 'expansionCleanup';
       deletedExceptionDates.push({
         start: deletePayload.start,
         end: deletePayload.end,
@@ -1487,7 +1631,7 @@ export const syncCoachCalendarExceptions = async ({
     }
 
     const overlappingBeforeCreate = getRemainingExceptions().filter(exception =>
-      availabilityExceptionOverlapsParamRange(exception, params, timezone)
+      exceptionOverlapsDesiredParamForSync(exception, params, timezone)
     );
 
     for (let overlapIndex = 0; overlapIndex < overlappingBeforeCreate.length; overlapIndex += 1) {
@@ -1601,6 +1745,17 @@ export const syncCoachCalendarExceptions = async ({
     entry => Number(entry.seats) > 0 && String(entry.blockKey).includes('-after-')
   );
 
+  const allDaySyncDebug = isCalendarSyncDebugEnabled()
+    ? buildAllDayExceptionSyncDebug({
+        exceptionParams,
+        timezone,
+        exceptionSyncAudit,
+        createdExceptionDates,
+        existingExceptionDates,
+        deletedExceptionDates,
+      })
+    : null;
+
   return {
     deletedCount,
     deletedExceptionDates,
@@ -1612,6 +1767,7 @@ export const syncCoachCalendarExceptions = async ({
     createdExceptionDates,
     fetchedBlockingDates,
     exceptionSyncAudit,
+    allDaySyncDebug,
     expansionExceptionAudit: {
       desiredAfterBlock,
       afterBlockCreated,
@@ -1695,7 +1851,7 @@ export const syncCoachCalendarToSharetribe = async ({
   try {
     exceptionStats = await syncCoachCalendarExceptions({
       listingId,
-      daySettings,
+      daySettings: prunedDaySettings,
       timezone,
       exceptionParams,
       viewYear,

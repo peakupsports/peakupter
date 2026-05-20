@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 
+import { isCalendarSyncDebugEnabled } from '../../util/coachCalendarSyncDebug';
 import { isDevelopmentMode } from '../../util/isDevelopmentMode';
 import { useConfiguration } from '../../context/configurationContext';
 import { useRouteConfiguration } from '../../context/routeConfigurationContext';
@@ -26,7 +27,6 @@ import { formatCoachCalendarForceSyncErrorPanel } from '../../util/coachCalendar
 import {
   buildCoachCalendarExceptionBuildDebug,
   getCoachCalendarSyncApiErrorSummary,
-  getCoachCalendarSyncErrorMessage,
   pruneAvailableDaysFromDaySettings,
   syncCoachCalendarToAllListings,
 } from '../../util/coachCalendarSharetribeSync';
@@ -36,8 +36,11 @@ import {
   isCoachCalendarSyncRateLimited,
 } from '../../util/coachCalendarRateLimit';
 import {
+  COACH_CALENDAR_DAY_SETTINGS_STORAGE_KEY,
   clearListingWizardReturnContext,
+  getCoachCalendarDaySettingsBlockCounts,
   loadCoachCalendarDaySettings,
+  loadCoachCalendarDaySettingsSnapshot,
   loadCoachCalendarSyncTarget,
   loadListingWizardReturnContext,
   saveCoachCalendarDaySettings,
@@ -185,6 +188,17 @@ const buildMonthGrid = (year, month) => {
 
 const LISTING_WIZARD_AVAILABILITY_TAB = 'availability';
 
+const cloneDaySettings = daySettings => JSON.parse(JSON.stringify(daySettings || {}));
+
+/**
+ * Date keys with blocks that drive exception sync for the current snapshot.
+ *
+ * @param {Object<string, Object>} daySettingsForSync
+ * @returns {string[]}
+ */
+const getBlockedDateKeysForSync = daySettingsForSync =>
+  Object.keys(pruneAvailableDaysFromDaySettings(daySettingsForSync || {})).sort();
+
 /**
  * On-screen summary for dev-only force sync (proves Sharetribe write path).
  *
@@ -202,6 +216,7 @@ const buildForceSyncResultSummary = (syncResult, context = {}) => {
   const exceptionBuildDebugByListing = {};
   const exceptionSyncAuditByListing = {};
   const expansionExceptionAuditByListing = {};
+  const allDaySyncDebugByListing = {};
   const listingSyncMetaByListing = {};
   (syncResult.results || []).forEach(result => {
     if (!result?.listingId) {
@@ -223,6 +238,9 @@ const buildForceSyncResultSummary = (syncResult, context = {}) => {
       if (result.exceptionStats?.expansionExceptionAudit) {
         expansionExceptionAuditByListing[result.listingId] =
           result.exceptionStats.expansionExceptionAudit;
+      }
+      if (result.exceptionStats?.allDaySyncDebug) {
+        allDaySyncDebugByListing[result.listingId] = result.exceptionStats.allDaySyncDebug;
       }
       listingSyncMetaByListing[result.listingId] = {
         useFullDays: result.useFullDays ?? null,
@@ -291,6 +309,7 @@ const buildForceSyncResultSummary = (syncResult, context = {}) => {
     ),
     exceptionSyncAuditByListing,
     expansionExceptionAuditByListing,
+    allDaySyncDebugByListing,
     listingSyncMetaByListing,
     partialBlockDayCount: partialBlockDays.length,
     forceSyncErrorPanel,
@@ -411,21 +430,27 @@ const CoachCalendarPageComponent = () => {
   const [rangeEnd, setRangeEnd] = useState(today);
   const [rangeAnchor, setRangeAnchor] = useState(null);
   const [rangeHoverDate, setRangeHoverDate] = useState(null);
-  const [daySettings, setDaySettings] = useState(() => {
-    const stored = loadCoachCalendarDaySettings();
-    return stored && Object.keys(stored).length > 0 ? stored : {};
-  });
+  const [daySettings, setDaySettings] = useState(
+    () => loadCoachCalendarDaySettingsSnapshot().daySettings
+  );
+  const [daySettingsUpdatedAt, setDaySettingsUpdatedAt] = useState(
+    () => loadCoachCalendarDaySettingsSnapshot().updatedAt
+  );
   const [blockScope, setBlockScope] = useState('specific');
   const [newSlot, setNewSlot] = useState(DEFAULT_NEW_SLOT);
   const [saveInProgress, setSaveInProgress] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [forceSyncInProgress, setForceSyncInProgress] = useState(false);
   const [forceSyncSummary, setForceSyncSummary] = useState(null);
-  const [forceSyncError, setForceSyncError] = useState(null);
+  const [availabilitySyncFeedback, setAvailabilitySyncFeedback] = useState(null);
   const [rateLimitRemainingMs, setRateLimitRemainingMs] = useState(0);
 
-  const isDevMode = isDevelopmentMode();
   const isForceSyncBlocked = rateLimitRemainingMs > 0;
+  const showCalendarStateDebug = isDevelopmentMode();
+  const daySettingsBlockCounts = useMemo(
+    () => getCoachCalendarDaySettingsBlockCounts(daySettings),
+    [daySettings]
+  );
 
   const selectedDateKey = toDateKey(selectedDate);
   const viewYear = viewDate.getFullYear();
@@ -529,9 +554,40 @@ const CoachCalendarPageComponent = () => {
     setNewSlot({ ...DEFAULT_NEW_SLOT });
   };
 
+  const hydrateDaySettingsFromCanonicalStorage = () => {
+    const snapshot = loadCoachCalendarDaySettingsSnapshot();
+    setDaySettings(snapshot.daySettings);
+    setDaySettingsUpdatedAt(snapshot.updatedAt);
+    return snapshot;
+  };
+
+  const commitDaySettings = nextOrUpdater => {
+    let nextDaySettings = null;
+    setDaySettings(prev => {
+      nextDaySettings =
+        typeof nextOrUpdater === 'function' ? nextOrUpdater(prev) : nextOrUpdater;
+      return nextDaySettings;
+    });
+    const persisted = saveCoachCalendarDaySettings(nextDaySettings);
+    setDaySettingsUpdatedAt(persisted.updatedAt);
+    return persisted;
+  };
+
   useEffect(() => {
-    saveCoachCalendarDaySettings(daySettings);
-  }, [daySettings]);
+    hydrateDaySettingsFromCanonicalStorage();
+  }, []);
+
+  useEffect(() => {
+    const handleStorage = event => {
+      if (event.key !== COACH_CALENDAR_DAY_SETTINGS_STORAGE_KEY && event.key !== null) {
+        return;
+      }
+      hydrateDaySettingsFromCanonicalStorage();
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   const resolveSyncTimezone = listingIdString => {
     const syncTarget = loadCoachCalendarSyncTarget();
@@ -564,7 +620,11 @@ const CoachCalendarPageComponent = () => {
   };
 
   const runSharetribeSyncAllListings = async (sourceLabel, options = {}) => {
-    const { priorityListingId = null } = options;
+    const {
+      priorityListingId = null,
+      daySettings: daySettingsForSync = loadCoachCalendarDaySettings(),
+      syncMonth = { year: viewYear, month: viewMonth },
+    } = options;
     const emptyResult = {
       results: [],
       listingIdsAttempted: [],
@@ -617,10 +677,10 @@ const CoachCalendarPageComponent = () => {
     });
 
     const syncResult = await syncCoachCalendarToAllListings({
-      daySettings,
+      daySettings: daySettingsForSync,
       listingProfiles: profilesToSync,
       tab: LISTING_WIZARD_AVAILABILITY_TAB,
-      syncMonth: { year: viewYear, month: viewMonth },
+      syncMonth,
       onUpdateListing: (tab, data) => dispatch(requestUpdateListing(tab, data, config)),
       onAddAvailabilityException: params => dispatch(requestAddAvailabilityException(params)),
       onDeleteAvailabilityException: params =>
@@ -661,10 +721,6 @@ const CoachCalendarPageComponent = () => {
   };
 
   useEffect(() => {
-    if (!isDevMode) {
-      return undefined;
-    }
-
     const updateRateLimitCountdown = () => {
       setRateLimitRemainingMs(getCoachCalendarSyncRateLimitRemainingMs());
     };
@@ -672,10 +728,10 @@ const CoachCalendarPageComponent = () => {
     updateRateLimitCountdown();
     const intervalId = window.setInterval(updateRateLimitCountdown, 500);
     return () => window.clearInterval(intervalId);
-  }, [isDevMode, forceSyncInProgress, forceSyncSummary]);
+  }, [forceSyncInProgress, forceSyncSummary]);
 
   const applyToSelectedRange = updater => {
-    setDaySettings(prev => {
+    commitDaySettings(prev => {
       const next = { ...prev };
       selectedRangeDates.forEach(date => {
         const key = toDateKey(date);
@@ -778,7 +834,7 @@ const CoachCalendarPageComponent = () => {
   };
 
   const handleClearDayBlocks = () => {
-    setDaySettings(prev => {
+    commitDaySettings(prev => {
       const next = { ...prev };
       selectedRangeDates.forEach(date => {
         delete next[toDateKey(date)];
@@ -790,7 +846,7 @@ const CoachCalendarPageComponent = () => {
   };
 
   const handleRemoveBlockedSlot = slotId => {
-    setDaySettings(prev => {
+    commitDaySettings(prev => {
       const current = normalizeDaySettings(prev[selectedDateKey]);
       return {
         ...prev,
@@ -801,6 +857,10 @@ const CoachCalendarPageComponent = () => {
         },
       };
     });
+  };
+
+  const handleReloadCalendarState = () => {
+    hydrateDaySettingsFromCanonicalStorage();
   };
 
   const getEffectiveListingWizardReturn = () =>
@@ -828,58 +888,74 @@ const CoachCalendarPageComponent = () => {
   };
 
   const handleForceSyncAllListings = () => {
-    if (!isDevMode || !config || forceSyncInProgress || isForceSyncBlocked) {
+    if (!config || forceSyncInProgress || isForceSyncBlocked) {
       return;
     }
 
     if (isCoachCalendarSyncRateLimited()) {
-      setForceSyncError('Rate limited, wait 60 seconds');
+      setAvailabilitySyncFeedback('error');
       setRateLimitRemainingMs(getCoachCalendarSyncRateLimitRemainingMs());
       return;
     }
 
+    const canonicalSnapshot = loadCoachCalendarDaySettingsSnapshot();
+    const daySettingsForSync = cloneDaySettings(canonicalSnapshot.daySettings);
+    setDaySettings(canonicalSnapshot.daySettings);
+    setDaySettingsUpdatedAt(canonicalSnapshot.updatedAt);
+    const syncMonth = {
+      year: viewDate.getFullYear(),
+      month: viewDate.getMonth(),
+    };
+    const syncStartedAt = new Date().toISOString();
+    const changedDateKeys = getBlockedDateKeysForSync(daySettingsForSync);
+
     setForceSyncInProgress(true);
     setForceSyncSummary(null);
-    setForceSyncError(null);
-    saveCoachCalendarDaySettings(daySettings);
+    setAvailabilitySyncFeedback(null);
 
-    runSharetribeSyncAllListings('force-sync-manual')
+    runSharetribeSyncAllListings('force-sync-manual', {
+      daySettings: daySettingsForSync,
+      syncMonth,
+    })
       .then(syncResult => {
         const wizardReturn = getEffectiveListingWizardReturn();
         const wizardListingId = wizardReturn?.id?.uuid || wizardReturn?.id || null;
         const summary = buildForceSyncResultSummary(syncResult, {
-          daySettings,
+          daySettings: daySettingsForSync,
           timezone: resolveSyncTimezone(wizardListingId),
         });
-        setForceSyncSummary(summary);
-        if ((syncResult.succeededListingIds || []).length > 0) {
+
+        setForceSyncSummary({
+          ...summary,
+          syncStartedAt,
+          changedDateKeys,
+        });
+
+        const realListingIds = syncResult.realBookableListingIds || [];
+        const succeededIds = syncResult.succeededListingIds || [];
+        const allRealListingsSynced =
+          realListingIds.length > 0 &&
+          realListingIds.every(listingId => succeededIds.includes(listingId));
+
+        if (allRealListingsSynced) {
           dispatch(invalidateListingPageTimeSlotsCache());
         }
+
         if (syncResult.rateLimited) {
-          setForceSyncError('Rate limited, wait 60 seconds');
+          setAvailabilitySyncFeedback('error');
           setRateLimitRemainingMs(getCoachCalendarSyncRateLimitRemainingMs());
         } else if (summary.forceSyncErrorPanel?.message || summary.firstApiError?.message) {
-          const panel = summary.forceSyncErrorPanel;
-          setForceSyncError(
-            panel
-              ? [
-                  panel.failedStep && `Step: ${panel.failedStep}`,
-                  panel.status && `HTTP ${panel.status}`,
-                  panel.apiErrorDetail || panel.apiErrorTitle || panel.message,
-                ]
-                  .filter(Boolean)
-                  .join(' — ')
-              : summary.firstApiError.message
-          );
+          setAvailabilitySyncFeedback('error');
+        } else if (allRealListingsSynced) {
+          setAvailabilitySyncFeedback('success');
+        } else {
+          setAvailabilitySyncFeedback('error');
         }
       })
       .catch(error => {
         const isRateLimit = error instanceof CoachCalendarSyncRateLimitError;
         if (isRateLimit) {
-          setForceSyncError('Rate limited, wait 60 seconds');
           setRateLimitRemainingMs(getCoachCalendarSyncRateLimitRemainingMs());
-        } else {
-          setForceSyncError(getCoachCalendarSyncErrorMessage(error));
         }
         const serializedTopLevelError = getCoachCalendarSyncApiErrorSummary(error);
         setForceSyncSummary({
@@ -893,7 +969,10 @@ const CoachCalendarPageComponent = () => {
           forceSyncErrorPanel: formatCoachCalendarForceSyncErrorPanel(serializedTopLevelError),
           firstApiError: serializedTopLevelError,
           rateLimited: isRateLimit,
+          syncStartedAt,
+          changedDateKeys,
         });
+        setAvailabilitySyncFeedback('error');
       })
       .finally(() => {
         setForceSyncInProgress(false);
@@ -1014,40 +1093,126 @@ const CoachCalendarPageComponent = () => {
             </div>
           </header>
 
-          {isDevMode ? (
-            <section className={css.devForceSyncPanel} aria-label="Force sync debug">
-              <button
-                type="button"
-                className={css.devForceSyncButton}
-                onClick={handleForceSyncAllListings}
-                disabled={forceSyncInProgress || isForceSyncBlocked || !config}
-              >
-                {forceSyncInProgress
-                  ? 'Force syncing all listings…'
-                  : isForceSyncBlocked
-                    ? `Rate limited (${Math.ceil(rateLimitRemainingMs / 1000)}s)`
-                    : 'Force sync all listings'}
-              </button>
-              {isForceSyncBlocked && !forceSyncError ? (
-                <p className={css.devForceSyncRateLimit} role="status">
-                  Rate limited, wait 60 seconds
+          <section
+            className={css.availabilitySyncPanel}
+            aria-label={intl.formatMessage({
+              id: 'CoachCalendarPage.syncAvailabilityAria',
+              defaultMessage: 'Sync availability',
+            })}
+          >
+            <button
+              type="button"
+              className={css.availabilitySyncButton}
+              onClick={handleForceSyncAllListings}
+              disabled={forceSyncInProgress || isForceSyncBlocked || !config}
+            >
+              {forceSyncInProgress ? (
+                <FormattedMessage
+                  id="CoachCalendarPage.syncAvailabilityInProgress"
+                  defaultMessage="Syncing availability…"
+                />
+              ) : (
+                <FormattedMessage
+                  id="CoachCalendarPage.syncAvailabilityButton"
+                  defaultMessage="Sync availability"
+                />
+              )}
+            </button>
+            {availabilitySyncFeedback === 'success' ? (
+              <p className={css.availabilitySyncSuccess} role="status">
+                <FormattedMessage
+                  id="CoachCalendarPage.syncAvailabilitySuccess"
+                  defaultMessage="Availability synced successfully ✓"
+                />
+              </p>
+            ) : null}
+            {availabilitySyncFeedback === 'error' ? (
+              <p className={css.availabilitySyncError} role="alert">
+                <FormattedMessage
+                  id="CoachCalendarPage.syncAvailabilityError"
+                  defaultMessage="Could not sync availability. Please try again."
+                />
+              </p>
+            ) : null}
+            {isCalendarSyncDebugEnabled() && forceSyncSummary ? (
+              <div className={css.syncOutcomeDebug} aria-live="polite">
+                <p className={css.syncOutcomeDebugLine}>
+                  syncStartedAt: {forceSyncSummary.syncStartedAt || '—'}
                 </p>
-              ) : null}
-              {forceSyncError ? (
-                <p className={css.devForceSyncError} role="alert">
-                  {forceSyncError}
+                <p className={css.syncOutcomeDebugLine}>
+                  changedDateKeys: {(forceSyncSummary.changedDateKeys || []).join(', ') || '—'}
                 </p>
-              ) : null}
-              {forceSyncSummary?.forceSyncErrorPanel ? (
-                <ForceSyncErrorPanel panel={forceSyncSummary.forceSyncErrorPanel} />
-              ) : null}
-              {forceSyncSummary ? (
-                <pre className={css.devForceSyncSummary}>
-                  {JSON.stringify(forceSyncSummary, null, 2)}
-                </pre>
-              ) : null}
-            </section>
-          ) : null}
+                <p className={css.syncOutcomeDebugLine}>
+                  syncedListingIds:{' '}
+                  {(forceSyncSummary.syncedListingIds || []).join(', ') || '—'}
+                </p>
+                <p className={css.syncOutcomeDebugLine}>
+                  failedListingIds:{' '}
+                  {(forceSyncSummary.failedListingIds || []).join(', ') || '—'}
+                </p>
+                <p className={css.syncOutcomeDebugLine}>
+                  firstApiError:{' '}
+                  {forceSyncSummary.firstApiError?.message ||
+                    forceSyncSummary.forceSyncErrorPanel?.message ||
+                    '—'}
+                </p>
+                {Object.entries(forceSyncSummary.allDaySyncDebugByListing || {}).map(
+                  ([listingId, allDayDebug]) => (
+                    <div key={listingId} className={css.syncOutcomeDebugAllDay}>
+                      <p className={css.syncOutcomeDebugLine}>allDay listing: {listingId}</p>
+                      <p className={css.syncOutcomeDebugLine}>
+                        generatedAllDayExceptions:{' '}
+                        {JSON.stringify(allDayDebug.generatedAllDayExceptions || [])}
+                      </p>
+                      <p className={css.syncOutcomeDebugLine}>
+                        createdAllDayExceptions:{' '}
+                        {JSON.stringify(allDayDebug.createdAllDayExceptions || [])}
+                      </p>
+                      <p className={css.syncOutcomeDebugLine}>
+                        skippedAllDayExceptions:{' '}
+                        {JSON.stringify(allDayDebug.skippedAllDayExceptions || [])}
+                      </p>
+                      <p className={css.syncOutcomeDebugLine}>
+                        deletedAllDayExceptions:{' '}
+                        {JSON.stringify(allDayDebug.deletedAllDayExceptions || [])}
+                      </p>
+                      <p className={css.syncOutcomeDebugLine}>
+                        sharetribeCreatePayloads:{' '}
+                        {JSON.stringify(allDayDebug.sharetribeCreatePayloads || [])}
+                      </p>
+                    </div>
+                  )
+                )}
+              </div>
+            ) : null}
+            {isCalendarSyncDebugEnabled() && forceSyncSummary?.forceSyncErrorPanel ? (
+              <ForceSyncErrorPanel panel={forceSyncSummary.forceSyncErrorPanel} />
+            ) : null}
+            {showCalendarStateDebug ? (
+              <div className={css.calendarStateDebug} aria-live="polite">
+                <p className={css.syncOutcomeDebugLine}>
+                  storageKey: {COACH_CALENDAR_DAY_SETTINGS_STORAGE_KEY}
+                </p>
+                <p className={css.syncOutcomeDebugLine}>
+                  origin: {typeof window !== 'undefined' ? window.location.origin : '—'}
+                </p>
+                <p className={css.syncOutcomeDebugLine}>
+                  daySettingsUpdatedAt: {daySettingsUpdatedAt || '—'}
+                </p>
+                <p className={css.syncOutcomeDebugLine}>
+                  blocked days (all-day): {daySettingsBlockCounts.allDayBlockedCount} · partial
+                  blocks: {daySettingsBlockCounts.partialBlockDayCount}
+                </p>
+                <button
+                  type="button"
+                  className={css.reloadCalendarStateButton}
+                  onClick={handleReloadCalendarState}
+                >
+                  Reload calendar state
+                </button>
+              </div>
+            ) : null}
+          </section>
 
           <div className={css.board}>
             <section
@@ -1498,7 +1663,7 @@ const CoachCalendarPageComponent = () => {
                     <p className={css.addBlockedTimeHint}>
                       <FormattedMessage
                         id="CoachCalendarPage.addBlockedTimeMotherHint"
-                        defaultMessage="Adds this block to your PeakUp calendar for the selected day(s). Use “Save & back to listing” when you are done to update bookable availability."
+                        defaultMessage="Click ‘Sync availability’ to update all your bookable listings."
                       />
                     </p>
                     <button type="submit" className={css.primaryButton}>

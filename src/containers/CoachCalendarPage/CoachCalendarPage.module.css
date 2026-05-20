@@ -1106,34 +1106,61 @@
   color: #ffc8c8;
 }
 
+.availabilitySyncButton,
 .primaryButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  min-height: 34px;
-  padding: 6px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 176, 64, 0.24);
-  background: rgba(255, 176, 64, 0.09);
-  color: rgba(255, 236, 210, 0.95);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  min-height: 40px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(23, 217, 255, 0.42);
+  background: linear-gradient(135deg, #17d9ff 0%, #39f3d1 45%, #9dff4f 100%);
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(6, 14, 28, 0.35);
   cursor: pointer;
+  box-shadow:
+    0 4px 14px rgba(23, 217, 255, 0.22),
+    0 2px 6px rgba(6, 14, 28, 0.2);
   transition:
-    transform 220ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1),
-    background 220ms cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 220ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    background 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    filter 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.primaryButton:hover,
-.primaryButton:focus-visible {
-  background: rgba(255, 176, 64, 0.14);
-  border-color: rgba(255, 176, 64, 0.34);
+.availabilitySyncButton:hover:not(:disabled),
+.availabilitySyncButton:focus-visible:not(:disabled),
+.primaryButton:hover:not(:disabled),
+.primaryButton:focus-visible:not(:disabled) {
+  background: linear-gradient(135deg, #2ee8ff 0%, #4ef6de 45%, #afff62 100%);
+  border-color: rgba(157, 255, 79, 0.55);
   transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(255, 176, 64, 0.1);
+  box-shadow:
+    0 8px 22px rgba(23, 217, 255, 0.32),
+    0 0 26px rgba(157, 255, 79, 0.16);
+  filter: brightness(1.04);
+}
+
+.availabilitySyncButton:active:not(:disabled),
+.primaryButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 3px 12px rgba(23, 217, 255, 0.28);
+}
+
+.availabilitySyncButton:disabled,
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.15);
+}
+
+.primaryButton {
+  width: 100%;
 }
 
 .dangerButton {
@@ -1167,42 +1194,81 @@
   cursor: not-allowed;
 }
 
-.devForceSyncPanel {
+.availabilitySyncPanel {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 16px;
-  padding: 12px;
-  border-radius: 12px;
+}
+
+.availabilitySyncButton {
+  align-self: start;
+}
+
+.availabilitySyncSuccess {
+  margin: 0;
+  color: #9ee8b8;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.availabilitySyncError {
+  margin: 0;
+  color: #ffb4b4;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.syncOutcomeDebug {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
   border: 1px dashed rgba(23, 217, 255, 0.35);
   background: rgba(23, 217, 255, 0.06);
 }
 
-.devForceSyncButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(23, 217, 255, 0.5);
-  background: rgba(23, 217, 255, 0.14);
-  color: #d8f7ff;
-  font-size: 0.86rem;
-  font-weight: 700;
+.syncOutcomeDebugAllDay {
+  display: grid;
+  gap: 4px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(23, 217, 255, 0.2);
+}
+
+.syncOutcomeDebugLine {
+  margin: 0;
+  color: rgba(200, 230, 255, 0.9);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.calendarStateDebug {
+  display: grid;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px dashed rgba(157, 255, 79, 0.35);
+  background: rgba(157, 255, 79, 0.06);
+}
+
+.reloadCalendarStateButton {
+  justify-self: start;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(157, 255, 79, 0.4);
+  background: rgba(157, 255, 79, 0.1);
+  color: #e8f7d8;
+  font-size: 0.78rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.devForceSyncButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.devForceSyncError,
-.devForceSyncRateLimit {
-  margin: 0;
-  color: #ffb4b4;
-  font-size: 0.82rem;
-  font-weight: 600;
+.reloadCalendarStateButton:hover,
+.reloadCalendarStateButton:focus-visible {
+  border-color: rgba(157, 255, 79, 0.65);
+  box-shadow: 0 0 12px rgba(157, 255, 79, 0.12);
 }
 
 .devForceSyncErrorPanel {

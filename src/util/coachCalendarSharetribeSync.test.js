@@ -17,7 +17,12 @@ import {
   getCoachCalendarExceptionFetchRange,
   getCoachCalendarVisibleMonthRange,
   collectBlockingExceptionsOverlappingDateKeys,
+  collectExceptionsOverlappingAllDayBlockedDates,
+  exceptionOverlapsDesiredParamForSync,
+  getAllDayBlockedDateKeysFromDaySettings,
   getBlockedDateKeysFromExceptionParams,
+  isAllDayAvailabilityExceptionParam,
+  availabilityExceptionOverlapsParamRange,
   normalizeBlockedSlotForSync,
   pickBlockedSlotTime,
   shouldDeleteBlockingExceptionForVisibleMonth,
@@ -33,6 +38,7 @@ import {
   parseDateFromISO8601,
   parseDateTimeString,
   stringifyDateToISO8601,
+  stringifyDateTimeToISO8601,
 } from './dates';
 
 const TZ = 'Europe/Helsinki';
@@ -47,9 +53,28 @@ describe('coachCalendarSharetribeSync', () => {
 
       expect(params).toHaveLength(1);
       expect(params[0].seats).toBe(0);
+      expect(params[0].blockKey).toBe('allday-2026-05-21');
       expect(params[0].start).toEqual(parseDateFromISO8601('2026-05-21', TZ));
       expect(params[0].end).toEqual(
         getStartOf(parseDateFromISO8601('2026-05-21', TZ), 'day', TZ, 1, 'days')
+      );
+      expect(stringifyDateTimeToISO8601(params[0].start, TZ)).toBe('2026-05-21T00:00:00+03:00');
+      expect(stringifyDateTimeToISO8601(params[0].end, TZ)).toBe('2026-05-22T00:00:00+03:00');
+    });
+
+    it('creates May 24 full-day exception with exclusive next-day end (Europe/Rome)', () => {
+      const params = buildAvailabilityExceptionParamsFromDaySettings(
+        { '2026-05-24': { allDayBlocked: true, blockedSlots: [] } },
+        { timezone: 'Europe/Rome', useFullDays: false }
+      );
+
+      expect(params).toHaveLength(1);
+      expect(isAllDayAvailabilityExceptionParam(params[0])).toBe(true);
+      expect(stringifyDateTimeToISO8601(params[0].start, 'Europe/Rome')).toBe(
+        '2026-05-24T00:00:00+02:00'
+      );
+      expect(stringifyDateTimeToISO8601(params[0].end, 'Europe/Rome')).toBe(
+        '2026-05-25T00:00:00+02:00'
       );
     });
 
@@ -429,6 +454,70 @@ describe('coachCalendarSharetribeSync', () => {
       });
       expect(keys).toContain('2026-05-20');
       expect(keys).not.toContain('2026-05-21');
+    });
+  });
+
+  describe('all-day blocked date cleanup', () => {
+    it('resolves blocked date keys from allday blockKey', () => {
+      const params = buildAvailabilityExceptionParamsFromDaySettings(
+        { '2026-05-24': { allDayBlocked: true, blockedSlots: [] } },
+        { timezone: TZ, useFullDays: false }
+      );
+
+      expect(getBlockedDateKeysFromExceptionParams(params, TZ)).toEqual(['2026-05-24']);
+      expect(getAllDayBlockedDateKeysFromDaySettings({ '2026-05-24': { allDayBlocked: true } })).toEqual([
+        '2026-05-24',
+      ]);
+    });
+
+    it('deletes seats:1 expansion exceptions on a full-day blocked date', () => {
+      const afterBlock = {
+        id: { uuid: 'expand-1' },
+        attributes: {
+          start: parseDateTimeString('2026-05-24 11:00', TZ),
+          end: getStartOf(parseDateFromISO8601('2026-05-24', TZ), 'day', TZ, 1, 'days'),
+          seats: 1,
+        },
+      };
+      const alldayParams = buildAvailabilityExceptionParamsFromDaySettings(
+        { '2026-05-24': { allDayBlocked: true, blockedSlots: [] } },
+        { timezone: TZ, useFullDays: false }
+      );
+
+      expect(
+        collectExceptionsOverlappingAllDayBlockedDates([afterBlock], ['2026-05-24'], TZ)
+      ).toHaveLength(1);
+
+      const toDelete = collectExceptionsToDeleteForCoachCalendarSync(
+        [afterBlock],
+        { '2026-05-24': { allDayBlocked: true, blockedSlots: [] } },
+        2026,
+        4,
+        TZ,
+        alldayParams
+      );
+
+      expect(toDelete).toHaveLength(1);
+      expect(toDelete[0].id.uuid).toBe('expand-1');
+    });
+
+    it('treats any exception on the calendar day as overlapping an allday desired param', () => {
+      const expansion = {
+        attributes: {
+          start: parseDateTimeString('2026-05-24 09:00', TZ),
+          end: parseDateTimeString('2026-05-24 10:00', TZ),
+          seats: 1,
+        },
+      };
+      const alldayParam = buildAvailabilityExceptionParamsFromDaySettings(
+        { '2026-05-24': { allDayBlocked: true, blockedSlots: [] } },
+        { timezone: TZ, useFullDays: false }
+      )[0];
+
+      expect(exceptionOverlapsDesiredParamForSync(expansion, alldayParam, TZ)).toBe(true);
+      expect(
+        availabilityExceptionOverlapsParamRange(expansion, alldayParam, TZ)
+      ).toBe(false);
     });
   });
 
