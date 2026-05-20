@@ -83,6 +83,7 @@ const TopbarMobileMenu = props => {
     customLinks,
     onLogout,
     showCreateListingsLink,
+    showCoachCalendarLink,
   } = props;
 
   const user = ensureCurrentUser(currentUser);
@@ -181,6 +182,13 @@ const TopbarMobileMenu = props => {
           </li>
           {createServiceLinkMaybe}
           {manageListingsLinkMaybe}
+          {showCoachCalendarLink ? (
+            <li className={classNames(css.navigationLink, currentPageClass('CoachCalendarPage'))}>
+              <NamedLink name="CoachCalendarPage">
+                <FormattedMessage id="TopbarMobileMenu.coachCalendarLink" />
+              </NamedLink>
+            </li>
+          ) : null}
           <li className={classNames(css.navigationLink, currentPageClass('ProfileSettingsPage'))}>
             <NamedLink name="ProfileSettingsPage">
               <FormattedMessage id="TopbarMobileMenu.profileSettingsLink" />

@@ -6,7 +6,11 @@ import { useConfiguration } from '../../context/configurationContext.js';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { ensureCurrentUser, ensureStripeCustomer, ensurePaymentMethodCard } from '../../util/data';
 import { propTypes } from '../../util/types';
-import { showCreateListingLinkForUser, showPaymentDetailsForUser } from '../../util/userHelpers.js';
+import {
+  getCurrentUserTypeRoles,
+  showCreateListingLinkForUser,
+  showPaymentDetailsForUser,
+} from '../../util/userHelpers.js';
 import { savePaymentMethod, deletePaymentMethod } from '../../ducks/paymentMethods.duck';
 import { handleCardSetup } from '../../ducks/stripe.duck';
 import { manageDisableScrolling, isScrollingDisabled } from '../../ducks/ui.duck';
@@ -164,6 +168,8 @@ const PaymentMethodsPageComponent = props => {
   const showCardDetails = !!hasDefaultPaymentMethod;
 
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
+  const { provider: isProvider } = getCurrentUserTypeRoles(config, currentUser);
+  const showCoachCalendarLink = Boolean(isProvider);
   const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
   const accountSettingsNavProps = {
     currentPage: 'PaymentMethodsPage',
@@ -183,6 +189,7 @@ const PaymentMethodsPageComponent = props => {
             <UserNav
               currentPage="PaymentMethodsPage"
               showManageListingsLink={showManageListingsLink}
+              showCoachCalendarLink={showCoachCalendarLink}
             />
           </>
         }

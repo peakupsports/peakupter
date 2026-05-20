@@ -253,6 +253,7 @@ const TopbarComponent = props => {
     config,
     currentUser
   );
+  const showCoachCalendarLink = Boolean(currentUser && isProvider);
 
   /**
    * Determine which tab to use in the inbox link:
@@ -384,6 +385,7 @@ const TopbarComponent = props => {
       currentPage={resolvedCurrentPage}
       customLinks={customLinks}
       showCreateListingsLink={showCreateListingsLink}
+      showCoachCalendarLink={showCoachCalendarLink}
       inboxTab={topbarInboxTab}
     />
   );
@@ -544,6 +546,7 @@ const TopbarComponent = props => {
               : showSearchForm
           }
           showCreateListingsLink={showCreateListingsLink}
+          showCoachCalendarLink={showCoachCalendarLink}
           inboxTab={topbarInboxTab}
           topbarCenterContent={
             topbarCenterContent ||

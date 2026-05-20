@@ -8,7 +8,11 @@ import { useRouteConfiguration } from '../../context/routeConfigurationContext';
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { pathByRouteName } from '../../util/routes';
-import { hasPermissionToPostListings, showCreateListingLinkForUser } from '../../util/userHelpers';
+import {
+  getCurrentUserTypeRoles,
+  hasPermissionToPostListings,
+  showCreateListingLinkForUser,
+} from '../../util/userHelpers';
 import { NO_ACCESS_PAGE_POST_LISTINGS } from '../../util/urlHelpers';
 import { propTypes } from '../../util/types';
 import { isErrorNoPermissionToPostListings } from '../../util/errors';
@@ -202,6 +206,8 @@ export const ManageListingsPageComponent = props => {
   ].join(', ');
 
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
+  const { provider: isProvider } = getCurrentUserTypeRoles(config, currentUser);
+  const showCoachCalendarLink = Boolean(isProvider);
 
   return (
     <Page
@@ -218,6 +224,7 @@ export const ManageListingsPageComponent = props => {
               className={css.userNavPeakUp}
               currentPage="ManageListingsPage"
               showManageListingsLink={showManageListingsLink}
+              showCoachCalendarLink={showCoachCalendarLink}
             />
           </>
         }

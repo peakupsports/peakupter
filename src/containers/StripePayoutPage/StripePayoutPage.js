@@ -8,7 +8,11 @@ import { createResourceLocatorString } from '../../util/routes';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { ensureCurrentUser } from '../../util/data';
 import { propTypes } from '../../util/types';
-import { showCreateListingLinkForUser, showPaymentDetailsForUser } from '../../util/userHelpers';
+import {
+  getCurrentUserTypeRoles,
+  showCreateListingLinkForUser,
+  showPaymentDetailsForUser,
+} from '../../util/userHelpers';
 import { getDisplayAccountType } from '../../util/stripeConnect';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import {
@@ -178,6 +182,8 @@ export const StripePayoutPageComponent = props => {
   }
 
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
+  const { provider: isProvider } = getCurrentUserTypeRoles(config, currentUser);
+  const showCoachCalendarLink = Boolean(isProvider);
   const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
   const accountSettingsNavProps = {
     currentPage: 'StripePayoutPage',
@@ -197,6 +203,7 @@ export const StripePayoutPageComponent = props => {
             <UserNav
               currentPage="StripePayoutPage"
               showManageListingsLink={showManageListingsLink}
+              showCoachCalendarLink={showCoachCalendarLink}
             />
           </>
         }

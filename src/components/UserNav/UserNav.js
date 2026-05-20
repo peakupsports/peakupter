@@ -14,10 +14,17 @@ import css from './UserNav.module.css';
  * @param {string} [props.className] - Custom class that extends the default class for the root element
  * @param {string} [props.rootClassName] - Custom class that overrides the default class for the root element
  * @param {string} props.currentPage - The current page (e.g. 'ManageListingsPage')
+ * @param {boolean} [props.showCoachCalendarLink] - Whether to show the coach calendar navigation tab
  * @returns {JSX.Element} User navigation component
  */
 const UserNav = props => {
-  const { className, rootClassName, currentPage, showManageListingsLink } = props;
+  const {
+    className,
+    rootClassName,
+    currentPage,
+    showManageListingsLink,
+    showCoachCalendarLink,
+  } = props;
   const intl = useIntl();
   const classes = classNames(rootClassName || css.root, className);
 
@@ -33,8 +40,22 @@ const UserNav = props => {
       ]
     : [];
 
+  const coachCalendarTabMaybe = showCoachCalendarLink
+    ? [
+        {
+          text: <FormattedMessage id="UserNav.coachCalendar" />,
+          selected: currentPage === 'CoachCalendarPage',
+          disabled: false,
+          linkProps: {
+            name: 'CoachCalendarPage',
+          },
+        },
+      ]
+    : [];
+
   const tabs = [
     ...manageListingsTabMaybe,
+    ...coachCalendarTabMaybe,
     {
       text: <FormattedMessage id="UserNav.profileSettings" />,
       selected: currentPage === 'ProfileSettingsPage',

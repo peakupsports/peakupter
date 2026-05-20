@@ -7,7 +7,11 @@ import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { ensureCurrentUser } from '../../util/data';
-import { showCreateListingLinkForUser, showPaymentDetailsForUser } from '../../util/userHelpers';
+import {
+  getCurrentUserTypeRoles,
+  showCreateListingLinkForUser,
+  showPaymentDetailsForUser,
+} from '../../util/userHelpers';
 
 import { sendVerificationEmail } from '../../ducks/user.duck';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
@@ -107,6 +111,8 @@ export const ContactDetailsPageComponent = props => {
   const title = intl.formatMessage({ id: 'ContactDetailsPage.title' });
 
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
+  const { provider: isProvider } = getCurrentUserTypeRoles(config, currentUser);
+  const showCoachCalendarLink = Boolean(isProvider);
   const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
   const accountSettingsNavProps = {
     currentPage: 'ContactDetailsPage',
@@ -126,6 +132,7 @@ export const ContactDetailsPageComponent = props => {
             <UserNav
               currentPage="ContactDetailsPage"
               showManageListingsLink={showManageListingsLink}
+              showCoachCalendarLink={showCoachCalendarLink}
             />
           </>
         }

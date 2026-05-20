@@ -53,6 +53,9 @@ const CoachesPage = loadable(() =>
 const CoachMapPage = loadable(() =>
   import(/* webpackChunkName: "CoachMapPage" */ '../containers/CoachMapPage/CoachMapPage')
 );
+const CoachCalendarPage = loadable(() =>
+  import(/* webpackChunkName: "CoachCalendarPage" */ '../containers/CoachCalendarPage/CoachCalendarPage')
+);
 const StripePayoutPage = loadable(() => import(/* webpackChunkName: "StripePayoutPage" */ '../containers/StripePayoutPage/StripePayoutPage'));
 const TransactionPage = loadable(() => import(/* webpackChunkName: "TransactionPage" */ '../containers/TransactionPage/TransactionPage'));
 const NoAccessPage = loadable(() => import(/* webpackChunkName: "NoAccessPage" */ '../containers/NoAccessPage/NoAccessPage'));
@@ -177,6 +180,13 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       component: CoachMapPage,
       loadData: pageDataLoadingAPI.CoachesExplorePage.loadData,
       prioritizeMapLibraryLoading: true,
+    },
+    {
+      path: '/coach-calendar',
+      name: 'CoachCalendarPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: CoachCalendarPage,
     },
     {
       path: '/l',

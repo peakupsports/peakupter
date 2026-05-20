@@ -172,6 +172,7 @@ export const ProfileSettingsPageComponent = props => {
   const title = intl.formatMessage({ id: 'ProfileSettingsPage.title' });
 
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
+  const showCoachCalendarLink = Boolean(isCoachUser);
 
   return (
     <Page
@@ -187,6 +188,7 @@ export const ProfileSettingsPageComponent = props => {
             <UserNav
               currentPage="ProfileSettingsPage"
               showManageListingsLink={showManageListingsLink}
+              showCoachCalendarLink={showCoachCalendarLink}
             />
           </>
         }

@@ -69,6 +69,8 @@ export const PasswordChangePageComponent = props => {
   const title = intl.formatMessage({ id: 'PasswordChangePage.title' });
 
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
+  const { provider: isProvider } = getCurrentUserTypeRoles(config, currentUser);
+  const showCoachCalendarLink = Boolean(isProvider);
   const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
   const accountSettingsNavProps = {
     currentPage: 'PasswordChangePage',
@@ -88,6 +90,7 @@ export const PasswordChangePageComponent = props => {
             <UserNav
               currentPage="PasswordChangePage"
               showManageListingsLink={showManageListingsLink}
+              showCoachCalendarLink={showCoachCalendarLink}
             />
           </>
         }

@@ -9,6 +9,7 @@ import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { ensureCurrentUser } from '../../util/data';
 import {
+  getCurrentUserTypeRoles,
   showCreateListingLinkForUser,
   showPaymentDetailsForUser,
   initialValuesForUserFields,
@@ -110,6 +111,8 @@ export const ManageAccountPageComponent = props => {
   const title = intl.formatMessage({ id: 'ManageAccountPage.title' });
 
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
+  const { provider: isProvider } = getCurrentUserTypeRoles(config, currentUser);
+  const showCoachCalendarLink = Boolean(isProvider);
   const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
   const accountSettingsNavProps = {
     currentPage: 'ManageAccountPage',
@@ -129,6 +132,7 @@ export const ManageAccountPageComponent = props => {
             <UserNav
               currentPage="ManageAccountPage"
               showManageListingsLink={showManageListingsLink}
+              showCoachCalendarLink={showCoachCalendarLink}
             />
           </>
         }

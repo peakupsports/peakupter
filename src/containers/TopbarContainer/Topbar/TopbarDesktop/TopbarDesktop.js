@@ -79,6 +79,7 @@ const ProfileMenu = ({
   onLogout,
   showManageListingsLink,
   showCreateListingsLink,
+  showCoachCalendarLink,
   intl,
 }) => {
   const currentPageClass = page => {
@@ -111,6 +112,17 @@ const ProfileMenu = ({
             >
               <span className={css.menuItemBorder} />
               <FormattedMessage id="TopbarDesktop.yourListingsLink" />
+            </NamedLink>
+          </MenuItem>
+        ) : null}
+        {showCoachCalendarLink ? (
+          <MenuItem key="CoachCalendarPage">
+            <NamedLink
+              className={classNames(css.menuLink, currentPageClass('CoachCalendarPage'))}
+              name="CoachCalendarPage"
+            >
+              <span className={css.menuItemBorder} />
+              <FormattedMessage id="TopbarDesktop.coachCalendarLink" />
             </NamedLink>
           </MenuItem>
         ) : null}
@@ -183,6 +195,7 @@ const TopbarDesktop = props => {
     initialSearchFormValues = {},
     showSearchForm,
     showCreateListingsLink,
+    showCoachCalendarLink,
     inboxTab,
     topbarCenterContent,
   } = props;
@@ -220,6 +233,7 @@ const TopbarDesktop = props => {
       onLogout={onLogout}
       showManageListingsLink={showCreateListingsLink}
       showCreateListingsLink={showCreateListingsLink}
+      showCoachCalendarLink={showCoachCalendarLink}
       intl={intl}
     />
   ) : null;
