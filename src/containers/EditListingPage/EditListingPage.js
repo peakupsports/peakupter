@@ -37,6 +37,7 @@ import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 // Import modules from this directory
 import {
   requestFetchAvailabilityExceptions,
+  requestFetchAllAvailabilityExceptionsForSync,
   requestAddAvailabilityException,
   requestDeleteAvailabilityException,
   requestCreateListingDraft,
@@ -141,6 +142,7 @@ export const EditListingPageComponent = props => {
     getAccountLinkInProgress,
     history,
     onFetchExceptions,
+    onFetchAllAvailabilityExceptions,
     onAddAvailabilityException,
     onDeleteAvailabilityException,
     onCreateListingDraft,
@@ -291,6 +293,7 @@ export const EditListingPageComponent = props => {
           monthlyExceptionQueries={page.monthlyExceptionQueries}
           allExceptions={page.allExceptions}
           onFetchExceptions={onFetchExceptions}
+          onFetchAllAvailabilityExceptions={onFetchAllAvailabilityExceptions}
           onAddAvailabilityException={onAddAvailabilityException}
           onDeleteAvailabilityException={onDeleteAvailabilityException}
           onUpdateListing={onUpdateListing}
@@ -377,6 +380,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   onFetchExceptions: params => dispatch(requestFetchAvailabilityExceptions(params)),
+  onFetchAllAvailabilityExceptions: params =>
+    dispatch(requestFetchAllAvailabilityExceptionsForSync(params)),
   onAddAvailabilityException: params => dispatch(requestAddAvailabilityException(params)),
   onDeleteAvailabilityException: params => dispatch(requestDeleteAvailabilityException(params)),
 

@@ -27,6 +27,16 @@
   padding: 0;
 }
 
+.contentWithListingSaveBar {
+  padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (--viewportMedium) {
+  .contentWithListingSaveBar {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 @media (--viewportMedium) {
   .content {
     width: calc(100% - 48px);
@@ -38,6 +48,188 @@
   display: grid;
   gap: 6px;
   margin-bottom: 16px;
+}
+
+.pageHeaderRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 20px;
+}
+
+.pageHeaderMain {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.pageHeaderActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.saveAndBackHeaderButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid rgba(157, 255, 79, 0.45);
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(157, 255, 79, 0.18) 0%, rgba(23, 217, 255, 0.1) 100%);
+  color: #f4f7fb;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.saveAndBackHeaderButton:hover:not(:disabled),
+.saveAndBackHeaderButton:focus-visible:not(:disabled) {
+  border-color: rgba(157, 255, 79, 0.7);
+  box-shadow: 0 0 20px rgba(157, 255, 79, 0.15);
+}
+
+.saveAndBackHeaderButton:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.addBlockedTimeHint {
+  margin: 0 0 10px;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: rgba(195, 210, 226, 0.72);
+}
+
+.listingReturnBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-bottom: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(23, 217, 255, 0.18);
+  background: rgba(23, 217, 255, 0.06);
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease;
+}
+
+.listingReturnBannerActive {
+  border-color: rgba(157, 255, 79, 0.32);
+  background: rgba(157, 255, 79, 0.06);
+  box-shadow: 0 0 22px rgba(157, 255, 79, 0.1);
+}
+
+.listingReturnHint {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: rgba(195, 210, 226, 0.75);
+}
+
+.backToListingTopLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(196, 210, 228, 0.88);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.backToListingTopLink:hover:not(:disabled),
+.backToListingTopLink:focus-visible:not(:disabled) {
+  color: #f4f7fb;
+}
+
+.backToListingTopLink:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.backToListingTopArrow {
+  font-size: 1rem;
+  line-height: 1;
+  color: rgba(23, 217, 255, 0.9);
+}
+
+.listingWizardSaveBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: calc(var(--zIndexTopbar) + 5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(23, 217, 255, 0.22);
+  background: linear-gradient(180deg, rgba(6, 14, 24, 0.92) 0%, rgba(4, 10, 18, 0.98) 100%);
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.listingWizardSaveError {
+  margin: 0;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  font-size: 0.76rem;
+  color: #ff8a8a;
+}
+
+.saveAndBackButton {
+  composes: buttonPrimary from global;
+  width: 100%;
+  max-width: 420px;
+  min-height: 52px;
+  padding: 14px 24px;
+  border: 1px solid rgba(120, 225, 255, 0.4);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0f172a 0%, #12314d 42%, #1fb8ff 100%);
+  box-shadow:
+    0 0 24px rgba(31, 184, 255, 0.28),
+    0 8px 24px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition:
+    box-shadow 200ms ease,
+    filter 200ms ease,
+    border-color 200ms ease;
+}
+
+.saveAndBackButton:hover:not(:disabled),
+.saveAndBackButton:focus-visible:not(:disabled) {
+  filter: brightness(1.06);
+  border-color: rgba(120, 225, 255, 0.55);
+  box-shadow:
+    0 0 32px rgba(31, 184, 255, 0.38),
+    0 10px 28px rgba(0, 0, 0, 0.3);
+}
+
+.saveAndBackButton:disabled {
+  opacity: 0.72;
+  cursor: wait;
 }
 
 .heading {
@@ -332,6 +524,72 @@
     0 10px 24px rgba(23, 217, 255, 0.26),
     0 0 32px rgba(23, 217, 255, 0.22);
   transform: translateY(-2px) scale(1.05);
+}
+
+.rangeHint {
+  margin: 0 0 10px;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: rgba(195, 210, 226, 0.58);
+}
+
+.rangeApplyHint {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: rgba(157, 255, 79, 0.72);
+}
+
+.dayInRange,
+.dayRangeStart,
+.dayRangeEnd {
+  z-index: 0;
+  border-color: rgba(23, 217, 255, 0.28);
+  background: rgba(23, 217, 255, 0.1);
+  box-shadow: inset 0 0 12px rgba(23, 217, 255, 0.08);
+  transition:
+    background 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dayInRange {
+  border-radius: 4px;
+}
+
+.dayRangeStart {
+  border-radius: 10px 4px 4px 10px;
+  box-shadow:
+    inset 4px 0 12px rgba(23, 217, 255, 0.12),
+    0 0 16px rgba(23, 217, 255, 0.1);
+}
+
+.dayRangeEnd {
+  border-radius: 4px 10px 10px 4px;
+  box-shadow:
+    inset -4px 0 12px rgba(23, 217, 255, 0.12),
+    0 0 16px rgba(23, 217, 255, 0.1);
+}
+
+.dayInRangePreview {
+  border-color: rgba(23, 217, 255, 0.2);
+  background: rgba(23, 217, 255, 0.06);
+  box-shadow:
+    0 0 0 1px rgba(23, 217, 255, 0.08),
+    0 0 20px rgba(23, 217, 255, 0.12);
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.dayInRangePreview:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.dayRangeStart.daySelected,
+.dayRangeEnd.daySelected {
+  z-index: 1;
 }
 
 .dayAvailable {
@@ -907,4 +1165,60 @@
 .dangerButton:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.devForceSyncPanel {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(23, 217, 255, 0.35);
+  background: rgba(23, 217, 255, 0.06);
+}
+
+.devForceSyncButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(23, 217, 255, 0.5);
+  background: rgba(23, 217, 255, 0.14);
+  color: #d8f7ff;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.devForceSyncButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.devForceSyncError,
+.devForceSyncRateLimit {
+  margin: 0;
+  color: #ffb4b4;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.devForceSyncRateLimit {
+  color: #ffd9a0;
+}
+
+.devForceSyncSummary {
+  margin: 0;
+  padding: 10px;
+  max-height: 280px;
+  overflow: auto;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  color: #d6e2ef;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
 }

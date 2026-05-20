@@ -601,7 +601,10 @@ const FieldDateAndTimeInput = props => {
 
   // Currently available date-specific data
   const bookingStartIdString = stringifyDateToISO8601(bookingStartDate, timeZone);
-  const timeSlotsOnSelectedDate = timeSlotsForDate[bookingStartIdString]?.timeSlots || [];
+  const dateTimeSlotsState = bookingStartIdString ? timeSlotsForDate[bookingStartIdString] : null;
+  const timeSlotsOnSelectedDate = dateTimeSlotsState?.timeSlots || [];
+  const fetchTimeSlotsInProgress = Boolean(dateTimeSlotsState?.fetchTimeSlotsInProgress);
+  const hasFetchedDateTimeSlots = dateTimeSlotsState?.fetchedAt != null;
 
   const timeSlotsOnDate = getTimeSlotsOnSelectedDate(
     timeSlotsOnSelectedDate,
@@ -793,18 +796,30 @@ const FieldDateAndTimeInput = props => {
             className={bookingStartDate ? css.fieldSelect : css.fieldSelectDisabled}
             selectClassName={bookingStartDate ? css.select : css.selectDisabled}
             label={intl.formatMessage({ id: 'FieldDateAndTimeInput.startTime' })}
-            disabled={!bookingStartDate}
-            showLabelAsDisabled={!bookingStartDate}
+            disabled={!bookingStartDate || fetchTimeSlotsInProgress}
+            showLabelAsDisabled={!bookingStartDate || fetchTimeSlotsInProgress}
             onChange={onBookingStartTimeChange(props)}
           >
-            {bookingStartDate ? (
+            {!bookingStartDate ? (
+              <option value="">{placeholderTime}</option>
+            ) : fetchTimeSlotsInProgress ? (
+              <option value="">
+                {intl.formatMessage({ id: 'FieldDateAndTimeInput.loadingTimes' })}
+              </option>
+            ) : availableStartTimes.length === 0 && hasFetchedDateTimeSlots ? (
+              <option value="">
+                {intl.formatMessage({ id: 'FieldDateAndTimeInput.noTimesAvailable' })}
+              </option>
+            ) : availableStartTimes.length === 0 ? (
+              <option value="">
+                {intl.formatMessage({ id: 'FieldDateAndTimeInput.loadingTimes' })}
+              </option>
+            ) : (
               availableStartTimes.map(p => (
                 <option key={p.timestamp} value={p.timestamp}>
                   {p.timeOfDay}
                 </option>
               ))
-            ) : (
-              <option>{placeholderTime}</option>
             )}
           </FieldSelect>
         </div>

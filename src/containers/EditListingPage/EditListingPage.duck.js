@@ -226,9 +226,10 @@ export const updateListingThunk = createAsyncThunk(
       .then(() => sdk.ownListings.update(ownListingUpdateValues, queryParams))
       .then(response => {
         const state = getState();
-        const existingTimeZone =
-          state.marketplaceData.entities.ownListing[id.uuid]?.attributes?.availabilityPlan
-            ?.timezone;
+        const listingIdKey = id?.uuid || id;
+        const listingEntity =
+          state.marketplaceData?.entities?.ownListing?.[listingIdKey];
+        const existingTimeZone = listingEntity?.attributes?.availabilityPlan?.timezone;
         const includedTimeZone = data?.availabilityPlan?.timezone;
 
         // If time zone has changed, we need to fetch exceptions again
@@ -426,6 +427,80 @@ export const fetchAvailabilityExceptionsThunk = createAsyncThunk(
 // Backward compatible wrappers for the thunks
 export const requestFetchAvailabilityExceptions = params => (dispatch, getState, sdk) => {
   return dispatch(fetchAvailabilityExceptionsThunk({ params })).unwrap();
+};
+
+/**
+ * Fetch every availability exception page for PeakUp calendar sync cleanup.
+ */
+export const fetchAllAvailabilityExceptionsForSyncThunk = createAsyncThunk(
+  'coachCalendar/fetchAllAvailabilityExceptionsForSync',
+  async ({ listingId, start, end }, { rejectWithValue, extra: sdk }) => {
+    try {
+      const perPage = 100;
+      let page = 1;
+      let totalPages = 1;
+      let exceptions = [];
+
+      do {
+        const response = await sdk.availabilityExceptions.query({
+          listingId,
+          start,
+          end,
+          perPage,
+          page,
+        });
+        exceptions = exceptions.concat(denormalisedResponseEntities(response));
+        totalPages = response.data.meta.totalPages || 1;
+        page += 1;
+      } while (page <= totalPages);
+
+      return { exceptions };
+    } catch (e) {
+      return rejectWithValue(storableError(e));
+    }
+  }
+);
+
+export const requestFetchAllAvailabilityExceptionsForSync = params => (dispatch, getState, sdk) => {
+  return dispatch(fetchAllAvailabilityExceptionsForSyncThunk(params)).unwrap();
+};
+
+/**
+ * Fetch every own listing for Coach Calendar multi-listing availability sync.
+ */
+export const fetchOwnListingsForCoachCalendarSyncThunk = createAsyncThunk(
+  'coachCalendar/fetchOwnListingsForCoachCalendarSync',
+  async (_, { dispatch, rejectWithValue, extra: sdk }) => {
+    try {
+      const perPage = 100;
+      let page = 1;
+      let totalPages = 1;
+      let listings = [];
+
+      do {
+        const response = await sdk.ownListings.query({
+          page,
+          perPage,
+          states: ['published', 'draft', 'pendingApproval'],
+          include: ['author', 'images'],
+        });
+        dispatch(addMarketplaceEntities(response));
+        const pageListings = denormalisedResponseEntities(response);
+        listings = listings.concat(pageListings);
+        totalPages = response.data.meta.totalPages || 1;
+
+        page += 1;
+      } while (page <= totalPages);
+
+      return { listings };
+    } catch (e) {
+      return rejectWithValue(storableError(e));
+    }
+  }
+);
+
+export const requestFetchOwnListingsForCoachCalendarSync = () => (dispatch, getState, sdk) => {
+  return dispatch(fetchOwnListingsForCoachCalendarSyncThunk()).unwrap();
 };
 
 export const fetchExtraAvailabilityExceptionsThunk = createAsyncThunk(

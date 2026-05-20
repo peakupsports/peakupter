@@ -22,6 +22,8 @@ import { H3, ListingLink } from '../../../../components';
 
 // Import modules from this directory
 import ErrorMessage from './ErrorMessage';
+import { listingTypesForCoachDetailsSelector } from '../../../../util/listingTypeCoachSelector';
+
 import EditListingDetailsForm from './EditListingDetailsForm';
 import css from './EditListingDetailsPanel.module.css';
 
@@ -335,9 +337,14 @@ const EditListingDetailsPanel = props => {
       return listinTypesMatch && unitTypesMatch;
     });
 
+  const selectorListingTypes = listingTypesForCoachDetailsSelector(
+    listingTypes,
+    hasExistingListingType ? existingListingTypeInfo : null
+  );
+
   const validPreselectedListingType =
     pathParams?.type === LISTING_PAGE_PARAM_TYPE_NEW && !!locationSearch?.listingType
-      ? listingTypes.find(conf => conf.listingType === locationSearch.listingType)
+      ? selectorListingTypes.find(conf => conf.listingType === locationSearch.listingType)
       : null;
 
   // Call onListingTypeChange with validPreselectedListingType id-string on initialization.
@@ -349,10 +356,14 @@ const EditListingDetailsPanel = props => {
     }
   }, []);
 
+  const listingTypesForInitialValues = hasExistingListingType
+    ? listingTypes
+    : selectorListingTypes;
+
   const initialValues = getInitialValues(
     props,
     existingListingTypeInfo,
-    listingTypes,
+    listingTypesForInitialValues,
     listingFields,
     listingCategories,
     categoryKey
@@ -440,7 +451,7 @@ const EditListingDetailsPanel = props => {
 
             onSubmit(updateValues);
           }}
-          selectableListingTypes={listingTypes.map(conf =>
+          selectableListingTypes={selectorListingTypes.map(conf =>
             getTransactionInfo({
               listingTypes: [conf],
               existingListingTypeInfo: {},

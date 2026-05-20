@@ -150,12 +150,16 @@ export const getTimeSlotsOnSelectedDate = (
   seatsEnabled,
   minDurationStartingInDay
 ) => {
+  const safeTimeSlotsOnSelectedDate = Array.isArray(timeSlotsOnSelectedDate)
+    ? timeSlotsOnSelectedDate
+    : [];
+
   if (!bookingStartDate) {
     return [];
   }
 
-  return timeSlotsOnSelectedDate.length > 0
-    ? removeUnnecessaryBoundaries(timeSlotsOnSelectedDate, seatsEnabled)
+  return safeTimeSlotsOnSelectedDate.length > 0
+    ? removeUnnecessaryBoundaries(safeTimeSlotsOnSelectedDate, seatsEnabled)
     : bookingStartDate
     ? getMonthlyTimeSlotsOnDate(
         monthlyTimeSlots,

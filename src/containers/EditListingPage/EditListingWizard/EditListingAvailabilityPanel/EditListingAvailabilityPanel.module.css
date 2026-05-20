@@ -33,13 +33,133 @@
   }
 }
 
-.planInfo {
+.coachCalendarEntry {
   margin-bottom: 24px;
+  padding: 18px 18px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(120, 225, 255, 0.22);
+  background: linear-gradient(165deg, rgba(8, 18, 32, 0.88) 0%, rgba(4, 10, 20, 0.94) 100%);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
 
   @media (--viewportMedium) {
-    padding: 6px 0 2px 0;
-    margin-bottom: 8px;
+    margin-bottom: 28px;
+    padding: 22px 24px 24px;
   }
+}
+
+.coachCalendarEntryHeading {
+  margin: 0 0 10px 0;
+  color: #f4f7fb;
+}
+
+.coachCalendarHelper {
+  composes: marketplaceBodyFontStyles from global;
+  margin: 0 0 18px 0;
+  color: rgba(196, 210, 228, 0.88);
+  line-height: 1.5;
+
+  @media (--viewportMedium) {
+    margin-bottom: 20px;
+  }
+}
+
+.coachCalendarConnected {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0 0 14px 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: rgba(157, 255, 79, 0.95);
+  font-weight: 600;
+  background: rgba(157, 255, 79, 0.08);
+  border: 1px solid rgba(157, 255, 79, 0.28);
+  box-shadow: 0 0 18px rgba(157, 255, 79, 0.12);
+}
+
+.coachCalendarBootstrapHint {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0 0 12px 0;
+  color: rgba(196, 210, 228, 0.72);
+}
+
+.coachCalendarCta {
+  composes: buttonPrimary from global;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 320px;
+  min-height: 48px;
+  padding: 12px 24px;
+  border: 1px solid rgba(120, 225, 255, 0.35);
+  border-radius: 12px;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+  background: linear-gradient(135deg, #0f172a 0%, #12314d 42%, #1fb8ff 100%);
+  box-shadow: 0 0 22px rgba(31, 184, 255, 0.22);
+  transition:
+    box-shadow 200ms ease,
+    filter 200ms ease,
+    border-color 200ms ease;
+
+  @media (--viewportMedium) {
+    min-height: 52px;
+  }
+}
+
+.coachCalendarCta:hover,
+.coachCalendarCta:focus-visible {
+  filter: brightness(1.06);
+  border-color: rgba(120, 225, 255, 0.5);
+  box-shadow: 0 0 30px rgba(31, 184, 255, 0.35);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.legacyScheduleSection {
+  margin-bottom: 24px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(120, 225, 255, 0.1);
+
+  @media (--viewportMedium) {
+    margin-bottom: 16px;
+    padding-top: 8px;
+  }
+}
+
+.legacyScheduleLabel {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0 0 6px 0;
+  color: rgba(157, 176, 198, 0.72);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.legacyScheduleHint {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0 0 8px 0;
+  color: rgba(157, 176, 198, 0.65);
+  line-height: 1.45;
+}
+
+.editPlanButtonLegacy {
+  display: inline-block;
+  padding: 2px 0 4px 0;
+  margin: 0;
+  color: rgba(157, 176, 198, 0.88);
+  font-size: 14px;
+  font-weight: var(--fontWeightMedium);
+
+  @media (--viewportMedium) {
+    padding: 3px 0 5px 0;
+    font-size: 15px;
+  }
+}
+
+.editPlanButtonLegacy:hover,
+.editPlanButtonLegacy:focus-visible {
+  color: rgba(196, 210, 228, 0.95);
 }
 
 .section {
@@ -47,16 +167,6 @@
 
   @media (--viewportMedium) {
     margin: 0 0 32px 0;
-  }
-}
-
-.editPlanButton {
-  display: block;
-  padding: 4px 0 2px 0;
-  margin: 0;
-
-  @media (--viewportMedium) {
-    padding: 5px 0 3px 0;
   }
 }
 

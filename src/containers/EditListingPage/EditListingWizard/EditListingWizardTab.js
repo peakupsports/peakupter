@@ -98,6 +98,7 @@ const EditListingWizardTab = props => {
     monthlyExceptionQueries,
     allExceptions,
     onFetchExceptions,
+    onFetchAllAvailabilityExceptions,
     onAddAvailabilityException,
     onDeleteAvailabilityException,
     onUpdateListing,
@@ -241,6 +242,7 @@ const EditListingWizardTab = props => {
           weeklyExceptionQueries={weeklyExceptionQueries}
           monthlyExceptionQueries={monthlyExceptionQueries}
           onFetchExceptions={onFetchExceptions}
+          onFetchAllAvailabilityExceptions={onFetchAllAvailabilityExceptions}
           onAddAvailabilityException={onAddAvailabilityException}
           onDeleteAvailabilityException={onDeleteAvailabilityException}
           onNextTab={() =>
