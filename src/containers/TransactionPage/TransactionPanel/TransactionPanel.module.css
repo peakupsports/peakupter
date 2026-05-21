@@ -690,6 +690,7 @@
   }
 
   @media (--viewportLarge) {
+    max-width: 1240px;
     padding: 24px 32px 40px;
     gap: 28px;
   }
@@ -697,8 +698,9 @@
 
 .peakUpBookingMainColumn {
   @media (--viewportLarge) {
-    flex-basis: min(520px, 58%);
-    flex-grow: 1;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 58%;
     margin-right: 28px;
     margin-bottom: 0;
   }
@@ -867,14 +869,17 @@
 
 .peakUpBookingAside {
   @media (--viewportLarge) {
+    flex: 0 0 auto;
     margin-top: 0;
+    min-width: 0;
   }
 }
 
 .peakUpBookingSticky {
   @media (--viewportLarge) {
     top: 24px;
-    width: 300px;
+    width: 390px;
+    max-width: 40vw;
   }
 }
 
@@ -952,7 +957,55 @@
 .peakUpBookingSummaryCard .breakdownContainer {
   @media (--viewportLarge) {
     display: block;
-    margin: 0 20px 16px;
+    margin: 0 18px 18px;
+    padding: 0 2px;
+  }
+}
+
+/* Receipt column: roomier multi-slot breakdown (display-only layout) */
+.peakUpBookingSummaryCard :global(.peakUpTheme .bookingPeriod) {
+  @media (--viewportLarge) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding-bottom: 4px;
+  }
+}
+
+.peakUpBookingSummaryCard :global(.peakUpTheme .bookingPeriodSectionLeft),
+.peakUpBookingSummaryCard :global(.peakUpTheme .bookingPeriodSectionRight) {
+  @media (--viewportLarge) {
+    text-align: left;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.peakUpBookingSummaryCard :global(.peakUpTheme .peakupSessionsWrap) {
+  @media (--viewportLarge) {
+    padding: 14px 16px;
+  }
+}
+
+.peakUpBookingSummaryCard :global(.peakUpTheme .peakupSessionsList) {
+  @media (--viewportLarge) {
+    padding-left: 0;
+    list-style: none;
+  }
+}
+
+.peakUpBookingSummaryCard :global(.peakUpTheme .peakupSessionLine) {
+  @media (--viewportLarge) {
+    margin: 8px 0 0;
+    line-height: 1.5;
+    word-break: normal;
+  }
+}
+
+.peakUpBookingSummaryCard :global(.peakUpTheme .peakupSessionLineDate),
+.peakUpBookingSummaryCard :global(.peakUpTheme .peakupSessionLineTimes) {
+  @media (--viewportLarge) {
+    display: inline;
   }
 }
 

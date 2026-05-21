@@ -94,3 +94,141 @@
 .peakUpRoot .error {
   color: #ff9a9a;
 }
+
+/* PeakUp booking — provider Accept / Decline (TransactionPage only via .peakUpRoot) */
+.peakUpRoot :global(.buttonPrimary),
+.peakUpRoot :global([class*='Button_primaryButtonRoot']) {
+  min-height: 48px;
+  padding: 12px 20px !important;
+  border: 1px solid rgba(157, 255, 79, 0.35) !important;
+  border-radius: 12px !important;
+  background-color: transparent !important;
+  background-image: linear-gradient(
+    135deg,
+    rgba(183, 245, 90, 0.95) 0%,
+    rgba(46, 228, 198, 0.92) 48%,
+    rgba(25, 223, 242, 0.88) 100%
+  ) !important;
+  color: #060b14 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.28),
+    0 0 20px rgba(34, 230, 184, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease,
+    border-color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .peakUpRoot :global(.buttonPrimary:hover:not(:disabled)),
+  .peakUpRoot :global(.buttonPrimary:focus:not(:disabled)),
+  .peakUpRoot :global([class*='Button_primaryButtonRoot']:hover:not(:disabled)),
+  .peakUpRoot :global([class*='Button_primaryButtonRoot']:focus:not(:disabled)) {
+    outline: none !important;
+    filter: brightness(1.05) saturate(1.06) !important;
+    transform: translateY(-1px);
+    border-color: rgba(157, 255, 79, 0.55) !important;
+    background-color: transparent !important;
+    background-image: linear-gradient(
+      135deg,
+      rgba(195, 252, 110, 1) 0%,
+      rgba(62, 235, 210, 0.96) 48%,
+      rgba(40, 232, 248, 0.94) 100%
+    ) !important;
+    color: #060b14 !important;
+    box-shadow:
+      0 12px 28px rgba(0, 0, 0, 0.32),
+      0 0 28px rgba(34, 230, 184, 0.38),
+      inset 0 1px 0 rgba(255, 255, 255, 0.42) !important;
+  }
+}
+
+.peakUpRoot :global(.buttonPrimary:focus-visible),
+.peakUpRoot :global([class*='Button_primaryButtonRoot']:focus-visible) {
+  outline: 2px solid rgba(25, 223, 242, 0.65) !important;
+  outline-offset: 2px;
+}
+
+.peakUpRoot :global(.buttonPrimary:disabled),
+.peakUpRoot :global([class*='Button_primaryButtonRoot']:disabled) {
+  background-image: none !important;
+  background-color: rgba(60, 72, 88, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(180, 198, 218, 0.55) !important;
+  box-shadow: none !important;
+  transform: none;
+}
+
+.peakUpRoot :global(.buttonPrimary) svg,
+.peakUpRoot :global([class*='Button_primaryButtonRoot']) svg {
+  stroke: #060b14;
+}
+
+.peakUpRoot :global(.buttonSecondary),
+.peakUpRoot :global([class*='Button_secondaryButtonRoot']) {
+  min-height: 48px;
+  padding: 12px 20px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(25, 223, 242, 0.28) !important;
+  background-color: rgba(8, 14, 26, 0.55) !important;
+  background-image: linear-gradient(
+    168deg,
+    rgba(12, 20, 36, 0.72) 0%,
+    rgba(6, 11, 20, 0.82) 100%
+  ) !important;
+  color: rgba(240, 245, 252, 0.94) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .peakUpRoot :global(.buttonSecondary:hover:not(:disabled)),
+  .peakUpRoot :global(.buttonSecondary:focus:not(:disabled)),
+  .peakUpRoot :global([class*='Button_secondaryButtonRoot']:hover:not(:disabled)),
+  .peakUpRoot :global([class*='Button_secondaryButtonRoot']:focus:not(:disabled)) {
+    outline: none !important;
+    transform: translateY(-1px);
+    border-color: rgba(25, 223, 242, 0.48) !important;
+    background-color: rgba(12, 20, 36, 0.78) !important;
+    color: #f8fafc !important;
+    box-shadow:
+      0 8px 22px rgba(0, 0, 0, 0.28),
+      0 0 18px rgba(23, 217, 255, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+.peakUpRoot :global(.buttonSecondary:focus-visible),
+.peakUpRoot :global([class*='Button_secondaryButtonRoot']:focus-visible) {
+  outline: 2px solid rgba(25, 223, 242, 0.45) !important;
+  outline-offset: 2px;
+}
+
+.peakUpRoot :global(.buttonSecondary:disabled),
+.peakUpRoot :global([class*='Button_secondaryButtonRoot']:disabled) {
+  background-color: rgba(40, 48, 58, 0.35) !important;
+  background-image: none !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(160, 178, 200, 0.45) !important;
+  box-shadow: none !important;
+  transform: none;
+}
+
+.peakUpRoot :global(.buttonSecondary) svg,
+.peakUpRoot :global([class*='Button_secondaryButtonRoot']) svg {
+  stroke: rgba(210, 222, 238, 0.9);
+}
