@@ -629,6 +629,37 @@
   background: rgba(255, 176, 64, 0.9);
 }
 
+.dayHasBookings .dayStatusBar {
+  box-shadow: 0 0 6px rgba(23, 217, 255, 0.35);
+}
+
+.dayBookingMarker {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #17d9ff;
+  box-shadow: 0 0 8px rgba(23, 217, 255, 0.65);
+}
+
+.dayBookingCount {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 14px;
+  padding: 0 3px;
+  border-radius: 999px;
+  font-size: 0.52rem;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+  color: #041018;
+  background: #17d9ff;
+  box-shadow: 0 0 8px rgba(23, 217, 255, 0.5);
+}
+
 .daySelected .dayStatusBar {
   box-shadow: 0 0 8px rgba(23, 217, 255, 0.45);
 }
@@ -696,6 +727,15 @@
     inset 0 1px 1px rgba(255, 255, 255, 0.28);
 }
 
+.legendSwatch.dayBookings {
+  background: linear-gradient(180deg, #5ee9ff 0%, #17d9ff 100%);
+  box-shadow:
+    0 0 0 1px rgba(23, 217, 255, 0.45),
+    0 0 6px rgba(23, 217, 255, 0.55),
+    0 0 10px rgba(23, 217, 255, 0.22),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35);
+}
+
 .panelHeader {
   padding-bottom: 8px;
   margin-bottom: 2px;
@@ -743,8 +783,8 @@
 .bookingWarning {
   padding: 9px 11px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 176, 64, 0.32);
-  background: rgba(255, 176, 64, 0.08);
+  border: 1px solid rgba(23, 217, 255, 0.35);
+  background: rgba(23, 217, 255, 0.1);
 }
 
 .bookingWarningTitle {
@@ -752,20 +792,21 @@
   font-size: 0.78rem;
   font-weight: 700;
   line-height: 1.35;
-  color: #ffe8c4;
+  color: #b8ecff;
 }
 
 .bookingWarningList {
   margin: 0;
-  padding: 0 0 0 14px;
+  padding: 0;
+  list-style: none;
   display: grid;
-  gap: 2px;
+  gap: 4px;
 }
 
 .bookingWarningItem {
   font-size: 0.76rem;
   line-height: 1.4;
-  color: rgba(255, 232, 200, 0.88);
+  color: rgba(184, 236, 255, 0.92);
 }
 
 .panelBlock {

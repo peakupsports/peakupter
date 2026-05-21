@@ -1,28 +1,35 @@
 /**
- * Active booking/camp events for Coach Calendar day warnings.
- * Separate from manual blockedSlots — should come from Sharetribe transactions when wired.
- *
- * @typedef {Object} CoachCalendarBookingEvent
- * @property {string} id
- * @property {string} dateKey ISO date key (YYYY-MM-DD)
- * @property {'booking'|'camp'} type
- * @property {number} count
- * @property {string} label Human-readable session or listing title
+ * Active booking sessions for Coach Calendar warnings and day indicators.
+ * Populated from Sharetribe provider sales via coachCalendarBookings.js.
  */
-
-const BOOKING_WARNING_TYPES = new Set(['booking', 'camp']);
 
 /**
- * Returns booking/camp events for a calendar day that should trigger the active-bookings warning.
- * Empty until connected to provider transaction data.
- *
- * @param {string} dateKey
- * @returns {CoachCalendarBookingEvent[]}
+ * @typedef {Object} CoachCalendarBookingSession
+ * @property {string} id
+ * @property {string} transactionId
+ * @property {string} dateKey ISO date key (YYYY-MM-DD)
+ * @property {string} startTime HH:mm in listing timezone
+ * @property {string} endTime HH:mm in listing timezone
+ * @property {string} timeLabel Display range e.g. "08:00–10:00" or "All day"
+ * @property {string} customerName
+ * @property {string} statusLabel Localised status (Requested / Accepted)
+ * @property {string} processState Raw process state id
+ * @property {boolean} isAllDay
+ * @property {'booking'} type
  */
-export const getCoachCalendarBookingEventsForDate = dateKey => {
-  const events = [];
 
-  return events.filter(
-    event => event.dateKey === dateKey && BOOKING_WARNING_TYPES.has(event.type)
-  );
-};
+/**
+ * @param {Record<string, CoachCalendarBookingSession[]>} bookingsByDateKey
+ * @param {string} dateKey
+ * @returns {CoachCalendarBookingSession[]}
+ */
+export const getCoachCalendarBookingSessionsForDate = (bookingsByDateKey, dateKey) =>
+  bookingsByDateKey?.[dateKey] || [];
+
+/**
+ * @param {Record<string, CoachCalendarBookingSession[]>} bookingsByDateKey
+ * @param {string} dateKey
+ * @returns {number}
+ */
+export const getCoachCalendarBookingCountForDate = (bookingsByDateKey, dateKey) =>
+  getCoachCalendarBookingSessionsForDate(bookingsByDateKey, dateKey).length;

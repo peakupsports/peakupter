@@ -58,7 +58,16 @@ import {
 import { invalidateListingPageTimeSlotsCache } from '../ListingPage/ListingPage.duck';
 
 import css from './CoachCalendarPage.module.css';
-import { getCoachCalendarBookingEventsForDate } from './coachCalendarBookingEvents';
+import {
+  buildBookingSessionsIndex,
+  buildCoachCalendarBookingSessions,
+  requestFetchCoachCalendarBookings,
+} from './coachCalendarBookings';
+import { getCoachCalendarBookingCountForDate } from './coachCalendarBookingEvents';
+import {
+  formatBlockBookingConflictMessage,
+  getBlockBookingConflicts,
+} from './coachCalendarBlocking';
 import {
   getInclusiveDateRange,
   isDateInRangeBounds,
@@ -85,6 +94,12 @@ const LEGEND_ITEMS = [
     labelId: 'CoachCalendarPage.statusUnavailable',
     labelDefault: 'Unavailable',
     statusClass: css.dayUnavailable,
+  },
+  {
+    status: 'bookings',
+    labelId: 'CoachCalendarPage.statusBookings',
+    labelDefault: 'Active bookings',
+    statusClass: css.dayBookings,
   },
 ];
 
@@ -397,12 +412,38 @@ const CoachCalendarPageComponent = () => {
   const [forceSyncSummary, setForceSyncSummary] = useState(null);
   const [availabilitySyncFeedback, setAvailabilitySyncFeedback] = useState(null);
   const [rateLimitRemainingMs, setRateLimitRemainingMs] = useState(0);
+  const [bookingSessions, setBookingSessions] = useState([]);
 
   const isForceSyncBlocked = rateLimitRemainingMs > 0;
 
   const selectedDateKey = toDateKey(selectedDate);
   const viewYear = viewDate.getFullYear();
   const viewMonth = viewDate.getMonth();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    dispatch(requestFetchCoachCalendarBookings({ year: viewYear, month: viewMonth }))
+      .then(transactions => {
+        if (!cancelled) {
+          setBookingSessions(buildCoachCalendarBookingSessions(transactions, intl));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setBookingSessions([]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch, intl, viewYear, viewMonth]);
+
+  const bookingsByDateKey = useMemo(
+    () => buildBookingSessionsIndex(bookingSessions),
+    [bookingSessions]
+  );
 
   const committedRangeBounds = useMemo(
     () => normalizeRangeBounds(rangeStart, rangeEnd),
@@ -477,19 +518,27 @@ const CoachCalendarPageComponent = () => {
     date => normalizeDaySettings(daySettings[toDateKey(date)]).allDayBlocked
   );
   const rangeDayCount = selectedRangeDates.length;
-  const selectedCalendarEvents = useMemo(() => {
+  const selectedDayBookings = useMemo(() => {
     const seen = new Set();
-    const events = [];
+    const bookings = [];
     selectedRangeDates.forEach(date => {
-      getCoachCalendarBookingEventsForDate(toDateKey(date)).forEach(event => {
-        if (!seen.has(event.id)) {
-          seen.add(event.id);
-          events.push(event);
+      const dateKey = toDateKey(date);
+      (bookingsByDateKey[dateKey] || []).forEach(session => {
+        if (!seen.has(session.id)) {
+          seen.add(session.id);
+          bookings.push(session);
         }
       });
     });
-    return events;
-  }, [selectedRangeDates]);
+    return bookings.sort((a, b) => a.startTime.localeCompare(b.startTime));
+  }, [bookingsByDateKey, selectedRangeDates]);
+
+  const confirmBlockDespiteBookings = conflicts => {
+    if (!conflicts.length) {
+      return true;
+    }
+    return window.confirm(formatBlockBookingConflictMessage(intl, conflicts));
+  };
 
   const calendarCells = useMemo(
     () => buildMonthGrid(viewYear, viewMonth),
@@ -759,6 +808,16 @@ const CoachCalendarPageComponent = () => {
       reason: newSlot.reason.trim(),
     };
 
+    const conflicts = getBlockBookingConflicts({
+      dates: selectedRangeDates,
+      allDayBlocked: false,
+      newSlot: slotPayload,
+      bookingsByDateKey,
+    });
+    if (!confirmBlockDespiteBookings(conflicts)) {
+      return;
+    }
+
     applyToSelectedRange((current, date) => ({
       allDayBlocked: false,
       blockedSlots: [
@@ -775,6 +834,15 @@ const CoachCalendarPageComponent = () => {
   };
 
   const handleBlockAllDay = () => {
+    const conflicts = getBlockBookingConflicts({
+      dates: selectedRangeDates,
+      allDayBlocked: true,
+      bookingsByDateKey,
+    });
+    if (!confirmBlockDespiteBookings(conflicts)) {
+      return;
+    }
+
     applyToSelectedRange(() => ({
       allDayBlocked: true,
       blockedSlots: [],
@@ -1163,6 +1231,10 @@ const CoachCalendarPageComponent = () => {
                     isDateInRangeBounds(date, previewRangeBounds) &&
                     !isDateInRangeBounds(date, committedRangeBounds);
                   const isSelectedFocus = isSameCalendarDay(date, selectedDate);
+                  const dayBookingCount = getCoachCalendarBookingCountForDate(
+                    bookingsByDateKey,
+                    dateKey
+                  );
 
                   return (
                     <button
@@ -1170,6 +1242,7 @@ const CoachCalendarPageComponent = () => {
                       type="button"
                       role="gridcell"
                       className={classNames(css.dayCell, statusClass, {
+                        [css.dayHasBookings]: dayBookingCount > 0,
                         [css.dayToday]: isToday,
                         [css.daySelected]:
                           isSelectedFocus ||
@@ -1184,13 +1257,53 @@ const CoachCalendarPageComponent = () => {
                       onClick={() => handleSelectDate(date)}
                       onMouseEnter={() => handleDayMouseEnter(date)}
                       aria-pressed={inHighlight}
-                      aria-label={intl.formatDate(date, {
-                        weekday: 'long',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
+                      aria-label={
+                        dayBookingCount > 0
+                          ? intl.formatMessage(
+                              {
+                                id: 'CoachCalendarPage.dayWithBookingsAria',
+                                defaultMessage:
+                                  '{date}, {count, plural, one {# active booking} other {# active bookings}}',
+                              },
+                              {
+                                date: intl.formatDate(date, {
+                                  weekday: 'long',
+                                  month: 'long',
+                                  day: 'numeric',
+                                }),
+                                count: dayBookingCount,
+                              }
+                            )
+                          : intl.formatDate(date, {
+                              weekday: 'long',
+                              month: 'long',
+                              day: 'numeric',
+                            })
+                      }
+                      title={
+                        dayBookingCount > 0
+                          ? intl.formatMessage(
+                              {
+                                id: 'CoachCalendarPage.dayBookingsTooltip',
+                                defaultMessage:
+                                  '{count, plural, one {# active booking} other {# active bookings}}',
+                              },
+                              { count: dayBookingCount }
+                            )
+                          : undefined
+                      }
                     >
                       <span className={css.dayNumber}>{date.getDate()}</span>
+                      {dayBookingCount > 0 ? (
+                        <>
+                          <span className={css.dayBookingMarker} aria-hidden />
+                          {dayBookingCount > 1 ? (
+                            <span className={css.dayBookingCount} aria-hidden>
+                              {dayBookingCount}
+                            </span>
+                          ) : null}
+                        </>
+                      ) : null}
                       <span className={css.dayStatusBar} aria-hidden />
                     </button>
                   );
@@ -1348,21 +1461,25 @@ const CoachCalendarPageComponent = () => {
                 </p>
               </div>
 
-              {selectedCalendarEvents.length > 0 ? (
+              {selectedDayBookings.length > 0 ? (
                 <div className={css.bookingWarning} role="status">
                   <p className={css.bookingWarningTitle}>
                     <FormattedMessage
                       id="CoachCalendarPage.bookingWarningTitle"
-                      defaultMessage="Attention: this day already has active bookings."
+                      defaultMessage="You already have active sessions on this day."
                     />
                   </p>
                   <ul className={css.bookingWarningList}>
-                    {selectedCalendarEvents.map(event => (
-                      <li key={event.id} className={css.bookingWarningItem}>
+                    {selectedDayBookings.map(session => (
+                      <li key={session.id} className={css.bookingWarningItem}>
                         <FormattedMessage
-                          id="CoachCalendarPage.bookingWarningItem"
-                          defaultMessage="{count, plural, one {# athlete booked} other {# athletes booked}} for {label}."
-                          values={{ count: event.count, label: event.label }}
+                          id="CoachCalendarPage.bookingWarningSession"
+                          defaultMessage="{time} · {customer} · {status}"
+                          values={{
+                            time: session.timeLabel,
+                            customer: session.customerName,
+                            status: session.statusLabel,
+                          }}
                         />
                       </li>
                     ))}
