@@ -32,3 +32,10 @@
     margin-top: 0;
   }
 }
+
+.contactSharingWarning {
+  composes: marketplaceSmallFontStyles from global;
+  color: #9dff4f;
+  margin: 0 0 12px;
+  line-height: 1.45;
+}

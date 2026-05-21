@@ -4,6 +4,8 @@ import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import * as validators from '../../../util/validators';
+import { isContactSharingBlockedError } from '../../../util/errors';
+import { noContactSharingBeforeBookingValidator } from '../../../util/peakupContactSharing';
 import { propTypes } from '../../../util/types';
 
 import {
@@ -36,6 +38,8 @@ import css from './InquiryForm.module.css';
  * @param {string} [props.messagePlaceholderMessageId] - Optional intl id for placeholder
  * @param {string} [props.submitButtonMessageId] - Optional intl id for submit button
  * @param {boolean} [props.hideInquiryIcon] - Hide default inquiry icon (PeakUp contact modal)
+ * @param {boolean} [props.hideHeading] - Hide built-in heading (parent renders title)
+ * @param {boolean} [props.hideMessageLabel] - Hide message field label
  * @param {string} [props.headingRootClassName] - Override heading class
  * @param {string} [props.fieldClassName] - Override field wrapper class
  * @param {string} [props.submitButtonRootClassName] - Override PrimaryButton root class
@@ -62,6 +66,8 @@ const InquiryForm = props => (
         messagePlaceholderMessageId = 'InquiryForm.messagePlaceholder',
         submitButtonMessageId = 'InquiryForm.submitButtonText',
         hideInquiryIcon = false,
+        hideHeading = false,
+        hideMessageLabel = false,
         headingRootClassName,
         fieldClassName,
         submitButtonRootClassName,
@@ -71,12 +77,14 @@ const InquiryForm = props => (
       const coachName = authorDisplayName || listingTitle || '';
       const intlValues = { authorDisplayName, coachName, listingTitle };
 
-      const messageLabel = intl.formatMessage(
-        {
-          id: messageLabelMessageId,
-        },
-        intlValues
-      );
+      const messageLabel = hideMessageLabel
+        ? null
+        : intl.formatMessage(
+            {
+              id: messageLabelMessageId,
+            },
+            intlValues
+          );
       const messagePlaceholder = intl.formatMessage(
         {
           id: messagePlaceholderMessageId,
@@ -87,20 +95,25 @@ const InquiryForm = props => (
         id: 'InquiryForm.messageRequired',
       });
       const messageRequired = validators.requiredAndNonEmptyString(messageRequiredMessage);
+      const noContactSharing = noContactSharingBeforeBookingValidator(intl);
+      const validateMessage = value => messageRequired(value) || noContactSharing(value);
 
       const classes = classNames(rootClassName || css.root, className);
+      const contactSharingBlocked = isContactSharingBlockedError(sendInquiryError);
       const submitInProgress = inProgress;
       const submitDisabled = submitInProgress;
 
       return (
         <Form className={classes} onSubmit={handleSubmit} enforcePagePreloadFor="OrderDetailsPage">
           {hideInquiryIcon ? null : <IconInquiry className={css.icon} />}
-          <Heading as="h2" rootClassName={headingRootClassName || css.heading}>
-            <FormattedMessage
-              id={headingMessageId}
-              values={headingValues || { listingTitle, coachName }}
-            />
-          </Heading>
+          {hideHeading ? null : (
+            <Heading as="h2" rootClassName={headingRootClassName || css.heading}>
+              <FormattedMessage
+                id={headingMessageId}
+                values={headingValues || { listingTitle, coachName }}
+              />
+            </Heading>
+          )}
           <FieldTextInput
             className={fieldClassName || css.field}
             type="textarea"
@@ -108,10 +121,16 @@ const InquiryForm = props => (
             id={formId ? `${formId}.message` : 'message'}
             label={messageLabel}
             placeholder={messagePlaceholder}
-            validate={messageRequired}
+            validate={validateMessage}
           />
           <div className={submitButtonWrapperClassName}>
-            <ErrorMessage error={sendInquiryError} />
+            {contactSharingBlocked ? (
+              <p className={css.contactSharingWarning} role="alert">
+                <FormattedMessage id="SendMessageForm.contactSharingBlocked" />
+              </p>
+            ) : (
+              <ErrorMessage error={sendInquiryError} />
+            )}
             <PrimaryButton
               type="submit"
               inProgress={submitInProgress}

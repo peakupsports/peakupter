@@ -391,6 +391,12 @@ export const getAuthErrorMessage = (
   );
 };
 
+/**
+ * PeakUp: contact details blocked before booking request.
+ */
+export const isContactSharingBlockedError = error =>
+  error?.name === 'ContactSharingBlockedError';
+
 export const storableError = err => {
   const error = err || {};
   const { name, message, status, statusText } = error;

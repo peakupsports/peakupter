@@ -4,6 +4,7 @@ import { Form as FinalForm } from 'react-final-form';
 import classNames from 'classnames';
 
 import { FormattedMessage, injectIntl, intlShape } from '../../../util/reactIntl';
+import { isContactSharingBlockedError } from '../../../util/errors';
 import { propTypes } from '../../../util/types';
 
 import { Form, FieldTextInput, SecondaryButtonInline } from '../../../components';
@@ -90,10 +91,14 @@ class SendMessageFormComponent extends Component {
             invalid,
             form,
             formId,
+            submitError,
           } = formRenderProps;
 
           const classes = classNames(rootClassName || css.root, className);
           const submitInProgress = inProgress;
+          const contactSharingBlocked =
+            isContactSharingBlockedError(sendMessageError) ||
+            isContactSharingBlockedError(submitError);
           const submitDisabled = invalid || submitInProgress;
           return (
             <Form className={classes} onSubmit={values => handleSubmit(values, form)}>
@@ -108,7 +113,11 @@ class SendMessageFormComponent extends Component {
               />
               <div className={css.submitContainer}>
                 <div className={css.errorContainer}>
-                  {sendMessageError ? (
+                  {contactSharingBlocked ? (
+                    <p className={css.contactSharingWarning} role="alert">
+                      <FormattedMessage id="SendMessageForm.contactSharingBlocked" />
+                    </p>
+                  ) : sendMessageError ? (
                     <p className={css.error}>
                       <FormattedMessage id="SendMessageForm.sendFailed" />
                     </p>

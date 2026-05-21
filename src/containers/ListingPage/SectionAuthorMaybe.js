@@ -6,9 +6,9 @@ import {
   OFFER,
 } from '../../transactions/transaction';
 
-import { Heading, Modal } from '../../components';
+import { Heading } from '../../components';
 import UserCard from './UserCard/UserCard';
-import InquiryForm from './InquiryForm/InquiryForm';
+import ListingInquiryModal from './ListingInquiryModal/ListingInquiryModal';
 
 import css from './ListingPage.module.css';
 
@@ -51,25 +51,18 @@ const SectionAuthorMaybe = props => {
         showContact={showContact}
         contactLinkId={CONTACT_USER_LINK}
       />
-      <Modal
+      <ListingInquiryModal
         id="ListingPage.inquiry"
-        contentClassName={css.inquiryModalContent}
         isOpen={isInquiryModalOpen}
         onClose={onCloseInquiryModal}
-        usePortal
         onManageDisableScrolling={onManageDisableScrolling}
         focusElementId={CONTACT_USER_LINK}
-      >
-        <InquiryForm
-          className={css.inquiryForm}
-          submitButtonWrapperClassName={css.inquirySubmitButtonWrapper}
-          listingTitle={title}
-          authorDisplayName={authorDisplayName}
-          sendInquiryError={sendInquiryError}
-          onSubmit={onSubmitInquiry}
-          inProgress={sendInquiryInProgress}
-        />
-      </Modal>
+        listingTitle={title}
+        authorDisplayName={authorDisplayName}
+        sendInquiryError={sendInquiryError}
+        onSubmitInquiry={onSubmitInquiry}
+        sendInquiryInProgress={sendInquiryInProgress}
+      />
     </section>
   );
 };

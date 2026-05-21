@@ -30,6 +30,10 @@ import { unarchiveConversationIfIncomingMessage } from '../../ducks/archivedConv
 import { fetchCurrentUserNotifications } from '../../ducks/user.duck';
 import { getLatestMessage } from '../../util/transactionNotificationCount';
 import { markTransactionReadOnOpen } from '../../util/unreadNotifications';
+import {
+  createContactSharingBlockedError,
+  shouldBlockContactSharingInMessage,
+} from '../../util/peakupContactSharing';
 
 const { UUID } = sdkTypes;
 
@@ -500,8 +504,16 @@ export const fetchMoreMessages = (txId, config) => (dispatch, getState, sdk) => 
 /////////////////
 const sendMessagePayloadCreator = (
   { txId, message, config },
-  { dispatch, rejectWithValue, extra: sdk }
+  { dispatch, rejectWithValue, extra: sdk, getState }
 ) => {
+  const transactionRefs = [{ id: txId, type: 'transaction' }];
+  const transactions = getMarketplaceEntities(getState(), transactionRefs);
+  const transaction = transactions.length > 0 ? transactions[0] : null;
+
+  if (shouldBlockContactSharingInMessage(transaction, message)) {
+    return rejectWithValue(storableError(createContactSharingBlockedError()));
+  }
+
   return sdk.messages
     .send({ transactionId: txId, content: message })
     .then(response => {

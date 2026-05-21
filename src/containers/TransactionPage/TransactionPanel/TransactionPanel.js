@@ -8,6 +8,11 @@ import { isMobileSafari } from '../../../util/userAgent';
 import { createSlug } from '../../../util/urlHelpers';
 import { displayPrice } from '../../../util/configHelpers';
 import { isPeakUpConversationView } from '../../../util/peakUpConversationView';
+import {
+  isContactSharingAllowed,
+  noContactSharingBeforeBookingValidator,
+  shouldBlockContactSharingInMessage,
+} from '../../../util/peakupContactSharing';
 
 import { AvatarLarge, NamedLink, UserDisplayName } from '../../../components';
 
@@ -137,11 +142,16 @@ export class TransactionPanelComponent extends Component {
 
   onMessageSubmit(values, form) {
     const message = values.message ? values.message.trim() : null;
-    const { transactionId, onSendMessage, config } = this.props;
+    const { transactionId, onSendMessage, config, transaction } = this.props;
 
     if (!message) {
       return;
     }
+
+    if (shouldBlockContactSharingInMessage(transaction, message)) {
+      return;
+    }
+
     onSendMessage(transactionId, message, config)
       .then(messageId => {
         form.reset();
@@ -284,6 +294,14 @@ export class TransactionPanelComponent extends Component {
       />
     );
 
+    const contactSharingValidate = values => {
+      if (isContactSharingAllowed(transaction)) {
+        return {};
+      }
+      const contactError = noContactSharingBeforeBookingValidator(intl)(values.message);
+      return contactError ? { message: contactError } : {};
+    };
+
     const conversationSendForm = showSendMessageForm ? (
       <SendMessageForm
         formId={this.sendMessageFormName}
@@ -297,6 +315,7 @@ export class TransactionPanelComponent extends Component {
         onFocus={this.onSendMessageFormFocus}
         onBlur={this.onSendMessageFormBlur}
         onSubmit={this.onMessageSubmit}
+        validate={contactSharingValidate}
       />
     ) : (
       <div className={css.peakUpConversationSendingNotAllowed}>
@@ -478,6 +497,7 @@ export class TransactionPanelComponent extends Component {
                 onFocus={this.onSendMessageFormFocus}
                 onBlur={this.onSendMessageFormBlur}
                 onSubmit={this.onMessageSubmit}
+                validate={contactSharingValidate}
               />
             ) : (
               <div

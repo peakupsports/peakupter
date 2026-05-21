@@ -132,6 +132,7 @@ const NewBookingRequestModal = props => {
       onManageDisableScrolling={onManageDisableScrolling}
       usePortal
       closeOnOutsideClick
+      lightCloseButton
     >
       <div id={MODAL_CONTENT_ID} className={css.content}>
         <header className={css.header}>

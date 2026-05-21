@@ -2,6 +2,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { types as sdkTypes, createImageVariantConfig } from '../../util/sdkLoader';
 import { storableError } from '../../util/errors';
+import {
+  createContactSharingBlockedError,
+  containsContactInfo,
+} from '../../util/peakupContactSharing';
 import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 import { transactionLineItems } from '../../util/api';
 import * as log from '../../util/log';
@@ -377,6 +381,10 @@ const sendInquiryPayloadCreator = (
   { listing, message },
   { dispatch, rejectWithValue, extra: sdk }
 ) => {
+  if (containsContactInfo(message)) {
+    return rejectWithValue(storableError(createContactSharingBlockedError()));
+  }
+
   const processAlias = listing?.attributes?.publicData?.transactionProcessAlias;
   if (!processAlias) {
     const error = new Error('No transaction process attached to listing');
