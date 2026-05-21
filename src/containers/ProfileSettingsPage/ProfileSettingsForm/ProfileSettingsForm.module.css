@@ -25,6 +25,7 @@
     0 0 24px rgba(23, 217, 255, 0.04);
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
+  overflow: visible;
 
   @media (--viewportMedium) {
     padding: 28px 28px;
@@ -540,7 +541,8 @@
 
 .peakUpForm :global([class*='FieldTextInput_root']) > label,
 .peakUpForm :global([class*='FieldSelect_root']) > label,
-.peakUpForm :global([class*='FieldCoachMapLocation_locationRoot']) > label {
+.peakUpForm :global([class*='FieldCoachMapLocation_locationRoot']) > label,
+.peakUpForm :global([class*='FieldPreferredMeetingPoints_locationRoot']) > label {
   color: rgba(228, 235, 243, 0.88) !important;
   font-weight: 600;
 }
@@ -548,7 +550,8 @@
 .peakUpForm :global([class*='FieldTextInput_root']) input,
 .peakUpForm :global([class*='FieldTextInput_root']) textarea,
 .peakUpForm :global([class*='FieldSelect_root']) select,
-.peakUpForm :global([class*='FieldCoachMapLocation_locationRoot']) input {
+.peakUpForm :global([class*='FieldCoachMapLocation_locationRoot']) input,
+.peakUpForm :global([class*='FieldPreferredMeetingPoints_locationRoot']) input {
   color: rgba(247, 250, 255, 0.96) !important;
   background-color: rgba(8, 14, 24, 0.72) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -562,14 +565,16 @@
 
 .peakUpForm :global([class*='FieldTextInput_root']) input::placeholder,
 .peakUpForm :global([class*='FieldTextInput_root']) textarea::placeholder,
-.peakUpForm :global([class*='FieldCoachMapLocation_locationRoot']) input::placeholder {
+.peakUpForm :global([class*='FieldCoachMapLocation_locationRoot']) input::placeholder,
+.peakUpForm :global([class*='FieldPreferredMeetingPoints_locationRoot']) input::placeholder {
   color: rgba(195, 210, 226, 0.45);
 }
 
 .peakUpForm :global([class*='FieldTextInput_root']) input:focus,
 .peakUpForm :global([class*='FieldTextInput_root']) textarea:focus,
 .peakUpForm :global([class*='FieldSelect_root']) select:focus,
-.peakUpForm :global([class*='FieldCoachMapLocation_locationRoot']) input:focus {
+.peakUpForm :global([class*='FieldCoachMapLocation_locationRoot']) input:focus,
+.peakUpForm :global([class*='FieldPreferredMeetingPoints_locationRoot']) input:focus {
   outline: none;
   border-color: rgba(23, 217, 255, 0.55) !important;
   box-shadow:
@@ -603,8 +608,11 @@
   color: #ff8a8a !important;
 }
 
-/* Mapbox / location predictions dropdown */
-.peakUpForm :global([class*='FieldCoachMapLocation_predictionsRoot']) {
+/* Mapbox / location predictions dropdown (coach map + meeting points) */
+.peakUpForm :global([class*='FieldCoachMapLocation_predictionsRoot']),
+.peakUpForm :global([class*='FieldPreferredMeetingPoints_predictionsRoot']),
+.peakUpForm :global([class*='LocationAutocompleteInput_predictionsRoot']),
+.peakUpForm :global([class*='LocationAutocompleteInput_predictionsRootMapbox']) {
   background: linear-gradient(
     180deg,
     rgba(11, 18, 32, 0.98) 0%,
@@ -615,14 +623,31 @@
   box-shadow:
     0 16px 40px rgba(0, 0, 0, 0.45),
     0 0 22px rgba(23, 217, 255, 0.08) !important;
+  pointer-events: auto;
 }
 
-.peakUpForm :global([class*='FieldCoachMapLocation_predictionsRoot']) button {
+.peakUpForm :global([class*='FieldCoachMapLocation_predictionsRoot']) button,
+.peakUpForm :global([class*='FieldPreferredMeetingPoints_predictionsRoot']) button,
+.peakUpForm :global([class*='LocationAutocompleteInput_predictionsRoot']) button {
   color: rgba(228, 235, 243, 0.92) !important;
 }
 
 .peakUpForm :global([class*='FieldCoachMapLocation_predictionsRoot']) button:hover,
-.peakUpForm :global([class*='FieldCoachMapLocation_predictionsRoot']) button:focus {
+.peakUpForm :global([class*='FieldCoachMapLocation_predictionsRoot']) button:focus,
+.peakUpForm :global([class*='FieldPreferredMeetingPoints_predictionsRoot']) button:hover,
+.peakUpForm :global([class*='FieldPreferredMeetingPoints_predictionsRoot']) button:focus,
+.peakUpForm :global([class*='LocationAutocompleteInput_predictionsRoot']) button:hover,
+.peakUpForm :global([class*='LocationAutocompleteInput_predictionsRoot']) button:focus {
+  background: rgba(23, 217, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.peakUpForm :global([class*='LocationAutocompleteInput_predictions']) li {
+  color: rgba(228, 235, 243, 0.92) !important;
+}
+
+.peakUpForm :global([class*='LocationAutocompleteInput_predictions']) li:hover,
+.peakUpForm :global([class*='LocationAutocompleteInput_predictions']) li[class*='highlighted'] {
   background: rgba(23, 217, 255, 0.12) !important;
   color: #ffffff !important;
 }

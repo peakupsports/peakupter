@@ -27,6 +27,7 @@ import {
 import css from './ProfileSettingsForm.module.css';
 
 import FieldCoachMapLocation from './FieldCoachMapLocation';
+import FieldPreferredMeetingPoints from './FieldPreferredMeetingPoints';
 
 /* userFieldProps use namespaced keys (e.g. pub_sports); raw keys alone never match */
 const PEAK_UP_PROFILE_FIELD_KEYS = new Set(
@@ -620,7 +621,7 @@ class ProfileSettingsFormComponent extends Component {
               ) : null}
 
               {isCoachUser ? (
-                <div className={classNames(css.sectionContainer, css.lastSection)}>
+                <div className={css.sectionContainer}>
                   <H4 as="h2" className={css.sectionTitle}>
                     <FormattedMessage id="ProfileSettingsForm.coachLocationHeading" />
                   </H4>
@@ -635,6 +636,17 @@ class ProfileSettingsFormComponent extends Component {
                     <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
                   ))}
                   <FieldCoachMapLocation formId={formId} />
+                </div>
+              ) : null}
+              {isCoachUser ? (
+                <div className={classNames(css.sectionContainer, css.lastSection)}>
+                  <H4 as="h2" className={css.sectionTitle}>
+                    <FormattedMessage id="ProfileSettingsForm.preferredMeetingPointsHeading" />
+                  </H4>
+                  <p className={css.extraInfo}>
+                    <FormattedMessage id="ProfileSettingsForm.preferredMeetingPointsInfo" />
+                  </p>
+                  <FieldPreferredMeetingPoints formId={formId} />
                 </div>
               ) : null}
               {submitError}

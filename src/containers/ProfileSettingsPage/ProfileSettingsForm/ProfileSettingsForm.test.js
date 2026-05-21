@@ -491,6 +491,7 @@ describe('ProfileSettingsForm', () => {
     expect(screen.queryByText('ProfileSettingsForm.coachSessionPriceHeading')).toBeNull();
     expect(screen.queryByText('ProfileSettingsForm.sportsAndLanguagesHeading')).toBeNull();
     expect(screen.queryByText('ProfileSettingsForm.coachLocationHeading')).toBeNull();
+    expect(screen.queryByText('ProfileSettingsForm.preferredMeetingPointsHeading')).toBeNull();
     expect(screen.getByText('ProfileSettingsForm.clientSportsAndLanguagesHeading')).toBeInTheDocument();
   });
 
@@ -517,5 +518,8 @@ describe('ProfileSettingsForm', () => {
     expect(screen.getByText('ProfileSettingsForm.coachSessionPriceHeading')).toBeInTheDocument();
     expect(screen.getByText('ProfileSettingsForm.sportsAndLanguagesHeading')).toBeInTheDocument();
     expect(screen.getByText('ProfileSettingsForm.coachLocationHeading')).toBeInTheDocument();
+    expect(
+      screen.getByText('ProfileSettingsForm.preferredMeetingPointsHeading')
+    ).toBeInTheDocument();
   });
 });

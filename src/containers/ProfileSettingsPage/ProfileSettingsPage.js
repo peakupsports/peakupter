@@ -19,6 +19,10 @@ import {
   coachMapLocationFromPublicData,
   publicDataPatchFromCoachMapLocation,
 } from '../../util/coachMapLocationForm';
+import {
+  preferredMeetingPointsFromPublicData,
+  publicDataPatchFromPreferredMeetingPoints,
+} from '../../util/preferredMeetingPoints';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
 import { H3, Page, UserNav, NamedLink, LayoutSingleColumn } from '../../components';
@@ -94,8 +98,15 @@ export const ProfileSettingsPageComponent = props => {
   const publicUserFields = userFields.filter(uf => uf.scope === 'public');
 
   const handleSubmit = (values, userType) => {
-    const { firstName, lastName, displayName, bio: rawBio, pub_coachMapLocation, ...rest } =
-      values;
+    const {
+      firstName,
+      lastName,
+      displayName,
+      bio: rawBio,
+      pub_coachMapLocation,
+      preferredMeetingPoints,
+      ...rest
+    } = values;
 
     const displayNameMaybe = displayName
       ? { displayName: displayName.trim() }
@@ -105,6 +116,8 @@ export const ProfileSettingsPageComponent = props => {
     const bio = rawBio || '';
 
     const coachLocationPatch = publicDataPatchFromCoachMapLocation(pub_coachMapLocation);
+    const meetingPointsPatch =
+      publicDataPatchFromPreferredMeetingPoints(preferredMeetingPoints);
 
     const profile = {
       firstName: firstName.trim(),
@@ -114,6 +127,7 @@ export const ProfileSettingsPageComponent = props => {
       /* coachCityText from form overwrites address derived from map; lat/lng/location come from map patch */
       publicData: {
         ...coachLocationPatch,
+        ...meetingPointsPatch,
         ...pickUserFieldsData(rest, 'public', userType, userFields),
       },
     };
@@ -153,6 +167,7 @@ export const ProfileSettingsPageComponent = props => {
         bio,
         profileImage: user.profileImage,
         pub_coachMapLocation: coachMapLocationFromPublicData(publicData),
+        preferredMeetingPoints: preferredMeetingPointsFromPublicData(publicData),
         ...initialValuesForUserFields(publicData, 'public', userType, userFields),
       }}
       profileImage={profileImage}
