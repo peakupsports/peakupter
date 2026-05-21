@@ -1,4 +1,5 @@
 import {
+  peakupDisplayBookingPeriodRangeFromSlots,
   peakupPrimaryBookingDatesFromSessions,
   peakupResolveCheckoutBookingDates,
 } from './peakupMultiSlotCheckout';
@@ -42,5 +43,17 @@ describe('peakupMultiSlotCheckout', () => {
 
     const resolved = peakupResolveCheckoutBookingDates(orderData);
     expect(resolved.bookingStart.toISOString()).toBe('2026-05-26T10:00:00.000Z');
+  });
+
+  it('returns union span for breakdown display when 2+ slots', () => {
+    const slots = [
+      { bookingStart: '2026-06-11T06:00:00.000Z', bookingEnd: '2026-06-11T15:00:00.000Z' },
+      { bookingStart: '2026-06-12T09:00:00.000Z', bookingEnd: '2026-06-12T15:00:00.000Z' },
+      { bookingStart: '2026-06-14T08:00:00.000Z', bookingEnd: '2026-06-14T11:00:00.000Z' },
+    ];
+    const display = peakupDisplayBookingPeriodRangeFromSlots(slots);
+    expect(display.bookingStart.toISOString()).toBe('2026-06-11T06:00:00.000Z');
+    expect(display.bookingEnd.toISOString()).toBe('2026-06-14T11:00:00.000Z');
+    expect(peakupDisplayBookingPeriodRangeFromSlots([slots[0]])).toBeNull();
   });
 });

@@ -128,6 +128,7 @@ export const OrderBreakdownComponent = props => {
           code={lineItemUnitType}
           dateType={dateType}
           timeZone={timeZone}
+          peakupBookingSlots={peakupBookingSlotsResolved}
         />
       )}
 

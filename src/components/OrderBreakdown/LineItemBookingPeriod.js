@@ -10,6 +10,7 @@ import {
   propTypes,
 } from '../../util/types';
 import { subtractTime, isDST } from '../../util/dates';
+import { peakupDisplayBookingPeriodRangeFromSlots } from '../../util/peakupMultiSlotCheckout';
 
 import css from './OrderBreakdown.module.css';
 
@@ -107,10 +108,11 @@ const BookingPeriod = props => {
  * @param {LINE_ITEM_NIGHT | LINE_ITEM_DAY | LINE_ITEM_HOUR} props.code
  * @param {DATE_TYPE_DATE | DATE_TYPE_TIME | DATE_TYPE_DATETIME} props.dateType
  * @param {string} props.timeZone IANA time zone name
+ * @param {Array<{ bookingStart?: string, bookingEnd?: string }>} [props.peakupBookingSlots]
  * @returns {JSX.Element} line-item element for the order breakdown
  */
 const LineItemBookingPeriod = props => {
-  const { booking, code, dateType, timeZone } = props;
+  const { booking, code, dateType, timeZone, peakupBookingSlots } = props;
 
   if (!booking) {
     return null;
@@ -120,8 +122,9 @@ const LineItemBookingPeriod = props => {
   // where there are preparation time needed between bookings.
   // Read more: https://www.sharetribe.com/api-reference/marketplace.html#bookings
   const { start, end, displayStart, displayEnd } = booking.attributes;
-  const localStartDate = displayStart || start;
-  const localEndDateRaw = displayEnd || end;
+  const multiSlotDisplayRange = peakupDisplayBookingPeriodRangeFromSlots(peakupBookingSlots);
+  const localStartDate = multiSlotDisplayRange?.bookingStart ?? displayStart ?? start;
+  const localEndDateRaw = multiSlotDisplayRange?.bookingEnd ?? displayEnd ?? end;
 
   const showInclusiveEndDate = [LINE_ITEM_DAY].includes(code);
   const endDay = showInclusiveEndDate ? subtractTime(localEndDateRaw, 1, 'days') : localEndDateRaw;

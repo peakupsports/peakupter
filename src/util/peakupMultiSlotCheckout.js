@@ -184,6 +184,35 @@ export const peakupSanitizeOrderParamsForLog = orderParams => {
   };
 };
 
+/**
+ * Display-only booking period for OrderBreakdown when 2+ slots (earliest start → latest end).
+ * Does not affect Sharetribe booking entity dates.
+ *
+ * @param {Array<{ bookingStart?: string, bookingEnd?: string }>|null|undefined} peakupBookingSlots
+ * @returns {{ bookingStart: Date, bookingEnd: Date }|null}
+ */
+export const peakupDisplayBookingPeriodRangeFromSlots = peakupBookingSlots => {
+  if (!Array.isArray(peakupBookingSlots) || peakupBookingSlots.length < 2) {
+    return null;
+  }
+  const span = peakupTimespanDatesFromSessions(peakupBookingSlots);
+  if (!span) {
+    return null;
+  }
+  logPeakupMultiSlotBreakdownRange({
+    slotCount: peakupBookingSlots.length,
+    bookingStart: span.bookingStart.toISOString(),
+    bookingEnd: span.bookingEnd.toISOString(),
+  });
+  return span;
+};
+
+export const logPeakupMultiSlotBreakdownRange = payload => {
+  if (typeof console !== 'undefined' && console.log) {
+    console.log('[PeakUp MULTI SLOT BREAKDOWN RANGE]', payload);
+  }
+};
+
 export const logPeakupMultiSlotBookingDatesStrategy = payload => {
   if (typeof console !== 'undefined' && console.log) {
     console.log('[PeakUp MULTI SLOT BOOKINGDATES STRATEGY]', payload);
