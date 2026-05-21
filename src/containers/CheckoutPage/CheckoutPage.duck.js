@@ -4,6 +4,12 @@ import { pick } from '../../util/common';
 import { initiatePrivileged, transitionPrivileged } from '../../util/api';
 import { denormalisedResponseEntities } from '../../util/data';
 import { storableError } from '../../util/errors';
+import {
+  logPeakupMultiSlotErrorJson,
+  logPeakupMultiSlotInitiateParams,
+  logPeakupMultiSlotSpeculateParams,
+  peakupSanitizeOrderParamsForLog,
+} from '../../util/peakupMultiSlotCheckout';
 import * as log from '../../util/log';
 import { setCurrentUserHasOrders, fetchCurrentUser } from '../../ducks/user.duck';
 
@@ -67,6 +73,9 @@ const initiateOrderPayloadCreator = (
 
   const handleError = e => {
     const transactionIdMaybe = transactionId ? { transactionId: transactionId.uuid } : {};
+    if (orderParams?.peakupBookingSlots?.length > 1) {
+      logPeakupMultiSlotErrorJson(e);
+    }
     log.error(e, 'initiate-order-failed', {
       ...transactionIdMaybe,
       listingId: orderParams.listingId.uuid,
@@ -77,6 +86,10 @@ const initiateOrderPayloadCreator = (
     });
     return rejectWithValue(storableError(e));
   };
+
+  if (orderParams?.peakupBookingSlots?.length > 1) {
+    logPeakupMultiSlotInitiateParams(peakupSanitizeOrderParamsForLog(orderParams));
+  }
 
   if (isTransition && isPrivilegedTransition) {
     // transition privileged
@@ -326,6 +339,9 @@ const speculateTransactionPayloadCreator = (
   };
 
   const handleError = e => {
+    if (orderParams?.peakupBookingSlots?.length > 1) {
+      logPeakupMultiSlotErrorJson(e);
+    }
     log.error(e, 'speculate-transaction-failed', {
       listingId: transitionParams.listingId.uuid,
       ...quantityMaybe,
@@ -338,6 +354,10 @@ const speculateTransactionPayloadCreator = (
 
   const initiatePrivilegedExtras =
     peakupBookingHoldId && typeof peakupBookingHoldId === 'string' ? { peakupBookingHoldId } : {};
+
+  if (orderParams?.peakupBookingSlots?.length > 1) {
+    logPeakupMultiSlotSpeculateParams(peakupSanitizeOrderParamsForLog(orderParams));
+  }
 
   if (isTransition && isPrivilegedTransition) {
     // transition privileged

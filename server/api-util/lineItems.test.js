@@ -261,6 +261,51 @@ describe('transactionLineItems', () => {
         includeFor: ['customer', 'provider'],
       });
     });
+
+    it('should sum hours across PeakUp multi-slot hourly bookings', () => {
+      const listing = {
+        ...mockListing,
+        attributes: {
+          ...mockListing.attributes,
+          publicData: {
+            ...mockListing.attributes.publicData,
+            unitType: 'hour',
+          },
+        },
+      };
+
+      const orderData = {
+        bookingStart: '2024-01-01T10:00:00.000Z',
+        bookingEnd: '2024-01-05T16:00:00.000Z',
+        peakupBookingSlots: [
+          {
+            bookingStart: '2024-01-01T10:00:00.000Z',
+            bookingEnd: '2024-01-01T12:00:00.000Z',
+          },
+          {
+            bookingStart: '2024-01-02T09:00:00.000Z',
+            bookingEnd: '2024-01-02T13:00:00.000Z',
+          },
+          {
+            bookingStart: '2024-01-05T14:00:00.000Z',
+            bookingEnd: '2024-01-05T16:00:00.000Z',
+          },
+        ],
+      };
+
+      const result = transactionLineItems(
+        listing,
+        orderData,
+        mockProviderCommission,
+        mockCustomerCommission
+      );
+
+      expect(result[0]).toMatchObject({
+        code: 'line-item/hour',
+        quantity: 8,
+        includeFor: ['customer', 'provider'],
+      });
+    });
   });
 
   describe('Default Booking Process - Fixed Unit Type', () => {

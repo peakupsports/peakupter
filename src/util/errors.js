@@ -397,9 +397,24 @@ export const getAuthErrorMessage = (
 export const isContactSharingBlockedError = error =>
   error?.name === 'ContactSharingBlockedError';
 
+const normalizeStorableErrorMessage = message => {
+  if (message == null) {
+    return '';
+  }
+  if (typeof message === 'string') {
+    return message;
+  }
+  try {
+    return JSON.stringify(message);
+  } catch (e) {
+    return String(message);
+  }
+};
+
 export const storableError = err => {
   const error = err || {};
-  const { name, message, status, statusText } = error;
+  const { name, status, statusText } = error;
+  const message = normalizeStorableErrorMessage(error.message);
   // Status, statusText, and data.errors are (possibly) added to the error object by SDK
   const apiErrors = responseAPIErrors(error);
 

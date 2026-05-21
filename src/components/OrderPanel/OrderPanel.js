@@ -458,7 +458,8 @@ const OrderPanel = props => {
     isOwnListing,
   });
 
-  const peakupMultiSlotBooking = !!publicData.peakupBookingListing;
+  const peakupMultiSlotBooking =
+    !!publicData.peakupBookingListing || lineItemUnitType === LINE_ITEM_HOUR;
 
   const seatsEnabled = [AVAILABILITY_MULTIPLE_SEATS].includes(listingTypeConfig?.availabilityType);
 
@@ -603,6 +604,7 @@ const OrderPanel = props => {
           />
         ) : showBookingCalendar && showBookingTimeForm ? (
           <BookingTimeForm
+            peakupMultiSlotBooking={peakupMultiSlotBooking}
             seatsEnabled={seatsEnabled}
             className={css.bookingForm}
             formId="OrderPanelBookingTimeForm"

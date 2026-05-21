@@ -428,6 +428,13 @@
   font-size: 0.72rem;
 }
 
+.sessionsTotals {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 10px 0 0;
+  font-weight: var(--fontWeightMedium);
+  color: var(--colorGrey800);
+}
+
 .sessionsList {
   margin: 0;
   padding: 0;

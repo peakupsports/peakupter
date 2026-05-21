@@ -32,8 +32,8 @@ import {
 // Import shared components
 import { H3, H4, NamedLink, OrderBreakdown, Page, TopbarSimplified } from '../../components';
 
+import { peakupBookingDatesMaybeForCheckout } from '../../util/peakupMultiSlotCheckout';
 import {
-  bookingDatesMaybe,
   getBillingDetails,
   getFormattedTotalPrice,
   getShippingDetailsMaybe,
@@ -147,10 +147,13 @@ const getOrderParams = (
       : {};
 
   const peakupSlotsStored = pageData.orderData?.peakupBookingSlots;
+  const listingPublicData = pageData.listing?.attributes?.publicData;
+  const peakupSlotsEligibleListing =
+    listingPublicData?.peakupBookingListing || listingPublicData?.unitType === 'hour';
   const peakupSlotsProtectedMaybe =
     Array.isArray(peakupSlotsStored) &&
     peakupSlotsStored.length > 0 &&
-    pageData.listing?.attributes?.publicData?.peakupBookingListing
+    peakupSlotsEligibleListing
       ? { peakupBookingSlots: peakupSlotsStored }
       : {};
 
@@ -171,6 +174,7 @@ const getOrderParams = (
       ...transactionFieldProtectedData,
       ...customerDefaultMessageMaybe,
       ...peakupPreBookingProtectedMaybe,
+      ...peakupSlotsProtectedMaybe,
     },
   };
 
@@ -189,8 +193,9 @@ const getOrderParams = (
     ...quantityMaybe,
     ...seatsMaybe,
     ...peakupSessionCountMaybe,
+    ...peakupSlotsProtectedMaybe,
     ...peakupBookingHoldIdMaybe,
-    ...bookingDatesMaybe(pageData.orderData?.bookingDates),
+    ...peakupBookingDatesMaybeForCheckout(pageData.orderData),
     ...priceVariantNameMaybe,
     ...protectedDataMaybe,
     ...optionalPaymentParams,

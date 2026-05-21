@@ -269,6 +269,18 @@
   color: rgba(218, 228, 242, 0.9);
 }
 
+.bookingSlotsList {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: rgba(218, 228, 242, 0.9);
+}
+
+.bookingSlotLine {
+  margin: 0 0 6px;
+}
+
 .statusBadge {
   display: inline-flex;
   align-items: center;

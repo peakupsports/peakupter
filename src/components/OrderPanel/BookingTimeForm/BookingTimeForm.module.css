@@ -87,3 +87,81 @@
     margin: 24px 0;
   }
 }
+
+.peakupSessionBlock {
+  margin: 18px 24px 0;
+
+  @media (--viewportMedium) {
+    margin: 24px 0 0;
+  }
+}
+
+.peakupAddButton {
+  width: 100%;
+
+  @media (--viewportMedium) {
+    width: auto;
+  }
+}
+
+.peakupSessionsHeading {
+  margin: 18px 0 6px;
+  font-size: 14px;
+  font-weight: var(--fontWeightMedium);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--colorGrey700);
+}
+
+.peakupSessionsHint {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0;
+  color: var(--colorGrey500);
+}
+
+.peakupSessionsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.peakupSessionRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 9px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--colorGrey100);
+}
+
+.peakupSessionMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.peakupSessionSummary {
+  composes: marketplaceSmallFontStyles from global;
+  display: block;
+  color: var(--colorGrey900);
+}
+
+.peakupSessionMeta {
+  composes: marketplaceTinyFontStyles from global;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 6px;
+  color: var(--colorGrey600);
+}
+
+.peakupRemoveBtn {
+  flex-shrink: 0;
+}
+
+.peakupCartTotal {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 12px 0 0;
+  font-weight: var(--fontWeightMedium);
+  color: var(--colorGrey800);
+}

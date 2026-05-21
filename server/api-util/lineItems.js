@@ -77,18 +77,46 @@ const getFixedQuantityAndLineItems = (orderData, listingPublicData = {}) => {
 };
 
 /**
+ * Sum booked hours across disjoint PeakUp hourly slots.
+ *
+ * @param {Array<{ bookingStart?: string, bookingEnd?: string }>} peakupBookingSlots
+ * @returns {number|null}
+ */
+const peakupHourQuantityFromBookingSlots = peakupBookingSlots => {
+  if (!Array.isArray(peakupBookingSlots) || peakupBookingSlots.length === 0) {
+    return null;
+  }
+  const totalHours = peakupBookingSlots.reduce((sum, slot) => {
+    const start = slot?.bookingStart ? new Date(slot.bookingStart) : null;
+    const end = slot?.bookingEnd ? new Date(slot.bookingEnd) : null;
+    if (!start || !end || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return sum;
+    }
+    const hours = calculateQuantityFromHours(start, end);
+    return sum + (hours > 0 ? hours : 0);
+  }, 0);
+  return totalHours > 0 ? totalHours : null;
+};
+
+/**
  * Get quantity for arbitrary units for time-based bookings.
  *
  * @param {Object} orderData
  * @param {string} orderData.bookingStart
  * @param {string} orderData.bookingEnd
  * @param {number} [orderData.seats]
+ * @param {Array<{ bookingStart?: string, bookingEnd?: string }>} [orderData.peakupBookingSlots]
  */
 const getHourQuantityAndLineItems = orderData => {
-  const { bookingStart, bookingEnd, seats } = orderData || {};
+  const { bookingStart, bookingEnd, seats, peakupBookingSlots } = orderData || {};
   const hasSeats = !!seats;
+  const unitsFromSlots = peakupHourQuantityFromBookingSlots(peakupBookingSlots);
   const units =
-    bookingStart && bookingEnd ? calculateQuantityFromHours(bookingStart, bookingEnd) : null;
+    unitsFromSlots != null
+      ? unitsFromSlots
+      : bookingStart && bookingEnd
+      ? calculateQuantityFromHours(bookingStart, bookingEnd)
+      : null;
 
   // If there are seats, the quantity is split to factors: units and seats.
   // E.g. 3 hours x 2 seats (aka unit price is multiplied by 6)

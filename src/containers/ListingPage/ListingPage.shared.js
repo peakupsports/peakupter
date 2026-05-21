@@ -6,10 +6,9 @@ import { createResourceLocatorString, findRouteByRouteName } from '../../util/ro
 import { convertMoneyToNumber, formatMoney } from '../../util/currency';
 import { isAllowedListingCurrency } from '../../util/fieldHelpers';
 import { timestampToDate } from '../../util/dates';
-import {
-  peakupNormalizeSessionsForCheckout,
-  peakupTimespanDatesFromSessions,
-} from '../../util/peakupBooking';
+import { peakupNormalizeSessionsForCheckout } from '../../util/peakupBooking';
+import { peakupOrderBookingFieldsFromSessions } from '../../util/peakupMultiSlotCheckout';
+import { logPeakupHourlyMultiSlotCheckout } from '../../util/peakupHourlySlots';
 import { requireListingImage } from '../../util/configHelpers';
 import { richText } from '../../util/richText';
 import { hasPermissionToInitiateTransactions, isUserAuthorized } from '../../util/userHelpers';
@@ -456,17 +455,7 @@ export const handleSubmit = parameters => values => {
   const hasPeakupSlots = Array.isArray(peakupBookingSlots) && peakupBookingSlots.length > 0;
 
   const bookingMaybe = hasPeakupSlots
-    ? (() => {
-        const span = peakupTimespanDatesFromSessions(peakupBookingSlots);
-        return span
-          ? {
-              bookingDates: {
-                bookingStart: span.bookingStart,
-                bookingEnd: span.bookingEnd,
-              },
-            }
-          : {};
-      })()
+    ? peakupOrderBookingFieldsFromSessions(peakupBookingSlots)
     : bookingDates
     ? {
         bookingDates: {
@@ -484,11 +473,18 @@ export const handleSubmit = parameters => values => {
     : {};
 
   const peakupOrderMaybe = hasPeakupSlots
-    ? {
-        peakupSessionCount: peakupBookingSlots.length,
-        peakupBookingSlots: peakupNormalizeSessionsForCheckout(peakupBookingSlots),
-        ...(peakupBookingHoldId ? { peakupBookingHoldId } : {}),
-      }
+    ? (() => {
+        const normalized = peakupNormalizeSessionsForCheckout(peakupBookingSlots);
+        logPeakupHourlyMultiSlotCheckout({
+          peakupSessionCount: peakupBookingSlots.length,
+          peakupBookingSlots: normalized,
+        });
+        return {
+          peakupSessionCount: peakupBookingSlots.length,
+          peakupBookingSlots: normalized,
+          ...(peakupBookingHoldId ? { peakupBookingHoldId } : {}),
+        };
+      })()
     : {};
   // priceVariantName is relevant for bookings
   const priceVariantNameMaybe = priceVariantName ? { priceVariantName } : {};

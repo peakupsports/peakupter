@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 
-import { FormattedMessage, intlShape } from '../../../util/reactIntl';
+import { FormattedDate, FormattedMessage, intlShape } from '../../../util/reactIntl';
 import {
   DATE_TYPE_DATE,
   DATE_TYPE_DATETIME,
@@ -95,6 +95,31 @@ const NewBookingRequestModal = props => {
     props;
   const soundPlayedRef = useRef(false);
 
+  const peakupBookingSlots = transaction?.attributes?.protectedData?.peakupBookingSlots;
+  const listingTimeZone =
+    transaction?.listing?.attributes?.availabilityPlan?.timezone || 'Etc/UTC';
+
+  const multiSlotRows = useMemo(() => {
+    if (!Array.isArray(peakupBookingSlots) || peakupBookingSlots.length === 0) {
+      return [];
+    }
+    return peakupBookingSlots
+      .map((slot, idx) => {
+        const startRaw = slot?.bookingStart;
+        const endRaw = slot?.bookingEnd;
+        if (!startRaw || !endRaw) {
+          return null;
+        }
+        const start = new Date(startRaw);
+        const end = new Date(endRaw);
+        if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+          return null;
+        }
+        return { id: `slot-${start.getTime()}-${idx}`, start, end, timeZone: listingTimeZone };
+      })
+      .filter(Boolean);
+  }, [peakupBookingSlots, listingTimeZone]);
+
   useEffect(() => {
     if (!isOpen || !playSound || soundPlayedRef.current) {
       return;
@@ -119,6 +144,9 @@ const NewBookingRequestModal = props => {
   const processState = stateInfo?.processState;
   const listingTitle = listing?.attributes?.title;
   const timeProps = bookingTimeRangeProps(transaction);
+
+  const datePartOpts = timeZone => ({ weekday: 'short', month: 'short', day: 'numeric', timeZone });
+  const timePartOpts = timeZone => ({ hour: 'numeric', minute: 'numeric', timeZone });
 
   return (
     <Modal
@@ -161,7 +189,19 @@ const NewBookingRequestModal = props => {
         </div>
 
         <div className={css.bookingMeta}>
-          {timeProps ? (
+          {multiSlotRows.length > 0 ? (
+            <ul className={css.bookingSlotsList}>
+              {multiSlotRows.map(row => (
+                <li key={row.id} className={css.bookingSlotLine}>
+                  <FormattedDate value={row.start} {...datePartOpts(row.timeZone)} />
+                  {' · '}
+                  <FormattedDate value={row.start} {...timePartOpts(row.timeZone)} />
+                  {' – '}
+                  <FormattedDate value={row.end} {...timePartOpts(row.timeZone)} />
+                </li>
+              ))}
+            </ul>
+          ) : timeProps ? (
             <p className={css.bookingTime}>
               <TimeRange
                 startDate={timeProps.bookingStart}

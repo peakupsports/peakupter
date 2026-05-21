@@ -11,6 +11,7 @@ import {
   LISTING_UNIT_TYPES,
 } from '../../util/types';
 import { subtractTime } from '../../util/dates';
+import { peakupFormatBookedHoursLabel } from '../../util/peakupHourlySlots';
 
 import css from './CheckoutPage.module.css';
 
@@ -162,6 +163,13 @@ const CheckoutSessionsPreview = props => {
     return null;
   }
 
+  const isMultiSlot = rows.length > 1;
+  const totalBookedHours = rows.reduce((sum, row) => {
+    const hours = (row.end.getTime() - row.start.getTime()) / (1000 * 60 * 60);
+    return sum + (hours > 0 ? hours : 0);
+  }, 0);
+  const showPerRowPrice = !isMultiSlot && sessionPrice;
+
   return (
     <section className={classNames(css.sessionsSection, className)} aria-labelledby="checkout-sessions-heading">
       <h3 id="checkout-sessions-heading" className={css.sessionsHeading}>
@@ -193,7 +201,7 @@ const CheckoutSessionsPreview = props => {
                 <span className={css.sessionDuration}>{row.durationLabel}</span>
               </>
             ) : null}
-            {sessionPrice ? (
+            {showPerRowPrice ? (
               <>
                 <span className={css.sessionSep} aria-hidden>
                   ·
@@ -204,6 +212,17 @@ const CheckoutSessionsPreview = props => {
           </li>
         ))}
       </ul>
+      {isMultiSlot ? (
+        <p className={css.sessionsTotals}>
+          <FormattedMessage
+            id="CheckoutPage.sessionsTotalSummary"
+            values={{
+              hours: peakupFormatBookedHoursLabel(totalBookedHours),
+              total: sessionPrice || '—',
+            }}
+          />
+        </p>
+      ) : null}
     </section>
   );
 };
