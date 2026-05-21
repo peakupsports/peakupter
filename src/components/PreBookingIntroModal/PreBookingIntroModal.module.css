@@ -147,15 +147,36 @@
   border-color: rgba(25, 223, 242, 0.28);
 }
 
+.meetingPointField {
+  margin: 0;
+}
+
+.meetingPointField :global(label) {
+  color: rgba(244, 250, 255, 0.96);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.meetingPointField :global(select) {
+  color: #f8fafc;
+  background-color: rgba(6, 12, 22, 0.82);
+  border-color: rgba(25, 223, 242, 0.35);
+}
+
+.meetingPointField :global(select option) {
+  color: #0b1220;
+  background-color: #f4f7fb;
+}
+
 .submitError {
   margin: 0 0 12px;
 }
 
 .footerNote {
   margin: 0 0 18px;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   line-height: 1.45;
-  color: rgba(157, 196, 220, 0.75);
+  color: rgba(210, 228, 244, 0.88);
   text-align: center;
 }
 

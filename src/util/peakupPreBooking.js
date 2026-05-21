@@ -137,6 +137,7 @@ export const normalizePeakupPreBookingDetails = (values, sportOptions = []) => {
 export const createBookingSubmitHandler = ({
   onSubmit,
   peakupPreBooking,
+  peakupMeetingPoint,
   onRequirePreBooking,
   isOwnListing = false,
 }) => values => {
@@ -147,5 +148,7 @@ export const createBookingSubmitHandler = ({
     return undefined;
   }
   const preBookingMaybe = peakupPreBooking ? { peakupPreBooking } : {};
-  return onSubmit({ ...values, ...preBookingMaybe });
+  const meetingPointMaybe =
+    peakupMeetingPoint && typeof peakupMeetingPoint === 'object' ? { peakupMeetingPoint } : {};
+  return onSubmit({ ...values, ...preBookingMaybe, ...meetingPointMaybe });
 };

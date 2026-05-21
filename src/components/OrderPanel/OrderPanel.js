@@ -45,6 +45,7 @@ import {
   createBookingSubmitHandler,
   resolvePreBookingSportOptions,
 } from '../../util/peakupPreBooking';
+import { coachPreferredMeetingPointsList } from '../../util/peakupMeetingPoint';
 
 import {
   ModalInMobile,
@@ -300,7 +301,7 @@ const hasValidPriceVariants = priceVariants => {
 const OrderPanel = props => {
   const [mounted, setMounted] = useState(false);
   const [isPreBookingIntroOpen, setIsPreBookingIntroOpen] = useState(false);
-  const [preBookingDetails, setPreBookingDetails] = useState(null);
+  const [preBookingSession, setPreBookingSession] = useState(null);
   const intl = useIntl();
   const location = useLocation();
   const history = useHistory();
@@ -414,8 +415,10 @@ const OrderPanel = props => {
     () => resolvePreBookingSportOptions(intl, listing, author),
     [intl, listing, author]
   );
-  const showBookingCalendar = !isBooking || isOwnListing || !!preBookingDetails;
-  const needsPreBookingStep = isBooking && !isOwnListing && !isClosed && !preBookingDetails;
+  const showBookingCalendar =
+    !isBooking || isOwnListing || !!preBookingSession?.peakupPreBooking;
+  const needsPreBookingStep =
+    isBooking && !isOwnListing && !isClosed && !preBookingSession?.peakupPreBooking;
 
   useEffect(() => {
     if (!mounted || !needsPreBookingStep) {
@@ -437,8 +440,8 @@ const OrderPanel = props => {
     setIsPreBookingIntroOpen(false);
   };
 
-  const continueToBookingCalendar = details => {
-    setPreBookingDetails(details);
+  const continueToBookingCalendar = session => {
+    setPreBookingSession(session);
     setIsPreBookingIntroOpen(false);
     if (isOwnListing || isClosed) {
       window.scrollTo(0, 0);
@@ -451,15 +454,23 @@ const OrderPanel = props => {
     history.push(`${pathname}${searchString}`, state);
   };
 
+  const skipMeetingPointSelect = !!preBookingSession?.peakupMeetingPoint;
+
   const bookingOnSubmit = createBookingSubmitHandler({
     onSubmit,
-    peakupPreBooking: preBookingDetails,
+    peakupPreBooking: preBookingSession?.peakupPreBooking,
+    peakupMeetingPoint: preBookingSession?.peakupMeetingPoint,
     onRequirePreBooking: openPreBookingIntro,
     isOwnListing,
   });
 
   const peakupMultiSlotBooking =
     !!publicData.peakupBookingListing || lineItemUnitType === LINE_ITEM_HOUR;
+
+  const preferredMeetingPoints = useMemo(
+    () => coachPreferredMeetingPointsList(author),
+    [author]
+  );
 
   const seatsEnabled = [AVAILABILITY_MULTIPLE_SEATS].includes(listingTypeConfig?.availabilityType);
 
@@ -502,6 +513,8 @@ const OrderPanel = props => {
     fetchLineItemsInProgress,
     fetchLineItemsError,
     payoutDetailsWarning,
+    preferredMeetingPoints,
+    skipMeetingPointSelect,
   };
 
   const showClosedListingHelpText = listing.id && isClosed;
@@ -524,6 +537,7 @@ const OrderPanel = props => {
           onClose={closePreBookingIntro}
           onContinue={continueToBookingCalendar}
           sportOptions={sportOptions}
+          preferredMeetingPoints={preferredMeetingPoints}
         />
       ) : null}
       <ModalInMobile
@@ -691,7 +705,7 @@ const OrderPanel = props => {
             id={ORDER_PANEL_SUBMIT_BUTTON_ID}
             onClick={
               isBooking
-                ? preBookingDetails
+                ? preBookingSession?.peakupPreBooking
                   ? () => openOrderModal(isOwnListing, isClosed, history, location)
                   : openPreBookingIntro
                 : handleSubmit(

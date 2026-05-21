@@ -33,6 +33,7 @@ import {
 import { H3, H4, NamedLink, OrderBreakdown, Page, TopbarSimplified } from '../../components';
 
 import { peakupBookingDatesMaybeForCheckout } from '../../util/peakupMultiSlotCheckout';
+import { logPeakupMeetingPointCheckout } from '../../util/peakupMeetingPoint';
 import {
   getBillingDetails,
   getFormattedTotalPrice,
@@ -163,6 +164,16 @@ const getOrderParams = (
       ? { peakupPreBooking: peakupPreBookingStored }
       : {};
 
+  const peakupMeetingPointStored = pageData.orderData?.peakupMeetingPoint;
+  const peakupMeetingPointProtectedMaybe =
+    peakupMeetingPointStored && typeof peakupMeetingPointStored === 'object'
+      ? { peakupMeetingPoint: peakupMeetingPointStored }
+      : {};
+
+  if (peakupMeetingPointStored && typeof peakupMeetingPointStored === 'object') {
+    logPeakupMeetingPointCheckout(peakupMeetingPointStored);
+  }
+
   const customerDefaultMessageMaybe = customerDefaultMessage ? { customerDefaultMessage } : {};
 
   const protectedDataMaybe = {
@@ -174,6 +185,7 @@ const getOrderParams = (
       ...transactionFieldProtectedData,
       ...customerDefaultMessageMaybe,
       ...peakupPreBookingProtectedMaybe,
+      ...peakupMeetingPointProtectedMaybe,
       ...peakupSlotsProtectedMaybe,
     },
   };
@@ -519,6 +531,7 @@ export const CheckoutPageWithPayment = props => {
         {...txBookingMaybe}
         peakupBookingSlots={orderData?.peakupBookingSlots}
         peakupPreBooking={orderData?.peakupPreBooking}
+        peakupMeetingPoint={orderData?.peakupMeetingPoint}
         currency={config.currency}
         marketplaceName={config.marketplaceName}
         peakUpTheme
@@ -539,6 +552,7 @@ export const CheckoutPageWithPayment = props => {
     booking: tx?.booking,
     bookingDates: orderData?.bookingDates,
     peakupBookingSlots: orderData?.peakupBookingSlots,
+    peakupMeetingPoint: orderData?.peakupMeetingPoint,
     timeZone,
     dateType: breakdownDateType,
     lineItems: breakdownLineItems,
@@ -752,6 +766,7 @@ export const CheckoutPageWithPayment = props => {
               timeZone={timeZone}
               lineItems={breakdownLineItems}
               peakupBookingSlots={orderData?.peakupBookingSlots}
+              peakupMeetingPoint={orderData?.peakupMeetingPoint}
             />
             </div>
           </div>

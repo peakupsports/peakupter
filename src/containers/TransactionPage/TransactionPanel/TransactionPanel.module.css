@@ -398,6 +398,25 @@
   }
 }
 
+.meetingPointLabel {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0 0 4px;
+  font-weight: var(--fontWeightSemiBold);
+}
+
+.meetingPointAddress {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0 0 4px;
+  color: var(--colorGrey700);
+}
+
+.meetingPointNotes {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0;
+  color: var(--colorGrey600);
+  font-style: italic;
+}
+
 .feedContent {
   padding: 0;
   margin-top: 12px;

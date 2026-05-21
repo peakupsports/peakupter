@@ -27,6 +27,12 @@ import { Form, PrimaryButton, FieldDateRangePicker, FieldSelect, H6 } from '../.
 import EstimatedCustomerBreakdownMaybe from '../EstimatedCustomerBreakdownMaybe';
 
 import FetchLineItemsError from '../FetchLineItemsError/FetchLineItemsError.js';
+import MeetingPointSelectMaybe from '../MeetingPointSelectMaybe/MeetingPointSelectMaybe';
+
+import {
+  appendPeakupMeetingPointToOrderValues,
+  peakupMeetingPointInitialValues,
+} from '../../../util/peakupMeetingPoint';
 
 import css from './BookingDatesForm.module.css';
 
@@ -538,16 +544,27 @@ export const BookingDatesForm = props => {
     priceVariantFieldComponent: PriceVariantFieldComponent,
     preselectedPriceVariant,
     isPublishedListing,
+    preferredMeetingPoints = [],
+    skipMeetingPointSelect = false,
+    onSubmit,
     ...rest
   } = props;
   const intl = useIntl();
   const [currentMonth, setCurrentMonth] = useState(getStartOf(TODAY, 'month', timeZone));
-  const initialValuesMaybe =
+  const meetingPointInitial = skipMeetingPointSelect
+    ? {}
+    : peakupMeetingPointInitialValues(preferredMeetingPoints);
+  const priceVariantInitial =
     priceVariants.length > 1 && preselectedPriceVariant
-      ? { initialValues: { priceVariantName: preselectedPriceVariant?.name } }
+      ? { priceVariantName: preselectedPriceVariant?.name }
       : priceVariants.length === 1
-      ? { initialValues: { priceVariantName: priceVariants?.[0]?.name } }
+      ? { priceVariantName: priceVariants?.[0]?.name }
       : {};
+  const hasFormInitialValues =
+    Object.keys(priceVariantInitial).length > 0 || Object.keys(meetingPointInitial).length > 0;
+  const initialValuesMaybe = hasFormInitialValues
+    ? { initialValues: { ...priceVariantInitial, ...meetingPointInitial } }
+    : {};
 
   const allTimeSlots = getAllTimeSlots(monthlyTimeSlots);
   const monthId = monthIdString(currentMonth);
@@ -609,6 +626,13 @@ export const BookingDatesForm = props => {
       {...initialValuesMaybe}
       {...rest}
       unitPrice={unitPrice}
+      onSubmit={values =>
+        onSubmit(
+          skipMeetingPointSelect
+            ? values
+            : appendPeakupMeetingPointToOrderValues(values, preferredMeetingPoints)
+        )
+      }
       render={formRenderProps => {
         const {
           endDatePlaceholder,
@@ -843,6 +867,13 @@ export const BookingDatesForm = props => {
                 />
               </div>
             ) : null}
+
+            <MeetingPointSelectMaybe
+              preferredMeetingPoints={preferredMeetingPoints}
+              skip={skipMeetingPointSelect}
+              formId={formId}
+            />
+
             <FetchLineItemsError error={fetchLineItemsError} />
 
             <div className={css.submitButton}>

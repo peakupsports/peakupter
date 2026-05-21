@@ -20,6 +20,7 @@ import {
 
 import LineItemBookingPeriod from './LineItemBookingPeriod';
 import LineItemPeakUpPreBookingMaybe from './LineItemPeakUpPreBookingMaybe';
+import LineItemPeakUpMeetingPointMaybe from './LineItemPeakUpMeetingPointMaybe';
 import LineItemPeakUpSessionsMaybe from './LineItemPeakUpSessionsMaybe';
 import LineItemBasePriceMaybe from './LineItemBasePriceMaybe';
 import LineItemSubTotalMaybe from './LineItemSubTotalMaybe';
@@ -47,6 +48,7 @@ export const OrderBreakdownComponent = props => {
     marketplaceName,
     peakupBookingSlots,
     peakupPreBooking,
+    peakupMeetingPoint,
     intl,
     peakUpTheme,
     peakUpCompact,
@@ -83,6 +85,8 @@ export const OrderBreakdownComponent = props => {
     peakupBookingSlots ?? transaction?.attributes?.protectedData?.peakupBookingSlots;
   const peakupPreBookingResolved =
     peakupPreBooking ?? transaction?.attributes?.protectedData?.peakupPreBooking;
+  const peakupMeetingPointResolved =
+    peakupMeetingPoint ?? transaction?.attributes?.protectedData?.peakupMeetingPoint;
 
   /**
    * OrderBreakdown contains different line items:
@@ -133,6 +137,8 @@ export const OrderBreakdownComponent = props => {
       )}
 
       <LineItemPeakUpPreBookingMaybe peakupPreBooking={peakupPreBookingResolved} />
+
+      <LineItemPeakUpMeetingPointMaybe peakupMeetingPoint={peakupMeetingPointResolved} />
 
       {hidePeakupSessions ? null : (
         <LineItemPeakUpSessionsMaybe

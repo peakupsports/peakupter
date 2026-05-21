@@ -24,6 +24,12 @@ import EstimatedCustomerBreakdownMaybe from '../EstimatedCustomerBreakdownMaybe'
 import FieldDateAndTimeInput from './FieldDateAndTimeInput';
 
 import FetchLineItemsError from '../FetchLineItemsError/FetchLineItemsError.js';
+import MeetingPointSelectMaybe from '../MeetingPointSelectMaybe/MeetingPointSelectMaybe';
+
+import {
+  appendPeakupMeetingPointToOrderValues,
+  peakupMeetingPointInitialValues,
+} from '../../../util/peakupMeetingPoint';
 
 import css from './BookingFixedDurationForm.module.css';
 
@@ -106,6 +112,9 @@ export const BookingFixedDurationForm = props => {
     preselectedPriceVariant,
     isPublishedListing,
     peakupMultiSlotBooking = false,
+    preferredMeetingPoints = [],
+    skipMeetingPointSelect = false,
+    formId,
     onSubmit,
     listingId,
     isOwnListing,
@@ -162,12 +171,39 @@ export const BookingFixedDurationForm = props => {
   const noopFetch = useCallback(() => {}, []);
   const lineItemFetchHandler = peakupMultiSlotBooking ? noopFetch : standardFetch;
 
-  const initialValuesMaybe =
+  const meetingPointInitial = skipMeetingPointSelect
+    ? {}
+    : peakupMeetingPointInitialValues(preferredMeetingPoints);
+  const priceVariantInitial =
     priceVariants.length > 1 && preselectedPriceVariant
-      ? { initialValues: { priceVariantName: preselectedPriceVariant?.name } }
+      ? { priceVariantName: preselectedPriceVariant?.name }
       : priceVariants.length === 1
-      ? { initialValues: { priceVariantName: priceVariants?.[0]?.name || null } }
+      ? { priceVariantName: priceVariants?.[0]?.name || null }
       : {};
+  const hasFormInitialValues =
+    Object.keys(priceVariantInitial).length > 0 || Object.keys(meetingPointInitial).length > 0;
+  const initialValuesMaybe = hasFormInitialValues
+    ? { initialValues: { ...priceVariantInitial, ...meetingPointInitial } }
+    : {};
+
+  const submitWithMeetingPoint = values => {
+    const withMeetingPoint = skipMeetingPointSelect
+      ? values
+      : appendPeakupMeetingPointToOrderValues(values, preferredMeetingPoints);
+    if (peakupMultiSlotBooking) {
+      if (!peakupSessions.length) {
+        setPeakupSubmitMissing(true);
+        return;
+      }
+      setPeakupSubmitMissing(false);
+      return onSubmit({
+        ...withMeetingPoint,
+        peakupBookingSlots: peakupSessions,
+        peakupBookingHoldId: peakupHoldIdRef.current || undefined,
+      });
+    }
+    return onSubmit(withMeetingPoint);
+  };
 
   const minDurationStartingInInterval = priceVariants.reduce((min, priceVariant) => {
     return Math.min(min, priceVariant.bookingLengthInMinutes);
@@ -179,21 +215,7 @@ export const BookingFixedDurationForm = props => {
       {...initialValuesMaybe}
       {...rest}
       unitPrice={unitPrice}
-      onSubmit={values => {
-        if (peakupMultiSlotBooking) {
-          if (!peakupSessions.length) {
-            setPeakupSubmitMissing(true);
-            return;
-          }
-          setPeakupSubmitMissing(false);
-          return onSubmit({
-            ...values,
-            peakupBookingSlots: peakupSessions,
-            peakupBookingHoldId: peakupHoldIdRef.current || undefined,
-          });
-        }
-        return onSubmit(values);
-      }}
+      onSubmit={submitWithMeetingPoint}
       render={formRenderProps => {
         const {
           startDatePlaceholder,
@@ -432,6 +454,12 @@ export const BookingFixedDurationForm = props => {
                 />
               </div>
             ) : null}
+
+            <MeetingPointSelectMaybe
+              preferredMeetingPoints={preferredMeetingPoints}
+              skip={skipMeetingPointSelect}
+              formId={formId}
+            />
 
             <FetchLineItemsError error={fetchLineItemsError} />
 

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Heading } from '../../components';
 import CheckoutSessionsPreview from './CheckoutSessionsPreview';
+import CheckoutMeetingPointMaybe from './CheckoutMeetingPointMaybe';
 import css from './CheckoutPage.module.css';
 
 const MobileOrderBreakdown = props => {
@@ -11,6 +12,7 @@ const MobileOrderBreakdown = props => {
     priceVariantName,
     booking,
     peakupBookingSlots,
+    peakupMeetingPoint,
     timeZone,
     dateType,
     lineItems,
@@ -34,6 +36,10 @@ const MobileOrderBreakdown = props => {
         dateType={dateType}
         lineItems={lineItems}
         intl={intl}
+      />
+      <CheckoutMeetingPointMaybe
+        className={css.sessionsSectionMobile}
+        peakupMeetingPoint={peakupMeetingPoint}
       />
       {speculateTransactionErrorMessage}
       {breakdown}

@@ -10,6 +10,12 @@ import {
   getPreBookingSkillLevelOptions,
   normalizePeakupPreBookingDetails,
 } from '../../util/peakupPreBooking';
+import {
+  logPeakupMeetingPointSelected,
+  peakupMeetingPointForProtectedData,
+  peakupMeetingPointFromFormValues,
+  peakupMeetingPointInitialValues,
+} from '../../util/peakupMeetingPoint';
 
 import { PrimaryButton, SecondaryButton } from '../Button/Button';
 import FieldSelect from '../FieldSelect/FieldSelect';
@@ -28,10 +34,18 @@ const required = value => (value ? undefined : 'required');
  * @param {string} props.id Unique id for scroll-lock (e.g. per listing)
  * @param {boolean} props.isOpen
  * @param {Function} props.onClose Called for dismiss / “Maybe later”
- * @param {Function} props.onContinue Receives normalized `peakupPreBooking` object
+ * @param {Function} props.onContinue Receives `{ peakupPreBooking, peakupMeetingPoint? }`
  * @param {Array<{ value: string, label: string }>} props.sportOptions
+ * @param {Array<Object>} [props.preferredMeetingPoints] Coach saved meeting points
  */
-const PreBookingIntroModal = ({ id, isOpen, onClose, onContinue, sportOptions = [] }) => {
+const PreBookingIntroModal = ({
+  id,
+  isOpen,
+  onClose,
+  onContinue,
+  sportOptions = [],
+  preferredMeetingPoints = [],
+}) => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const onManageDisableScrolling = useCallback(
@@ -45,11 +59,16 @@ const PreBookingIntroModal = ({ id, isOpen, onClose, onContinue, sportOptions = 
   const skillLevelOptions = getPreBookingSkillLevelOptions(intl);
   const participantCountOptions = getPreBookingParticipantCountOptions(12);
 
+  const hasMeetingPoints = preferredMeetingPoints.length > 0;
+  const meetingPointRequired =
+    hasMeetingPoints && preferredMeetingPoints.length > 1 ? required : undefined;
+
   const initialValues = {
     sport: sportOptions.length === 1 ? sportOptions[0].value : '',
     participantType: '',
     skillLevel: '',
     participantCount: '1',
+    ...peakupMeetingPointInitialValues(preferredMeetingPoints),
   };
 
   return (
@@ -70,9 +89,24 @@ const PreBookingIntroModal = ({ id, isOpen, onClose, onContinue, sportOptions = 
         initialValues={initialValues}
         onSubmit={values => {
           const normalized = normalizePeakupPreBookingDetails(values, sportOptions);
-          if (normalized) {
-            onContinue(normalized);
+          if (!normalized) {
+            return;
           }
+          let peakupMeetingPoint = null;
+          if (hasMeetingPoints) {
+            const selected = peakupMeetingPointFromFormValues(values, preferredMeetingPoints);
+            peakupMeetingPoint = peakupMeetingPointForProtectedData(selected);
+            if (preferredMeetingPoints.length > 1 && !peakupMeetingPoint) {
+              return;
+            }
+            if (peakupMeetingPoint) {
+              logPeakupMeetingPointSelected(peakupMeetingPoint);
+            }
+          }
+          onContinue({
+            peakupPreBooking: normalized,
+            ...(peakupMeetingPoint ? { peakupMeetingPoint } : {}),
+          });
         }}
         render={({ handleSubmit, submitError, invalid, pristine }) => (
           <form className={css.shell} onSubmit={handleSubmit}>
@@ -178,6 +212,34 @@ const PreBookingIntroModal = ({ id, isOpen, onClose, onContinue, sportOptions = 
                   </option>
                 ))}
               </FieldSelect>
+
+              {hasMeetingPoints ? (
+                <FieldSelect
+                  id={`${id}.peakupMeetingPointId`}
+                  name="peakupMeetingPointId"
+                  className={css.meetingPointField}
+                  label={intl.formatMessage({
+                    id: 'PreBookingIntroModal.meetingPointLabel',
+                    defaultMessage: 'Meeting point',
+                  })}
+                  validate={meetingPointRequired}
+                >
+                  {preferredMeetingPoints.length > 1 ? (
+                    <option value="">
+                      {intl.formatMessage({
+                        id: 'PreBookingIntroModal.meetingPointPlaceholder',
+                        defaultMessage: 'Choose where to meet',
+                      })}
+                    </option>
+                  ) : null}
+                  {preferredMeetingPoints.map(point => (
+                    <option key={point.id} value={point.id}>
+                      {point.label}
+                      {point.address ? ` — ${point.address}` : ''}
+                    </option>
+                  ))}
+                </FieldSelect>
+              ) : null}
             </div>
 
             {submitError ? (

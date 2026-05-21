@@ -14,6 +14,7 @@ import {
 import { AvatarMedium } from '../../components';
 
 import CheckoutSessionsPreview from './CheckoutSessionsPreview';
+import CheckoutMeetingPointMaybe from './CheckoutMeetingPointMaybe';
 
 import css from './CheckoutPage.module.css';
 
@@ -45,6 +46,7 @@ const DetailsSideCard = props => {
     timeZone,
     lineItems,
     peakupBookingSlots,
+    peakupMeetingPoint,
   } = props;
 
   const { price, publicData } = listing?.attributes || {};
@@ -93,6 +95,8 @@ const DetailsSideCard = props => {
           lineItems={lineItems}
           intl={intl}
         />
+
+        <CheckoutMeetingPointMaybe peakupMeetingPoint={peakupMeetingPoint} />
 
         {!!breakdown ? <div className={css.summaryTotalsBlock}>{breakdown}</div> : null}
       </div>

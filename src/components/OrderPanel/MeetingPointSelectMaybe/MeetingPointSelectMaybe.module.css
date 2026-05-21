@@ -1,0 +1,17 @@
+@import '../../../styles/customMediaQueries.css';
+
+.root {
+  margin: 0 0 24px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 32px;
+  }
+}
+
+.heading {
+  margin: 0 0 12px;
+}
+
+.select {
+  width: 100%;
+}

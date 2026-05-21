@@ -25,6 +25,7 @@ import DetailCardHeadingsMaybe from './DetailCardHeadingsMaybe';
 import DetailCardImage from './DetailCardImage';
 import DeliveryInfoMaybe from './DeliveryInfoMaybe';
 import BookingLocationMaybe from './BookingLocationMaybe';
+import MeetingPointMaybe from './MeetingPointMaybe';
 import FeedSection from './FeedSection';
 import DiminishedActionButtonMaybe from './DiminishedActionButtonMaybe';
 import PanelHeading from './PanelHeading';
@@ -456,6 +457,10 @@ export class TransactionPanelComponent extends Component {
                   protectedData={protectedData}
                   listing={listing}
                   locale={config.localization.locale}
+                />
+                <MeetingPointMaybe
+                  className={css.deliveryInfoSection}
+                  protectedData={protectedData}
                 />
                 <BookingLocationMaybe
                   className={css.deliveryInfoSection}

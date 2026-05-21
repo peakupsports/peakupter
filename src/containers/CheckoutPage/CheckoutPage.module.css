@@ -418,6 +418,42 @@
   margin: 0 0 16px;
 }
 
+.meetingPointSection {
+  composes: sessionsSection;
+}
+
+.meetingPointHeading {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0 0 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--peakUpCyan);
+  font-size: 0.72rem;
+}
+
+.meetingPointLabel {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0 0 4px;
+  font-weight: 600;
+  color: var(--peakUpTextPrimary);
+}
+
+.meetingPointAddress {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0 0 4px;
+  color: var(--colorGrey700);
+  line-height: 1.45;
+}
+
+.meetingPointNotes {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0;
+  color: var(--colorGrey600);
+  font-style: italic;
+  line-height: 1.45;
+}
+
 .sessionsHeading {
   composes: marketplaceSmallFontStyles from global;
   margin: 0 0 8px;
