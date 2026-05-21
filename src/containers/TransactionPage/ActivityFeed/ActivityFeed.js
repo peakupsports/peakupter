@@ -293,7 +293,7 @@ export const ActivityFeed = props => {
     onShowOlderMessages,
   } = props;
   const classes = classNames(rootClassName || css.root, className, {
-    [css.peakUpConversation]: props.isPeakUpConversation,
+    [css.peakUpConversation]: props.isPeakUpConversation || props.isPeakUpBookingTheme,
   });
   const processName = stateData.processName;
 

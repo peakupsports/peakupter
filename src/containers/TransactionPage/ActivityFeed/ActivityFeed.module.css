@@ -56,6 +56,26 @@
   max-width: 100%;
 }
 
+.peakUpConversation .transitionContent {
+  color: rgba(240, 245, 252, 0.94);
+}
+
+.peakUpConversation .transitionDate {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.peakUpConversation .reviewLink {
+  color: #19dff2;
+}
+
+.peakUpConversation .reviewContent {
+  color: rgba(228, 235, 243, 0.9);
+}
+
+.peakUpConversation .showOlderButton {
+  color: #19dff2;
+}
+
 .messageItem {
   margin-bottom: 20px;
 

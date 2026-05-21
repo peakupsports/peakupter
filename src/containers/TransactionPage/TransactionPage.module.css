@@ -18,6 +18,44 @@
   }
 }
 
+/* PeakUp booking order/sale details — matches checkout cinematic shell */
+.peakUpBookingPage {
+  --peakUpPageBg: #060b14;
+  --peakUpGlass: rgba(8, 14, 26, 0.41);
+  --peakUpGlassHi: rgba(12, 20, 36, 0.51);
+  --peakUpGlassBorder: rgba(25, 223, 242, 0.26);
+  --peakUpGlassGlow: rgba(23, 217, 255, 0.1);
+  --peakUpTextPrimary: #f8fafc;
+  --peakUpTextMuted: rgba(210, 222, 238, 0.88);
+  --peakUpCyan: #19dff2;
+  --peakUpLime: #9dff4f;
+
+  position: relative;
+  isolation: isolate;
+  flex: 1;
+  width: 100%;
+  min-height: calc(100vh - var(--topbarHeight));
+  background-color: #050a14;
+
+  @media (--viewportMedium) {
+    min-height: calc(100vh - var(--topbarHeightDesktop));
+  }
+}
+
+.peakUpBookingForeground {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.breakdownPeakUp {
+  margin: 0;
+  padding: 0;
+}
+
 .loading {
   display: flex;
   flex-direction: column;

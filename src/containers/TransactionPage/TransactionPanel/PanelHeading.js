@@ -44,27 +44,44 @@ const PanelHeading = props => {
     listingTitle,
     listingDeleted,
     isCustomerBanned,
+    isPeakUpBookingTheme,
   } = props;
 
   const isProvider = transactionRole === 'provider';
   const isCustomer = !isProvider;
 
   const defaultRootClassName = isCustomer ? css.headingOrder : css.headingSale;
-  const titleClasses = classNames(rootClassName || defaultRootClassName, className);
-  const listingLink = createListingLink(listingId, listingTitle, listingDeleted);
+  const titleClasses = classNames(rootClassName || defaultRootClassName, className, {
+    [css.peakUpBookingHeading]: isPeakUpBookingTheme,
+  });
+  const listingLink = createListingLink(
+    listingId,
+    listingTitle,
+    listingDeleted,
+    {},
+    isPeakUpBookingTheme ? css.peakUpBookingListingLink : ''
+  );
   const breakline = <br />;
 
   return (
     <>
       <H1 className={titleClasses}>
-        <span className={css.mainTitle}>
+        <span
+          className={classNames(css.mainTitle, {
+            [css.peakUpBookingMainTitle]: isPeakUpBookingTheme,
+          })}
+        >
           <FormattedMessage
             id={`TransactionPage.${processName}.${transactionRole}.${processState}.title`}
             values={{ customerName, providerName, breakline }}
           />
         </span>
       </H1>
-      <H2 className={css.listingTitleMobile}>
+      <H2
+        className={classNames(css.listingTitleMobile, {
+          [css.peakUpBookingListingTitleMobile]: isPeakUpBookingTheme,
+        })}
+      >
         <FormattedMessage id="TransactionPage.listingTitleMobile" values={{ listingLink }} />
 
         {showPriceOnMobile && price ? (
@@ -75,12 +92,21 @@ const PanelHeading = props => {
         ) : null}
       </H2>
       {isCustomer && listingDeleted ? (
-        <p className={css.transactionInfoMessage}>
+        <p
+          className={classNames(css.transactionInfoMessage, {
+            [css.peakUpBookingInfoMessage]: isPeakUpBookingTheme,
+          })}
+        >
           <FormattedMessage id="TransactionPanel.messageDeletedListing" />
         </p>
       ) : null}
       {!listingDeleted && showExtraInfo ? (
-        <p className={css.transactionInfoMessage}>
+        <p
+          className={classNames(css.transactionInfoMessage, {
+            [css.peakUpBookingInfoMessage]: isPeakUpBookingTheme,
+            [css.peakUpBookingExtraInfo]: isPeakUpBookingTheme,
+          })}
+        >
           <FormattedMessage
             id={`TransactionPage.${processName}.${transactionRole}.${processState}.extraInfo`}
             values={{ customerName, providerName, deliveryMethod, breakline }}
@@ -88,7 +114,11 @@ const PanelHeading = props => {
         </p>
       ) : null}
       {isProvider && isPendingPayment ? (
-        <p className={css.transactionInfoMessage}>
+        <p
+          className={classNames(css.transactionInfoMessage, {
+            [css.peakUpBookingInfoMessage]: isPeakUpBookingTheme,
+          })}
+        >
           <FormattedMessage
             id="TransactionPanel.salePaymentPendingInfo"
             values={{ customerName }}
@@ -96,7 +126,11 @@ const PanelHeading = props => {
         </p>
       ) : null}
       {isProvider && isCustomerBanned ? (
-        <p className={css.transactionInfoMessage}>
+        <p
+          className={classNames(css.transactionInfoMessage, {
+            [css.peakUpBookingInfoMessage]: isPeakUpBookingTheme,
+          })}
+        >
           <FormattedMessage id="TransactionPanel.customerBannedStatus" />
         </p>
       ) : null}

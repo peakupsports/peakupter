@@ -192,6 +192,7 @@ export class TransactionPanelComponent extends Component {
       actionButtons,
       isInquiryProcess,
       isConversationView: isConversationViewProp = false,
+      isPeakUpBookingTheme = false,
       orderBreakdown,
       orderPanel,
       config,
@@ -261,11 +262,15 @@ export class TransactionPanelComponent extends Component {
 
     const classes = classNames(rootClassName || css.root, className, {
       [css.peakUpConversationRoot]: isConversationView,
+      [css.peakUpBookingRoot]: isPeakUpBookingTheme,
     });
     const containerClasses = classNames(css.container, {
       [css.peakUpConversationContainer]: isConversationView,
+      [css.peakUpBookingContainer]: isPeakUpBookingTheme,
     });
-    const txInfoClasses = classNames(css.txInfo);
+    const txInfoClasses = classNames(css.txInfo, {
+      [css.peakUpBookingMainColumn]: isPeakUpBookingTheme,
+    });
 
     const conversationFeed = (
       <FeedSection
@@ -340,9 +345,18 @@ export class TransactionPanelComponent extends Component {
           ) : (
           <>
           <div className={txInfoClasses}>
+            <article
+              className={classNames({
+                [css.peakUpBookingActivityCard]: isPeakUpBookingTheme,
+              })}
+            >
               <DetailCardImage
-                rootClassName={css.imageWrapperMobile}
-                avatarWrapperClassName={css.avatarWrapperMobile}
+                rootClassName={classNames(css.imageWrapperMobile, {
+                  [css.peakUpBookingImageMobile]: isPeakUpBookingTheme,
+                })}
+                avatarWrapperClassName={classNames(css.avatarWrapperMobile, {
+                  [css.peakUpBookingAvatarMobile]: isPeakUpBookingTheme,
+                })}
                 listingTitle={listingTitle}
                 image={firstImage}
                 provider={provider}
@@ -350,7 +364,6 @@ export class TransactionPanelComponent extends Component {
                 showListingImage={showListingImage}
                 listingImageConfig={config.layout.listingImage}
               />
-            ) : null}
             {!isConversationView && isProvider ? (
               <div className={css.avatarWrapperProviderDesktop}>
                 <AvatarLarge user={customer} className={css.avatarDesktop} />
@@ -358,34 +371,44 @@ export class TransactionPanelComponent extends Component {
             ) : null}
 
             <PanelHeading
-                processName={stateData.processName}
-                processState={stateData.processState}
-                showExtraInfo={allowShowingExtraInfo(stateData.showExtraInfo, transactionPartyInfo)}
-                showPriceOnMobile={showPrice}
-                price={listing?.attributes?.price}
-                intl={intl}
-                deliveryMethod={deliveryMethod}
-                isPendingPayment={!!stateData.isPendingPayment}
-                transactionRole={transactionRole}
-                providerName={authorDisplayName}
-                customerName={customerDisplayName}
-                listingId={listing?.id?.uuid}
-                listingTitle={listingTitle}
-                listingDeleted={listingDeleted}
-              />
+              processName={stateData.processName}
+              processState={stateData.processState}
+              showExtraInfo={allowShowingExtraInfo(stateData.showExtraInfo, transactionPartyInfo)}
+              showPriceOnMobile={showPrice}
+              price={listing?.attributes?.price}
+              intl={intl}
+              deliveryMethod={deliveryMethod}
+              isPendingPayment={!!stateData.isPendingPayment}
+              transactionRole={transactionRole}
+              providerName={authorDisplayName}
+              customerName={customerDisplayName}
+              listingId={listing?.id?.uuid}
+              listingTitle={listingTitle}
+              listingDeleted={listingDeleted}
+              isPeakUpBookingTheme={isPeakUpBookingTheme}
+            />
 
             {requestQuote}
             {offer}
             {transactionFieldsComponent}
 
             {!isInquiryProcess ? (
-              <div className={css.orderDetails}>
-                <div className={css.orderDetailsMobileSection}>
+              <div
+                className={classNames(css.orderDetails, {
+                  [css.peakUpBookingOrderDetails]: isPeakUpBookingTheme,
+                })}
+              >
+                <div
+                  className={classNames(css.orderDetailsMobileSection, {
+                    [css.peakUpBookingMobileSummary]: isPeakUpBookingTheme,
+                  })}
+                >
                   {showBreakDown ? (
                     <BreakdownMaybe
                       orderBreakdown={orderBreakdown}
                       processName={stateData.processName}
                       priceVariantName={priceVariantName}
+                      isPeakUpBookingTheme={isPeakUpBookingTheme}
                     />
                   ) : null}
                   <DiminishedActionButtonMaybe
@@ -424,7 +447,11 @@ export class TransactionPanelComponent extends Component {
             ) : null}
             <FeedSection
               rootClassName={
-                isConversationView ? css.peakUpConversationFeed : css.feedContainer
+                isConversationView
+                  ? css.peakUpConversationFeed
+                  : isPeakUpBookingTheme
+                  ? css.peakUpBookingFeed
+                  : css.feedContainer
               }
               hasMessages={messages.length > 0}
               hasTransitions={hasTransitions}
@@ -432,12 +459,13 @@ export class TransactionPanelComponent extends Component {
               activityFeed={activityFeed}
               isConversation={isInquiryProcess || isConversationView}
               hideSectionHeading={isConversationView}
+              isPeakUpBookingTheme={isPeakUpBookingTheme}
             />
             {showSendMessageForm ? (
               <SendMessageForm
                 formId={this.sendMessageFormName}
                 rootClassName={
-                  isConversationView
+                  isConversationView || isPeakUpBookingTheme
                     ? css.peakUpConversationSendMessageForm
                     : css.sendMessageForm
                 }
@@ -452,7 +480,11 @@ export class TransactionPanelComponent extends Component {
                 onSubmit={this.onMessageSubmit}
               />
             ) : (
-              <div className={css.sendingMessageNotAllowed}>
+              <div
+                className={classNames(css.sendingMessageNotAllowed, {
+                  [css.peakUpConversationSendingNotAllowed]: isPeakUpBookingTheme,
+                })}
+              >
                 <FormattedMessage id="TransactionPanel.sendingMessageNotAllowed" />
               </div>
             )}
@@ -460,18 +492,41 @@ export class TransactionPanelComponent extends Component {
             {stateData.showActionButtons ? (
               <>
                 <div className={css.mobileActionButtonSpacer}></div>
-                <div className={css.mobileActionButtons}>{actionButtons('mobile')}</div>
+                <div
+                  className={classNames(css.mobileActionButtons, {
+                    [css.peakUpBookingMobileActions]: isPeakUpBookingTheme,
+                  })}
+                >
+                  {actionButtons('mobile')}
+                </div>
               </>
             ) : null}
+            </article>
           </div>
 
-          <div className={css.asideDesktop}>
+          <div
+            className={classNames(css.asideDesktop, {
+              [css.peakUpBookingAside]: isPeakUpBookingTheme,
+            })}
+          >
             <div
-              className={classNames(css.stickySection, { [css.noListingImage]: !showListingImage })}
+              className={classNames(css.stickySection, {
+                [css.noListingImage]: !showListingImage,
+                [css.peakUpBookingSticky]: isPeakUpBookingTheme,
+              })}
             >
-              <div className={css.detailCard}>
+              <div
+                className={classNames(css.detailCard, {
+                  [css.peakUpBookingSummaryCard]: isPeakUpBookingTheme,
+                })}
+              >
                 <DetailCardImage
-                  avatarWrapperClassName={css.avatarWrapperDesktop}
+                  rootClassName={classNames(css.detailCardImageWrapper, {
+                    [css.peakUpBookingSummaryImage]: isPeakUpBookingTheme,
+                  })}
+                  avatarWrapperClassName={classNames(css.avatarWrapperDesktop, {
+                    [css.peakUpBookingSummaryAvatar]: isPeakUpBookingTheme,
+                  })}
                   listingTitle={listingTitle}
                   image={firstImage}
                   provider={provider}
@@ -483,6 +538,7 @@ export class TransactionPanelComponent extends Component {
                 <DetailCardHeadingsMaybe
                   showDetailCardHeadings={showDetailCardHeadings}
                   showListingImage={showListingImage}
+                  isPeakUpBookingTheme={isPeakUpBookingTheme}
                   listingTitle={
                     listingDeleted ? (
                       listingTitle
@@ -506,11 +562,18 @@ export class TransactionPanelComponent extends Component {
                     orderBreakdown={orderBreakdown}
                     processName={stateData.processName}
                     priceVariantName={priceVariantName}
+                    isPeakUpBookingTheme={isPeakUpBookingTheme}
                   />
                 ) : null}
 
                 {stateData.showActionButtons ? (
-                  <div className={css.desktopActionButtons}>{actionButtons('desktop')}</div>
+                  <div
+                    className={classNames(css.desktopActionButtons, {
+                      [css.peakUpBookingDesktopActions]: isPeakUpBookingTheme,
+                    })}
+                  >
+                    {actionButtons('desktop')}
+                  </div>
                 ) : null}
               </div>
               <DiminishedActionButtonMaybe

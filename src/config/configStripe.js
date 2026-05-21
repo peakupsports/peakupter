@@ -5,7 +5,26 @@ This variable is set in a hidden file: .env
 To make Stripe connection work, you also need to set Stripe's private key in the Sharetribe Console.
 */
 
-export const publishableKey = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY;
+const rawPublishableKey = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY;
+export const publishableKey =
+  typeof rawPublishableKey === 'string' ? rawPublishableKey.trim() : rawPublishableKey;
+
+const isDev = process.env.NODE_ENV === 'development' || process.env.REACT_APP_ENV === 'development';
+
+if (isDev && publishableKey) {
+  const looksTruncated =
+    publishableKey.includes('...') ||
+    publishableKey.length < 80 ||
+    /\s/.test(publishableKey);
+  if (looksTruncated) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[PeakUp] REACT_APP_STRIPE_PUBLISHABLE_KEY looks invalid (truncated or placeholder). ' +
+        'Paste the full pk_test_… key from Stripe Dashboard → Developers → API keys, ' +
+        'then restart yarn dev. Sharetribe Console must use the matching test secret key.'
+    );
+  }
+}
 
 // A maximum number of days forwards during which a booking can be made.
 // This is limited due to Stripe holding funds up to 90 days from the

@@ -16,13 +16,22 @@ const DetailCardHeadingsMaybe = props => {
     price,
     showListingImage,
     intl,
+    isPeakUpBookingTheme,
   } = props;
 
   return showDetailCardHeadings ? (
     <div
-      className={classNames(css.detailCardHeadings, { [css.noListingImage]: !showListingImage })}
+      className={classNames(css.detailCardHeadings, {
+        [css.noListingImage]: !showListingImage,
+        [css.peakUpBookingDetailHeadings]: isPeakUpBookingTheme,
+      })}
     >
-      <H4 as="h2" className={css.detailCardTitle}>
+      <H4
+        as="h2"
+        className={classNames(css.detailCardTitle, {
+          [css.peakUpBookingDetailTitle]: isPeakUpBookingTheme,
+        })}
+      >
         {listingTitle}
 
         {showPrice && price ? (

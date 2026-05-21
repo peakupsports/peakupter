@@ -17,18 +17,25 @@ const FeedSection = props => {
     hasMessages,
     isConversation,
     hideSectionHeading,
+    isPeakUpBookingTheme,
   } = props;
 
   const showFeed = hasMessages || hasTransitions || fetchMessagesError;
 
   const classes = classNames(rootClassName || css.feedContainer, className, {
     [css.feedContainerPeakUp]: hideSectionHeading,
+    [css.peakUpBookingFeedSection]: isPeakUpBookingTheme,
   });
 
   return showFeed ? (
     <div className={classes}>
       {hideSectionHeading ? null : (
-        <Heading as="h3" rootClassName={css.sectionHeading}>
+        <Heading
+          as="h3"
+          rootClassName={classNames(css.sectionHeading, {
+            [css.peakUpBookingSectionHeading]: isPeakUpBookingTheme,
+          })}
+        >
           {isConversation ? (
             <FormattedMessage id="TransactionPanel.conversationHeading" />
           ) : (

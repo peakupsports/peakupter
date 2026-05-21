@@ -36,6 +36,8 @@ import {
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 import { userDisplayNameAsString } from '../../util/data';
 import { isPeakUpConversationView } from '../../util/peakUpConversationView';
+import { isPeakUpBookingTransactionView } from '../../util/peakUpTransactionView';
+import CheckoutHeroBackground from '../CheckoutPage/CheckoutHeroBackground';
 import { isScrollingDisabled, manageDisableScrolling } from '../../ducks/ui.duck';
 import { initializeCardPaymentData } from '../../ducks/stripe.duck.js';
 
@@ -60,6 +62,7 @@ import ActionButtons, {
   ACTION_BUTTON_2_ID,
   ACTION_BUTTON_3_ID,
 } from './ActionButtons/ActionButtons';
+import actionButtonsCss from './ActionButtons/ActionButtons.module.css';
 import RequestQuote from './RequestQuote/RequestQuote';
 import Offer from './Offer/Offer';
 import TransactionFields from './TransactionFields/TransactionFields.js';
@@ -555,10 +558,15 @@ export const TransactionPageComponent = props => {
     isDataAvailable && transaction && isPeakUpConversationView(transaction)
   );
 
+  const isPeakUpBookingTheme = Boolean(
+    isDataAvailable && isPeakUpBookingTransactionView(transaction, processName)
+  );
+
   const detailsClassName = classNames(css.tabContent, css.tabContentVisible);
 
   const pageRootClassName = classNames(css.root, {
     [css.peakUpConversationPage]: isConversationView,
+    [css.peakUpBookingPage]: isPeakUpBookingTheme,
   });
 
   const fetchErrorMessage = isCustomerRole
@@ -648,12 +656,16 @@ export const TransactionPageComponent = props => {
     ? {
         orderBreakdown: (
           <OrderBreakdown
-            className={css.breakdown}
+            className={classNames(css.breakdown, {
+              [css.breakdownPeakUp]: isPeakUpBookingTheme,
+            })}
             userRole={transactionRole}
             transaction={transaction}
             {...txBookingMaybe}
             currency={config.currency}
             marketplaceName={config.marketplaceName}
+            peakUpTheme={isPeakUpBookingTheme}
+            peakUpCompact={isPeakUpBookingTheme}
           />
         ),
       }
@@ -759,6 +771,7 @@ export const TransactionPageComponent = props => {
       archiveConversationDisabled={!transaction?.id?.uuid}
       actionButtons={containerId => (
         <ActionButtons
+          rootClassName={isPeakUpBookingTheme ? actionButtonsCss.peakUpRoot : undefined}
           containerId={containerId}
           listingTypeConfig={foundListingTypeConfig}
           showButtons={stateData.showActionButtons}
@@ -788,6 +801,7 @@ export const TransactionPageComponent = props => {
           onShowOlderMessages={() => onShowMoreMessages(transaction.id, config)}
           fetchMessagesInProgress={fetchMessagesInProgress}
           isPeakUpConversation={isConversationView}
+          isPeakUpBookingTheme={isPeakUpBookingTheme}
         />
       }
       transactionFieldsComponent={
@@ -820,6 +834,7 @@ export const TransactionPageComponent = props => {
       }
       isInquiryProcess={processName === INQUIRY_PROCESS_NAME}
       isConversationView={isConversationView}
+      isPeakUpBookingTheme={isPeakUpBookingTheme}
       config={config}
       {...orderBreakdownMaybe}
       orderPanel={
@@ -881,7 +896,23 @@ export const TransactionPageComponent = props => {
       scrollingDisabled={scrollingDisabled}
     >
       <LayoutSingleColumn topbar={<TopbarContainer />} footer={<FooterContainer />}>
-        <div className={pageRootClassName}>{panel}</div>
+        <div className={pageRootClassName}>
+          {isPeakUpBookingTheme ? (
+            <CheckoutHeroBackground
+              listing={listing}
+              showListingImage={showListingImage}
+              firstImage={listing?.images?.[0]}
+              layoutListingImageConfig={config.layout.listingImage}
+            />
+          ) : null}
+          <div
+            className={classNames({
+              [css.peakUpBookingForeground]: isPeakUpBookingTheme,
+            })}
+          >
+            {panel}
+          </div>
+        </div>
         <ReviewModal
           id="ReviewOrderModal"
           isOpen={isReviewModalOpen}

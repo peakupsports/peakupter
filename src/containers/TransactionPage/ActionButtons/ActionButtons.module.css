@@ -71,3 +71,26 @@
   color: var(--colorGrey700);
   margin-top: 4px;
 }
+
+.peakUpRoot {
+  background:
+    linear-gradient(180deg, rgba(6, 11, 20, 0.94) 0%, rgba(6, 11, 20, 0.99) 100%);
+  border-top: 1px solid rgba(25, 223, 242, 0.18);
+  box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.42);
+
+  @media (--viewportLarge) {
+    background: transparent;
+    border-top: none;
+    box-shadow: none;
+    margin: 0 20px 20px;
+  }
+}
+
+.peakUpRoot .finePrint {
+  color: rgba(180, 198, 218, 0.8);
+}
+
+.peakUpRoot .actionError,
+.peakUpRoot .error {
+  color: #ff9a9a;
+}

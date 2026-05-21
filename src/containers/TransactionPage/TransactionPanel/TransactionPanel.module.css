@@ -652,8 +652,347 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
+.peakUpConversationSendMessageForm :global(button) {
+  border-radius: 10px;
+  border: 1px solid rgba(25, 223, 242, 0.35);
+  background: linear-gradient(145deg, rgba(25, 223, 242, 0.18) 0%, rgba(8, 18, 32, 0.95) 100%);
+  color: #f8fafc;
+  min-height: 44px;
+}
+
+.peakUpConversationSendMessageForm :global(button:hover) {
+  border-color: rgba(157, 255, 79, 0.45);
+  background: linear-gradient(145deg, rgba(25, 223, 242, 0.28) 0%, rgba(8, 18, 32, 0.98) 100%);
+}
+
+.peakUpConversationSendMessageForm :global(.strokeMatter) {
+  stroke: #f8fafc;
+}
+
 .peakUpConversationSendingNotAllowed {
   composes: sendingMessageNotAllowed;
   margin: 0;
   color: rgba(255, 255, 255, 0.55);
+}
+
+/* PeakUp booking order/sale — checkout-aligned glass layout */
+.peakUpBookingRoot {
+  width: 100%;
+}
+
+.peakUpBookingContainer {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 16px;
+
+  @media (--viewportMedium) {
+    padding: 20px 24px 32px;
+  }
+
+  @media (--viewportLarge) {
+    padding: 24px 32px 40px;
+    gap: 28px;
+  }
+}
+
+.peakUpBookingMainColumn {
+  @media (--viewportLarge) {
+    flex-basis: min(520px, 58%);
+    flex-grow: 1;
+    margin-right: 28px;
+    margin-bottom: 0;
+  }
+}
+
+.peakUpBookingActivityCard {
+  padding: 18px 16px 22px;
+  border-radius: 16px;
+  border: 1px solid var(--peakUpGlassBorder, rgba(25, 223, 242, 0.26));
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(23, 217, 255, 0.03) 0%, transparent 55%),
+    linear-gradient(168deg, var(--peakUpGlassHi, rgba(12, 20, 36, 0.51)) 0%, var(--peakUpGlass, rgba(8, 14, 26, 0.41)) 100%);
+  backdrop-filter: blur(28px) saturate(155%);
+  -webkit-backdrop-filter: blur(28px) saturate(155%);
+  box-shadow:
+    0 28px 60px rgba(0, 0, 0, 0.52),
+    0 10px 28px rgba(0, 0, 0, 0.36),
+    0 0 20px var(--peakUpGlassGlow, rgba(23, 217, 255, 0.1)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  @media (--viewportMedium) {
+    padding: 20px 20px 26px;
+    border-radius: 18px;
+  }
+}
+
+.peakUpBookingHeading {
+  margin: 0 0 8px;
+  padding: 0;
+
+  @media (--viewportMedium) {
+    margin: 0 0 10px;
+    padding: 0;
+  }
+
+  @media (--viewportLarge) {
+    margin: 0 0 12px;
+  }
+}
+
+.peakUpBookingMainTitle {
+  display: block;
+  color: var(--peakUpTextPrimary, #f8fafc);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.22;
+
+  @media (--viewportMedium) {
+    font-size: 1.65rem;
+  }
+
+  @media (--viewportLarge) {
+    font-size: 1.75rem;
+  }
+}
+
+.peakUpBookingMainTitle::after {
+  content: '';
+  display: block;
+  width: 52px;
+  height: 3px;
+  margin-top: 12px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #19dff2 0%, #9dff4f 100%);
+}
+
+.peakUpBookingExtraInfo {
+  color: rgba(157, 255, 79, 0.92);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.peakUpBookingInfoMessage {
+  color: var(--peakUpTextMuted, rgba(210, 222, 238, 0.88));
+}
+
+.peakUpBookingListingTitleMobile {
+  color: var(--peakUpTextMuted, rgba(210, 222, 238, 0.88));
+  margin-top: 8px;
+}
+
+.peakUpBookingListingTitleMobile a,
+.peakUpBookingListingLink {
+  color: var(--peakUpCyan, #19dff2);
+  text-decoration: none;
+}
+
+.peakUpBookingListingTitleMobile a:hover,
+.peakUpBookingListingLink:hover {
+  text-decoration: underline;
+}
+
+.peakUpBookingImageMobile {
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 4px;
+
+  @media (--viewportLarge) {
+    display: none;
+  }
+}
+
+.peakUpBookingAvatarMobile {
+  @media (--viewportLarge) {
+    display: none;
+  }
+}
+
+.peakUpBookingFeed,
+.peakUpBookingFeedSection {
+  margin: 20px 0 0;
+
+  @media (--viewportLarge) {
+    margin: 24px 0 0;
+  }
+}
+
+.peakUpBookingSectionHeading {
+  color: var(--peakUpTextPrimary, #f8fafc);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.peakUpBookingOrderDetails {
+  margin-top: 20px;
+}
+
+.peakUpBookingMobileSummary {
+  padding: 14px 14px 6px;
+  margin-top: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(25, 223, 242, 0.16);
+  background: rgba(6, 12, 22, 0.45);
+}
+
+.peakUpBookingBreakdownTitle {
+  color: rgba(210, 222, 238, 0.88);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  margin: 0 0 8px;
+}
+
+.peakUpBookingPriceVariant {
+  color: var(--peakUpTextMuted, rgba(210, 222, 238, 0.88));
+}
+
+.peakUpBookingPriceVariant p {
+  margin: 0;
+  color: inherit;
+}
+
+.peakUpBookingTotalDivider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(25, 223, 242, 0.28) 50%,
+    transparent 100%
+  );
+  margin: 10px 0 8px;
+}
+
+.peakUpBookingAside {
+  @media (--viewportLarge) {
+    margin-top: 0;
+  }
+}
+
+.peakUpBookingSticky {
+  @media (--viewportLarge) {
+    top: 24px;
+    width: 300px;
+  }
+}
+
+.peakUpBookingSummaryCard {
+  @media (--viewportLarge) {
+    border-radius: 16px;
+    border: 1px solid var(--peakUpGlassBorder, rgba(25, 223, 242, 0.26));
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgba(157, 255, 79, 0.03) 0%, transparent 50%),
+      linear-gradient(168deg, rgba(12, 20, 36, 0.48) 0%, rgba(8, 14, 26, 0.39) 100%);
+    backdrop-filter: blur(28px) saturate(155%);
+    -webkit-backdrop-filter: blur(28px) saturate(155%);
+    box-shadow:
+      0 28px 56px rgba(0, 0, 0, 0.5),
+      0 10px 26px rgba(0, 0, 0, 0.34),
+      0 0 16px var(--peakUpGlassGlow, rgba(23, 217, 255, 0.1)),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
+}
+
+.peakUpBookingSummaryImage {
+  @media (--viewportLarge) {
+    display: block;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background-color: rgba(6, 12, 22, 0.6);
+  }
+}
+
+.peakUpBookingSummaryImage .rootForImage {
+  @media (--viewportLarge) {
+    border-radius: 16px 16px 0 0;
+    object-fit: cover;
+  }
+}
+
+.peakUpBookingSummaryAvatar {
+  @media (--viewportLarge) {
+    margin-left: 20px;
+    margin-top: -28px;
+    padding: 2px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(25, 223, 242, 0.42);
+    background: rgba(6, 12, 22, 0.75);
+    box-shadow:
+      0 0 20px rgba(23, 217, 255, 0.18),
+      0 6px 16px rgba(0, 0, 0, 0.32);
+  }
+}
+
+.peakUpBookingDetailHeadings {
+  @media (--viewportLarge) {
+    margin: 20px 20px 16px;
+  }
+}
+
+.peakUpBookingDetailTitle {
+  @media (--viewportLarge) {
+    color: var(--peakUpTextPrimary, #f8fafc);
+    font-weight: 700;
+  }
+}
+
+.peakUpBookingDetailTitle a {
+  color: var(--peakUpCyan, #19dff2);
+  text-decoration: none;
+}
+
+.peakUpBookingDetailTitle a:hover {
+  text-decoration: underline;
+}
+
+.peakUpBookingSummaryCard .breakdownContainer {
+  @media (--viewportLarge) {
+    display: block;
+    margin: 0 20px 16px;
+  }
+}
+
+.peakUpBookingSummaryCard .orderBreakdownTitle {
+  @media (--viewportLarge) {
+    margin: 0 0 8px;
+  }
+}
+
+.peakUpBookingSummaryCard .totalDivider {
+  @media (--viewportLarge) {
+    margin: 10px 0 8px;
+  }
+}
+
+.peakUpBookingSummaryCard .bookingPriceVariant {
+  @media (--viewportLarge) {
+    margin: 0 20px 12px;
+    color: var(--peakUpTextMuted, rgba(210, 222, 238, 0.88));
+  }
+}
+
+.peakUpBookingDesktopActions {
+  @media (--viewportLarge) {
+    margin: 0 20px 20px;
+  }
+}
+
+.peakUpBookingMobileActions {
+  /* inherits actionButtonsPeakUp from TransactionPage */
+}
+
+.peakUpBookingActivityCard .genericError {
+  color: #ff9a9a;
+}
+
+.peakUpBookingActivityCard .diminishedActionButton {
+  color: rgba(180, 198, 218, 0.75);
+}
+
+.peakUpBookingActivityCard .diminishedActionButton:hover {
+  color: var(--peakUpCyan, #19dff2);
 }

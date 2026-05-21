@@ -191,6 +191,21 @@
   color: #f8fafc;
 }
 
+.peakUpTheme .peakupPreBookingWrap {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(25, 223, 242, 0.12);
+  background: rgba(6, 12, 22, 0.45);
+}
+
+.peakUpTheme .peakupPreBookingHeading {
+  color: #19dff2;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+}
+
 .peakupSessionsWrap {
   margin-top: 10px;
 
