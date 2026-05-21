@@ -903,6 +903,7 @@ export const TransactionPageComponent = props => {
               showListingImage={showListingImage}
               firstImage={listing?.images?.[0]}
               layoutListingImageConfig={config.layout.listingImage}
+              tone="transaction"
             />
           ) : null}
           <div

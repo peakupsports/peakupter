@@ -1,4 +1,4 @@
-import { staticPinMapImageUrl } from './maps';
+import { staticPeakUpMeetingPointMapImageUrl, staticPinMapImageUrl } from './maps';
 
 describe('staticPinMapImageUrl', () => {
   it('returns mapbox streets static URL with marker when fuzzy disabled', () => {
@@ -16,6 +16,24 @@ describe('staticPinMapImageUrl', () => {
     expect(url).toContain('https://api.mapbox.com/styles/v1/mapbox/streets-v10/static');
     expect(url).toContain('pin-s(9.2568,46.9733)');
     expect(url).toContain('access_token=test-token');
+  });
+
+  it('staticPeakUpMeetingPointMapImageUrl uses bright streets style centered on meeting point', () => {
+    const url = staticPeakUpMeetingPointMapImageUrl(
+      {
+        mapProvider: 'mapbox',
+        mapboxAccessToken: 'test-token',
+        fuzzy: { enabled: false },
+      },
+      { lat: 46.9733, lng: 9.2568 },
+      null,
+      { width: 400, height: 200 },
+      15
+    );
+    expect(url).toContain('mapbox/streets-v12/static');
+    expect(url).toContain('pin-l+00b8d4(9.2568,46.9733)');
+    expect(url).toContain('/9.2568,46.9733,15/');
+    expect(url).not.toContain('9dff4f');
   });
 
   it('returns Google static map URL when provider is google', () => {

@@ -373,3 +373,74 @@ export const staticPinMapImageUrl = (
     `?access_token=${mapsConfig.mapboxAccessToken}`
   );
 };
+
+const mxStaticPinToken = (lng, lat, { color = '19dff2', size = 'l' } = {}) => {
+  const hex = String(color || '').replace(/^#/, '');
+  return `pin-${size}+${hex}(${lng},${lat})`;
+};
+
+/**
+ * Dark static Mapbox preview for PeakUp meeting points (meeting pin + optional coach pin).
+ * Falls back to {@link staticPinMapImageUrl} when provider is not Mapbox.
+ *
+ * @param {Object} mapsConfig
+ * @param {{ lat: number; lng: number }} meetingCenter
+ * @param {{ lat: number; lng: number }|null|undefined} coachCenterMaybe
+ * @param {{ width: number; height: number }} dimensions
+ * @param {number|undefined|null} zoomMaybe default 15 — tight on meeting point
+ * @returns {string|null}
+ */
+export const staticPeakUpMeetingPointMapImageUrl = (
+  mapsConfig,
+  meetingCenter,
+  coachCenterMaybe,
+  dimensions,
+  zoomMaybe = 15
+) => {
+  const apiAccess = mapsConfig ? getMapProviderApiAccess(mapsConfig) : null;
+  if (!meetingCenter || !apiAccess) {
+    return null;
+  }
+  const { lat, lng } = meetingCenter;
+  if (typeof lat !== 'number' || typeof lng !== 'number' || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return null;
+  }
+
+  if (mapsConfig.mapProvider !== 'mapbox' || !mapsConfig.mapboxAccessToken) {
+    return staticPinMapImageUrl(mapsConfig, meetingCenter, dimensions, zoomMaybe, null);
+  }
+
+  const width = Math.min(
+    STATIC_MAP_MAX_DIMENSION,
+    Math.max(1, Math.round(dimensions.width))
+  );
+  const height = Math.min(
+    STATIC_MAP_MAX_DIMENSION,
+    Math.max(1, Math.round(dimensions.height))
+  );
+  const zoomLevel = zoomMaybe != null ? zoomMaybe : 15;
+
+  // Large cyan pin on meeting point; optional smaller coach pin when zoomed out
+  const pins = [mxStaticPinToken(lng, lat, { color: '00b8d4', size: 'l' })];
+  const showCoachPin = zoomLevel <= 13;
+  if (showCoachPin && coachCenterMaybe) {
+    const cLat = coachCenterMaybe.lat;
+    const cLng = coachCenterMaybe.lng;
+    const hasCoach =
+      typeof cLat === 'number' &&
+      typeof cLng === 'number' &&
+      Number.isFinite(cLat) &&
+      Number.isFinite(cLng);
+    const isDuplicate = hasCoach && Math.abs(cLat - lat) < 0.00005 && Math.abs(cLng - lng) < 0.00005;
+    if (hasCoach && !isDuplicate) {
+      pins.push(mxStaticPinToken(cLng, cLat, { color: '9dff4f', size: 's' }));
+    }
+  }
+
+  const overlay = pins.join(',');
+  return (
+    `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static` +
+    `/${overlay}/${lng},${lat},${zoomLevel}/${width}x${height}@2x` +
+    `?access_token=${mapsConfig.mapboxAccessToken}`
+  );
+};

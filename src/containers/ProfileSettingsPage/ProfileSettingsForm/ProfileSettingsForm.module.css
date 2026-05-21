@@ -626,20 +626,11 @@
   pointer-events: auto;
 }
 
-.peakUpForm :global([class*='FieldCoachMapLocation_predictionsRoot']) button,
-.peakUpForm :global([class*='FieldPreferredMeetingPoints_predictionsRoot']) button,
-.peakUpForm :global([class*='LocationAutocompleteInput_predictionsRoot']) button {
-  color: rgba(228, 235, 243, 0.92) !important;
-}
-
-.peakUpForm :global([class*='FieldCoachMapLocation_predictionsRoot']) button:hover,
-.peakUpForm :global([class*='FieldCoachMapLocation_predictionsRoot']) button:focus,
-.peakUpForm :global([class*='FieldPreferredMeetingPoints_predictionsRoot']) button:hover,
-.peakUpForm :global([class*='FieldPreferredMeetingPoints_predictionsRoot']) button:focus,
-.peakUpForm :global([class*='LocationAutocompleteInput_predictionsRoot']) button:hover,
-.peakUpForm :global([class*='LocationAutocompleteInput_predictionsRoot']) button:focus {
-  background: rgba(23, 217, 255, 0.12) !important;
-  color: #ffffff !important;
+.peakUpForm :global([class*='FieldPreferredMeetingPoints_predictionsRoot']) li,
+.peakUpForm :global([class*='FieldCoachMapLocation_predictionsRoot']) li,
+.peakUpForm :global([class*='LocationAutocompleteInput_predictionsRoot']) li {
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .peakUpForm :global([class*='LocationAutocompleteInput_predictions']) li {

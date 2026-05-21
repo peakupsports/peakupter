@@ -93,6 +93,39 @@
   box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.08);
 }
 
+/* Transaction order/success — mask upscaled edges behind glass panels */
+.checkoutHeroBgTransaction .checkoutHeroImage {
+  object-position: 80% center;
+  filter: saturate(1.04) contrast(1.02) brightness(0.88);
+  transform: scale(1.02);
+  transform-origin: 80% center;
+}
+
+.checkoutHeroOverlayTransaction {
+  background:
+    linear-gradient(
+      118deg,
+      rgba(6, 10, 20, 0.58) 0%,
+      rgba(6, 10, 20, 0.28) 40%,
+      rgba(6, 10, 20, 0.12) 62%,
+      rgba(6, 10, 20, 0.42) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(6, 10, 20, 0.22) 0%,
+      rgba(6, 10, 20, 0.08) 28%,
+      transparent 48%,
+      rgba(6, 10, 20, 0.18) 72%,
+      rgba(6, 10, 20, 0.38) 100%
+    );
+}
+
+.checkoutHeroVignetteTransaction {
+  box-shadow:
+    inset 0 0 100px rgba(0, 0, 0, 0.18),
+    inset 0 0 220px rgba(0, 0, 0, 0.12);
+}
+
 .checkoutForeground {
   position: relative;
   z-index: 1;
@@ -426,32 +459,36 @@
   composes: marketplaceSmallFontStyles from global;
   margin: 0 0 8px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--peakUpCyan);
-  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: rgba(244, 250, 255, 0.92);
+  font-size: 0.88rem;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.28);
 }
 
 .meetingPointLabel {
   composes: marketplaceSmallFontStyles from global;
-  margin: 0 0 4px;
+  margin: 0 0 6px;
   font-weight: 600;
-  color: var(--peakUpTextPrimary);
+  color: #ffffff;
+  line-height: 1.4;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.28);
 }
 
 .meetingPointAddress {
   composes: marketplaceSmallFontStyles from global;
   margin: 0 0 4px;
-  color: var(--colorGrey700);
+  color: rgba(230, 238, 245, 0.88);
   line-height: 1.45;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.28);
 }
 
 .meetingPointNotes {
   composes: marketplaceSmallFontStyles from global;
   margin: 0;
-  color: var(--colorGrey600);
+  color: rgba(210, 220, 230, 0.78);
   font-style: italic;
   line-height: 1.45;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.28);
 }
 
 .sessionsHeading {

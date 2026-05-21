@@ -461,11 +461,16 @@ export class TransactionPanelComponent extends Component {
                 <MeetingPointMaybe
                   className={css.deliveryInfoSection}
                   protectedData={protectedData}
+                  peakUpTheme={isPeakUpBookingTheme}
                 />
                 <BookingLocationMaybe
                   className={css.deliveryInfoSection}
                   listing={listing}
+                  provider={provider}
+                  protectedData={protectedData}
                   showBookingLocation={showBookingLocation}
+                  isPeakUpBookingTheme={isPeakUpBookingTheme}
+                  mapsConfig={config.maps}
                 />
               </div>
             ) : null}

@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 
 import { getSportHeroImage } from '../../config/configSportMedia';
 import { extractSportKeysFromListing } from '../../util/coachExplore';
@@ -9,11 +10,13 @@ const HERO_TARGET_ASPECT = 16 / 9;
 const HERO_MIN_WIDTH = 1920;
 const HERO_IDEAL_WIDTH = 2560;
 
-/** Prefer wide scaled variants (closer to 16:9, desktop hero resolution). */
-const HERO_VARIANT_PRIORITY = [
+/** Prefer wide scaled variants, then largest listing-card crops. */
+const heroVariantPriority = (variantPrefix = 'listing-card') => [
   'scaled-xlarge',
   'scaled-large',
   'scaled-medium',
+  `${variantPrefix}-6x`,
+  `${variantPrefix}-4x`,
   'scaled-small',
 ];
 
@@ -36,7 +39,7 @@ const scoreHeroVariant = (key, variant, priorityIndex) => {
   const aspectFit = 1 - Math.min(1, Math.abs(aspect - HERO_TARGET_ASPECT) / HERO_TARGET_ASPECT);
   const widthFit = Math.min(1, w / HERO_IDEAL_WIDTH);
   const minWidthBoost = w >= HERO_MIN_WIDTH ? 0.15 : w >= 1280 ? 0.05 : 0;
-  const priorityBoost = (HERO_VARIANT_PRIORITY.length - priorityIndex) * 0.04;
+  const priorityBoost = Math.max(0, 8 - priorityIndex) * 0.04;
 
   return widthFit * 0.5 + aspectFit * 0.25 + minWidthBoost + priorityBoost;
 };
@@ -53,16 +56,15 @@ const scoreHeroVariant = (key, variant, priorityIndex) => {
 const resolveCheckoutHeroUrl = (useListingImage, firstImage, variantPrefix, sportHeroSrc) => {
   if (useListingImage && firstImage?.attributes?.variants) {
     const variants = firstImage.attributes.variants;
+    const priority = heroVariantPriority(variantPrefix);
     const allKeys = Object.keys(variants);
     const orderedKeys = [
-      ...HERO_VARIANT_PRIORITY,
+      ...priority,
       `${variantPrefix}-2x`,
       variantPrefix,
       ...allKeys.filter(
         k =>
-          !HERO_VARIANT_PRIORITY.includes(k) &&
-          k !== `${variantPrefix}-2x` &&
-          k !== variantPrefix
+          !priority.includes(k) && k !== `${variantPrefix}-2x` && k !== variantPrefix
       ),
     ];
 
@@ -97,9 +99,12 @@ const resolveCheckoutHeroUrl = (useListingImage, firstImage, variantPrefix, spor
  * @param {boolean} props.showListingImage
  * @param {propTypes.image} [props.firstImage]
  * @param {Object} props.layoutListingImageConfig
+ * @param {'checkout'|'transaction'} [props.tone] Slightly stronger overlay on transaction pages
  */
 const CheckoutHeroBackground = props => {
-  const { listing, showListingImage, firstImage, layoutListingImageConfig } = props;
+  const { listing, showListingImage, firstImage, layoutListingImageConfig, tone = 'checkout' } =
+    props;
+  const isTransactionTone = tone === 'transaction';
 
   const useListingImage = showListingImage && firstImage;
   const sportKeys = extractSportKeysFromListing(listing);
@@ -114,7 +119,12 @@ const CheckoutHeroBackground = props => {
   }
 
   return (
-    <div className={css.checkoutHeroBg} aria-hidden>
+    <div
+      className={classNames(css.checkoutHeroBg, {
+        [css.checkoutHeroBgTransaction]: isTransactionTone,
+      })}
+      aria-hidden
+    >
       <div className={css.checkoutHeroStage}>
         <div className={css.checkoutHeroImageWrap}>
           <img
@@ -122,11 +132,20 @@ const CheckoutHeroBackground = props => {
             src={heroUrl}
             alt=""
             decoding="async"
+            fetchPriority={isTransactionTone ? 'high' : undefined}
             sizes="(min-width: 2560px) 2560px, 100vw"
           />
         </div>
-        <div className={css.checkoutHeroOverlay} />
-        <div className={css.checkoutHeroVignette} />
+        <div
+          className={classNames(css.checkoutHeroOverlay, {
+            [css.checkoutHeroOverlayTransaction]: isTransactionTone,
+          })}
+        />
+        <div
+          className={classNames(css.checkoutHeroVignette, {
+            [css.checkoutHeroVignetteTransaction]: isTransactionTone,
+          })}
+        />
       </div>
     </div>
   );

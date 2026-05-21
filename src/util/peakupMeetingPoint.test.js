@@ -1,5 +1,7 @@
 import {
   appendPeakupMeetingPointToOrderValues,
+  buildPeakUpCoachMapMeetingPointSearch,
+  googleMapsDirectionsUrlForMeetingPoint,
   coachPreferredMeetingPointsList,
   peakupMeetingPointForProtectedData,
   peakupMeetingPointFromFormValues,
@@ -28,7 +30,7 @@ describe('peakupMeetingPoint', () => {
     const list = coachPreferredMeetingPointsList({
       attributes: { profile: { publicData: { preferredMeetingPoints: points } } },
     });
-    expect(list).toHaveLength(2);
+    expect(list).toHaveLength(1);
     expect(list[0].label).toBe('Cable car');
   });
 
@@ -38,9 +40,13 @@ describe('peakupMeetingPoint', () => {
   });
 
   it('peakupMeetingPointFromFormValues resolves by id or single default', () => {
-    expect(peakupMeetingPointFromFormValues({ peakupMeetingPointId: 'mp-2' }, points)?.label).toBe(
-      'Parking'
-    );
+    const pointsWithCoords = [
+      points[0],
+      { ...points[1], lat: 47.1, lng: 8.5 },
+    ];
+    expect(
+      peakupMeetingPointFromFormValues({ peakupMeetingPointId: 'mp-2' }, pointsWithCoords)?.label
+    ).toBe('Parking');
     expect(peakupMeetingPointFromFormValues({}, [points[0]])?.id).toBe('mp-1');
     expect(peakupMeetingPointFromFormValues({}, points)).toBeNull();
   });
@@ -67,6 +73,49 @@ describe('peakupMeetingPoint', () => {
       lat: 46.8,
     });
     expect(out.peakupMeetingPointId).toBeUndefined();
+  });
+
+  it('googleMapsDirectionsUrlForMeetingPoint prefers coordinates', () => {
+    expect(
+      googleMapsDirectionsUrlForMeetingPoint({
+        id: 'mp-1',
+        label: 'Lift',
+        address: 'Laax',
+        lat: 46.8,
+        lng: 9.26,
+      })
+    ).toBe('https://www.google.com/maps/dir/?api=1&destination=46.8,9.26');
+    expect(
+      googleMapsDirectionsUrlForMeetingPoint({
+        id: 'mp-2',
+        label: 'Parking',
+        address: 'Flims parking',
+      })
+    ).toBe('https://www.google.com/maps/dir/?api=1&destination=Flims%20parking');
+  });
+
+  it('buildPeakUpCoachMapMeetingPointSearch builds coach-map deep link', () => {
+    expect(
+      buildPeakUpCoachMapMeetingPointSearch({
+        coachId: 'coach-uuid',
+        meetingPointId: 'mp-1',
+      })
+    ).toBe('?coachId=coach-uuid&meetingPointId=mp-1');
+    expect(buildPeakUpCoachMapMeetingPointSearch({ coachId: 'coach-uuid' })).toBe('?coachId=coach-uuid');
+    expect(buildPeakUpCoachMapMeetingPointSearch({ meetingPointId: 'mp-1' })).toBeNull();
+  });
+
+  it('peakupMeetingPointForProtectedData passes zoom when stored', () => {
+    const stored = peakupMeetingPointForProtectedData({
+      id: 'mp-1',
+      label: 'Lift',
+      address: 'Laax',
+      notes: '',
+      lat: 46.8,
+      lng: 9.26,
+      zoom: 17,
+    });
+    expect(stored.zoom).toBe(17);
   });
 
   it('peakupMeetingPointForProtectedData omits invalid coords', () => {

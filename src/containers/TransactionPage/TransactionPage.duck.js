@@ -52,7 +52,7 @@ const removeOutdatedDateData = timeSlotsForDate => {
   );
 };
 
-// Helper to fetch correct image variants for different thunk calls
+// Hero-quality listing image variants (widescreen + large crops for cinematic backgrounds).
 const getImageVariants = listingImageConfig => {
   const { aspectWidth = 1, aspectHeight = 1, variantPrefix = 'listing-card' } = listingImageConfig;
   const aspectRatio = aspectHeight / aspectWidth;
@@ -62,12 +62,22 @@ const getImageVariants = listingImageConfig => {
       'variants.square-small',
       'variants.square-small2x',
 
-      // Listing images:
+      // Widescreen scaled variants (preferred for full-bleed hero)
+      'variants.scaled-small',
+      'variants.scaled-medium',
+      'variants.scaled-large',
+      'variants.scaled-xlarge',
+
+      // Large listing-card crops (fallback when scaled variants are absent)
       `variants.${variantPrefix}`,
       `variants.${variantPrefix}-2x`,
+      `variants.${variantPrefix}-4x`,
+      `variants.${variantPrefix}-6x`,
     ],
     ...createImageVariantConfig(`${variantPrefix}`, 400, aspectRatio),
     ...createImageVariantConfig(`${variantPrefix}-2x`, 800, aspectRatio),
+    ...createImageVariantConfig(`${variantPrefix}-4x`, 1600, aspectRatio),
+    ...createImageVariantConfig(`${variantPrefix}-6x`, 2400, aspectRatio),
   };
 };
 

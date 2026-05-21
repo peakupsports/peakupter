@@ -28,6 +28,7 @@ import {
 } from '../../util/coachExplore';
 import { sortByPeakUpTopLevelSportOrder } from '../../util/peakupSportTaxonomy';
 import { getCoachCoordinates } from '../../util/profileCoachSticker';
+import { coachPreferredMeetingPointsList } from '../../util/peakupMeetingPoint';
 // TEMP DEMO COACHES FOR MARKETING REEL – REMOVE BEFORE PRODUCTION
 // Single source of truth in `./demoCoaches.js`. To remove, delete this
 // import and the `mergeDemoIntoCoaches` call below; the rest is unchanged.
@@ -616,10 +617,19 @@ const CoachMapPage = props => {
     setSelectedCoachKey(target.authorUuid);
     setActiveListingId(target.representativeListing?.id || null);
     const coords = getCoachCoordinates(target);
+    const meetingPointId = queryExplore.meetingPointId;
+    if (meetingPointId) {
+      const points = coachPreferredMeetingPointsList(target.author);
+      const mp = points.find(p => p.id === meetingPointId);
+      if (mp?.lat != null && mp?.lng != null) {
+        setFlyToTarget({ lat: mp.lat, lng: mp.lng, ts: Date.now() });
+        return;
+      }
+    }
     if (coords) {
       setFlyToTarget({ lat: coords.lat, lng: coords.lng, ts: Date.now() });
     }
-  }, [queryExplore.coachId, queryExplore.locate, coaches]);
+  }, [queryExplore.coachId, queryExplore.meetingPointId, queryExplore.locate, coaches]);
 
   // Geolocation: `?locate=1` (landing "Find a coach") requests a fresh fix
   // (`maximumAge: 0`) even when `?sport=` is present. Implemented in a

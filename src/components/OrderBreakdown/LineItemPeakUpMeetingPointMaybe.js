@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { FormattedMessage } from '../../util/reactIntl';
+import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { peakupMeetingPointForProtectedData } from '../../util/peakupMeetingPoint';
 
 import css from './OrderBreakdown.module.css';
@@ -11,6 +11,7 @@ import css from './OrderBreakdown.module.css';
  * @param {{ peakupMeetingPoint?: Object|null }} props
  */
 const LineItemPeakUpMeetingPointMaybe = ({ peakupMeetingPoint }) => {
+  const intl = useIntl();
   const stored = peakupMeetingPointForProtectedData(peakupMeetingPoint);
 
   if (!stored) {
@@ -19,6 +20,43 @@ const LineItemPeakUpMeetingPointMaybe = ({ peakupMeetingPoint }) => {
 
   const { label, address, notes } = stored;
   const notesTrimmed = notes != null ? String(notes).trim() : '';
+
+  const rows = [
+    label
+      ? {
+          label: intl.formatMessage({
+            id: 'OrderBreakdown.peakupMeetingPointLabel',
+            defaultMessage: 'Place',
+          }),
+          value: label,
+          valueClassName: css.peakupPreBookingValue,
+        }
+      : null,
+    address
+      ? {
+          label: intl.formatMessage({
+            id: 'OrderBreakdown.peakupMeetingPointAddress',
+            defaultMessage: 'Address',
+          }),
+          value: address,
+          valueClassName: css.peakupPreBookingValue,
+        }
+      : null,
+    notesTrimmed
+      ? {
+          label: intl.formatMessage({
+            id: 'OrderBreakdown.peakupMeetingPointNotes',
+            defaultMessage: 'Notes',
+          }),
+          value: notesTrimmed,
+          valueClassName: css.peakupPreBookingValueNotes,
+        }
+      : null,
+  ].filter(Boolean);
+
+  if (!rows.length) {
+    return null;
+  }
 
   return (
     <div className={css.peakupPreBookingWrap}>
@@ -29,37 +67,12 @@ const LineItemPeakUpMeetingPointMaybe = ({ peakupMeetingPoint }) => {
         />
       </div>
       <dl className={css.peakupPreBookingList}>
-        <div className={css.peakupPreBookingRow}>
-          <dt className={css.peakupPreBookingLabel}>
-            <FormattedMessage
-              id="OrderBreakdown.peakupMeetingPointLabel"
-              defaultMessage="Place"
-            />
-          </dt>
-          <dd className={css.peakupPreBookingValue}>{label}</dd>
-        </div>
-        {address ? (
-          <div className={css.peakupPreBookingRow}>
-            <dt className={css.peakupPreBookingLabel}>
-              <FormattedMessage
-                id="OrderBreakdown.peakupMeetingPointAddress"
-                defaultMessage="Address"
-              />
-            </dt>
-            <dd className={css.peakupPreBookingValue}>{address}</dd>
+        {rows.map(row => (
+          <div key={row.label} className={css.peakupPreBookingRow}>
+            <dt className={css.peakupPreBookingLabel}>{row.label}</dt>
+            <dd className={row.valueClassName}>{row.value}</dd>
           </div>
-        ) : null}
-        {notesTrimmed ? (
-          <div className={css.peakupPreBookingRow}>
-            <dt className={css.peakupPreBookingLabel}>
-              <FormattedMessage
-                id="OrderBreakdown.peakupMeetingPointNotes"
-                defaultMessage="Notes"
-              />
-            </dt>
-            <dd className={css.peakupPreBookingValue}>{notesTrimmed}</dd>
-          </div>
-        ) : null}
+        ))}
       </dl>
       <hr className={css.totalDivider} />
     </div>

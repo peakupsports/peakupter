@@ -191,6 +191,12 @@
   color: #f8fafc;
 }
 
+.peakUpTheme .peakupPreBookingValueNotes {
+  color: rgba(180, 198, 218, 0.85);
+  font-style: italic;
+  font-weight: var(--fontWeightMedium);
+}
+
 .peakUpTheme .peakupPreBookingWrap {
   margin: 0 0 14px;
   padding: 12px 14px;
@@ -204,6 +210,12 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-size: 0.72rem;
+}
+
+.peakupPreBookingValueNotes {
+  composes: peakupPreBookingValue;
+  font-style: italic;
+  font-weight: var(--fontWeightMedium);
 }
 
 .peakupSessionsWrap {

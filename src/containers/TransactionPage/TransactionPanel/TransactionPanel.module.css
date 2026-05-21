@@ -398,23 +398,54 @@
   }
 }
 
+.meetingPointBlockHeading {
+  composes: sectionHeading;
+  color: rgba(244, 250, 255, 0.92);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.28);
+}
+
+.meetingPointContent {
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.28);
+}
+
 .meetingPointLabel {
   composes: marketplaceSmallFontStyles from global;
-  margin: 0 0 4px;
-  font-weight: var(--fontWeightSemiBold);
+  margin: 0 0 6px;
+  color: #ffffff;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .meetingPointAddress {
   composes: marketplaceSmallFontStyles from global;
   margin: 0 0 4px;
-  color: var(--colorGrey700);
+  color: rgba(230, 238, 245, 0.88);
+  line-height: 1.45;
 }
 
 .meetingPointNotes {
   composes: marketplaceSmallFontStyles from global;
   margin: 0;
-  color: var(--colorGrey600);
+  color: rgba(210, 220, 230, 0.78);
   font-style: italic;
+  line-height: 1.45;
+}
+
+.peakUpBookingRoot .meetingPointBlockHeading,
+.peakUpBookingMobileSummary .meetingPointBlockHeading {
+  color: rgba(244, 250, 255, 0.92);
+}
+
+.peakUpBookingRoot .meetingPointLabel {
+  color: #ffffff;
+}
+
+.peakUpBookingRoot .meetingPointAddress {
+  color: rgba(230, 238, 245, 0.88);
+}
+
+.peakUpBookingRoot .meetingPointNotes {
+  color: rgba(210, 220, 230, 0.78);
 }
 
 .feedContent {
@@ -1044,6 +1075,12 @@
   @media (--viewportLarge) {
     margin: 0 20px 12px;
     color: var(--peakUpTextMuted, rgba(210, 222, 238, 0.88));
+  }
+}
+
+.peakUpBookingSummaryCard :global(.peakUpTheme .peakupPreBookingWrap) {
+  @media (--viewportLarge) {
+    padding: 14px 16px;
   }
 }
 

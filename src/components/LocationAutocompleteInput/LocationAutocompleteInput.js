@@ -46,6 +46,8 @@ const LocationAutocompleteInputComponent = props => {
 
 export default LocationAutocompleteInputImpl;
 
+export { LocationAutocompleteInputComponent };
+
 export const FieldLocationAutocompleteInput = props => {
   return <Field component={LocationAutocompleteInputComponent} {...props} />;
 };

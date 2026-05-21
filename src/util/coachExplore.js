@@ -1007,7 +1007,7 @@ export const filterCoachesBySport = (coaches, selectedSport) => {
  * Deep-link query for coach directory / map (?sport=&lat=&lng=&location=).
  *
  * @param {string} search window.location.search or equivalent
- * @returns {{ sportKey: string, userLat: number|null, userLng: number|null, locationLabel: string, coachId: string, locate: boolean }}
+ * @returns {{ sportKey: string, userLat: number|null, userLng: number|null, locationLabel: string, coachId: string, meetingPointId: string, locate: boolean }}
  */
 export const parseCoachExploreSearch = search => {
   const raw =
@@ -1028,13 +1028,14 @@ export const parseCoachExploreSearch = search => {
   // Trimmed only — UUID validation happens downstream when the value
   // is matched against the loaded coaches.
   const coachId = String(params.get('coachId') || '').trim();
+  const meetingPointId = String(params.get('meetingPointId') || '').trim();
 
   const locateRaw = String(params.get('locate') || '')
     .trim()
     .toLowerCase();
   const locate = locateRaw === '1' || locateRaw === 'true' || locateRaw === 'yes';
 
-  return { sportKey, userLat, userLng, locationLabel, coachId, locate };
+  return { sportKey, userLat, userLng, locationLabel, coachId, meetingPointId, locate };
 };
 
 /**

@@ -18,23 +18,25 @@ export const normalizeStoredPreferredMeetingPoint = point => {
     return null;
   }
   const label = point.label != null ? String(point.label).trim() : '';
-  const address = point.address != null ? String(point.address).trim() : '';
-  if (!label || !address) {
+  if (!label) {
     return null;
   }
   const notes = point.notes != null ? String(point.notes).trim() : '';
   const id = point.id != null && String(point.id).trim() ? String(point.id).trim() : null;
   const lat = finiteNum(point.lat);
   const lng = finiteNum(point.lng);
+  const zoom = finiteNum(point.zoom);
   if (!id) {
     return null;
   }
+  const legacyAddress = point.address != null ? String(point.address).trim() : '';
   return {
     id,
     label,
-    address,
+    address: legacyAddress || label,
     notes,
     ...(lat != null && lng != null ? { lat, lng } : {}),
+    ...(zoom != null ? { zoom } : {}),
   };
 };
 
@@ -50,7 +52,16 @@ export const coachPreferredMeetingPointsList = author => {
   if (!Array.isArray(raw)) {
     return [];
   }
-  return raw.map(normalizeStoredPreferredMeetingPoint).filter(Boolean);
+  return raw
+    .map(normalizeStoredPreferredMeetingPoint)
+    .filter(point => {
+      if (!point) {
+        return false;
+      }
+      const lat = finiteNum(point.lat);
+      const lng = finiteNum(point.lng);
+      return lat != null && lng != null;
+    });
 };
 
 /**
@@ -94,13 +105,14 @@ export const peakupMeetingPointForProtectedData = point => {
   if (!normalized) {
     return null;
   }
-  const { id, label, address, notes, lat, lng } = normalized;
+  const { id, label, address, notes, lat, lng, zoom } = normalized;
   return {
     id,
     label,
     address,
     notes,
     ...(lat != null && lng != null ? { lat, lng } : {}),
+    ...(zoom != null ? { zoom } : {}),
   };
 };
 
@@ -151,6 +163,48 @@ export const logPeakupMeetingPointCheckout = peakupMeetingPoint => {
 /**
  * @param {Object} peakupMeetingPoint
  */
+/**
+ * Deep-link search for Coach Map (`?coachId=&meetingPointId=`).
+ *
+ * @param {{ coachId?: string|null, meetingPointId?: string|null }} params
+ * @returns {string|null} `?coachId=…` or null when coach id missing
+ */
+/**
+ * Google Maps directions / search URL for a stored meeting point.
+ *
+ * @param {Object} meetingPoint `peakupMeetingPoint` or raw point
+ * @returns {string|null}
+ */
+export const googleMapsDirectionsUrlForMeetingPoint = meetingPoint => {
+  const stored = peakupMeetingPointForProtectedData(meetingPoint);
+  if (!stored) {
+    return null;
+  }
+  const { lat, lng, address, label } = stored;
+  if (typeof lat === 'number' && typeof lng === 'number' && Number.isFinite(lat) && Number.isFinite(lng)) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  }
+  const destination = address || label;
+  if (destination) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+  }
+  return null;
+};
+
+export const buildPeakUpCoachMapMeetingPointSearch = ({ coachId, meetingPointId }) => {
+  const coach = coachId != null ? String(coachId).trim() : '';
+  if (!coach) {
+    return null;
+  }
+  const search = new URLSearchParams();
+  search.set('coachId', coach);
+  const mpId = meetingPointId != null ? String(meetingPointId).trim() : '';
+  if (mpId) {
+    search.set('meetingPointId', mpId);
+  }
+  return `?${search.toString()}`;
+};
+
 export const logPeakupMeetingPointTransaction = peakupMeetingPoint => {
   if (typeof console !== 'undefined' && console.log) {
     console.log('[PeakUp MEETING POINT TRANSACTION]', peakupMeetingPoint);
