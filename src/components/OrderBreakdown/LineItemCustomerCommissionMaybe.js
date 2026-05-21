@@ -30,7 +30,7 @@ const isValidCommission = commissionLineItem => {
  * @returns {JSX.Element}
  */
 const LineItemCustomerCommissionMaybe = props => {
-  const { lineItems, isCustomer, marketplaceName, intl } = props;
+  const { lineItems, isCustomer, marketplaceName, intl, peakUpTheme } = props;
 
   const customerCommissionLineItem = lineItems.find(
     item => item.code === LINE_ITEM_CUSTOMER_COMMISSION && !item.reversal
@@ -52,7 +52,7 @@ const LineItemCustomerCommissionMaybe = props => {
       <div className={css.lineItem}>
         <span className={css.itemLabel}>
           <FormattedMessage
-            id="OrderBreakdown.commission"
+            id={peakUpTheme ? 'OrderBreakdown.peakUpCommission' : 'OrderBreakdown.commission'}
             values={{ marketplaceName, role: 'customer' }}
           />
         </span>

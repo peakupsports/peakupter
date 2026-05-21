@@ -209,9 +209,11 @@ const EnhancedCheckoutPage = props => {
       {...props}
     />
   ) : (
-    <Page title={title} scrollingDisabled={scrollingDisabled}>
-      <TopbarSimplified />
-      <IconSpinner className={css.spinner} />
+    <Page title={title} scrollingDisabled={scrollingDisabled} rootClassName={css.pagePeakUp}>
+      <TopbarSimplified variant="peakUp" />
+      <div className={css.peakUpCheckout}>
+        <IconSpinner className={css.spinner} />
+      </div>
     </Page>
   );
 };

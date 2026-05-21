@@ -1,125 +1,102 @@
 import React from 'react';
-import classNames from 'classnames';
 
-import { FormattedMessage } from '../../util/reactIntl';
-import { propTypes } from '../../util/types';
-import { createSlug } from '../../util/urlHelpers';
 import { formatMoney } from '../../util/currency';
-
+import { propTypes } from '../../util/types';
+import { formatProfileSportsForSticker } from '../../util/profileCoachSticker';
 import {
-  AspectRatioWrapper,
-  AvatarMedium,
-  H4,
-  H6,
-  NamedLink,
-  ResponsiveImage,
-} from '../../components';
+  DATE_TYPE_DATE,
+  DATE_TYPE_DATETIME,
+  LINE_ITEM_FIXED,
+  LINE_ITEM_HOUR,
+  LISTING_UNIT_TYPES,
+} from '../../util/types';
+
+import { AvatarMedium } from '../../components';
+
+import CheckoutSessionsPreview from './CheckoutSessionsPreview';
 
 import css from './CheckoutPage.module.css';
 
 /**
- * A card that displays the listing and booking details on the checkout page.
+ * Compact luxury booking summary for PeakUp checkout (desktop).
  *
  * @component
  * @param {Object} props
  * @param {propTypes.listing} props.listing - The listing
- * @param {string} props.listingTitle - The listing title
  * @param {propTypes.user} props.author - The author
- * @param {propTypes.image} props.firstImage - The first image
- * @param {Object} props.layoutListingImageConfig - The layout listing image config
  * @param {ReactNode} props.speculateTransactionErrorMessage - The speculate transaction error message
- * @param {boolean} props.showPrice - Whether to show the price
- * @param {string} props.processName - The process name
+ * @param {boolean} props.showPrice - Whether to show the price (inquiry only)
  * @param {ReactNode} props.breakdown - The breakdown
  * @param {intlShape} props.intl - The intl object
+ * @param {propTypes.booking} [props.booking]
+ * @param {string} [props.timeZone]
+ * @param {Array} [props.lineItems]
+ * @param {Array} [props.peakupBookingSlots]
  */
 const DetailsSideCard = props => {
   const {
     listing,
-    listingTitle,
-    priceVariantName,
     author,
-    firstImage,
-    layoutListingImageConfig,
     speculateTransactionErrorMessage,
     showPrice,
-    processName,
     breakdown,
-    showListingImage,
     intl,
+    booking,
+    timeZone,
+    lineItems,
+    peakupBookingSlots,
   } = props;
 
   const { price, publicData } = listing?.attributes || {};
-  const unitType = publicData.unitType || 'unknown';
+  const sportsFormatted = formatProfileSportsForSticker(intl, publicData?.sports);
+  const primarySport = sportsFormatted.length > 0 ? sportsFormatted[0] : null;
+  const coachName = author?.attributes?.profile?.displayName;
 
-  const { aspectWidth = 1, aspectHeight = 1, variantPrefix = 'listing-card' } =
-    layoutListingImageConfig || {};
-  const variants = firstImage
-    ? Object.keys(firstImage?.attributes?.variants).filter(k => k.startsWith(variantPrefix))
-    : [];
+  const unitLineItem = Array.isArray(lineItems)
+    ? lineItems.find(item => LISTING_UNIT_TYPES.includes(item.code) && !item.reversal)
+    : null;
+  const lineItemUnitType = unitLineItem?.code;
+  const dateType = [LINE_ITEM_HOUR, LINE_ITEM_FIXED].includes(lineItemUnitType)
+    ? DATE_TYPE_DATETIME
+    : DATE_TYPE_DATE;
 
   return (
-    <div className={css.detailsContainerDesktop} role="complementary">
-      {showListingImage && (
-        <AspectRatioWrapper
-          width={aspectWidth}
-          height={aspectHeight}
-          className={css.detailsAspectWrapper}
-        >
-          <ResponsiveImage
-            rootClassName={css.rootForImage}
-            alt={listingTitle}
-            image={firstImage}
-            variants={variants}
-          />
-        </AspectRatioWrapper>
-      )}
-      <div className={css.listingDetailsWrapper}>
-        <div className={classNames(css.avatarWrapper, { [css.noListingImage]: !showListingImage })}>
-          <AvatarMedium user={author} disableProfileLink />
-        </div>
-        <div
-          className={classNames(css.detailsHeadings, { [css.noListingImage]: !showListingImage })}
-        >
-          <H4 as="h2">
-            <NamedLink
-              name="ListingPage"
-              params={{ id: listing?.id?.uuid, slug: createSlug(listingTitle) }}
-            >
-              {listingTitle}
-            </NamedLink>
-          </H4>
-          {showPrice ? (
-            <div className={css.priceContainer}>
-              <p className={css.price}>{formatMoney(intl, price)}</p>
-              <div className={css.perUnit}>
-                <FormattedMessage
-                  id="CheckoutPageWithInquiryProcess.perUnit"
-                  values={{ unitType }}
-                />
+    <aside className={css.summaryColumnDesktop} role="complementary">
+      <div className={css.detailsContainerDesktop}>
+        <div className={css.summaryCoachHeader}>
+          <div className={css.summaryAvatarFloat}>
+            <AvatarMedium user={author} disableProfileLink />
+          </div>
+          <div className={css.summaryCoachMeta}>
+            {coachName ? <p className={css.summaryCoachName}>{coachName}</p> : null}
+            {primarySport ? (
+              <div className={css.sportMeta}>
+                <span className={css.sportMetaEmoji} aria-hidden>
+                  {primarySport.emoji}
+                </span>
+                <span>{primarySport.label}</span>
               </div>
-            </div>
-          ) : null}
+            ) : null}
+            {showPrice && price ? (
+              <p className={css.summaryListingPrice}>{formatMoney(intl, price)}</p>
+            ) : null}
+          </div>
         </div>
+
         {speculateTransactionErrorMessage}
+
+        <CheckoutSessionsPreview
+          booking={booking}
+          peakupBookingSlots={peakupBookingSlots}
+          timeZone={timeZone}
+          dateType={dateType}
+          lineItems={lineItems}
+          intl={intl}
+        />
+
+        {!!breakdown ? <div className={css.summaryTotalsBlock}>{breakdown}</div> : null}
       </div>
-
-      {!!breakdown ? (
-        <div className={css.orderBreakdownHeader}>
-          {priceVariantName ? (
-            <div className={css.bookingPriceVariant}>
-              <p>{priceVariantName}</p>
-            </div>
-          ) : null}
-
-          <H6 as="h3" className={css.orderBreakdownTitle}>
-            <FormattedMessage id={`CheckoutPage.${processName}.orderBreakdown`} />
-          </H6>
-          <hr className={css.totalDivider} />
-        </div>
-      ) : null}
-      {breakdown}
-    </div>
+    </aside>
   );
 };
 

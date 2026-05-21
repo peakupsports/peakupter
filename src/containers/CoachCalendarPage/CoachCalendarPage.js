@@ -3,8 +3,7 @@ import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { isCalendarSyncDebugEnabled } from '../../util/coachCalendarSyncDebug';
-import { isDevelopmentMode } from '../../util/isDevelopmentMode';
+import { logCalendarSyncOutcomeDebug } from '../../util/coachCalendarSyncDebug';
 import { useConfiguration } from '../../context/configurationContext';
 import { useRouteConfiguration } from '../../context/routeConfigurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
@@ -38,7 +37,6 @@ import {
 import {
   COACH_CALENDAR_DAY_SETTINGS_STORAGE_KEY,
   clearListingWizardReturnContext,
-  getCoachCalendarDaySettingsBlockCounts,
   loadCoachCalendarDaySettings,
   loadCoachCalendarDaySettingsSnapshot,
   loadCoachCalendarSyncTarget,
@@ -318,48 +316,6 @@ const buildForceSyncResultSummary = (syncResult, context = {}) => {
   };
 };
 
-/**
- * @param {Object|null} panel
- * @returns {JSX.Element|null}
- */
-const ForceSyncErrorPanel = ({ panel }) => {
-  if (!panel) {
-    return null;
-  }
-
-  const rows = [
-    ['failedStep', panel.failedStep],
-    ['listingId', panel.listingId],
-    ['status', panel.status],
-    ['apiErrors[0].code', panel.apiErrorCode],
-    ['apiErrors[0].title', panel.apiErrorTitle],
-    ['apiErrors[0].detail', panel.apiErrorDetail],
-    ['message', panel.message],
-  ];
-
-  return (
-    <div className={css.devForceSyncErrorPanel} role="alert">
-      <p className={css.devForceSyncErrorPanelTitle}>Force sync API error</p>
-      <dl className={css.devForceSyncErrorPanelList}>
-        {rows.map(([label, value]) => (
-          <div key={label} className={css.devForceSyncErrorPanelRow}>
-            <dt>{label}</dt>
-            <dd>{value != null && value !== '' ? String(value) : '—'}</dd>
-          </div>
-        ))}
-      </dl>
-      {panel.requestPayload ? (
-        <>
-          <p className={css.devForceSyncErrorPanelSubtitle}>requestPayload</p>
-          <pre className={css.devForceSyncErrorPayload}>
-            {JSON.stringify(panel.requestPayload, null, 2)}
-          </pre>
-        </>
-      ) : null}
-    </div>
-  );
-};
-
 const CoachCalendarPageComponent = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
@@ -433,9 +389,6 @@ const CoachCalendarPageComponent = () => {
   const [daySettings, setDaySettings] = useState(
     () => loadCoachCalendarDaySettingsSnapshot().daySettings
   );
-  const [daySettingsUpdatedAt, setDaySettingsUpdatedAt] = useState(
-    () => loadCoachCalendarDaySettingsSnapshot().updatedAt
-  );
   const [blockScope, setBlockScope] = useState('specific');
   const [newSlot, setNewSlot] = useState(DEFAULT_NEW_SLOT);
   const [saveInProgress, setSaveInProgress] = useState(false);
@@ -446,11 +399,6 @@ const CoachCalendarPageComponent = () => {
   const [rateLimitRemainingMs, setRateLimitRemainingMs] = useState(0);
 
   const isForceSyncBlocked = rateLimitRemainingMs > 0;
-  const showCalendarStateDebug = isDevelopmentMode();
-  const daySettingsBlockCounts = useMemo(
-    () => getCoachCalendarDaySettingsBlockCounts(daySettings),
-    [daySettings]
-  );
 
   const selectedDateKey = toDateKey(selectedDate);
   const viewYear = viewDate.getFullYear();
@@ -557,7 +505,6 @@ const CoachCalendarPageComponent = () => {
   const hydrateDaySettingsFromCanonicalStorage = () => {
     const snapshot = loadCoachCalendarDaySettingsSnapshot();
     setDaySettings(snapshot.daySettings);
-    setDaySettingsUpdatedAt(snapshot.updatedAt);
     return snapshot;
   };
 
@@ -568,9 +515,7 @@ const CoachCalendarPageComponent = () => {
         typeof nextOrUpdater === 'function' ? nextOrUpdater(prev) : nextOrUpdater;
       return nextDaySettings;
     });
-    const persisted = saveCoachCalendarDaySettings(nextDaySettings);
-    setDaySettingsUpdatedAt(persisted.updatedAt);
-    return persisted;
+    return saveCoachCalendarDaySettings(nextDaySettings);
   };
 
   useEffect(() => {
@@ -588,6 +533,10 @@ const CoachCalendarPageComponent = () => {
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
+
+  useEffect(() => {
+    logCalendarSyncOutcomeDebug(forceSyncSummary);
+  }, [forceSyncSummary]);
 
   const resolveSyncTimezone = listingIdString => {
     const syncTarget = loadCoachCalendarSyncTarget();
@@ -859,10 +808,6 @@ const CoachCalendarPageComponent = () => {
     });
   };
 
-  const handleReloadCalendarState = () => {
-    hydrateDaySettingsFromCanonicalStorage();
-  };
-
   const getEffectiveListingWizardReturn = () =>
     listingWizardReturn || (isListingWizardMode ? loadListingWizardReturnContext() : null);
 
@@ -901,7 +846,6 @@ const CoachCalendarPageComponent = () => {
     const canonicalSnapshot = loadCoachCalendarDaySettingsSnapshot();
     const daySettingsForSync = cloneDaySettings(canonicalSnapshot.daySettings);
     setDaySettings(canonicalSnapshot.daySettings);
-    setDaySettingsUpdatedAt(canonicalSnapshot.updatedAt);
     const syncMonth = {
       year: viewDate.getFullYear(),
       month: viewDate.getMonth(),
@@ -1133,84 +1077,6 @@ const CoachCalendarPageComponent = () => {
                   defaultMessage="Could not sync availability. Please try again."
                 />
               </p>
-            ) : null}
-            {isCalendarSyncDebugEnabled() && forceSyncSummary ? (
-              <div className={css.syncOutcomeDebug} aria-live="polite">
-                <p className={css.syncOutcomeDebugLine}>
-                  syncStartedAt: {forceSyncSummary.syncStartedAt || '—'}
-                </p>
-                <p className={css.syncOutcomeDebugLine}>
-                  changedDateKeys: {(forceSyncSummary.changedDateKeys || []).join(', ') || '—'}
-                </p>
-                <p className={css.syncOutcomeDebugLine}>
-                  syncedListingIds:{' '}
-                  {(forceSyncSummary.syncedListingIds || []).join(', ') || '—'}
-                </p>
-                <p className={css.syncOutcomeDebugLine}>
-                  failedListingIds:{' '}
-                  {(forceSyncSummary.failedListingIds || []).join(', ') || '—'}
-                </p>
-                <p className={css.syncOutcomeDebugLine}>
-                  firstApiError:{' '}
-                  {forceSyncSummary.firstApiError?.message ||
-                    forceSyncSummary.forceSyncErrorPanel?.message ||
-                    '—'}
-                </p>
-                {Object.entries(forceSyncSummary.allDaySyncDebugByListing || {}).map(
-                  ([listingId, allDayDebug]) => (
-                    <div key={listingId} className={css.syncOutcomeDebugAllDay}>
-                      <p className={css.syncOutcomeDebugLine}>allDay listing: {listingId}</p>
-                      <p className={css.syncOutcomeDebugLine}>
-                        generatedAllDayExceptions:{' '}
-                        {JSON.stringify(allDayDebug.generatedAllDayExceptions || [])}
-                      </p>
-                      <p className={css.syncOutcomeDebugLine}>
-                        createdAllDayExceptions:{' '}
-                        {JSON.stringify(allDayDebug.createdAllDayExceptions || [])}
-                      </p>
-                      <p className={css.syncOutcomeDebugLine}>
-                        skippedAllDayExceptions:{' '}
-                        {JSON.stringify(allDayDebug.skippedAllDayExceptions || [])}
-                      </p>
-                      <p className={css.syncOutcomeDebugLine}>
-                        deletedAllDayExceptions:{' '}
-                        {JSON.stringify(allDayDebug.deletedAllDayExceptions || [])}
-                      </p>
-                      <p className={css.syncOutcomeDebugLine}>
-                        sharetribeCreatePayloads:{' '}
-                        {JSON.stringify(allDayDebug.sharetribeCreatePayloads || [])}
-                      </p>
-                    </div>
-                  )
-                )}
-              </div>
-            ) : null}
-            {isCalendarSyncDebugEnabled() && forceSyncSummary?.forceSyncErrorPanel ? (
-              <ForceSyncErrorPanel panel={forceSyncSummary.forceSyncErrorPanel} />
-            ) : null}
-            {showCalendarStateDebug ? (
-              <div className={css.calendarStateDebug} aria-live="polite">
-                <p className={css.syncOutcomeDebugLine}>
-                  storageKey: {COACH_CALENDAR_DAY_SETTINGS_STORAGE_KEY}
-                </p>
-                <p className={css.syncOutcomeDebugLine}>
-                  origin: {typeof window !== 'undefined' ? window.location.origin : '—'}
-                </p>
-                <p className={css.syncOutcomeDebugLine}>
-                  daySettingsUpdatedAt: {daySettingsUpdatedAt || '—'}
-                </p>
-                <p className={css.syncOutcomeDebugLine}>
-                  blocked days (all-day): {daySettingsBlockCounts.allDayBlockedCount} · partial
-                  blocks: {daySettingsBlockCounts.partialBlockDayCount}
-                </p>
-                <button
-                  type="button"
-                  className={css.reloadCalendarStateButton}
-                  onClick={handleReloadCalendarState}
-                >
-                  Reload calendar state
-                </button>
-              </div>
             ) : null}
           </section>
 

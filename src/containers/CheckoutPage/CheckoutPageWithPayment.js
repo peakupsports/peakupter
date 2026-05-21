@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import classNames from 'classnames';
 
 // Import contexts and util modules
 import { FormattedMessage, intlShape } from '../../util/reactIntl';
@@ -20,6 +21,13 @@ import {
   NEGOTIATION_PROCESS_NAME,
   PURCHASE_PROCESS_NAME,
 } from '../../transactions/transaction';
+import {
+  DATE_TYPE_DATE,
+  DATE_TYPE_DATETIME,
+  LINE_ITEM_FIXED,
+  LINE_ITEM_HOUR,
+  LISTING_UNIT_TYPES,
+} from '../../util/types';
 
 // Import shared components
 import { H3, H4, NamedLink, OrderBreakdown, Page, TopbarSimplified } from '../../components';
@@ -39,6 +47,7 @@ import {
 import { getErrorMessages } from './ErrorMessages';
 
 import StripePaymentForm from './StripePaymentForm/StripePaymentForm';
+import CheckoutHeroBackground from './CheckoutHeroBackground';
 import DetailsSideCard from './DetailsSideCard';
 import MobileListingImage from './MobileListingImage';
 import MobileOrderBreakdown from './MobileOrderBreakdown';
@@ -145,6 +154,12 @@ const getOrderParams = (
       ? { peakupBookingSlots: peakupSlotsStored }
       : {};
 
+  const peakupPreBookingStored = pageData.orderData?.peakupPreBooking;
+  const peakupPreBookingProtectedMaybe =
+    peakupPreBookingStored && typeof peakupPreBookingStored === 'object'
+      ? { peakupPreBooking: peakupPreBookingStored }
+      : {};
+
   const customerDefaultMessageMaybe = customerDefaultMessage ? { customerDefaultMessage } : {};
 
   const protectedDataMaybe = {
@@ -155,6 +170,7 @@ const getOrderParams = (
       ...priceVariantMaybe,
       ...transactionFieldProtectedData,
       ...customerDefaultMessageMaybe,
+      ...peakupPreBookingProtectedMaybe,
     },
   };
 
@@ -492,15 +508,37 @@ export const CheckoutPageWithPayment = props => {
   const breakdown =
     tx.id && tx.attributes.lineItems?.length > 0 ? (
       <OrderBreakdown
-        className={css.orderBreakdown}
+        className={classNames(css.orderBreakdown, css.orderBreakdownPeakUp)}
         userRole="customer"
         transaction={tx}
         {...txBookingMaybe}
         peakupBookingSlots={orderData?.peakupBookingSlots}
+        peakupPreBooking={orderData?.peakupPreBooking}
         currency={config.currency}
         marketplaceName={config.marketplaceName}
+        peakUpTheme
+        peakUpCompact
+        hideBookingPeriod
+        hidePeakupSessions
       />
     ) : null;
+
+  const breakdownLineItems = tx?.attributes?.lineItems;
+  const unitLineItem = breakdownLineItems?.find(
+    item => LISTING_UNIT_TYPES.includes(item.code) && !item.reversal
+  );
+  const breakdownDateType = [LINE_ITEM_HOUR, LINE_ITEM_FIXED].includes(unitLineItem?.code)
+    ? DATE_TYPE_DATETIME
+    : DATE_TYPE_DATE;
+  const checkoutSessionsProps = {
+    booking: tx?.booking,
+    bookingDates: orderData?.bookingDates,
+    peakupBookingSlots: orderData?.peakupBookingSlots,
+    timeZone,
+    dateType: breakdownDateType,
+    lineItems: breakdownLineItems,
+    intl,
+  };
 
   const totalPrice =
     tx?.attributes?.lineItems?.length > 0 ? getFormattedTotalPrice(tx, intl) : null;
@@ -591,45 +629,62 @@ export const CheckoutPageWithPayment = props => {
   // and is using a transaction process with Stripe actions (default-booking or default-purchase)
   if (!isStripeCompatibleCurrency) {
     return (
-      <Page title={title} scrollingDisabled={scrollingDisabled}>
-        <TopbarSimplified />
-        <div className={css.contentContainer}>
-          <section className={css.incompatibleCurrency}>
-            <H4 as="h1" className={css.heading}>
-              <FormattedMessage id="CheckoutPage.incompatibleCurrency" />
-            </H4>
-          </section>
+      <Page title={title} scrollingDisabled={scrollingDisabled} rootClassName={css.pagePeakUp}>
+        <TopbarSimplified variant="peakUp" />
+        <div className={css.peakUpCheckout}>
+          <CheckoutHeroBackground
+            listing={listing}
+            showListingImage={showListingImage}
+            firstImage={firstImage}
+            layoutListingImageConfig={config.layout.listingImage}
+          />
+        <div className={css.checkoutForeground}>
+          <div className={css.checkoutComposition}>
+            <div className={css.contentContainer}>
+              <section className={css.incompatibleCurrency}>
+              <H4 as="h1" className={css.heading}>
+                <FormattedMessage id="CheckoutPage.incompatibleCurrency" />
+              </H4>
+              </section>
+            </div>
+          </div>
+        </div>
         </div>
       </Page>
     );
   }
 
   return (
-    <Page title={title} scrollingDisabled={scrollingDisabled}>
-      <TopbarSimplified />
-      <div className={css.contentContainer}>
-        <MobileListingImage
-          listingTitle={listingTitle}
-          author={listing?.author}
+    <Page title={title} scrollingDisabled={scrollingDisabled} rootClassName={css.pagePeakUp}>
+      <TopbarSimplified variant="peakUp" />
+      <div className={css.peakUpCheckout}>
+        <CheckoutHeroBackground
+          listing={listing}
+          showListingImage={showListingImage}
           firstImage={firstImage}
           layoutListingImageConfig={config.layout.listingImage}
-          showListingImage={showListingImage}
         />
-        <main className={css.orderFormContainer}>
-          <div className={css.headingContainer}>
-            <H3 as="h1" className={css.heading}>
-              {title}
-            </H3>
-            <H4 as="h2" className={css.detailsHeadingMobile}>
-              <FormattedMessage id="CheckoutPage.listingTitle" values={{ listingTitle }} />
-            </H4>
-          </div>
-          <MobileOrderBreakdown
-            speculateTransactionErrorMessage={errorMessages.speculateTransactionErrorMessage}
-            breakdown={breakdown}
-            priceVariantName={priceVariantName}
-          />
-          <section className={css.paymentContainer}>
+        <div className={css.checkoutForeground}>
+          <div className={css.checkoutComposition}>
+            <div className={css.contentContainer}>
+              <MobileListingImage author={listing?.author} />
+          <main className={css.orderFormContainer}>
+            <div className={css.formGlassCard}>
+              <div className={css.headingContainer}>
+                <H3 as="h1" className={css.heading}>
+                  {title}
+                </H3>
+                <H4 as="h2" className={css.detailsHeadingMobile}>
+                  <FormattedMessage id="CheckoutPage.listingTitle" values={{ listingTitle }} />
+                </H4>
+              </div>
+              <MobileOrderBreakdown
+                speculateTransactionErrorMessage={errorMessages.speculateTransactionErrorMessage}
+                breakdown={breakdown}
+                priceVariantName={priceVariantName}
+                {...checkoutSessionsProps}
+              />
+              <section className={css.paymentContainer}>
             {errorMessages.initiateOrderErrorMessage}
             {errorMessages.listingNotFoundErrorMessage}
             {errorMessages.speculateErrorMessage}
@@ -639,6 +694,7 @@ export const CheckoutPageWithPayment = props => {
             {showPaymentForm ? (
               <StripePaymentForm
                 className={css.paymentForm}
+                peakUpTheme
                 onSubmit={values =>
                   handleSubmit(values, process, props, stripe, submitting, setSubmitting)
                 }
@@ -676,23 +732,25 @@ export const CheckoutPageWithPayment = props => {
                 showTransactionFields={showTransactionFields}
               />
             ) : null}
-          </section>
-        </main>
+              </section>
+            </div>
+          </main>
 
-        <DetailsSideCard
-          listing={listing}
-          listingTitle={listingTitle}
-          priceVariantName={priceVariantName}
-          author={listing?.author}
-          firstImage={firstImage}
-          layoutListingImageConfig={config.layout.listingImage}
-          speculateTransactionErrorMessage={errorMessages.speculateTransactionErrorMessage}
-          isInquiryProcess={false}
-          processName={processName}
-          breakdown={breakdown}
-          showListingImage={showListingImage}
-          intl={intl}
-        />
+            <DetailsSideCard
+              listing={listing}
+              author={listing?.author}
+              speculateTransactionErrorMessage={errorMessages.speculateTransactionErrorMessage}
+              processName={processName}
+              breakdown={breakdown}
+              intl={intl}
+              booking={tx?.booking}
+              timeZone={timeZone}
+              lineItems={breakdownLineItems}
+              peakupBookingSlots={orderData?.peakupBookingSlots}
+            />
+            </div>
+          </div>
+        </div>
       </div>
     </Page>
   );

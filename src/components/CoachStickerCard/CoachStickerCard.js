@@ -5,7 +5,7 @@ import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { createSlug } from '../../util/urlHelpers';
 import { formatMoney } from '../../util/currency';
-import { countryCodeToFlagEmoji } from '../../util/coachExplore';
+import { countryCodeToFlagEmoji, listingHasPeakupBookingFlag } from '../../util/coachExplore';
 
 import AspectRatioWrapper from '../AspectRatioWrapper/AspectRatioWrapper';
 import { Avatar } from '../Avatar/Avatar';
@@ -56,6 +56,7 @@ const CoachStickerCard = props => {
   const listingSlug = createSlug(title);
   const listingId = listing?.id?.uuid;
   const profileId = author?.id?.uuid;
+  const listingImageIsGhost = listing && listingHasPeakupBookingFlag(listing);
 
   const sportLabel =
     sportKeys.slice(0, 2).join(' · ') ||
@@ -86,7 +87,19 @@ const CoachStickerCard = props => {
             width={aspectWidth}
             height={aspectHeight}
           >
-            {listingId ? (
+            {listingImageIsGhost && profileId ? (
+              <NamedLink className={css.imageLink} name="ProfilePage" params={{ id: profileId }}>
+                <ResponsiveImage
+                  rootClassName={css.image}
+                  alt={title}
+                  image={firstImage}
+                  variants={variants}
+                  sizes={
+                    compact ? '(max-width: 480px) 45vw, 200px' : '(max-width: 768px) 42vw, 240px'
+                  }
+                />
+              </NamedLink>
+            ) : listingId ? (
               <NamedLink
                 className={css.imageLink}
                 name="ListingPage"

@@ -39,6 +39,8 @@ import {
   fetchTransactionLineItems,
 } from './ListingPage.duck';
 
+import { hasPeakUpCoachBookingSearchFlag } from '../../util/coachBookingNavigation';
+
 import {
   LoadingPage,
   ErrorPage,
@@ -146,6 +148,8 @@ export const ListingPageComponent = props => {
   } = derivedData;
 
   const isPeakupBookingListing = publicData?.peakupBookingListing === true;
+  const isPeakupCoachBookingShell =
+    isPeakupBookingListing && hasPeakUpCoachBookingSearchFlag(location.search);
   const topbarCenterContent = isPeakupBookingListing ? (
     <div className={css.peakupTopbarCenter}>
       <Avatar className={css.peakupTopbarCenterAvatar} user={ensuredAuthor} disableProfileLink />
@@ -266,7 +270,12 @@ export const ListingPageComponent = props => {
         topbar={topbar}
         footer={<FooterContainer />}
       >
-        <div className={css.contentWrapperForProductLayout}>
+        <div
+          className={classNames(css.contentWrapperForProductLayout, {
+            [css.peakupCoachBookingShell]: isPeakupCoachBookingShell,
+          })}
+        >
+          {!isPeakupCoachBookingShell ? (
           <div className={css.mainColumnForProductLayout}>
             <Notifications
               mounted={mounted}
@@ -332,10 +341,15 @@ export const ListingPageComponent = props => {
               onManageDisableScrolling={onManageDisableScrolling}
             />
           </div>
-          <div className={css.orderColumnForProductLayout}>
+          ) : null}
+          <div
+            className={classNames(css.orderColumnForProductLayout, {
+              [css.orderColumnPeakUpBookingShell]: isPeakupCoachBookingShell,
+            })}
+          >
             <OrderPanel
               className={classNames(css.productOrderPanel, {
-                [css.imagesEnabled]: showListingImage,
+                [css.imagesEnabled]: showListingImage && !isPeakupCoachBookingShell,
               })}
               listing={currentListing}
               isOwnListing={isOwnListing}

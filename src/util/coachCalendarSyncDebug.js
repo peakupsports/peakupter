@@ -31,3 +31,17 @@ export const isCalendarSyncDebugEnabled = () => {
 
   return false;
 };
+
+/**
+ * Log sync outcome details to the console (never rendered in the page UI).
+ *
+ * @param {Object} summary
+ */
+export const logCalendarSyncOutcomeDebug = summary => {
+  if (!isCalendarSyncDebugEnabled() || !summary) {
+    return;
+  }
+
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp CoachCalendar sync debug]', summary);
+};

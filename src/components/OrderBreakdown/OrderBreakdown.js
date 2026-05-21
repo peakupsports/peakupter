@@ -19,6 +19,7 @@ import {
 } from '../../util/types';
 
 import LineItemBookingPeriod from './LineItemBookingPeriod';
+import LineItemPeakUpPreBookingMaybe from './LineItemPeakUpPreBookingMaybe';
 import LineItemPeakUpSessionsMaybe from './LineItemPeakUpSessionsMaybe';
 import LineItemBasePriceMaybe from './LineItemBasePriceMaybe';
 import LineItemSubTotalMaybe from './LineItemSubTotalMaybe';
@@ -45,7 +46,12 @@ export const OrderBreakdownComponent = props => {
     currency,
     marketplaceName,
     peakupBookingSlots,
+    peakupPreBooking,
     intl,
+    peakUpTheme,
+    peakUpCompact,
+    hideBookingPeriod,
+    hidePeakupSessions,
   } = props;
 
   const isCustomer = userRole === 'customer';
@@ -68,10 +74,15 @@ export const OrderBreakdownComponent = props => {
     return (hasCustomerCommission || hasProviderCommission) && !item.reversal;
   });
 
-  const classes = classNames(rootClassName || css.root, className);
+  const classes = classNames(rootClassName || css.root, className, {
+    [css.peakUpTheme]: peakUpTheme,
+    [css.peakUpThemeCompact]: peakUpTheme && peakUpCompact,
+  });
 
   const peakupBookingSlotsResolved =
     peakupBookingSlots ?? transaction?.attributes?.protectedData?.peakupBookingSlots;
+  const peakupPreBookingResolved =
+    peakupPreBooking ?? transaction?.attributes?.protectedData?.peakupPreBooking;
 
   /**
    * OrderBreakdown contains different line items:
@@ -111,18 +122,24 @@ export const OrderBreakdownComponent = props => {
 
   return (
     <div className={classes}>
-      <LineItemBookingPeriod
-        booking={booking}
-        code={lineItemUnitType}
-        dateType={dateType}
-        timeZone={timeZone}
-      />
+      {hideBookingPeriod ? null : (
+        <LineItemBookingPeriod
+          booking={booking}
+          code={lineItemUnitType}
+          dateType={dateType}
+          timeZone={timeZone}
+        />
+      )}
 
-      <LineItemPeakUpSessionsMaybe
-        peakupBookingSlots={peakupBookingSlotsResolved}
-        timeZone={timeZone}
-        dateType={dateType}
-      />
+      <LineItemPeakUpPreBookingMaybe peakupPreBooking={peakupPreBookingResolved} />
+
+      {hidePeakupSessions ? null : (
+        <LineItemPeakUpSessionsMaybe
+          peakupBookingSlots={peakupBookingSlotsResolved}
+          timeZone={timeZone}
+          dateType={dateType}
+        />
+      )}
 
       <LineItemBasePriceMaybe lineItems={lineItems} code={lineItemUnitType} intl={intl} />
       <LineItemShippingFeeMaybe lineItems={lineItems} intl={intl} />
@@ -143,6 +160,7 @@ export const OrderBreakdownComponent = props => {
         isCustomer={isCustomer}
         marketplaceName={marketplaceName}
         intl={intl}
+        peakUpTheme={peakUpTheme}
       />
       <LineItemCustomerCommissionRefundMaybe
         lineItems={lineItems}
@@ -189,6 +207,10 @@ export const OrderBreakdownComponent = props => {
  * @param {propTypes.transaction} props.transaction
  * @param {propTypes.booking?} props.booking
  * @param {Array<{bookingStart?: string, bookingEnd?: string}>} [props.peakupBookingSlots] - when omitted, uses transaction protectedData.peakupBookingSlots when present
+ * @param {boolean} [props.peakUpTheme] - PeakUp dark checkout styling
+ * @param {boolean} [props.peakUpCompact] - Tighter typography for luxury summary card
+ * @param {boolean} [props.hideBookingPeriod] - hide start/end block (e.g. when sessions shown elsewhere)
+ * @param {boolean} [props.hidePeakupSessions] - hide PeakUp slots list (e.g. when sessions shown elsewhere)
  * @returns {JSX.Element} the order breakdown component
  */
 const OrderBreakdown = props => {

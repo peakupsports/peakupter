@@ -13,7 +13,23 @@ import { TIME_SLOT_TIME } from '../../util/types';
 
 import OrderPanel from './OrderPanel';
 
-const { screen, waitFor } = testingLibrary;
+const { screen, waitFor, fireEvent } = testingLibrary;
+
+const openBookingThroughIntro = async ({ getByText, getByLabelText, getAllByText }) => {
+  const bookButtons = getAllByText('OrderPanel.ctaButtonMessageBooking');
+  fireEvent.click(bookButtons[0]);
+  await waitFor(() => {
+    expect(getByLabelText('PreBookingIntroModal.sportLabel')).toBeInTheDocument();
+  });
+  fireEvent.change(getByLabelText('PreBookingIntroModal.sportLabel'), { target: { value: 'ski' } });
+  fireEvent.change(getByLabelText('PreBookingIntroModal.participantTypeLabel'), {
+    target: { value: 'self' },
+  });
+  fireEvent.change(getByLabelText('PreBookingIntroModal.skillLevelLabel'), {
+    target: { value: 'beginner' },
+  });
+  fireEvent.click(getByText('PreBookingIntroModal.continue'));
+};
 
 const { Money, UUID } = sdkTypes;
 const noop = () => null;
@@ -187,7 +203,13 @@ const timeSlotsForDate = {
 };
 
 const commonProps = {
-  author: createUser('john-author'),
+  author: createUser('john-author', {
+    profile: {
+      displayName: 'john-author display name',
+      abbreviatedName: 'TT',
+      publicData: { sports: ['ski'] },
+    },
+  }),
   authorLink: null,
   onSubmit: noop,
   title: 'title!',
@@ -262,10 +284,15 @@ describe('OrderPanel', () => {
     });
 
     const props = { ...commonProps, listing, isOwnListing: false, validListingTypes };
-    const { getByText, queryAllByText } = render(<OrderPanel {...props} />, {
-      config,
-      routeConfiguration,
+    const { getByText, getAllByText, getByLabelText, queryAllByText, queryByText } = render(
+      <OrderPanel {...props} />,
+      { config, routeConfiguration }
+    );
+    await waitFor(() => {
+      expect(getAllByText('OrderPanel.ctaButtonMessageBooking').length).toBeGreaterThan(0);
+      expect(queryByText('BookingDatesForm.bookingStartTitle')).not.toBeInTheDocument();
     });
+    await openBookingThroughIntro({ getByText, getByLabelText, getAllByText });
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
       expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
@@ -276,7 +303,6 @@ describe('OrderPanel', () => {
       expect(getByText('BookingDatesForm.bookingEndTitle')).toBeInTheDocument();
       expect(getByText('BookingDatesForm.requestToBook')).toBeInTheDocument();
       expect(getByText('OrderPanel.youWontBeChargedInfo')).toBeInTheDocument();
-      expect(getByText('OrderPanel.ctaButtonMessageBooking')).toBeInTheDocument();
     });
   });
 
@@ -312,10 +338,14 @@ describe('OrderPanel', () => {
     });
 
     const props = { ...commonProps, listing, isOwnListing: false, validListingTypes };
-    const { getByText, queryAllByText } = render(<OrderPanel {...props} />, {
+    const { getByText, getAllByText, getByLabelText, queryAllByText } = render(<OrderPanel {...props} />, {
       config,
       routeConfiguration,
     });
+    await waitFor(() => {
+      expect(getAllByText('OrderPanel.ctaButtonMessageBooking').length).toBeGreaterThan(0);
+    });
+    await openBookingThroughIntro({ getByText, getByLabelText, getAllByText });
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
       expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
@@ -326,7 +356,6 @@ describe('OrderPanel', () => {
       expect(getByText('BookingDatesForm.bookingEndTitle')).toBeInTheDocument();
       expect(getByText('BookingDatesForm.requestToBook')).toBeInTheDocument();
       expect(getByText('OrderPanel.youWontBeChargedInfo')).toBeInTheDocument();
-      expect(getByText('OrderPanel.ctaButtonMessageBooking')).toBeInTheDocument();
     });
   });
 
@@ -368,11 +397,15 @@ describe('OrderPanel', () => {
       isOwnListing: false,
       validListingTypes,
     };
-    const { getByText, queryAllByText } = render(<OrderPanel {...props} />, {
+    const { getByText, getAllByText, getByLabelText, queryAllByText } = render(<OrderPanel {...props} />, {
       config,
       routeConfiguration,
     });
 
+    await waitFor(() => {
+      expect(getAllByText('OrderPanel.ctaButtonMessageBooking').length).toBeGreaterThan(0);
+    });
+    await openBookingThroughIntro({ getByText, getByLabelText, getAllByText });
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
       expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
@@ -384,7 +417,6 @@ describe('OrderPanel', () => {
       expect(getByText('FieldDateAndTimeInput.endTime')).toBeInTheDocument();
       expect(getByText('BookingTimeForm.requestToBook')).toBeInTheDocument();
       expect(getByText('OrderPanel.youWontBeChargedInfo')).toBeInTheDocument();
-      expect(getByText('OrderPanel.ctaButtonMessageBooking')).toBeInTheDocument();
     });
   });
 
@@ -433,11 +465,15 @@ describe('OrderPanel', () => {
       isOwnListing: false,
       validListingTypes,
     };
-    const { getByText, queryAllByText, queryByText } = render(<OrderPanel {...props} />, {
-      config,
-      routeConfiguration,
-    });
+    const { getByText, getAllByText, getByLabelText, queryAllByText, queryByText } = render(
+      <OrderPanel {...props} />,
+      { config, routeConfiguration }
+    );
 
+    await waitFor(() => {
+      expect(getAllByText('OrderPanel.ctaButtonMessageBooking').length).toBeGreaterThan(0);
+    });
+    await openBookingThroughIntro({ getByText, getByLabelText, getAllByText });
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
       expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
@@ -449,7 +485,6 @@ describe('OrderPanel', () => {
       expect(queryByText('FieldDateAndTimeInput.endTime')).not.toBeInTheDocument();
       expect(getByText('BookingFixedDurationForm.requestToBook')).toBeInTheDocument();
       expect(getByText('OrderPanel.youWontBeChargedInfo')).toBeInTheDocument();
-      expect(getByText('OrderPanel.ctaButtonMessageBooking')).toBeInTheDocument();
     });
   });
 
@@ -479,7 +514,7 @@ describe('OrderPanel', () => {
     );
 
     const props = { ...commonProps, listing, isOwnListing: false, validListingTypes };
-    const { getByText, queryAllByText } = render(<OrderPanel {...props} />, {
+    const { getByText, getByLabelText, queryAllByText } = render(<OrderPanel {...props} />, {
       config,
       routeConfiguration,
     });
@@ -525,7 +560,7 @@ describe('OrderPanel', () => {
     );
 
     const props = { ...commonProps, listing, isOwnListing: false, validListingTypes };
-    const { getByText, queryAllByText } = render(<OrderPanel {...props} />, {
+    const { getByText, getByLabelText, queryAllByText } = render(<OrderPanel {...props} />, {
       config,
       routeConfiguration,
     });
@@ -560,7 +595,7 @@ describe('OrderPanel', () => {
     });
 
     const props = { ...commonProps, listing, isOwnListing: false, validListingTypes };
-    const { getByText, queryAllByText } = render(<OrderPanel {...props} />, {
+    const { getByText, getByLabelText, queryAllByText } = render(<OrderPanel {...props} />, {
       config,
       routeConfiguration,
     });

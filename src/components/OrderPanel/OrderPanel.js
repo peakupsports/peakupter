@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import loadable from '@loadable/component';
 import classNames from 'classnames';
@@ -40,8 +40,20 @@ import {
   isPurchaseProcess,
   resolveLatestProcessName,
 } from '../../transactions/transaction';
+import { PEAKUP_OPEN_PREBOOKING_SEARCH_FLAG } from '../../util/coachBookingNavigation';
+import {
+  createBookingSubmitHandler,
+  resolvePreBookingSportOptions,
+} from '../../util/peakupPreBooking';
 
-import { ModalInMobile, PrimaryButton, AvatarSmall, H1, H2 } from '../../components';
+import {
+  ModalInMobile,
+  PreBookingIntroModal,
+  PrimaryButton,
+  AvatarSmall,
+  H1,
+  H2,
+} from '../../components';
 import PriceVariantPicker from './PriceVariantPicker/PriceVariantPicker';
 import SubmitFinePrint from './SubmitFinePrint/SubmitFinePrint';
 
@@ -81,6 +93,8 @@ const NegotiationRequestQuoteForm = loadable(() =>
 const MODAL_BREAKPOINT = 1023;
 const TODAY = new Date();
 const ORDER_PANEL_SUBMIT_BUTTON_ID = 'orderPanelSubmitButton';
+const preBookingIntroModalId = listingId =>
+  listingId?.uuid ? `preBookingIntro-${listingId.uuid}` : 'preBookingIntro';
 
 const isPublishedListing = listing => {
   return listing.attributes.state === LISTING_STATE_PUBLISHED;
@@ -285,6 +299,8 @@ const hasValidPriceVariants = priceVariants => {
  */
 const OrderPanel = props => {
   const [mounted, setMounted] = useState(false);
+  const [isPreBookingIntroOpen, setIsPreBookingIntroOpen] = useState(false);
+  const [preBookingDetails, setPreBookingDetails] = useState(null);
   const intl = useIntl();
   const location = useLocation();
   const history = useHistory();
@@ -292,6 +308,7 @@ const OrderPanel = props => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
   const {
     rootClassName,
     className,
@@ -393,6 +410,53 @@ const OrderPanel = props => {
   const searchParams = parse(location.search);
   const isOrderOpen = !!searchParams.orderOpen;
   const preselectedPriceVariantSlug = searchParams.bookableOption;
+  const sportOptions = useMemo(
+    () => resolvePreBookingSportOptions(intl, listing, author),
+    [intl, listing, author]
+  );
+  const showBookingCalendar = !isBooking || isOwnListing || !!preBookingDetails;
+  const needsPreBookingStep = isBooking && !isOwnListing && !isClosed && !preBookingDetails;
+
+  useEffect(() => {
+    if (!mounted || !needsPreBookingStep) {
+      return;
+    }
+    // Book me (?peakupPreBooking=1) and direct public listing visits both start with intake.
+    setIsPreBookingIntroOpen(true);
+  }, [mounted, needsPreBookingStep]);
+
+  const openPreBookingIntro = () => {
+    if (isOwnListing || isClosed) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    setIsPreBookingIntroOpen(true);
+  };
+
+  const closePreBookingIntro = () => {
+    setIsPreBookingIntroOpen(false);
+  };
+
+  const continueToBookingCalendar = details => {
+    setPreBookingDetails(details);
+    setIsPreBookingIntroOpen(false);
+    if (isOwnListing || isClosed) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    const { pathname, search, state } = location;
+    const parsed = parse(search);
+    const { [PEAKUP_OPEN_PREBOOKING_SEARCH_FLAG]: _drop, ...restSearch } = parsed;
+    const searchString = `?${stringify({ ...restSearch, orderOpen: true })}`;
+    history.push(`${pathname}${searchString}`, state);
+  };
+
+  const bookingOnSubmit = createBookingSubmitHandler({
+    onSubmit,
+    peakupPreBooking: preBookingDetails,
+    onRequirePreBooking: openPreBookingIntro,
+    isOwnListing,
+  });
 
   const peakupMultiSlotBooking = !!publicData.peakupBookingListing;
 
@@ -426,7 +490,7 @@ const OrderPanel = props => {
 
   const sharedProps = {
     lineItemUnitType,
-    onSubmit,
+    onSubmit: isBooking ? bookingOnSubmit : onSubmit,
     price,
     marketplaceCurrency,
     listingId: listing.id,
@@ -452,6 +516,15 @@ const OrderPanel = props => {
 
   return (
     <div className={classes}>
+      {isBooking ? (
+        <PreBookingIntroModal
+          id={preBookingIntroModalId(listing?.id)}
+          isOpen={isPreBookingIntroOpen}
+          onClose={closePreBookingIntro}
+          onContinue={continueToBookingCalendar}
+          sportOptions={sportOptions}
+        />
+      ) : null}
       <ModalInMobile
         containerClassName={css.modalContainer}
         id="OrderFormInModal"
@@ -499,7 +572,19 @@ const OrderPanel = props => {
           <InvalidCurrency currency={listingCurrency} />
         ) : showInvalidPriceVariantsMessage ? (
           <InvalidPriceVariants />
-        ) : showBookingFixedDurationForm ? (
+        ) : needsPreBookingStep ? (
+          <div className={css.preBookingPrompt}>
+            <p className={css.preBookingPromptText}>
+              <FormattedMessage
+                id="OrderPanel.preBookingPrompt"
+                defaultMessage="Share a few session details, then choose your dates and times."
+              />
+            </p>
+            <PrimaryButton className={css.preBookingPromptButton} onClick={openPreBookingIntro}>
+              <FormattedMessage id="OrderPanel.ctaButtonMessageBooking" />
+            </PrimaryButton>
+          </div>
+        ) : showBookingCalendar && showBookingFixedDurationForm ? (
           <BookingFixedDurationForm
             peakupMultiSlotBooking={peakupMultiSlotBooking}
             seatsEnabled={seatsEnabled}
@@ -516,7 +601,7 @@ const OrderPanel = props => {
             {...priceVariantsMaybe}
             {...sharedProps}
           />
-        ) : showBookingTimeForm ? (
+        ) : showBookingCalendar && showBookingTimeForm ? (
           <BookingTimeForm
             seatsEnabled={seatsEnabled}
             className={css.bookingForm}
@@ -532,7 +617,7 @@ const OrderPanel = props => {
             {...priceVariantsMaybe}
             {...sharedProps}
           />
-        ) : showBookingDatesForm ? (
+        ) : showBookingCalendar && showBookingDatesForm ? (
           <BookingDatesForm
             seatsEnabled={seatsEnabled}
             className={css.bookingForm}
@@ -602,14 +687,20 @@ const OrderPanel = props => {
         ) : (
           <PrimaryButton
             id={ORDER_PANEL_SUBMIT_BUTTON_ID}
-            onClick={handleSubmit(
-              isOwnListing,
-              isClosed,
-              showInquiryForm || showNegotiationForm,
-              onSubmit,
-              history,
-              location
-            )}
+            onClick={
+              isBooking
+                ? preBookingDetails
+                  ? () => openOrderModal(isOwnListing, isClosed, history, location)
+                  : openPreBookingIntro
+                : handleSubmit(
+                    isOwnListing,
+                    isClosed,
+                    showInquiryForm || showNegotiationForm,
+                    onSubmit,
+                    history,
+                    location
+                  )
+            }
             disabled={isOutOfStock}
           >
             {isBooking ? (

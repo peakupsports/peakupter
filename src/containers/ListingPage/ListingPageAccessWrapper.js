@@ -21,6 +21,11 @@ import {
 } from '../../util/urlHelpers';
 import { hasPermissionToViewData, isUserAuthorized } from '../../util/userHelpers';
 import { ensureListing, ensureOwnListing } from '../../util/data';
+import {
+  getListingAuthorProfileId,
+  shouldRedirectGhostBookingShellToProfile,
+  shouldRedirectGhostListingToCoachProfile,
+} from '../../util/coachBookingNavigation';
 
 import { NamedRedirect } from '../../components';
 
@@ -111,6 +116,31 @@ const ListingPageAccessWrapper = ({ PageComponent, ...rest }) => {
         search={location.search}
       />
     );
+  }
+
+  const isListingVariantRoute = isPendingApprovalVariant || isDraftVariant;
+
+  if (shouldRedirectGhostBookingShellToProfile(currentListing, location.search)) {
+    const coachProfileId = getListingAuthorProfileId(currentListing);
+    return (
+      <NamedRedirect
+        name="ProfilePage"
+        params={{ id: coachProfileId }}
+        search={location.search}
+      />
+    );
+  }
+
+  if (
+    shouldRedirectGhostListingToCoachProfile({
+      listing: currentListing,
+      currentUser,
+      isListingVariant: isListingVariantRoute,
+      search: location.search,
+    })
+  ) {
+    const coachProfileId = getListingAuthorProfileId(currentListing);
+    return <NamedRedirect name="ProfilePage" params={{ id: coachProfileId }} />;
   }
 
   return (

@@ -1,46 +1,135 @@
 @import '../../styles/customMediaQueries.css';
 
-/* Dummy Topbar */
+/* PeakUp Checkout Layout V2 — cinematic dark shell */
+.pagePeakUp {
+  min-height: 100vh;
+  background-color: #050a14;
+}
 
-.topbar {
-  /* Size */
-  width: 100%;
-  height: var(--topbarHeight);
-
-  /* Layout for child components */
+.peakUpCheckout {
+  --peakUpPageBg: #060b14;
+  --peakUpGlass: rgba(8, 14, 26, 0.41);
+  --peakUpGlassHi: rgba(12, 20, 36, 0.51);
+  --peakUpGlassSummary: rgba(8, 14, 26, 0.39);
+  --peakUpGlassSummaryHi: rgba(12, 20, 36, 0.48);
+  --peakUpGlassBorder: rgba(25, 223, 242, 0.26);
+  --peakUpGlassGlow: rgba(23, 217, 255, 0.1);
+  --peakUpTextPrimary: #f8fafc;
+  --peakUpTextMuted: rgba(210, 222, 238, 0.88);
+  --peakUpCyan: #19dff2;
+  --peakUpLime: #9dff4f;
+  position: relative;
+  isolation: isolate;
+  flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* fill */
-  background-color: var(--colorWhite);
-
-  /* shadows */
-  box-shadow: var(--boxShadow);
+  flex-direction: column;
+  min-height: calc(100vh - var(--topbarHeight));
+  color: rgba(228, 235, 243, 0.92);
+  /* Flat fallback — no central glow (hero + glass provide contrast) */
+  background-color: #050a14;
 
   @media (--viewportMedium) {
-    height: var(--topbarHeightDesktop);
-    justify-content: center;
+    min-height: calc(100vh - var(--topbarHeightDesktop));
   }
 }
 
-/* /Dummy Topbar */
+/* Full-bleed cinematic hero — matches LandingHeroSection cover + position */
+.checkoutHeroBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: #050a14;
+}
+
+.checkoutHeroStage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: #050a14;
+}
+
+.checkoutHeroImageWrap {
+  position: absolute;
+  inset: 0;
+}
+
+.checkoutHeroImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 82% center;
+  filter: saturate(1.08) contrast(1.08) brightness(0.93);
+}
+
+/* Landing premium overlay — immersive photo, subtle readability for cards */
+.checkoutHeroOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      118deg,
+      rgba(8, 12, 22, 0.46) 0%,
+      rgba(8, 12, 22, 0.16) 38%,
+      rgba(8, 12, 22, 0.05) 62%,
+      rgba(8, 12, 22, 0.28) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(8, 12, 22, 0.1) 0%,
+      transparent 32%,
+      transparent 68%,
+      rgba(8, 12, 22, 0.22) 100%
+    );
+}
+
+.checkoutHeroVignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.08);
+}
+
+.checkoutForeground {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 16px 32px;
+
+  @media (--viewportMedium) {
+    padding: 0 24px 40px;
+  }
+}
+
+.checkoutComposition {
+  width: 100%;
+  max-width: 1180px;
+}
 
 /**
- * Content: mobile flow vs desktop 2 columns
- * desktop has reduced version of bookListingContainer (incl. title and Stripe paymentForm).
- * priceBreakdown is inside separate column (detailsContainerDesktop)
+ * Two-column layout: form (left) + summary (right) on large screens.
  */
 .contentContainer {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 
   @media (--viewportLarge) {
     flex-direction: row;
-    justify-content: center;
     align-items: flex-start;
-    padding: 0 48px;
+    justify-content: center;
+    gap: 28px;
+    padding: 20px 0 48px;
   }
 }
 
@@ -48,18 +137,52 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  width: 100%;
 
   @media (--viewportLarge) {
-    flex-grow: 0;
-    flex-basis: 519px;
-    margin-top: 73px;
-    margin-right: 132px;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 520px;
+    margin-top: 0;
+    align-self: flex-start;
+    /* Scale form only — summary card stays full compact size */
+    zoom: 0.77;
   }
 }
 
-.listingImageMobile {
-  position: relative;
-  background-color: var(--colorGrey100); /* Loading BG color */
+.formGlassCard {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 18px 16px 22px;
+  border-radius: 16px;
+  border: 1px solid var(--peakUpGlassBorder);
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(23, 217, 255, 0.03) 0%, transparent 55%),
+    linear-gradient(168deg, var(--peakUpGlassHi) 0%, var(--peakUpGlass) 100%);
+  backdrop-filter: blur(28px) saturate(155%);
+  -webkit-backdrop-filter: blur(28px) saturate(155%);
+  box-shadow:
+    0 28px 60px rgba(0, 0, 0, 0.52),
+    0 10px 28px rgba(0, 0, 0, 0.36),
+    0 0 20px var(--peakUpGlassGlow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  @media (--viewportMedium) {
+    padding: 20px 20px 26px;
+    border-radius: 18px;
+  }
+
+  @media (--viewportLarge) {
+    margin-top: 0;
+    padding: 20px 22px 24px;
+  }
+}
+
+.mobileCoachStrip {
+  display: flex;
+  align-items: center;
+  padding: 8px 0 4px;
 
   @media (--viewportLarge) {
     display: none;
@@ -67,42 +190,12 @@
 }
 
 .rootForImage {
-  /* Layout - image will take space defined by aspect ratio wrapper */
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   width: 100%;
-
-  @media (--viewportLarge) {
-    border-radius: 2px 2px 0 0;
-  }
-}
-
-.avatarWrapper {
-  /* Position (over the listing image)*/
-  margin-left: 24px;
-  margin-top: -31px;
-
-  /* Rendering context to the same lavel as listing image */
-  position: relative;
-
-  /* Layout */
-  display: block;
-
-  @media (--viewportLarge) {
-    margin-left: 0;
-  }
-  &.noListingImage {
-    margin-top: 24px;
-    @media (--viewportMedium) {
-      margin-top: 32px;
-    }
-    @media (--viewportLarge) {
-      margin-top: 40px;
-    }
-  }
 }
 
 .avatarMobile {
@@ -112,60 +205,95 @@
 }
 
 .headingContainer {
-  margin-top: 29px;
-  margin-bottom: 34px;
-  padding: 0 24px;
+  margin: 0 0 16px;
+  padding: 0;
 
   @media (--viewportMedium) {
-    margin-top: 27px;
-    margin-bottom: 30px;
-  }
-
-  @media (--viewportLarge) {
-    margin-top: 0px;
-    margin-bottom: 0px;
-    padding: 0;
+    margin-bottom: 18px;
   }
 }
 
 .heading {
-  /* Layout */
   width: 100%;
-  margin-top: 0;
-  margin-bottom: 7px;
-
-  @media (--viewportMedium) {
-    margin-top: 0;
-    margin-bottom: 8px;
-  }
-}
-
-.listingDetailsWrapper {
-  margin: 0 48px;
+  margin: 0 0 6px;
+  color: var(--peakUpTextPrimary);
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 
 .detailsHeadingMobile {
+  color: var(--peakUpTextMuted);
+  font-weight: 500;
+
   @media (--viewportLarge) {
     display: none;
   }
 }
 
-.author {
-  width: 100%;
-  composes: h4 from global;
+.detailsHeadingMobile a {
+  color: var(--peakUpCyan);
+  text-decoration: none;
+}
 
-  /* Reset margins from font styles */
-  margin-top: 0;
-  margin-bottom: 0;
+.detailsHeadingMobile a:hover {
+  text-decoration: underline;
+}
 
-  @media (--viewportMedium) {
-    margin-top: 0;
-    margin-bottom: 0;
+.summaryColumnDesktop {
+  display: none;
+
+  @media (--viewportLarge) {
+    display: block;
+    flex: 0 0 auto;
+    align-self: flex-start;
   }
 }
 
+.summaryCoachHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px 8px;
+}
+
+.summaryAvatarFloat {
+  flex-shrink: 0;
+  padding: 2px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(25, 223, 242, 0.42);
+  background: rgba(6, 12, 22, 0.75);
+  box-shadow:
+    0 0 20px rgba(23, 217, 255, 0.18),
+    0 6px 16px rgba(0, 0, 0, 0.32);
+}
+
+.summaryCoachMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.summaryCoachName {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0;
+  color: var(--peakUpTextPrimary);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.summaryListingPrice {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0;
+  color: var(--peakUpCyan);
+  font-weight: 600;
+}
+
 .bookingPriceVariant {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  color: var(--peakUpTextMuted);
 }
 
 .bookingPriceVariantMobile {
@@ -180,293 +308,359 @@
   composes: p from global;
   font-weight: var(--fontWeightBold);
   padding: 0;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  color: var(--peakUpTextPrimary);
 }
 
 .priceBreakdownContainer {
-  padding: 0 24px;
-  margin-bottom: 37px;
+  padding: 0;
+  margin-bottom: 24px;
 
-  @media (--viewportMedium) {
-    margin-bottom: 38px;
-  }
   @media (--viewportLarge) {
-    /* we don't show price breakdown since it will be visible within 2nd column (detailsContainerDesktop) */
     display: none;
   }
 }
 
 .priceBreakdownTitle {
-  /* Font */
-  color: var(--colorGrey300);
-
-  margin-top: 0;
-  margin-bottom: 14px;
-
-  @media (--viewportMedium) {
-    margin-top: 0;
-    margin-bottom: 18px;
-  }
-  @media (--viewportLarge) {
-    margin-top: 0;
-    margin-bottom: 14px;
-  }
+  color: var(--peakUpTextMuted);
+  margin: 0 0 12px;
 }
 
 .paymentContainer {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  padding: 0 24px;
-  margin-bottom: 35px;
-
-  @media (--viewportMedium) {
-    margin-top: 2px;
-    margin-bottom: 120px;
-  }
-
-  @media (--viewportLarge) {
-    margin-top: 0;
-    padding: 0;
-  }
+  padding: 0;
+  margin-bottom: 0;
 }
 
 .orderError,
-.notFoundError {
-  margin: 11px 0 12px 0;
+.notFoundError,
+.speculateError {
+  color: #ff9a9a;
+}
 
-  @media (--viewportMedium) {
-    margin: 10px 0 12px 0;
-  }
-}
 .orderError {
-  color: var(--colorFail);
+  margin: 11px 0 12px;
 }
+
 .notFoundError {
-  color: var(--colorFail);
+  margin: 11px 0 12px;
 }
 
 .speculateError {
-  color: var(--colorFail);
-  margin: 19px 0 1px 0;
-
-  @media (--viewportLarge) {
-    margin: 28px 0 0 0;
-  }
+  margin: 12px 0;
 }
 
 .paymentForm {
   flex-grow: 1;
 }
 
-/* Details column is visible only on desktop */
+/* Compact luxury summary card — desktop */
 .detailsContainerDesktop {
-  display: none;
+  width: 100%;
+  padding: 0;
+  border-radius: 16px;
+  border: 1px solid var(--peakUpGlassBorder);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(157, 255, 79, 0.03) 0%, transparent 50%),
+    linear-gradient(168deg, var(--peakUpGlassSummaryHi) 0%, var(--peakUpGlassSummary) 100%);
+  backdrop-filter: blur(28px) saturate(155%);
+  -webkit-backdrop-filter: blur(28px) saturate(155%);
+  box-shadow:
+    0 28px 56px rgba(0, 0, 0, 0.5),
+    0 10px 26px rgba(0, 0, 0, 0.34),
+    0 0 16px var(--peakUpGlassGlow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
 
   @media (--viewportLarge) {
-    flex-shrink: 0;
-    display: block;
-    /* Dimensions */
-    width: 409px;
-    padding-bottom: 36px;
-
-    /* Position */
-    margin: 56px 0 24px 0;
-
-    /* Coloring */
-    background-color: var(--colorWhite);
-    border: 1px solid var(--colorGrey100);
-    border-radius: 2px;
+    width: 300px;
+    max-width: 300px;
   }
 }
 
-.detailsAspectWrapper {
-  position: relative;
-  background-color: var(--colorGrey100); /* Loading BG color */
+.summaryTotalsBlock {
+  padding-top: 8px;
+  border-top: 1px solid rgba(25, 223, 242, 0.14);
 }
 
-.detailsHeadings {
-  display: none;
-
-  @media (--viewportLarge) {
-    display: block;
-    margin: 0;
-    &.noListingImage {
-      margin-top: 32px;
-    }
-  }
+.sportMeta {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 5px;
+  margin: 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(25, 223, 242, 0.26);
+  background: rgba(6, 12, 22, 0.5);
+  font-size: 0.74rem;
+  color: var(--peakUpTextMuted);
 }
 
-.detailsSubtitle {
-  composes: h5 from global;
-
-  /* Reset margins from font styles */
-  margin-top: 0;
-  margin-bottom: 0;
-
-  @media (--viewportLarge) {
-    padding: 3px 0 5px 0;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
+.sportMetaEmoji {
+  font-size: 1rem;
+  line-height: 1;
 }
 
-.orderBreakdownHeader {
-  @media (--viewportLarge) {
-    margin: 0 48px;
-  }
+.sessionsSection {
+  margin: 0 14px 10px;
+  padding: 10px 11px 9px;
+  border-radius: 10px;
+  border: 1px solid rgba(25, 223, 242, 0.16);
+  background: rgba(5, 10, 20, 0.32);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
+
+.sessionsSectionMobile {
+  margin: 0 0 16px;
+}
+
+.sessionsHeading {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0 0 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--peakUpCyan);
+  font-size: 0.72rem;
+}
+
+.sessionsList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sessionRow {
+  composes: marketplaceSmallFontStyles from global;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0;
+  line-height: 1.45;
+  color: var(--peakUpTextPrimary);
+  font-weight: 500;
+}
+
+.sessionRow + .sessionRow {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(25, 223, 242, 0.1);
+}
+
+.sessionDate {
+  font-weight: 600;
+}
+
+.sessionTimes {
+  color: var(--peakUpTextMuted);
+}
+
+.sessionTimeDash {
+  margin: 0 2px;
+}
+
+.sessionSep {
+  margin: 0 6px;
+  color: rgba(25, 223, 242, 0.45);
+}
+
+.sessionDuration,
+.sessionPrice {
+  color: var(--peakUpTextMuted);
+}
+
+.sessionPrice {
+  font-weight: 600;
+  color: var(--peakUpCyan);
+}
+
 .orderBreakdownTitle {
-  /* Font */
-  letter-spacing: 1px;
-  font-weight: var(--fontWeightMedium);
-
-  /* Layout spacing */
-  margin: 5px 24px 25px 24px;
-
-  @media (--viewportLarge) {
-    padding: 6px 0 2px 0;
-    margin: 16px 0 8px 0;
-  }
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--peakUpTextMuted);
+  margin: 12px 0 8px;
 }
 
 .totalDivider {
-  /* dimensions */
   width: 100%;
   height: 1px;
-  margin: 12px 0 5px 0;
-
+  margin: 12px 0 8px;
   border: none;
-  background-color: var(--colorGrey100);
-
-  @media (--viewportMedium) {
-    margin: 7px 0 0 0;
-  }
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(25, 223, 242, 0.25) 50%,
+    transparent 100%
+  );
 }
 
 .orderBreakdown {
+  padding: 0 14px 14px;
+
   @media (--viewportLarge) {
-    padding-bottom: 20px;
-    margin: 0 48px;
+    padding: 4px 14px 16px;
   }
 }
 
-/* ChekcoutPageWithInquiryProcess */
+.summaryTotalsBlock .orderBreakdown {
+  padding-top: 8px;
+}
 
+.orderBreakdownPeakUp {
+  /* Hook for OrderBreakdown.module.css peakUp theme */
+}
+
+/* Inquiry / misc */
 .section {
   display: flex;
   flex-direction: column;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
 }
 
 .sectionHeading {
   composes: p from global;
   font-weight: var(--fontWeightBold);
-  margin: 0 0 12px 0;
-
-  padding-top: 4px;
-  padding-bottom: 2px;
-
-  @media (--viewportMedium) {
-    margin: 0 0 0 0;
-    padding-top: 5px;
-    padding-bottom: 3px;
-  }
+  margin: 0 0 12px;
+  color: var(--peakUpTextPrimary);
 }
 
 .field {
-  margin: 25px 0 24px 0;
-
-  @media (--viewportMedium) {
-    margin: 22px 0 24px 0;
-  }
+  margin: 20px 0;
 }
 
 .fieldInquiryMessage {
-  margin: 0 0 24px 0;
-
-  @media (--viewportMedium) {
-    margin: 16px 0 24px 0;
-  }
+  margin: 0 0 24px;
 }
 
 .error {
-  color: var(--colorFail);
-  margin-top: 0;
-
-  @media (--viewportMedium) {
-    margin-top: 0;
-  }
+  color: #ff9a9a;
 }
 
 .priceContainer {
-  /* Layout */
   display: flex;
   flex-direction: row;
   align-items: baseline;
   gap: 4px;
-  flex-shrink: 0;
-  margin-right: 22px;
-  padding: 3px 0;
-
-  @media (--viewportMedium) {
-    padding: 4px 0;
-  }
-
-  @media (--viewportLarge) {
-    flex-direction: row;
-    margin-right: unset;
-    padding: 0;
-  }
+  margin-top: 6px;
 }
+
 .price {
   composes: p from global;
   font-weight: var(--fontWeightBold);
-
-  margin: 0 0 0 24px;
-
-  @media (--viewportMedium) {
-    margin: 0;
-    padding: 0;
-  }
+  margin: 0;
+  color: var(--peakUpCyan);
 }
 
 .perUnit {
-  /* Font */
   composes: p from global;
-  font-weight: var(--fontWeightBold);
-
-  padding: 0;
-
-  margin-top: 0;
-  margin-bottom: 0;
-
-  @media (--viewportMedium) {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  @media (--viewportLarge) {
-  }
+  font-weight: var(--fontWeightMedium);
+  margin: 0;
+  color: var(--peakUpTextMuted);
 }
 
 .inquiryPrice {
   composes: p from global;
   font-weight: var(--fontWeightBold);
+  color: var(--peakUpCyan);
 }
 
 .incompatibleCurrency {
-  margin-top: 20px;
+  margin: 24px;
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid var(--peakUpGlassBorder);
+  background: var(--peakUpGlass);
+  color: var(--peakUpTextPrimary);
 }
 
 .transactionFieldsContainer {
-  margin-bottom: 36px;
-
-  @media (--viewportMedium) {
-    margin-bottom: 40px;
-  }
+  margin-bottom: 32px;
 }
 
 .spinner {
   margin: auto;
+  color: var(--peakUpCyan);
+}
+
+/* Dark form fields + PeakUp gradient CTA (checkout scope) */
+.peakUpCheckout :global([class*='FieldTextInput_root']) > label,
+.peakUpCheckout :global([class*='FieldSelect_root']) > label,
+.peakUpCheckout :global([class*='StripePaymentAddress_root']) > label {
+  color: rgba(240, 245, 252, 0.95) !important;
+}
+
+.peakUpCheckout :global([class*='FieldTextInput_root']) input,
+.peakUpCheckout :global([class*='FieldTextInput_root']) textarea,
+.peakUpCheckout :global([class*='FieldSelect_root']) select,
+.peakUpCheckout :global(.marketplaceInputStyles),
+.peakUpCheckout :global([class*='StripePaymentForm_card']) {
+  color: rgba(247, 250, 255, 0.96) !important;
+  background-color: rgba(8, 14, 24, 0.78) !important;
+  border: 1px solid rgba(120, 225, 255, 0.2) !important;
+  border-radius: 10px !important;
+}
+
+.peakUpCheckout :global([class*='FieldTextInput_root']) input:focus,
+.peakUpCheckout :global([class*='FieldTextInput_root']) textarea:focus,
+.peakUpCheckout :global(.marketplaceInputStyles):focus-within {
+  outline: none;
+  border-color: rgba(23, 217, 255, 0.55) !important;
+  box-shadow: 0 0 18px rgba(23, 217, 255, 0.12) !important;
+}
+
+.peakUpCheckout :global([class*='StripePaymentForm_heading']),
+.peakUpCheckout :global([class*='StripePaymentForm_paymentLabel']),
+.peakUpCheckout :global([class*='StripePaymentForm_saveForLaterUseLabel']) {
+  color: var(--peakUpTextPrimary) !important;
+}
+
+.peakUpCheckout :global([class*='StripePaymentForm_saveForLaterUseLegalInfo']),
+.peakUpCheckout :global([class*='StripePaymentForm_paymentInfo']),
+.peakUpCheckout :global([class*='StripePaymentForm_messageOptional']) {
+  color: var(--peakUpTextMuted) !important;
+}
+
+.peakUpCheckout :global([class*='StripePaymentForm_submitButton']),
+.peakUpCheckout :global([class*='Button_primaryButtonRoot']) {
+  background-color: transparent !important;
+  background-image: linear-gradient(90deg, #9dff2e 0%, #22e6b8 48%, #159bff 100%) !important;
+  color: #041018 !important;
+  -webkit-text-fill-color: #041018 !important;
+  font-weight: 800 !important;
+  border: none !important;
+  border-radius: 14px !important;
+  transition:
+    filter 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+  box-shadow:
+    0 12px 30px rgba(16, 33, 62, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+}
+
+.peakUpCheckout :global([class*='StripePaymentForm_submitButton']):hover:not(:disabled),
+.peakUpCheckout :global([class*='Button_primaryButtonRoot']):hover:not(:disabled) {
+  filter: brightness(1.06) saturate(1.08) !important;
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 26px rgba(34, 230, 184, 0.38),
+    0 14px 34px rgba(16, 33, 62, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+.peakUpCheckout :global([class*='H3_heading']),
+.peakUpCheckout :global([class*='H4_heading']),
+.peakUpCheckout :global([class*='Heading_h3']),
+.peakUpCheckout :global([class*='Heading_h4']) {
+  color: var(--peakUpTextPrimary);
+}
+
+.peakUpCheckout :global([class*='NamedLink_root']) {
+  color: var(--peakUpCyan);
 }

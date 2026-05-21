@@ -395,6 +395,24 @@
   }
 }
 
+/* PeakUp coach booking shell — order panel only, no public listing browse column */
+.peakupCoachBookingShell {
+  @media (--viewportLarge) {
+    justify-content: center;
+  }
+}
+
+.orderColumnPeakUpBookingShell {
+  @media (--viewportLarge) {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 520px;
+    min-width: 0;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 .mainColumnForHeroLayout {
   flex-basis: 100%;
   margin-bottom: 23px;

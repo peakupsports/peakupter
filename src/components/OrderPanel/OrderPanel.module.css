@@ -164,6 +164,28 @@
   }
 }
 
+.preBookingPrompt {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0 24px 24px;
+
+  @media (--viewportMedium) {
+    margin: 0 0 24px;
+  }
+}
+
+.preBookingPromptText {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0;
+  color: var(--colorGrey700);
+  line-height: 1.45;
+}
+
+.preBookingPromptButton {
+  width: 100%;
+}
+
 .openOrderForm {
   /* Ensure that mobile button is over Footer too */
   z-index: 9;

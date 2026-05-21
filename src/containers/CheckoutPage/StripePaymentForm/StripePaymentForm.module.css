@@ -16,6 +16,13 @@
   margin-bottom: 16px;
 }
 
+.paymentLabel {
+  composes: marketplaceSmallFontStyles from global;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: var(--fontWeightSemiBold);
+}
+
 .locationDetails {
   padding: 0;
   margin: 0;

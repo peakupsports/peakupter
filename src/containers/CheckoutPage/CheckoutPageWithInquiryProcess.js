@@ -35,6 +35,7 @@ import {
 
 import { getTransactionTypeData } from './CheckoutPageTransactionHelpers.js';
 
+import CheckoutHeroBackground from './CheckoutHeroBackground';
 import DetailsSideCard from './DetailsSideCard';
 import MobileListingImage from './MobileListingImage';
 
@@ -151,37 +152,41 @@ export const CheckoutPageWithInquiryProcess = props => {
   );
 
   return (
-    <Page title={title} scrollingDisabled={scrollingDisabled}>
-      <TopbarSimplified />
-      <div className={css.contentContainer}>
-        <MobileListingImage
-          listingTitle={listingTitle}
-          author={listing?.author}
+    <Page title={title} scrollingDisabled={scrollingDisabled} rootClassName={css.pagePeakUp}>
+      <TopbarSimplified variant="peakUp" />
+      <div className={css.peakUpCheckout}>
+        <CheckoutHeroBackground
+          listing={listing}
+          showListingImage={showListingImage}
           firstImage={firstImage}
           layoutListingImageConfig={config.layout.listingImage}
-          showListingImage={showListingImage}
         />
-        <main className={css.orderFormContainer}>
-          <div className={css.headingContainer}>
-            <H3 as="h1" className={css.heading}>
-              {title}
-            </H3>
-            <H4 as="h2" className={css.detailsHeadingMobile}>
-              <FormattedMessage
-                id="CheckoutPage.listingTitle"
-                values={{ listingTitle: listingTitleLink }}
-              />
+        <div className={css.checkoutForeground}>
+          <div className={css.checkoutComposition}>
+            <div className={css.contentContainer}>
+              <MobileListingImage author={listing?.author} />
+          <main className={css.orderFormContainer}>
+            <div className={css.formGlassCard}>
+              <div className={css.headingContainer}>
+                <H3 as="h1" className={css.heading}>
+                  {title}
+                </H3>
+                <H4 as="h2" className={css.detailsHeadingMobile}>
+                  <FormattedMessage
+                    id="CheckoutPage.listingTitle"
+                    values={{ listingTitle: listingTitleLink }}
+                  />
 
-              {showPrice && price ? (
-                <>
-                  <br />
-                  <span className={css.inquiryPrice}>{formatMoney(intl, price)}</span>
-                </>
-              ) : null}
-            </H4>
-          </div>
+                  {showPrice && price ? (
+                    <>
+                      <br />
+                      <span className={css.inquiryPrice}>{formatMoney(intl, price)}</span>
+                    </>
+                  ) : null}
+                </H4>
+              </div>
 
-          <section className={css.paymentContainer}>
+              <section className={css.paymentContainer}>
             <FinalForm
               onSubmit={onSubmit}
               mutators={{ ...arrayMutators }}
@@ -254,20 +259,20 @@ export const CheckoutPageWithInquiryProcess = props => {
                 );
               }}
             />
-          </section>
-        </main>
+              </section>
+            </div>
+          </main>
 
-        <DetailsSideCard
-          listing={listing}
-          listingTitle={listingTitle}
-          author={listing?.author}
-          firstImage={firstImage}
-          layoutListingImageConfig={config.layout.listingImage}
-          processName={processName}
-          showPrice={showPrice && !!price}
-          showListingImage={showListingImage}
-          intl={intl}
-        />
+            <DetailsSideCard
+              listing={listing}
+              author={listing?.author}
+              processName={processName}
+              showPrice={showPrice && !!price}
+              intl={intl}
+            />
+            </div>
+          </div>
+        </div>
       </div>
     </Page>
   );

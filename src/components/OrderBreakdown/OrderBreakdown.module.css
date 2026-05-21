@@ -5,6 +5,105 @@
   flex-direction: column;
 }
 
+/* PeakUp Checkout Layout V2 — receipt on dark glass */
+.peakUpTheme {
+  color: rgba(240, 245, 252, 0.96);
+}
+
+.peakUpTheme .dayLabel,
+.peakUpTheme .itemLabel,
+.peakUpTheme .totalLabel,
+.peakUpTheme .peakupSessionsHeading {
+  color: rgba(210, 222, 238, 0.88);
+}
+
+.peakUpTheme .dayInfo,
+.peakUpTheme .totalPrice,
+.peakUpTheme .subTotalLineItem,
+.peakUpTheme .lineItemTotal,
+.peakUpTheme .peakupSessionLineDate {
+  color: #f8fafc;
+}
+
+.peakUpTheme .peakupSessionLineTimes,
+.peakUpTheme .itemValue {
+  color: rgba(218, 228, 242, 0.9);
+}
+
+.peakUpTheme .totalPrice {
+  color: #19dff2;
+  font-weight: 700;
+  font-size: 1.12em;
+}
+
+.peakUpTheme .lineItemTotal {
+  padding-top: 4px;
+  padding-bottom: 2px;
+}
+
+.peakUpTheme.peakUpThemeCompact .lineItem,
+.peakUpTheme.peakUpThemeCompact .subTotalLineItem,
+.peakUpTheme.peakUpThemeCompact .lineItemTotal {
+  font-size: 0.88rem;
+  line-height: 1.42;
+}
+
+.peakUpTheme.peakUpThemeCompact .lineItem {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.peakUpTheme.peakUpThemeCompact .subTotalLineItem {
+  padding-top: 8px;
+  padding-bottom: 6px;
+}
+
+.peakUpTheme.peakUpThemeCompact .lineItemTotal {
+  padding-top: 8px;
+  padding-bottom: 6px;
+}
+
+.peakUpTheme.peakUpThemeCompact .itemLabel,
+.peakUpTheme.peakUpThemeCompact .itemValue,
+.peakUpTheme.peakUpThemeCompact .totalLabel {
+  font-size: 0.82rem;
+}
+
+.peakUpTheme.peakUpThemeCompact .totalPrice {
+  font-size: 1.05rem;
+}
+
+.peakUpTheme.peakUpThemeCompact .totalDivider {
+  margin: 10px 0 8px;
+}
+
+.peakUpTheme .totalDivider {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(25, 223, 242, 0.25) 50%,
+    transparent 100%
+  );
+}
+
+.peakUpTheme .feeInfo {
+  color: rgba(157, 196, 220, 0.65);
+}
+
+.peakUpTheme .peakupSessionsWrap {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(25, 223, 242, 0.12);
+  background: rgba(6, 12, 22, 0.45);
+}
+
+.peakUpTheme .peakupSessionsHeading {
+  color: #19dff2;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+}
+
 .nowrap {
   white-space: nowrap;
 }
@@ -41,6 +140,55 @@
 
 .bookingPeriodSectionRight {
   text-align: right;
+}
+
+.peakupPreBookingWrap {
+  margin: 0 0 12px;
+}
+
+.peakupPreBookingHeading {
+  composes: marketplaceSmallFontStyles from global;
+  font-weight: var(--fontWeightSemiBold);
+  margin: 0 0 8px;
+  color: var(--colorGrey700);
+}
+
+.peakupPreBookingList {
+  margin: 0;
+  padding: 0;
+}
+
+.peakupPreBookingRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 6px;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.peakupPreBookingLabel {
+  margin: 0;
+  color: var(--colorGrey600);
+}
+
+.peakupPreBookingValue {
+  margin: 0;
+  font-weight: var(--fontWeightMedium);
+  color: var(--colorGrey900);
+  text-align: right;
+}
+
+.peakUpTheme .peakupPreBookingHeading {
+  color: rgba(210, 222, 238, 0.88);
+}
+
+.peakUpTheme .peakupPreBookingLabel {
+  color: rgba(180, 198, 218, 0.85);
+}
+
+.peakUpTheme .peakupPreBookingValue {
+  color: #f8fafc;
 }
 
 .peakupSessionsWrap {

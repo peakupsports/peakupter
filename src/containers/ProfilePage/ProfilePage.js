@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import classNames from 'classnames';
 
 import { useConfiguration } from '../../context/configurationContext';
@@ -31,7 +32,7 @@ import {
 import { useRouteConfiguration } from '../../context/routeConfigurationContext';
 import { richText } from '../../util/richText';
 import { ensureUser } from '../../util/data';
-import { createSlug } from '../../util/urlHelpers';
+import { createSlug, parse } from '../../util/urlHelpers';
 import {
   filterListingsForPublicBrowsing,
   pickRepresentativeListing,
@@ -40,6 +41,13 @@ import {
   getCoachShortLocationLabel,
   getCoachFullLocationLabel,
 } from '../../util/coachExplore';
+import {
+  buildPeakUpCoachBookingPath,
+  hasPeakUpCoachBookingSearchFlag,
+  hasPeakUpOpenPreBookingSearchFlag,
+  pickPeakupCoachBookingDestinationListing,
+  peakUpCoachBookingLinkSearch,
+} from '../../util/coachBookingNavigation';
 import { getMapProviderApiAccess, staticPinMapImageUrl } from '../../util/maps';
 import {
   formatCoachExperienceLabel,
@@ -466,6 +474,11 @@ export const AsideContent = props => {
     filledStars = Math.max(1, Math.min(5, Math.round(sum / reviewCountProv)));
   }
 
+  const bookingListing = pickPeakupCoachBookingDestinationListing(listings);
+  const bookingListingId = bookingListing?.id?.uuid;
+  const bookingListingSlug = bookingListing
+    ? createSlug(String(bookingListing.attributes?.title || displayName || 'coaching-session'))
+    : '';
   const listingTitle = listing?.attributes?.title || displayName || 'listing';
   const listingSlug = listing ? createSlug(String(listingTitle)) : '';
   const listingId = listing?.id?.uuid;
@@ -682,10 +695,11 @@ export const AsideContent = props => {
             )}
           </button>
 
-          {listingId ? (
+          {bookingListingId ? (
             <NamedLink
               name="ListingPage"
-              params={{ slug: listingSlug || 'listing', id: listingId }}
+              params={{ slug: bookingListingSlug || 'coaching-session', id: bookingListingId }}
+              to={{ search: peakUpCoachBookingLinkSearch() }}
               className={classNames(css.primaryBtn, css.stickerActionPrimary)}
             >
               <FormattedMessage id="ProfilePage.stickerBookMe" />
@@ -1452,7 +1466,9 @@ export const MainContent = props => {
  */
 export const ProfilePageComponent = props => {
   const config = useConfiguration();
+  const routeConfiguration = useRouteConfiguration();
   const intl = useIntl();
+  const history = useHistory();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -1468,7 +1484,6 @@ export const ProfilePageComponent = props => {
     user,
     listings = [],
     reviews = [],
-    history,
     location,
     sendInquiryInProgress,
     sendInquiryError,
@@ -1498,6 +1513,36 @@ export const ProfilePageComponent = props => {
   const profileUser = useCurrentUser ? currentUser : user;
   const { bio, displayName, publicData, metadata } = profileUser?.attributes?.profile || {};
   const peakUpCoachLayout = shouldShowPeakUpProfileSticker(listings, publicData || {});
+
+  useEffect(() => {
+    if (!mounted || !peakUpCoachLayout || !location?.search) {
+      return;
+    }
+    if (!hasPeakUpCoachBookingSearchFlag(location.search)) {
+      return;
+    }
+    if (typeof history?.replace !== 'function') {
+      return;
+    }
+    const bookingListing = pickPeakupCoachBookingDestinationListing(listings);
+    if (!bookingListing?.id) {
+      return;
+    }
+    const bookingPath = buildPeakUpCoachBookingPath({
+      routes: routeConfiguration,
+      bookingListing,
+      orderOpen: !!parse(location.search).orderOpen,
+      openPreBooking: hasPeakUpOpenPreBookingSearchFlag(location.search),
+    });
+    if (!bookingPath) {
+      return;
+    }
+    const currentPath = `${location.pathname || ''}${location.search || ''}`;
+    if (currentPath !== bookingPath) {
+      history.replace(bookingPath);
+    }
+  }, [mounted, peakUpCoachLayout, listings, location, history, routeConfiguration]);
+
   // Tier theme: PeakUp coaches get their tier color injected as CSS custom
   // properties on a wrapper around the layout. Only the curated accents
   // (figurine border, about-card top line, section dividers, small icons,

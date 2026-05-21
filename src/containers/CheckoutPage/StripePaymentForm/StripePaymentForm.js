@@ -81,19 +81,20 @@ const stripeElementsOptions = {
 // However, its internal width-calculation seems to break if font-size is too big
 // compared to component's own width.
 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-const cardStyles = {
+
+const getCardStyles = peakUpTheme => ({
   base: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Inter", Helvetica, Arial, sans-serif',
     fontSize: isMobile ? '14px' : '16px',
     fontSmoothing: 'antialiased',
     lineHeight: '24px',
     letterSpacing: '-0.1px',
-    color: '#4A4A4A',
+    color: peakUpTheme ? '#f4f7fb' : '#4A4A4A',
     '::placeholder': {
-      color: '#B2B2B2',
+      color: peakUpTheme ? 'rgba(196, 210, 228, 0.5)' : '#B2B2B2',
     },
   },
-};
+});
 
 const OneTimePaymentWithCardElement = props => {
   const {
@@ -344,6 +345,7 @@ class StripePaymentForm extends Component {
 
   initializeStripeElement(element) {
     const elements = this.stripe.elements(stripeElementsOptions);
+    const cardStyles = getCardStyles(this.props.peakUpTheme);
 
     if (!this.card) {
       this.card = elements.create('card', { style: cardStyles });

@@ -19,6 +19,7 @@ import css from './TopbarSimplified.module.css';
  * @param {Object} props
  * @param {string} props.className - The class name for the topbar
  * @param {string} props.rootClassName - The root class name for the topbar
+ * @param {'peakUp'} [props.variant] - PeakUp dark premium chrome (checkout, etc.)
  * @param {Object} props.intl - The intl object
  * @param {boolean} props.linkToExternalSite - Whether to link to the external site
  * @returns {JSX.Element}
@@ -57,18 +58,32 @@ const TopbarSimplified = props => {
     };
   }, [mounted]);
 
-  const { className, rootClassName } = props;
+  const { className, rootClassName, variant } = props;
   const linkToExternalSite = config?.topbar?.logoLink;
+  const isPeakUp = variant === 'peakUp';
 
-  const classes = classNames(rootClassName || css.root, className);
+  const classes = classNames(rootClassName || css.root, className, {
+    [css.rootPeakUp]: isPeakUp,
+  });
+
+  const logo = (
+    <LinkedLogo
+      layout={isMobile ? 'mobile' : 'desktop'}
+      alt={intl.formatMessage({ id: 'TopbarSimplified.goToLandingPage' })}
+      linkToExternalSite={linkToExternalSite}
+      {...(isPeakUp
+        ? {
+            rootClassName: css.logoLink,
+            logoClassName: css.logoWrap,
+            logoImageClassName: css.logoImage,
+          }
+        : {})}
+    />
+  );
 
   return (
     <nav className={classes}>
-      <LinkedLogo
-        layout={isMobile ? 'mobile' : 'desktop'}
-        alt={intl.formatMessage({ id: 'TopbarSimplified.goToLandingPage' })}
-        linkToExternalSite={linkToExternalSite}
-      />
+      {isPeakUp ? <div className={css.peakUpInner}>{logo}</div> : logo}
     </nav>
   );
 };

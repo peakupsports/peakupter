@@ -1,10 +1,21 @@
 import React from 'react';
 
 import { Heading } from '../../components';
+import CheckoutSessionsPreview from './CheckoutSessionsPreview';
 import css from './CheckoutPage.module.css';
 
 const MobileOrderBreakdown = props => {
-  const { breakdown, speculateTransactionErrorMessage, priceVariantName } = props;
+  const {
+    breakdown,
+    speculateTransactionErrorMessage,
+    priceVariantName,
+    booking,
+    peakupBookingSlots,
+    timeZone,
+    dateType,
+    lineItems,
+    intl,
+  } = props;
 
   return (
     <div className={css.priceBreakdownContainer}>
@@ -15,6 +26,15 @@ const MobileOrderBreakdown = props => {
           </Heading>
         </div>
       ) : null}
+      <CheckoutSessionsPreview
+        className={css.sessionsSectionMobile}
+        booking={booking}
+        peakupBookingSlots={peakupBookingSlots}
+        timeZone={timeZone}
+        dateType={dateType}
+        lineItems={lineItems}
+        intl={intl}
+      />
       {speculateTransactionErrorMessage}
       {breakdown}
     </div>
