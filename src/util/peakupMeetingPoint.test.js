@@ -126,3 +126,4 @@ describe('peakupMeetingPoint', () => {
     expect(stored.notes).toBe('');
   });
 });
+

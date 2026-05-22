@@ -126,6 +126,7 @@ export const ProfileSettingsPageComponent = props => {
       bio,
       /* coachCityText from form overwrites address derived from map; lat/lng/location come from map patch */
       publicData: {
+        ...publicData,
         ...coachLocationPatch,
         ...meetingPointsPatch,
         ...pickUserFieldsData(rest, 'public', userType, userFields),
