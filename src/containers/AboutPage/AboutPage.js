@@ -20,8 +20,6 @@ const IMG_COACHING_MOMENT = '/CoachPagePic/about-mtb-coaching.jpg';
 const IMG_MTB_COACH = '/CoachPagePic/about-mtb-coaching2.jpg';
 const IMG_YOGA = '/CoachPagePic/about-yoga-experience.jpg';
 const IMG_CTA_COACH = '/CoachPagePic/about-guide-coach.jpg';
-const INSTRUCTORS_PAGE_ID = '4_instructors';
-
 const VALUE_ITEMS = [
   { icon: 'shield', titleId: 'AboutPage.valueTrustTitle', descId: 'AboutPage.valueTrustDesc' },
   { icon: 'globe', titleId: 'AboutPage.valueAccessTitle', descId: 'AboutPage.valueAccessDesc' },
@@ -169,12 +167,8 @@ const AboutPage = () => {
                 <NamedLink name="CoachesPage" className={css.primaryCta}>
                   <FormattedMessage id="AboutPage.heroCtaPrimary" />
                 </NamedLink>
-                <NamedLink
-                  name="CMSPage"
-                  params={{ pageId: INSTRUCTORS_PAGE_ID }}
-                  className={css.secondaryCta}
-                >
-                  <FormattedMessage id="AboutPage.heroCtaSecondary" />
+                <NamedLink name="CoachApplicationPage" className={css.secondaryCta}>
+                  <FormattedMessage id="AboutPage.heroCtaApply" />
                 </NamedLink>
               </div>
             </div>
@@ -331,7 +325,7 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* 7. Become a coach — final conversion */}
+        {/* 7. Grow with PeakUp — final conversion */}
         <section className={css.ctaSection} aria-labelledby="about-cta-heading">
           <div className={css.ctaSectionGlow} aria-hidden="true" />
           <div className={css.sectionRail}>
@@ -347,8 +341,8 @@ const AboutPage = () => {
                   <p className={css.ctaBody}>
                     <FormattedMessage id="AboutPage.ctaBody" />
                   </p>
-                  <NamedLink name="InstructorsPageRedirect" className={css.ctaFinalButton}>
-                    <FormattedMessage id="AboutPage.ctaButton" />
+                  <NamedLink name="CoachApplicationPage" className={css.ctaFinalButton}>
+                    <FormattedMessage id="AboutPage.ctaApply" />
                   </NamedLink>
                 </div>
                 <EditorialImagePanel

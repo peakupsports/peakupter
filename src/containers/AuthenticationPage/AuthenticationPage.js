@@ -397,11 +397,7 @@ export const AuthenticationPageComponent = props => {
                     <p className={css.signupChoiceSubtitle}>
                       <FormattedMessage id="AuthenticationPage.signupChoiceSubtitle" />
                     </p>
-                    <NamedLink
-                      className={css.signupChoiceCoach}
-                      name="CMSPage"
-                      params={{ pageId: '4_instructors' }}
-                    >
+                    <NamedLink className={css.signupChoiceCoach} name="CoachApplicationPage">
                       <span className={css.signupChoiceCoachLabel}>
                         <FormattedMessage id="AuthenticationPage.signupChoiceCoach" />
                       </span>

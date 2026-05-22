@@ -183,3 +183,7 @@ export const peakupBookingHoldReserve = body =>
 /** Releases a slot reservation when the shopper leaves checkout or clears the PeakUp cart. */
 export const peakupBookingHoldRelease = body =>
   postJsonToLocalApi('/api/peakup/booking-hold/release', body);
+
+/** Submit PeakUp coach application (multipart fields + base64 documents). */
+export const submitCoachApplication = body =>
+  postJsonToLocalApi('/api/coach-application', body);

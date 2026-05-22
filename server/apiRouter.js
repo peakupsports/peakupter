@@ -18,6 +18,8 @@ const transitionPrivileged = require('./api/transition-privileged');
 const deleteAccount = require('./api/delete-account');
 const peakupBookingHold = require('./api/peakup-booking-hold');
 const peakupBookingHoldRelease = require('./api/peakup-booking-hold-release');
+const coachApplication = require('./api/coach-application');
+const coachApplicationsAdmin = require('./api/coach-applications-admin');
 
 const createUserWithIdp = require('./api/auth/createUserWithIdp');
 
@@ -27,6 +29,12 @@ const { authenticateGoogle, authenticateGoogleCallback } = require('./api/auth/g
 const router = express.Router();
 
 // ================ API router middleware: ================ //
+
+// Coach applications include base64 document payloads — higher limit on this route only.
+router.post('/coach-application', express.json({ limit: '30mb' }), coachApplication);
+
+// Internal admin review (protected by COACH_APPLICATION_ADMIN_TOKEN).
+router.use('/coach-applications', coachApplicationsAdmin);
 
 // JSON routes (e.g. PeakUp soft holds) — must run before Transit body parser.
 router.use(express.json({ limit: '64kb' }));

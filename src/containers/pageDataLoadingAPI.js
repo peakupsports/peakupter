@@ -2,6 +2,8 @@
  * Export loadData calls from ducks modules of different containers
  */
 import { loadData as AboutPageLoader } from './AboutPage/AboutPage.duck';
+import { loadData as CoachApplicationPageLoader } from './CoachApplicationPage/CoachApplicationPage.duck';
+import { loadData as AdminCoachApplicationsPageLoader } from './AdminCoachApplicationsPage/AdminCoachApplicationsPage.duck';
 import { loadData as TermsPageLoader } from './TermsPage/TermsPage.duck';
 import { loadData as PrivacyPageLoader } from './PrivacyPage/PrivacyPage.duck';
 import { loadData as CookiesPageLoader } from './CookiesPage/CookiesPage.duck';
@@ -32,6 +34,12 @@ const getPageDataLoadingAPI = () => {
   return {
     AboutPage: {
       loadData: AboutPageLoader,
+    },
+    CoachApplicationPage: {
+      loadData: CoachApplicationPageLoader,
+    },
+    AdminCoachApplicationsPage: {
+      loadData: AdminCoachApplicationsPageLoader,
     },
     TermsPage: {
       loadData: TermsPageLoader,

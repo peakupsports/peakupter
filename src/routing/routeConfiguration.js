@@ -6,6 +6,16 @@ import LandingPage from '../containers/LandingPage/LandingPage';
 const AboutPage = loadable(() =>
   import(/* webpackChunkName: "AboutPage" */ '../containers/AboutPage/AboutPage')
 );
+const CoachApplicationPage = loadable(() =>
+  import(
+    /* webpackChunkName: "CoachApplicationPage" */ '../containers/CoachApplicationPage/CoachApplicationPage'
+  )
+);
+const AdminCoachApplicationsPage = loadable(() =>
+  import(
+    /* webpackChunkName: "AdminCoachApplicationsPage" */ '../containers/AdminCoachApplicationsPage/AdminCoachApplicationsPage'
+  )
+);
 const TermsPage = loadable(() =>
   import(/* webpackChunkName: "TermsPage" */ '../containers/TermsPage/TermsPage')
 );
@@ -112,6 +122,24 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       loadData: pageDataLoadingAPI.AboutPage.loadData,
     },
     {
+      path: '/coach-application',
+      name: 'CoachApplicationPage',
+      component: CoachApplicationPage,
+      loadData: pageDataLoadingAPI.CoachApplicationPage.loadData,
+    },
+    {
+      path: '/admin/coach-applications',
+      name: 'AdminCoachApplicationsPage',
+      component: AdminCoachApplicationsPage,
+      loadData: pageDataLoadingAPI.AdminCoachApplicationsPage.loadData,
+    },
+    {
+      path: '/admin/coach-applications/:applicationId',
+      name: 'AdminCoachApplicationDetailPage',
+      component: AdminCoachApplicationsPage,
+      loadData: pageDataLoadingAPI.AdminCoachApplicationsPage.loadData,
+    },
+    {
       path: '/p/terms',
       name: 'TermsPage',
       component: TermsPage,
@@ -128,6 +156,16 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       name: 'CookiesPage',
       component: CookiesPage,
       loadData: pageDataLoadingAPI.CookiesPage.loadData,
+    },
+    {
+      path: '/p/privacy-policy',
+      name: 'PrivacyPolicyAliasRedirect',
+      component: () => <NamedRedirect name="PrivacyPage" />,
+    },
+    {
+      path: '/p/cookie-policy',
+      name: 'CookiePolicyAliasRedirect',
+      component: () => <NamedRedirect name="CookiesPage" />,
     },
     {
       path: '/4_instructors',

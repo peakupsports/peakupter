@@ -136,7 +136,7 @@ const cardContent = [
     textId: 'LandingWhyPeakupSection.cardCoachText',
     textDefault: 'Build your visibility, grow your bookings, and stay fully independent.',
     ctaId: 'LandingWhyPeakupSection.cardCoachCta',
-    ctaDefault: 'More info',
+    ctaDefault: 'Grow with PeakUp',
     toneClassName: css.cardCoach,
     ctaClassName: css.cardCtaSecondary,
     icon: 'star',
@@ -260,6 +260,13 @@ const LandingWhyPeakupSection = props => {
                     name="CoachMapPage"
                     className={classNames(defaultClasses.ctaButton, css.cardCta, card.ctaClassName)}
                     to={{ search: coachMapLocateSearch }}
+                  >
+                    <FormattedMessage id={card.ctaId} defaultMessage={card.ctaDefault} />
+                  </NamedLink>
+                ) : card.titleId === 'LandingWhyPeakupSection.cardCoachTitle' ? (
+                  <NamedLink
+                    name="CoachApplicationPage"
+                    className={classNames(defaultClasses.ctaButton, css.cardCta, card.ctaClassName)}
                   >
                     <FormattedMessage id={card.ctaId} defaultMessage={card.ctaDefault} />
                   </NamedLink>
