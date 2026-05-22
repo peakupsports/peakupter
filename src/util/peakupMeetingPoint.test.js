@@ -26,12 +26,14 @@ describe('peakupMeetingPoint', () => {
     },
   ];
 
-  it('coachPreferredMeetingPointsList reads author publicData', () => {
+  it('coachPreferredMeetingPointsList reads author publicData including address-only points', () => {
     const list = coachPreferredMeetingPointsList({
       attributes: { profile: { publicData: { preferredMeetingPoints: points } } },
     });
-    expect(list).toHaveLength(1);
+    expect(list).toHaveLength(2);
     expect(list[0].label).toBe('Cable car');
+    expect(list[1].label).toBe('Parking');
+    expect(list[1].address).toBe('Flims parking');
   });
 
   it('peakupMeetingPointInitialValues preselects when only one point', () => {

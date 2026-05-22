@@ -217,7 +217,7 @@ const PreBookingIntroModal = ({
                 <FieldSelect
                   id={`${id}.peakupMeetingPointId`}
                   name="peakupMeetingPointId"
-                  className={css.meetingPointField}
+                  className={css.field}
                   label={intl.formatMessage({
                     id: 'PreBookingIntroModal.meetingPointLabel',
                     defaultMessage: 'Meeting point',
@@ -228,14 +228,13 @@ const PreBookingIntroModal = ({
                     <option value="">
                       {intl.formatMessage({
                         id: 'PreBookingIntroModal.meetingPointPlaceholder',
-                        defaultMessage: 'Choose where to meet',
+                        defaultMessage: 'Select meeting point',
                       })}
                     </option>
                   ) : null}
                   {preferredMeetingPoints.map(point => (
                     <option key={point.id} value={point.id}>
                       {point.label}
-                      {point.address ? ` — ${point.address}` : ''}
                     </option>
                   ))}
                 </FieldSelect>

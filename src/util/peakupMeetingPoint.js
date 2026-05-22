@@ -52,16 +52,7 @@ export const coachPreferredMeetingPointsList = author => {
   if (!Array.isArray(raw)) {
     return [];
   }
-  return raw
-    .map(normalizeStoredPreferredMeetingPoint)
-    .filter(point => {
-      if (!point) {
-        return false;
-      }
-      const lat = finiteNum(point.lat);
-      const lng = finiteNum(point.lng);
-      return lat != null && lng != null;
-    });
+  return raw.map(normalizeStoredPreferredMeetingPoint).filter(Boolean);
 };
 
 /**

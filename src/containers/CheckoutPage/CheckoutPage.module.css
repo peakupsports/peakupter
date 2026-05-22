@@ -458,11 +458,12 @@
 .meetingPointHeading {
   composes: marketplaceSmallFontStyles from global;
   margin: 0 0 8px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: rgba(244, 250, 255, 0.92);
-  font-size: 0.88rem;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.28);
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #00e5ff;
 }
 
 .meetingPointLabel {

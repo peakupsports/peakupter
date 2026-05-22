@@ -1022,7 +1022,7 @@
   "PreBookingIntroModal.skillLevelPlaceholder": "Selecciona el nivel",
   "PreBookingIntroModal.participantCountLabel": "Número de participantes",
   "PreBookingIntroModal.meetingPointLabel": "Punto de encuentro",
-  "PreBookingIntroModal.meetingPointPlaceholder": "Elige dónde quedar",
+  "PreBookingIntroModal.meetingPointPlaceholder": "Seleccionar punto de encuentro",
   "PreBookingIntroModal.footerNote": "La mayoría de los coaches responden en pocas horas.",
   "PreBookingIntroModal.continue": "Continuar a disponibilidad",
   "PreBookingIntroModal.later": "Quizás más tarde",

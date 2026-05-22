@@ -1051,7 +1051,7 @@
   "PreBookingIntroModal.skillLevelPlaceholder": "Select skill level",
   "PreBookingIntroModal.participantCountLabel": "Number of participants",
   "PreBookingIntroModal.meetingPointLabel": "Meeting point",
-  "PreBookingIntroModal.meetingPointPlaceholder": "Choose where to meet",
+  "PreBookingIntroModal.meetingPointPlaceholder": "Select meeting point",
   "PreBookingIntroModal.footerNote": "Most coaches reply within a few hours.",
   "PreBookingIntroModal.continue": "Continue to availability",
   "PreBookingIntroModal.later": "Maybe later",

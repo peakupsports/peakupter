@@ -1022,7 +1022,7 @@
   "PreBookingIntroModal.skillLevelPlaceholder": "Niveau wählen",
   "PreBookingIntroModal.participantCountLabel": "Anzahl Teilnehmende",
   "PreBookingIntroModal.meetingPointLabel": "Treffpunkt",
-  "PreBookingIntroModal.meetingPointPlaceholder": "Treffpunkt wählen",
+  "PreBookingIntroModal.meetingPointPlaceholder": "Treffpunkt auswählen",
   "PreBookingIntroModal.footerNote": "Die meisten Coaches antworten innerhalb weniger Stunden.",
   "PreBookingIntroModal.continue": "Weiter zur Verfügbarkeit",
   "PreBookingIntroModal.later": "Vielleicht später",
