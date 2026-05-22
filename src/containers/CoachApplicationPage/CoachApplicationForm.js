@@ -61,6 +61,7 @@ const LEGAL_POLICY_HREFS = {
   terms: '/p/terms',
   privacy: '/p/privacy-policy',
   cookies: '/p/cookie-policy',
+  cancellation: '/p/cancellation-policy',
 };
 
 const LegalConsentLabel = () => (
@@ -88,6 +89,15 @@ const LegalConsentLabel = () => (
       cookies: chunks => (
         <a
           href={LEGAL_POLICY_HREFS.cookies}
+          className={css.legalLink}
+          onClick={e => e.stopPropagation()}
+        >
+          {chunks}
+        </a>
+      ),
+      cancellation: chunks => (
+        <a
+          href={LEGAL_POLICY_HREFS.cancellation}
           className={css.legalLink}
           onClick={e => e.stopPropagation()}
         >

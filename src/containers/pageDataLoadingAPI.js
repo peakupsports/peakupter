@@ -7,6 +7,7 @@ import { loadData as AdminCoachApplicationsPageLoader } from './AdminCoachApplic
 import { loadData as TermsPageLoader } from './TermsPage/TermsPage.duck';
 import { loadData as PrivacyPageLoader } from './PrivacyPage/PrivacyPage.duck';
 import { loadData as CookiesPageLoader } from './CookiesPage/CookiesPage.duck';
+import { loadData as CancellationPolicyPageLoader } from './CancellationPolicyPage/CancellationPolicyPage.duck';
 import { loadData as AuthenticationPageLoader } from './AuthenticationPage/AuthenticationPage.duck';
 import { loadData as LandingPageLoader } from './LandingPage/LandingPage.duck';
 import { setInitialValues as CheckoutPageInitialValues } from './CheckoutPage/CheckoutPage.duck';
@@ -49,6 +50,9 @@ const getPageDataLoadingAPI = () => {
     },
     CookiesPage: {
       loadData: CookiesPageLoader,
+    },
+    CancellationPolicyPage: {
+      loadData: CancellationPolicyPageLoader,
     },
     AuthenticationPage: {
       loadData: AuthenticationPageLoader,

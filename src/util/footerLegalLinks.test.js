@@ -9,11 +9,14 @@ describe('mergeFooterLegalLinks', () => {
     },
   };
 
-  it('appends Cookies Policy link to Company & Legal column', () => {
+  it('appends Cookies Policy and Cancellation Policy links to Company & Legal column', () => {
     const footer = { blocks: [companyLegalBlock] };
     const result = mergeFooterLegalLinks(footer);
 
     expect(result.blocks[0].text.content).toContain('[Cookies Policy](/p/cookies)');
+    expect(result.blocks[0].text.content).toContain(
+      '[Cancellation Policy](/p/cancellation-policy)'
+    );
   });
 
   it('does not duplicate Cookies Policy link', () => {

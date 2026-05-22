@@ -25,6 +25,11 @@ const PrivacyPage = loadable(() =>
 const CookiesPage = loadable(() =>
   import(/* webpackChunkName: "CookiesPage" */ '../containers/CookiesPage/CookiesPage')
 );
+const CancellationPolicyPage = loadable(() =>
+  import(
+    /* webpackChunkName: "CancellationPolicyPage" */ '../containers/CancellationPolicyPage/CancellationPolicyPage'
+  )
+);
 import NotFoundPage from '../containers/NotFoundPage/NotFoundPage';
 import PreviewResolverPage from '../containers/PreviewResolverPage/PreviewResolverPage';
 
@@ -156,6 +161,12 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       name: 'CookiesPage',
       component: CookiesPage,
       loadData: pageDataLoadingAPI.CookiesPage.loadData,
+    },
+    {
+      path: '/p/cancellation-policy',
+      name: 'CancellationPolicyPage',
+      component: CancellationPolicyPage,
+      loadData: pageDataLoadingAPI.CancellationPolicyPage.loadData,
     },
     {
       path: '/p/privacy-policy',
