@@ -46,26 +46,26 @@
   transform: translateX(-50%);
   /* `100% + 48px` is wider than the section — centered, it spills ~24px each side and
    * forces horizontal scroll / “page widens” once the section paints. */
-  width: min(720px, 100%);
+  width: min(860px, 108%);
   max-width: 100%;
-  height: 188px;
+  height: 228px;
   border-radius: 999px;
   pointer-events: none;
   z-index: 0;
   background:
     radial-gradient(
-      52% 58% at 50% 50%,
-      rgba(21, 155, 255, 0.12) 0%,
-      rgba(34, 230, 184, 0.07) 24%,
-      rgba(21, 155, 255, 0.03) 42%,
-      transparent 74%
+      72% 78% at 50% 50%,
+      rgba(21, 155, 255, 0.055) 0%,
+      rgba(34, 230, 184, 0.028) 30%,
+      rgba(21, 155, 255, 0.012) 52%,
+      transparent 82%
     ),
     radial-gradient(
-      72% 78% at 50% 28%,
-      rgba(255, 255, 255, 0.05) 0%,
-      transparent 62%
+      92% 96% at 50% 30%,
+      rgba(255, 255, 255, 0.028) 0%,
+      transparent 72%
     );
-  filter: blur(8px);
+  filter: blur(16px);
 }
 
 .showcaseHeader::after {
@@ -74,17 +74,17 @@
   left: 50%;
   top: 4px;
   transform: translateX(-50%);
-  width: min(620px, 92%);
-  height: 84px;
+  width: min(680px, 94%);
+  height: 96px;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.35;
+  opacity: 0.22;
   background:
-    radial-gradient(circle at 10% 34%, rgba(255, 255, 255, 0.34) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 28% 68%, rgba(21, 155, 255, 0.22) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 54% 26%, rgba(255, 255, 255, 0.28) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 72% 58%, rgba(34, 230, 184, 0.18) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.2) 0 1px, transparent 1.8px);
+    radial-gradient(circle at 10% 34%, rgba(255, 255, 255, 0.28) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 28% 68%, rgba(21, 155, 255, 0.14) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 54% 26%, rgba(255, 255, 255, 0.22) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 72% 58%, rgba(34, 230, 184, 0.12) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.16) 0 1px, transparent 1.8px);
 }
 
 .showcaseTitle {
@@ -95,7 +95,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -107,15 +107,129 @@
   text-align: center;
 }
 
-.showcaseTitleIcon {
-  font-size: 0.82em;
-  line-height: 1;
-  filter: drop-shadow(0 4px 10px rgba(255, 120, 48, 0.18));
+.showcaseTitle::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(440px, 96%);
+  height: 76px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse 88% 72% at 38% 50%,
+    rgba(23, 217, 255, 0.06) 0%,
+    rgba(34, 230, 184, 0.03) 38%,
+    transparent 72%
+  );
+  filter: blur(14px);
+  opacity: 0.65;
+}
+
+.showcaseTitleBadgeWrap {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: clamp(38px, 10vw, 58px);
+  height: clamp(38px, 10vw, 58px);
+}
+
+.showcaseTitleBadgeWrap::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse 130% 110% at 50% 58%,
+    rgba(23, 217, 255, 0.16) 0%,
+    rgba(34, 230, 184, 0.07) 36%,
+    transparent 74%
+  );
+  filter: blur(14px);
+  opacity: 0.48;
+  transition:
+    opacity 320ms ease,
+    transform 320ms ease;
+  pointer-events: none;
+}
+
+.showcaseTitleBadge {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: translateY(-1px);
+  filter:
+    drop-shadow(0 5px 12px rgba(0, 0, 0, 0.38))
+    drop-shadow(0 0 18px rgba(23, 217, 255, 0.08));
+  transition:
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 420ms ease;
+  animation: showcaseBadgeFloat 5.5s ease-in-out infinite;
+}
+
+@keyframes showcaseBadgeFloat {
+  0%,
+  100% {
+    transform: translateY(-1px);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.showcaseTitle:hover .showcaseTitleBadgeWrap::before {
+  opacity: 0.58;
+  transform: scale(1.02);
+}
+
+.showcaseTitle:hover .showcaseTitleBadge {
+  animation-play-state: paused;
+  transform: translateY(-2px);
+  filter:
+    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 0 20px rgba(23, 217, 255, 0.12));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showcaseTitleBadge {
+    animation: none;
+  }
+
+  .showcaseTitleBadge,
+  .showcaseTitleBadgeWrap::before {
+    transition: none;
+  }
+
+  .showcaseTitle:hover .showcaseTitleBadge {
+    transform: translateY(-1px);
+  }
+}
+
+@media (--viewportMedium) {
+  .showcaseTitle {
+    gap: 14px;
+  }
+
+  .showcaseTitleBadgeWrap {
+    width: clamp(49px, 4.8vw, 64px);
+    height: clamp(49px, 4.8vw, 64px);
+  }
 }
 
 .showcaseTitleText {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.18em;
@@ -127,6 +241,7 @@
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 22px rgba(34, 230, 184, 0.1));
 }
 
 .showcaseSubtitle {

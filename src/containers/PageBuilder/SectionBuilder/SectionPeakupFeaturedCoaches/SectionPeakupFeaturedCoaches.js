@@ -24,6 +24,8 @@ import SectionContainer from '../SectionContainer';
 
 import css from './SectionPeakupFeaturedCoaches.module.css';
 
+const FEATURED_COACH_BADGE_SRC = '/CoachPagePic/Featured_Coach.jpg';
+
 /**
  * Selector: rebuild `coachCard` props for each row in `state.featuredCoaches.coaches`,
  * denormalising the related `user` and `listing` entities from `state.marketplaceData`.
@@ -210,8 +212,15 @@ const SectionPeakupFeaturedCoaches = props => {
     >
       <header className={classNames(defaultClasses.sectionDetails, css.showcaseHeader)}>
         <h2 className={css.showcaseTitle}>
-          <span className={css.showcaseTitleIcon} aria-hidden="true">
-            🔥
+          <span className={css.showcaseTitleBadgeWrap} aria-hidden="true">
+            <img
+              className={css.showcaseTitleBadge}
+              src={FEATURED_COACH_BADGE_SRC}
+              alt=""
+              width={60}
+              height={60}
+              decoding="async"
+            />
           </span>
           <span className={css.showcaseTitleText}>
             <FormattedMessage

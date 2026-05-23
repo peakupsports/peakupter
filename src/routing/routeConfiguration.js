@@ -30,6 +30,11 @@ const CancellationPolicyPage = loadable(() =>
     /* webpackChunkName: "CancellationPolicyPage" */ '../containers/CancellationPolicyPage/CancellationPolicyPage'
   )
 );
+const CoachEarningsPage = loadable(() =>
+  import(
+    /* webpackChunkName: "CoachEarningsPage" */ '../containers/CoachEarningsPage/CoachEarningsPage'
+  )
+);
 import NotFoundPage from '../containers/NotFoundPage/NotFoundPage';
 import PreviewResolverPage from '../containers/PreviewResolverPage/PreviewResolverPage';
 
@@ -131,6 +136,12 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       name: 'CoachApplicationPage',
       component: CoachApplicationPage,
       loadData: pageDataLoadingAPI.CoachApplicationPage.loadData,
+    },
+    {
+      path: '/coach-earnings',
+      name: 'CoachEarningsPage',
+      component: CoachEarningsPage,
+      loadData: pageDataLoadingAPI.CoachEarningsPage.loadData,
     },
     {
       path: '/admin/coach-applications',

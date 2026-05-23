@@ -110,6 +110,7 @@ const PageBuilder = props => {
     chromeTheme,
     currentPage,
     featuredListings,
+    beforeFooter,
     ...pageProps
   } = props;
 
@@ -144,6 +145,7 @@ const PageBuilder = props => {
                 ) : (
                   <SectionBuilder sections={sections} options={{ ...options, featuredListings }} />
                 )}
+                {beforeFooter}
               </Main>
               <Footer>
                 <FooterContainer />

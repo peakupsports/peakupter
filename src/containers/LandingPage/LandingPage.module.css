@@ -851,7 +851,7 @@
  * Targets used:
  *   - `<a class="cta">` View Profile pill
  *   - `<span class="stickerStars"> ⭐⭐⭐⭐⭐` rating row
- *   - `<svg class="medal_*">` podium medals (Founder ranking only)
+ *   - `<img class="podiumMedalImage">` podium medals (Featured ranking only)
  *   - `<span class="reviewMeta">` review meta string in footer
  *   - `<span class="stickerName">` coach display name (header)
  * The CTA text deliberately stays `#041018` (deep navy) so it stays
@@ -868,13 +868,22 @@
   color: var(--colorGrey300, #d4d4d4);
 }
 .landingPremium [class*="PeakUpCoachFigurineCard_medal_gold"] {
-  color: #f5c542;
+  filter:
+    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 10px rgba(245, 197, 66, 0.12))
+    drop-shadow(0 2px 4px rgba(245, 197, 66, 0.08));
 }
 .landingPremium [class*="PeakUpCoachFigurineCard_medal_silver"] {
-  color: #c8d0db;
+  filter:
+    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 10px rgba(200, 208, 219, 0.1))
+    drop-shadow(0 2px 4px rgba(23, 217, 255, 0.06));
 }
 .landingPremium [class*="PeakUpCoachFigurineCard_medal_bronze"] {
-  color: #cd7f32;
+  filter:
+    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 10px rgba(205, 127, 50, 0.11))
+    drop-shadow(0 2px 4px rgba(205, 127, 50, 0.07));
 }
 .landingPremium [class*="PeakUpCoachFigurineCard_reviewMeta"] {
   color: rgba(236, 242, 250, 0.82);

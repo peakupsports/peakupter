@@ -53,64 +53,24 @@ const STICKER_AVATAR_VARIANTS = [
   'default',
 ];
 
-/** Tier di medaglie podio (rank 1/2/3). */
+/** Tier di medaglie podio (rank 1/2/3) — asset PeakUp custom. */
 const RANK_MEDAL_TIERS = {
-  1: { className: 'medal_gold', label: 'Gold medal', number: '1' },
-  2: { className: 'medal_silver', label: 'Silver medal', number: '2' },
-  3: { className: 'medal_bronze', label: 'Bronze medal', number: '3' },
+  1: {
+    className: 'medal_gold',
+    label: 'Gold medal',
+    src: '/CoachPagePic/Medaglia_oro.jpg',
+  },
+  2: {
+    className: 'medal_silver',
+    label: 'Silver medal',
+    src: '/CoachPagePic/Medaglia_argento.jpg',
+  },
+  3: {
+    className: 'medal_bronze',
+    label: 'Bronze medal',
+    src: '/CoachPagePic/Medaglia_bronzo.jpg',
+  },
 };
-
-/**
- * Medaglia da podio: nastro tricolore PeakUp (navy) + disco metallico inciso col numero.
- * Il disco prende `currentColor` per la cornice (definito via CSS .medal_gold/silver/bronze)
- * con due overlay (light + shadow) per dare l'effetto sfaccettato metallico.
- */
-const RankMedalIcon = ({ rank }) => (
-  <svg
-    viewBox="0 0 32 44"
-    aria-hidden="true"
-    focusable="false"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <defs>
-      <linearGradient id={`medal-disc-${rank}`} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="rgba(255,255,255,0.55)" />
-        <stop offset="50%" stopColor="rgba(255,255,255,0)" />
-        <stop offset="100%" stopColor="rgba(0,0,0,0.25)" />
-      </linearGradient>
-    </defs>
-    {/* Nastro: due strisce diagonali navy che si incrociano sopra il disco */}
-    <path d="M5 0 L11 0 L19 18 L13 22 Z" fill="#10213e" />
-    <path d="M27 0 L21 0 L13 18 L19 22 Z" fill="#1f3558" />
-    {/* Disco esterno (cornice metallica con `currentColor`) */}
-    <circle cx="16" cy="30" r="12" fill="currentColor" stroke="rgba(0,0,0,0.25)" strokeWidth="0.7" />
-    {/* Overlay di lucidatura (chiaro→scuro, dà sfaccettatura metallica) */}
-    <circle cx="16" cy="30" r="12" fill={`url(#medal-disc-${rank})`} />
-    {/* Disco interno con bordino interno */}
-    <circle
-      cx="16"
-      cy="30"
-      r="9"
-      fill="none"
-      stroke="rgba(0,0,0,0.18)"
-      strokeWidth="0.4"
-    />
-    {/* Highlight in alto a sinistra */}
-    <ellipse cx="13" cy="26" rx="4" ry="1.6" fill="rgba(255,255,255,0.55)" />
-    {/* Numero inciso */}
-    <text
-      x="16"
-      y="34.5"
-      textAnchor="middle"
-      fontFamily="system-ui, -apple-system, Helvetica, Arial, sans-serif"
-      fontWeight="800"
-      fontSize="11"
-      fill="rgba(0,0,0,0.7)"
-    >
-      {String(rank)}
-    </text>
-  </svg>
-);
 
 const normalizeSportKey = raw => String(raw || '').toLowerCase().replace(/[\s-_]+/g, '');
 
@@ -284,31 +244,9 @@ const PeakUpCoachFigurineCard = props => {
       className={classNames(css.root, className)}
       style={tierStyle || undefined}
     >
-      {podiumTier ? (
-        <span
-          className={classNames(css.podiumMedal, css[podiumTier.className])}
-          role="img"
-          aria-label={intl.formatMessage(
-            {
-              id: 'PeakUpCoachFigurineCard.podiumRank',
-              defaultMessage: 'Rank {rank} on PeakUp',
-            },
-            { rank }
-          )}
-          title={intl.formatMessage(
-            {
-              id: 'PeakUpCoachFigurineCard.podiumRank',
-              defaultMessage: 'Rank {rank} on PeakUp',
-            },
-            { rank }
-          )}
-        >
-          <RankMedalIcon rank={rank} />
-        </span>
-      ) : null}
-
-      <div className={css.stickerCard}>
-        <div className={css.stickerCardHeader}>
+      <div className={classNames(css.collectibleFrame, podiumTier && css.collectibleFramePodium)}>
+        <div className={css.stickerCard}>
+          <div className={css.stickerCardHeader}>
           <div className={css.stickerHeaderLeft}>
             <span className={css.flag} aria-hidden>
               {flagDisplay}
@@ -495,6 +433,36 @@ const PeakUpCoachFigurineCard = props => {
             ) : null}
           </div>
         </div>
+        </div>
+        {podiumTier ? (
+          <span
+            className={classNames(css.podiumMedal, css[podiumTier.className])}
+            role="img"
+            aria-label={intl.formatMessage(
+              {
+                id: 'PeakUpCoachFigurineCard.podiumRank',
+                defaultMessage: 'Rank {rank} on PeakUp',
+              },
+              { rank }
+            )}
+            title={intl.formatMessage(
+              {
+                id: 'PeakUpCoachFigurineCard.podiumRank',
+                defaultMessage: 'Rank {rank} on PeakUp',
+              },
+              { rank }
+            )}
+          >
+            <img
+              className={css.podiumMedalImage}
+              src={podiumTier.src}
+              alt=""
+              width={100}
+              height={141}
+              decoding="async"
+            />
+          </span>
+        ) : null}
       </div>
 
       {sortedTierBadgeIds.length > 0 || legacyCoachLevel ? (

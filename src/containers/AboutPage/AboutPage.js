@@ -167,7 +167,11 @@ const AboutPage = () => {
                 <NamedLink name="CoachesPage" className={css.primaryCta}>
                   <FormattedMessage id="AboutPage.heroCtaPrimary" />
                 </NamedLink>
-                <NamedLink name="CoachApplicationPage" className={css.secondaryCta}>
+                <NamedLink
+                  name="CMSPage"
+                  params={{ pageId: '4_instructors' }}
+                  className={css.secondaryCta}
+                >
                   <FormattedMessage id="AboutPage.heroCtaApply" />
                 </NamedLink>
               </div>
@@ -341,7 +345,11 @@ const AboutPage = () => {
                   <p className={css.ctaBody}>
                     <FormattedMessage id="AboutPage.ctaBody" />
                   </p>
-                  <NamedLink name="CoachApplicationPage" className={css.ctaFinalButton}>
+                  <NamedLink
+                    name="CMSPage"
+                    params={{ pageId: '4_instructors' }}
+                    className={css.ctaFinalButton}
+                  >
                     <FormattedMessage id="AboutPage.ctaApply" />
                   </NamedLink>
                 </div>

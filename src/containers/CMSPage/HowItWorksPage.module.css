@@ -3801,3 +3801,75 @@
   [class*='SectionFooter_footer'] {
   padding-top: 16px;
 }
+
+/* ===========================================================================
+ * Transparent earnings banner — integration + remove early apply CTA
+ * =========================================================================== */
+
+/* Hide the large JOIN PEAKUP button in the image / How-it-works section.
+ * Application stays later in the funnel; earnings banner is the only early CTA. */
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionCarousel_block']
+  > [class*='BlockDefault_text']
+  > [class*='SectionBuilder_ctaButton'] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionCarousel_block']
+  > [class*='BlockDefault_text']
+  > [class*='SectionBuilder_ctaButton']::before,
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionCarousel_block']
+  > [class*='BlockDefault_text']
+  > [class*='SectionBuilder_ctaButton']::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Reclaim vertical space reserved for the removed CTA */
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):nth-of-type(3)
+  [class*='SectionCarousel_threeColumns'] {
+  padding-bottom: clamp(20px, 3.5vw, 36px) !important;
+}
+
+@media (max-width: 479px) {
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_threeColumns'] {
+    padding-bottom: 24px !important;
+  }
+}
+
+/* Softer exit from the cinematic image section into the earnings banner */
+.instructorsPremiumPage :global(main) > :global(aside[data-instructors-earnings-banner]) {
+  position: relative;
+  z-index: 2;
+}
+
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):last-of-type:not(:first-of-type)
+  > [class*='SectionContainer_sectionContent'] {
+  padding-bottom: clamp(48px, 6.5vw, 72px);
+}
+
+@media (--viewportMedium) {
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):last-of-type:not(:first-of-type)
+    > [class*='SectionContainer_sectionContent'] {
+    padding-bottom: clamp(56px, 7vw, 80px);
+  }
+}

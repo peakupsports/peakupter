@@ -14,6 +14,7 @@ import sportTheme from '../SportPagesTheme.module.css';
 import css from './HowItWorksPage.module.css';
 
 import NotFoundPage from '../../containers/NotFoundPage/NotFoundPage';
+import InstructorsEarningsBanner from './InstructorsEarningsBanner';
 const PageBuilder = loadable(() =>
   import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')
 );
@@ -125,6 +126,7 @@ export const CMSPageComponent = props => {
       inProgress={inProgress}
       schemaType="Article"
       featuredListings={getFeaturedListingsProps(pageId, props)}
+      beforeFooter={isPremiumInstructors ? <InstructorsEarningsBanner /> : null}
     />
   );
 };
