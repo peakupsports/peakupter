@@ -30,22 +30,15 @@
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  /* Room for compact ranking shield overlapping the card top border. */
-  padding-top: 18px;
+  overflow: visible;
   isolation: isolate;
-}
-
-@media (--viewportMedium) {
-  .root {
-    padding-top: 20px;
-  }
 }
 
 .collectibleFramePodium {
   overflow: visible;
 }
 
-.collectibleFramePodium .collectibleFrame {
+.collectibleFramePodium .podiumMedal {
   overflow: visible;
 }
 
@@ -54,6 +47,7 @@
   width: 100%;
   min-width: 0;
   max-width: 100%;
+  overflow: visible;
   transform: translateZ(0);
   transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
@@ -85,258 +79,145 @@
   }
 }
 
-/* Compact PeakUp ranking shield — crest only, no hanging ribbon. */
+/* Compact PeakUp ranking shield — crest JPG, overlaps card top border. */
 .podiumMedal {
   position: absolute;
-  top: -42px;
+  top: -28px;
   left: 50%;
-  height: 78px;
-  width: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  z-index: 5;
+  z-index: 20;
   transform: translateX(-50%);
   overflow: visible;
-  animation: podiumShieldBob 6s ease-in-out infinite;
   transition:
-    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 320ms ease;
-  will-change: transform;
+    transform 220ms ease,
+    filter 220ms ease;
 }
 
 .podiumMedal::before {
   content: '';
   position: absolute;
-  inset: 4px 8px 10px;
+  inset: 2px 6px 4px;
   border-radius: 50%;
   pointer-events: none;
   z-index: -1;
-  filter: blur(5px);
-  opacity: 0.22;
-  transition: opacity 320ms ease, filter 320ms ease;
+  filter: blur(6px);
+  opacity: 0.2;
+  transition: opacity 220ms ease, filter 220ms ease;
 }
 
-.podiumShieldSvg {
+.podiumShieldImg {
   display: block;
-  height: 78px;
-  width: auto;
-  overflow: visible;
+  width: 62px;
+  height: auto;
+  max-width: 100%;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-.podiumShieldBody {
-  stroke: none;
-}
-
-.podiumShieldRim {
-  fill: none;
-  stroke-width: 1.6;
-  vector-effect: non-scaling-stroke;
-}
-
-.podiumShieldShine {
-  mix-blend-mode: soft-light;
-  opacity: 0.55;
-  pointer-events: none;
-}
-
-.podiumShieldPeakMark {
-  fill: rgba(8, 13, 23, 0.88);
-  stroke: rgba(255, 255, 255, 0.12);
-  stroke-width: 0.6;
-  vector-effect: non-scaling-stroke;
-}
-
-.podiumShieldRank {
-  position: absolute;
-  left: 50%;
-  top: 54%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  font-size: 26px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-  text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.22),
-    0 2px 6px rgba(0, 0, 0, 0.42);
-}
-
-.podiumShieldStopTop,
-.podiumShieldStopMid,
-.podiumShieldStopBottom {
-  stop-color: currentColor;
-}
-
-@keyframes podiumShieldBob {
-  0%,
-  100% {
-    margin-top: 0;
+@media (--viewportMedium) {
+  .podiumMedal {
+    top: -34px;
   }
 
-  50% {
-    margin-top: -2px;
+  .podiumShieldImg {
+    width: 72px;
   }
 }
 
 .medal_gold {
-  --shield-rank-color: #2a1c04;
   filter:
-    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4))
-    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.28))
-    drop-shadow(0 0 6px rgba(232, 178, 58, 0.12));
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.38))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.24))
+    drop-shadow(0 0 6px rgba(232, 178, 58, 0.14));
 }
 
 .medal_gold::before {
   background: radial-gradient(
     ellipse 62% 58% at 50% 52%,
-    rgba(255, 214, 120, 0.16) 0%,
+    rgba(255, 214, 120, 0.18) 0%,
     rgba(232, 178, 58, 0.06) 40%,
     transparent 62%
   );
 }
 
-.medal_gold .podiumShieldStopTop {
-  stop-color: #fff2b8;
-}
-
-.medal_gold .podiumShieldStopMid {
-  stop-color: #e8b23a;
-}
-
-.medal_gold .podiumShieldStopBottom {
-  stop-color: #9a6a12;
-}
-
-.medal_gold .podiumShieldRim {
-  stroke: rgba(255, 236, 168, 0.72);
-}
-
-.medal_gold .podiumShieldRank {
-  color: #2a1c04;
-}
-
 .medal_silver {
-  --shield-rank-color: #141c28;
   filter:
-    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4))
-    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.28))
-    drop-shadow(0 0 5px rgba(186, 198, 214, 0.1));
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.38))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.24))
+    drop-shadow(0 0 5px rgba(186, 198, 214, 0.12));
 }
 
 .medal_silver::before {
   background: radial-gradient(
     ellipse 62% 58% at 50% 52%,
-    rgba(228, 236, 246, 0.14) 0%,
+    rgba(228, 236, 246, 0.16) 0%,
     rgba(23, 217, 255, 0.05) 38%,
     transparent 62%
   );
 }
 
-.medal_silver .podiumShieldStopTop {
-  stop-color: #f4f8fc;
-}
-
-.medal_silver .podiumShieldStopMid {
-  stop-color: #b8c4d4;
-}
-
-.medal_silver .podiumShieldStopBottom {
-  stop-color: #6e7a8c;
-}
-
-.medal_silver .podiumShieldRim {
-  stroke: rgba(228, 238, 250, 0.78);
-}
-
-.medal_silver .podiumShieldRank {
-  color: #141c28;
-}
-
 .medal_bronze {
-  --shield-rank-color: #241408;
   filter:
-    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.42))
-    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3))
-    drop-shadow(0 0 5px rgba(142, 98, 62, 0.1));
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.26))
+    drop-shadow(0 0 5px rgba(142, 98, 62, 0.12));
 }
 
 .medal_bronze::before {
   background: radial-gradient(
     ellipse 62% 58% at 50% 52%,
-    rgba(168, 118, 78, 0.14) 0%,
+    rgba(168, 118, 78, 0.16) 0%,
     rgba(108, 72, 48, 0.05) 40%,
     transparent 62%
   );
 }
 
-.medal_bronze .podiumShieldStopTop {
-  stop-color: #ddb892;
-}
-
-.medal_bronze .podiumShieldStopMid {
-  stop-color: #a66b3a;
-}
-
-.medal_bronze .podiumShieldStopBottom {
-  stop-color: #5c3a22;
-}
-
-.medal_bronze .podiumShieldRim {
-  stroke: rgba(220, 176, 132, 0.62);
-}
-
-.medal_bronze .podiumShieldRank {
-  color: #241408;
-}
-
+/* Shield follows `.collectibleFrame` hover — glow only, no separate movement. */
 .root:hover .podiumMedal,
 .root:focus-within .podiumMedal {
-  animation-play-state: paused;
-  transform: translateX(-50%) translateY(-3px) scale(1.03);
+  transform: translateX(-50%);
 }
 
 .root:hover .podiumMedal::before,
 .root:focus-within .podiumMedal::before {
-  opacity: 0.3;
-  filter: blur(6px);
+  opacity: 0.34;
+  filter: blur(7px);
 }
 
 .root:hover .medal_gold,
 .root:focus-within .medal_gold {
   filter:
-    drop-shadow(0 6px 12px rgba(0, 0, 0, 0.44))
-    drop-shadow(0 2px 5px rgba(0, 0, 0, 0.32))
-    drop-shadow(0 0 8px rgba(255, 214, 120, 0.16));
+    drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.28))
+    drop-shadow(0 0 9px rgba(255, 214, 120, 0.2));
 }
 
 .root:hover .medal_silver,
 .root:focus-within .medal_silver {
   filter:
-    drop-shadow(0 6px 12px rgba(0, 0, 0, 0.44))
-    drop-shadow(0 2px 5px rgba(0, 0, 0, 0.32))
-    drop-shadow(0 0 7px rgba(200, 214, 228, 0.14));
+    drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.28))
+    drop-shadow(0 0 8px rgba(200, 214, 228, 0.16));
 }
 
 .root:hover .medal_bronze,
 .root:focus-within .medal_bronze {
   filter:
-    drop-shadow(0 6px 12px rgba(0, 0, 0, 0.46))
-    drop-shadow(0 2px 5px rgba(0, 0, 0, 0.34))
-    drop-shadow(0 0 7px rgba(168, 118, 78, 0.12));
+    drop-shadow(0 5px 10px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))
+    drop-shadow(0 0 8px rgba(168, 118, 78, 0.14));
 }
 
 @media (prefers-reduced-motion: reduce) {
   .podiumMedal {
-    animation: none;
     transition: filter 200ms ease;
   }
 
   .root:hover .podiumMedal,
   .root:focus-within .podiumMedal {
-    animation: none;
     transform: translateX(-50%);
   }
 }
@@ -356,7 +237,8 @@
   max-width: 100%;
   margin: 0;
   padding: 0;
-  border-radius: 20px;
+  --figurine-frame-radius: 20px;
+  border-radius: var(--figurine-frame-radius);
   border: 4px solid var(--tier-border, var(--stickerGold));
   background:
     radial-gradient(circle at 18% 10%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 34%),
@@ -380,28 +262,12 @@
   flex-direction: column;
 }
 
-.collectibleFramePodium .stickerCard::after {
-  z-index: 2;
-  background:
-    radial-gradient(
-      ellipse 34% 12% at 50% 0%,
-      rgba(0, 0, 0, 0.26) 0%,
-      rgba(0, 0, 0, 0.08) 38%,
-      transparent 64%
-    ),
-    radial-gradient(circle at 76% 100%, rgba(21, 155, 255, 0.07) 0%, rgba(21, 155, 255, 0) 32%),
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.02) 0%,
-      rgba(255, 255, 255, 0) 100%
-    );
-}
-
 .stickerCard::before,
 .stickerCard::after {
   content: '';
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   pointer-events: none;
 }
 

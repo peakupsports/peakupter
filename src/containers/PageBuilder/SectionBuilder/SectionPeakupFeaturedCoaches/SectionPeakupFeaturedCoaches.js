@@ -210,7 +210,7 @@ const SectionPeakupFeaturedCoaches = props => {
       rootClassName={rootClassName}
       appearance={appearance}
     >
-      <header className={classNames(defaultClasses.sectionDetails, css.showcaseHeader)}>
+      <header className={classNames(defaultClasses.sectionDetails, css.headerBlock, css.showcaseHeader)}>
         <h2 className={css.showcaseTitle}>
           <span className={css.showcaseTitleBadgeWrap} aria-hidden="true">
             <img
@@ -280,8 +280,9 @@ const SectionPeakupFeaturedCoaches = props => {
       ) : null}
 
       {cards.length > 0 ? (
-        <div className={css.scrollViewport}>
-          <button
+        <div className={css.carouselArea}>
+          <div className={css.scrollViewport}>
+              <button
             type="button"
             className={classNames(css.navButton, css.navButtonPrev)}
             onClick={() => scrollBy(-1)}
@@ -335,6 +336,7 @@ const SectionPeakupFeaturedCoaches = props => {
           >
             <span aria-hidden>›</span>
           </button>
+          </div>
         </div>
       ) : null}
     </SectionContainer>

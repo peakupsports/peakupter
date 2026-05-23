@@ -1,10 +1,17 @@
-import React, { useId } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 
 import css from './PeakUpCoachFigurineCard.module.css';
 
+/** Public shield assets — compact crest only, no hanging ribbon. */
+export const RANK_SHIELD_IMAGE_SRC = {
+  1: '/CoachPagePic/Scudo_oro.jpg',
+  2: '/CoachPagePic/Scudo_argento.jpg',
+  3: '/CoachPagePic/Scudo_bronzo.jpg',
+};
+
 /**
- * Compact PeakUp ranking shield (ranks 1–3) — no hanging ribbon.
+ * Compact PeakUp ranking shield (ranks 1–3) — image asset, no ribbon.
  *
  * @param {Object} props
  * @param {1|2|3} props.rank
@@ -12,9 +19,11 @@ import css from './PeakUpCoachFigurineCard.module.css';
  * @param {string} props.ariaLabel accessible label
  */
 const PeakUpRankShieldBadge = ({ rank, tierClassName, ariaLabel }) => {
-  const uid = useId().replace(/:/g, '');
-  const fillId = `peakupShieldFill-${uid}`;
-  const shineId = `peakupShieldShine-${uid}`;
+  const src = RANK_SHIELD_IMAGE_SRC[rank];
+
+  if (!src) {
+    return null;
+  }
 
   return (
     <span
@@ -23,52 +32,15 @@ const PeakUpRankShieldBadge = ({ rank, tierClassName, ariaLabel }) => {
       aria-label={ariaLabel}
       title={ariaLabel}
     >
-      <svg
-        className={css.podiumShieldSvg}
-        viewBox="0 0 64 78"
-        xmlns="http://www.w3.org/2000/svg"
+      <img
+        className={css.podiumShieldImg}
+        src={src}
+        alt=""
         aria-hidden="true"
-        focusable="false"
-      >
-        <defs>
-          <linearGradient id={fillId} x1="18%" y1="0%" x2="82%" y2="100%">
-            <stop offset="0%" className={css.podiumShieldStopTop} />
-            <stop offset="48%" className={css.podiumShieldStopMid} />
-            <stop offset="100%" className={css.podiumShieldStopBottom} />
-          </linearGradient>
-          <linearGradient id={shineId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="rgba(255,255,255,0.42)" />
-            <stop offset="38%" stopColor="rgba(255,255,255,0.08)" />
-            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-          </linearGradient>
-        </defs>
-
-        {/* Shield body — compact crest, no ribbon tail */}
-        <path
-          className={css.podiumShieldBody}
-          d="M32 3.5 55.5 14.8V46.2c0 .8-.4 1.5-1.1 1.9L32 73.5 9.6 48.1c-.7-.4-1.1-1.1-1.1-1.9V14.8L32 3.5Z"
-          fill={`url(#${fillId})`}
-        />
-        <path
-          className={css.podiumShieldRim}
-          d="M32 3.5 55.5 14.8V46.2c0 .8-.4 1.5-1.1 1.9L32 73.5 9.6 48.1c-.7-.4-1.1-1.1-1.1-1.9V14.8L32 3.5Z"
-        />
-        <path
-          className={css.podiumShieldShine}
-          d="M32 8 48 16.5V42.5L32 62 16 42.5V16.5L32 8Z"
-          fill={`url(#${shineId})`}
-        />
-
-        {/* PeakUp mountain mark */}
-        <path
-          className={css.podiumShieldPeakMark}
-          d="M32 18.5 39.5 30.5H24.5L32 18.5Z"
-        />
-      </svg>
-
-      <span className={css.podiumShieldRank} aria-hidden="true">
-        {rank}
-      </span>
+        loading="lazy"
+        decoding="async"
+        draggable="false"
+      />
     </span>
   );
 };

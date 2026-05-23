@@ -851,7 +851,7 @@
  * Targets used:
  *   - `<a class="cta">` View Profile pill
  *   - `<span class="stickerStars"> ⭐⭐⭐⭐⭐` rating row
- *   - `<span class="podiumMedal">` compact ranking shields (Featured ranking only)
+ *   - `<img class="podiumShieldImg">` compact ranking shields (Featured ranking only)
  *   - `<span class="reviewMeta">` review meta string in footer
  *   - `<span class="stickerName">` coach display name (header)
  * The CTA text deliberately stays `#041018` (deep navy) so it stays
@@ -1152,6 +1152,7 @@
   z-index: 1;
   padding-top: 72px;
   padding-bottom: 64px;
+  overflow: visible;
 }
 
 @media (--viewportMedium) {
@@ -1200,8 +1201,7 @@
   :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"]) {
   position: relative;
   min-width: 0;
-  overflow-x: clip;
-  overflow-y: visible;
+  overflow: visible;
 }
 
 .landingPremium
@@ -1302,23 +1302,16 @@
   :global(main)
   :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
   [class*="sectionDetails"] {
-  padding-bottom: 22px;
-}
-
-@media (--viewportMedium) {
-  .landingPremium
-    :global(main)
-    :global(section):has([class*="SectionPeakupFeaturedCoaches_scrollViewport"])
-    [class*="sectionDetails"] {
-    padding-bottom: 30px;
-  }
+  padding-bottom: 0;
 }
 
 .landingPremium
   :global(main)
+  [class*="SectionPeakupFeaturedCoaches_carouselArea"],
+.landingPremium
+  :global(main)
   [class*="SectionPeakupFeaturedCoaches_scrollViewport"] {
   position: relative;
-  margin-top: 20px;
   overflow: visible;
 }
 
@@ -1327,6 +1320,7 @@
   [class*="SectionPeakupFeaturedCoaches_scroller"] {
   position: relative;
   z-index: 1;
+  overflow-x: auto;
   overflow-y: visible;
 }
 
@@ -1334,14 +1328,6 @@
   :global(main)
   [class*="SectionPeakupFeaturedCoaches_scrollerItem"] {
   overflow: visible;
-}
-
-@media (--viewportMedium) {
-  .landingPremium
-    :global(main)
-    [class*="SectionPeakupFeaturedCoaches_scrollViewport"] {
-    margin-top: 28px;
-  }
 }
 
 .landingPremium
@@ -1601,5 +1587,12 @@
     :global(main)
     [class*='SectionPeakupFeaturedCoaches_scrollViewport']::before {
     inset: -16px 0;
+  }
+
+  /* Featured carousel: allow shields/borders to paint outside the track. */
+  .landingPremium
+    :global(main)
+    :global(section):has([class*='SectionPeakupFeaturedCoaches_scrollViewport']) {
+    overflow: visible;
   }
 }

@@ -22,6 +22,17 @@
   text-align: center;
 }
 
+.headerBlock {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: var(--contentMaxWidthPages);
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 72px;
+  text-align: center;
+}
+
 .showcaseHeader {
   position: relative;
   isolation: isolate;
@@ -266,26 +277,31 @@
  * `overflow-x` sul wrapper la pagina intera si allarga. Qui la pagina resta a larghezza
  * standard e scorre solo la riga delle figurine.
  */
+/* Carousel area — outer shell stays overflow visible; horizontal scroll lives on `.scroller`. */
+.carouselArea {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+}
+
 .scrollViewport {
   position: relative;
   box-sizing: border-box;
   width: 100%;
   max-width: var(--contentMaxWidthPages);
-  margin-left: auto;
-  margin-right: auto;
-  /* Allineato a `.sectionDetails` (stesso gutter delle altre sezioni PageBuilder). */
-  padding: 64px 32px 0;
-  margin-top: -66px;
+  margin: 0 auto;
+  padding: 0 32px 24px;
   min-width: 0;
-  overflow-x: hidden;
-  overflow-y: visible;
+  overflow: visible;
 }
 
 .scroller {
   display: flex;
+  align-items: flex-start;
   list-style: none;
   margin: 0;
-  padding: 8px 0 18px;
+  padding: 40px 0 24px;
   gap: 16px;
   box-sizing: border-box;
   width: 100%;
@@ -314,10 +330,9 @@
 .scrollerItem {
   flex: 0 0 auto;
   scroll-snap-align: start;
-  /* Card figurina: larghezza fissa su desktop; su mobile usa % del *contenitore*
-   * (non vw) così non forza overflow orizzontale sulla pagina. */
   width: clamp(240px, 78%, 300px);
   display: flex;
+  align-items: flex-start;
   min-width: 0;
   overflow: visible;
 
@@ -335,25 +350,29 @@
   overflow: visible;
 }
 
-/* Podium medals float above the figurina — keep carousel ancestors from clipping. */
+/* Podium shields float above the figurina — outer wrappers only (card keeps overflow hidden). */
 .scrollerItem [class*='PeakUpCoachFigurineCard_root'],
 .scrollerItem [class*='PeakUpCoachFigurineCard_collectibleFrame'],
-.scrollerItem [class*='PeakUpCoachFigurineCard_collectibleFramePodium'] {
+.scrollerItem [class*='PeakUpCoachFigurineCard_collectibleFramePodium'],
+.scrollerItem [class*='PeakUpCoachFigurineCard_podiumMedal'] {
   overflow: visible;
 }
 
 @media (max-width: 767px) {
+  .headerBlock {
+    margin-bottom: 56px;
+  }
+
   .scrollViewport {
     max-width: 100%;
-    padding: 56px max(14px, env(safe-area-inset-left, 0px)) 0
+    padding: 0 max(14px, env(safe-area-inset-left, 0px)) 24px
       max(14px, env(safe-area-inset-right, 0px));
-    margin-top: -56px;
-    box-sizing: border-box;
   }
 
   .scroller {
     gap: 14px;
-    padding: 8px 4px 16px;
+    padding-top: 36px;
+    padding-bottom: 24px;
     scroll-padding-inline: 14px;
     scroll-snap-type: x mandatory;
   }
@@ -362,12 +381,16 @@
     width: min(292px, calc(100% - 28px));
     scroll-snap-align: center;
   }
+
+  .navButton {
+    top: calc(36px + 50%);
+  }
 }
 
 /* Frecce di navigazione su desktop */
 .navButton {
   position: absolute;
-  top: 50%;
+  top: calc(40px + 50%);
   transform: translateY(-50%);
   width: 40px;
   height: 40px;

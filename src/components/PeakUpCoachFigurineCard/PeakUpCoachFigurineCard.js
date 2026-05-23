@@ -54,7 +54,7 @@ const STICKER_AVATAR_VARIANTS = [
   'default',
 ];
 
-/** Podium shield tiers (rank 1/2/3) — compact CSS/SVG badges, no ribbon. */
+/** Podium shield tiers (rank 1/2/3) — compact JPG shields, no ribbon. */
 const RANK_SHIELD_TIERS = {
   1: { className: 'medal_gold', label: 'Gold rank shield' },
   2: { className: 'medal_silver', label: 'Silver rank shield' },
