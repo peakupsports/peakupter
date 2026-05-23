@@ -46,6 +46,22 @@
   }
 }
 
+.hqBackLink {
+  display: inline-flex;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(23, 217, 255, 0.9);
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.hqBackLink:hover {
+  color: #9dff4f;
+}
+
 .header {
   margin-bottom: 24px;
 }

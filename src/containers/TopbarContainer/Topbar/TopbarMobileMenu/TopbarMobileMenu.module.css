@@ -148,6 +148,47 @@
     color: #17d9ff;
   }
 }
+
+.navigationLinkPeakUpHq {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(23, 217, 255, 0.92);
+}
+
+.peakUpHqNavInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.peakUpHqNavIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: #17d9ff;
+  filter: drop-shadow(0 0 4px rgba(23, 217, 255, 0.24));
+}
+
+.peakUpHqNavIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.menuSeparator {
+  height: 1px;
+  margin: 10px 0;
+  background: linear-gradient(
+    90deg,
+    rgba(23, 217, 255, 0) 0%,
+    rgba(23, 217, 255, 0.2) 50%,
+    rgba(23, 217, 255, 0) 100%
+  );
+  list-style: none;
+  pointer-events: none;
+}
 .currentPageLink {
   color: #ffffff;
 }

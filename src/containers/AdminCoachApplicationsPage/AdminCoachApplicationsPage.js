@@ -21,9 +21,10 @@ import {
 } from '../../util/coachApplicationAdmin';
 import { downloadCoachApplicationsXlsx } from '../../util/coachApplicationExport';
 
-import { Page } from '../../components';
+import { Page, NamedLink } from '../../components';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
+import PeakUpHqAdminGate from '../PeakUpHq/PeakUpHqAdminGate';
 
 import sportTheme from '../SportPagesTheme.module.css';
 import css from './AdminCoachApplicationsPage.module.css';
@@ -881,12 +882,16 @@ const AdminCoachApplicationsPage = () => {
       scrollingDisabled={scrollingDisabled}
       className={classNames(sportTheme.sportPremium, css.page)}
     >
-      <TopbarContainer currentPage="AdminCoachApplicationsPage" chromeTheme="sportPremium" />
+      <PeakUpHqAdminGate>
+        <TopbarContainer currentPage="AdminCoachApplicationsPage" chromeTheme="sportPremium" />
 
-      <main className={css.main}>
-        <div className={css.rail}>
-          <header className={css.header}>
-            <p className={css.eyebrow}>
+        <main className={css.main}>
+          <div className={css.rail}>
+            <header className={css.header}>
+              <NamedLink name="PeakUpHQPage" className={css.hqBackLink}>
+                <FormattedMessage id="PeakUpHq.backToOverview" />
+              </NamedLink>
+              <p className={css.eyebrow}>
               <FormattedMessage id="AdminCoachApplicationsPage.eyebrow" />
             </p>
             <h1 className={css.title}>
@@ -975,6 +980,7 @@ const AdminCoachApplicationsPage = () => {
       </main>
 
       <FooterContainer />
+      </PeakUpHqAdminGate>
     </Page>
   );
 };

@@ -21,6 +21,7 @@ import ResponsiveImage from '../ResponsiveImage/ResponsiveImage';
 
 import peakUpFounderLogo from '../../assets/peakup-founder-logo.png';
 import PeakupCoachBadgesHierarchyModal from '../PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal';
+import PeakUpRankShieldBadge from './PeakUpRankShieldBadge';
 import css from './PeakUpCoachFigurineCard.module.css';
 
 const TOP_BADGE_LABEL_KEYS = {
@@ -53,23 +54,11 @@ const STICKER_AVATAR_VARIANTS = [
   'default',
 ];
 
-/** Tier di medaglie podio (rank 1/2/3) — asset PeakUp custom. */
-const RANK_MEDAL_TIERS = {
-  1: {
-    className: 'medal_gold',
-    label: 'Gold medal',
-    src: '/CoachPagePic/Medaglia_oro.jpg',
-  },
-  2: {
-    className: 'medal_silver',
-    label: 'Silver medal',
-    src: '/CoachPagePic/Medaglia_argento.jpg',
-  },
-  3: {
-    className: 'medal_bronze',
-    label: 'Bronze medal',
-    src: '/CoachPagePic/Medaglia_bronzo.jpg',
-  },
+/** Podium shield tiers (rank 1/2/3) — compact CSS/SVG badges, no ribbon. */
+const RANK_SHIELD_TIERS = {
+  1: { className: 'medal_gold', label: 'Gold rank shield' },
+  2: { className: 'medal_silver', label: 'Silver rank shield' },
+  3: { className: 'medal_bronze', label: 'Bronze rank shield' },
 };
 
 const normalizeSportKey = raw => String(raw || '').toLowerCase().replace(/[\s-_]+/g, '');
@@ -115,7 +104,7 @@ const PeakUpCoachFigurineCard = props => {
 
   const podiumTier =
     showPodiumBadge && typeof rank === 'number' && rank >= 1 && rank <= 3
-      ? RANK_MEDAL_TIERS[rank]
+      ? RANK_SHIELD_TIERS[rank]
       : null;
 
   const safeUser = author ? ensureUser(author) : null;
@@ -435,33 +424,17 @@ const PeakUpCoachFigurineCard = props => {
         </div>
         </div>
         {podiumTier ? (
-          <span
-            className={classNames(css.podiumMedal, css[podiumTier.className])}
-            role="img"
-            aria-label={intl.formatMessage(
+          <PeakUpRankShieldBadge
+            rank={rank}
+            tierClassName={podiumTier.className}
+            ariaLabel={intl.formatMessage(
               {
                 id: 'PeakUpCoachFigurineCard.podiumRank',
                 defaultMessage: 'Rank {rank} on PeakUp',
               },
               { rank }
             )}
-            title={intl.formatMessage(
-              {
-                id: 'PeakUpCoachFigurineCard.podiumRank',
-                defaultMessage: 'Rank {rank} on PeakUp',
-              },
-              { rank }
-            )}
-          >
-            <img
-              className={css.podiumMedalImage}
-              src={podiumTier.src}
-              alt=""
-              width={100}
-              height={141}
-              decoding="async"
-            />
-          </span>
+          />
         ) : null}
       </div>
 

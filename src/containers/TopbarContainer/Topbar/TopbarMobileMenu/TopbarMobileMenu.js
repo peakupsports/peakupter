@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { ensureCurrentUser } from '../../../../util/data';
+import { isPeakUpHqRouteName } from '../../../../util/peakupAdmin';
 
 import {
   AvatarLarge,
@@ -18,6 +19,7 @@ import {
 } from '../../../../components';
 
 import { CreateServiceMobileNavItem } from '../TopbarCreateServiceLink';
+import PeakUpHqIcon from '../../../PeakUpHq/PeakUpHqIcons';
 
 import css from './TopbarMobileMenu.module.css';
 
@@ -84,6 +86,8 @@ const TopbarMobileMenu = props => {
     onLogout,
     showCreateListingsLink,
     showCoachCalendarLink,
+    showPeakUpHqLink,
+    intl,
   } = props;
 
   const user = ensureCurrentUser(currentUser);
@@ -199,6 +203,26 @@ const TopbarMobileMenu = props => {
               <FormattedMessage id="TopbarMobileMenu.accountSettingsLink" />
             </NamedLink>
           </li>
+          {showPeakUpHqLink ? (
+            <>
+              <li className={css.menuSeparator} role="separator" aria-hidden="true" />
+              <li
+                className={classNames(
+                  css.navigationLink,
+                  css.navigationLinkPeakUpHq,
+                  isPeakUpHqRouteName(currentPage) && css.currentPage
+                )}
+              >
+                <NamedLink name="PeakUpHQPage">
+                  <span className={css.peakUpHqNavInner}>
+                    <PeakUpHqIcon name="hq" className={css.peakUpHqNavIcon} />
+                    <FormattedMessage id="TopbarMobileMenu.peakUpHqLink" />
+                  </span>
+                </NamedLink>
+              </li>
+              <li className={css.menuSeparator} role="separator" aria-hidden="true" />
+            </>
+          ) : null}
         </ul>
         <ul className={css.customLinksWrapper}>{extraLinks}</ul>
         <div className={css.spacer} />

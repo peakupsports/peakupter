@@ -4,6 +4,8 @@
 import { loadData as AboutPageLoader } from './AboutPage/AboutPage.duck';
 import { loadData as CoachApplicationPageLoader } from './CoachApplicationPage/CoachApplicationPage.duck';
 import { loadData as AdminCoachApplicationsPageLoader } from './AdminCoachApplicationsPage/AdminCoachApplicationsPage.duck';
+import { loadData as PeakUpHqDashboardPageLoader } from './PeakUpHq/PeakUpHqDashboardPage/PeakUpHqDashboardPage.duck';
+import { loadData as PeakUpHqPlaceholderPageLoader } from './PeakUpHq/PeakUpHqPlaceholderPage/PeakUpHqPlaceholderPage.duck';
 import { loadData as TermsPageLoader } from './TermsPage/TermsPage.duck';
 import { loadData as PrivacyPageLoader } from './PrivacyPage/PrivacyPage.duck';
 import { loadData as CookiesPageLoader } from './CookiesPage/CookiesPage.duck';
@@ -42,6 +44,27 @@ const getPageDataLoadingAPI = () => {
     },
     AdminCoachApplicationsPage: {
       loadData: AdminCoachApplicationsPageLoader,
+    },
+    PeakUpHQPage: {
+      loadData: PeakUpHqDashboardPageLoader,
+    },
+    PeakUpHqFeaturedCoachesPage: {
+      loadData: PeakUpHqPlaceholderPageLoader,
+    },
+    PeakUpHqAmbassadorsPage: {
+      loadData: PeakUpHqPlaceholderPageLoader,
+    },
+    PeakUpHqVerificationPage: {
+      loadData: PeakUpHqPlaceholderPageLoader,
+    },
+    PeakUpHqReportsPage: {
+      loadData: PeakUpHqPlaceholderPageLoader,
+    },
+    PeakUpHqPaymentsPage: {
+      loadData: PeakUpHqPlaceholderPageLoader,
+    },
+    PeakUpHqActivityPage: {
+      loadData: PeakUpHqPlaceholderPageLoader,
     },
     TermsPage: {
       loadData: TermsPageLoader,

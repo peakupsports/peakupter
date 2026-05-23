@@ -274,24 +274,25 @@
   margin-left: auto;
   margin-right: auto;
   /* Allineato a `.sectionDetails` (stesso gutter delle altre sezioni PageBuilder). */
-  padding: 18px 32px 0;
-  margin-top: -18px;
+  padding: 64px 32px 0;
+  margin-top: -66px;
   min-width: 0;
   overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .scroller {
   display: flex;
   list-style: none;
   margin: 0;
-  padding: 6px 0 18px;
+  padding: 8px 0 18px;
   gap: 16px;
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
   min-width: 0;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 0;
   -webkit-overflow-scrolling: touch;
@@ -318,6 +319,7 @@
   width: clamp(240px, 78%, 300px);
   display: flex;
   min-width: 0;
+  overflow: visible;
 
   @media (--viewportMedium) {
     width: clamp(260px, 42%, 300px);
@@ -330,20 +332,28 @@
 
 .scrollerItem > * {
   width: 100%;
+  overflow: visible;
+}
+
+/* Podium medals float above the figurina — keep carousel ancestors from clipping. */
+.scrollerItem [class*='PeakUpCoachFigurineCard_root'],
+.scrollerItem [class*='PeakUpCoachFigurineCard_collectibleFrame'],
+.scrollerItem [class*='PeakUpCoachFigurineCard_collectibleFramePodium'] {
+  overflow: visible;
 }
 
 @media (max-width: 767px) {
   .scrollViewport {
     max-width: 100%;
-    padding: 12px max(14px, env(safe-area-inset-left, 0px)) 0
+    padding: 56px max(14px, env(safe-area-inset-left, 0px)) 0
       max(14px, env(safe-area-inset-right, 0px));
-    margin-top: -12px;
+    margin-top: -56px;
     box-sizing: border-box;
   }
 
   .scroller {
     gap: 14px;
-    padding: 6px 4px 16px;
+    padding: 8px 4px 16px;
     scroll-padding-inline: 14px;
     scroll-snap-type: x mandatory;
   }

@@ -1,0 +1,58 @@
+.main {
+  flex: 1 0 auto;
+}
+
+.rail {
+  width: 100%;
+  max-width: var(--contentMaxWidthPages);
+  margin: 0 auto;
+  padding: 24px 24px 56px;
+  box-sizing: border-box;
+}
+
+@media (--viewportMedium) {
+  .rail {
+    padding: 32px 32px 72px;
+  }
+}
+
+.panel {
+  padding: 32px 28px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(165deg, rgba(14, 22, 36, 0.58) 0%, rgba(9, 14, 24, 0.78) 100%);
+  box-shadow:
+    0 20px 44px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.panelTitle {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #f4f6fa;
+}
+
+.panelText {
+  margin: 0 0 20px;
+  max-width: 52ch;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(228, 235, 243, 0.72);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(23, 217, 255, 0.9);
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.backLink:hover {
+  color: #9dff4f;
+}

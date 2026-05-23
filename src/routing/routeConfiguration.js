@@ -16,6 +16,14 @@ const AdminCoachApplicationsPage = loadable(() =>
     /* webpackChunkName: "AdminCoachApplicationsPage" */ '../containers/AdminCoachApplicationsPage/AdminCoachApplicationsPage'
   )
 );
+const PeakUpHQPage = loadable(() =>
+  import(/* webpackChunkName: "PeakUpHQPage" */ '../containers/PeakUpHQPage/PeakUpHQPage')
+);
+const PeakUpHqPlaceholderPage = loadable(() =>
+  import(
+    /* webpackChunkName: "PeakUpHqPlaceholderPage" */ '../containers/PeakUpHq/PeakUpHqPlaceholderPage/PeakUpHqPlaceholderPage'
+  )
+);
 const TermsPage = loadable(() =>
   import(/* webpackChunkName: "TermsPage" */ '../containers/TermsPage/TermsPage')
 );
@@ -144,16 +152,69 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       loadData: pageDataLoadingAPI.CoachEarningsPage.loadData,
     },
     {
+      path: '/admin',
+      name: 'PeakUpHQPage',
+      component: PeakUpHQPage,
+      auth: true,
+      loadData: pageDataLoadingAPI.PeakUpHQPage.loadData,
+    },
+    {
       path: '/admin/coach-applications',
       name: 'AdminCoachApplicationsPage',
       component: AdminCoachApplicationsPage,
+      auth: true,
       loadData: pageDataLoadingAPI.AdminCoachApplicationsPage.loadData,
     },
     {
       path: '/admin/coach-applications/:applicationId',
       name: 'AdminCoachApplicationDetailPage',
       component: AdminCoachApplicationsPage,
+      auth: true,
       loadData: pageDataLoadingAPI.AdminCoachApplicationsPage.loadData,
+    },
+    {
+      path: '/admin/featured-coaches',
+      name: 'PeakUpHqFeaturedCoachesPage',
+      auth: true,
+      component: props => (
+        <PeakUpHqPlaceholderPage routeName="PeakUpHqFeaturedCoachesPage" {...props} />
+      ),
+      loadData: pageDataLoadingAPI.PeakUpHqFeaturedCoachesPage.loadData,
+    },
+    {
+      path: '/admin/ambassadors',
+      name: 'PeakUpHqAmbassadorsPage',
+      auth: true,
+      component: props => <PeakUpHqPlaceholderPage routeName="PeakUpHqAmbassadorsPage" {...props} />,
+      loadData: pageDataLoadingAPI.PeakUpHqAmbassadorsPage.loadData,
+    },
+    {
+      path: '/admin/verification-center',
+      name: 'PeakUpHqVerificationPage',
+      auth: true,
+      component: props => <PeakUpHqPlaceholderPage routeName="PeakUpHqVerificationPage" {...props} />,
+      loadData: pageDataLoadingAPI.PeakUpHqVerificationPage.loadData,
+    },
+    {
+      path: '/admin/reports',
+      name: 'PeakUpHqReportsPage',
+      auth: true,
+      component: props => <PeakUpHqPlaceholderPage routeName="PeakUpHqReportsPage" {...props} />,
+      loadData: pageDataLoadingAPI.PeakUpHqReportsPage.loadData,
+    },
+    {
+      path: '/admin/payments',
+      name: 'PeakUpHqPaymentsPage',
+      auth: true,
+      component: props => <PeakUpHqPlaceholderPage routeName="PeakUpHqPaymentsPage" {...props} />,
+      loadData: pageDataLoadingAPI.PeakUpHqPaymentsPage.loadData,
+    },
+    {
+      path: '/admin/activity',
+      name: 'PeakUpHqActivityPage',
+      auth: true,
+      component: props => <PeakUpHqPlaceholderPage routeName="PeakUpHqActivityPage" {...props} />,
+      loadData: pageDataLoadingAPI.PeakUpHqActivityPage.loadData,
     },
     {
       path: '/p/terms',

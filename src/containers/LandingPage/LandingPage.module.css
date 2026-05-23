@@ -851,7 +851,7 @@
  * Targets used:
  *   - `<a class="cta">` View Profile pill
  *   - `<span class="stickerStars"> ⭐⭐⭐⭐⭐` rating row
- *   - `<img class="podiumMedalImage">` podium medals (Featured ranking only)
+ *   - `<span class="podiumMedal">` compact ranking shields (Featured ranking only)
  *   - `<span class="reviewMeta">` review meta string in footer
  *   - `<span class="stickerName">` coach display name (header)
  * The CTA text deliberately stays `#041018` (deep navy) so it stays
@@ -869,21 +869,21 @@
 }
 .landingPremium [class*="PeakUpCoachFigurineCard_medal_gold"] {
   filter:
-    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 0 10px rgba(245, 197, 66, 0.12))
-    drop-shadow(0 2px 4px rgba(245, 197, 66, 0.08));
+    drop-shadow(0 5px 10px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.28))
+    drop-shadow(0 0 6px rgba(232, 178, 58, 0.1));
 }
 .landingPremium [class*="PeakUpCoachFigurineCard_medal_silver"] {
   filter:
-    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 0 10px rgba(200, 208, 219, 0.1))
-    drop-shadow(0 2px 4px rgba(23, 217, 255, 0.06));
+    drop-shadow(0 5px 10px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.28))
+    drop-shadow(0 0 5px rgba(186, 198, 214, 0.09));
 }
 .landingPremium [class*="PeakUpCoachFigurineCard_medal_bronze"] {
   filter:
-    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 0 10px rgba(205, 127, 50, 0.11))
-    drop-shadow(0 2px 4px rgba(205, 127, 50, 0.07));
+    drop-shadow(0 5px 10px rgba(0, 0, 0, 0.44))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))
+    drop-shadow(0 0 5px rgba(142, 98, 62, 0.09));
 }
 .landingPremium [class*="PeakUpCoachFigurineCard_reviewMeta"] {
   color: rgba(236, 242, 250, 0.82);
@@ -1319,6 +1319,21 @@
   [class*="SectionPeakupFeaturedCoaches_scrollViewport"] {
   position: relative;
   margin-top: 20px;
+  overflow: visible;
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionPeakupFeaturedCoaches_scroller"] {
+  position: relative;
+  z-index: 1;
+  overflow-y: visible;
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionPeakupFeaturedCoaches_scrollerItem"] {
+  overflow: visible;
 }
 
 @media (--viewportMedium) {
@@ -1344,14 +1359,6 @@
   pointer-events: none;
   z-index: 0;
   border-radius: 28px;
-}
-
-/* Keep the scroller (and its figurine children) above the glow. */
-.landingPremium
-  :global(main)
-  [class*="SectionPeakupFeaturedCoaches_scroller"] {
-  position: relative;
-  z-index: 1;
 }
 
 /* Nav arrows on the dark canvas — replace the bright white pills with

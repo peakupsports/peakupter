@@ -1815,5 +1815,7 @@ export const mergeConfig = (configAsset = {}, defaultConfigs = {}) => {
 
     // Check if all the mandatory info have been retrieved from hosted assets
     hasMandatoryConfigurations: hasMandatoryConfigs(configAsset),
+
+    peakUpAdmin: defaultConfigs.peakUpAdmin,
   };
 };

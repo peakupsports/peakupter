@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../../util/reactIntl';
+import { isPeakUpHqAdmin, isPeakUpHqRouteName } from '../../../../util/peakupAdmin';
 import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
 import {
   Avatar,
@@ -17,6 +18,7 @@ import {
 import TopbarSearchForm from '../TopbarSearchForm/TopbarSearchForm';
 import CustomLinksMenu from './CustomLinksMenu/CustomLinksMenu';
 import { CreateServiceProfileMenuItem } from '../TopbarCreateServiceLink';
+import PeakUpHqIcon from '../../../PeakUpHq/PeakUpHqIcons';
 
 import css from './TopbarDesktop.module.css';
 
@@ -80,6 +82,7 @@ const ProfileMenu = ({
   showManageListingsLink,
   showCreateListingsLink,
   showCoachCalendarLink,
+  showPeakUpHqLink,
   intl,
 }) => {
   const currentPageClass = page => {
@@ -144,6 +147,35 @@ const ProfileMenu = ({
             <FormattedMessage id="TopbarDesktop.accountSettingsLink" />
           </NamedLink>
         </MenuItem>
+        {showPeakUpHqLink ? (
+          <MenuItem key="PeakUpHqSeparatorBefore" rootClassName={css.menuSeparatorItem}>
+            <span className={css.menuSeparator} aria-hidden="true" />
+          </MenuItem>
+        ) : null}
+        {showPeakUpHqLink ? (
+          <MenuItem key="PeakUpHQPage">
+            <NamedLink
+              className={classNames(
+                css.menuLink,
+                css.menuLinkWithIcon,
+                css.menuLinkPeakUpHq,
+                isPeakUpHqRouteName(currentPage) && css.currentPage
+              )}
+              name="PeakUpHQPage"
+            >
+              <span className={css.menuItemBorder} />
+              <PeakUpHqIcon name="hq" className={css.menuLinkIconPeakUpHq} />
+              <span className={css.menuLinkText}>
+                <FormattedMessage id="TopbarDesktop.peakUpHqLink" />
+              </span>
+            </NamedLink>
+          </MenuItem>
+        ) : null}
+        {showPeakUpHqLink ? (
+          <MenuItem key="PeakUpHqSeparatorAfter" rootClassName={css.menuSeparatorItem}>
+            <span className={css.menuSeparator} aria-hidden="true" />
+          </MenuItem>
+        ) : null}
         <MenuItem key="logout">
           <InlineTextButton rootClassName={css.logoutButton} onClick={onLogout}>
             <span className={css.menuItemBorder} />
@@ -226,6 +258,8 @@ const TopbarDesktop = props => {
     />
   ) : null;
 
+  const showPeakUpHqLink = isPeakUpHqAdmin(currentUser, config);
+
   const profileMenuMaybe = authenticatedOnClientSide ? (
     <ProfileMenu
       currentPage={currentPage}
@@ -234,6 +268,7 @@ const TopbarDesktop = props => {
       showManageListingsLink={showCreateListingsLink}
       showCreateListingsLink={showCreateListingsLink}
       showCoachCalendarLink={showCoachCalendarLink}
+      showPeakUpHqLink={showPeakUpHqLink}
       intl={intl}
     />
   ) : null;

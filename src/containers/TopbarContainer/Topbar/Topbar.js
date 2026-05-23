@@ -38,6 +38,7 @@ import TopbarDesktop from './TopbarDesktop/TopbarDesktop';
 
 import css from './Topbar.module.css';
 import { getCurrentUserTypeRoles, showCreateListingLinkForUser } from '../../../util/userHelpers';
+import { isPeakUpHqAdmin } from '../../../util/peakupAdmin';
 
 const MAX_MOBILE_SCREEN_WIDTH = 1024;
 
@@ -254,6 +255,7 @@ const TopbarComponent = props => {
     currentUser
   );
   const showCoachCalendarLink = Boolean(currentUser && isProvider);
+  const showPeakUpHqLink = isPeakUpHqAdmin(currentUser, config);
 
   /**
    * Determine which tab to use in the inbox link:
@@ -386,6 +388,7 @@ const TopbarComponent = props => {
       customLinks={customLinks}
       showCreateListingsLink={showCreateListingsLink}
       showCoachCalendarLink={showCoachCalendarLink}
+      showPeakUpHqLink={showPeakUpHqLink}
       inboxTab={topbarInboxTab}
     />
   );
