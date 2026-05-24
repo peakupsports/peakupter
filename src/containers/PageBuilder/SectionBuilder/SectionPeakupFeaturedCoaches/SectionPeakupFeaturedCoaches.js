@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useSelector } from 'react-redux';
 
@@ -75,6 +75,23 @@ const selectFeaturedCoachCards = state => {
 
 /** Quanto scorrere a ogni click sulle frecce (≈ una card + gap). */
 const SCROLL_STEP_PX = 320;
+
+/** Memoized carousel cell — avoids rerenders when nav scroll state updates. */
+const FeaturedCoachScrollerCard = memo(({ card, rank }) => (
+  <li className={css.scrollerItem}>
+    <PeakUpCoachFigurineCard
+      author={card.author}
+      representativeListing={card.representativeListing}
+      sportKeys={card.sportKeys}
+      reviewCount={card.reviewCount}
+      reviewAverage={card.reviewAverage}
+      badgeIds={card.badgeIds}
+      rank={rank}
+      showPodiumBadge
+    />
+  </li>
+));
+FeaturedCoachScrollerCard.displayName = 'FeaturedCoachScrollerCard';
 
 /**
  * Featured PeakUp coaches — landing-page section.
@@ -168,17 +185,22 @@ const SectionPeakupFeaturedCoaches = props => {
   const inProgress = fetchStatus === 'loading' && cards.length === 0;
   const noCoachesFound = fetchStatus === 'succeeded' && cards.length === 0;
 
-  // Scroller refs/state per le frecce desktop.
+  // Scroller refs — nav disabled state via DOM refs (no React state on scroll).
   const scrollerRef = useRef(null);
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
+  const navPrevRef = useRef(null);
+  const navNextRef = useRef(null);
+  const scrollRafRef = useRef(null);
 
   const updateScrollState = useCallback(() => {
     const el = scrollerRef.current;
     if (!el) return;
     const maxScroll = el.scrollWidth - el.clientWidth;
-    setCanScrollPrev(el.scrollLeft > 4);
-    setCanScrollNext(el.scrollLeft < maxScroll - 4);
+    if (navPrevRef.current) {
+      navPrevRef.current.disabled = el.scrollLeft <= 4;
+    }
+    if (navNextRef.current) {
+      navNextRef.current.disabled = el.scrollLeft >= maxScroll - 4;
+    }
   }, []);
 
   useEffect(() => {
@@ -188,20 +210,31 @@ const SectionPeakupFeaturedCoaches = props => {
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return undefined;
-    const onScroll = () => updateScrollState();
+
+    const onScroll = () => {
+      if (scrollRafRef.current != null) return;
+      scrollRafRef.current = window.requestAnimationFrame(() => {
+        scrollRafRef.current = null;
+        updateScrollState();
+      });
+    };
+
     el.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', updateScrollState);
     return () => {
+      if (scrollRafRef.current != null) {
+        window.cancelAnimationFrame(scrollRafRef.current);
+      }
       el.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', updateScrollState);
     };
   }, [updateScrollState]);
 
-  const scrollBy = dir => {
+  const scrollBy = useCallback(dir => {
     const el = scrollerRef.current;
     if (!el) return;
     el.scrollBy({ left: dir * SCROLL_STEP_PX, behavior: 'smooth' });
-  };
+  }, []);
 
   return (
     <SectionContainer
@@ -211,17 +244,18 @@ const SectionPeakupFeaturedCoaches = props => {
       appearance={appearance}
     >
       <header className={classNames(defaultClasses.sectionDetails, css.headerBlock, css.showcaseHeader)}>
+        <span className={css.showcaseTitleBadgeWrap} aria-hidden="true">
+          <img
+            className={css.showcaseTitleBadge}
+            src={FEATURED_COACH_BADGE_SRC}
+            alt=""
+            width={84}
+            height={84}
+            decoding="async"
+          />
+        </span>
+
         <h2 className={css.showcaseTitle}>
-          <span className={css.showcaseTitleBadgeWrap} aria-hidden="true">
-            <img
-              className={css.showcaseTitleBadge}
-              src={FEATURED_COACH_BADGE_SRC}
-              alt=""
-              width={60}
-              height={60}
-              decoding="async"
-            />
-          </span>
           <span className={css.showcaseTitleText}>
             <FormattedMessage
               id="SectionPeakupFeaturedCoaches.titleFeatured"
@@ -282,60 +316,46 @@ const SectionPeakupFeaturedCoaches = props => {
       {cards.length > 0 ? (
         <div className={css.carouselArea}>
           <div className={css.scrollViewport}>
-              <button
-            type="button"
-            className={classNames(css.navButton, css.navButtonPrev)}
-            onClick={() => scrollBy(-1)}
-            disabled={!canScrollPrev}
-            aria-label={intl.formatMessage({
-              id: 'SectionPeakupFeaturedCoaches.scrollPrev',
-              defaultMessage: 'Scroll to previous coaches',
-            })}
-          >
-            <span aria-hidden>‹</span>
-          </button>
+            <button
+              type="button"
+              ref={navPrevRef}
+              className={classNames(css.navButton, css.navButtonPrev)}
+              onClick={() => scrollBy(-1)}
+              disabled
+              aria-label={intl.formatMessage({
+                id: 'SectionPeakupFeaturedCoaches.scrollPrev',
+                defaultMessage: 'Scroll to previous coaches',
+              })}
+            >
+              <span aria-hidden>‹</span>
+            </button>
 
-          <ul
-            ref={scrollerRef}
-            className={css.scroller}
-            role="list"
-            aria-label={intl.formatMessage({
-              id: 'SectionPeakupFeaturedCoaches.regionLabel',
-              defaultMessage: 'Featured PeakUp coaches',
-            })}
-          >
-            {cards.map((card, idx) => (
-              <li key={card.authorUuid} className={css.scrollerItem}>
-                <PeakUpCoachFigurineCard
-                  author={card.author}
-                  representativeListing={card.representativeListing}
-                  sportKeys={card.sportKeys}
-                  reviewCount={card.reviewCount}
-                  reviewAverage={card.reviewAverage}
-                  badgeIds={card.badgeIds}
-                  rank={idx + 1}
-                  // Gold / silver / bronze podium medal is intentionally
-                  // scoped to this LandingPage section only — it represents
-                  // the curated "Featured Coaches" ranking and must NOT
-                  // appear on directory pages (/coaches, /coach-map, …).
-                  showPodiumBadge
-                />
-              </li>
-            ))}
-          </ul>
+            <ul
+              ref={scrollerRef}
+              className={css.scroller}
+              role="list"
+              aria-label={intl.formatMessage({
+                id: 'SectionPeakupFeaturedCoaches.regionLabel',
+                defaultMessage: 'Featured PeakUp coaches',
+              })}
+            >
+              {cards.map((card, idx) => (
+                <FeaturedCoachScrollerCard key={card.authorUuid} card={card} rank={idx + 1} />
+              ))}
+            </ul>
 
-          <button
-            type="button"
-            className={classNames(css.navButton, css.navButtonNext)}
-            onClick={() => scrollBy(1)}
-            disabled={!canScrollNext}
-            aria-label={intl.formatMessage({
-              id: 'SectionPeakupFeaturedCoaches.scrollNext',
-              defaultMessage: 'Scroll to more coaches',
-            })}
-          >
-            <span aria-hidden>›</span>
-          </button>
+            <button
+              type="button"
+              ref={navNextRef}
+              className={classNames(css.navButton, css.navButtonNext)}
+              onClick={() => scrollBy(1)}
+              aria-label={intl.formatMessage({
+                id: 'SectionPeakupFeaturedCoaches.scrollNext',
+                defaultMessage: 'Scroll to more coaches',
+              })}
+            >
+              <span aria-hidden>›</span>
+            </button>
           </div>
         </div>
       ) : null}

@@ -60,15 +60,17 @@
    */
   background:
     radial-gradient(
-      1200px 720px at 50% -10%,
+      1020px 612px at 50% -10%,
       rgba(58, 122, 220, 0.07) 0%,
       transparent 65%
     ),
     linear-gradient(180deg, #0a0d14 0%, #0b1019 45%, #090c14 100%);
-  background-attachment: fixed;
+  /* `fixed` repaints the full viewport on every scroll frame (Safari). */
+  background-attachment: scroll;
   color: #f4f6fa;
-  /* Smoother long-page scroll alongside the cinematic feel. */
   scroll-behavior: smooth;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 /* Kill the legacy nth-of-type(odd) white backgrounds applied by
@@ -415,19 +417,21 @@
   overflow: hidden;
   isolation: isolate;
   background:
-    linear-gradient(180deg, rgba(18, 26, 40, 0.38) 0%, rgba(10, 15, 24, 0.52) 100%),
+    linear-gradient(180deg, rgba(18, 26, 40, 0.72) 0%, rgba(10, 15, 24, 0.84) 100%),
     radial-gradient(118% 84% at 14% 0%, rgba(255, 255, 255, 0.032) 0%, transparent 42%);
   border: 1px solid rgba(255, 255, 255, 0.058);
   box-shadow:
     0 22px 44px -28px rgba(0, 0, 0, 0.68),
     0 8px 18px -18px rgba(21, 155, 255, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px) saturate(1.02);
-  -webkit-backdrop-filter: blur(12px) saturate(1.02);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
   transition:
-    box-shadow 320ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 320ms cubic-bezier(0.22, 1, 0.36, 1),
-    background 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (--viewportMedium) {
@@ -486,9 +490,7 @@
   margin-bottom: 20px;
   box-shadow: none;
   overflow: visible;
-  transition:
-    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .landingPremium
@@ -522,7 +524,7 @@
     rgba(21, 155, 255, 0.04) 56%,
     transparent 74%
   );
-  filter: blur(20px);
+  filter: blur(12px);
 }
 
 .landingPremium
@@ -596,9 +598,7 @@
     drop-shadow(0 0 10px rgba(157, 255, 46, 0.05))
     drop-shadow(0 0 12px rgba(34, 230, 184, 0.06))
     drop-shadow(0 0 14px rgba(21, 155, 255, 0.04));
-  transition:
-    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .landingPremium
@@ -615,7 +615,7 @@
   background: transparent;
   border: 0;
   box-shadow: none;
-  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .landingPremium
@@ -725,9 +725,53 @@
   > *:hover
   [class*="BlockDefault_media"]
   :is(img, svg) {
-  filter:
-    drop-shadow(0 12px 24px rgba(0, 0, 0, 0.24))
-    drop-shadow(0 0 8px rgba(21, 155, 255, 0.04));
+  transform: translateY(-1px) scale(1.006);
+}
+
+/* ---------------------------------------------------------------------------
+ * Landing-only Safari stability — topbar + hero glass (no backdrop-filter)
+ * ------------------------------------------------------------------------- */
+
+.landingPremium :global(header) [class*='Topbar_container'],
+.landingPremium :global(header) [class*='TopbarDesktop_root'] {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background:
+    linear-gradient(180deg, rgba(6, 12, 24, 0.98) 0%, rgba(8, 18, 32, 0.97) 100%);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+.landingPremium :global(main) [class*='LandingHeroSection_searchRow'] [class*='SearchCTA_searchBarContainer'],
+.landingPremium
+  :global(main)
+  [class*='LandingHeroSection_searchRow']
+  :is(
+    [class*='FilterCategories_dropdownContent'],
+    [class*='FilterLocation_predictions'],
+    [class*='FilterDateRange_datePicker'],
+    [class*='LocationAutocompleteInput_predictionsRoot']
+  ) {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: linear-gradient(180deg, rgba(14, 20, 30, 0.94) 0%, rgba(9, 13, 21, 0.97) 100%);
+}
+
+.landingPremium
+  :global(main)
+  [class*='SectionPeakupFeaturedCoaches_carouselArea'],
+.landingPremium
+  :global(main)
+  [class*='SectionPeakupFeaturedCoaches_scrollViewport'],
+.landingPremium
+  :global(main)
+  [class*='SectionPeakupFeaturedCoaches_scroller'],
+.landingPremium
+  :global(main)
+  [class*='SectionPeakupFeaturedCoaches_scrollerItem'] {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ---------------------------------------------------------------------------
@@ -751,16 +795,14 @@
   box-shadow:
     0 14px 32px -10px rgba(0, 0, 0, 0.55),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  transition: transform 180ms ease, opacity 180ms ease;
 }
 
 .landingPremium :global(main) :global(a)[class*="ctaButton"]:hover,
 .landingPremium :global(main) :global(button)[class*="ctaButton"]:hover {
-  filter: saturate(0.95) contrast(1);
   transform: translateY(-1px);
-  box-shadow:
-    0 20px 40px -10px rgba(0, 0, 0, 0.65),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 /* ---------------------------------------------------------------------------
@@ -881,9 +923,9 @@
 }
 .landingPremium [class*="PeakUpCoachFigurineCard_medal_bronze"] {
   filter:
-    drop-shadow(0 5px 10px rgba(0, 0, 0, 0.44))
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))
-    drop-shadow(0 0 5px rgba(142, 98, 62, 0.09));
+    drop-shadow(0 5px 10px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.28))
+    drop-shadow(0 0 4px rgba(142, 98, 62, 0.05));
 }
 .landingPremium [class*="PeakUpCoachFigurineCard_reviewMeta"] {
   color: rgba(236, 242, 250, 0.82);
@@ -1092,9 +1134,8 @@
     0 12px 30px rgba(16, 33, 62, 0.32),
     inset 0 1px 0 rgba(255, 255, 255, 0.55);
   transition:
-    transform 0.18s ease,
-    filter 0.18s ease,
-    box-shadow 0.18s ease;
+    transform 180ms ease,
+    opacity 180ms ease;
 }
 
 .landingPremium :global(main) [class*="SearchCTA_submitButton"]:hover,
@@ -1109,10 +1150,6 @@
   color: #041018;
   -webkit-text-fill-color: #041018;
   transform: translateY(-1px);
-  filter: brightness(1.04) saturate(1.08);
-  box-shadow:
-    0 16px 36px rgba(16, 33, 62, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 .landingPremium :global(main) [class*="SearchCTA_submitButton"]:focus-visible {
@@ -1548,10 +1585,9 @@
  * them; we only lift the surrounding background a touch on hover so
  * the icons feel interactive on the dark canvas. */
 .landingPremium :global(footer) [class*="SectionFooter_icon"] {
-  transition: filter 0.18s ease, transform 0.18s ease;
+  transition: transform 180ms ease, opacity 180ms ease;
 }
 .landingPremium :global(footer) [class*="SectionFooter_icon"]:hover {
-  filter: brightness(1.15);
   transform: translateY(-1px);
 }
 

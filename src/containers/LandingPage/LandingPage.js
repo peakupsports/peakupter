@@ -108,6 +108,14 @@ export const LandingPageComponent = props => {
   // page, etc.). The visual changes live entirely in `LandingPage.module.css`
   // under `.landingPremium ...` rules — no JS / DOM mutations, no
   // Sharetribe Console asset changes, no figurine-card edits.
+  const pageBuilderOptions = useMemo(
+    () => ({
+      sectionComponents,
+      featuredCoaches: featuredCoachesProps,
+    }),
+    [featuredCoachesProps]
+  );
+
   return (
     <PageBuilder
       className={css.landingPremium}
@@ -116,10 +124,7 @@ export const LandingPageComponent = props => {
       error={error}
       fallbackPage={<FallbackPage error={error} />}
       featuredListings={getFeaturedListingsProps(camelize(ASSET_NAME), props)}
-      options={{
-        sectionComponents,
-        featuredCoaches: featuredCoachesProps,
-      }}
+      options={pageBuilderOptions}
     />
   );
 };

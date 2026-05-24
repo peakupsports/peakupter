@@ -43,6 +43,11 @@ const CoachEarningsPage = loadable(() =>
     /* webpackChunkName: "CoachEarningsPage" */ '../containers/CoachEarningsPage/CoachEarningsPage'
   )
 );
+const AmbassadorProgramPage = loadable(() =>
+  import(
+    /* webpackChunkName: "AmbassadorProgramPage" */ '../containers/AmbassadorProgramPage/AmbassadorProgramPage'
+  )
+);
 import NotFoundPage from '../containers/NotFoundPage/NotFoundPage';
 import PreviewResolverPage from '../containers/PreviewResolverPage/PreviewResolverPage';
 
@@ -150,6 +155,12 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       name: 'CoachEarningsPage',
       component: CoachEarningsPage,
       loadData: pageDataLoadingAPI.CoachEarningsPage.loadData,
+    },
+    {
+      path: '/ambassador-program',
+      name: 'AmbassadorProgramPage',
+      component: AmbassadorProgramPage,
+      loadData: pageDataLoadingAPI.AmbassadorProgramPage.loadData,
     },
     {
       path: '/admin',

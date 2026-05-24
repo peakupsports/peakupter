@@ -10,6 +10,21 @@ import Modal from '../Modal/Modal';
 
 import css from './PeakupCoachBadgesHierarchyModal.module.css';
 
+/** Premium shield JPG assets for hierarchy modal rows. */
+const BADGE_IMAGE_SRC = {
+  founder: '/CoachPagePic/Badge_founder.jpg',
+  ambassador: '/CoachPagePic/Badge_ambassador.jpg',
+  top_coach: '/CoachPagePic/Badge_topcoach.jpg',
+  certified_coach: '/CoachPagePic/Badge_certifiedcoach.jpg',
+};
+
+const BADGE_IMAGE_ALT = {
+  founder: 'Founder badge',
+  ambassador: 'Ambassador badge',
+  top_coach: 'Top Coach badge',
+  certified_coach: 'Certified Coach badge',
+};
+
 /** Righe gerarchia: id badge (classe CSS) + chiave etichetta = PeakUpCoachFigurineCard.badge.* */
 const BADGE_HIERARCHY_ROWS = [
   {
@@ -101,15 +116,14 @@ const PeakupCoachBadgesHierarchyModal = ({ id, isOpen, onClose }) => {
                   <div className={css.emblemColumn}>
                     <div className={css.emblemPlateWrap}>
                       <span className={css.emblemGlow} aria-hidden />
-                      <span
-                        className={classNames(css.emblemPlate, css[`emblemPlate_${row.tier}`])}
-                        aria-hidden
-                      >
-                        <span
-                          className={classNames(css.emblemIcon, css[`emblemIcon_${row.tier}`])}
-                          aria-hidden
-                        />
-                      </span>
+                      <img
+                        className={css.badgeImage}
+                        src={BADGE_IMAGE_SRC[row.tier]}
+                        alt={BADGE_IMAGE_ALT[row.tier]}
+                        loading="lazy"
+                        decoding="async"
+                        draggable="false"
+                      />
                     </div>
                     <span className={css.emblemRibbon}>
                       {intl.formatMessage({

@@ -32,6 +32,9 @@
   box-sizing: border-box;
   overflow: visible;
   isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .collectibleFramePodium {
@@ -48,24 +51,16 @@
   min-width: 0;
   max-width: 100%;
   overflow: visible;
-  transform: translateZ(0);
-  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Hover lift + tier-coloured halo. Medal and figurina share `.collectibleFrame`
  * transform so the ranking badge moves as one premium collectible unit. */
 .root:hover .collectibleFrame,
 .root:focus-within .collectibleFrame {
-  transform: translateY(-2px) scale(1.02);
-}
-
-.root:hover .stickerCard,
-.root:focus-within .stickerCard {
-  box-shadow:
-    0 18px 54px rgba(var(--tier-rgb, 16, 33, 62), 0.20),
-    0 10px 30px var(--stickerAmbientShadow),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  transform: translate3d(0, -2px, 0) scale(1.02);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -89,11 +84,9 @@
   justify-content: center;
   pointer-events: none;
   z-index: 20;
-  transform: translateX(-50%);
+  transform: translate3d(-50%, 0, 0);
   overflow: visible;
-  transition:
-    transform 220ms ease,
-    filter 220ms ease;
+  transition: transform 180ms ease;
 }
 
 .podiumMedal::before {
@@ -103,9 +96,8 @@
   border-radius: 50%;
   pointer-events: none;
   z-index: -1;
-  filter: blur(6px);
+  filter: blur(4px);
   opacity: 0.2;
-  transition: opacity 220ms ease, filter 220ms ease;
 }
 
 .podiumShieldImg {
@@ -119,7 +111,7 @@
 
 @media (--viewportMedium) {
   .podiumMedal {
-    top: -34px;
+    top: -28px;
   }
 
   .podiumShieldImg {
@@ -161,64 +153,34 @@
 
 .medal_bronze {
   filter:
-    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4))
-    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.26))
-    drop-shadow(0 0 5px rgba(142, 98, 62, 0.12));
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.38))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.24))
+    drop-shadow(0 0 4px rgba(142, 98, 62, 0.07));
 }
 
 .medal_bronze::before {
   background: radial-gradient(
     ellipse 62% 58% at 50% 52%,
-    rgba(168, 118, 78, 0.16) 0%,
-    rgba(108, 72, 48, 0.05) 40%,
+    rgba(168, 118, 78, 0.1) 0%,
+    rgba(108, 72, 48, 0.03) 40%,
     transparent 62%
   );
 }
 
-/* Shield follows `.collectibleFrame` hover — glow only, no separate movement. */
+/* Shield follows `.collectibleFrame` hover — transform only (no glow/filter animation). */
 .root:hover .podiumMedal,
 .root:focus-within .podiumMedal {
-  transform: translateX(-50%);
-}
-
-.root:hover .podiumMedal::before,
-.root:focus-within .podiumMedal::before {
-  opacity: 0.34;
-  filter: blur(7px);
-}
-
-.root:hover .medal_gold,
-.root:focus-within .medal_gold {
-  filter:
-    drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4))
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.28))
-    drop-shadow(0 0 9px rgba(255, 214, 120, 0.2));
-}
-
-.root:hover .medal_silver,
-.root:focus-within .medal_silver {
-  filter:
-    drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4))
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.28))
-    drop-shadow(0 0 8px rgba(200, 214, 228, 0.16));
-}
-
-.root:hover .medal_bronze,
-.root:focus-within .medal_bronze {
-  filter:
-    drop-shadow(0 5px 10px rgba(0, 0, 0, 0.42))
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))
-    drop-shadow(0 0 8px rgba(168, 118, 78, 0.14));
+  transform: translate3d(-50%, 0, 0);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .podiumMedal {
-    transition: filter 200ms ease;
+    transition: none;
   }
 
   .root:hover .podiumMedal,
   .root:focus-within .podiumMedal {
-    transform: translateX(-50%);
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
@@ -229,8 +191,8 @@
 .stickerCard {
   position: relative;
   width: 100%;
-  transform: translateZ(0);
-  transition: box-shadow 280ms ease;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
   /* Mirror the lock applied on `.root` so neither the framed card nor any
    * inner row (header / footer / sport bubbles) can grow the visual box. */
   min-width: 0;
@@ -468,12 +430,12 @@
   flex: 0 0 auto;
   background: linear-gradient(
     180deg,
-    rgba(42, 58, 85, 0.55) 0%,
-    rgba(22, 38, 61, 0.55) 100%
+    rgba(42, 58, 85, 0.68) 0%,
+    rgba(22, 38, 61, 0.68) 100%
   );
   /* leggero "frosted" così il colore resta chiaro anche su sfondi vivaci */
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   border: 1px solid rgba(245, 230, 168, 0.45);
   color: #f5e6a8;
   font-size: 9.5px;
@@ -764,15 +726,15 @@
   min-width: 0;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(10, 16, 28, 0.62);
+  background: rgba(10, 16, 28, 0.78);
   border: 1px solid var(--tier-border, rgba(255, 255, 255, 0.4));
   color: var(--colorWhite);
   font-size: 12px;
   font-weight: var(--fontWeightSemiBold);
   letter-spacing: 0.01em;
   line-height: 1.2;
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   box-shadow:
     0 0 0 1.5px rgba(255, 255, 255, 0.12),
     0 4px 10px rgba(var(--tier-rgb, 16, 33, 62), 0.18);
@@ -1034,10 +996,7 @@
   box-shadow:
     0 4px 10px rgba(16, 33, 62, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.55);
-  transition:
-    filter 0.15s ease,
-    transform 0.15s ease,
-    box-shadow 0.18s ease;
+  transition: transform 180ms ease, opacity 180ms ease;
   /* Stay sized to the localised label and never collapse below it; the
    * sport-bubble row absorbs leftover space. */
   flex: 0 0 auto;
@@ -1046,14 +1005,10 @@
 
 .cta:hover,
 .cta:focus-visible {
-  filter: brightness(1.04) saturate(1.08);
   transform: translateY(-1px);
   color: #041018;
   -webkit-text-fill-color: #041018;
   text-decoration: none;
-  box-shadow:
-    0 6px 14px rgba(16, 33, 62, 0.36),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 .cta:focus-visible {

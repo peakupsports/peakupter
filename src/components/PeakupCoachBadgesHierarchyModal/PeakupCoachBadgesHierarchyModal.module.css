@@ -217,7 +217,7 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 90px 1px minmax(0, 1fr);
+  grid-template-columns: 76px 1px minmax(0, 1fr);
   align-items: center;
   gap: 0 14px;
   min-height: 0;
@@ -227,6 +227,7 @@
 
 @media (--viewportMedium) {
   .tierCardInner {
+    grid-template-columns: 100px 1px minmax(0, 1fr);
     padding: 16px 22px;
     min-height: 108px;
   }
@@ -251,21 +252,35 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  width: 90px;
+  width: 76px;
+}
+
+@media (--viewportMedium) {
+  .emblemColumn {
+    width: 100px;
+  }
 }
 
 .emblemPlateWrap {
   position: relative;
-  width: 56px;
-  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 68px;
+  min-height: 68px;
+  flex-shrink: 0;
+}
+
+@media (--viewportMedium) {
+  .emblemPlateWrap {
+    width: 88px;
+    min-height: 88px;
+  }
 }
 
 .emblemGlow {
   position: absolute;
-  inset: -4px;
+  inset: -6px;
   border-radius: 50%;
   background: radial-gradient(
     circle at 50% 50%,
@@ -275,168 +290,49 @@
   opacity: 0.7;
 }
 
-/* Luxury glass circle emblem */
-.emblemPlate {
+.badgeImage {
   position: relative;
   z-index: 1;
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(var(--tier-rgb, 25, 227, 198), 0.08) 45%,
-    rgba(8, 12, 20, 0.55) 100%
-  );
-  border: 1px solid rgba(var(--tier-rgb, 25, 227, 198), 0.42);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
-    0 0 12px rgba(var(--tier-rgb, 25, 227, 198), 0.18);
-}
-
-.emblemPlate::after {
-  content: '';
-  position: absolute;
-  inset: 2px;
-  border-radius: 50%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 38%);
-  pointer-events: none;
-}
-
-.emblemIcon {
-  position: relative;
-  z-index: 2;
   display: block;
+  width: 68px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter:
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.38))
+    drop-shadow(0 0 8px rgba(var(--tier-rgb, 25, 227, 198), 0.12));
 }
 
-/* Crown — compact */
-.emblemIcon_founder {
-  width: 18px;
-  height: 14px;
+@media (--viewportMedium) {
+  .badgeImage {
+    width: 88px;
+  }
 }
 
-.emblemIcon_founder::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: 14px;
-  height: 5px;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, #eafbff, #9be7ff);
-  border-radius: 1px 1px 3px 3px;
+.tierCard_founder .badgeImage {
+  filter:
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.36))
+    drop-shadow(0 0 8px rgba(155, 231, 255, 0.14));
 }
 
-.emblemIcon_founder::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 17px;
-  height: 9px;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, #eafbff, #9be7ff);
-  clip-path: polygon(
-    0% 100%,
-    14% 45%,
-    26% 100%,
-    38% 32%,
-    50% 100%,
-    62% 32%,
-    74% 100%,
-    86% 45%,
-    100% 100%
-  );
+.tierCard_ambassador .badgeImage {
+  filter:
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.36))
+    drop-shadow(0 0 8px rgba(242, 201, 76, 0.12));
 }
 
-/* Star — compact */
-.emblemIcon_ambassador {
-  width: 18px;
-  height: 18px;
+.tierCard_top_coach .badgeImage {
+  filter:
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.36))
+    drop-shadow(0 0 7px rgba(184, 194, 207, 0.12));
 }
 
-.emblemIcon_ambassador::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 18px;
-  height: 18px;
-  background: linear-gradient(180deg, #fff4cc, #f2c94c);
-  clip-path: polygon(
-    50% 0%,
-    61% 35%,
-    98% 35%,
-    68% 57%,
-    79% 91%,
-    50% 70%,
-    21% 91%,
-    32% 57%,
-    2% 35%,
-    39% 35%
-  );
-}
-
-/* Diamond — compact */
-.emblemIcon_top_coach {
-  width: 16px;
-  height: 16px;
-}
-
-.emblemIcon_top_coach::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 14px;
-  height: 14px;
-  transform: rotate(45deg);
-  background: linear-gradient(145deg, #f2f5f8, #b8c2cf);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-}
-
-.emblemIcon_top_coach::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 5px;
-  height: 5px;
-  transform: rotate(45deg);
-  background: rgba(255, 255, 255, 0.45);
-}
-
-/* Check — compact */
-.emblemIcon_certified_coach {
-  width: 18px;
-  height: 18px;
-}
-
-.emblemIcon_certified_coach::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 1.5px solid #e8a86a;
-  background: rgba(205, 127, 50, 0.18);
-}
-
-.emblemIcon_certified_coach::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 48%;
-  width: 8px;
-  height: 5px;
-  border-left: 2px solid #ffe2c4;
-  border-bottom: 2px solid #ffe2c4;
-  transform: translate(-52%, -58%) rotate(-45deg);
+.tierCard_certified_coach .badgeImage {
+  filter:
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.36))
+    drop-shadow(0 0 7px rgba(205, 127, 50, 0.1));
 }
 
 .emblemRibbon {

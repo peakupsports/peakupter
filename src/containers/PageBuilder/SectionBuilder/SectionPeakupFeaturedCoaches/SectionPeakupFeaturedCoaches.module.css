@@ -25,11 +25,15 @@
 .headerBlock {
   position: relative;
   isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   max-width: var(--contentMaxWidthPages);
   margin-left: auto;
   margin-right: auto;
-  margin-bottom: 72px;
+  margin-bottom: 0;
   text-align: center;
 }
 
@@ -76,7 +80,7 @@
       rgba(255, 255, 255, 0.028) 0%,
       transparent 72%
     );
-  filter: blur(16px);
+  filter: blur(10px);
 }
 
 .showcaseHeader::after {
@@ -99,15 +103,11 @@
 }
 
 .showcaseTitle {
-  margin: 0;
+  margin: 0 0 10px;
   position: relative;
   z-index: 1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
+  display: block;
+  width: auto;
   max-width: 100%;
   box-sizing: border-box;
   color: var(--colorWhite);
@@ -135,7 +135,7 @@
     rgba(34, 230, 184, 0.03) 38%,
     transparent 72%
   );
-  filter: blur(14px);
+  filter: blur(9px);
   opacity: 0.65;
 }
 
@@ -146,8 +146,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: clamp(38px, 10vw, 58px);
-  height: clamp(38px, 10vw, 58px);
+  margin-bottom: 18px;
+  width: clamp(55px, 14.5vw, 84px);
+  height: clamp(55px, 14.5vw, 84px);
 }
 
 .showcaseTitleBadgeWrap::before {
@@ -161,11 +162,8 @@
     rgba(34, 230, 184, 0.07) 36%,
     transparent 74%
   );
-  filter: blur(14px);
+  filter: blur(9px);
   opacity: 0.48;
-  transition:
-    opacity 320ms ease,
-    transform 320ms ease;
   pointer-events: none;
 }
 
@@ -180,9 +178,7 @@
   filter:
     drop-shadow(0 5px 12px rgba(0, 0, 0, 0.38))
     drop-shadow(0 0 18px rgba(23, 217, 255, 0.08));
-  transition:
-    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 420ms ease;
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
   animation: showcaseBadgeFloat 5.5s ease-in-out infinite;
 }
 
@@ -197,17 +193,13 @@
   }
 }
 
-.showcaseTitle:hover .showcaseTitleBadgeWrap::before {
+.headerBlock:hover .showcaseTitleBadgeWrap::before {
   opacity: 0.58;
-  transform: scale(1.02);
 }
 
-.showcaseTitle:hover .showcaseTitleBadge {
+.headerBlock:hover .showcaseTitleBadge {
   animation-play-state: paused;
   transform: translateY(-2px);
-  filter:
-    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.42))
-    drop-shadow(0 0 20px rgba(23, 217, 255, 0.12));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -220,19 +212,15 @@
     transition: none;
   }
 
-  .showcaseTitle:hover .showcaseTitleBadge {
+  .headerBlock:hover .showcaseTitleBadge {
     transform: translateY(-1px);
   }
 }
 
 @media (--viewportMedium) {
-  .showcaseTitle {
-    gap: 14px;
-  }
-
   .showcaseTitleBadgeWrap {
-    width: clamp(49px, 4.8vw, 64px);
-    height: clamp(49px, 4.8vw, 64px);
+    width: clamp(71px, 6.96vw, 92px);
+    height: clamp(71px, 6.96vw, 92px);
   }
 }
 
@@ -256,12 +244,12 @@
 }
 
 .showcaseSubtitle {
-  width: 100%;
+  width: auto;
   max-width: min(34ch, 100%);
-  margin: 12px auto 0;
+  margin: 0 0 64px;
   position: relative;
   z-index: 1;
-  color: rgba(244, 246, 250, 0.72);
+  color: rgba(244, 246, 250, 0.85);
   font-size: 14px;
   font-weight: 500;
   line-height: 1.45;
@@ -283,6 +271,9 @@
   width: 100%;
   min-width: 0;
   overflow: visible;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .scrollViewport {
@@ -294,6 +285,9 @@
   padding: 0 32px 24px;
   min-width: 0;
   overflow: visible;
+  contain: paint;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 .scroller {
@@ -312,6 +306,9 @@
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 0;
   -webkit-overflow-scrolling: touch;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
   /* Premium look: hide the horizontal scrollbar on every browser while
      keeping native horizontal scroll, scroll-snap, mouse-wheel,
      touchpad and touch swipe gestures fully working. The arrow nav
@@ -335,6 +332,9 @@
   align-items: flex-start;
   min-width: 0;
   overflow: visible;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 
   @media (--viewportMedium) {
     width: clamp(260px, 42%, 300px);
@@ -359,8 +359,8 @@
 }
 
 @media (max-width: 767px) {
-  .headerBlock {
-    margin-bottom: 56px;
+  .showcaseSubtitle {
+    margin-bottom: 48px;
   }
 
   .scrollViewport {

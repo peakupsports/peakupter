@@ -11,6 +11,7 @@ import { loadData as PrivacyPageLoader } from './PrivacyPage/PrivacyPage.duck';
 import { loadData as CookiesPageLoader } from './CookiesPage/CookiesPage.duck';
 import { loadData as CancellationPolicyPageLoader } from './CancellationPolicyPage/CancellationPolicyPage.duck';
 import { loadData as CoachEarningsPageLoader } from './CoachEarningsPage/CoachEarningsPage.duck';
+import { loadData as AmbassadorProgramPageLoader } from './AmbassadorProgramPage/AmbassadorProgramPage.duck';
 import { loadData as AuthenticationPageLoader } from './AuthenticationPage/AuthenticationPage.duck';
 import { loadData as LandingPageLoader } from './LandingPage/LandingPage.duck';
 import { setInitialValues as CheckoutPageInitialValues } from './CheckoutPage/CheckoutPage.duck';
@@ -80,6 +81,9 @@ const getPageDataLoadingAPI = () => {
     },
     CoachEarningsPage: {
       loadData: CoachEarningsPageLoader,
+    },
+    AmbassadorProgramPage: {
+      loadData: AmbassadorProgramPageLoader,
     },
     AuthenticationPage: {
       loadData: AuthenticationPageLoader,

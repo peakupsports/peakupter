@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { lazy, memo, Suspense, useCallback, useState } from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
@@ -20,9 +20,12 @@ import NamedLink from '../NamedLink/NamedLink';
 import ResponsiveImage from '../ResponsiveImage/ResponsiveImage';
 
 import peakUpFounderLogo from '../../assets/peakup-founder-logo.png';
-import PeakupCoachBadgesHierarchyModal from '../PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal';
 import PeakUpRankShieldBadge from './PeakUpRankShieldBadge';
 import css from './PeakUpCoachFigurineCard.module.css';
+
+const PeakupCoachBadgesHierarchyModal = lazy(() =>
+  import('../PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal')
+);
 
 const TOP_BADGE_LABEL_KEYS = {
   founder: 'PeakUpCoachFigurineCard.badge.founder',
@@ -89,6 +92,7 @@ const normalizeSportKey = raw => String(raw || '').toLowerCase().replace(/[\s-_]
 const PeakUpCoachFigurineCard = props => {
   const intl = useIntl();
   const [isBadgeHierarchyOpen, setBadgeHierarchyOpen] = useState(false);
+  const closeBadgeHierarchy = useCallback(() => setBadgeHierarchyOpen(false), []);
 
   const {
     author,
@@ -438,15 +442,17 @@ const PeakUpCoachFigurineCard = props => {
         ) : null}
       </div>
 
-      {sortedTierBadgeIds.length > 0 || legacyCoachLevel ? (
-        <PeakupCoachBadgesHierarchyModal
-          id={badgeHierarchyModalId}
-          isOpen={isBadgeHierarchyOpen}
-          onClose={() => setBadgeHierarchyOpen(false)}
-        />
+      {isBadgeHierarchyOpen && (sortedTierBadgeIds.length > 0 || legacyCoachLevel) ? (
+        <Suspense fallback={null}>
+          <PeakupCoachBadgesHierarchyModal
+            id={badgeHierarchyModalId}
+            isOpen={isBadgeHierarchyOpen}
+            onClose={closeBadgeHierarchy}
+          />
+        </Suspense>
       ) : null}
     </article>
   );
 };
 
-export default PeakUpCoachFigurineCard;
+export default memo(PeakUpCoachFigurineCard);
