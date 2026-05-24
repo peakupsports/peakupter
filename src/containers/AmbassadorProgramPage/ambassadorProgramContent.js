@@ -15,22 +15,31 @@ export const SECTION_IDS = {
   finalCta: 'ambassador-final-cta',
 };
 
+export const HERO_HIGHLIGHT_IMAGE = {
+  community: '/community.jpg',
+  rewards: '/grafico.jpg',
+  recognition: '/scudo.jpg',
+};
+
 export const HERO_HIGHLIGHTS = [
   {
     id: 'community',
     icon: 'users',
+    imageSrc: HERO_HIGHLIGHT_IMAGE.community,
     titleId: 'AmbassadorProgramPage.heroHighlightCommunityTitle',
     textId: 'AmbassadorProgramPage.heroHighlightCommunityText',
   },
   {
     id: 'rewards',
     icon: 'rewards',
+    imageSrc: HERO_HIGHLIGHT_IMAGE.rewards,
     titleId: 'AmbassadorProgramPage.heroHighlightRewardsTitle',
     textId: 'AmbassadorProgramPage.heroHighlightRewardsText',
   },
   {
     id: 'recognition',
     icon: 'shield',
+    imageSrc: HERO_HIGHLIGHT_IMAGE.recognition,
     titleId: 'AmbassadorProgramPage.heroHighlightRecognitionTitle',
     textId: 'AmbassadorProgramPage.heroHighlightRecognitionText',
   },
@@ -112,6 +121,8 @@ export const QUALIFICATION_CRITERIA = [
     progress: 85,
   },
 ];
+
+export const AMBASSADOR_HERO_BADGE_SRC = '/Ambassador.jpg';
 
 export const AMBASSADOR_LEVEL_IMAGE = {
   bronze: '/ambassador_bronze.jpg',

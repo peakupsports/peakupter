@@ -2,13 +2,14 @@
  *  TopbarMobileMenu prints the menu content for authenticated user or
  * shows login actions for those who are not authenticated.
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { ensureCurrentUser } from '../../../../util/data';
 import { isPeakUpHqRouteName } from '../../../../util/peakupAdmin';
+import { isAmbassadorSectionRouteName } from '../../../../util/ambassadorNav';
 
 import {
   AvatarLarge,
@@ -86,11 +87,26 @@ const TopbarMobileMenu = props => {
     onLogout,
     showCreateListingsLink,
     showCoachCalendarLink,
+    showAmbassadorMenu,
     showPeakUpHqLink,
     intl,
   } = props;
 
   const user = ensureCurrentUser(currentUser);
+  const [ambassadorExpanded, setAmbassadorExpanded] = useState(() =>
+    isAmbassadorSectionRouteName(currentPage)
+  );
+
+  useEffect(() => {
+    if (isAmbassadorSectionRouteName(currentPage)) {
+      setAmbassadorExpanded(true);
+    }
+  }, [currentPage]);
+
+  const ambassadorChildClass = classNames(
+    css.ambassadorChildItem,
+    ambassadorExpanded ? css.ambassadorChildItemExpanded : null
+  );
 
   const extraLinks = customLinks.map((linkConfig, index) => {
     return (
@@ -193,6 +209,13 @@ const TopbarMobileMenu = props => {
               </NamedLink>
             </li>
           ) : null}
+          {showCoachCalendarLink ? (
+            <li className={classNames(css.navigationLink, currentPageClass('CoachEarningsPage'))}>
+              <NamedLink name="CoachEarningsPage">
+                <FormattedMessage id="TopbarMobileMenu.coachEarningsLink" />
+              </NamedLink>
+            </li>
+          ) : null}
           <li className={classNames(css.navigationLink, currentPageClass('ProfileSettingsPage'))}>
             <NamedLink name="ProfileSettingsPage">
               <FormattedMessage id="TopbarMobileMenu.profileSettingsLink" />
@@ -203,25 +226,74 @@ const TopbarMobileMenu = props => {
               <FormattedMessage id="TopbarMobileMenu.accountSettingsLink" />
             </NamedLink>
           </li>
-          {showPeakUpHqLink ? (
-            <>
-              <li className={css.menuSeparator} role="separator" aria-hidden="true" />
-              <li
-                className={classNames(
-                  css.navigationLink,
-                  css.navigationLinkPeakUpHq,
-                  isPeakUpHqRouteName(currentPage) && css.currentPage
+          {showAmbassadorMenu ? (
+            <li className={css.menuSeparatorAmbassador} role="separator" aria-hidden="true" />
+          ) : null}
+          {showAmbassadorMenu ? (
+            <li className={css.ambassadorToggleItem}>
+              <InlineTextButton
+                rootClassName={classNames(
+                  css.ambassadorToggle,
+                  ambassadorExpanded ? css.ambassadorToggleOpen : null
                 )}
+                aria-expanded={ambassadorExpanded}
+                onClick={() => setAmbassadorExpanded(expanded => !expanded)}
               >
-                <NamedLink name="PeakUpHQPage">
-                  <span className={css.peakUpHqNavInner}>
-                    <PeakUpHqIcon name="hq" className={css.peakUpHqNavIcon} />
-                    <FormattedMessage id="TopbarMobileMenu.peakUpHqLink" />
-                  </span>
-                </NamedLink>
-              </li>
-              <li className={css.menuSeparator} role="separator" aria-hidden="true" />
-            </>
+                <span className={css.ambassadorToggleInner}>
+                  <FormattedMessage id="TopbarMobileMenu.ambassadorSectionLabel" />
+                  <span className={css.ambassadorChevron} aria-hidden="true" />
+                </span>
+              </InlineTextButton>
+            </li>
+          ) : null}
+          {showAmbassadorMenu ? (
+            <li className={css.menuSeparatorAmbassador} role="separator" aria-hidden="true" />
+          ) : null}
+          {showAmbassadorMenu ? (
+            <li
+              className={classNames(
+                css.navigationLink,
+                css.navigationLinkAmbassador,
+                css.ambassadorChildLink,
+                ambassadorChildClass,
+                currentPageClass('AmbassadorProgramPage')
+              )}
+            >
+              <NamedLink name="AmbassadorProgramPage" tabIndex={ambassadorExpanded ? undefined : -1}>
+                <FormattedMessage id="TopbarMobileMenu.ambassadorProgramLink" />
+              </NamedLink>
+            </li>
+          ) : null}
+          {showAmbassadorMenu ? (
+            <li
+              className={classNames(
+                css.navigationLink,
+                css.navigationLinkAmbassador,
+                css.ambassadorChildLink,
+                ambassadorChildClass,
+                currentPageClass('ReferralCenterPage')
+              )}
+            >
+              <NamedLink name="ReferralCenterPage" tabIndex={ambassadorExpanded ? undefined : -1}>
+                <FormattedMessage id="TopbarMobileMenu.referralCenterLink" />
+              </NamedLink>
+            </li>
+          ) : null}
+          {showPeakUpHqLink ? (
+            <li
+              className={classNames(
+                css.navigationLink,
+                css.navigationLinkPeakUpHq,
+                isPeakUpHqRouteName(currentPage) && css.currentPage
+              )}
+            >
+              <NamedLink name="PeakUpHQPage">
+                <span className={css.peakUpHqNavInner}>
+                  <PeakUpHqIcon name="hq" className={css.peakUpHqNavIcon} />
+                  <FormattedMessage id="TopbarMobileMenu.peakUpHqLink" />
+                </span>
+              </NamedLink>
+            </li>
           ) : null}
         </ul>
         <ul className={css.customLinksWrapper}>{extraLinks}</ul>

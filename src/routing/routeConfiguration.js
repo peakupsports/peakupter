@@ -48,6 +48,11 @@ const AmbassadorProgramPage = loadable(() =>
     /* webpackChunkName: "AmbassadorProgramPage" */ '../containers/AmbassadorProgramPage/AmbassadorProgramPage'
   )
 );
+const ReferralCenterPage = loadable(() =>
+  import(
+    /* webpackChunkName: "ReferralCenterPage" */ '../containers/ReferralCenterPage/ReferralCenterPage'
+  )
+);
 import NotFoundPage from '../containers/NotFoundPage/NotFoundPage';
 import PreviewResolverPage from '../containers/PreviewResolverPage/PreviewResolverPage';
 
@@ -161,6 +166,12 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       name: 'AmbassadorProgramPage',
       component: AmbassadorProgramPage,
       loadData: pageDataLoadingAPI.AmbassadorProgramPage.loadData,
+    },
+    {
+      path: '/referral-center',
+      name: 'ReferralCenterPage',
+      component: ReferralCenterPage,
+      loadData: pageDataLoadingAPI.ReferralCenterPage.loadData,
     },
     {
       path: '/admin',

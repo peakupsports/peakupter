@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSelector } from 'react-redux';
 
@@ -21,14 +21,39 @@ import {
   QUALIFICATION_CRITERIA,
   REWARDS_BENEFITS,
   SECTION_IDS,
+  AMBASSADOR_HERO_BADGE_SRC,
   AMBASSADOR_LEVEL_IMAGE,
 } from './ambassadorProgramContent';
+import AmbassadorLevelPopup from './AmbassadorLevelPopup';
+import { LEVEL_POPUP_GLOBAL } from './ambassadorLevelPopupContent';
 import css from './AmbassadorProgramPage.module.css';
 
-const HERO_BADGE_SRC = AMBASSADOR_LEVEL_IMAGE.diamond;
+const HERO_BADGE_SRC = AMBASSADOR_HERO_BADGE_SRC;
 const AMBASSADOR_BADGE_SRC = '/CoachPagePic/Badge_ambassador.jpg';
 
+const HeroFeatureIconMedia = ({ imageSrc, icon }) => {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  if (imageFailed) {
+    return <HeroFeatureIcon icon={icon} />;
+  }
+
+  return (
+    <img
+      className={css.heroFeatureImage}
+      src={imageSrc}
+      alt=""
+      loading="lazy"
+      decoding="async"
+      onError={() => setImageFailed(true)}
+    />
+  );
+};
+
 const HeroFeatureIcon = ({ icon }) => {
+  const gradientId = useId();
+  const stroke = `url(#${gradientId})`;
+
   const svgProps = {
     className: css.heroFeatureIconSvg,
     viewBox: '0 0 24 24',
@@ -36,30 +61,40 @@ const HeroFeatureIcon = ({ icon }) => {
     'aria-hidden': true,
     focusable: 'false',
   };
-  const stroke = 'currentColor';
+
+  const gradient = (
+    <defs>
+      <linearGradient id={gradientId} x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#c8ff6e" />
+        <stop offset="48%" stopColor="#5ef5d6" />
+        <stop offset="100%" stopColor="#6ec8ff" />
+      </linearGradient>
+    </defs>
+  );
 
   if (icon === 'users') {
     return (
       <svg {...svgProps}>
+        {gradient}
         <path
           d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
           stroke={stroke}
-          strokeWidth="2.25"
+          strokeWidth="1.85"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <circle cx="9" cy="7" r="4" stroke={stroke} strokeWidth="2.25" />
+        <circle cx="9" cy="7" r="4" stroke={stroke} strokeWidth="1.85" />
         <path
           d="M22 21v-2a4 4 0 0 0-3-3.87"
           stroke={stroke}
-          strokeWidth="2.25"
+          strokeWidth="1.85"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
           d="M16 3.13a4 4 0 0 1 0 7.75"
           stroke={stroke}
-          strokeWidth="2.25"
+          strokeWidth="1.85"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -70,27 +105,29 @@ const HeroFeatureIcon = ({ icon }) => {
   if (icon === 'rewards') {
     return (
       <svg {...svgProps}>
-        <path d="M3 3v18h18" stroke={stroke} strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M18 17V9" stroke={stroke} strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M13 17V5" stroke={stroke} strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M8 17v-3" stroke={stroke} strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
+        {gradient}
+        <path d="M3 3v18h18" stroke={stroke} strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M18 17V9" stroke={stroke} strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M13 17V5" stroke={stroke} strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M8 17v-3" stroke={stroke} strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
   }
 
   return (
     <svg {...svgProps}>
+      {gradient}
       <path
         d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
         stroke={stroke}
-        strokeWidth="2.25"
+        strokeWidth="1.85"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="m9 12 2 2 4-4"
         stroke={stroke}
-        strokeWidth="2.25"
+        strokeWidth="1.85"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -98,9 +135,9 @@ const HeroFeatureIcon = ({ icon }) => {
   );
 };
 
-const StepFlowArrow = () => (
+const StepFlowArrow = ({ className }) => (
   <svg
-    className={css.stepConnectorArrowIcon}
+    className={classNames(css.stepConnectorArrowIcon, className)}
     viewBox="0 0 24 24"
     fill="none"
     aria-hidden="true"
@@ -109,11 +146,64 @@ const StepFlowArrow = () => (
     <path
       d="M5 12h14M13 6l6 6-6 6"
       stroke="currentColor"
-      strokeWidth="1.5"
+      strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
   </svg>
+);
+
+const StepConnector = ({ connectorId }) => (
+  <div className={css.stepConnector} data-connector={connectorId}>
+    {connectorId === '2-3' ? (
+      <svg
+        className={css.stepConnectorCurveDesktop}
+        viewBox="0 0 32 72"
+        fill="none"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          d="M16 4 C16 28 16 36 16 52"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M16 52 L16 62 M11 57 L16 62 L21 57"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ) : null}
+    <span className={css.stepConnectorLine} aria-hidden="true" />
+    <span className={css.stepConnectorArrow} aria-hidden="true">
+      <StepFlowArrow />
+    </span>
+    <span className={css.stepConnectorLine} aria-hidden="true" />
+  </div>
+);
+
+
+const renderStepCard = step => (
+  <article
+    className={classNames(css.stepCard, step.id === 'earn' && css.stepCardReward)}
+    data-step={step.id}
+  >
+    <div className={css.stepCardHead}>
+      <h3 className={css.stepTitle}>
+        <FormattedMessage id={step.titleId} />
+      </h3>
+      <div className={css.stepImageWrap}>
+        <img className={css.stepImage} src={step.imageSrc} alt="" loading="lazy" decoding="async" />
+      </div>
+    </div>
+    <p className={css.stepText}>
+      <FormattedMessage id={step.textId} />
+    </p>
+  </article>
 );
 
 const ScrollReveal = ({ children, className, delay = 0, as: Tag = 'div', ...rest }) => {
@@ -178,6 +268,10 @@ const AmbassadorProgramPage = () => {
     { marketplaceName }
   );
   const description = intl.formatMessage({ id: 'AmbassadorProgramPage.schemaDescription' });
+  const [activeLevelId, setActiveLevelId] = useState(null);
+
+  const openLevelPopup = levelId => setActiveLevelId(levelId);
+  const closeLevelPopup = () => setActiveLevelId(null);
 
   return (
     <Page
@@ -214,7 +308,7 @@ const AmbassadorProgramPage = () => {
               {HERO_HIGHLIGHTS.map(item => (
                 <li key={item.id} className={css.heroFeatureItem}>
                   <div className={css.heroFeatureIcon}>
-                    <HeroFeatureIcon icon={item.icon} />
+                    <HeroFeatureIconMedia imageSrc={item.imageSrc} icon={item.icon} />
                   </div>
                   <span className={css.heroFeatureDivider} aria-hidden="true" />
                   <div className={css.heroFeatureCopy}>
@@ -237,15 +331,16 @@ const AmbassadorProgramPage = () => {
               </a>
             </div>
             </div>
-            <div className={css.heroBadgeWrap}>
-              <div className={css.heroBadgeGlow} aria-hidden="true" />
-              <img
-                className={css.heroBadgeImage}
-                src={HERO_BADGE_SRC}
-                alt={intl.formatMessage({ id: 'AmbassadorProgramPage.heroBadgeAlt' })}
-                loading="eager"
-                decoding="async"
-              />
+            <div className={css.heroVisual}>
+              <div className={css.heroBadgeWrap}>
+                <img
+                  className={css.heroBadgeImage}
+                  src={HERO_BADGE_SRC}
+                  alt={intl.formatMessage({ id: 'AmbassadorProgramPage.heroBadgeAlt' })}
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
             </div>
           </div>
         </header>
@@ -264,51 +359,27 @@ const AmbassadorProgramPage = () => {
               <FormattedMessage id="AmbassadorProgramPage.howTitle" />
             </h2>
             <ol className={css.stepsFlow}>
-              {HOW_IT_WORKS_STEPS.map((step, index) => (
-                <React.Fragment key={step.id}>
-                  <li
-                    className={css.stepFlowItem}
-                    style={{ '--step-index': index }}
-                  >
-                    <article
-                      className={classNames(
-                        css.stepCard,
-                        step.id === 'earn' && css.stepCardReward
-                      )}
-                      data-step={step.id}
-                    >
-                      <div className={css.stepCardHead}>
-                        <h3 className={css.stepTitle}>
-                          <FormattedMessage id={step.titleId} />
-                        </h3>
-                        <div className={css.stepImageWrap}>
-                          <img
-                            className={css.stepImage}
-                            src={step.imageSrc}
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        </div>
-                      </div>
-                      <p className={css.stepText}>
-                        <FormattedMessage id={step.textId} />
-                      </p>
-                    </article>
-                  </li>
-                  {index < HOW_IT_WORKS_STEPS.length - 1 ? (
-                    <li className={css.stepConnectorItem} aria-hidden="true">
-                      <div className={css.stepConnector}>
-                        <span className={css.stepConnectorLine} />
-                        <span className={css.stepConnectorArrow}>
-                          <StepFlowArrow />
-                        </span>
-                        <span className={css.stepConnectorLine} />
-                      </div>
-                    </li>
-                  ) : null}
-                </React.Fragment>
-              ))}
+              <li className={css.stepFlowItem} data-step-position="1">
+                {renderStepCard(HOW_IT_WORKS_STEPS[0])}
+              </li>
+              <li className={css.stepConnectorItem} data-connector="1-2" aria-hidden="true">
+                <StepConnector connectorId="1-2" />
+              </li>
+              <li className={css.stepFlowItem} data-step-position="2">
+                {renderStepCard(HOW_IT_WORKS_STEPS[1])}
+              </li>
+              <li className={css.stepConnectorItem} data-connector="2-3" aria-hidden="true">
+                <StepConnector connectorId="2-3" />
+              </li>
+              <li className={css.stepFlowItem} data-step-position="3">
+                {renderStepCard(HOW_IT_WORKS_STEPS[2])}
+              </li>
+              <li className={css.stepConnectorItem} data-connector="3-4" aria-hidden="true">
+                <StepConnector connectorId="3-4" />
+              </li>
+              <li className={css.stepFlowItem} data-step-position="4">
+                {renderStepCard(HOW_IT_WORKS_STEPS[3])}
+              </li>
             </ol>
           </ScrollReveal>
 
@@ -388,23 +459,39 @@ const AmbassadorProgramPage = () => {
                   className={classNames(css.levelCard, css[`levelCard_${level.tierClass}`])}
                   style={{ '--level-index': index }}
                 >
-                  <img
-                    className={css.ambassadorLevelBadge}
-                    src={level.imageSrc}
-                    alt={intl.formatMessage({ id: level.nameId })}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <h3 className={css.levelName}>
-                    <FormattedMessage id={level.nameId} />
-                  </h3>
-                  <p className={css.levelDesc}>
-                    <FormattedMessage id={level.descId} />
-                  </p>
+                  <button
+                    type="button"
+                    className={css.levelCardButton}
+                    aria-label={intl.formatMessage(
+                      { id: LEVEL_POPUP_GLOBAL.openHintId },
+                      { tier: intl.formatMessage({ id: level.nameId }) }
+                    )}
+                    onClick={() => openLevelPopup(level.id)}
+                  >
+                    <img
+                      className={css.ambassadorLevelBadge}
+                      src={level.imageSrc}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <h3 className={css.levelName}>
+                      <FormattedMessage id={level.nameId} />
+                    </h3>
+                    <p className={css.levelDesc}>
+                      <FormattedMessage id={level.descId} />
+                    </p>
+                  </button>
                 </li>
               ))}
             </ol>
           </ScrollReveal>
+
+          <AmbassadorLevelPopup
+            tierId={activeLevelId}
+            isOpen={Boolean(activeLevelId)}
+            onClose={closeLevelPopup}
+          />
 
           <div className={css.sectionDivider} aria-hidden="true" />
 
@@ -492,9 +579,10 @@ const AmbassadorProgramPage = () => {
             <h2 id="ambassador-meet-heading" className={css.sectionTitle}>
               <FormattedMessage id="AmbassadorProgramPage.ambassadorsTitle" />
             </h2>
-            <ul className={css.ambassadorsScroller}>
-              {PLACEHOLDER_AMBASSADORS.map(coach => (
-                <li key={coach.id} className={css.ambassadorCard}>
+            <div className={css.ambassadorsTrack}>
+              <ul className={css.ambassadorsScroller}>
+                {PLACEHOLDER_AMBASSADORS.map(coach => (
+                  <li key={coach.id} className={css.ambassadorCard}>
                   <div className={css.ambassadorAvatar} aria-hidden="true">
                     {coach.initials}
                   </div>
@@ -518,7 +606,8 @@ const AmbassadorProgramPage = () => {
                   </span>
                 </li>
               ))}
-            </ul>
+              </ul>
+            </div>
           </ScrollReveal>
 
           <ScrollReveal

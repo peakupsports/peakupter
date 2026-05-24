@@ -10,17 +10,32 @@
   --ambInkSoft: rgba(228, 235, 243, 0.78);
   --ambCanvas: #060a12;
   --reveal-delay: 0ms;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .main {
   position: relative;
   z-index: 1;
+  width: 100%;
+  max-width: 100%;
   padding: 0 0 88px;
-  overflow-x: clip;
+  overflow-x: hidden;
   background:
     radial-gradient(ellipse 80% 50% at 50% -8%, rgba(232, 197, 71, 0.05) 0%, transparent 52%),
     radial-gradient(ellipse 70% 42% at 80% 12%, rgba(25, 223, 242, 0.05) 0%, transparent 55%),
     var(--ambCanvas);
+}
+
+.page :global(footer) {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.page :global(footer) [class*='SectionFooter_logoWrapper'] {
+  min-width: 0;
+  max-width: 100% !important;
 }
 
 .reveal {
@@ -70,7 +85,7 @@
   min-height: clamp(520px, 82vh, 760px);
   display: flex;
   align-items: center;
-  overflow: hidden;
+  overflow: visible;
   scroll-margin-top: var(--topbarHeight);
 }
 
@@ -83,6 +98,7 @@
 .heroAtmosphere {
   position: absolute;
   inset: 0;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -102,7 +118,7 @@
   width: 42%;
   height: 42%;
   bottom: 12%;
-  left: -8%;
+  left: 0;
   background: radial-gradient(ellipse at center, rgba(25, 223, 242, 0.14) 0%, transparent 70%);
   filter: blur(40px);
 }
@@ -112,7 +128,7 @@
   width: 38%;
   height: 38%;
   top: 20%;
-  right: -6%;
+  right: 0;
   background: radial-gradient(ellipse at center, rgba(157, 255, 79, 0.1) 0%, transparent 72%);
   filter: blur(44px);
 }
@@ -122,10 +138,11 @@
   z-index: 2;
   width: 100%;
   max-width: 1180px;
+  min-width: 0;
   margin: 0 auto;
   padding: 72px 24px 96px;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 40px;
   align-items: center;
   box-sizing: border-box;
@@ -138,7 +155,7 @@
     gap: 48px;
   }
 
-  .heroBadgeWrap {
+  .heroVisual {
     grid-column: 2;
     grid-row: 1;
   }
@@ -193,25 +210,85 @@
 }
 
 .heroFeatureIcon {
+  position: relative;
   justify-self: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.96);
-  background: rgba(13, 23, 37, 0.78);
-  border: 1px solid rgba(88, 180, 255, 0.42);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
-    0 0 18px rgba(38, 190, 255, 0.12);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: transparent;
+  isolation: isolate;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.heroFeatureIcon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(40, 220, 255, 0.28) 0%,
+    rgba(90, 255, 120, 0.18) 45%,
+    transparent 72%
+  );
+  opacity: 0.92;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 320ms ease;
+}
+
+.heroFeatureIcon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(88, 180, 255, 0.4);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  pointer-events: none;
+  z-index: 2;
+  transition: border-color 320ms ease;
+}
+
+.heroFeatureImage {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 40px;
+  max-height: 40px;
+  object-fit: contain;
+  object-position: center;
+  background: transparent;
+  mix-blend-mode: screen;
 }
 
 .heroFeatureIconSvg {
+  position: relative;
+  z-index: 1;
   display: block;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+}
+
+.heroFeatureItem:hover .heroFeatureIcon {
+  transform: scale(1.04);
+}
+
+.heroFeatureItem:hover .heroFeatureIcon::before {
+  opacity: 1;
+}
+
+.heroFeatureItem:hover .heroFeatureIcon::after {
+  border-color: rgba(110, 200, 255, 0.58);
+}
+
+.heroFeatureItem:hover .heroFeatureIconSvg {
+  filter: drop-shadow(0 0 10px rgba(94, 220, 255, 0.45));
 }
 
 .heroFeatureDivider {
@@ -257,13 +334,18 @@
   }
 
   .heroFeatureIcon {
-    width: 58px;
-    height: 58px;
+    width: 60px;
+    height: 60px;
+  }
+
+  .heroFeatureImage {
+    max-width: 48px;
+    max-height: 48px;
   }
 
   .heroFeatureIconSvg {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
   }
 
   .heroFeatureDivider {
@@ -337,45 +419,104 @@
   background: rgba(232, 197, 71, 0.1);
 }
 
-.heroBadgeWrap {
+.heroVisual {
   position: relative;
   justify-self: center;
-  width: min(100%, 320px);
-  aspect-ratio: 1;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: visible;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.heroBadgeGlow {
+.heroBadgeWrap {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  min-width: 0;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.heroBadgeWrap::before {
+  content: '';
   position: absolute;
-  inset: 12%;
+  inset: 6%;
   border-radius: 50%;
+  opacity: 0.45;
   background: radial-gradient(
-    ellipse 52% 52% at 50% 50%,
-    rgba(124, 92, 255, 0.24) 0%,
-    rgba(74, 190, 255, 0.12) 42%,
-    transparent 64%
+    circle,
+    rgba(40, 180, 255, 0.18) 0%,
+    rgba(110, 70, 255, 0.1) 32%,
+    rgba(20, 80, 120, 0.06) 52%,
+    transparent 78%
   );
-  filter: blur(10px);
+  transform: scale(1.15);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes heroBadgeFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
 }
 
 .heroBadgeImage {
   position: relative;
   z-index: 1;
+  display: block;
   width: 78%;
   height: auto;
   object-fit: contain;
-  filter:
-    drop-shadow(0 16px 32px rgba(0, 0, 0, 0.45))
-    drop-shadow(0 0 18px rgba(124, 92, 255, 0.32))
-    drop-shadow(0 0 42px rgba(74, 190, 255, 0.16));
+  background: transparent;
+  mix-blend-mode: screen;
 }
 
 @media (--viewportMedium) {
   .heroBadgeWrap {
-    justify-self: end;
-    width: min(100%, 396px);
+    max-width: 540px;
+  }
+}
+
+@media (--viewportLarge) {
+  .heroInner {
+    max-width: 1280px;
+    grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+    gap: 28px;
+    padding-right: 40px;
+  }
+
+  .heroBadgeWrap {
+    max-width: 620px;
+    animation: heroBadgeFloat 8s ease-in-out infinite;
+  }
+
+  .heroBadgeImage {
+    width: 92%;
+  }
+}
+
+@media (--viewportLarge) and (prefers-reduced-motion: reduce) {
+  .heroBadgeWrap {
+    animation: none;
+    transform: none;
+  }
+
+  .heroFeatureItem:hover .heroFeatureIcon {
+    transform: none;
   }
 }
 
@@ -384,9 +525,13 @@
 .rail {
   position: relative;
   z-index: 2;
+  width: 100%;
   max-width: 1080px;
+  min-width: 0;
   margin: 0 auto;
   padding: 72px 20px 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 @media (--viewportMedium) {
@@ -397,6 +542,8 @@
 
 .section {
   margin-bottom: 56px;
+  min-width: 0;
+  max-width: 100%;
   scroll-margin-top: calc(var(--topbarHeight) + 24px);
 }
 
@@ -407,6 +554,8 @@
 }
 
 .glassSection {
+  min-width: 0;
+  max-width: 100%;
   padding: 28px 22px;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -416,6 +565,7 @@
     0 24px 48px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(8px);
+  overflow-x: hidden;
 }
 
 @media (--viewportMedium) {
@@ -459,6 +609,8 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .stepFlowItem {
@@ -469,19 +621,36 @@
   position: relative;
   height: 100%;
   min-width: 0;
-  padding: 8px 12px 9px;
-  border-radius: 14px;
+  padding: 18px 20px 22px;
+  border-radius: 18px;
   border: 1px solid rgba(58, 190, 255, 0.14);
   background:
     linear-gradient(165deg, rgba(18, 28, 44, 0.9) 0%, rgba(10, 16, 28, 0.96) 100%);
   box-shadow:
     0 8px 20px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   overflow: hidden;
   transition:
     transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
     border-color 260ms ease,
     box-shadow 260ms ease;
+}
+
+.stepCard:not(.stepCardReward)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.045) 0%,
+    transparent 36%,
+    transparent 68%,
+    rgba(58, 190, 255, 0.025) 100%
+  );
 }
 
 .stepCard::after {
@@ -631,9 +800,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 5px;
-  min-height: 52px;
+  gap: 12px;
+  margin-bottom: 12px;
+  min-height: 68px;
 }
 
 .stepImageWrap {
@@ -642,52 +811,80 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: transparent;
+  isolation: isolate;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .stepImageWrap::before {
   content: '';
   position: absolute;
-  inset: -18%;
+  inset: 0;
   border-radius: 50%;
-  filter: blur(14px);
-  opacity: 0.88;
+  background: radial-gradient(
+    circle,
+    rgba(40, 220, 255, 0.33) 0%,
+    rgba(90, 255, 120, 0.22) 45%,
+    transparent 72%
+  );
+  opacity: 0.96;
   z-index: 0;
   pointer-events: none;
+  transition: opacity 320ms ease;
+}
+
+.stepImageWrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(88, 180, 255, 0.42);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 0 12px rgba(58, 190, 255, 0.12);
+  pointer-events: none;
+  z-index: 2;
+  transition:
+    border-color 320ms ease,
+    box-shadow 320ms ease;
 }
 
 .stepCard[data-step='code'] .stepImageWrap::before {
   background: radial-gradient(
-    circle at 50% 50%,
-    rgba(170, 255, 120, 0.26) 0%,
-    rgba(58, 190, 255, 0.18) 48%,
+    circle,
+    rgba(40, 220, 255, 0.34) 0%,
+    rgba(90, 255, 120, 0.24) 45%,
     transparent 72%
   );
 }
 
 .stepCard[data-step='invite'] .stepImageWrap::before {
   background: radial-gradient(
-    circle at 50% 50%,
-    rgba(58, 190, 255, 0.28) 0%,
-    transparent 70%
+    circle,
+    rgba(40, 220, 255, 0.36) 0%,
+    rgba(58, 190, 255, 0.22) 45%,
+    transparent 72%
   );
 }
 
 .stepCard[data-step='join'] .stepImageWrap::before {
   background: radial-gradient(
-    circle at 50% 50%,
-    rgba(90, 120, 255, 0.24) 0%,
-    rgba(120, 90, 255, 0.14) 52%,
-    transparent 74%
+    circle,
+    rgba(90, 120, 255, 0.34) 0%,
+    rgba(120, 90, 255, 0.2) 45%,
+    transparent 72%
   );
 }
 
 .stepCard[data-step='earn'] .stepImageWrap::before {
   background: radial-gradient(
-    circle at 50% 50%,
-    rgba(255, 210, 90, 0.22) 0%,
-    rgba(150, 90, 255, 0.14) 50%,
+    circle,
+    rgba(255, 210, 90, 0.32) 0%,
+    rgba(150, 90, 255, 0.2) 45%,
     transparent 72%
   );
 }
@@ -696,39 +893,60 @@
   position: relative;
   z-index: 1;
   display: block;
-  width: 100%;
-  height: 100%;
-  max-width: 50px;
-  max-height: 50px;
+  width: 90px;
+  height: 90px;
+  max-width: 90px;
+  max-height: 90px;
   object-fit: contain;
   object-position: center;
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.28));
+  background: transparent;
+  mix-blend-mode: screen;
+  filter: brightness(1.12) contrast(1.06);
+}
+
+.stepCard:hover .stepImageWrap {
+  transform: scale(1.05);
+}
+
+.stepCard:hover .stepImageWrap::before {
+  opacity: 1;
+}
+
+.stepCard:hover .stepImageWrap::after {
+  border-color: rgba(110, 200, 255, 0.58);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.07) inset,
+    0 0 16px rgba(58, 190, 255, 0.16);
+}
+
+.stepCard:hover .stepImage {
+  filter: brightness(1.16) contrast(1.07);
 }
 
 .stepTitle {
   flex: 1 1 auto;
   min-width: 0;
   margin: 0;
-  padding-right: 4px;
-  font-size: 14px;
+  padding-right: 8px;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.25;
   color: var(--ambInk);
 }
 
 .stepText {
   margin: 0;
-  max-width: 85%;
-  font-size: 13px;
-  line-height: 1.35;
-  color: rgba(228, 235, 243, 0.62);
+  max-width: 100%;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(228, 235, 243, 0.72);
 }
 
 .stepConnectorItem {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
+  min-height: 36px;
   padding: 0;
 }
 
@@ -740,21 +958,26 @@
   justify-content: center;
   gap: 2px;
   width: 24px;
-  height: 100%;
+  height: 36px;
+  color: rgba(58, 190, 255, 0.68);
+}
+
+.stepConnectorCurveDesktop {
+  display: none;
 }
 
 .stepConnectorLine {
   flex: 1 1 auto;
   width: 1px;
-  min-height: 8px;
+  min-height: 6px;
   background: linear-gradient(
     180deg,
-    rgba(58, 190, 255, 0.04),
-    rgba(58, 190, 255, 0.22) 50%,
-    rgba(58, 190, 255, 0.04)
+    rgba(58, 190, 255, 0.06),
+    rgba(58, 190, 255, 0.28) 50%,
+    rgba(58, 190, 255, 0.06)
   );
-  box-shadow: 0 0 6px rgba(58, 190, 255, 0.08);
-  opacity: 0.72;
+  box-shadow: 0 0 8px rgba(58, 190, 255, 0.1);
+  opacity: 0.82;
 }
 
 .stepConnectorArrow {
@@ -762,9 +985,8 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  color: rgba(58, 190, 255, 0.62);
-  filter: drop-shadow(0 0 5px rgba(58, 190, 255, 0.14));
-  opacity: 0.82;
+  filter: drop-shadow(0 0 6px rgba(58, 190, 255, 0.16));
+  opacity: 0.86;
   transition:
     opacity 260ms ease,
     color 260ms ease,
@@ -773,8 +995,8 @@
 
 .stepConnectorArrowIcon {
   display: block;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   transform: rotate(90deg);
 }
 
@@ -793,76 +1015,131 @@
 
 @media (--viewportLarge) {
   .stepsFlow {
-    flex-direction: row;
-    align-items: stretch;
-    gap: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr);
+    grid-template-rows: auto 64px auto;
+    grid-template-areas:
+      'step1 conn12 step2'
+      '. . conn23'
+      'step4 conn34 step3';
+    gap: 20px 16px;
+    max-width: 100%;
+    overflow: hidden;
   }
 
-  .stepFlowItem {
-    flex: 1 1 0;
-    min-width: 0;
+  .stepFlowItem[data-step-position='1'] {
+    grid-area: step1;
   }
 
-  .stepCard {
-    padding: 8px 10px 9px;
+  .stepFlowItem[data-step-position='2'] {
+    grid-area: step2;
   }
 
-  .stepCardHead {
-    min-height: 64px;
+  .stepFlowItem[data-step-position='3'] {
+    grid-area: step3;
   }
 
-  .stepImageWrap {
-    width: 68px;
-    height: 68px;
+  .stepFlowItem[data-step-position='4'] {
+    grid-area: step4;
   }
 
-  .stepImage {
-    max-width: 64px;
-    max-height: 64px;
+  .stepConnectorItem[data-connector='1-2'] {
+    grid-area: conn12;
+  }
+
+  .stepConnectorItem[data-connector='2-3'] {
+    grid-area: conn23;
+  }
+
+  .stepConnectorItem[data-connector='3-4'] {
+    grid-area: conn34;
   }
 
   .stepConnectorItem {
-    flex: 0 0 44px;
-    height: auto;
-    align-self: center;
+    min-height: 0;
   }
 
-  .stepConnector {
+  .stepCard {
+    padding: 22px 24px 26px;
+    min-height: 172px;
+  }
+
+  .stepCardHead {
+    min-height: 84px;
+    margin-bottom: 14px;
+  }
+
+  .stepTitle {
+    font-size: 17px;
+  }
+
+  .stepText {
+    font-size: 15px;
+  }
+
+  .stepImageWrap {
+    width: 72px;
+    height: 72px;
+  }
+
+  .stepImage {
+    width: 101px;
+    height: 101px;
+    max-width: 101px;
+    max-height: 101px;
+  }
+
+  .stepConnector[data-connector='1-2'],
+  .stepConnector[data-connector='3-4'] {
     flex-direction: row;
-    align-items: center;
-    gap: 0;
     width: 100%;
-    height: 20px;
+    height: 24px;
+    gap: 0;
   }
 
-  .stepConnectorLine {
+  .stepConnector[data-connector='3-4'] {
+    flex-direction: row-reverse;
+  }
+
+  .stepConnector[data-connector='2-3'] {
+    width: 32px;
+    height: 100%;
+  }
+
+  .stepConnector[data-connector='2-3'] .stepConnectorLine,
+  .stepConnector[data-connector='2-3'] .stepConnectorArrow {
+    display: none;
+  }
+
+  .stepConnectorCurveDesktop {
+    display: block;
+    width: 32px;
+    height: 64px;
+  }
+
+  .stepConnector[data-connector='1-2'] .stepConnectorLine,
+  .stepConnector[data-connector='3-4'] .stepConnectorLine {
     width: auto;
     height: 1px;
     min-height: 0;
     flex: 1 1 auto;
     background: linear-gradient(
       90deg,
-      rgba(58, 190, 255, 0.06),
-      rgba(58, 190, 255, 0.2) 50%,
-      rgba(58, 190, 255, 0.06)
+      rgba(58, 190, 255, 0.08),
+      rgba(58, 190, 255, 0.26) 50%,
+      rgba(58, 190, 255, 0.08)
     );
-    box-shadow: 0 0 8px rgba(58, 190, 255, 0.07);
-    opacity: 0.72;
-  }
-
-  .stepConnectorArrow {
-    position: relative;
-    right: auto;
-    top: auto;
-    transform: none;
-    flex: 0 0 auto;
-    margin: 0 1px;
+    box-shadow: 0 0 10px rgba(58, 190, 255, 0.1);
   }
 
   .stepConnectorArrowIcon {
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     transform: none;
+  }
+
+  .stepConnector[data-connector='3-4'] .stepConnectorArrowIcon {
+    transform: rotate(180deg);
   }
 }
 
@@ -874,6 +1151,10 @@
   .stepCard[data-step]:hover {
     transform: none;
   }
+
+  .stepCard:hover .stepImageWrap {
+    transform: none;
+  }
 }
 
 /* ─── Qualification ────────────────────────────────────────────────────────── */
@@ -883,11 +1164,11 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .criteriaRow {
-  padding: 16px 18px;
+  padding: 15px 17px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(6, 10, 18, 0.42);
@@ -898,7 +1179,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 9px;
 }
 
 .criteriaLabel {
@@ -908,7 +1189,7 @@
 }
 
 .criteriaValue {
-  font-size: 14px;
+  font-size: calc(14px * 1.1);
   font-weight: 700;
   color: var(--ambMint);
 }
@@ -925,12 +1206,14 @@
   height: 100%;
   width: var(--criteria-progress, 0%);
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--ambGold) 0%, var(--ambMint) 55%, var(--ambCyan) 100%);
-  box-shadow: 0 0 12px rgba(34, 230, 184, 0.35);
+  background: linear-gradient(90deg, var(--ambGold) 0%, var(--ambMint) 52%, #35e8ff 100%);
+  box-shadow:
+    0 0 8px rgba(34, 230, 184, 0.22),
+    0 0 14px rgba(23, 217, 255, 0.12);
 }
 
 .criteriaTarget {
-  margin: 8px 0 0;
+  margin: 7px 0 0;
   font-size: 12px;
   color: rgba(228, 235, 243, 0.58);
 }
@@ -981,14 +1264,144 @@
 }
 
 .levelCard {
-  padding: 18px 14px 16px;
+  padding: 0;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(10, 16, 28, 0.72);
   text-align: center;
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
+}
+
+.levelCardButton {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 18px 14px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: inherit;
+  color: inherit;
+  font: inherit;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.levelCardButton::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(23, 217, 255, 0.16) 0%, transparent 68%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+  filter: blur(6px);
+}
+
+@media (--viewportMedium) {
+  .levelCardButton::before {
+    width: 140px;
+    height: 140px;
+  }
+}
+
+.levelCard_bronze .levelCardButton::before {
+  background: radial-gradient(circle, rgba(168, 118, 78, 0.2) 0%, transparent 68%);
+}
+
+.levelCard_silver .levelCardButton::before {
+  background: radial-gradient(circle, rgba(192, 200, 212, 0.18) 0%, transparent 68%);
+}
+
+.levelCard_gold .levelCardButton::before {
+  background: radial-gradient(circle, rgba(232, 197, 71, 0.2) 0%, transparent 68%);
+}
+
+.levelCard_platinum .levelCardButton::before {
+  background: radial-gradient(circle, rgba(23, 217, 255, 0.18) 0%, transparent 68%);
+}
+
+.levelCard_diamond .levelCardButton::before {
+  background: radial-gradient(
+    circle,
+    rgba(138, 92, 255, 0.18) 0%,
+    rgba(23, 217, 255, 0.1) 45%,
+    transparent 68%
+  );
+}
+
+.levelCard:hover .levelCardButton::before,
+.levelCard:focus-within .levelCardButton::before {
+  opacity: 1;
+}
+
+.levelCard:hover,
+.levelCard:focus-within {
+  border-color: rgba(23, 217, 255, 0.18);
+  box-shadow:
+    0 0 20px rgba(23, 217, 255, 0.08),
+    0 0 28px rgba(138, 92, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.levelCard_bronze:hover,
+.levelCard_bronze:focus-within {
+  border-color: rgba(168, 118, 78, 0.28);
+  box-shadow: 0 0 22px rgba(168, 118, 78, 0.1);
+}
+
+.levelCard_silver:hover,
+.levelCard_silver:focus-within {
+  border-color: rgba(192, 200, 212, 0.26);
+  box-shadow: 0 0 22px rgba(192, 200, 212, 0.08);
+}
+
+.levelCard_gold:hover,
+.levelCard_gold:focus-within {
+  border-color: rgba(232, 197, 71, 0.28);
+  box-shadow: 0 0 24px rgba(232, 197, 71, 0.1);
+}
+
+.levelCard_platinum:hover,
+.levelCard_platinum:focus-within {
+  border-color: rgba(23, 217, 255, 0.24);
+  box-shadow:
+    0 0 26px rgba(23, 217, 255, 0.12),
+    0 0 18px rgba(138, 92, 255, 0.06);
+}
+
+.levelCard_diamond:hover,
+.levelCard_diamond:focus-within {
+  border-color: rgba(138, 92, 255, 0.28);
+  box-shadow:
+    0 0 24px rgba(138, 92, 255, 0.1),
+    0 0 18px rgba(23, 217, 255, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .criteriaRowCard:hover,
+  .criteriaRowWarning:hover {
+    transform: none;
+  }
+
+  .levelCard:hover .levelCardButton::before,
+  .levelCard:focus-within .levelCardButton::before {
+    opacity: 0.6;
+  }
 }
 
 .ambassadorLevelBadge {
+  position: relative;
+  z-index: 1;
   width: 88px;
   height: auto;
   object-fit: contain;
@@ -1162,13 +1575,24 @@
 
 /* ─── Ambassadors carousel ─────────────────────────────────────────────────── */
 
+.ambassadorsTrack {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
 .ambassadorsScroller {
   list-style: none;
   margin: 0;
   padding: 4px 0 12px;
   display: flex;
   gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;

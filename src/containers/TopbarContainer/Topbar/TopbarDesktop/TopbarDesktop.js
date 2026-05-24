@@ -3,6 +3,7 @@ import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { isPeakUpHqAdmin, isPeakUpHqRouteName } from '../../../../util/peakupAdmin';
+import { showAmbassadorMenuForUser, isAmbassadorSectionRouteName } from '../../../../util/ambassadorNav';
 import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
 import {
   Avatar,
@@ -82,14 +83,30 @@ const ProfileMenu = ({
   showManageListingsLink,
   showCreateListingsLink,
   showCoachCalendarLink,
+  showAmbassadorMenu,
   showPeakUpHqLink,
   intl,
 }) => {
+  const [ambassadorExpanded, setAmbassadorExpanded] = useState(() =>
+    isAmbassadorSectionRouteName(currentPage)
+  );
+
+  useEffect(() => {
+    if (isAmbassadorSectionRouteName(currentPage)) {
+      setAmbassadorExpanded(true);
+    }
+  }, [currentPage]);
+
   const currentPageClass = page => {
     const isAccountSettingsPage =
       page === 'AccountSettingsPage' && ACCOUNT_SETTINGS_PAGES.includes(currentPage);
     return currentPage === page || isAccountSettingsPage ? css.currentPage : null;
   };
+
+  const ambassadorChildItemClass = classNames(
+    css.menuAmbassadorChildItem,
+    ambassadorExpanded ? css.menuAmbassadorChildItemExpanded : null
+  );
 
   return (
     <Menu skipFocusOnNavigation={true}>
@@ -129,6 +146,17 @@ const ProfileMenu = ({
             </NamedLink>
           </MenuItem>
         ) : null}
+        {showCoachCalendarLink ? (
+          <MenuItem key="CoachEarningsPage">
+            <NamedLink
+              className={classNames(css.menuLink, currentPageClass('CoachEarningsPage'))}
+              name="CoachEarningsPage"
+            >
+              <span className={css.menuItemBorder} />
+              <FormattedMessage id="TopbarDesktop.coachEarningsLink" />
+            </NamedLink>
+          </MenuItem>
+        ) : null}
         <MenuItem key="ProfileSettingsPage">
           <NamedLink
             className={classNames(css.menuLink, currentPageClass('ProfileSettingsPage'))}
@@ -147,9 +175,72 @@ const ProfileMenu = ({
             <FormattedMessage id="TopbarDesktop.accountSettingsLink" />
           </NamedLink>
         </MenuItem>
-        {showPeakUpHqLink ? (
-          <MenuItem key="PeakUpHqSeparatorBefore" rootClassName={css.menuSeparatorItem}>
-            <span className={css.menuSeparator} aria-hidden="true" />
+        {showAmbassadorMenu ? (
+          <MenuItem key="AmbassadorSeparatorBefore" rootClassName={css.menuSeparatorItem}>
+            <span
+              className={classNames(css.menuSeparator, css.menuSeparatorAmbassador)}
+              aria-hidden="true"
+            />
+          </MenuItem>
+        ) : null}
+        {showAmbassadorMenu ? (
+          <MenuItem key="AmbassadorToggle" rootClassName={css.menuAmbassadorToggleItem}>
+            <InlineTextButton
+              rootClassName={classNames(
+                css.menuAmbassadorToggle,
+                ambassadorExpanded ? css.menuAmbassadorToggleOpen : null
+              )}
+              aria-expanded={ambassadorExpanded}
+              aria-controls="profile-menu-ambassador-program profile-menu-ambassador-referral"
+              onClick={() => setAmbassadorExpanded(expanded => !expanded)}
+            >
+              <span className={css.menuAmbassadorToggleInner}>
+                <FormattedMessage id="TopbarDesktop.ambassadorSectionLabel" />
+                <span className={css.menuAmbassadorChevron} aria-hidden="true" />
+              </span>
+            </InlineTextButton>
+          </MenuItem>
+        ) : null}
+        {showAmbassadorMenu ? (
+          <MenuItem key="AmbassadorSeparatorAfter" rootClassName={css.menuSeparatorItem}>
+            <span
+              className={classNames(css.menuSeparator, css.menuSeparatorAmbassador)}
+              aria-hidden="true"
+            />
+          </MenuItem>
+        ) : null}
+        {showAmbassadorMenu ? (
+          <MenuItem key="AmbassadorProgramPage" rootClassName={ambassadorChildItemClass}>
+            <NamedLink
+              className={classNames(
+                css.menuLink,
+                css.menuLinkAmbassador,
+                css.menuLinkAmbassadorNested,
+                currentPage === 'AmbassadorProgramPage' && css.currentPage
+              )}
+              name="AmbassadorProgramPage"
+              tabIndex={ambassadorExpanded ? undefined : -1}
+            >
+              <span className={css.menuItemBorder} />
+              <FormattedMessage id="TopbarDesktop.ambassadorProgramLink" />
+            </NamedLink>
+          </MenuItem>
+        ) : null}
+        {showAmbassadorMenu ? (
+          <MenuItem key="ReferralCenterPage" rootClassName={ambassadorChildItemClass}>
+            <NamedLink
+              className={classNames(
+                css.menuLink,
+                css.menuLinkAmbassador,
+                css.menuLinkAmbassadorNested,
+                currentPage === 'ReferralCenterPage' && css.currentPage
+              )}
+              name="ReferralCenterPage"
+              tabIndex={ambassadorExpanded ? undefined : -1}
+            >
+              <span className={css.menuItemBorder} />
+              <FormattedMessage id="TopbarDesktop.referralCenterLink" />
+            </NamedLink>
           </MenuItem>
         ) : null}
         {showPeakUpHqLink ? (
@@ -169,11 +260,6 @@ const ProfileMenu = ({
                 <FormattedMessage id="TopbarDesktop.peakUpHqLink" />
               </span>
             </NamedLink>
-          </MenuItem>
-        ) : null}
-        {showPeakUpHqLink ? (
-          <MenuItem key="PeakUpHqSeparatorAfter" rootClassName={css.menuSeparatorItem}>
-            <span className={css.menuSeparator} aria-hidden="true" />
           </MenuItem>
         ) : null}
         <MenuItem key="logout">
@@ -259,6 +345,7 @@ const TopbarDesktop = props => {
   ) : null;
 
   const showPeakUpHqLink = isPeakUpHqAdmin(currentUser, config);
+  const showAmbassadorMenu = showAmbassadorMenuForUser(config, currentUser);
 
   const profileMenuMaybe = authenticatedOnClientSide ? (
     <ProfileMenu
@@ -268,6 +355,7 @@ const TopbarDesktop = props => {
       showManageListingsLink={showCreateListingsLink}
       showCreateListingsLink={showCreateListingsLink}
       showCoachCalendarLink={showCoachCalendarLink}
+      showAmbassadorMenu={showAmbassadorMenu}
       showPeakUpHqLink={showPeakUpHqLink}
       intl={intl}
     />
