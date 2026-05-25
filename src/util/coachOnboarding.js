@@ -136,6 +136,137 @@ export const isVerifyEmailPathname = pathname => String(pathname || '') === '/ve
 
 /**
  * @param {string|null|undefined} search
+ * @returns {string}
+ */
+export function parseEmailVerificationTokenFromSearch(search) {
+  const token = new URLSearchParams(String(search || '')).get('t');
+  return token ? String(token).trim() : '';
+}
+
+/**
+ * @param {import('react-router-dom').Location|{ pathname?: string, search?: string }|null|undefined} location
+ * @returns {string}
+ */
+export function parseEmailVerificationTokenFromLocation(location) {
+  return parseEmailVerificationTokenFromSearch(location?.search);
+}
+
+/**
+ * Email verification gate — block LandingPage during verify / post-verify redirect.
+ *
+ * @param {object} [options]
+ * @param {string} [options.pathname]
+ * @param {string} [options.search]
+ * @param {boolean} [options.verifyInProgress]
+ * @param {boolean} [options.verifySuccess]
+ * @param {boolean} [options.emailIsVerified]
+ * @param {string} [options.verificationToken]
+ * @param {boolean} [options.currentUserFetchInProgress]
+ * @returns {{
+ *   shouldBlockRoutes: boolean,
+ *   target: string|null,
+ *   verifyInProgress: boolean,
+ *   verifySuccess: boolean,
+ *   redirectDecisionComplete: boolean,
+ * }}
+ */
+export function getVerifyEmailGateState({
+  pathname,
+  search,
+  verifyInProgress = false,
+  verifySuccess = false,
+  emailIsVerified = false,
+  verificationToken = '',
+  currentUserFetchInProgress = false,
+} = {}) {
+  const token = String(verificationToken || parseEmailVerificationTokenFromSearch(search)).trim();
+  const onVerifyPath = isVerifyEmailPathname(pathname);
+  const loginTarget = resolvePostVerifyRedirect();
+
+  if (token && !onVerifyPath) {
+    const params = new URLSearchParams({ t: token });
+    return {
+      shouldBlockRoutes: true,
+      target: `/verify-email?${params.toString()}`,
+      verifyInProgress: false,
+      verifySuccess: false,
+      redirectDecisionComplete: false,
+    };
+  }
+
+  if (verifyInProgress && !onVerifyPath) {
+    return {
+      shouldBlockRoutes: true,
+      target: null,
+      verifyInProgress: true,
+      verifySuccess: false,
+      redirectDecisionComplete: false,
+    };
+  }
+
+  if (!onVerifyPath) {
+    return {
+      shouldBlockRoutes: false,
+      target: null,
+      verifyInProgress: false,
+      verifySuccess,
+      redirectDecisionComplete: true,
+    };
+  }
+
+  const verifyActive = verifyInProgress || (Boolean(token) && !emailIsVerified);
+  const verifyCompleteReadyForLogin =
+    emailIsVerified &&
+    !verifyInProgress &&
+    !currentUserFetchInProgress &&
+    (verifySuccess || !token);
+
+  if (verifyCompleteReadyForLogin) {
+    return {
+      shouldBlockRoutes: true,
+      target: loginTarget,
+      verifyInProgress: false,
+      verifySuccess: true,
+      redirectDecisionComplete: false,
+    };
+  }
+
+  if (verifyActive || (verifySuccess && currentUserFetchInProgress)) {
+    return {
+      shouldBlockRoutes: false,
+      target: null,
+      verifyInProgress: verifyActive,
+      verifySuccess,
+      redirectDecisionComplete: false,
+    };
+  }
+
+  return {
+    shouldBlockRoutes: false,
+    target: null,
+    verifyInProgress: false,
+    verifySuccess,
+    redirectDecisionComplete: true,
+  };
+}
+
+/**
+ * @param {object} gateState
+ * @param {object} [context]
+ */
+export function logVerifyEmailGateState(gateState, context = {}) {
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp VERIFY GATE]', {
+    verifyInProgress: gateState.verifyInProgress,
+    verifySuccess: gateState.verifySuccess,
+    target: gateState.target || resolvePostVerifyRedirect(),
+    pathname: context.pathname,
+    shouldBlockRoutes: gateState.shouldBlockRoutes,
+  });
+}
+
+/**
+ * @param {string|null|undefined} search
  * @returns {boolean}
  */
 export const isCoachOnboardingQueryActive = search => {
@@ -200,16 +331,36 @@ export function readCoachOnboardingIntent() {
 }
 
 export function clearCoachOnboardingIntent() {
+  clearStalePostLoginRedirectStorage();
+}
+
+/** Legacy localStorage keys that must not influence post-login redirect. */
+const STALE_POST_LOGIN_STORAGE_KEYS = [
+  COACH_ONBOARDING_STORAGE_KEY,
+  'coachOnboardingIntent',
+  'pendingCoachApplication',
+  'ambassadorRef',
+  'ref',
+  'peakupAmbassadorRef',
+];
+
+/**
+ * Remove stale coach-onboarding redirect keys after signup/login.
+ * Post-login redirect uses profile publicData only.
+ */
+export function clearStalePostLoginRedirectStorage() {
   const storage = getCoachOnboardingStorage();
   if (!storage) {
     return;
   }
 
-  try {
-    storage.removeItem(COACH_ONBOARDING_STORAGE_KEY);
-  } catch (e) {
-    // ignore
-  }
+  STALE_POST_LOGIN_STORAGE_KEYS.forEach(key => {
+    try {
+      storage.removeItem(key);
+    } catch (e) {
+      // ignore
+    }
+  });
 }
 
 /**
@@ -245,7 +396,15 @@ export function persistCoachOnboardingIntent({ ref } = {}) {
  * Profile publicData written after signup (not during create) for coach onboarding.
  *
  * @param {{ ref?: string }} [options]
- * @returns {{ coachOnboardingIntent: boolean, pendingCoachApplication: boolean, coachReferralCode?: string }}
+ * @returns {{
+ *   userType: string,
+ *   coachOnboardingIntent: boolean,
+ *   pendingCoachApplication: boolean,
+ *   ambassadorRef?: string,
+ *   ambassadorReferralCode?: string,
+ *   referredByAmbassador?: string,
+ *   coachReferralCode?: string,
+ * }}
  */
 export function buildCoachOnboardingProfilePublicData({ ref } = {}) {
   const normalizedRef = String(ref || '').trim();
@@ -253,8 +412,54 @@ export function buildCoachOnboardingProfilePublicData({ ref } = {}) {
     userType: 'instructor',
     coachOnboardingIntent: true,
     pendingCoachApplication: true,
-    ...(normalizedRef ? { coachReferralCode: normalizedRef } : {}),
+    ...(normalizedRef
+      ? {
+          ambassadorRef: normalizedRef,
+          ambassadorReferralCode: normalizedRef,
+          referredByAmbassador: normalizedRef,
+          coachReferralCode: normalizedRef,
+        }
+      : {}),
   };
+}
+
+/**
+ * Ambassador ref for signup — URL first, then router state, then pre-login storage.
+ *
+ * @param {object} [options]
+ * @param {import('react-router-dom').Location} [options.location]
+ * @param {string|object|null} [options.from]
+ * @returns {string}
+ */
+export function resolveSignupAmbassadorRef({ location, from } = {}) {
+  const refFromLocation = location ? parseReferralCodeFromLocation(location) : '';
+  const refFromFrom =
+    typeof from === 'string'
+      ? parseReferralCodeFromPath(from)
+      : parseReferralCodeFromPath(from?.pathname) ||
+        parseReferralCodeFromSearch(from?.search);
+  const refFromStorage = getCoachOnboardingStoredReferralCode();
+
+  return refFromLocation || refFromFrom || refFromStorage;
+}
+
+/**
+ * Capture ambassador ref from invite entry and persist through signup/verify (pre-login only).
+ *
+ * @param {object} [options]
+ * @param {import('react-router-dom').Location} [options.location]
+ * @param {string|object|null} [options.from]
+ * @param {string} [options.source]
+ * @returns {string}
+ */
+export function captureAmbassadorRefFromEntry({ location, from, source } = {}) {
+  const ref = resolveSignupAmbassadorRef({ location, from });
+  if (ref) {
+    persistCoachOnboardingIntent({ ref });
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp AMBASSADOR REF CAPTURED]', { ref, source: source || 'unknown' });
+  }
+  return ref;
 }
 
 /**
@@ -415,6 +620,19 @@ export function hasCoachOnboardingProfileIntent(currentUser) {
 }
 
 /**
+ * Ambassador referral code saved on profile — sole source for post-login application ref.
+ *
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {string}
+ */
+export function getProfileAmbassadorRef(currentUser) {
+  const publicData = getCoachOnboardingProfilePublicData(currentUser);
+  return String(publicData.ambassadorRef || publicData.ambassadorReferralCode || '').trim();
+}
+
+/**
+ * Referral code for signup/entry sync (URL, storage). Not used for post-login redirect.
+ *
  * @param {object} [options]
  * @param {import('../util/types').propTypes.currentUser|null|undefined} [options.currentUser]
  * @param {import('react-router-dom').Location} [options.location]
@@ -452,63 +670,291 @@ export function resolvePostVerifyRedirect() {
   return '/login';
 }
 
+export const COACH_DASHBOARD_PATH = '/coach-dashboard';
+
 /**
- * Post-login redirect based on persisted profile publicData.
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {boolean}
+ */
+export function isCoachProviderProfileUserType(currentUser) {
+  if (!currentUser?.id) {
+    return false;
+  }
+  const userType = String(getCoachOnboardingProfilePublicData(currentUser).userType || '')
+    .trim()
+    .toLowerCase();
+  return isCoachProviderSignupUserType(userType);
+}
+
+/**
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {boolean}
+ */
+export function hasAmbassadorDashboardAccess(currentUser) {
+  if (!currentUser?.id) {
+    return false;
+  }
+  const publicData = getCoachOnboardingProfilePublicData(currentUser);
+  return Boolean(
+    publicData.ambassadorReferralCode ||
+      publicData.ambassadorCode ||
+      publicData.referralCode ||
+      publicData.ambassadorActive === true ||
+      publicData.ambassadorActive === 'true'
+  );
+}
+
+/**
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {boolean}
+ */
+export function hasPendingCoachApplication(currentUser) {
+  if (!currentUser?.id) {
+    return false;
+  }
+  return getCoachOnboardingProfilePublicData(currentUser).pendingCoachApplication === true;
+}
+
+/**
+ * @param {string|null|undefined} pathname
+ * @returns {boolean}
+ */
+export function isPostLoginAuthPath(pathname) {
+  const path = String(pathname || '');
+  return path === '/login' || isAuthSignupPathname(path) || isVerifyEmailPathname(path);
+}
+
+/**
+ * @param {string} currentPath
+ * @param {string|null|undefined} target
+ * @returns {boolean}
+ */
+export function pathsMatchPostLoginTarget(currentPath, target) {
+  const current = String(currentPath || '');
+  const dest = String(target || '/');
+  const [currentPathname, currentSearch = ''] = current.split('?');
+  const [targetPathname, targetSearch = ''] = dest.split('?');
+
+  if (currentPathname !== targetPathname) {
+    return false;
+  }
+
+  if (!targetSearch) {
+    return true;
+  }
+
+  const normalizedTargetSearch = targetSearch.startsWith('?') ? targetSearch : `?${targetSearch}`;
+  const normalizedCurrentSearch = currentSearch ? `?${currentSearch}` : '';
+  return normalizedCurrentSearch === normalizedTargetSearch;
+}
+
+/**
+ * Read-only post-login redirect target from profile publicData.
  *
  * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
- * @param {object} [options]
- * @param {string|object|null} [options.from]
  * @returns {string|null}
  */
-export function resolvePostLoginRedirect(currentUser, { from } = {}) {
+export function resolvePostLoginRedirectTarget(currentUser) {
   if (!currentUser?.id) {
     return null;
   }
 
   const publicData = getCoachOnboardingProfilePublicData(currentUser);
-  const coachApplicant = isCoachApplicantProfile(currentUser);
+  const pendingCoachApplication = publicData.pendingCoachApplication === true;
+  const coachProviderProfile = isCoachProviderProfileUserType(currentUser);
+  const ambassadorRef = getProfileAmbassadorRef(currentUser);
 
-  // eslint-disable-next-line no-console
-  console.log('[PeakUp LOGIN REDIRECT DECISION]', {
-    userId: currentUser.id,
-    userType: publicData.userType,
-    coachOnboardingIntent: publicData.coachOnboardingIntent,
-    pendingCoachApplication: publicData.pendingCoachApplication,
-    peakupCoachApplicant: publicData.peakupCoachApplicant,
-    coachApplicant,
-  });
-
-  if (coachApplicant) {
-    const ref = resolveCoachOnboardingReferralCode({ currentUser });
-    return buildCoachApplicationPath({ ref });
+  if (pendingCoachApplication) {
+    return buildCoachApplicationPath({ ref: ambassadorRef });
   }
-
-  if (from) {
-    if (typeof from === 'string') {
-      return from;
-    }
-    if (from.pathname) {
-      return `${from.pathname}${from.search || ''}`;
-    }
+  if (coachProviderProfile) {
+    return COACH_DASHBOARD_PATH;
   }
-
   return '/';
 }
 
 /**
- * Coach-application redirect for guards — profile publicData only (no localStorage).
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {boolean}
+ */
+export function isCurrentUserLoadedForPostLoginRedirect(currentUser) {
+  if (!currentUser?.id) {
+    return false;
+  }
+  return Boolean(currentUser.attributes?.profile);
+}
+
+/**
+ * Profile + verification state required before post-login redirect decision is final.
+ *
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {boolean}
+ */
+export function isCurrentUserReadyForPostLoginDecision(currentUser) {
+  if (!isCurrentUserLoadedForPostLoginRedirect(currentUser)) {
+    return false;
+  }
+  if (!currentUser.attributes.emailVerified || currentUser.attributes.pendingEmail != null) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Global post-login redirect gate state.
+ * Blocks routes during login/signup until profile is loaded and redirect decision is final.
+ *
+ * @param {object} [options]
+ * @param {boolean} [options.isAuthenticated]
+ * @param {boolean} [options.authSettling]
+ * @param {boolean} [options.postLoginRedirectPending]
+ * @param {boolean} [options.currentUserFetchInProgress]
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} [options.currentUser]
+ * @param {import('react-router-dom').Location} [options.location]
+ * @returns {{
+ *   pending: boolean,
+ *   shouldBlockRoutes: boolean,
+ *   target: string|null,
+ *   atTarget: boolean,
+ *   redirectDecisionComplete: boolean,
+ *   currentUserLoaded: boolean,
+ *   profileReady: boolean,
+ * }}
+ */
+export function getPostLoginRedirectState({
+  isAuthenticated,
+  authSettling,
+  postLoginRedirectPending = false,
+  currentUserFetchInProgress = false,
+  currentUser,
+  location,
+} = {}) {
+  const pathname = location?.pathname || '';
+  const currentPath = `${pathname}${location?.search || ''}`;
+  const authPath = isPostLoginAuthPath(pathname);
+  const inPostLoginFlow = postLoginRedirectPending || authSettling;
+  const currentUserLoaded = isCurrentUserLoadedForPostLoginRedirect(currentUser);
+  const profileReady = isCurrentUserReadyForPostLoginDecision(currentUser);
+
+  const idleState = {
+    pending: false,
+    shouldBlockRoutes: false,
+    target: null,
+    atTarget: true,
+    redirectDecisionComplete: false,
+    currentUserLoaded,
+    profileReady,
+  };
+
+  if (authPath || !inPostLoginFlow) {
+    return idleState;
+  }
+
+  if (!isAuthenticated) {
+    return idleState;
+  }
+
+  if (authSettling || currentUserFetchInProgress || !currentUserLoaded || !profileReady) {
+    return {
+      pending: true,
+      shouldBlockRoutes: true,
+      target: null,
+      atTarget: false,
+      redirectDecisionComplete: false,
+      currentUserLoaded,
+      profileReady,
+    };
+  }
+
+  const target = resolvePostLoginRedirectTarget(currentUser);
+  const atTarget = pathsMatchPostLoginTarget(currentPath, target);
+  const redirectDecisionComplete = Boolean(target) && atTarget;
+
+  if (!redirectDecisionComplete) {
+    return {
+      pending: true,
+      shouldBlockRoutes: true,
+      target,
+      atTarget,
+      redirectDecisionComplete: false,
+      currentUserLoaded,
+      profileReady,
+    };
+  }
+
+  return {
+    pending: false,
+    shouldBlockRoutes: false,
+    target,
+    atTarget: true,
+    redirectDecisionComplete: true,
+    currentUserLoaded,
+    profileReady,
+  };
+}
+
+/**
+ * @param {object} gateState
+ * @param {object} [context]
+ */
+export function logPostLoginGateState(gateState, context = {}) {
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp POST LOGIN GATE]', {
+    postLoginRedirectPending: context.postLoginRedirectPending,
+    authInProgress: context.authInProgress,
+    isAuthenticated: context.isAuthenticated,
+    currentUserLoaded: gateState.currentUserLoaded,
+    profileReady: gateState.profileReady,
+    target: gateState.target,
+    pathname: context.pathname,
+    shouldBlockRoutes: gateState.shouldBlockRoutes,
+    redirectDecisionComplete: gateState.redirectDecisionComplete,
+  });
+}
+
+/**
+ * Post-login redirect for verified users after login.
+ * Single source of truth: profile publicData (not localStorage or URL query).
+ *
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {string|null}
+ */
+export function resolvePostLoginRedirect(currentUser) {
+  if (!currentUser?.id) {
+    return null;
+  }
+
+  clearStalePostLoginRedirectStorage();
+
+  const publicData = getCoachOnboardingProfilePublicData(currentUser);
+  const ambassadorRef = getProfileAmbassadorRef(currentUser);
+  const target = resolvePostLoginRedirectTarget(currentUser);
+
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp LOGIN REDIRECT DECISION]', {
+    userType: publicData.userType,
+    pendingCoachApplication: publicData.pendingCoachApplication,
+    ambassadorRef,
+    target,
+    source: 'profile-publicData',
+  });
+
+  return target;
+}
+
+/**
+ * Coach-application redirect for guards — pending application only.
  *
  * @param {object} [options]
  * @param {import('../util/types').propTypes.currentUser|null|undefined} [options.currentUser]
  * @returns {string|null}
  */
 export function resolveCoachOnboardingRedirect({ currentUser } = {}) {
-  if (!isCoachApplicantProfile(currentUser)) {
+  if (!hasPendingCoachApplication(currentUser)) {
     return null;
   }
 
-  const ref = resolveCoachOnboardingReferralCode({ currentUser });
-  return buildCoachApplicationPath({ ref });
+  return buildCoachApplicationPath({ ref: getProfileAmbassadorRef(currentUser) });
 }
 
 /**
@@ -570,7 +1016,9 @@ export function syncCoachOnboardingIntent({ location, from, pathname, currentUse
       hasCoachOnboardingProfileIntent(currentUser) &&
       !isOnlyCustomerProfile(currentUser));
 
-  if (coachFlow) {
+  const authenticatedLoginPage = path === '/login' && currentUser?.id;
+
+  if (coachFlow && !authenticatedLoginPage) {
     persistCoachOnboardingIntent({ ref });
   }
 }

@@ -63,6 +63,19 @@ module.exports = async (req, res) => {
     const application = getCoachApplication(result.id);
     trackCoachApplicationReferral(application);
 
+    try {
+      await sdk.currentUser.updateProfile({
+        publicData: {
+          pendingCoachApplication: false,
+        },
+      });
+    } catch (profileError) {
+      console.warn(
+        `[coach-application] Could not clear pendingCoachApplication for user ${currentUser.id.uuid}:`,
+        profileError?.message || profileError
+      );
+    }
+
     const notifyEmail = process.env.COACH_APPLICATION_NOTIFY_EMAIL;
     if (notifyEmail) {
       console.info(

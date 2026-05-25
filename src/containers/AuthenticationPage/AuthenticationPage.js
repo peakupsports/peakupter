@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -52,16 +52,16 @@ import {
 import {
   filterCoachOnboardingUserTypes,
   getCustomerUserTypeForCoachSignup,
-  getCoachOnboardingStoredReferralCode,
   hasCoachOnboardingUrlSignal,
   isCoachOnboardingQueryActive,
-  isCoachOnboardingReturn,
   isCoachProviderSignupUserType,
   parseReferralCodeFromLocation,
-  parseReferralCodeFromPath,
   buildCoachSignupAuthSearch,
   buildCoachOnboardingProfilePublicData,
+  captureAmbassadorRefFromEntry,
+  getCoachOnboardingProfilePublicData,
   resolvePostLoginRedirect,
+  resolveSignupAmbassadorRef,
   syncCoachOnboardingIntent,
 } from '../../util/coachOnboarding';
 
@@ -269,6 +269,13 @@ export const AuthenticationPageComponent = props => {
     if (authError) {
       Cookies.remove('st-autherror');
     }
+    if (hasCoachOnboardingUrlSignal({ location, from })) {
+      captureAmbassadorRefFromEntry({
+        location,
+        from,
+        source: location.pathname,
+      });
+    }
     const userForSync = ensureCurrentUser(currentUser);
     syncCoachOnboardingIntent({
       location,
@@ -294,6 +301,15 @@ export const AuthenticationPageComponent = props => {
 
   const isConfirm = tab === 'confirm';
   const isLogin = tab === 'login';
+  const profileRedirectKey = user.id
+    ? JSON.stringify(getCoachOnboardingProfilePublicData(user))
+    : null;
+  const postLoginRedirectTarget = useMemo(() => {
+    if (!isLogin || !currentUserLoaded || !user.attributes.emailVerified) {
+      return null;
+    }
+    return resolvePostLoginRedirect(user);
+  }, [isLogin, currentUserLoaded, user, profileRedirectKey]);
   const userTypeInPushState = location.state?.userType || null;
   const userTypeInAuthInfo = isConfirm && authInfo?.userType ? authInfo?.userType : null;
   const userType = pathParams?.userType || userTypeInPushState || userTypeInAuthInfo || null;
@@ -311,8 +327,7 @@ export const AuthenticationPageComponent = props => {
   }
 
   const { userTypes = [], userFields = [] } = config.user;
-  const isCoachOnboardingFlow =
-    isCoachOnboardingReturn(from) || isCoachOnboardingQueryActive(location.search);
+  const isCoachOnboardingFlow = hasCoachOnboardingUrlSignal({ location, from });
   const onboardingUserTypes = isCoachOnboardingFlow
     ? filterCoachOnboardingUserTypes(userTypes)
     : userTypes;
@@ -330,10 +345,7 @@ export const AuthenticationPageComponent = props => {
     : 'SignupPage';
   const userTypeMaybe = preselectedUserType ? { userType: preselectedUserType } : {};
   const fromMaybe = from ? { from } : {};
-  const coachSignupRef =
-    parseReferralCodeFromLocation(location) ||
-    parseReferralCodeFromPath(typeof from === 'string' ? from : '') ||
-    getCoachOnboardingStoredReferralCode();
+  const coachSignupRef = resolveSignupAmbassadorRef({ location, from });
   const preserveCoachSearch =
     isCoachOnboardingFlow ||
     isCoachOnboardingQueryActive(location.search) ||
@@ -353,14 +365,6 @@ export const AuthenticationPageComponent = props => {
   // flag only when the current user is fully loaded.
   const showEmailVerification = !isLogin && currentUserLoaded && !user.attributes.emailVerified;
 
-  useEffect(() => {
-    if (!mounted || !isAuthenticated || !currentUserLoaded || !user.attributes.emailVerified) {
-      return;
-    }
-
-    resolvePostLoginRedirect(user, { from });
-  }, [mounted, isAuthenticated, currentUserLoaded, user, from]);
-
   const marketplaceName = config.marketplaceName;
   const schemaTitle = isLogin
     ? intl.formatMessage({ id: 'AuthenticationPage.schemaTitleLogin' }, { marketplaceName })
@@ -372,22 +376,16 @@ export const AuthenticationPageComponent = props => {
     [css.hideOnMobile]: showEmailVerification,
   });
 
-  const postLoginRedirectTarget =
-    mounted && currentUserLoaded && user.attributes.emailVerified
-      ? resolvePostLoginRedirect(user, { from })
-      : null;
-  const shouldRedirectAfterAuth =
-    isAuthenticated && currentUserLoaded && !showEmailVerification && postLoginRedirectTarget;
-  if (
-    !mounted &&
+  const awaitingPostLoginRedirect =
+    isLogin &&
     isAuthenticated &&
-    currentUserLoaded &&
     !showEmailVerification &&
-    postLoginRedirectTarget
-  ) {
-    // Show a blank page for already authenticated users,
-    // when the first rendering on client side is not yet done
-    // This is done to avoid hydration issues when full page load is happening.
+    (authInProgress || !mounted || !currentUserLoaded || Boolean(postLoginRedirectTarget));
+
+  if (awaitingPostLoginRedirect) {
+    if (postLoginRedirectTarget) {
+      return <Redirect to={postLoginRedirectTarget} />;
+    }
     return (
       <BlankPage
         schemaTitle={schemaTitle}
@@ -397,9 +395,7 @@ export const AuthenticationPageComponent = props => {
     );
   }
 
-  if (shouldRedirectAfterAuth) {
-    return <Redirect to={postLoginRedirectTarget} />;
-  } else if (show404) {
+  if (show404) {
     // User type not found, show 404
     return <NotFoundPage staticContext={staticContext} />;
   }

@@ -1,25 +1,16 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
 
-import { useConfiguration } from '../../context/configurationContext';
-import { FormattedMessage, useIntl } from '../../util/reactIntl';
+import { FormattedMessage } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { parse } from '../../util/urlHelpers';
 import { ensureCurrentUser } from '../../util/data';
 import { resolvePostVerifyRedirect } from '../../util/coachOnboarding';
 import { verify } from '../../ducks/emailVerification.duck';
-import { isScrollingDisabled } from '../../ducks/ui.duck';
-import {
-  Page,
-  ResponsiveBackgroundImageContainer,
-  LayoutSingleColumn,
-} from '../../components';
 
-import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
-import FooterContainer from '../../containers/FooterContainer/FooterContainer';
-
+import AuthFlowBlankPage from '../../routing/AuthFlowBlankPage';
 import EmailVerificationForm from './EmailVerificationForm/EmailVerificationForm';
 
 import css from './EmailVerificationPage.module.css';
@@ -52,9 +43,7 @@ const parseVerificationToken = search => {
  * @component
  * @param {Object} props
  * @param {propTypes.currentUser} props.currentUser - The current user
- * @param {boolean} props.scrollingDisabled - Whether scrolling is disabled
  * @param {Function} props.submitVerification - The submit verification function
- * @param {boolean} props.isVerified - Whether the email is verified
  * @param {boolean} props.emailVerificationInProgress - Whether the email verification is in progress
  * @param {propTypes.error} props.verificationError - The verification error
  * @param {Object} props.location - The location object
@@ -62,18 +51,14 @@ const parseVerificationToken = search => {
  * @returns {JSX.Element} email verification page component
  */
 export const EmailVerificationPageComponent = props => {
-  const config = useConfiguration();
-  const intl = useIntl();
   const {
     currentUser,
-    scrollingDisabled,
     submitVerification,
     emailVerificationInProgress,
     verificationError,
     location,
+    currentUserFetchInProgress,
   } = props;
-
-  const [mounted, setMounted] = useState(false);
 
   const verificationToken = parseVerificationToken(location ? location.search : null);
   const user = ensureCurrentUser(currentUser);
@@ -83,8 +68,7 @@ export const EmailVerificationPageComponent = props => {
       // eslint-disable-next-line no-console
       console.log('[PeakUp Verify Token Found]', { tokenLength: verificationToken.length });
     }
-    setMounted(true);
-  }, [location, verificationToken, user]);
+  }, [verificationToken]);
 
   const initialValues = {
     verificationToken,
@@ -92,64 +76,44 @@ export const EmailVerificationPageComponent = props => {
   const emailIsVerified =
     user.id && user.attributes.emailVerified && user.attributes.pendingEmail == null;
 
-  // Never redirect while Sharetribe verification is in flight or before currentUser reflects success.
-  const verificationPending = emailVerificationInProgress || (!!verificationToken && !emailIsVerified);
-  const shouldRedirectAfterVerify = mounted && emailIsVerified && !verificationPending;
+  const verificationPending =
+    emailVerificationInProgress ||
+    currentUserFetchInProgress ||
+    (!!verificationToken && !emailIsVerified && !verificationError);
 
-  if (shouldRedirectAfterVerify) {
-    const loginPath = resolvePostVerifyRedirect();
-    return <Redirect to={loginPath} />;
+  if (emailIsVerified && !verificationPending) {
+    return <Redirect to={resolvePostVerifyRedirect()} />;
+  }
+
+  if (verificationPending) {
+    return <AuthFlowBlankPage />;
+  }
+
+  if (!user.id) {
+    return <AuthFlowBlankPage />;
   }
 
   return (
-    <Page
-      title={intl.formatMessage({
-        id: 'EmailVerificationPage.title',
-      })}
-      scrollingDisabled={scrollingDisabled}
-      referrer="origin"
-    >
-      <LayoutSingleColumn
-        mainColumnClassName={css.layoutWrapperMain}
-        topbar={<TopbarContainer />}
-        footer={<FooterContainer />}
-      >
-        <ResponsiveBackgroundImageContainer
-          className={css.root}
-          childrenWrapperClassName={css.contentContainer}
-          as="section"
-          image={config.branding.brandImage}
-          sizes="100%"
-          useOverlay
-        >
-          <div className={css.content}>
-            {user.id ? (
-              <EmailVerificationForm
-                initialValues={initialValues}
-                onSubmit={submitVerification}
-                currentUser={user}
-                inProgress={emailVerificationInProgress}
-                verificationError={verificationError}
-              />
-            ) : (
-              <FormattedMessage id="EmailVerificationPage.loadingUserInformation" />
-            )}
-          </div>
-        </ResponsiveBackgroundImageContainer>
-      </LayoutSingleColumn>
-    </Page>
+    <div className={css.content}>
+      <EmailVerificationForm
+        initialValues={initialValues}
+        onSubmit={submitVerification}
+        currentUser={user}
+        inProgress={emailVerificationInProgress}
+        verificationError={verificationError}
+      />
+    </div>
   );
 };
 
 const mapStateToProps = state => {
-  const { currentUser } = state.user;
-  const { isVerified, verificationError, verificationInProgress } = state.emailVerification;
+  const { currentUser, currentUserFetchInProgress } = state.user;
+  const { verificationError, verificationInProgress } = state.emailVerification;
   return {
-    isVerified,
     verificationError,
     emailVerificationInProgress: verificationInProgress,
+    currentUserFetchInProgress,
     currentUser,
-    scrollingDisabled: isScrollingDisabled(state),
   };
 };
 

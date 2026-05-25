@@ -121,21 +121,15 @@ export const getAmbassadorProfileState = currentUser => {
   };
 };
 
+import { buildAmbassadorShareLink } from './referralCenter';
+
 /**
  * @param {string} code
  * @param {string} [marketplaceRootURL]
  * @returns {string}
  */
 export const buildAmbassadorReferralLink = (code, marketplaceRootURL) => {
-  const base =
-    typeof window !== 'undefined' && window.location?.origin
-      ? window.location.origin
-      : marketplaceRootURL || '';
-  const normalized = String(code || '').trim();
-  if (!normalized) {
-    return `${base.replace(/\/$/, '')}/coach-application`;
-  }
-  return `${base.replace(/\/$/, '')}/coach-application?ref=${encodeURIComponent(normalized)}`;
+  return buildAmbassadorShareLink(code, { marketplaceRootURL });
 };
 
 /**

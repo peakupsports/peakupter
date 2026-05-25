@@ -451,6 +451,7 @@ const userSlice = createSlice({
     currentUser: null,
     currentUserShowTimestamp: 0,
     currentUserShowError: null,
+    currentUserFetchInProgress: false,
     currentUserHasListings: false,
     currentUserHasListingsError: null,
     currentUserSaleNotificationCount: 0,
@@ -513,6 +514,7 @@ const userSlice = createSlice({
       // fetchCurrentUser
       .addCase(fetchCurrentUserThunk.pending, state => {
         state.currentUserShowError = null;
+        state.currentUserFetchInProgress = true;
       })
       .addCase(fetchCurrentUserThunk.fulfilled, (state, action) => {
         const prevUserId = state.currentUser?.id?.uuid;
@@ -529,10 +531,12 @@ const userSlice = createSlice({
         }
         state.currentUser = mergeCurrentUser(state.currentUser, action.payload);
         state.currentUserShowTimestamp = action.payload ? new Date().getTime() : 0;
+        state.currentUserFetchInProgress = false;
       })
       .addCase(fetchCurrentUserThunk.rejected, (state, action) => {
         console.error(action.payload);
         state.currentUserShowError = action.payload;
+        state.currentUserFetchInProgress = false;
       })
       // fetchCurrentUserHasListings
       .addCase(fetchCurrentUserHasListingsThunk.pending, state => {

@@ -11,7 +11,9 @@ import {
   COACH_APPLICATION_STEPS,
   COACH_APPLICATION_SUBMIT_MODES,
   getSubmitMode,
+  hasCoachApplicationReferralCode,
   HEAR_ABOUT_OPTIONS,
+  isCoachApplicationCheckboxChecked,
   validateCoachApplicationStep,
 } from '../../util/coachApplication';
 import { submitCoachApplication } from '../../util/api';
@@ -257,6 +259,93 @@ const CoachApplicationFileField = props => {
 };
 
 /**
+ * Referral step — lock ambassador invite state when a code is present.
+ */
+const ReferralStepFields = ({ hearAboutOptions, intl }) => (
+  <FormSpy subscription={{ values: true }}>
+    {formSpyProps => (
+      <ReferralStepFieldsInner hearAboutOptions={hearAboutOptions} intl={intl} {...formSpyProps} />
+    )}
+  </FormSpy>
+);
+
+const ReferralStepFieldsInner = ({ values, form, hearAboutOptions, intl }) => {
+  const hasReferralCode = hasCoachApplicationReferralCode(values);
+
+  useEffect(() => {
+    if (!hasReferralCode) {
+      return;
+    }
+    if (values.hearAboutPeakUp !== 'ambassador') {
+      form.change('hearAboutPeakUp', 'ambassador');
+    }
+    if (isCoachApplicationCheckboxChecked(values.applyingIndependently)) {
+      form.change('applyingIndependently', undefined);
+    }
+  }, [hasReferralCode, values.hearAboutPeakUp, values.applyingIndependently, form]);
+
+  return (
+    <>
+      <FieldSelect
+        id="hearAboutPeakUp"
+        name="hearAboutPeakUp"
+        disabled={hasReferralCode}
+        label={intl.formatMessage({ id: 'CoachApplicationPage.hearAboutLabel' })}
+      >
+        <option value="">
+          {intl.formatMessage({ id: 'CoachApplicationPage.selectPlaceholder' })}
+        </option>
+        {hearAboutOptions.map(opt => (
+          <option key={opt.key} value={opt.key}>
+            {opt.label}
+          </option>
+        ))}
+      </FieldSelect>
+
+      {!hasReferralCode ? (
+        <div className={css.checkboxPremium}>
+          <FieldCheckbox
+            id="applyingIndependently"
+            name="applyingIndependently"
+            label={intl.formatMessage({
+              id: 'CoachApplicationPage.applyingIndependentlyLabel',
+            })}
+            value="yes"
+          />
+        </div>
+      ) : null}
+
+      <div
+        className={classNames(css.referralInvitePanel, {
+          [css.referralInvitePanelActive]: hasReferralCode,
+        })}
+      >
+        <p className={css.referralOptionalLabel}>
+          <FormattedMessage id="CoachApplicationPage.referralOptionalLabel" />
+        </p>
+        <p className={css.referralInviteTitle}>
+          <FormattedMessage id="CoachApplicationPage.referralInviteTitle" />
+        </p>
+        <p className={css.referralInviteSubtitle}>
+          <FormattedMessage id="CoachApplicationPage.referralInviteSubtitle" />
+        </p>
+        <FieldTextInput
+          id="ambassadorReferralCode"
+          name="ambassadorReferralCode"
+          type="text"
+          label={intl.formatMessage({
+            id: 'CoachApplicationPage.ambassadorCodeLabel',
+          })}
+          placeholder={intl.formatMessage({
+            id: 'CoachApplicationPage.ambassadorCodePlaceholder',
+          })}
+        />
+      </div>
+    </>
+  );
+};
+
+/**
  * Multi-step PeakUp coach application form.
  */
 const CoachApplicationForm = props => {
@@ -457,75 +546,7 @@ const CoachApplicationForm = props => {
 
             <div className={css.fields}>
               {stepId === 'referral' ? (
-                <>
-                  <FieldSelect
-                    id="hearAboutPeakUp"
-                    name="hearAboutPeakUp"
-                    label={intl.formatMessage({ id: 'CoachApplicationPage.hearAboutLabel' })}
-                  >
-                    <option value="">
-                      {intl.formatMessage({ id: 'CoachApplicationPage.selectPlaceholder' })}
-                    </option>
-                    {hearAboutOptions.map(opt => (
-                      <option key={opt.key} value={opt.key}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </FieldSelect>
-
-                  <FormSpy subscription={{ values: true }}>
-                    {({ values }) => {
-                      const hasReferralCode = Boolean(
-                        String(values?.ambassadorReferralCode || '').trim()
-                      );
-
-                      return (
-                        <>
-                          <div className={css.checkboxPremium}>
-                            <FieldCheckbox
-                              id="applyingIndependently"
-                              name="applyingIndependently"
-                              label={intl.formatMessage({
-                                id: 'CoachApplicationPage.applyingIndependentlyLabel',
-                              })}
-                              value="yes"
-                            />
-                          </div>
-
-                          <div
-                            className={classNames(css.referralInvitePanel, {
-                              [css.referralInvitePanelActive]: hasReferralCode,
-                            })}
-                          >
-                            <p className={css.referralOptionalLabel}>
-                              <FormattedMessage id="CoachApplicationPage.referralOptionalLabel" />
-                            </p>
-                            <p className={css.referralInviteTitle}>
-                              <FormattedMessage id="CoachApplicationPage.referralInviteTitle" />
-                            </p>
-                            <p className={css.referralInviteSubtitle}>
-                              <FormattedMessage id="CoachApplicationPage.referralInviteSubtitle" />
-                            </p>
-                            <FieldTextInput
-                              id="ambassadorReferralCode"
-                              name="ambassadorReferralCode"
-                              type="text"
-                              label={intl.formatMessage({
-                                id: 'CoachApplicationPage.ambassadorCodeLabel',
-                              })}
-                              placeholder={intl.formatMessage({
-                                id: 'CoachApplicationPage.ambassadorCodePlaceholder',
-                              })}
-                            />
-                          </div>
-                        </>
-                      );
-                    }}
-                  </FormSpy>
-
-
-
-                </>
+                <ReferralStepFields hearAboutOptions={hearAboutOptions} intl={intl} />
               ) : null}
 
               {stepId === 'personal' ? (

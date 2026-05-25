@@ -2,6 +2,12 @@
  * Coach application form helpers — validation, file encoding, submission.
  */
 
+import {
+  getProfileAmbassadorRef,
+  parseReferralCodeFromLocation,
+  resolveSignupAmbassadorRef,
+} from './coachOnboarding';
+
 export const COACH_APPLICATION_STEPS = [
   'referral',
   'personal',
@@ -49,6 +55,32 @@ export const getSubmitMode = () => {
     ? COACH_APPLICATION_SUBMIT_MODES.NETLIFY
     : COACH_APPLICATION_SUBMIT_MODES.API;
 };
+
+/**
+ * Ambassador referral code for coach application pre-fill (URL → profile → pre-login storage).
+ *
+ * @param {object} [options]
+ * @param {import('react-router-dom').Location} [options.location]
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} [options.currentUser]
+ * @returns {string}
+ */
+export const resolveCoachApplicationInitialReferralCode = ({ location, currentUser } = {}) => {
+  const fromUrl = location ? parseReferralCodeFromLocation(location) : '';
+  if (fromUrl) {
+    return fromUrl;
+  }
+
+  const fromProfile = getProfileAmbassadorRef(currentUser);
+  if (fromProfile) {
+    return fromProfile;
+  }
+
+  return resolveSignupAmbassadorRef({ location });
+};
+
+/** @param {Record<string, unknown>|null|undefined} values */
+export const hasCoachApplicationReferralCode = values =>
+  Boolean(String(values?.ambassadorReferralCode || '').trim());
 
 /** @param {unknown} value Final Form checkbox field value */
 export const isCoachApplicationCheckboxChecked = value => {
@@ -110,8 +142,10 @@ export const buildCoachApplicationPayload = async values => {
 
   return {
     hearAboutPeakUp: values.hearAboutPeakUp || '',
-    ambassadorReferralCode: values.ambassadorReferralCode || '',
-    applyingIndependently: isCoachApplicationCheckboxChecked(values.applyingIndependently),
+    ambassadorReferralCode: String(values.ambassadorReferralCode || '').trim(),
+    applyingIndependently: hasCoachApplicationReferralCode(values)
+      ? false
+      : isCoachApplicationCheckboxChecked(values.applyingIndependently),
     fullName: values.fullName || '',
     email: values.email || '',
     phone: values.phone || '',

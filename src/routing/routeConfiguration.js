@@ -11,6 +11,11 @@ const CoachApplicationPage = loadable(() =>
     /* webpackChunkName: "CoachApplicationPage" */ '../containers/CoachApplicationPage/CoachApplicationPage'
   )
 );
+const CoachDashboardPage = loadable(() =>
+  import(
+    /* webpackChunkName: "CoachDashboardPage" */ '../containers/CoachDashboardPage/CoachDashboardPage'
+  )
+);
 const JoinPage = loadable(() =>
   import(/* webpackChunkName: "JoinPage" */ '../containers/JoinPage/JoinPage')
 );
@@ -175,6 +180,14 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       name: 'CoachApplicationPage',
       component: CoachApplicationPage,
       loadData: pageDataLoadingAPI.CoachApplicationPage.loadData,
+    },
+    {
+      path: '/coach-dashboard',
+      name: 'CoachDashboardPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: CoachDashboardPage,
+      loadData: pageDataLoadingAPI.CoachDashboardPage.loadData,
     },
     {
       path: '/coach-earnings',

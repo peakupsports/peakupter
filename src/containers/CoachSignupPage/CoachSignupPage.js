@@ -7,9 +7,8 @@ import { ensureCurrentUser } from '../../util/data';
 import {
   buildCoachApplicationPath,
   buildCoachSignupAuthSearch,
+  captureAmbassadorRefFromEntry,
   coachOnboardingSignupTo,
-  parseReferralCodeFromLocation,
-  persistCoachOnboardingIntent,
 } from '../../util/coachOnboarding';
 import { pathByRouteName } from '../../util/routes';
 
@@ -30,8 +29,10 @@ const CoachSignupPage = () => {
   const currentUser = useSelector(state => state.user?.currentUser);
 
   useLayoutEffect(() => {
-    const ref = parseReferralCodeFromLocation(location);
-    persistCoachOnboardingIntent({ ref });
+    const ref = captureAmbassadorRefFromEntry({
+      location,
+      source: 'CoachSignupPage',
+    });
     const coachApplicationPath = buildCoachApplicationPath({ ref });
     const signupPath = pathByRouteName('SignupPage', routeConfiguration);
 

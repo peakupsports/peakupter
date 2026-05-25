@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Redirect, useLocation } from 'react-router-dom';
 
 import { useConfiguration } from '../../context/configurationContext';
@@ -11,7 +11,9 @@ import {
   coachOnboardingSignupTo,
   parseReferralCodeFromLocation,
 } from '../../util/coachOnboarding';
+import { resolveCoachApplicationInitialReferralCode } from '../../util/coachApplication';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
+import { fetchCurrentUser } from '../../ducks/user.duck';
 
 import { Page } from '../../components';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
@@ -79,6 +81,7 @@ const CoachApplicationSuccess = () => (
 
 const CoachApplicationPage = () => {
   const intl = useIntl();
+  const dispatch = useDispatch();
   const location = useLocation();
   const config = useConfiguration();
   const scrollingDisabled = useSelector(isScrollingDisabled);
@@ -87,13 +90,13 @@ const CoachApplicationPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const marketplaceName = config.branding.marketplaceName || 'PeakUp';
 
-  const initialReferralCode = useMemo(() => {
-    const ref = new URLSearchParams(location.search).get('ref');
-    return ref ? String(ref).trim() : '';
-  }, [location.search]);
-
   const user = ensureCurrentUser(currentUser);
   const ref = parseReferralCodeFromLocation(location);
+
+  const initialReferralCode = useMemo(
+    () => resolveCoachApplicationInitialReferralCode({ location, currentUser: user }),
+    [location, user]
+  );
 
   if (!isAuthenticated || !user.id || !user.attributes.emailVerified) {
     return (
@@ -153,7 +156,10 @@ const CoachApplicationPage = () => {
             <CoachApplicationForm
               initialReferralCode={initialReferralCode}
               currentUser={user}
-              onSuccess={() => setSubmitted(true)}
+              onSuccess={() => {
+                setSubmitted(true);
+                dispatch(fetchCurrentUser({ enforce: true }));
+              }}
             />
           ) : (
             <CoachApplicationSuccess />

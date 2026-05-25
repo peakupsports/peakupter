@@ -3,6 +3,7 @@
  */
 import { loadData as AboutPageLoader } from './AboutPage/AboutPage.duck';
 import { loadData as CoachApplicationPageLoader } from './CoachApplicationPage/CoachApplicationPage.duck';
+import { loadData as CoachDashboardPageLoader } from './CoachDashboardPage/CoachDashboardPage.duck';
 import { loadData as AdminCoachApplicationsPageLoader } from './AdminCoachApplicationsPage/AdminCoachApplicationsPage.duck';
 import { loadData as PeakUpHqDashboardPageLoader } from './PeakUpHq/PeakUpHqDashboardPage/PeakUpHqDashboardPage.duck';
 import { loadData as PeakUpHqPlaceholderPageLoader } from './PeakUpHq/PeakUpHqPlaceholderPage/PeakUpHqPlaceholderPage.duck';
@@ -44,6 +45,9 @@ const getPageDataLoadingAPI = () => {
     },
     CoachApplicationPage: {
       loadData: CoachApplicationPageLoader,
+    },
+    CoachDashboardPage: {
+      loadData: CoachDashboardPageLoader,
     },
     AdminCoachApplicationsPage: {
       loadData: AdminCoachApplicationsPageLoader,

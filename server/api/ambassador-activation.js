@@ -16,9 +16,9 @@ const buildReferralLink = (req, code) => {
   const origin = getRequestOrigin(req);
   const normalized = String(code || '').trim();
   if (!origin) {
-    return `/join?ref=${encodeURIComponent(normalized)}`;
+    return `/coach-signup?ref=${encodeURIComponent(normalized)}`;
   }
-  return `${origin}/join?ref=${encodeURIComponent(normalized)}`;
+  return `${origin}/coach-signup?ref=${encodeURIComponent(normalized)}`;
 };
 
 const buildReferralCenterLink = req => {

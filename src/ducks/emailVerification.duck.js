@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { storableError } from '../util/errors';
+import { setPostLoginRedirectPending } from './auth.duck';
 import { fetchCurrentUser } from './user.duck';
 
 // ================ Async Thunk ================ //
@@ -10,6 +11,8 @@ export const verifyEmail = createAsyncThunk(
     if (!verificationToken) {
       return rejectWithValue(storableError(new Error('Missing verification token')));
     }
+
+    dispatch(setPostLoginRedirectPending());
 
     return sdk.currentUser
       .verifyEmail({ verificationToken })

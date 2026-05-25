@@ -16,6 +16,8 @@ import NotFoundPage from '../containers/NotFoundPage/NotFoundPage';
 
 import LoadableComponentErrorBoundary from './LoadableComponentErrorBoundary/LoadableComponentErrorBoundary';
 import CoachOnboardingRedirectGuard from './CoachOnboardingRedirectGuard';
+import PostLoginRedirectGate from './PostLoginRedirectGate';
+import VerifyEmailRedirectGate from './VerifyEmailRedirectGate';
 
 const isBanned = currentUser => {
   const isBrowser = typeof window !== 'undefined';
@@ -267,10 +269,14 @@ const Routes = (props, context) => {
   return (
     <>
       <CoachOnboardingRedirectGuard />
-      <Switch>
-        {routeConfiguration.map(toRouteComponent)}
-        <Route component={NotFoundPage} />
-      </Switch>
+      <PostLoginRedirectGate>
+        <VerifyEmailRedirectGate>
+          <Switch>
+            {routeConfiguration.map(toRouteComponent)}
+            <Route component={NotFoundPage} />
+          </Switch>
+        </VerifyEmailRedirectGate>
+      </PostLoginRedirectGate>
     </>
   );
 };

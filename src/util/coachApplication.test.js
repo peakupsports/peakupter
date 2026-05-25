@@ -46,6 +46,16 @@ describe('coachApplication', () => {
     expect(payload.applyingIndependently).toBe(true);
   });
 
+  it('forces applyingIndependently false when ambassador code is present', async () => {
+    const payload = await buildCoachApplicationPayload({
+      ambassadorReferralCode: 'TEST123',
+      applyingIndependently: 'yes',
+      hearAboutPeakUp: 'ambassador',
+    });
+    expect(payload.applyingIndependently).toBe(false);
+    expect(payload.ambassadorReferralCode).toBe('TEST123');
+  });
+
   it('detects coach application checkbox states', () => {
     expect(isCoachApplicationCheckboxChecked(true)).toBe(true);
     expect(isCoachApplicationCheckboxChecked('yes')).toBe(true);

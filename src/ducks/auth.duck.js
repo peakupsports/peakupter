@@ -36,6 +36,9 @@ const initialState = {
   // confirm (create use with idp)
   confirmError: null,
   confirmInProgress: false,
+
+  // Blocks LandingPage until post-login redirect completes (login/signup/IdP confirm).
+  postLoginRedirectPending: false,
 };
 
 // ================ Async Thunks ================ //
@@ -112,6 +115,7 @@ const signupThunk = createAsyncThunk(
       signupUserType: createParams.publicData?.userType || null,
       signupPublicData: createParams.publicData || null,
       coachOnboardingPublicData: coachOnboardingPublicData || null,
+      ambassadorRef: coachOnboardingPublicData?.ambassadorRef || null,
     });
 
     return sdk.currentUser
@@ -133,6 +137,8 @@ const signupThunk = createAsyncThunk(
               phase: 'coach-profile-update-success',
               email: createParams.email,
               coachOnboardingPublicData,
+              publicData: coachOnboardingPublicData,
+              ambassadorRef: coachOnboardingPublicData?.ambassadorRef || null,
             });
           })
           .catch(profileError => {
@@ -196,7 +202,14 @@ const signupWithIdpThunk = createAsyncThunk(
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    clearPostLoginRedirectPending: state => {
+      state.postLoginRedirectPending = false;
+    },
+    setPostLoginRedirectPending: state => {
+      state.postLoginRedirectPending = true;
+    },
+  },
   extraReducers: builder => {
     // Auth Info
     builder.addCase(authInfoThunk.fulfilled, (state, action) => {
@@ -211,6 +224,7 @@ const authSlice = createSlice({
     builder
       .addCase(loginThunk.pending, state => {
         state.loginInProgress = true;
+        state.postLoginRedirectPending = true;
         state.loginError = null;
         state.logoutError = null;
         state.signupError = null;
@@ -221,6 +235,7 @@ const authSlice = createSlice({
       })
       .addCase(loginThunk.rejected, (state, action) => {
         state.loginInProgress = false;
+        state.postLoginRedirectPending = false;
         state.loginError = getAuthErrorMessage(action.payload);
       });
 
@@ -236,6 +251,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.isLoggedInAs = false;
         state.authScopes = [];
+        state.postLoginRedirectPending = false;
       })
       .addCase(logoutThunk.rejected, (state, action) => {
         state.logoutInProgress = false;
@@ -246,6 +262,7 @@ const authSlice = createSlice({
     builder
       .addCase(signupThunk.pending, state => {
         state.signupInProgress = true;
+        state.postLoginRedirectPending = true;
         state.loginError = null;
         state.signupError = null;
       })
@@ -254,6 +271,7 @@ const authSlice = createSlice({
       })
       .addCase(signupThunk.rejected, (state, action) => {
         state.signupInProgress = false;
+        state.postLoginRedirectPending = false;
         state.signupError = action.payload;
       });
 
@@ -261,6 +279,7 @@ const authSlice = createSlice({
     builder
       .addCase(signupWithIdpThunk.pending, state => {
         state.confirmInProgress = true;
+        state.postLoginRedirectPending = true;
         state.loginError = null;
         state.confirmError = null;
       })
@@ -270,12 +289,14 @@ const authSlice = createSlice({
       })
       .addCase(signupWithIdpThunk.rejected, (state, action) => {
         state.confirmInProgress = false;
+        state.postLoginRedirectPending = false;
         state.confirmError = action.payload;
       });
   },
 });
 
 export { logoutThunk };
+export const { clearPostLoginRedirectPending, setPostLoginRedirectPending } = authSlice.actions;
 export default authSlice.reducer;
 
 // ================ Selectors ================ //
