@@ -1,8 +1,10 @@
 import React from 'react';
 import { Form as FinalForm, Field } from 'react-final-form';
+import { Link } from 'react-router-dom';
 
 import { FormattedMessage } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
+import { consumeCoachOnboardingRedirectPath } from '../../../util/coachOnboarding';
 import {
   Heading,
   Form,
@@ -29,7 +31,13 @@ const EmailVerificationForm = props => (
   <FinalForm
     {...props}
     render={formRenderProps => {
-      const { currentUser, inProgress = false, handleSubmit, verificationError } = formRenderProps;
+      const {
+        currentUser,
+        inProgress = false,
+        handleSubmit,
+        verificationError,
+        coachOnboardingRedirect,
+      } = formRenderProps;
 
       const { email, emailVerified, pendingEmail, profile } = currentUser.attributes;
       const emailToVerify = <strong>{pendingEmail || email}</strong>;
@@ -78,6 +86,20 @@ const EmailVerificationForm = props => (
         </div>
       );
 
+      const successButton = coachOnboardingRedirect ? (
+        <Link
+          className={css.submitButton}
+          to={coachOnboardingRedirect}
+          onClick={() => consumeCoachOnboardingRedirectPath()}
+        >
+          <FormattedMessage id="EmailVerificationForm.coachOnboardingSuccessButtonText" />
+        </Link>
+      ) : (
+        <NamedLink className={css.submitButton} name="LandingPage">
+          <FormattedMessage id="EmailVerificationForm.successButtonText" />
+        </NamedLink>
+      );
+
       const alreadyVerified = (
         <div className={css.root}>
           <div>
@@ -87,15 +109,17 @@ const EmailVerificationForm = props => (
             </Heading>
 
             <p className={css.modalMessage}>
-              <FormattedMessage id="EmailVerificationForm.successText" />
+              <FormattedMessage
+                id={
+                  coachOnboardingRedirect
+                    ? 'EmailVerificationForm.coachOnboardingSuccessText'
+                    : 'EmailVerificationForm.successText'
+                }
+              />
             </p>
           </div>
 
-          <div className={css.bottomWrapper}>
-            <NamedLink className={css.submitButton} name="LandingPage">
-              <FormattedMessage id="EmailVerificationForm.successButtonText" />
-            </NamedLink>
-          </div>
+          <div className={css.bottomWrapper}>{successButton}</div>
         </div>
       );
 
@@ -116,11 +140,7 @@ const EmailVerificationForm = props => (
             </p>
           </div>
 
-          <div className={css.bottomWrapper}>
-            <NamedLink className={css.submitButton} name="LandingPage">
-              <FormattedMessage id="EmailVerificationForm.successButtonText" />
-            </NamedLink>
-          </div>
+          <div className={css.bottomWrapper}>{successButton}</div>
         </div>
       );
 

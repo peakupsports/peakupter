@@ -237,6 +237,13 @@
   composes: marketplaceModalPasswordMargins from global;
 }
 
+.errorDetail {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
 /* ================ Social logins & SSO ================ */
 
 .signupWithIdpTitle {

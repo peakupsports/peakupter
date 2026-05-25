@@ -26,7 +26,7 @@ export const PEAKUP_HQ_SECTIONS = [
     icon: 'ambassadors',
     titleId: 'PeakUpHq.section.ambassadors.title',
     descriptionId: 'PeakUpHq.section.ambassadors.description',
-    live: false,
+    live: true,
   },
   {
     id: 'verification',

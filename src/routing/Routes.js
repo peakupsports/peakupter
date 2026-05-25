@@ -15,6 +15,7 @@ import { NamedRedirect } from '../components';
 import NotFoundPage from '../containers/NotFoundPage/NotFoundPage';
 
 import LoadableComponentErrorBoundary from './LoadableComponentErrorBoundary/LoadableComponentErrorBoundary';
+import CoachOnboardingRedirectGuard from './CoachOnboardingRedirectGuard';
 
 const isBanned = currentUser => {
   const isBrowser = typeof window !== 'undefined';
@@ -264,10 +265,13 @@ const Routes = (props, context) => {
   };
 
   return (
-    <Switch>
-      {routeConfiguration.map(toRouteComponent)}
-      <Route component={NotFoundPage} />
-    </Switch>
+    <>
+      <CoachOnboardingRedirectGuard />
+      <Switch>
+        {routeConfiguration.map(toRouteComponent)}
+        <Route component={NotFoundPage} />
+      </Switch>
+    </>
   );
 };
 

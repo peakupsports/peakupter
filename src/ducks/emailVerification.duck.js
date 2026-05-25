@@ -7,23 +7,48 @@ import { fetchCurrentUser } from './user.duck';
 export const verifyEmail = createAsyncThunk(
   'emailVerification/verifyEmail',
   (verificationToken, { dispatch, rejectWithValue, extra: sdk }) => {
+    if (!verificationToken) {
+      return rejectWithValue(storableError(new Error('Missing verification token')));
+    }
+
     return sdk.currentUser
       .verifyEmail({ verificationToken })
       .then(() => {
-        // Dispatch fetchCurrentUser after successful verification
+        // eslint-disable-next-line no-console
+        console.log('[PeakUp Verify Success]');
         dispatch(fetchCurrentUser({ enforce: true }));
         return true;
       })
       .catch(e => {
+        // eslint-disable-next-line no-console
+        console.log('[PeakUp Verify Failed]', e?.message || e);
         return rejectWithValue(storableError(e));
       });
   },
   {
     condition: (verificationToken, { getState }) => {
+      if (!verificationToken) {
+        return false;
+      }
+
       const state = getState();
       if (state.emailVerification.verificationInProgress) {
-        return false; // Don't dispatch if verification is already in progress
+        return false;
       }
+
+      if (state.emailVerification.isVerified) {
+        return false;
+      }
+
+      const user = state.user?.currentUser;
+      if (
+        user?.id &&
+        user.attributes?.emailVerified &&
+        user.attributes?.pendingEmail == null
+      ) {
+        return false;
+      }
+
       return true;
     },
   }

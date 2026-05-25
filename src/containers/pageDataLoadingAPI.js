@@ -6,6 +6,7 @@ import { loadData as CoachApplicationPageLoader } from './CoachApplicationPage/C
 import { loadData as AdminCoachApplicationsPageLoader } from './AdminCoachApplicationsPage/AdminCoachApplicationsPage.duck';
 import { loadData as PeakUpHqDashboardPageLoader } from './PeakUpHq/PeakUpHqDashboardPage/PeakUpHqDashboardPage.duck';
 import { loadData as PeakUpHqPlaceholderPageLoader } from './PeakUpHq/PeakUpHqPlaceholderPage/PeakUpHqPlaceholderPage.duck';
+import { loadData as PeakUpHqAmbassadorsPageLoader } from './PeakUpHq/PeakUpHqAmbassadorsPage/PeakUpHqAmbassadorsPage.duck';
 import { loadData as TermsPageLoader } from './TermsPage/TermsPage.duck';
 import { loadData as PrivacyPageLoader } from './PrivacyPage/PrivacyPage.duck';
 import { loadData as CookiesPageLoader } from './CookiesPage/CookiesPage.duck';
@@ -54,7 +55,7 @@ const getPageDataLoadingAPI = () => {
       loadData: PeakUpHqPlaceholderPageLoader,
     },
     PeakUpHqAmbassadorsPage: {
-      loadData: PeakUpHqPlaceholderPageLoader,
+      loadData: PeakUpHqAmbassadorsPageLoader,
     },
     PeakUpHqVerificationPage: {
       loadData: PeakUpHqPlaceholderPageLoader,

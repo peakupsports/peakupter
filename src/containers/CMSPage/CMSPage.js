@@ -10,6 +10,7 @@ import { withRouter } from 'react-router-dom';
 import { fetchFeaturedListings } from '../../ducks/featuredListings.duck';
 import { getListingsById } from '../../ducks/marketplaceData.duck';
 import { getFeaturedListingsProps } from '../../util/data';
+import { rewriteInstructorsPageCoachSignupLinks } from '../../util/coachOnboarding';
 import sportTheme from '../SportPagesTheme.module.css';
 import css from './HowItWorksPage.module.css';
 
@@ -94,7 +95,11 @@ export const CMSPageComponent = props => {
   const isPremiumInstructors = isInstructorsPage(pageId);
   const isPremiumCMSPage = isPremiumHowItWorks || isPremiumInstructors;
   const pageData = pageAssetsData?.[pageId]?.data;
-  const themedPageData = isPremiumHowItWorks ? getHowItWorksPageData(pageData) : pageData;
+  const themedPageData = isPremiumHowItWorks
+    ? getHowItWorksPageData(pageData)
+    : isPremiumInstructors
+    ? rewriteInstructorsPageCoachSignupLinks(pageData)
+    : pageData;
 
   if (process.env.NODE_ENV === 'development') {
     console.info('[CMSPage] pageId:', pageId);

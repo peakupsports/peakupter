@@ -20,6 +20,10 @@ const peakupBookingHold = require('./api/peakup-booking-hold');
 const peakupBookingHoldRelease = require('./api/peakup-booking-hold-release');
 const coachApplication = require('./api/coach-application');
 const coachApplicationsAdmin = require('./api/coach-applications-admin');
+const ambassadorActivation = require('./api/ambassador-activation');
+const ambassadorActivationsAdmin = require('./api/ambassador-activations-admin');
+const referralCenter = require('./api/referral-center');
+const ambassadorAdminOverview = require('./api/ambassador-admin-overview');
 
 const createUserWithIdp = require('./api/auth/createUserWithIdp');
 
@@ -33,8 +37,20 @@ const router = express.Router();
 // Coach applications include base64 document payloads — higher limit on this route only.
 router.post('/coach-application', express.json({ limit: '30mb' }), coachApplication);
 
+// Ambassador Program activation for verified coaches.
+router.post('/ambassador-activation', express.json({ limit: '64kb' }), ambassadorActivation);
+
+// Live Referral Center dashboard for active ambassadors.
+router.get('/referral-center', referralCenter);
+
 // Internal admin review (protected by COACH_APPLICATION_ADMIN_TOKEN).
 router.use('/coach-applications', coachApplicationsAdmin);
+router.use('/ambassador-activations', ambassadorActivationsAdmin);
+router.get(
+  '/ambassador-admin/overview',
+  ambassadorAdminOverview.requireCoachApplicationAdmin,
+  ambassadorAdminOverview
+);
 
 // JSON routes (e.g. PeakUp soft holds) — must run before Transit body parser.
 router.use(express.json({ limit: '64kb' }));

@@ -180,26 +180,41 @@ export const REWARDS_BENEFITS = [
   'AmbassadorProgramPage.reward6',
 ];
 
-export const EARNINGS_EXAMPLE_ROWS = [
+export const EARNINGS_FLOW_STEPS = [
   {
     id: 'booking',
-    labelId: 'AmbassadorProgramPage.earningsBookingLabel',
+    captionId: 'AmbassadorProgramPage.earningsStepBookingCaption',
     valueId: 'AmbassadorProgramPage.earningsBookingValue',
+    labelId: 'AmbassadorProgramPage.earningsBookingLabel',
     tone: 'neutral',
   },
   {
     id: 'fee',
-    labelId: 'AmbassadorProgramPage.earningsFeeLabel',
+    captionId: 'AmbassadorProgramPage.earningsStepFeeCaption',
     valueId: 'AmbassadorProgramPage.earningsFeeValue',
-    tone: 'deduction',
+    labelId: 'AmbassadorProgramPage.earningsFeeLabel',
+    tone: 'fee',
   },
   {
-    id: 'share',
-    labelId: 'AmbassadorProgramPage.earningsShareLabel',
-    valueId: 'AmbassadorProgramPage.earningsShareValue',
-    tone: 'highlight',
+    id: 'payout',
+    captionId: 'AmbassadorProgramPage.earningsStepPayoutCaption',
+    valueId: 'AmbassadorProgramPage.earningsPayoutValue',
+    labelId: 'AmbassadorProgramPage.earningsPayoutLabel',
+    tone: 'payout',
+  },
+  {
+    id: 'reward',
+    captionId: 'AmbassadorProgramPage.earningsStepRewardCaption',
+    valueId: 'AmbassadorProgramPage.earningsRewardValue',
+    labelId: 'AmbassadorProgramPage.earningsRewardLabel',
+    microId: 'AmbassadorProgramPage.earningsRewardMicro',
+    tone: 'reward',
+    isFinal: true,
   },
 ];
+
+/** @deprecated Use EARNINGS_FLOW_STEPS */
+export const EARNINGS_EXAMPLE_ROWS = EARNINGS_FLOW_STEPS;
 
 /** Placeholder ambassador cards — static mockup only. */
 export const PLACEHOLDER_AMBASSADORS = [

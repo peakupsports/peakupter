@@ -1,6 +1,7 @@
 import {
   buildCoachApplicationPayload,
   COACH_APPLICATION_STEPS,
+  isCoachApplicationCheckboxChecked,
   validateCoachApplicationStep,
 } from './coachApplication';
 
@@ -36,5 +37,19 @@ describe('coachApplication', () => {
     });
     expect(payload.fullName).toBe('Alex Coach');
     expect(payload.files.idDocument).toBeNull();
+  });
+
+  it('normalizes checkbox values for payload', async () => {
+    const payload = await buildCoachApplicationPayload({
+      applyingIndependently: 'yes',
+    });
+    expect(payload.applyingIndependently).toBe(true);
+  });
+
+  it('detects coach application checkbox states', () => {
+    expect(isCoachApplicationCheckboxChecked(true)).toBe(true);
+    expect(isCoachApplicationCheckboxChecked('yes')).toBe(true);
+    expect(isCoachApplicationCheckboxChecked(false)).toBe(false);
+    expect(isCoachApplicationCheckboxChecked(undefined)).toBe(false);
   });
 });

@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { Redirect, withRouter } from 'react-router-dom';
 
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { parse } from '../../util/urlHelpers';
 import { ensureCurrentUser } from '../../util/data';
+import {
+  resolveCoachOnboardingRedirect,
+  syncCoachOnboardingIntent,
+} from '../../util/coachOnboarding';
 import { verify } from '../../ducks/emailVerification.duck';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import {
@@ -68,21 +72,65 @@ export const EmailVerificationPageComponent = props => {
     currentUser,
     scrollingDisabled,
     submitVerification,
-    isVerified,
     emailVerificationInProgress,
     verificationError,
     location,
   } = props;
 
-  const initialValues = {
-    verificationToken: parseVerificationToken(location ? location.search : null),
-  };
+  const [mounted, setMounted] = useState(false);
+  const [coachRedirectPath, setCoachRedirectPath] = useState(null);
+
+  const verificationToken = parseVerificationToken(location ? location.search : null);
   const user = ensureCurrentUser(currentUser);
 
-  // The first attempt to verify email is done when the page is loaded
-  // If the verify API call is successfull and the user has verified email
-  // We can redirect user forward from email verification page.
-  if (isVerified && user.attributes.emailVerified && user.attributes.pendingEmail == null) {
+  useLayoutEffect(() => {
+    if (verificationToken) {
+      // eslint-disable-next-line no-console
+      console.log('[PeakUp Verify Token Found]', { tokenLength: verificationToken.length });
+    }
+
+    syncCoachOnboardingIntent({
+      location,
+      from: null,
+      pathname: location.pathname,
+      currentUser: user.id ? user : null,
+    });
+    setCoachRedirectPath(
+      resolveCoachOnboardingRedirect({
+        currentUser: user.id ? user : null,
+        location,
+        from: null,
+      })
+    );
+    setMounted(true);
+  }, [location, verificationToken, user]);
+
+  const initialValues = {
+    verificationToken,
+  };
+  const emailIsVerified =
+    user.id && user.attributes.emailVerified && user.attributes.pendingEmail == null;
+
+  // Never redirect while Sharetribe verification is in flight or before currentUser reflects success.
+  const verificationPending = emailVerificationInProgress || (!!verificationToken && !emailIsVerified);
+  const shouldRedirectAfterVerify = mounted && emailIsVerified && !verificationPending;
+
+  if (shouldRedirectAfterVerify) {
+    const target =
+      coachRedirectPath ||
+      resolveCoachOnboardingRedirect({
+        currentUser: user.id ? user : null,
+        location,
+        from: null,
+      });
+    if (target) {
+      // eslint-disable-next-line no-console
+      console.log('[PeakUp Coach Redirect Triggered]', {
+        source: 'EmailVerificationPage',
+        to: target,
+      });
+      return <Redirect to={target} />;
+    }
     return <NamedRedirect name="LandingPage" />;
   }
 
@@ -115,6 +163,7 @@ export const EmailVerificationPageComponent = props => {
                 currentUser={user}
                 inProgress={emailVerificationInProgress}
                 verificationError={verificationError}
+                coachOnboardingRedirect={coachRedirectPath}
               />
             ) : (
               <FormattedMessage id="EmailVerificationPage.loadingUserInformation" />

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as log from '../util/log';
-import { getAuthErrorMessage, storableError } from '../util/errors';
+import { getAuthErrorMessage, logSignupError, storableError } from '../util/errors';
 import { clearCurrentUser, fetchCurrentUser } from './user.duck';
 import { createUserWithIdp } from '../util/api';
 
@@ -104,18 +104,41 @@ const signupThunk = createAsyncThunk(
   'auth/signup',
   (params, thunkAPI) => {
     const { rejectWithValue, extra: sdk, dispatch } = thunkAPI;
+    const { coachOnboardingPublicData, ...createParams } = params;
 
     return sdk.currentUser
-      .create(params)
+      .create(createParams)
       .then(() =>
-        dispatch(loginThunk({ username: params.email, password: params.password })).unwrap()
+        dispatch(loginThunk({ username: createParams.email, password: createParams.password })).unwrap()
       )
-      .then(() => params)
+      .then(() => {
+        if (!coachOnboardingPublicData || Object.keys(coachOnboardingPublicData).length === 0) {
+          return params;
+        }
+
+        return sdk.currentUser
+          .updateProfile({ publicData: coachOnboardingPublicData })
+          .then(() => dispatch(fetchCurrentUser({ enforce: true })))
+          .catch(profileError => {
+            logSignupError(profileError, {
+              phase: 'coach-profile-update-after-signup',
+              email: createParams.email,
+            });
+            return null;
+          })
+          .then(() => params);
+      })
       .catch(e => {
+        logSignupError(e, {
+          phase: 'signup-create-or-login',
+          email: createParams.email,
+          firstName: createParams.firstName,
+          lastName: createParams.lastName,
+        });
         log.error(e, 'signup-failed', {
-          email: params.email,
-          firstName: params.firstName,
-          lastName: params.lastName,
+          email: createParams.email,
+          firstName: createParams.firstName,
+          lastName: createParams.lastName,
         });
         return rejectWithValue(storableError(e));
       });
@@ -262,7 +285,7 @@ export const logout = () => dispatch => {
 };
 
 export const signup = params => dispatch => {
-  return dispatch(signupThunk(params)).unwrap();
+  return dispatch(signupThunk(params));
 };
 
 export const signupWithIdp = params => dispatch => {

@@ -112,6 +112,28 @@ const postJsonToLocalApi = (path, body) => {
     });
 };
 
+const getJsonFromLocalApi = path => {
+  const url = `${apiBaseUrl()}${path}`;
+  return window
+    .fetch(url, {
+      method: methods.GET,
+      credentials: 'include',
+    })
+    .then(async res => {
+      const contentTypeHeader = res.headers.get('Content-Type');
+      const contentType = contentTypeHeader ? contentTypeHeader.split(';')[0] : null;
+      const parsed = contentType === 'application/json' ? await res.json().catch(() => ({})) : {};
+
+      if (res.status >= 400) {
+        const err = new Error(parsed.message || res.statusText || 'Request failed');
+        err.status = res.status;
+        err.data = parsed;
+        throw err;
+      }
+      return parsed;
+    });
+};
+
 // Keep the previous parameter order for the post method.
 // For now, only POST has own specific function, but you can create more or use request directly.
 const post = (path, body, options = {}) => {
@@ -187,3 +209,10 @@ export const peakupBookingHoldRelease = body =>
 /** Submit PeakUp coach application (multipart fields + base64 documents). */
 export const submitCoachApplication = body =>
   postJsonToLocalApi('/api/coach-application', body);
+
+/** Activate Ambassador Program for the logged-in verified coach. */
+export const activateAmbassadorProgram = body =>
+  postJsonToLocalApi('/api/ambassador-activation', body);
+
+/** Live Referral Center dashboard for active ambassadors. */
+export const fetchReferralCenterDashboard = () => getJsonFromLocalApi('/api/referral-center');

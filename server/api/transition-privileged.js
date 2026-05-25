@@ -176,13 +176,28 @@ module.exports = (req, res) => {
         },
       };
 
-      if (isSpeculative) {
-        return trustedSdk.transactions.transitionSpeculative(body, queryParams);
-      }
-      return trustedSdk.transactions.transition(body, queryParams);
+      const transitionRequest = isSpeculative
+        ? trustedSdk.transactions.transitionSpeculative(body, queryParams)
+        : trustedSdk.transactions.transition(body, queryParams);
+
+      return transitionRequest.then(apiResponse => ({ apiResponse, trustedSdk }));
     })
-    .then(apiResponse => {
+    .then(({ apiResponse, trustedSdk }) => {
       const { status, statusText, data } = apiResponse;
+      const transaction = data?.data;
+      const transitionName = bodyParams?.transition;
+
+      if (!isSpeculative && transaction) {
+        const { processReferralRewardAccrual } = require('../api-util/referralRewardAccrual');
+        processReferralRewardAccrual({
+          trustedSdk,
+          transitionName,
+          transaction,
+        }).catch(error => {
+          console.error('[referral-reward-accrual] async processing failed:', error);
+        });
+      }
+
       res
         .status(status)
         .set('Content-Type', 'application/transit+json')

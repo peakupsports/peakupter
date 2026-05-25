@@ -385,6 +385,8 @@
 .heroCtaPrimary,
 .finalCtaPrimary {
   border: none;
+  cursor: pointer;
+  font: inherit;
   color: #05080e;
   background: linear-gradient(95deg, var(--ambLime) 0%, var(--ambMint) 48%, var(--ambCyan) 100%);
   box-shadow:
@@ -1452,6 +1454,80 @@
 
 /* ─── Rewards ──────────────────────────────────────────────────────────────── */
 
+@keyframes rewardItemReveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rewardsSection.reveal {
+  transform: none;
+  transition:
+    opacity 650ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay),
+    transform 650ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay);
+}
+
+.rewardsSection.revealVisible {
+  transform: none;
+}
+
+.rewardsSection.reveal:not(.revealVisible) .rewardItem,
+.rewardsSection.reveal:not(.revealVisible) .feeCallout {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.rewardsSection.revealVisible .rewardItem {
+  animation: rewardItemReveal 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.rewardsSection.revealVisible .rewardItem:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.rewardsSection.revealVisible .rewardItem:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.rewardsSection.revealVisible .rewardItem:nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.rewardsSection.revealVisible .rewardItem:nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.rewardsSection.revealVisible .rewardItem:nth-child(5) {
+  animation-delay: 240ms;
+}
+
+.rewardsSection.revealVisible .rewardItem:nth-child(6) {
+  animation-delay: 300ms;
+}
+
+.rewardsSection.revealVisible .feeCallout {
+  animation: rewardItemReveal 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 360ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rewardsSection.reveal:not(.revealVisible) .rewardItem,
+  .rewardsSection.reveal:not(.revealVisible) .feeCallout {
+    opacity: 1;
+    transform: none;
+  }
+
+  .rewardsSection.revealVisible .rewardItem,
+  .rewardsSection.revealVisible .feeCallout {
+    animation: none;
+  }
+}
+
 .rewardsGrid {
   list-style: none;
   margin: 0;
@@ -1474,20 +1550,56 @@
   font-size: 14px;
   line-height: 1.55;
   color: var(--ambInkSoft);
+  transition:
+    transform 200ms ease,
+    filter 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.rewardItem:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.035);
+}
+
+@media (--viewportMedium) {
+  .rewardItem:hover {
+    box-shadow: 0 0 18px rgba(23, 217, 255, 0.07);
+  }
 }
 
 .rewardCheck {
+  position: relative;
   flex: 0 0 auto;
   width: 18px;
   height: 18px;
   margin-top: 2px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--ambGold) 0%, var(--ambMint) 100%);
-  box-shadow: 0 0 10px rgba(232, 197, 71, 0.3);
+  box-shadow:
+    0 0 11px rgba(232, 197, 71, 0.34),
+    0 0 14px rgba(34, 230, 184, 0.16),
+    0 0 18px rgba(23, 217, 255, 0.1);
+}
+
+.rewardCheck::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(157, 255, 79, 0.14) 0%,
+    rgba(23, 217, 255, 0.1) 52%,
+    transparent 72%
+  );
+  z-index: -1;
+  pointer-events: none;
 }
 
 .rewardCheck::after {
   content: '';
+  position: relative;
+  z-index: 1;
   display: block;
   width: 8px;
   height: 5px;
@@ -1501,15 +1613,22 @@
   margin-top: 24px;
   padding: 18px 20px;
   border-radius: 16px;
-  border: 1px solid rgba(232, 197, 71, 0.22);
-  background: rgba(232, 197, 71, 0.06);
+  border: 1px solid rgba(210, 185, 130, 0.19);
+  background:
+    radial-gradient(ellipse 85% 65% at 50% 0%, rgba(232, 197, 71, 0.07) 0%, transparent 58%),
+    rgba(232, 197, 71, 0.045);
+  box-shadow:
+    inset 0 0 28px rgba(232, 197, 71, 0.045),
+    0 0 14px rgba(232, 197, 71, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .feeCalloutTitle {
   margin: 0 0 8px;
   font-size: 14px;
   font-weight: 700;
-  color: var(--ambGold);
+  color: rgba(248, 224, 148, 0.96);
 }
 
 .feeCalloutText {
@@ -1519,58 +1638,387 @@
   color: var(--ambInkSoft);
 }
 
-/* ─── Earnings example ─────────────────────────────────────────────────────── */
+/* ─── Earnings flow ────────────────────────────────────────────────────────── */
 
-.earningsCard {
-  padding: 6px;
-  border-radius: 18px;
+.earningsFlowWrap {
+  margin-top: 8px;
+  padding: 18px 14px 20px;
+  border-radius: 22px;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(6, 10, 18, 0.5);
+  background:
+    linear-gradient(165deg, rgba(14, 20, 32, 0.72) 0%, rgba(6, 10, 18, 0.88) 100%);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
-.earningsRows {
+.earningsFlow {
   list-style: none;
   margin: 0;
   padding: 0;
-}
-
-.earningsRow {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-direction: column;
+  gap: 0;
 }
 
-.earningsRow:last-child {
-  border-bottom: none;
+.earningsFlowItem {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
 }
 
-.earningsRowLabel {
-  font-size: 14px;
-  color: var(--ambInkSoft);
+.earningsStepCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  padding: 18px 16px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(160deg, rgba(22, 30, 46, 0.82) 0%, rgba(10, 14, 24, 0.94) 100%);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  transition:
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 260ms ease,
+    box-shadow 260ms ease;
 }
 
-.earningsRowValue {
-  font-size: 15px;
-  font-weight: 700;
+.earningsStepCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.88;
+  transition: opacity 260ms ease;
+}
+
+.earningsStepCard:hover {
+  transform: translateY(-2px);
+}
+
+.earningsStepCard:hover::after {
+  opacity: 1;
+}
+
+.earningsStepCaption {
+  position: relative;
+  z-index: 1;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(228, 235, 243, 0.48);
+}
+
+.earningsStepValue {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(26px, 5vw, 32px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   color: var(--ambInk);
 }
 
-.earningsRowDeduction .earningsRowValue {
-  color: rgba(255, 140, 140, 0.92);
+.earningsStepLabel {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ambInkSoft);
 }
 
-.earningsRowHighlight .earningsRowValue {
-  color: var(--ambMint);
+.earningsStepMicro {
+  position: relative;
+  z-index: 1;
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(157, 255, 79, 0.72);
 }
 
-.earningsFootnote {
-  margin: 16px 0 0;
+/* Step tones */
+.earningsStepCard_neutral {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.earningsStepCard_neutral::after {
+  background: radial-gradient(
+    ellipse 90% 80% at 20% 0%,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 62%
+  );
+}
+
+.earningsStepCard_neutral:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.22),
+    0 0 20px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.earningsStepCard_fee {
+  border-color: rgba(255, 140, 100, 0.18);
+}
+
+.earningsStepCard_fee::after {
+  background: radial-gradient(
+    ellipse 95% 85% at 50% 0%,
+    rgba(255, 120, 90, 0.14) 0%,
+    transparent 65%
+  );
+}
+
+.earningsStepCard_fee .earningsStepValue {
+  color: rgba(255, 168, 130, 0.96);
+}
+
+.earningsStepCard_fee:hover {
+  border-color: rgba(255, 140, 100, 0.32);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.22),
+    0 0 22px rgba(255, 120, 90, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.earningsStepCard_payout {
+  border-color: rgba(23, 217, 255, 0.2);
+}
+
+.earningsStepCard_payout::after {
+  background: radial-gradient(
+    ellipse 95% 85% at 50% 0%,
+    rgba(23, 217, 255, 0.14) 0%,
+    transparent 65%
+  );
+}
+
+.earningsStepCard_payout .earningsStepValue {
+  color: rgba(120, 228, 255, 0.98);
+}
+
+.earningsStepCard_payout:hover {
+  border-color: rgba(23, 217, 255, 0.34);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.22),
+    0 0 24px rgba(23, 217, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.earningsStepCard_reward {
+  border-color: rgba(157, 255, 79, 0.28);
+  background:
+    linear-gradient(160deg, rgba(18, 32, 28, 0.9) 0%, rgba(8, 14, 12, 0.96) 100%);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.24),
+    0 0 28px rgba(157, 255, 79, 0.08),
+    inset 0 1px 0 rgba(157, 255, 79, 0.1);
+}
+
+.earningsStepCard_reward::after {
+  background:
+    radial-gradient(ellipse 100% 90% at 50% 0%, rgba(157, 255, 79, 0.18) 0%, transparent 62%),
+    radial-gradient(ellipse 80% 70% at 80% 100%, rgba(34, 230, 184, 0.1) 0%, transparent 65%);
+}
+
+.earningsStepCard_reward .earningsStepValue {
+  color: var(--ambLime);
+  text-shadow: 0 0 24px rgba(157, 255, 79, 0.22);
+}
+
+.earningsStepCard_reward:hover {
+  border-color: rgba(157, 255, 79, 0.42);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.26),
+    0 0 32px rgba(157, 255, 79, 0.16),
+    inset 0 1px 0 rgba(157, 255, 79, 0.14);
+}
+
+.earningsStepCardFinal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -40%;
+  width: 42%;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(157, 255, 79, 0.06) 38%,
+    rgba(255, 255, 255, 0.14) 50%,
+    rgba(34, 230, 184, 0.06) 62%,
+    transparent 100%
+  );
+  animation: earningsRewardSweep 4.5s ease-in-out infinite;
+}
+
+@keyframes earningsRewardSweep {
+  0% {
+    transform: translateX(-80%) skewX(-12deg);
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0.7;
+  }
+
+  45% {
+    transform: translateX(320%) skewX(-12deg);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(320%) skewX(-12deg);
+    opacity: 0;
+  }
+}
+
+.earningsFlowArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 100%;
+  height: 28px;
+  color: rgba(58, 190, 255, 0.42);
+  filter: drop-shadow(0 0 6px rgba(58, 190, 255, 0.18));
+}
+
+.earningsFlowArrow svg {
+  width: 18px;
+  height: 18px;
+  transform: rotate(90deg);
+}
+
+.earningsClarification {
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(232, 197, 71, 0.18);
+  background:
+    linear-gradient(135deg, rgba(232, 197, 71, 0.08) 0%, rgba(25, 223, 242, 0.04) 100%);
   font-size: 13px;
   line-height: 1.55;
-  color: rgba(228, 235, 243, 0.58);
+  font-weight: 500;
+  color: rgba(248, 224, 148, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.earningsDisclaimer {
+  margin: 10px 0 0;
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 1.55;
+  font-weight: 400;
+  color: rgba(228, 235, 243, 0.44);
+  animation: earningsDisclaimerFade 720ms cubic-bezier(0.22, 1, 0.36, 1) 280ms both;
+}
+
+@keyframes earningsDisclaimerFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (--viewportMedium) {
+  .earningsFlowWrap {
+    padding: 22px 20px 24px;
+  }
+
+  .earningsFlow {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .earningsFlowItem {
+    flex: 1 1 0;
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .earningsFlowItem:last-child::after {
+    content: '';
+    flex-shrink: 0;
+    width: 28px;
+  }
+
+  .earningsStepCard {
+    flex: 1 1 auto;
+    padding: 20px 16px 18px;
+    min-height: 148px;
+  }
+
+  .earningsStepValue {
+    font-size: 30px;
+  }
+
+  .earningsStepLabel {
+    font-size: 13px;
+  }
+
+  .earningsFlowArrow {
+    width: 28px;
+    height: auto;
+    align-self: center;
+    min-height: 148px;
+  }
+
+  .earningsFlowArrow svg {
+    transform: none;
+  }
+
+  .earningsClarification {
+    margin-top: 20px;
+    padding: 16px 18px;
+    font-size: 14px;
+  }
+
+  .earningsDisclaimer {
+    margin-top: 12px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .earningsStepCard {
+    transition: border-color 260ms ease, box-shadow 260ms ease;
+  }
+
+  .earningsStepCard:hover {
+    transform: none;
+  }
+
+  .earningsStepCardFinal::before {
+    animation: none;
+    opacity: 0;
+  }
+
+  .earningsDisclaimer {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ─── Ambassadors carousel ─────────────────────────────────────────────────── */

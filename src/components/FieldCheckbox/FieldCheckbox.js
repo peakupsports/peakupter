@@ -58,6 +58,8 @@ const IconCheckbox = props => {
  * @param {string} props.name Name groups several checkboxes to an array of selected values
  * @param {string} props.value Checkbox needs a value that is passed forward when user checks the checkbox
  * @param {ReactNode} props.label
+ * @param {string?} props.boxClassName overwrite components own css.box
+ * @param {string?} props.checkedClassName overwrite components own css.checked
  * @returns {JSX.Element} Final Form Field containing checkbox input
  */
 const FieldCheckbox = props => {
@@ -69,6 +71,8 @@ const FieldCheckbox = props => {
     id,
     label,
     useSuccessColor,
+    boxClassName,
+    checkedClassName,
     ...rest
   } = props;
 
@@ -78,7 +82,14 @@ const FieldCheckbox = props => {
   // https://github.com/final-form/react-final-form/issues/134
   const handleOnChange = (input, event) => {
     const { onBlur, onChange } = input;
-    onChange(event);
+    const { checked, type } = event.target;
+
+    // Boolean single-checkbox fields (no value prop) store true/false for reliable toggling.
+    if (type === 'checkbox' && rest.value == null) {
+      onChange(checked);
+    } else {
+      onChange(event);
+    }
     onBlur(event);
 
     // If onChange has been passed as a props to FieldCheckbox
@@ -87,6 +98,13 @@ const FieldCheckbox = props => {
     }
   };
 
+  const customColorMaybe =
+    boxClassName || checkedClassName
+      ? {
+          boxClassName: boxClassName || css.box,
+          checkedClassName: checkedClassName || css.checked,
+        }
+      : {};
   const successColorVariantMaybe = useSuccessColor
     ? {
         checkedClassName: css.checkedSuccess,
@@ -99,6 +117,11 @@ const FieldCheckbox = props => {
         boxClassName: css.boxDisabled,
       }
     : {};
+  const iconColorProps = disabledColorMaybe.boxClassName
+    ? disabledColorMaybe
+    : customColorMaybe.boxClassName
+      ? customColorMaybe
+      : successColorVariantMaybe;
 
   return (
     <span className={classes}>
@@ -120,8 +143,7 @@ const FieldCheckbox = props => {
         <span className={css.checkboxWrapper}>
           <IconCheckbox
             className={svgClassName}
-            {...successColorVariantMaybe}
-            {...disabledColorMaybe}
+            {...iconColorProps}
           />
         </span>
         <span className={classNames(css.text, textClassName || css.textRoot)}>{label}</span>

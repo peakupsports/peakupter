@@ -1,0 +1,12 @@
+{
+  "id": "cbab01af-901f-40ab-adb5-540243b93f7f",
+  "userId": "69e16a44-5217-4220-9f45-618ca5dcfe5d",
+  "coachName": "Giangio",
+  "email": "gl.buvoli@peakupsports.com",
+  "referralCode": "GiangioPKUP01",
+  "ambassadorTier": "bronze",
+  "ambassadorRewardsUnlocked": false,
+  "activatedAt": "2026-05-24T22:15:14.611Z",
+  "referralLink": "http://localhost:3500/coach-application?ref=GiangioPKUP01",
+  "welcomeEmailSentAt": "2026-05-24T22:15:14.683Z"
+}

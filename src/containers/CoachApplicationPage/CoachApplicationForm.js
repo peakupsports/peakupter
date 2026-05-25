@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Form as FinalForm, Field, FormSpy } from 'react-final-form';
 
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
+import { ensureCurrentUser } from '../../util/data';
 import {
   buildCoachApplicationPayload,
   CERTIFICATION_LEVEL_OPTIONS,
@@ -259,8 +260,22 @@ const CoachApplicationFileField = props => {
  * Multi-step PeakUp coach application form.
  */
 const CoachApplicationForm = props => {
-  const { onSuccess } = props;
+  const { onSuccess, initialReferralCode = '', currentUser } = props;
   const intl = useIntl();
+  const user = ensureCurrentUser(currentUser);
+  const profile = user.attributes?.profile || {};
+  const accountEmail = user.attributes?.email || '';
+  const accountName = [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim();
+  const applicantUserId = user.id?.uuid || '';
+  const initialFormValues = useMemo(
+    () => ({
+      ambassadorReferralCode: initialReferralCode,
+      hearAboutPeakUp: initialReferralCode ? 'ambassador' : undefined,
+      fullName: accountName,
+      email: accountEmail,
+    }),
+    [accountEmail, accountName, initialReferralCode]
+  );
   const [stepIndex, setStepIndex] = useState(0);
   const [submitError, setSubmitError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -369,7 +384,11 @@ const CoachApplicationForm = props => {
     setSubmitting(true);
 
     try {
-      const payload = await buildCoachApplicationPayload(values);
+      const payload = await buildCoachApplicationPayload({
+        ...values,
+        email: accountEmail,
+        applicantUserId,
+      });
       const mode = getSubmitMode();
 
       if (mode === COACH_APPLICATION_SUBMIT_MODES.NETLIFY) {
@@ -408,6 +427,7 @@ const CoachApplicationForm = props => {
       onSubmit={handleSubmit}
       validate={validateStep}
       keepDirtyOnReinitialize
+      initialValues={initialFormValues}
       render={({ handleSubmit: formSubmit, hasValidationErrors, submitting: formSubmitting }) => (
         <form
           className={css.card}
@@ -452,60 +472,40 @@ const CoachApplicationForm = props => {
                       </option>
                     ))}
                   </FieldSelect>
+
                   <FormSpy subscription={{ values: true }}>
                     {({ values }) => {
-                      const ambassadorInterest = Boolean(values?.interestedInAmbassador);
+                      const hasReferralCode = Boolean(
+                        String(values?.ambassadorReferralCode || '').trim()
+                      );
+
                       return (
                         <>
-                          <div className={css.checkboxGroup}>
-                            <div className={css.checkboxPremium}>
-                              <FieldCheckbox
-                                id="applyingIndependently"
-                                name="applyingIndependently"
-                                label={intl.formatMessage({
-                                  id: 'CoachApplicationPage.applyingIndependentlyLabel',
-                                })}
-                                value="yes"
-                              />
-                            </div>
-                            <div className={css.checkboxPremium}>
-                              <FieldCheckbox
-                                id="interestedInAmbassador"
-                                name="interestedInAmbassador"
-                                label={intl.formatMessage({
-                                  id: 'CoachApplicationPage.interestedInAmbassadorLabel',
-                                })}
-                                value="yes"
-                              />
-                            </div>
+                          <div className={css.checkboxPremium}>
+                            <FieldCheckbox
+                              id="applyingIndependently"
+                              name="applyingIndependently"
+                              label={intl.formatMessage({
+                                id: 'CoachApplicationPage.applyingIndependentlyLabel',
+                              })}
+                              value="yes"
+                            />
                           </div>
+
                           <div
-                            className={classNames(css.ambassadorPanel, {
-                              [css.ambassadorPanelOpen]: ambassadorInterest,
+                            className={classNames(css.referralInvitePanel, {
+                              [css.referralInvitePanelActive]: hasReferralCode,
                             })}
-                            aria-hidden={!ambassadorInterest}
                           >
-                            <div className={css.ambassadorPanelInner}>
-                              <p className={css.ambassadorPanelTitle}>
-                                <FormattedMessage id="CoachApplicationPage.ambassadorPanelTitle" />
-                              </p>
-                              <p className={css.ambassadorPanelHint}>
-                                <FormattedMessage id="CoachApplicationPage.ambassadorPanelHint" />
-                              </p>
-                              <FieldTextInput
-                                id="ambassadorReferralCode"
-                                name="ambassadorReferralCode"
-                                type="text"
-                                label={intl.formatMessage({
-                                  id: 'CoachApplicationPage.ambassadorCodeLabel',
-                                })}
-                                placeholder={intl.formatMessage({
-                                  id: 'CoachApplicationPage.ambassadorCodePlaceholder',
-                                })}
-                              />
-                            </div>
-                          </div>
-                          {!ambassadorInterest ? (
+                            <p className={css.referralOptionalLabel}>
+                              <FormattedMessage id="CoachApplicationPage.referralOptionalLabel" />
+                            </p>
+                            <p className={css.referralInviteTitle}>
+                              <FormattedMessage id="CoachApplicationPage.referralInviteTitle" />
+                            </p>
+                            <p className={css.referralInviteSubtitle}>
+                              <FormattedMessage id="CoachApplicationPage.referralInviteSubtitle" />
+                            </p>
                             <FieldTextInput
                               id="ambassadorReferralCode"
                               name="ambassadorReferralCode"
@@ -517,11 +517,14 @@ const CoachApplicationForm = props => {
                                 id: 'CoachApplicationPage.ambassadorCodePlaceholder',
                               })}
                             />
-                          ) : null}
+                          </div>
                         </>
                       );
                     }}
                   </FormSpy>
+
+
+
                 </>
               ) : null}
 
@@ -538,6 +541,7 @@ const CoachApplicationForm = props => {
                       id="email"
                       name="email"
                       type="email"
+                      disabled
                       label={intl.formatMessage({ id: 'CoachApplicationPage.emailLabel' })}
                     />
                     <FieldTextInput

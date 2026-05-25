@@ -65,9 +65,10 @@ export const getExtendedDataMaybe = (submitValues, userType, userFields) => {
  * @param {Object} params
  * @param {Function} params.submitSignup
  * @param {Array} params.userFields
- * @returns {(values: Object) => void}
+ * @param {object} [params.coachOnboardingPublicData]
+ * @returns {(values: Object) => Promise|void}
  */
-export const getHandleSubmitSignup = ({ submitSignup, userFields }) => values => {
+export const getHandleSubmitSignup = ({ submitSignup, userFields, coachOnboardingPublicData }) => values => {
   const { userType, email, password, fname, lname, displayName, ...rest } = values;
   const displayNameMaybe = displayName ? { displayName: displayName.trim() } : {};
 
@@ -78,9 +79,12 @@ export const getHandleSubmitSignup = ({ submitSignup, userFields }) => values =>
     lastName: lname.trim(),
     ...displayNameMaybe,
     ...getExtendedDataMaybe(rest, userType, userFields),
+    ...(coachOnboardingPublicData && Object.keys(coachOnboardingPublicData).length > 0
+      ? { coachOnboardingPublicData }
+      : {}),
   };
 
-  submitSignup(submitParams);
+  return submitSignup(submitParams).catch(() => undefined);
 };
 
 /**

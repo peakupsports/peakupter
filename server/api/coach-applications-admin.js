@@ -6,6 +6,7 @@ const {
   deleteCoachApplication,
   resolveDocumentFile,
 } = require('../api-util/coachApplicationStore');
+const { syncReferralOnApplicationStatusChange } = require('../api-util/referralTracking');
 const { requireCoachApplicationAdmin } = require('../api-util/coachApplicationAdminAuth');
 
 const guessMimeType = fileName => {
@@ -52,6 +53,7 @@ const patchStatus = (req, res) => {
   try {
     const { status } = req.body || {};
     const application = updateCoachApplicationStatus(req.params.id, status);
+    syncReferralOnApplicationStatusChange(application);
     res.status(200).json({ application });
   } catch (e) {
     const status = e.status && Number.isFinite(e.status) ? e.status : 500;

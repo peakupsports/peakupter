@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -11,6 +11,7 @@ import { propTypes } from '../../util/types';
 import { ensureCurrentUser, getFeaturedListingsProps } from '../../util/data';
 import {
   getAuthErrorMessage,
+  getSignupErrorMessage,
   isSignupEmailTakenError,
   isTooManyEmailVerificationRequestsError,
 } from '../../util/errors';
@@ -47,6 +48,25 @@ import {
   getHandleSubmitConfirm,
   getHandleSubmitSignup,
 } from './AuthenticationPage.helpers';
+
+import {
+  filterCoachOnboardingUserTypes,
+  getCustomerUserTypeForCoachSignup,
+  getCoachOnboardingStoredReferralCode,
+  hasCoachOnboardingIntent,
+  hasCoachOnboardingProfileIntent,
+  hasCoachOnboardingUrlSignal,
+  isCoachOnboardingQueryActive,
+  isCoachOnboardingReturn,
+  isCoachProviderSignupUserType,
+  parseReferralCodeFromLocation,
+  parseReferralCodeFromPath,
+  buildCoachSignupAuthSearch,
+  buildCoachOnboardingProfilePublicData,
+  resolveCoachOnboardingRedirect,
+  shouldContinueCoachOnboarding,
+  syncCoachOnboardingIntent,
+} from '../../util/coachOnboarding';
 
 import TermsAndConditions from './TermsAndConditions/TermsAndConditions';
 import ConfirmSignupForm from './ConfirmSignupForm/ConfirmSignupForm';
@@ -102,14 +122,25 @@ const AuthenticationFormErrorMessage = props => {
     return <div className={css.error}>{loginError}</div>;
   }
 
-  const translationId =
-    isLogin && !!idpAuthError
-      ? 'AuthenticationPage.idpAuthFailed'
-      : !!signupError && isSignupEmailTakenError(signupError)
-      ? 'AuthenticationPage.signupFailedEmailAlreadyTaken'
-      : !!signupError
-      ? 'AuthenticationPage.signupFailed'
-      : null;
+  if (!isLogin && signupError) {
+    if (isSignupEmailTakenError(signupError)) {
+      return (
+        <div className={css.error}>
+          <FormattedMessage id="AuthenticationPage.signupFailedEmailAlreadyTaken" />
+        </div>
+      );
+    }
+
+    const readableError = getSignupErrorMessage(signupError);
+    return (
+      <div className={css.error}>
+        <FormattedMessage id="AuthenticationPage.signupFailed" />
+        {readableError ? <div className={css.errorDetail}>{readableError}</div> : null}
+      </div>
+    );
+  }
+
+  const translationId = isLogin && !!idpAuthError ? 'AuthenticationPage.idpAuthFailed' : null;
 
   return translationId ? (
     <div className={css.error}>
@@ -209,20 +240,6 @@ export const AuthenticationPageComponent = props => {
   const config = useConfiguration();
   const intl = useIntl();
 
-  useEffect(() => {
-    // Remove the autherror cookie once the content is saved to state
-    // because we don't want to show the error message e.g. after page refresh
-    if (authError) {
-      Cookies.remove('st-autherror');
-    }
-    setMounted(true);
-  }, []);
-
-  // On mobile, it's better to scroll to top.
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [tosModalOpen, privacyModalOpen]);
-
   const {
     authInProgress,
     currentUser,
@@ -247,12 +264,35 @@ export const AuthenticationPageComponent = props => {
     staticContext,
   } = props;
 
-  // History API has potentially state tied to this route
-  // We have used that state to store previous URL ("from"),
-  // so that use can be redirected back to that page after authentication.
   const locationFrom = location.state?.from || null;
   const authinfoFrom = authInfo?.from || null;
   const from = locationFrom || authinfoFrom || null;
+
+  useLayoutEffect(() => {
+    if (authError) {
+      Cookies.remove('st-autherror');
+    }
+    const userForSync = ensureCurrentUser(currentUser);
+    syncCoachOnboardingIntent({
+      location,
+      from,
+      pathname: location.pathname,
+      currentUser: userForSync.id ? userForSync : null,
+    });
+    setMounted(true);
+  }, [authError, location, from, currentUser]);
+
+  const user = ensureCurrentUser(currentUser);
+  const currentUserLoaded = !!user.id;
+
+  // On mobile, it's better to scroll to top.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [tosModalOpen, privacyModalOpen]);
+
+  // History API has potentially state tied to this route
+  // We have used that state to store previous URL ("from"),
+  // so that use can be redirected back to that page after authentication.
   const idp = authInfo ? authInfo.idpId.replace(/^./, str => str.toUpperCase()) : null;
 
   const isConfirm = tab === 'confirm';
@@ -261,21 +301,104 @@ export const AuthenticationPageComponent = props => {
   const userTypeInAuthInfo = isConfirm && authInfo?.userType ? authInfo?.userType : null;
   const userType = pathParams?.userType || userTypeInPushState || userTypeInAuthInfo || null;
 
+  if (!isLogin && isCoachProviderSignupUserType(userType)) {
+    const ref = parseReferralCodeFromLocation(location);
+    return (
+      <Redirect
+        to={{
+          pathname: '/coach-signup',
+          search: ref ? `?ref=${encodeURIComponent(ref)}` : '',
+        }}
+      />
+    );
+  }
+
   const { userTypes = [], userFields = [] } = config.user;
-  const preselectedUserType = userTypes.find(conf => conf.userType === userType)?.userType || null;
-  const signupRouteName = !!preselectedUserType ? 'SignupForUserTypePage' : 'SignupPage';
+  const isCoachOnboardingFlow =
+    isCoachOnboardingReturn(from) || isCoachOnboardingQueryActive(location.search);
+  const onboardingUserTypes = isCoachOnboardingFlow
+    ? filterCoachOnboardingUserTypes(userTypes)
+    : userTypes;
+  const coachOnboardingUserType = isCoachOnboardingFlow
+    ? getCustomerUserTypeForCoachSignup(userTypes)
+    : null;
+  const preselectedUserType =
+    coachOnboardingUserType ||
+    userTypes.find(conf => conf.userType === userType)?.userType ||
+    null;
+  const signupRouteName = isCoachOnboardingFlow
+    ? 'SignupPage'
+    : !!preselectedUserType
+    ? 'SignupForUserTypePage'
+    : 'SignupPage';
   const userTypeMaybe = preselectedUserType ? { userType: preselectedUserType } : {};
   const fromMaybe = from ? { from } : {};
-  const fromState = { state: { ...fromMaybe, ...userTypeMaybe } };
+  const coachSignupRef =
+    parseReferralCodeFromLocation(location) ||
+    parseReferralCodeFromPath(typeof from === 'string' ? from : '') ||
+    getCoachOnboardingStoredReferralCode();
+  const preserveCoachSearch =
+    isCoachOnboardingFlow ||
+    isCoachOnboardingQueryActive(location.search) ||
+    hasCoachOnboardingUrlSignal({ location, from });
+  const coachSearch =
+    location.search ||
+    (preserveCoachSearch ? buildCoachSignupAuthSearch({ ref: coachSignupRef }) : '');
+  const fromState = {
+    state: { ...fromMaybe, ...userTypeMaybe },
+    ...(preserveCoachSearch && coachSearch ? { search: coachSearch } : {}),
+  };
   const show404 = userType && !preselectedUserType;
 
-  const user = ensureCurrentUser(currentUser);
-  const currentUserLoaded = !!user.id;
   // We only want to show the email verification dialog in the signup
   // tab if the user isn't being redirected somewhere else
   // (i.e. `from` is present). We must also check the `emailVerified`
   // flag only when the current user is fully loaded.
   const showEmailVerification = !isLogin && currentUserLoaded && !user.attributes.emailVerified;
+
+  useEffect(() => {
+    if (!mounted || !isAuthenticated || !currentUserLoaded) {
+      return;
+    }
+
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp Post Login User Loaded]', {
+      userId: user.id,
+      emailVerified: user.attributes.emailVerified,
+      pathname: location.pathname,
+      tab: isLogin ? 'login' : 'signup',
+    });
+
+    const shouldContinue = shouldContinueCoachOnboarding({
+      currentUser: user,
+      location,
+      from,
+    });
+
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp Post Login Coach Intent]', {
+      shouldContinue,
+      localStorageIntent: hasCoachOnboardingIntent(),
+      queryActive: isCoachOnboardingQueryActive(location.search),
+      profileIntent: hasCoachOnboardingProfileIntent(user),
+      referralCode:
+        getCoachOnboardingStoredReferralCode() || parseReferralCodeFromLocation(location),
+    });
+
+    const target = resolveCoachOnboardingRedirect({
+      currentUser: user,
+      location,
+      from,
+    });
+
+    if (target) {
+      // eslint-disable-next-line no-console
+      console.log('[PeakUp Post Login Redirect Target]', {
+        source: 'AuthenticationPage',
+        target,
+      });
+    }
+  }, [mounted, isAuthenticated, currentUserLoaded, user, location, from, isLogin]);
 
   const marketplaceName = config.marketplaceName;
   const schemaTitle = isLogin
@@ -288,10 +411,32 @@ export const AuthenticationPageComponent = props => {
     [css.hideOnMobile]: showEmailVerification,
   });
 
-  const shouldRedirectToFrom = isAuthenticated && from;
+  const coachReturnPath = mounted
+    ? resolveCoachOnboardingRedirect({
+        currentUser: currentUserLoaded ? user : null,
+        location,
+        from,
+      })
+    : null;
+  const postAuthRedirectTarget = coachReturnPath || from;
+  const shouldRedirectAfterAuth =
+    isAuthenticated && currentUserLoaded && !showEmailVerification && postAuthRedirectTarget;
+  const pendingCoachIntent = shouldContinueCoachOnboarding({
+    currentUser: currentUserLoaded ? user : null,
+    location,
+    from,
+  });
   const shouldRedirectToLandingPage =
-    isAuthenticated && currentUserLoaded && !showEmailVerification;
-  if (!mounted && shouldRedirectToLandingPage) {
+    isAuthenticated &&
+    currentUserLoaded &&
+    !showEmailVerification &&
+    !postAuthRedirectTarget &&
+    !pendingCoachIntent;
+  if (
+    !mounted &&
+    (shouldRedirectToLandingPage ||
+      (isAuthenticated && currentUserLoaded && !showEmailVerification && pendingCoachIntent))
+  ) {
     // Show a blank page for already authenticated users,
     // when the first rendering on client side is not yet done
     // This is done to avoid hydration issues when full page load is happening.
@@ -304,9 +449,16 @@ export const AuthenticationPageComponent = props => {
     );
   }
 
-  if (shouldRedirectToFrom) {
-    // Already authenticated, redirect back to the page the user tried to access
-    return <Redirect to={from} />;
+  if (shouldRedirectAfterAuth) {
+    const redirectTo = coachReturnPath || postAuthRedirectTarget;
+    if (coachReturnPath) {
+      // eslint-disable-next-line no-console
+      console.log('[PeakUp Coach Redirect Triggered]', {
+        source: 'AuthenticationPage',
+        to: coachReturnPath,
+      });
+    }
+    return <Redirect to={redirectTo} />;
   } else if (shouldRedirectToLandingPage) {
     // Already authenticated, redirect to the landing page (this was direct access to /login or /signup)
     return <NamedRedirect name="LandingPage" />;
@@ -397,7 +549,15 @@ export const AuthenticationPageComponent = props => {
                     <p className={css.signupChoiceSubtitle}>
                       <FormattedMessage id="AuthenticationPage.signupChoiceSubtitle" />
                     </p>
-                    <NamedLink className={css.signupChoiceCoach} name="CoachApplicationPage">
+                    <NamedLink
+                      className={css.signupChoiceCoach}
+                      name="CoachSignupPage"
+                      to={{
+                        search: parseReferralCodeFromLocation(location)
+                          ? `?ref=${encodeURIComponent(parseReferralCodeFromLocation(location))}`
+                          : '',
+                      }}
+                    >
                       <span className={css.signupChoiceCoachLabel}>
                         <FormattedMessage id="AuthenticationPage.signupChoiceCoach" />
                       </span>
@@ -422,11 +582,18 @@ export const AuthenticationPageComponent = props => {
                     onSubmit={getHandleSubmitSignup({
                       submitSignup,
                       userFields,
+                      ...(isCoachOnboardingFlow || hasCoachOnboardingIntent()
+                        ? {
+                            coachOnboardingPublicData: buildCoachOnboardingProfilePublicData({
+                              ref: coachSignupRef,
+                            }),
+                          }
+                        : {}),
                     })}
                     inProgress={authInProgress}
                     termsAndConditions={termsAndConditions}
                     preselectedUserType={preselectedUserType}
-                    userTypes={userTypes}
+                    userTypes={onboardingUserTypes}
                     userFields={userFields}
                   />
                 </>
@@ -437,7 +604,7 @@ export const AuthenticationPageComponent = props => {
                 showFacebookLogin={!!process.env.REACT_APP_FACEBOOK_APP_ID}
                 showGoogleLogin={!!process.env.REACT_APP_GOOGLE_CLIENT_ID}
                 {...fromMaybe}
-                {...userTypeMaybe}
+                {...(isCoachOnboardingFlow ? {} : userTypeMaybe)}
               />
             </div>
           ) : null}
@@ -472,7 +639,7 @@ export const AuthenticationPageComponent = props => {
                 authInfo={authInfo}
                 idp={idp}
                 preselectedUserType={preselectedUserType}
-                userTypes={userTypes}
+                userTypes={onboardingUserTypes}
                 userFields={userFields}
               />
             </div>

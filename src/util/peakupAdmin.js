@@ -184,4 +184,23 @@ export const isPeakUpHqAdmin = (currentUser, config = {}) => {
 export const isPeakUpHqRouteName = routeName =>
   Boolean(routeName && PEAKUP_HQ_ROUTE_NAMES.includes(routeName));
 
+/**
+ * HQ operators signed in via Sharetribe can call admin APIs without a dev token.
+ *
+ * @param {import('../util/types').currentUser} currentUser
+ * @param {Object} [config]
+ * @returns {boolean}
+ */
+export const canAccessHqAdminApiViaSession = (currentUser, config = {}) =>
+  isPeakUpHqAdmin(currentUser, config);
+
+/**
+ * @param {import('../util/types').currentUser} currentUser
+ * @param {Object} [config]
+ * @param {boolean} [tokenAuthenticated]
+ * @returns {boolean}
+ */
+export const hasPeakUpHqAdminDashboardAccess = (currentUser, config, tokenAuthenticated = false) =>
+  tokenAuthenticated || canAccessHqAdminApiViaSession(currentUser, config);
+
 export { peakUpAdminConfig };

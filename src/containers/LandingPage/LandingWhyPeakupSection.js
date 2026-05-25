@@ -265,8 +265,7 @@ const LandingWhyPeakupSection = props => {
                   </NamedLink>
                 ) : card.titleId === 'LandingWhyPeakupSection.cardCoachTitle' ? (
                   <NamedLink
-                    name="CMSPage"
-                    params={{ pageId: '4_instructors' }}
+                    name="CoachSignupPage"
                     className={classNames(defaultClasses.ctaButton, css.cardCta, card.ctaClassName)}
                   >
                     <FormattedMessage id={card.ctaId} defaultMessage={card.ctaDefault} />

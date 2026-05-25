@@ -11,6 +11,12 @@ const CoachApplicationPage = loadable(() =>
     /* webpackChunkName: "CoachApplicationPage" */ '../containers/CoachApplicationPage/CoachApplicationPage'
   )
 );
+const JoinPage = loadable(() =>
+  import(/* webpackChunkName: "JoinPage" */ '../containers/JoinPage/JoinPage')
+);
+const CoachSignupPage = loadable(() =>
+  import(/* webpackChunkName: "CoachSignupPage" */ '../containers/CoachSignupPage/CoachSignupPage')
+);
 const AdminCoachApplicationsPage = loadable(() =>
   import(
     /* webpackChunkName: "AdminCoachApplicationsPage" */ '../containers/AdminCoachApplicationsPage/AdminCoachApplicationsPage'
@@ -18,6 +24,11 @@ const AdminCoachApplicationsPage = loadable(() =>
 );
 const PeakUpHQPage = loadable(() =>
   import(/* webpackChunkName: "PeakUpHQPage" */ '../containers/PeakUpHQPage/PeakUpHQPage')
+);
+const PeakUpHqAmbassadorsPage = loadable(() =>
+  import(
+    /* webpackChunkName: "PeakUpHqAmbassadorsPage" */ '../containers/PeakUpHq/PeakUpHqAmbassadorsPage/PeakUpHqAmbassadorsPage'
+  )
 );
 const PeakUpHqPlaceholderPage = loadable(() =>
   import(
@@ -150,6 +161,16 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       loadData: pageDataLoadingAPI.AboutPage.loadData,
     },
     {
+      path: '/join',
+      name: 'JoinPage',
+      component: JoinPage,
+    },
+    {
+      path: '/coach-signup',
+      name: 'CoachSignupPage',
+      component: CoachSignupPage,
+    },
+    {
       path: '/coach-application',
       name: 'CoachApplicationPage',
       component: CoachApplicationPage,
@@ -207,7 +228,7 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       path: '/admin/ambassadors',
       name: 'PeakUpHqAmbassadorsPage',
       auth: true,
-      component: props => <PeakUpHqPlaceholderPage routeName="PeakUpHqAmbassadorsPage" {...props} />,
+      component: PeakUpHqAmbassadorsPage,
       loadData: pageDataLoadingAPI.PeakUpHqAmbassadorsPage.loadData,
     },
     {

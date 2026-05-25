@@ -1,12 +1,15 @@
 /**
- * MVP admin guard for coach application review endpoints.
+ * MVP admin guard for PeakUp HQ internal API routes (coach applications, ambassadors, etc.).
  *
- * TODO: Replace with real marketplace admin authentication (e.g. Sharetribe operator role).
+ * Access is granted when ANY of these match:
+ * - Valid X-PeakUp-Admin-Token header matching COACH_APPLICATION_ADMIN_TOKEN (.env)
+ * - Authenticated Sharetribe session for an authorized PeakUp HQ user
  *
- * Set COACH_APPLICATION_ADMIN_TOKEN in server environment. Clients send the same value via:
- * - Header: X-PeakUp-Admin-Token
- * - Query (document downloads only): adminToken
+ * TODO: Replace token hasAnyRole('operator') when marketplace operator auth is wired.
  */
+
+const { getSdk } = require('./sdk');
+const { isPeakUpHqAdminUser } = require('./peakUpHqAdminAuth');
 
 const getExpectedToken = () => process.env.COACH_APPLICATION_ADMIN_TOKEN || '';
 
@@ -21,23 +24,37 @@ const extractToken = req => {
   return null;
 };
 
-const requireCoachApplicationAdmin = (req, res, next) => {
+const requireCoachApplicationAdmin = async (req, res, next) => {
   const expected = getExpectedToken();
+  const provided = extractToken(req);
+
+  if (expected && provided && provided === expected) {
+    next();
+    return;
+  }
+
+  try {
+    const sdk = getSdk(req, res);
+    const currentUserResponse = await sdk.currentUser.show();
+    const currentUser = currentUserResponse?.data?.data;
+
+    if (isPeakUpHqAdminUser(currentUser)) {
+      next();
+      return;
+    }
+  } catch (error) {
+    // Fall through to token/unauthorized handling below.
+  }
+
   if (!expected) {
     res.status(503).json({
       message:
-        'Coach application admin is not configured. Set COACH_APPLICATION_ADMIN_TOKEN on the server.',
+        'PeakUp HQ admin API is not configured. Set COACH_APPLICATION_ADMIN_TOKEN in .env or sign in as an authorized HQ user.',
     });
     return;
   }
 
-  const provided = extractToken(req);
-  if (!provided || provided !== expected) {
-    res.status(401).json({ message: 'Unauthorized' });
-    return;
-  }
-
-  next();
+  res.status(401).json({ message: 'Unauthorized' });
 };
 
 module.exports = {

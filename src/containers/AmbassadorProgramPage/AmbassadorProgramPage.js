@@ -6,14 +6,14 @@ import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
-import { NamedLink, Page } from '../../components';
+import { Page } from '../../components';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
 
 import sportTheme from '../SportPagesTheme.module.css';
 import {
   AMBASSADOR_LEVELS,
-  EARNINGS_EXAMPLE_ROWS,
+  EARNINGS_FLOW_STEPS,
   FAQ_ITEMS,
   HERO_HIGHLIGHTS,
   HOW_IT_WORKS_STEPS,
@@ -25,6 +25,7 @@ import {
   AMBASSADOR_LEVEL_IMAGE,
 } from './ambassadorProgramContent';
 import AmbassadorLevelPopup from './AmbassadorLevelPopup';
+import AmbassadorActivationModal from './AmbassadorActivationModal';
 import { LEVEL_POPUP_GLOBAL } from './ambassadorLevelPopupContent';
 import css from './AmbassadorProgramPage.module.css';
 
@@ -247,11 +248,26 @@ const ScrollReveal = ({ children, className, delay = 0, as: Tag = 'div', ...rest
   );
 };
 
-const EARNINGS_TONE_CLASS = {
-  neutral: css.earningsRowNeutral,
-  deduction: css.earningsRowDeduction,
-  highlight: css.earningsRowHighlight,
+const EARNINGS_STEP_TONE_CLASS = {
+  neutral: css.earningsStepCard_neutral,
+  fee: css.earningsStepCard_fee,
+  payout: css.earningsStepCard_payout,
+  reward: css.earningsStepCard_reward,
 };
+
+const FlowArrow = () => (
+  <span className={css.earningsFlowArrow} aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none">
+      <path
+        d="M3 8h10M9 4.5L12.5 8 9 11.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  </span>
+);
 
 /**
  * Public coach-facing PeakUp Ambassador Program page at /ambassador-program.
@@ -269,9 +285,12 @@ const AmbassadorProgramPage = () => {
   );
   const description = intl.formatMessage({ id: 'AmbassadorProgramPage.schemaDescription' });
   const [activeLevelId, setActiveLevelId] = useState(null);
+  const [activationModalOpen, setActivationModalOpen] = useState(false);
 
   const openLevelPopup = levelId => setActiveLevelId(levelId);
   const closeLevelPopup = () => setActiveLevelId(null);
+  const openActivationModal = () => setActivationModalOpen(true);
+  const closeActivationModal = () => setActivationModalOpen(false);
 
   return (
     <Page
@@ -493,12 +512,17 @@ const AmbassadorProgramPage = () => {
             onClose={closeLevelPopup}
           />
 
+          <AmbassadorActivationModal
+            isOpen={activationModalOpen}
+            onClose={closeActivationModal}
+          />
+
           <div className={css.sectionDivider} aria-hidden="true" />
 
           <ScrollReveal
             as="section"
             id={SECTION_IDS.rewards}
-            className={classNames(css.section, css.glassSection)}
+            className={classNames(css.section, css.glassSection, css.rewardsSection)}
             delay={140}
             aria-labelledby="ambassador-rewards-heading"
           >
@@ -542,26 +566,43 @@ const AmbassadorProgramPage = () => {
             <p className={css.sectionLead}>
               <FormattedMessage id="AmbassadorProgramPage.earningsLead" />
             </p>
-            <div className={css.earningsCard}>
-              <ul className={css.earningsRows}>
-                {EARNINGS_EXAMPLE_ROWS.map(row => (
-                  <li
-                    key={row.id}
-                    className={classNames(css.earningsRow, EARNINGS_TONE_CLASS[row.tone])}
-                  >
-                    <span className={css.earningsRowLabel}>
-                      <FormattedMessage id={row.labelId} />
-                    </span>
-                    <span className={css.earningsRowValue}>
-                      <FormattedMessage id={row.valueId} />
-                    </span>
+            <div className={css.earningsFlowWrap}>
+              <ol className={css.earningsFlow}>
+                {EARNINGS_FLOW_STEPS.map((step, index) => (
+                  <li key={step.id} className={css.earningsFlowItem}>
+                    <article
+                      className={classNames(
+                        css.earningsStepCard,
+                        EARNINGS_STEP_TONE_CLASS[step.tone],
+                        step.isFinal ? css.earningsStepCardFinal : null
+                      )}
+                    >
+                      <span className={css.earningsStepCaption}>
+                        <FormattedMessage id={step.captionId} />
+                      </span>
+                      <span className={css.earningsStepValue}>
+                        <FormattedMessage id={step.valueId} />
+                      </span>
+                      <span className={css.earningsStepLabel}>
+                        <FormattedMessage id={step.labelId} />
+                      </span>
+                      {step.microId ? (
+                        <span className={css.earningsStepMicro}>
+                          <FormattedMessage id={step.microId} />
+                        </span>
+                      ) : null}
+                    </article>
+                    {index < EARNINGS_FLOW_STEPS.length - 1 ? <FlowArrow /> : null}
                   </li>
                 ))}
-              </ul>
+              </ol>
+              <p className={css.earningsClarification} role="note">
+                <FormattedMessage id="AmbassadorProgramPage.earningsClarification" />
+              </p>
+              <p className={css.earningsDisclaimer}>
+                <FormattedMessage id="AmbassadorProgramPage.earningsDisclaimer" />
+              </p>
             </div>
-            <p className={css.earningsFootnote}>
-              <FormattedMessage id="AmbassadorProgramPage.earningsFootnote" />
-            </p>
           </ScrollReveal>
 
           <div className={css.sectionDivider} aria-hidden="true" />
@@ -652,9 +693,9 @@ const AmbassadorProgramPage = () => {
               <FormattedMessage id="AmbassadorProgramPage.finalLead" />
             </p>
             <div className={css.finalCtaActions}>
-              <NamedLink name="CoachApplicationPage" className={css.finalCtaPrimary}>
+              <button type="button" className={css.finalCtaPrimary} onClick={openActivationModal}>
                 <FormattedMessage id="AmbassadorProgramPage.ctaJoin" />
-              </NamedLink>
+              </button>
               <a href={`#${SECTION_IDS.howItWorks}`} className={css.finalCtaSecondary}>
                 <FormattedMessage id="AmbassadorProgramPage.ctaHowItWorks" />
               </a>

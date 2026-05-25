@@ -19,6 +19,10 @@ import {
   setStoredAdminToken,
   STATUS_LABEL_IDS,
 } from '../../util/coachApplicationAdmin';
+import {
+  canAccessHqAdminApiViaSession,
+  hasPeakUpHqAdminDashboardAccess,
+} from '../../util/peakupAdmin';
 import { downloadCoachApplicationsXlsx } from '../../util/coachApplicationExport';
 
 import { Page, NamedLink } from '../../components';
@@ -650,12 +654,6 @@ const ApplicationDetail = ({ applicationId, onBack, onStatusUpdated, onDeleted }
             value={yesNo(application.applyingIndependently)}
           />
           <DetailRow
-            label={intl.formatMessage({
-              id: 'CoachApplicationPage.interestedInAmbassadorLabel',
-            })}
-            value={yesNo(application.interestedInAmbassador)}
-          />
-          <DetailRow
             label={intl.formatMessage({ id: 'AdminCoachApplicationsPage.colType' })}
             value={intl.formatMessage({ id: typeId })}
           />
@@ -740,9 +738,16 @@ const AdminCoachApplicationsPage = () => {
   const history = useHistory();
   const { applicationId } = useParams();
   const scrollingDisabled = useSelector(isScrollingDisabled);
+  const currentUser = useSelector(state => state.user.currentUser);
   const marketplaceName = config.branding.marketplaceName || 'PeakUp';
 
-  const [authenticated, setAuthenticated] = useState(() => !!getStoredAdminToken());
+  const isHqAdmin = canAccessHqAdminApiViaSession(currentUser, config);
+  const [tokenAuthenticated, setTokenAuthenticated] = useState(() => !!getStoredAdminToken());
+  const hasDashboardAccess = hasPeakUpHqAdminDashboardAccess(
+    currentUser,
+    config,
+    tokenAuthenticated
+  );
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -769,21 +774,21 @@ const AdminCoachApplicationsPage = () => {
       const list = await fetchCoachApplicationsList();
       setApplications(list);
     } catch (e) {
-      if (e.status === 401) {
+      if (e.status === 401 && !isHqAdmin) {
         setStoredAdminToken(null);
-        setAuthenticated(false);
+        setTokenAuthenticated(false);
       }
       setError(e.message || intl.formatMessage({ id: 'AdminCoachApplicationsPage.loadError' }));
     } finally {
       setLoading(false);
     }
-  }, [intl]);
+  }, [intl, isHqAdmin]);
 
   useEffect(() => {
-    if (authenticated) {
+    if (hasDashboardAccess) {
       loadList();
     }
-  }, [authenticated, loadList]);
+  }, [hasDashboardAccess, loadList]);
 
   const sports = useMemo(
     () => [...new Set(applications.map(a => a.mainSport).filter(Boolean))].sort(),
@@ -871,9 +876,7 @@ const AdminCoachApplicationsPage = () => {
 
   const handleLogout = () => {
     setStoredAdminToken(null);
-    setAuthenticated(false);
-    setApplications([]);
-    history.push('/admin/coach-applications');
+    setTokenAuthenticated(false);
   };
 
   return (
@@ -902,8 +905,8 @@ const AdminCoachApplicationsPage = () => {
             </p>
           </header>
 
-          {!authenticated ? (
-            <AdminGate onAuthenticated={() => setAuthenticated(true)} />
+          {!hasDashboardAccess ? (
+            <AdminGate onAuthenticated={() => setTokenAuthenticated(true)} />
           ) : applicationId ? (
             <ApplicationDetail
               applicationId={applicationId}
@@ -932,9 +935,11 @@ const AdminCoachApplicationsPage = () => {
                   <button type="button" className={css.secondaryButton} onClick={loadList}>
                     <FormattedMessage id="AdminCoachApplicationsPage.refresh" />
                   </button>
-                  <button type="button" className={css.secondaryButton} onClick={handleLogout}>
-                    <FormattedMessage id="AdminCoachApplicationsPage.logout" />
-                  </button>
+                  {!isHqAdmin ? (
+                    <button type="button" className={css.secondaryButton} onClick={handleLogout}>
+                      <FormattedMessage id="AdminCoachApplicationsPage.logout" />
+                    </button>
+                  ) : null}
                 </div>
               </div>
 

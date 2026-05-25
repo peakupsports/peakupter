@@ -1,0 +1,13 @@
+{
+  "id": "cfe83728-c854-475d-a16f-762d97aca470",
+  "ambassadorUserId": "69e16a44-5217-4220-9f45-618ca5dcfe5d",
+  "type": "coach_applied",
+  "title": "New coach application",
+  "body": "Prova Ambassador  applied with your referral code.",
+  "meta": {
+    "applicationId": "278a8a57-2bab-4203-95d7-36d2444fb6b0",
+    "referralId": "52dc4afe-084c-444a-bfce-23e9a9db2ca3",
+    "applicantEmail": "giangio78@hotmail.com"
+  },
+  "createdAt": "2026-05-24T23:19:15.597Z"
+}

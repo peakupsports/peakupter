@@ -1,8 +1,8 @@
 /**
- * Client helpers for coach application admin API.
+ * Client helpers for PeakUp HQ admin API routes.
  *
- * Token is stored in sessionStorage after the admin gate — never commit tokens.
- * TODO: Replace with real operator/admin authentication.
+ * Authorized HQ users (see peakupAdmin.js) can call admin APIs via Sharetribe session.
+ * COACH_APPLICATION_ADMIN_TOKEN in .env is a dev/fallback when not signed in as HQ admin.
  */
 
 import { apiBaseUrl } from './api';
@@ -78,6 +78,12 @@ const adminFetch = async (path, options = {}) => {
 
 export const fetchCoachApplicationsList = () =>
   adminFetch('/api/coach-applications').then(data => data.applications || []);
+
+export const fetchAmbassadorActivationsList = () =>
+  adminFetch('/api/ambassador-activations').then(data => data.activations || []);
+
+export const fetchAmbassadorAdminOverview = () =>
+  adminFetch('/api/ambassador-admin/overview').then(data => data.overview);
 
 export const fetchCoachApplicationDetail = id =>
   adminFetch(`/api/coach-applications/${encodeURIComponent(id)}`).then(data => data.application);

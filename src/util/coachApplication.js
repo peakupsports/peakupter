@@ -50,6 +50,17 @@ export const getSubmitMode = () => {
     : COACH_APPLICATION_SUBMIT_MODES.API;
 };
 
+/** @param {unknown} value Final Form checkbox field value */
+export const isCoachApplicationCheckboxChecked = value => {
+  if (value === true || value === 'yes' || value === 'on') {
+    return true;
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+  return false;
+};
+
 /**
  * @param {File|null|undefined} file
  * @returns {Promise<{ name: string, type: string, size: number, dataBase64: string }|null>}
@@ -100,8 +111,7 @@ export const buildCoachApplicationPayload = async values => {
   return {
     hearAboutPeakUp: values.hearAboutPeakUp || '',
     ambassadorReferralCode: values.ambassadorReferralCode || '',
-    applyingIndependently: Boolean(values.applyingIndependently),
-    interestedInAmbassador: Boolean(values.interestedInAmbassador),
+    applyingIndependently: isCoachApplicationCheckboxChecked(values.applyingIndependently),
     fullName: values.fullName || '',
     email: values.email || '',
     phone: values.phone || '',
@@ -119,6 +129,7 @@ export const buildCoachApplicationPayload = async values => {
     confirmCorrect: Boolean(values.acceptVerification),
     acceptVerification: Boolean(values.acceptVerification),
     understandManualReview: Boolean(values.acceptVerification),
+    applicantUserId: values.applicantUserId || '',
     submittedAt: new Date().toISOString(),
     files: {
       idDocument,

@@ -364,12 +364,61 @@ export const isStripeDeletionFailedNonZeroBalance = error => {
   );
 };
 
+const isUselessErrorMessage = message =>
+  message == null || message === '' || message === '[object Object]';
+
+/**
+ * @param {*} error
+ * @param {string} fallback
+ * @returns {string}
+ */
+export const getReadableApiErrorMessage = (error, fallback) => {
+  if (!error) {
+    return fallback;
+  }
+  if (typeof error === 'string' && !isUselessErrorMessage(error)) {
+    return error;
+  }
+
+  const apiErrors =
+    error?.apiErrors ||
+    error?.data?.errors ||
+    error?.response?.data?.errors ||
+    null;
+
+  if (Array.isArray(apiErrors) && apiErrors.length > 0) {
+    const first = apiErrors[0];
+    const apiMessage = first?.detail || first?.title || first?.message;
+    if (apiMessage && !isUselessErrorMessage(apiMessage)) {
+      return String(apiMessage);
+    }
+  }
+
+  if (typeof error?.message === 'string' && !isUselessErrorMessage(error.message)) {
+    return error.message;
+  }
+
+  if (typeof error?.message === 'object' && error.message) {
+    try {
+      return JSON.stringify(error.message);
+    } catch (e) {
+      // fall through
+    }
+  }
+
+  if (error?.statusText && !isUselessErrorMessage(error.statusText)) {
+    return String(error.statusText);
+  }
+
+  return fallback;
+};
+
 /**
  * Human-readable message for auth/login errors (never return raw error objects to UI).
  *
  * @param {*} error
  * @param {string} [fallback]
- * @returns {string}
+ * @returns {string|null}
  */
 export const getAuthErrorMessage = (
   error,
@@ -378,17 +427,44 @@ export const getAuthErrorMessage = (
   if (!error) {
     return null;
   }
-  if (typeof error === 'string') {
-    return error;
-  }
-  return (
-    error?.message ||
-    error?.apiErrors?.[0]?.detail ||
-    error?.apiErrors?.[0]?.title ||
-    error?.data?.errors?.[0]?.detail ||
-    error?.statusText ||
-    fallback
-  );
+  return getReadableApiErrorMessage(error, fallback);
+};
+
+/**
+ * Human-readable signup error for UI and logs.
+ *
+ * @param {*} error
+ * @param {string} [fallback]
+ * @returns {string}
+ */
+export const getSignupErrorMessage = (
+  error,
+  fallback = 'Signup failed. Please check the details and try again.'
+) => getReadableApiErrorMessage(error, fallback);
+
+/**
+ * @param {*} error
+ * @param {object} [context]
+ */
+export const logSignupError = (error, context = {}) => {
+  const apiErrors =
+    error?.apiErrors ||
+    error?.data?.errors ||
+    error?.response?.data?.errors ||
+    null;
+
+  // eslint-disable-next-line no-console
+  console.error('[PeakUp Signup Error]', {
+    error,
+    message: error?.message,
+    name: error?.name,
+    status: error?.status,
+    statusText: error?.statusText,
+    apiErrors,
+    response: error?.response,
+    readableMessage: getSignupErrorMessage(error),
+    ...context,
+  });
 };
 
 /**
@@ -402,21 +478,31 @@ const normalizeStorableErrorMessage = message => {
     return '';
   }
   if (typeof message === 'string') {
-    return message;
+    return isUselessErrorMessage(message)
+      ? ''
+      : message;
   }
-  try {
-    return JSON.stringify(message);
-  } catch (e) {
-    return String(message);
+  if (typeof message === 'object') {
+    try {
+      return JSON.stringify(message);
+    } catch (e) {
+      return '';
+    }
   }
+  return String(message);
 };
 
 export const storableError = err => {
   const error = err || {};
   const { name, status, statusText } = error;
-  const message = normalizeStorableErrorMessage(error.message);
-  // Status, statusText, and data.errors are (possibly) added to the error object by SDK
   const apiErrors = responseAPIErrors(error);
+  const normalizedMessage = normalizeStorableErrorMessage(error.message);
+  const message =
+    normalizedMessage ||
+    getReadableApiErrorMessage(
+      { ...error, apiErrors: apiErrors.length ? apiErrors : error.apiErrors },
+      ''
+    );
 
   // Returned object is the same as prop type check in util/types -> error
   return {

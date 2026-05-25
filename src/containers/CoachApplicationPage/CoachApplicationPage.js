@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useSelector } from 'react-redux';
+import { Redirect, useLocation } from 'react-router-dom';
 
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
+import { ensureCurrentUser } from '../../util/data';
+import {
+  buildCoachSignupAuthSearch,
+  coachOnboardingSignupTo,
+  parseReferralCodeFromLocation,
+} from '../../util/coachOnboarding';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
 import { Page } from '../../components';
@@ -72,10 +79,33 @@ const CoachApplicationSuccess = () => (
 
 const CoachApplicationPage = () => {
   const intl = useIntl();
+  const location = useLocation();
   const config = useConfiguration();
   const scrollingDisabled = useSelector(isScrollingDisabled);
+  const isAuthenticated = useSelector(state => state.auth?.isAuthenticated);
+  const currentUser = useSelector(state => state.user?.currentUser);
   const [submitted, setSubmitted] = useState(false);
   const marketplaceName = config.branding.marketplaceName || 'PeakUp';
+
+  const initialReferralCode = useMemo(() => {
+    const ref = new URLSearchParams(location.search).get('ref');
+    return ref ? String(ref).trim() : '';
+  }, [location.search]);
+
+  const user = ensureCurrentUser(currentUser);
+  const ref = parseReferralCodeFromLocation(location);
+
+  if (!isAuthenticated || !user.id || !user.attributes.emailVerified) {
+    return (
+      <Redirect
+        to={{
+          pathname: '/signup',
+          search: buildCoachSignupAuthSearch({ ref }),
+          ...coachOnboardingSignupTo({ ref }),
+        }}
+      />
+    );
+  }
 
   const title = intl.formatMessage(
     { id: 'CoachApplicationPage.schemaTitle' },
@@ -120,7 +150,11 @@ const CoachApplicationPage = () => {
 
         <div className={pageCss.rail}>
           {!submitted ? (
-            <CoachApplicationForm onSuccess={() => setSubmitted(true)} />
+            <CoachApplicationForm
+              initialReferralCode={initialReferralCode}
+              currentUser={user}
+              onSuccess={() => setSubmitted(true)}
+            />
           ) : (
             <CoachApplicationSuccess />
           )}
