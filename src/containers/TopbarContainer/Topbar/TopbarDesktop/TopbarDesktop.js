@@ -18,8 +18,8 @@ import {
 
 import TopbarSearchForm from '../TopbarSearchForm/TopbarSearchForm';
 import CustomLinksMenu from './CustomLinksMenu/CustomLinksMenu';
-import { CreateServiceProfileMenuItem } from '../TopbarCreateServiceLink';
 import PeakUpHqIcon from '../../../PeakUpHq/PeakUpHqIcons';
+import TopbarInboxLink from '../TopbarInboxLink';
 
 import css from './TopbarDesktop.module.css';
 
@@ -43,48 +43,19 @@ const LoginLink = () => {
   );
 };
 
-const InboxLink = ({
-  saleNotificationCount = 0,
-  orderNotificationCount = 0,
-  currentUser,
-  inboxTab,
-}) => {
-  const totalNotificationCount = saleNotificationCount + orderNotificationCount;
-  const showInboxDot = totalNotificationCount > 0;
-  const notificationDot = showInboxDot ? <div className={css.notificationDot} /> : null;
-
-  if (typeof window !== 'undefined') {
-    // eslint-disable-next-line no-console
-    console.log('[PeakUp TOPBAR DOT]', {
-      saleCount: saleNotificationCount,
-      orderCount: orderNotificationCount,
-      totalCount: totalNotificationCount,
-    });
-  }
-  return (
-    <NamedLink
-      id="inbox-link"
-      className={css.topbarLink}
-      name="InboxPage"
-      params={{ tab: inboxTab }}
-    >
-      <span className={css.topbarLinkLabel}>
-        <FormattedMessage id="TopbarDesktop.inbox" />
-        {notificationDot}
-      </span>
-    </NamedLink>
-  );
-};
-
 const ProfileMenu = ({
   currentPage,
   currentUser,
   onLogout,
   showManageListingsLink,
-  showCreateListingsLink,
   showCoachCalendarLink,
   showAmbassadorMenu,
   showPeakUpHqLink,
+  coachNavMode,
+  canSwitchPlatformMode,
+  onExploreAsCustomer,
+  onReturnToCoachMode,
+  inboxTab,
   intl,
 }) => {
   const [ambassadorExpanded, setAmbassadorExpanded] = useState(() =>
@@ -100,13 +71,270 @@ const ProfileMenu = ({
   const currentPageClass = page => {
     const isAccountSettingsPage =
       page === 'AccountSettingsPage' && ACCOUNT_SETTINGS_PAGES.includes(currentPage);
-    return currentPage === page || isAccountSettingsPage ? css.currentPage : null;
+    const isInboxPage =
+      page?.indexOf('InboxPage') === 0 && currentPage?.indexOf('InboxPage') === 0;
+    return currentPage === page || isAccountSettingsPage || isInboxPage ? css.currentPage : null;
   };
 
   const ambassadorChildItemClass = classNames(
     css.menuAmbassadorChildItem,
     ambassadorExpanded ? css.menuAmbassadorChildItemExpanded : null
   );
+
+  const dashboardLink = (
+    <MenuItem key="CoachDashboardPage">
+      <NamedLink
+        className={classNames(
+          css.menuLink,
+          css.menuLinkWithIcon,
+          css.menuLinkDashboard,
+          currentPageClass('CoachDashboardPage')
+        )}
+        name="CoachDashboardPage"
+      >
+        <span className={css.menuItemBorder} />
+        <PeakUpHqIcon name="dashboard" className={css.menuLinkIconDashboard} />
+        <span className={css.menuLinkText}>
+          <FormattedMessage id="TopbarDesktop.dashboardLink" />
+        </span>
+      </NamedLink>
+    </MenuItem>
+  );
+
+  const listingsLink = showManageListingsLink ? (
+    <MenuItem key="ManageListingsPage">
+      <NamedLink
+        className={classNames(css.menuLink, currentPageClass('ManageListingsPage'))}
+        name="ManageListingsPage"
+      >
+        <span className={css.menuItemBorder} />
+        <FormattedMessage id="TopbarDesktop.listingsLink" />
+      </NamedLink>
+    </MenuItem>
+  ) : null;
+
+  const calendarLink = (
+    <MenuItem key="CoachCalendarPage">
+      <NamedLink
+        className={classNames(css.menuLink, currentPageClass('CoachCalendarPage'))}
+        name="CoachCalendarPage"
+      >
+        <span className={css.menuItemBorder} />
+        <FormattedMessage id="TopbarDesktop.coachCalendarLink" />
+      </NamedLink>
+    </MenuItem>
+  );
+
+  const earningsLink = (
+    <MenuItem key="CoachEarningsPage">
+      <NamedLink
+        className={classNames(css.menuLink, currentPageClass('CoachEarningsPage'))}
+        name="CoachEarningsPage"
+      >
+        <span className={css.menuItemBorder} />
+        <FormattedMessage id="TopbarDesktop.coachEarningsLink" />
+      </NamedLink>
+    </MenuItem>
+  );
+
+  const requestsLink = (
+    <MenuItem key="InboxPageRequests">
+      <NamedLink
+        className={classNames(css.menuLink, currentPageClass(`InboxPage:${inboxTab}`))}
+        name="InboxPage"
+        params={{ tab: inboxTab }}
+      >
+        <span className={css.menuItemBorder} />
+        <FormattedMessage id="TopbarDesktop.requestsLink" />
+      </NamedLink>
+    </MenuItem>
+  );
+
+  const profileSettingsLink = (
+    <MenuItem key="ProfileSettingsPage">
+      <NamedLink
+        className={classNames(css.menuLink, currentPageClass('ProfileSettingsPage'))}
+        name="ProfileSettingsPage"
+      >
+        <span className={css.menuItemBorder} />
+        <FormattedMessage id="TopbarDesktop.profileSettingsLink" />
+      </NamedLink>
+    </MenuItem>
+  );
+
+  const accountSettingsLink = (
+    <MenuItem key="AccountSettingsPage">
+      <NamedLink
+        className={classNames(css.menuLink, currentPageClass('AccountSettingsPage'))}
+        name="AccountSettingsPage"
+      >
+        <span className={css.menuItemBorder} />
+        <FormattedMessage id="TopbarDesktop.accountSettingsLink" />
+      </NamedLink>
+    </MenuItem>
+  );
+
+  const ambassadorMenuItems = showAmbassadorMenu
+    ? [
+        <MenuItem key="AmbassadorSeparatorBefore" rootClassName={css.menuSeparatorItem}>
+          <span
+            className={classNames(css.menuSeparator, css.menuSeparatorAmbassador)}
+            aria-hidden="true"
+          />
+        </MenuItem>,
+        <MenuItem key="AmbassadorToggle" rootClassName={css.menuAmbassadorToggleItem}>
+          <InlineTextButton
+            rootClassName={classNames(
+              css.menuAmbassadorToggle,
+              ambassadorExpanded ? css.menuAmbassadorToggleOpen : null
+            )}
+            aria-expanded={ambassadorExpanded}
+            aria-controls="profile-menu-ambassador-program profile-menu-ambassador-referral"
+            onClick={() => setAmbassadorExpanded(expanded => !expanded)}
+          >
+            <span className={css.menuAmbassadorToggleInner}>
+              <FormattedMessage id="TopbarDesktop.ambassadorToolsLink" />
+              <span className={css.menuAmbassadorChevron} aria-hidden="true" />
+            </span>
+          </InlineTextButton>
+        </MenuItem>,
+        <MenuItem key="AmbassadorSeparatorAfter" rootClassName={css.menuSeparatorItem}>
+          <span
+            className={classNames(css.menuSeparator, css.menuSeparatorAmbassador)}
+            aria-hidden="true"
+          />
+        </MenuItem>,
+        <MenuItem key="AmbassadorProgramPage" rootClassName={ambassadorChildItemClass}>
+          <NamedLink
+            className={classNames(
+              css.menuLink,
+              css.menuLinkAmbassador,
+              css.menuLinkAmbassadorNested,
+              currentPage === 'AmbassadorProgramPage' && css.currentPage
+            )}
+            name="AmbassadorProgramPage"
+            tabIndex={ambassadorExpanded ? undefined : -1}
+          >
+            <span className={css.menuItemBorder} />
+            <FormattedMessage id="TopbarDesktop.ambassadorProgramLink" />
+          </NamedLink>
+        </MenuItem>,
+        <MenuItem key="ReferralCenterPage" rootClassName={ambassadorChildItemClass}>
+          <NamedLink
+            className={classNames(
+              css.menuLink,
+              css.menuLinkAmbassador,
+              css.menuLinkAmbassadorNested,
+              currentPage === 'ReferralCenterPage' && css.currentPage
+            )}
+            name="ReferralCenterPage"
+            tabIndex={ambassadorExpanded ? undefined : -1}
+          >
+            <span className={css.menuItemBorder} />
+            <FormattedMessage id="TopbarDesktop.referralCenterLink" />
+          </NamedLink>
+        </MenuItem>,
+      ]
+    : [];
+
+  const peakUpHqLink = showPeakUpHqLink ? (
+    <MenuItem key="PeakUpHQPage">
+      <NamedLink
+        className={classNames(
+          css.menuLink,
+          css.menuLinkWithIcon,
+          css.menuLinkPeakUpHq,
+          isPeakUpHqRouteName(currentPage) && css.currentPage
+        )}
+        name="PeakUpHQPage"
+      >
+        <span className={css.menuItemBorder} />
+        <PeakUpHqIcon name="hq" className={css.menuLinkIconPeakUpHq} />
+        <span className={css.menuLinkText}>
+          <FormattedMessage id="TopbarDesktop.peakUpHqLink" />
+        </span>
+      </NamedLink>
+    </MenuItem>
+  ) : null;
+
+  const exploreAsCustomerItem = (
+    <MenuItem key="ExploreAsCustomer">
+      <InlineTextButton rootClassName={css.menuModeSwitch} onClick={onExploreAsCustomer}>
+        <span className={css.menuItemBorder} />
+        <FormattedMessage id="TopbarDesktop.exploreAsCustomerLink" />
+      </InlineTextButton>
+    </MenuItem>
+  );
+
+  const returnToCoachItem = (
+    <MenuItem key="ReturnToCoachMode">
+      <InlineTextButton rootClassName={classNames(css.menuModeSwitch, css.menuModeSwitchCoach)} onClick={onReturnToCoachMode}>
+        <span className={css.menuItemBorder} />
+        <PeakUpHqIcon name="dashboard" className={css.menuLinkIconDashboard} />
+        <span className={css.menuLinkText}>
+          <FormattedMessage id="TopbarDesktop.returnToCoachDashboardLink" />
+        </span>
+      </InlineTextButton>
+    </MenuItem>
+  );
+
+  const modeSeparator = (
+    <MenuItem key="ModeSeparator" rootClassName={css.menuSeparatorItem}>
+      <span className={css.menuSeparator} aria-hidden="true" />
+    </MenuItem>
+  );
+
+  const logoutItem = (
+    <MenuItem key="logout">
+      <InlineTextButton rootClassName={css.logoutButton} onClick={onLogout}>
+        <span className={css.menuItemBorder} />
+        <FormattedMessage id="TopbarDesktop.logout" />
+      </InlineTextButton>
+    </MenuItem>
+  );
+
+  let menuItems = [];
+
+  if (coachNavMode) {
+    menuItems = [
+      dashboardLink,
+      listingsLink,
+      calendarLink,
+      earningsLink,
+      requestsLink,
+      ...ambassadorMenuItems,
+      profileSettingsLink,
+      modeSeparator,
+      exploreAsCustomerItem,
+      peakUpHqLink,
+      logoutItem,
+    ];
+  } else if (canSwitchPlatformMode) {
+    menuItems = [
+      profileSettingsLink,
+      accountSettingsLink,
+      modeSeparator,
+      returnToCoachItem,
+      peakUpHqLink,
+      logoutItem,
+    ];
+  } else if (showCoachCalendarLink) {
+    menuItems = [
+      dashboardLink,
+      listingsLink,
+      calendarLink,
+      earningsLink,
+      profileSettingsLink,
+      accountSettingsLink,
+      ...ambassadorMenuItems,
+      peakUpHqLink,
+      logoutItem,
+    ];
+  } else {
+    menuItems = [profileSettingsLink, accountSettingsLink, peakUpHqLink, logoutItem];
+  }
+
+  menuItems = menuItems.filter(Boolean);
 
   return (
     <Menu skipFocusOnNavigation={true}>
@@ -118,157 +346,7 @@ const ProfileMenu = ({
       >
         <Avatar className={css.avatar} user={currentUser} disableProfileLink />
       </MenuLabel>
-      <MenuContent className={css.profileMenuContent}>
-        {showCreateListingsLink ? (
-          <MenuItem key="NewListingPage">
-            <CreateServiceProfileMenuItem currentPageClass={currentPageClass} />
-          </MenuItem>
-        ) : null}
-        {showManageListingsLink ? (
-          <MenuItem key="ManageListingsPage">
-            <NamedLink
-              className={classNames(css.menuLink, currentPageClass('ManageListingsPage'))}
-              name="ManageListingsPage"
-            >
-              <span className={css.menuItemBorder} />
-              <FormattedMessage id="TopbarDesktop.yourListingsLink" />
-            </NamedLink>
-          </MenuItem>
-        ) : null}
-        {showCoachCalendarLink ? (
-          <MenuItem key="CoachCalendarPage">
-            <NamedLink
-              className={classNames(css.menuLink, currentPageClass('CoachCalendarPage'))}
-              name="CoachCalendarPage"
-            >
-              <span className={css.menuItemBorder} />
-              <FormattedMessage id="TopbarDesktop.coachCalendarLink" />
-            </NamedLink>
-          </MenuItem>
-        ) : null}
-        {showCoachCalendarLink ? (
-          <MenuItem key="CoachEarningsPage">
-            <NamedLink
-              className={classNames(css.menuLink, currentPageClass('CoachEarningsPage'))}
-              name="CoachEarningsPage"
-            >
-              <span className={css.menuItemBorder} />
-              <FormattedMessage id="TopbarDesktop.coachEarningsLink" />
-            </NamedLink>
-          </MenuItem>
-        ) : null}
-        <MenuItem key="ProfileSettingsPage">
-          <NamedLink
-            className={classNames(css.menuLink, currentPageClass('ProfileSettingsPage'))}
-            name="ProfileSettingsPage"
-          >
-            <span className={css.menuItemBorder} />
-            <FormattedMessage id="TopbarDesktop.profileSettingsLink" />
-          </NamedLink>
-        </MenuItem>
-        <MenuItem key="AccountSettingsPage">
-          <NamedLink
-            className={classNames(css.menuLink, currentPageClass('AccountSettingsPage'))}
-            name="AccountSettingsPage"
-          >
-            <span className={css.menuItemBorder} />
-            <FormattedMessage id="TopbarDesktop.accountSettingsLink" />
-          </NamedLink>
-        </MenuItem>
-        {showAmbassadorMenu ? (
-          <MenuItem key="AmbassadorSeparatorBefore" rootClassName={css.menuSeparatorItem}>
-            <span
-              className={classNames(css.menuSeparator, css.menuSeparatorAmbassador)}
-              aria-hidden="true"
-            />
-          </MenuItem>
-        ) : null}
-        {showAmbassadorMenu ? (
-          <MenuItem key="AmbassadorToggle" rootClassName={css.menuAmbassadorToggleItem}>
-            <InlineTextButton
-              rootClassName={classNames(
-                css.menuAmbassadorToggle,
-                ambassadorExpanded ? css.menuAmbassadorToggleOpen : null
-              )}
-              aria-expanded={ambassadorExpanded}
-              aria-controls="profile-menu-ambassador-program profile-menu-ambassador-referral"
-              onClick={() => setAmbassadorExpanded(expanded => !expanded)}
-            >
-              <span className={css.menuAmbassadorToggleInner}>
-                <FormattedMessage id="TopbarDesktop.ambassadorSectionLabel" />
-                <span className={css.menuAmbassadorChevron} aria-hidden="true" />
-              </span>
-            </InlineTextButton>
-          </MenuItem>
-        ) : null}
-        {showAmbassadorMenu ? (
-          <MenuItem key="AmbassadorSeparatorAfter" rootClassName={css.menuSeparatorItem}>
-            <span
-              className={classNames(css.menuSeparator, css.menuSeparatorAmbassador)}
-              aria-hidden="true"
-            />
-          </MenuItem>
-        ) : null}
-        {showAmbassadorMenu ? (
-          <MenuItem key="AmbassadorProgramPage" rootClassName={ambassadorChildItemClass}>
-            <NamedLink
-              className={classNames(
-                css.menuLink,
-                css.menuLinkAmbassador,
-                css.menuLinkAmbassadorNested,
-                currentPage === 'AmbassadorProgramPage' && css.currentPage
-              )}
-              name="AmbassadorProgramPage"
-              tabIndex={ambassadorExpanded ? undefined : -1}
-            >
-              <span className={css.menuItemBorder} />
-              <FormattedMessage id="TopbarDesktop.ambassadorProgramLink" />
-            </NamedLink>
-          </MenuItem>
-        ) : null}
-        {showAmbassadorMenu ? (
-          <MenuItem key="ReferralCenterPage" rootClassName={ambassadorChildItemClass}>
-            <NamedLink
-              className={classNames(
-                css.menuLink,
-                css.menuLinkAmbassador,
-                css.menuLinkAmbassadorNested,
-                currentPage === 'ReferralCenterPage' && css.currentPage
-              )}
-              name="ReferralCenterPage"
-              tabIndex={ambassadorExpanded ? undefined : -1}
-            >
-              <span className={css.menuItemBorder} />
-              <FormattedMessage id="TopbarDesktop.referralCenterLink" />
-            </NamedLink>
-          </MenuItem>
-        ) : null}
-        {showPeakUpHqLink ? (
-          <MenuItem key="PeakUpHQPage">
-            <NamedLink
-              className={classNames(
-                css.menuLink,
-                css.menuLinkWithIcon,
-                css.menuLinkPeakUpHq,
-                isPeakUpHqRouteName(currentPage) && css.currentPage
-              )}
-              name="PeakUpHQPage"
-            >
-              <span className={css.menuItemBorder} />
-              <PeakUpHqIcon name="hq" className={css.menuLinkIconPeakUpHq} />
-              <span className={css.menuLinkText}>
-                <FormattedMessage id="TopbarDesktop.peakUpHqLink" />
-              </span>
-            </NamedLink>
-          </MenuItem>
-        ) : null}
-        <MenuItem key="logout">
-          <InlineTextButton rootClassName={css.logoutButton} onClick={onLogout}>
-            <span className={css.menuItemBorder} />
-            <FormattedMessage id="TopbarDesktop.logout" />
-          </InlineTextButton>
-        </MenuItem>
-      </MenuContent>
+      <MenuContent className={css.profileMenuContent}>{menuItems}</MenuContent>
     </Menu>
   );
 };
@@ -314,6 +392,11 @@ const TopbarDesktop = props => {
     showSearchForm,
     showCreateListingsLink,
     showCoachCalendarLink,
+    coachNavMode,
+    canSwitchPlatformMode,
+    onExploreAsCustomer,
+    onReturnToCoachMode,
+    logoLinkName = 'LandingPage',
     inboxTab,
     topbarCenterContent,
   } = props;
@@ -331,16 +414,20 @@ const TopbarDesktop = props => {
   const classes = classNames(
     rootClassName || css.root,
     chromeTheme === 'sportPremium' ? css.rootSportPremium : null,
+    coachNavMode ? css.rootCoachNav : null,
     currentPage === 'CoachMapPage' ? css.rootCoachMap : null,
     className
   );
 
   const inboxLinkMaybe = authenticatedOnClientSide ? (
-    <InboxLink
+    <TopbarInboxLink
       saleNotificationCount={currentUserSaleNotificationCount}
       orderNotificationCount={currentUserOrderNotificationCount}
-      currentUser={currentUser}
       inboxTab={inboxTab}
+      coachNavMode={coachNavMode}
+      currentPage={currentPage}
+      className={css.topbarLink}
+      labelClassName={coachNavMode ? undefined : css.topbarLinkLabel}
     />
   ) : null;
 
@@ -353,10 +440,14 @@ const TopbarDesktop = props => {
       currentUser={currentUser}
       onLogout={onLogout}
       showManageListingsLink={showCreateListingsLink}
-      showCreateListingsLink={showCreateListingsLink}
       showCoachCalendarLink={showCoachCalendarLink}
       showAmbassadorMenu={showAmbassadorMenu}
       showPeakUpHqLink={showPeakUpHqLink}
+      coachNavMode={coachNavMode}
+      canSwitchPlatformMode={canSwitchPlatformMode}
+      onExploreAsCustomer={onExploreAsCustomer}
+      onReturnToCoachMode={onReturnToCoachMode}
+      inboxTab={inboxTab}
       intl={intl}
     />
   ) : null;
@@ -394,12 +485,14 @@ const TopbarDesktop = props => {
 
   const rightActionsMaybe = (
     <>
-      <CustomLinksMenu
-        currentPage={currentPage}
-        customLinks={customLinks}
-        intl={intl}
-        hasClientSideContentReady={authenticatedOnClientSide || !isAuthenticatedOrJustHydrated}
-      />
+      {!coachNavMode ? (
+        <CustomLinksMenu
+          currentPage={currentPage}
+          customLinks={customLinks}
+          intl={intl}
+          hasClientSideContentReady={authenticatedOnClientSide || !isAuthenticatedOrJustHydrated}
+        />
+      ) : null}
       {inboxLinkMaybe}
       {profileMenuMaybe}
       {signupLinkMaybe}
@@ -421,6 +514,7 @@ const TopbarDesktop = props => {
           layout="desktop"
           alt={intl.formatMessage({ id: 'TopbarDesktop.logo' }, { marketplaceName })}
           linkToExternalSite={config?.topbar?.logoLink}
+          linkName={logoLinkName}
         />
       </div>
 

@@ -3,6 +3,8 @@ import { Redirect, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { authenticationInProgress, clearPostLoginRedirectPending } from '../ducks/auth.duck';
+import { setPlatformMode } from '../ducks/peakupPlatformMode.duck';
+import { PLATFORM_MODE_COACH } from '../util/peakupPlatformMode';
 import { getPostLoginRedirectState, logPostLoginGateState } from '../util/coachOnboarding';
 
 import AuthFlowBlankPage from './AuthFlowBlankPage';
@@ -65,6 +67,9 @@ const PostLoginRedirectGate = ({ children }) => {
     }
 
     if (redirectState.redirectDecisionComplete && postLoginRedirectPending) {
+      if (redirectState.target === '/coach-dashboard') {
+        dispatch(setPlatformMode(PLATFORM_MODE_COACH));
+      }
       dispatch(clearPostLoginRedirectPending());
     }
   }, [

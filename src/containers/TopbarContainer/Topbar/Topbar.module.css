@@ -82,6 +82,25 @@
   box-shadow: none;
 }
 
+.containerCoachNav {
+  align-items: center;
+}
+
+.containerCoachNav .menu,
+.containerCoachNav .searchMenu {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.containerCoachNav :global(a[class*='TopbarInboxLink_inboxLinkCoachModeMobile']) {
+  min-height: unset;
+  height: 100%;
+  padding: 0 16px;
+}
+
 .containerSportPremium .menu,
 .containerSportPremium .searchMenu {
   color: rgba(244, 246, 250, 0.86);

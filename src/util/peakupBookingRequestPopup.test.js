@@ -1,6 +1,8 @@
 import { getProcess } from '../transactions/transaction';
 import { createTransaction } from './testData';
 import {
+  COACH_DASHBOARD_ROUTE_NAME,
+  canShowBookingRequestPopup,
   isProviderNewBookingRequest,
   markBookingRequestPopupSeen,
   pickNewBookingRequestForPopup,
@@ -51,5 +53,39 @@ describe('peakupBookingRequestPopup', () => {
     markBookingRequestPopupSeen(providerId, 'tx-1');
     expect(wasBookingRequestPopupSeen(providerId, 'tx-1')).toBe(true);
     expect(pickNewBookingRequestForPopup([tx], currentUser)).toBe(null);
+  });
+
+  it('allows popup only on coach dashboard in coach mode with sale notifications', () => {
+    expect(
+      canShowBookingRequestPopup({
+        routeName: COACH_DASHBOARD_ROUTE_NAME,
+        isCoachMode: true,
+        saleNotificationCount: 1,
+      })
+    ).toBe(true);
+
+    expect(
+      canShowBookingRequestPopup({
+        routeName: 'InboxPage',
+        isCoachMode: true,
+        saleNotificationCount: 1,
+      })
+    ).toBe(false);
+
+    expect(
+      canShowBookingRequestPopup({
+        routeName: COACH_DASHBOARD_ROUTE_NAME,
+        isCoachMode: false,
+        saleNotificationCount: 1,
+      })
+    ).toBe(false);
+
+    expect(
+      canShowBookingRequestPopup({
+        routeName: COACH_DASHBOARD_ROUTE_NAME,
+        isCoachMode: true,
+        saleNotificationCount: 0,
+      })
+    ).toBe(false);
   });
 });

@@ -205,6 +205,44 @@ export const buildBookingSessionsIndex = sessions => {
   return byDateKey;
 };
 
+/** Accepted coach bookings with a session start in the future. */
+export const COACH_UPCOMING_SESSION_STATES = new Set(['accepted']);
+
+/**
+ * @param {Object} transaction
+ * @param {Date} [now]
+ * @returns {boolean}
+ */
+export const isUpcomingCoachSessionTransaction = (transaction, now = new Date()) => {
+  const rawName = transaction?.attributes?.processName;
+  const isBooking = rawName?.includes('/')
+    ? isBookingProcessAlias(rawName)
+    : isBookingProcess(resolveLatestProcessName(rawName));
+
+  if (!isBooking || !transaction?.booking?.attributes?.start) {
+    return false;
+  }
+
+  const info = getBookingProcessStateInfo(transaction);
+  if (!info || !COACH_UPCOMING_SESSION_STATES.has(info.processState)) {
+    return false;
+  }
+
+  const unitLineItem = getUnitLineItem(transaction);
+  const timeZone = transaction?.listing?.attributes?.availabilityPlan?.timezone || 'Etc/UTC';
+  const { bookingStart } = getBookingWindow(transaction, unitLineItem?.code, timeZone);
+
+  return new Date(bookingStart).getTime() > now.getTime();
+};
+
+/**
+ * @param {Array<Object>} transactions
+ * @param {Date} [now]
+ * @returns {number}
+ */
+export const countUpcomingCoachSessions = (transactions, now = new Date()) =>
+  (transactions || []).filter(tx => isUpcomingCoachSessionTransaction(tx, now)).length;
+
 const fetchSalesPage = (sdk, page) =>
   sdk.transactions.query({
     only: 'sale',
@@ -253,6 +291,34 @@ const fetchAllSalesForMonth = async (sdk, monthBounds, dispatch) => {
     );
     return bookingOverlapsMonth(bookingStart, bookingEnd, monthBounds);
   });
+};
+
+/**
+ * Fetch all provider-side booking sales (used by coach dashboard stats).
+ *
+ * @param {Object} sdk
+ * @param {Function} [dispatch]
+ * @returns {Promise<Array<Object>>}
+ */
+export const fetchAllCoachSalesBookings = async (sdk, dispatch) => {
+  const transactions = [];
+  let page = 1;
+  let totalPages = 1;
+
+  while (page <= totalPages) {
+    // eslint-disable-next-line no-await-in-loop
+    const response = await fetchSalesPage(sdk, page);
+    if (dispatch) {
+      dispatch(addMarketplaceEntities(response));
+    }
+    transactions.push(...denormalisedResponseEntities(response));
+
+    const meta = response?.data?.meta || {};
+    totalPages = meta.totalPages || 1;
+    page += 1;
+  }
+
+  return transactions;
 };
 
 const fetchCoachCalendarBookingsPayloadCreator = async (

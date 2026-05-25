@@ -305,6 +305,26 @@ export const fetchInboxNotificationsIfReady =
   );
   };
 
+/**
+ * Re-fetch inbox notification counts (polling, focus, route change).
+ * Unlike fetchInboxNotificationsIfReady, always runs when the user is authenticated.
+ */
+export const refreshInboxNotifications = () => (dispatch, getState) => {
+  const state = getState();
+  const currentUserId = state.user?.currentUser?.id?.uuid;
+  const { isAuthenticated } = state.auth || {};
+
+  if (!isAuthenticated || !currentUserId) {
+    return Promise.resolve(null);
+  }
+
+  if (state.user?.inboxNotificationsFetchInProgress) {
+    return Promise.resolve(null);
+  }
+
+  return dispatch(fetchCurrentUserNotifications());
+};
+
 const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
   const { getState, dispatch, extra: sdk, rejectWithValue } = thunkAPI;
   const state = getState();

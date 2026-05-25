@@ -52,6 +52,64 @@
   box-shadow: none;
 }
 
+/* Coach mode: compact topbar — logo, inbox and avatar vertically centered. */
+.rootCoachNav {
+  align-items: center;
+}
+
+.rootCoachNav .leftSlot,
+.rootCoachNav .middleSlot,
+.rootCoachNav .rightSlot {
+  align-items: center;
+  height: 100%;
+}
+
+.rootCoachNav .logoLink {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.rootCoachNav .logoWrap {
+  height: auto;
+}
+
+.rootCoachNav .middleSlot .spacer {
+  min-width: 0;
+  width: auto;
+  padding: 0;
+  border-left: none;
+}
+
+.rootCoachNav .rightSlot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+}
+
+.rootCoachNav :global(#inbox-link).topbarLink {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.rootCoachNav .profileMenuLabel {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.rootCoachNav .topbarLinkLabel {
+  margin: 0;
+}
+
 .rootSportPremium .topbarLink,
 .rootSportPremium .profileMenuLabel,
 .rootSportPremium .search {
@@ -688,6 +746,11 @@
   transform: translateY(-0.5px);
 }
 
+.menuLinkDashboard .menuLinkText {
+  line-height: 1.25;
+  transform: translateY(-0.5px);
+}
+
 .menuLinkIconPeakUpHq {
   flex-shrink: 0;
   display: inline-flex;
@@ -710,6 +773,58 @@
 .menuLinkPeakUpHq:focus .menuLinkIconPeakUpHq {
   color: rgba(57, 243, 209, 0.92);
   filter: drop-shadow(0 0 3px rgba(57, 243, 209, 0.18));
+}
+
+.menuLinkIconDashboard {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: rgba(23, 217, 255, 0.82);
+  filter: drop-shadow(0 0 2px rgba(23, 217, 255, 0.12));
+  transform: translateY(0.5px);
+  transition: color 180ms ease, filter 180ms ease;
+}
+
+.menuLinkIconDashboard svg {
+  width: 14px;
+  height: 14px;
+}
+
+.menuLinkDashboard:hover .menuLinkIconDashboard,
+.menuLinkDashboard:focus .menuLinkIconDashboard {
+  color: rgba(57, 243, 209, 0.92);
+  filter: drop-shadow(0 0 3px rgba(57, 243, 209, 0.18));
+}
+
+.menuModeSwitch {
+  composes: menuLink;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  color: rgba(157, 255, 79, 0.88);
+}
+
+.menuModeSwitch:hover,
+.menuModeSwitch:focus {
+  color: #9dff4f;
+}
+
+.menuModeSwitchCoach {
+  color: rgba(23, 217, 255, 0.9);
+}
+
+.menuModeSwitchCoach:hover,
+.menuModeSwitchCoach:focus {
+  color: #39f3d1;
 }
 
 .menuSeparatorItem {

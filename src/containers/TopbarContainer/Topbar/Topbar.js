@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect } from 'react';
 import classNames from 'classnames';
+import { useDispatch, useSelector } from 'react-redux';
 
 import appSettings from '../../../config/settings';
 import { useConfiguration } from '../../../context/configurationContext';
@@ -35,11 +36,21 @@ import SearchIcon from './SearchIcon';
 import TopbarSearchForm from './TopbarSearchForm/TopbarSearchForm';
 import TopbarMobileMenu from './TopbarMobileMenu/TopbarMobileMenu';
 import TopbarDesktop from './TopbarDesktop/TopbarDesktop';
+import TopbarInboxLink from './TopbarInboxLink';
 
 import css from './Topbar.module.css';
 import { getCurrentUserTypeRoles, showCreateListingLinkForUser } from '../../../util/userHelpers';
 import { showAmbassadorMenuForUser } from '../../../util/ambassadorNav';
 import { isPeakUpHqAdmin } from '../../../util/peakupAdmin';
+import { canUseCoachPlatformMode, isCoachPlatformMode, readPlatformModeFromStorage, resolvePlatformMode } from '../../../util/peakupPlatformMode';
+import {
+  hydratePlatformMode,
+  selectPlatformMode,
+  selectPlatformModeHydrated,
+  setPlatformMode,
+} from '../../../ducks/peakupPlatformMode.duck';
+import { PLATFORM_MODE_COACH, PLATFORM_MODE_CUSTOMER } from '../../../util/peakupPlatformMode';
+import useInboxNotificationRefresh from '../../../util/useInboxNotificationRefresh';
 
 const MAX_MOBILE_SCREEN_WIDTH = 1024;
 
@@ -250,6 +261,38 @@ const TopbarComponent = props => {
     });
   };
 
+  const dispatch = useDispatch();
+  const platformMode = useSelector(selectPlatformMode);
+  const platformModeHydrated = useSelector(selectPlatformModeHydrated);
+
+  useEffect(() => {
+    if (currentUser?.id) {
+      dispatch(hydratePlatformMode(currentUser));
+    }
+  }, [currentUser?.id, dispatch]);
+
+  const canSwitchPlatformMode = canUseCoachPlatformMode(currentUser);
+  const effectivePlatformMode = platformModeHydrated
+    ? platformMode
+    : resolvePlatformMode(currentUser, readPlatformModeFromStorage());
+  const coachNavMode = canSwitchPlatformMode && isCoachPlatformMode(effectivePlatformMode);
+  const isCoachNavModeReady = !canSwitchPlatformMode || platformModeHydrated;
+
+  useInboxNotificationRefresh({
+    enabled: isAuthenticated && !!currentUser?.id,
+    debugLabel: 'Topbar',
+  });
+
+  const handleExploreAsCustomer = useCallback(() => {
+    dispatch(setPlatformMode(PLATFORM_MODE_CUSTOMER));
+    history.push(pathByRouteName('LandingPage', routeConfiguration));
+  }, [dispatch, history, routeConfiguration]);
+
+  const handleReturnToCoachMode = useCallback(() => {
+    dispatch(setPlatformMode(PLATFORM_MODE_COACH));
+    history.push(pathByRouteName('CoachDashboardPage', routeConfiguration));
+  }, [dispatch, history, routeConfiguration]);
+
   const showCreateListingsLink = showCreateListingLinkForUser(config, currentUser);
   const { customer: isCustomer, provider: isProvider } = getCurrentUserTypeRoles(
     config,
@@ -265,7 +308,9 @@ const TopbarComponent = props => {
    * - if only customer role – orders
    * - if both roles – determine by currentUserHasListings value
    */
-  const topbarInboxTab = !isCustomer
+  const topbarInboxTab = coachNavMode
+    ? 'sales'
+    : !isCustomer
     ? 'sales'
     : !isProvider
     ? 'orders'
@@ -281,6 +326,9 @@ const TopbarComponent = props => {
   // Custom links are sorted so that group="primary" are always at the beginning of the list.
   const sortedCustomLinks = sortCustomLinks(config.topbar?.customLinks);
   const customLinks = getResolvedCustomLinks(sortedCustomLinks, routeConfiguration, location);
+  const discoveryTopbarEnabled = isCoachNavModeReady && !coachNavMode;
+  const topbarCustomLinks = discoveryTopbarEnabled ? customLinks : [];
+  const logoLinkName = coachNavMode ? 'CoachDashboardPage' : 'LandingPage';
   const resolvedCurrentPage = currentPage || getResolvedCurrentPage(location, routeConfiguration);
   const isSportPremiumChrome = chromeTheme === 'sportPremium';
 
@@ -361,17 +409,11 @@ const TopbarComponent = props => {
 
   const totalNotificationCount =
     currentUserSaleNotificationCount + currentUserOrderNotificationCount;
-  const showInboxDot = totalNotificationCount > 0;
+  const coachInboxNotificationCount = coachNavMode
+    ? currentUserSaleNotificationCount
+    : totalNotificationCount;
+  const showInboxDot = coachInboxNotificationCount > 0;
   const notificationDot = showInboxDot ? <div className={css.notificationDot} /> : null;
-
-  if (typeof window !== 'undefined') {
-    // eslint-disable-next-line no-console
-    console.log('[PeakUp TOPBAR DOT]', {
-      saleCount: currentUserSaleNotificationCount,
-      orderCount: currentUserOrderNotificationCount,
-      totalCount: totalNotificationCount,
-    });
-  }
 
   const hasMatchMedia = typeof window !== 'undefined' && window?.matchMedia;
   const isMobileLayout = hasMatchMedia
@@ -387,11 +429,15 @@ const TopbarComponent = props => {
       onLogout={handleLogout}
       notificationCount={notificationCount}
       currentPage={resolvedCurrentPage}
-      customLinks={customLinks}
+      customLinks={topbarCustomLinks}
       showCreateListingsLink={showCreateListingsLink}
       showCoachCalendarLink={showCoachCalendarLink}
       showAmbassadorMenu={showAmbassadorMenu}
       showPeakUpHqLink={showPeakUpHqLink}
+      coachNavMode={coachNavMode}
+      canSwitchPlatformMode={canSwitchPlatformMode}
+      onExploreAsCustomer={handleExploreAsCustomer}
+      onReturnToCoachMode={handleReturnToCoachMode}
       inboxTab={topbarInboxTab}
     />
   );
@@ -451,7 +497,12 @@ const TopbarComponent = props => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolvedCurrentPage, currentSportFromUrl, handleGlobalSportChange]);
 
-  const mobileSearchButtonMaybe = showSearchForm ? (
+  const showSearchFormEffective =
+    discoveryTopbarEnabled &&
+    !disableSearch &&
+    (showSearchOnAllPages || showSearchOnSearchPage || showSearchNotOnLandingPage);
+
+  const mobileSearchButtonMaybe = showSearchFormEffective ? (
     <Button
       id={MOBILE_SEARCH_BUTTON_ID}
       rootClassName={css.searchMenu}
@@ -466,6 +517,23 @@ const TopbarComponent = props => {
   ) : (
     <div className={css.searchMenu} />
   );
+
+  const mobileCoachInboxMaybe =
+    coachNavMode && isAuthenticated ? (
+      <TopbarInboxLink
+        id="inbox-link-mobile"
+        saleNotificationCount={currentUserSaleNotificationCount}
+        orderNotificationCount={currentUserOrderNotificationCount}
+        inboxTab={topbarInboxTab}
+        coachNavMode={coachNavMode}
+        currentPage={resolvedCurrentPage}
+        variant="mobile"
+      />
+    ) : null;
+
+  const mobileRightSlotMaybe = coachNavMode && isAuthenticated
+    ? mobileCoachInboxMaybe
+    : mobileSearchButtonMaybe;
 
   const handleSkipToMainContent = e => {
     e.preventDefault();
@@ -504,6 +572,7 @@ const TopbarComponent = props => {
         className={classNames(
           mobileRootClassName || css.container,
           isSportPremiumChrome ? css.containerSportPremium : null,
+          coachNavMode ? css.containerCoachNav : null,
           resolvedCurrentPage === 'CoachMapPage' ? css.containerCoachMap : null,
           mobileClassName
         )}
@@ -525,8 +594,9 @@ const TopbarComponent = props => {
           layout={'mobile'}
           alt={intl.formatMessage({ id: 'Topbar.logoIcon' })}
           linkToExternalSite={config?.topbar?.logoLink}
+          linkName={logoLinkName}
         />
-        {mobileSearchButtonMaybe}
+        {mobileRightSlotMaybe}
       </nav>
       <div className={css.desktop}>
         <TopbarDesktop
@@ -544,21 +614,29 @@ const TopbarComponent = props => {
           onLogout={handleLogout}
           onSearchSubmit={handleSubmit}
           config={config}
-          customLinks={customLinks}
+          customLinks={topbarCustomLinks}
           showSearchForm={
-            GLOBAL_SPORTBAR_PAGES.includes(resolvedCurrentPage) ||
+            discoveryTopbarEnabled &&
+            (GLOBAL_SPORTBAR_PAGES.includes(resolvedCurrentPage) ||
             (resolvedCurrentPage === 'CoachMapPage' && topbarCenterContent)
               ? false
-              : showSearchForm
+              : showSearchFormEffective)
           }
           showCreateListingsLink={showCreateListingsLink}
           showCoachCalendarLink={showCoachCalendarLink}
+          coachNavMode={coachNavMode}
+          canSwitchPlatformMode={canSwitchPlatformMode}
+          onExploreAsCustomer={handleExploreAsCustomer}
+          onReturnToCoachMode={handleReturnToCoachMode}
+          logoLinkName={logoLinkName}
           inboxTab={topbarInboxTab}
           topbarCenterContent={
-            topbarCenterContent ||
-            (GLOBAL_SPORTBAR_PAGES.includes(resolvedCurrentPage)
-              ? globalSportBarCenterContent
-              : null)
+            discoveryTopbarEnabled
+              ? topbarCenterContent ||
+                (GLOBAL_SPORTBAR_PAGES.includes(resolvedCurrentPage)
+                  ? globalSportBarCenterContent
+                  : null)
+              : null
           }
         />
       </div>

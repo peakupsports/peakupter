@@ -61,6 +61,14 @@ const ICONS = {
       <path {...stroke} d="M4 18h16M6 14l3-4 3 3 5-7 2 3" />
     </svg>
   ),
+  dashboard: (
+    <svg {...iconProps}>
+      <rect {...stroke} x="4" y="4" width="7" height="7" rx="1.2" />
+      <rect {...stroke} x="13" y="4" width="7" height="7" rx="1.2" />
+      <rect {...stroke} x="4" y="13" width="7" height="7" rx="1.2" />
+      <rect {...stroke} x="13" y="13" width="7" height="7" rx="1.2" />
+    </svg>
+  ),
 };
 
 /**

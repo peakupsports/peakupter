@@ -7,6 +7,23 @@ import {
 
 const POPUP_SEEN_STORAGE_PREFIX = 'peakupBookingRequestPopupSeen';
 
+export const COACH_DASHBOARD_ROUTE_NAME = 'CoachDashboardPage';
+
+/**
+ * Whether the new-booking popup may appear on the current page.
+ *
+ * @param {{ routeName: string|null, isCoachMode: boolean, saleNotificationCount: number }} params
+ * @returns {boolean}
+ */
+export const canShowBookingRequestPopup = ({
+  routeName,
+  isCoachMode,
+  saleNotificationCount,
+}) =>
+  isCoachMode === true &&
+  routeName === COACH_DASHBOARD_ROUTE_NAME &&
+  saleNotificationCount > 0;
+
 export const getBookingRequestPopupSeenKey = userId => `${POPUP_SEEN_STORAGE_PREFIX}:${userId}`;
 
 const readSeenIds = userId => {

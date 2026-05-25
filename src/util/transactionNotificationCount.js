@@ -2,7 +2,12 @@ import { denormalisedResponseEntities } from './data';
 import { getProcess } from '../transactions/transaction';
 import { transitions as bookingTransitions } from '../transactions/transactionProcessBooking';
 import { transitions as inquiryTransitions } from '../transactions/transactionProcessInquiry';
-import { getMessageSenderUuid, shouldCountTransactionAsUnread } from './unreadNotifications';
+import { isProviderNewBookingRequest } from './peakupBookingRequestPopup';
+import {
+  getMessageSenderUuid,
+  getTransactionReadAt,
+  shouldCountTransactionAsUnread,
+} from './unreadNotifications';
 
 // Transaction states where inbox attention depends on messaging, not only process state.
 export const MESSAGE_ATTENTION_STATES = new Set(['inquiry', 'free-inquiry']);
@@ -343,6 +348,24 @@ const isActivityAcknowledged = (currentUserId, transactionId, activityAt) => {
   return isMessageAcknowledged(currentUserId, transactionId, activityAt);
 };
 
+const hasUnreadStateAttention = (tx, currentUserId) => {
+  const txUuid = tx?.id?.uuid;
+  if (!txUuid || !currentUserId) {
+    return false;
+  }
+
+  if (isProviderNewBookingRequest(tx, currentUserId)) {
+    const activityAt = tx?.attributes?.lastTransitionedAt;
+    if (!activityAt) {
+      return true;
+    }
+    const readAt = getTransactionReadAt(currentUserId, txUuid);
+    return !readAt || new Date(readAt).getTime() < new Date(activityAt).getTime();
+  }
+
+  return false;
+};
+
 const hasUnreadMessageActivity = async (tx, currentUserId, sdk) => {
   const txUuid = tx?.id?.uuid;
   if (!txUuid || !currentUserId) {
@@ -350,7 +373,11 @@ const hasUnreadMessageActivity = async (tx, currentUserId, sdk) => {
   }
 
   const latestMessage = await fetchLatestMessageForTransaction(sdk, tx.id);
-  return shouldCountTransactionAsUnread(currentUserId, txUuid, latestMessage);
+  if (shouldCountTransactionAsUnread(currentUserId, txUuid, latestMessage)) {
+    return true;
+  }
+
+  return hasUnreadStateAttention(tx, currentUserId);
 };
 
 /**
@@ -385,7 +412,7 @@ export const listUnreadInboxTransactions = async (transactions, currentUserId, s
 
     const role = getInboxRoleForTransaction(tx, currentUserId);
     const latestMessage = await fetchLatestMessageForTransaction(sdk, tx.id);
-    const isUnread = shouldCountTransactionAsUnread(currentUserId, txUuid, latestMessage);
+    const isUnread = await hasUnreadMessageActivity(tx, currentUserId, sdk);
 
     if (isUnread) {
       unread.push({

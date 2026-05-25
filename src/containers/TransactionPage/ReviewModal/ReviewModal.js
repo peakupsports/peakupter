@@ -46,14 +46,16 @@ const ReviewModal = props => {
     sendReviewError,
   } = props;
 
-  const classes = classNames(rootClassName || css.root, className);
+  const modalClassName = classNames(css.modal, rootClassName, className);
   const closeButtonMessage = intl.formatMessage({ id: 'ReviewModal.later' });
   const reviewee = <span className={css.reviewee}>{revieweeName}</span>;
 
   return (
     <Modal
       id={id}
-      containerClassName={classes}
+      className={modalClassName}
+      scrollLayerClassName={css.scrollLayer}
+      containerClassName={css.container}
       contentClassName={css.modalContent}
       isOpen={isOpen}
       onClose={onCloseModal}
@@ -61,6 +63,7 @@ const ReviewModal = props => {
       focusElementId={focusElementId}
       usePortal
       closeButtonMessage={closeButtonMessage}
+      lightCloseButton
     >
       <IconReviewUser className={css.modalIcon} />
       <p className={css.modalTitle}>
@@ -70,6 +73,7 @@ const ReviewModal = props => {
         <FormattedMessage id="ReviewModal.description" values={{ marketplaceName }} />
       </p>
       <ReviewForm
+        rootClassName={css.form}
         onSubmit={onSubmitReview}
         reviewSent={reviewSent}
         sendReviewInProgress={sendReviewInProgress}

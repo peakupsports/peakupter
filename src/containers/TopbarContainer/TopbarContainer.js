@@ -11,8 +11,7 @@ import { manageDisableScrolling } from '../../ducks/ui.duck';
 // (hero) started at the top of the viewport and then jumped down when the bar appeared (~1–2s).
 import Topbar from './Topbar/Topbar';
 
-// TEMP: Topbar auto-fetch disabled — counts come from Redux only (e.g. InboxPage / fetchCurrentUser).
-// Re-enable from a safer place outside Topbar after login flow is stable.
+// TopbarContainer maps notification counts from Redux; live refresh runs in Topbar / CoachDashboard.
 
 /**
  * Topbar container component, which is connected to Redux Store.

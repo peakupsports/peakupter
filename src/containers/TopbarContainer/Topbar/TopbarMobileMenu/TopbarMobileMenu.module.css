@@ -180,6 +180,51 @@
   height: 15px;
 }
 
+.dashboardNavInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 17px;
+  margin-left: 4px;
+  transform: translateY(-0.5px);
+}
+
+.dashboardNavIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  color: rgba(23, 217, 255, 0.82);
+  filter: drop-shadow(0 0 2px rgba(23, 217, 255, 0.12));
+  transform: translateY(0.5px);
+}
+
+.dashboardNavIcon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.modeSwitchItem {
+  margin: 0;
+  padding: 0;
+}
+
+.modeSwitchButton {
+  composes: navigationLink;
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  color: rgba(157, 255, 79, 0.88);
+}
+
+.modeSwitchCoach {
+  color: rgba(23, 217, 255, 0.9);
+}
+
 .menuSeparator {
   height: 1px;
   margin: 10px 0;

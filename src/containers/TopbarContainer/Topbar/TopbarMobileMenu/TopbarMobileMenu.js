@@ -19,7 +19,6 @@ import {
   NotificationBadge,
 } from '../../../../components';
 
-import { CreateServiceMobileNavItem } from '../TopbarCreateServiceLink';
 import PeakUpHqIcon from '../../../PeakUpHq/PeakUpHqIcons';
 
 import css from './TopbarMobileMenu.module.css';
@@ -37,10 +36,7 @@ const CustomLinkComponent = ({ linkConfig, currentPage }) => {
       : null;
   };
 
-  // Note: if the config contains 'route' keyword,
-  // then in-app linking config has been resolved already.
   if (type === 'internal' && route) {
-    // Internal link
     const { name, params, to } = route || {};
     const className = classNames(css.navigationLink, getCurrentPageClass(name));
     return (
@@ -64,17 +60,6 @@ const CustomLinkComponent = ({ linkConfig, currentPage }) => {
 
 /**
  * Menu for mobile layout (opens through hamburger icon)
- *
- * @component
- * @param {Object} props
- * @param {boolean} props.isAuthenticated
- * @param {string?} props.currentPage
- * @param {boolean} props.currentUserHasListings
- * @param {Object?} props.currentUser API entity
- * @param {number} props.notificationCount
- * @param {Array<Object>} props.customLinks Contains object like { group, text, type, href, route }
- * @param {Function} props.onLogout
- * @returns {JSX.Element} search icon
  */
 const TopbarMobileMenu = props => {
   const {
@@ -89,6 +74,10 @@ const TopbarMobileMenu = props => {
     showCoachCalendarLink,
     showAmbassadorMenu,
     showPeakUpHqLink,
+    coachNavMode,
+    canSwitchPlatformMode,
+    onExploreAsCustomer,
+    onReturnToCoachMode,
     intl,
   } = props;
 
@@ -170,17 +159,212 @@ const TopbarMobileMenu = props => {
     return currentPage === page || isAccountSettingsPage || isInboxPage ? css.currentPage : null;
   };
 
-  const createServiceLinkMaybe = showCreateListingsLink ? (
-    <CreateServiceMobileNavItem currentPageClass={currentPageClass} />
-  ) : null;
+  const inboxLink = (
+    <li className={classNames(css.inbox, currentPageClass(`InboxPage:${inboxTab}`))}>
+      <NamedLink name="InboxPage" params={{ tab: inboxTab }}>
+        <FormattedMessage id="TopbarMobileMenu.inboxLink" />
+        {notificationCountBadge}
+      </NamedLink>
+    </li>
+  );
 
-  const manageListingsLinkMaybe = showCreateListingsLink ? (
+  const dashboardLink = (
+    <li className={classNames(css.navigationLink, currentPageClass('CoachDashboardPage'))}>
+      <NamedLink name="CoachDashboardPage">
+        <span className={css.dashboardNavInner}>
+          <PeakUpHqIcon name="dashboard" className={css.dashboardNavIcon} />
+          <FormattedMessage id="TopbarMobileMenu.dashboardLink" />
+        </span>
+      </NamedLink>
+    </li>
+  );
+
+  const listingsLink = showCreateListingsLink ? (
     <li className={classNames(css.navigationLink, currentPageClass('ManageListingsPage'))}>
       <NamedLink name="ManageListingsPage">
-        <FormattedMessage id="TopbarMobileMenu.yourListingsLink" />
+        <FormattedMessage id="TopbarMobileMenu.listingsLink" />
       </NamedLink>
     </li>
   ) : null;
+
+  const calendarLink = (
+    <li className={classNames(css.navigationLink, currentPageClass('CoachCalendarPage'))}>
+      <NamedLink name="CoachCalendarPage">
+        <FormattedMessage id="TopbarMobileMenu.coachCalendarLink" />
+      </NamedLink>
+    </li>
+  );
+
+  const earningsLink = (
+    <li className={classNames(css.navigationLink, currentPageClass('CoachEarningsPage'))}>
+      <NamedLink name="CoachEarningsPage">
+        <FormattedMessage id="TopbarMobileMenu.coachEarningsLink" />
+      </NamedLink>
+    </li>
+  );
+
+  const requestsLink = (
+    <li className={classNames(css.navigationLink, currentPageClass(`InboxPage:${inboxTab}`))}>
+      <NamedLink name="InboxPage" params={{ tab: inboxTab }}>
+        <FormattedMessage id="TopbarMobileMenu.requestsLink" />
+      </NamedLink>
+    </li>
+  );
+
+  const profileLink = (
+    <li className={classNames(css.navigationLink, currentPageClass('ProfileSettingsPage'))}>
+      <NamedLink name="ProfileSettingsPage">
+        <FormattedMessage id="TopbarMobileMenu.profileSettingsLink" />
+      </NamedLink>
+    </li>
+  );
+
+  const accountLink = (
+    <li className={classNames(css.navigationLink, currentPageClass('AccountSettingsPage'))}>
+      <NamedLink name="AccountSettingsPage">
+        <FormattedMessage id="TopbarMobileMenu.accountSettingsLink" />
+      </NamedLink>
+    </li>
+  );
+
+  const ambassadorSection = showAmbassadorMenu ? (
+    <>
+      <li className={css.menuSeparatorAmbassador} role="separator" aria-hidden="true" />
+      <li className={css.ambassadorToggleItem}>
+        <InlineTextButton
+          rootClassName={classNames(
+            css.ambassadorToggle,
+            ambassadorExpanded ? css.ambassadorToggleOpen : null
+          )}
+          aria-expanded={ambassadorExpanded}
+          onClick={() => setAmbassadorExpanded(expanded => !expanded)}
+        >
+          <span className={css.ambassadorToggleInner}>
+            <FormattedMessage id="TopbarMobileMenu.ambassadorToolsLink" />
+            <span className={css.ambassadorChevron} aria-hidden="true" />
+          </span>
+        </InlineTextButton>
+      </li>
+      <li className={css.menuSeparatorAmbassador} role="separator" aria-hidden="true" />
+      <li
+        className={classNames(
+          css.navigationLink,
+          css.navigationLinkAmbassador,
+          css.ambassadorChildLink,
+          ambassadorChildClass,
+          currentPageClass('AmbassadorProgramPage')
+        )}
+      >
+        <NamedLink name="AmbassadorProgramPage" tabIndex={ambassadorExpanded ? undefined : -1}>
+          <FormattedMessage id="TopbarMobileMenu.ambassadorProgramLink" />
+        </NamedLink>
+      </li>
+      <li
+        className={classNames(
+          css.navigationLink,
+          css.navigationLinkAmbassador,
+          css.ambassadorChildLink,
+          ambassadorChildClass,
+          currentPageClass('ReferralCenterPage')
+        )}
+      >
+        <NamedLink name="ReferralCenterPage" tabIndex={ambassadorExpanded ? undefined : -1}>
+          <FormattedMessage id="TopbarMobileMenu.referralCenterLink" />
+        </NamedLink>
+      </li>
+    </>
+  ) : null;
+
+  const peakUpHqLink = showPeakUpHqLink ? (
+    <li
+      className={classNames(
+        css.navigationLink,
+        css.navigationLinkPeakUpHq,
+        isPeakUpHqRouteName(currentPage) && css.currentPage
+      )}
+    >
+      <NamedLink name="PeakUpHQPage">
+        <span className={css.peakUpHqNavInner}>
+          <PeakUpHqIcon name="hq" className={css.peakUpHqNavIcon} />
+          <FormattedMessage id="TopbarMobileMenu.peakUpHqLink" />
+        </span>
+      </NamedLink>
+    </li>
+  ) : null;
+
+  const modeSeparator = <li className={css.menuSeparatorAmbassador} role="separator" aria-hidden="true" />;
+
+  const exploreAsCustomerLink = (
+    <li className={css.modeSwitchItem}>
+      <InlineTextButton rootClassName={css.modeSwitchButton} onClick={onExploreAsCustomer}>
+        <FormattedMessage id="TopbarMobileMenu.exploreAsCustomerLink" />
+      </InlineTextButton>
+    </li>
+  );
+
+  const returnToCoachLink = (
+    <li className={css.modeSwitchItem}>
+      <InlineTextButton rootClassName={classNames(css.modeSwitchButton, css.modeSwitchCoach)} onClick={onReturnToCoachMode}>
+        <span className={css.dashboardNavInner}>
+          <PeakUpHqIcon name="dashboard" className={css.dashboardNavIcon} />
+          <FormattedMessage id="TopbarMobileMenu.returnToCoachDashboardLink" />
+        </span>
+      </InlineTextButton>
+    </li>
+  );
+
+  let accountLinks = null;
+
+  if (coachNavMode) {
+    accountLinks = (
+      <>
+        {dashboardLink}
+        {listingsLink}
+        {calendarLink}
+        {earningsLink}
+        {requestsLink}
+        {ambassadorSection}
+        {profileLink}
+        {modeSeparator}
+        {exploreAsCustomerLink}
+        {peakUpHqLink}
+      </>
+    );
+  } else if (canSwitchPlatformMode) {
+    accountLinks = (
+      <>
+        {inboxLink}
+        {profileLink}
+        {accountLink}
+        {modeSeparator}
+        {returnToCoachLink}
+        {peakUpHqLink}
+      </>
+    );
+  } else if (showCoachCalendarLink) {
+    accountLinks = (
+      <>
+        {inboxLink}
+        {dashboardLink}
+        {listingsLink}
+        {calendarLink}
+        {earningsLink}
+        {profileLink}
+        {accountLink}
+        {ambassadorSection}
+        {peakUpHqLink}
+      </>
+    );
+  } else {
+    accountLinks = (
+      <>
+        {inboxLink}
+        {profileLink}
+        {accountLink}
+        {peakUpHqLink}
+      </>
+    );
+  }
 
   return (
     <div className={css.root}>
@@ -193,110 +377,8 @@ const TopbarMobileMenu = props => {
           <FormattedMessage id="TopbarMobileMenu.logoutLink" />
         </InlineTextButton>
 
-        <ul className={css.accountLinksWrapper}>
-          <li className={classNames(css.inbox, currentPageClass(`InboxPage:${inboxTab}`))}>
-            <NamedLink name="InboxPage" params={{ tab: inboxTab }}>
-              <FormattedMessage id="TopbarMobileMenu.inboxLink" />
-              {notificationCountBadge}
-            </NamedLink>
-          </li>
-          {createServiceLinkMaybe}
-          {manageListingsLinkMaybe}
-          {showCoachCalendarLink ? (
-            <li className={classNames(css.navigationLink, currentPageClass('CoachCalendarPage'))}>
-              <NamedLink name="CoachCalendarPage">
-                <FormattedMessage id="TopbarMobileMenu.coachCalendarLink" />
-              </NamedLink>
-            </li>
-          ) : null}
-          {showCoachCalendarLink ? (
-            <li className={classNames(css.navigationLink, currentPageClass('CoachEarningsPage'))}>
-              <NamedLink name="CoachEarningsPage">
-                <FormattedMessage id="TopbarMobileMenu.coachEarningsLink" />
-              </NamedLink>
-            </li>
-          ) : null}
-          <li className={classNames(css.navigationLink, currentPageClass('ProfileSettingsPage'))}>
-            <NamedLink name="ProfileSettingsPage">
-              <FormattedMessage id="TopbarMobileMenu.profileSettingsLink" />
-            </NamedLink>
-          </li>
-          <li className={classNames(css.navigationLink, currentPageClass('AccountSettingsPage'))}>
-            <NamedLink name="AccountSettingsPage">
-              <FormattedMessage id="TopbarMobileMenu.accountSettingsLink" />
-            </NamedLink>
-          </li>
-          {showAmbassadorMenu ? (
-            <li className={css.menuSeparatorAmbassador} role="separator" aria-hidden="true" />
-          ) : null}
-          {showAmbassadorMenu ? (
-            <li className={css.ambassadorToggleItem}>
-              <InlineTextButton
-                rootClassName={classNames(
-                  css.ambassadorToggle,
-                  ambassadorExpanded ? css.ambassadorToggleOpen : null
-                )}
-                aria-expanded={ambassadorExpanded}
-                onClick={() => setAmbassadorExpanded(expanded => !expanded)}
-              >
-                <span className={css.ambassadorToggleInner}>
-                  <FormattedMessage id="TopbarMobileMenu.ambassadorSectionLabel" />
-                  <span className={css.ambassadorChevron} aria-hidden="true" />
-                </span>
-              </InlineTextButton>
-            </li>
-          ) : null}
-          {showAmbassadorMenu ? (
-            <li className={css.menuSeparatorAmbassador} role="separator" aria-hidden="true" />
-          ) : null}
-          {showAmbassadorMenu ? (
-            <li
-              className={classNames(
-                css.navigationLink,
-                css.navigationLinkAmbassador,
-                css.ambassadorChildLink,
-                ambassadorChildClass,
-                currentPageClass('AmbassadorProgramPage')
-              )}
-            >
-              <NamedLink name="AmbassadorProgramPage" tabIndex={ambassadorExpanded ? undefined : -1}>
-                <FormattedMessage id="TopbarMobileMenu.ambassadorProgramLink" />
-              </NamedLink>
-            </li>
-          ) : null}
-          {showAmbassadorMenu ? (
-            <li
-              className={classNames(
-                css.navigationLink,
-                css.navigationLinkAmbassador,
-                css.ambassadorChildLink,
-                ambassadorChildClass,
-                currentPageClass('ReferralCenterPage')
-              )}
-            >
-              <NamedLink name="ReferralCenterPage" tabIndex={ambassadorExpanded ? undefined : -1}>
-                <FormattedMessage id="TopbarMobileMenu.referralCenterLink" />
-              </NamedLink>
-            </li>
-          ) : null}
-          {showPeakUpHqLink ? (
-            <li
-              className={classNames(
-                css.navigationLink,
-                css.navigationLinkPeakUpHq,
-                isPeakUpHqRouteName(currentPage) && css.currentPage
-              )}
-            >
-              <NamedLink name="PeakUpHQPage">
-                <span className={css.peakUpHqNavInner}>
-                  <PeakUpHqIcon name="hq" className={css.peakUpHqNavIcon} />
-                  <FormattedMessage id="TopbarMobileMenu.peakUpHqLink" />
-                </span>
-              </NamedLink>
-            </li>
-          ) : null}
-        </ul>
-        <ul className={css.customLinksWrapper}>{extraLinks}</ul>
+        <ul className={css.accountLinksWrapper}>{accountLinks}</ul>
+        {!coachNavMode ? <ul className={css.customLinksWrapper}>{extraLinks}</ul> : null}
         <div className={css.spacer} />
       </div>
     </div>

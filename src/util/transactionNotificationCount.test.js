@@ -9,7 +9,10 @@ import {
   setMessageAckAt,
 } from './transactionNotificationCount';
 import { markTransactionReadOnOpen } from './unreadNotifications';
+import { getProcess } from '../transactions/transaction';
 import { transitions as bookingTransitions } from '../transactions/transactionProcessBooking';
+import { createTransaction } from './testData';
+import { isProviderNewBookingRequest } from './peakupBookingRequestPopup';
 
 const customerId = 'customer-uuid';
 const providerId = 'provider-uuid';
@@ -232,6 +235,7 @@ describe('transactionNotificationCount', () => {
 
   it('does not count when the last message is from the current user', async () => {
     const tx = createTx({
+      processName: 'default-purchase',
       lastTransition: 'transition/confirm-payment',
       transitions: [{ transition: 'transition/confirm-payment', by: 'customer' }],
     });
@@ -288,12 +292,17 @@ describe('transactionNotificationCount', () => {
     expect(count).toBe(1);
   });
 
-  it('does not count non-inquiry attention states without unread messages', async () => {
-    const tx = createTx({
-      lastTransition: 'transition/confirm-payment',
-      transitions: [{ transition: 'transition/confirm-payment', by: 'customer' }],
+  it('counts provider preauthorized booking requests without messages', async () => {
+    const bookingAt = '2026-05-19T10:00:00.000Z';
+    const process = getProcess('default-booking');
+    const tx = createTransaction({
+      id: txId,
+      processName: 'default-booking/release-1',
+      lastTransition: process.transitions.CONFIRM_PAYMENT,
+      customer: { id: { uuid: customerId } },
+      provider: { id: { uuid: providerId } },
     });
-    tx.attributes.processName = 'default-booking';
+    tx.attributes.lastTransitionedAt = bookingAt;
 
     const sdk = {
       messages: {
@@ -301,7 +310,47 @@ describe('transactionNotificationCount', () => {
       },
     };
 
-    // lastTransition confirm-payment => preauthorized state (not message-based unread)
+    const count = await countTransactionNotifications([tx], providerId, sdk);
+    expect(count).toBe(1);
+  });
+
+  it('does not count preauthorized booking requests after they have been opened', async () => {
+    const bookingAt = '2026-05-19T10:00:00.000Z';
+    markTransactionReadOnOpen(providerId, txId, bookingAt);
+    const process = getProcess('default-booking');
+
+    const tx = createTransaction({
+      id: txId,
+      processName: 'default-booking/release-1',
+      lastTransition: process.transitions.CONFIRM_PAYMENT,
+      customer: { id: { uuid: customerId } },
+      provider: { id: { uuid: providerId } },
+    });
+    tx.attributes.lastTransitionedAt = bookingAt;
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({ data: { data: [] } }),
+      },
+    };
+
+    const count = await countTransactionNotifications([tx], providerId, sdk);
+    expect(count).toBe(0);
+  });
+
+  it('does not count non-inquiry attention states without unread messages', async () => {
+    const tx = createTx({
+      processName: 'default-purchase',
+      lastTransition: 'transition/confirm-payment',
+      transitions: [{ transition: 'transition/confirm-payment', by: 'customer' }],
+    });
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({ data: { data: [] } }),
+      },
+    };
+
     const count = await countTransactionNotifications([tx], providerId, sdk);
     expect(count).toBe(0);
     expect(sdk.messages.query).toHaveBeenCalled();

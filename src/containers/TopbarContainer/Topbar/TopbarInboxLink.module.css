@@ -1,0 +1,234 @@
+@import '../../../styles/customMediaQueries.css';
+
+.label {
+  composes: textSmall from global;
+  display: inline-block;
+  position: relative;
+  margin: 0;
+  text-decoration: inherit;
+}
+
+.desktopLink {
+  composes: textSmall from global;
+  flex-shrink: 0;
+  text-decoration: inherit;
+  color: rgba(244, 246, 250, 0.86);
+  transition: color 180ms ease;
+}
+
+.inboxLinkCoachMode {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  margin: 0;
+  padding: 0 12px;
+  line-height: normal;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.inboxLinkCoachMode.hasNotifications {
+  height: auto;
+  align-self: center;
+  margin: 0 4px;
+  padding: 8px 14px;
+  color: rgba(255, 248, 250, 0.96);
+  border-color: rgba(255, 77, 90, 0.45);
+  background: rgba(255, 77, 90, 0.06);
+  box-shadow:
+    0 0 0 1px rgba(255, 77, 90, 0.18),
+    0 0 18px rgba(255, 77, 90, 0.14);
+}
+
+.inboxLinkCoachMode.hasNotifications:hover,
+.inboxLinkCoachMode.hasNotifications:focus-visible {
+  color: #ffffff;
+  border-color: rgba(255, 77, 90, 0.58);
+  background: rgba(255, 77, 90, 0.09);
+  box-shadow:
+    0 0 0 1px rgba(255, 77, 90, 0.24),
+    0 0 22px rgba(255, 77, 90, 0.2);
+  text-decoration: none;
+}
+
+.inboxLinkCoachMode.hasNotifications .label {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.inboxLinkCustomerMode {
+  display: inline-block;
+  height: 100%;
+  margin: 0;
+  padding: 0 12px;
+  line-height: normal;
+}
+
+.labelCoachMode {
+  margin: 0;
+  line-height: normal;
+}
+
+.labelCustomerMode {
+  line-height: inherit;
+}
+
+.inboxLinkCoachMode:hover,
+.inboxLinkCoachMode:focus {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.inboxLinkCustomerMode:hover,
+.inboxLinkCustomerMode:focus,
+.desktopLink:hover,
+.desktopLink:focus {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.inboxLinkCustomerMode.hasNotifications,
+.desktopLink.hasNotifications {
+  color: #ffffff;
+}
+
+.inboxLinkCustomerMode.hasNotifications .label,
+.desktopLink.hasNotifications .label {
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.12);
+}
+
+.inboxLinkCoachMode.currentPage,
+.inboxLinkCustomerMode.currentPage,
+.desktopLink.currentPage {
+  color: #ffffff;
+}
+
+.mobileLink {
+  composes: textSmall from global;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 20px;
+  text-decoration: inherit;
+  color: rgba(244, 246, 250, 0.86);
+}
+
+.mobileLink:hover,
+.mobileLink:focus {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.mobileLink.hasNotifications {
+  color: #ffffff;
+}
+
+.mobileLink .label {
+  margin: 0;
+}
+
+.inboxLinkCoachModeMobile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: unset;
+  height: 100%;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.inboxLinkCoachModeMobile.hasNotifications {
+  height: auto;
+  align-self: center;
+  margin: 0 2px;
+  padding: 8px 14px;
+  color: rgba(255, 248, 250, 0.96);
+  border-color: rgba(255, 77, 90, 0.45);
+  background: rgba(255, 77, 90, 0.06);
+  box-shadow:
+    0 0 0 1px rgba(255, 77, 90, 0.18),
+    0 0 18px rgba(255, 77, 90, 0.14);
+}
+
+.inboxLinkCoachModeMobile.hasNotifications:hover,
+.inboxLinkCoachModeMobile.hasNotifications:focus-visible {
+  color: #ffffff;
+  border-color: rgba(255, 77, 90, 0.58);
+  background: rgba(255, 77, 90, 0.09);
+  box-shadow:
+    0 0 0 1px rgba(255, 77, 90, 0.24),
+    0 0 22px rgba(255, 77, 90, 0.2);
+}
+
+.inboxLinkCustomerModeMobile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 20px;
+}
+
+.notificationDot {
+  position: absolute;
+  top: -1px;
+  right: -10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ff4d5a;
+  box-shadow:
+    0 0 0 1px rgba(8, 13, 23, 0.85),
+    0 0 10px rgba(255, 77, 90, 0.55);
+  animation-name: inboxNotificationPop;
+  animation-duration: 0.12s;
+  animation-delay: 0.08s;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+  opacity: 0;
+  transform: scale(0);
+}
+
+.notificationBadge {
+  position: absolute;
+  top: -8px;
+  right: -14px;
+  min-width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  background-color: #ff4d5a;
+  box-shadow:
+    0 0 0 1px rgba(8, 13, 23, 0.85),
+    0 0 12px rgba(255, 77, 90, 0.5);
+}
+
+@keyframes inboxNotificationPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

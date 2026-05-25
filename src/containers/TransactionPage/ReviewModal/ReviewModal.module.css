@@ -1,33 +1,145 @@
 @import '../../../styles/customMediaQueries.css';
 
-.root {
-  composes: marketplaceModalBaseStyles from global;
-  padding-top: 70px;
+@keyframes reviewModalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Dark blurred backdrop */
+.modal:global(.isOpenInPortal) .scrollLayer,
+.scrollLayer {
+  background: rgba(0, 0, 0, 0.68) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
   @media (--viewportMedium) {
-    flex-basis: 567px;
+    justify-content: center;
+    align-items: center;
+    padding: 28px;
+  }
+}
+
+/* Glass panel */
+.modal:global(.isOpenInPortal) .container,
+.container {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 567px;
+  margin: 0 auto;
+  padding: 28px 24px 32px !important;
+  background: linear-gradient(180deg, rgba(8, 14, 28, 0.96), rgba(5, 10, 20, 0.98)) !important;
+  border: 1px solid rgba(0, 210, 255, 0.22) !important;
+  border-bottom: 1px solid rgba(0, 210, 255, 0.22) !important;
+  border-radius: 24px;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.55),
+    0 0 36px rgba(0, 210, 255, 0.12);
+  animation: reviewModalEnter 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  min-height: auto;
+  height: auto;
+  max-height: calc(var(--vh, 1vh) * 100 - 32px);
+  flex-basis: auto;
+  flex-grow: 0;
+
+  @media (--viewportMedium) {
+    padding: 32px 36px 36px !important;
+    margin-top: 0;
+    margin-bottom: 0;
+    max-height: min(92vh, 720px);
   }
 }
 
 .modalContent {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Icon of the modal */
+/* Close / Later control */
+.modal :global(.marketplaceModalCloseNav) {
+  padding: 4px 8px 0 0;
+}
+
+.modal :global(.close) {
+  color: rgba(230, 238, 255, 0.62);
+  opacity: 1;
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.modal :global(.close):enabled:hover,
+.modal :global(.close):enabled:active {
+  color: rgba(245, 248, 255, 0.95);
+  transform: scale(1.03);
+}
+
+.modal :global(.closeText) {
+  color: inherit;
+  letter-spacing: 0.06em;
+}
+
+.modal :global(.closeIcon) {
+  stroke: currentColor;
+}
+
+/* Icon */
 .modalIcon {
-  composes: marketplaceModalIconStyles from global;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  stroke: rgba(0, 210, 255, 0.72);
+  filter: drop-shadow(0 0 12px rgba(0, 210, 255, 0.28));
+
+  @media (--viewportMedium) {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 20px;
+  }
 }
 
-/* Title of the modal */
 .modalTitle {
-  composes: marketplaceModalTitleStyles from global;
+  margin: 0;
+  color: #f5f8ff;
+  font-weight: 800;
+  font-size: 1.65rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+
+  @media (--viewportMedium) {
+    font-size: 1.85rem;
+    line-height: 1.2;
+  }
 }
 
 .reviewee {
   white-space: nowrap;
+  color: #ffffff;
 }
 
-/* Paragraph for the Modal */
 .modalMessage {
-  composes: marketplaceModalParagraphStyles from global;
+  margin: 14px 0 0;
+  color: rgba(230, 238, 255, 0.78);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.55;
+
+  @media (--viewportMedium) {
+    margin-top: 16px;
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+}
+
+.form {
+  margin-top: 8px;
 }

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
@@ -18,26 +18,76 @@ import FooterContainer from '../FooterContainer/FooterContainer';
 
 import sportTheme from '../SportPagesTheme.module.css';
 import css from './CoachDashboardPage.module.css';
+import useInboxNotificationRefresh from '../../util/useInboxNotificationRefresh';
+import PeakUpGlobalBookingRequestNotifier from './PeakUpGlobalBookingRequestNotifier';
 
-const DashboardCard = ({ icon, titleId, hintId, ctaId, linkName, linkParams, className }) => (
-  <NamedLink
-    className={classNames(css.card, className)}
-    name={linkName}
-    params={linkParams}
-  >
-    <span className={css.cardIcon} aria-hidden="true">
-      {icon}
+const formatCountStatValue = value => {
+  if (value == null) {
+    return '—';
+  }
+  return String(value);
+};
+
+const DashboardCard = ({
+  icon,
+  titleId,
+  hintId,
+  alertHintId,
+  ctaId,
+  linkName,
+  linkParams,
+  className,
+  alertCount = 0,
+}) => {
+  const hasAlert = alertCount > 0;
+  const badgeLabel = alertCount > 99 ? '99+' : String(alertCount);
+
+  return (
+    <NamedLink
+      className={classNames(css.card, className, hasAlert ? css.cardAlert : null)}
+      name={linkName}
+      params={linkParams}
+    >
+      {hasAlert ? (
+        <span className={css.cardBadge} aria-hidden="true">
+          {badgeLabel}
+        </span>
+      ) : null}
+      <span className={classNames(css.cardIcon, hasAlert ? css.cardIconAlert : null)} aria-hidden="true">
+        {icon}
+      </span>
+      <h2 className={css.cardTitle}>
+        <FormattedMessage id={titleId} />
+      </h2>
+      <p className={css.cardHint}>
+        {hasAlert && alertHintId ? (
+          <FormattedMessage id={alertHintId} values={{ count: alertCount }} />
+        ) : (
+          <FormattedMessage id={hintId} />
+        )}
+      </p>
+      <span className={css.cardCta}>
+        <FormattedMessage id={ctaId} />
+      </span>
+    </NamedLink>
+  );
+};
+
+const QuickStat = ({ labelId, value, alert = false, comingSoon = false }) => (
+  <div className={classNames(css.stat, alert ? css.statAlert : null)}>
+    <span
+      className={classNames(
+        css.statValue,
+        alert ? css.statValueAlert : null,
+        comingSoon ? css.statValueComingSoon : null
+      )}
+    >
+      {value}
     </span>
-    <h2 className={css.cardTitle}>
-      <FormattedMessage id={titleId} />
-    </h2>
-    <p className={css.cardHint}>
-      <FormattedMessage id={hintId} />
-    </p>
-    <span className={css.cardCta}>
-      <FormattedMessage id={ctaId} />
+    <span className={css.statLabel}>
+      <FormattedMessage id={labelId} />
     </span>
-  </NamedLink>
+  </div>
 );
 
 /**
@@ -49,10 +99,47 @@ const CoachDashboardPage = () => {
   const scrollingDisabled = useSelector(isScrollingDisabled);
   const isAuthenticated = useSelector(state => state.auth?.isAuthenticated);
   const currentUser = useSelector(state => state.user?.currentUser);
+  const activeListingsCount = useSelector(
+    state => state.CoachDashboardPage?.activeListingsCount
+  );
+  const upcomingSessionsCount = useSelector(
+    state => state.CoachDashboardPage?.upcomingSessionsCount
+  );
+  const salesTransactionsCount = useSelector(
+    state => state.CoachDashboardPage?.salesTransactionsCount
+  );
+  const newRequestsCount = useSelector(
+    state => state.user?.currentUserSaleNotificationCount ?? 0
+  );
+
+  useInboxNotificationRefresh({
+    enabled: isAuthenticated && !!currentUser?.id,
+    debugLabel: 'CoachDashboard',
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp DASHBOARD STATS DEBUG]', {
+      currentUserSaleNotificationCount: newRequestsCount,
+      newRequests: newRequestsCount,
+      upcomingSessions: upcomingSessionsCount,
+      profileViews: null,
+      salesTransactionsCount,
+      upcomingSalesTransactions: upcomingSessionsCount,
+    });
+  }, [newRequestsCount, upcomingSessionsCount, salesTransactionsCount]);
 
   const user = ensureCurrentUser(currentUser);
   const marketplaceName = config.marketplaceName || 'PeakUp';
-  const firstName = user.attributes?.profile?.firstName || '';
+  const profile = user.attributes?.profile || {};
+  const heroDisplayName =
+    profile.displayName?.trim() ||
+    profile.firstName?.trim() ||
+    intl.formatMessage({ id: 'CoachDashboardPage.heroNameFallback' });
   const profileId = user.id?.uuid;
 
   const cards = useMemo(() => {
@@ -86,6 +173,7 @@ const CoachDashboardPage = () => {
         icon: '✉',
         titleId: 'CoachDashboardPage.cardInboxTitle',
         hintId: 'CoachDashboardPage.cardInboxHint',
+        alertHintId: 'CoachDashboardPage.cardInboxAlertHint',
         ctaId: 'CoachDashboardPage.cardOpen',
         linkName: 'InboxPage',
         linkParams: { tab: 'sales' },
@@ -133,6 +221,33 @@ const CoachDashboardPage = () => {
   );
   const description = intl.formatMessage({ id: 'CoachDashboardPage.schemaDescription' });
 
+  const hasNewRequests = newRequestsCount > 0;
+
+  const stats = [
+    {
+      key: 'listings',
+      labelId: 'CoachDashboardPage.statActiveListings',
+      value: formatCountStatValue(activeListingsCount),
+    },
+    {
+      key: 'sessions',
+      labelId: 'CoachDashboardPage.statUpcomingSessions',
+      value: formatCountStatValue(upcomingSessionsCount),
+    },
+    {
+      key: 'requests',
+      labelId: 'CoachDashboardPage.statNewRequests',
+      value: formatCountStatValue(newRequestsCount),
+      alert: hasNewRequests,
+    },
+    {
+      key: 'views',
+      labelId: 'CoachDashboardPage.statProfileViews',
+      value: <FormattedMessage id="CoachDashboardPage.statProfileViewsComingSoon" />,
+      comingSoon: true,
+    },
+  ];
+
   return (
     <Page
       title={title}
@@ -150,15 +265,27 @@ const CoachDashboardPage = () => {
               <FormattedMessage id="CoachDashboardPage.eyebrow" />
             </p>
             <h1 className={css.title}>
-              <FormattedMessage
-                id="CoachDashboardPage.heroTitle"
-                values={{ firstName: firstName ? `, ${firstName}` : '' }}
-              />
+              <span className={css.titleLine}>
+                <FormattedMessage id="CoachDashboardPage.heroTitlePrefix" />
+              </span>
+              {heroDisplayName ? <span className={css.titleName}>{heroDisplayName}</span> : null}
             </h1>
             <p className={css.lead}>
               <FormattedMessage id="CoachDashboardPage.heroLead" />
             </p>
           </header>
+
+          <div className={css.statsRow} aria-label={intl.formatMessage({ id: 'CoachDashboardPage.statsAria' })}>
+            {stats.map(stat => (
+              <QuickStat
+                key={stat.key}
+                labelId={stat.labelId}
+                value={stat.value}
+                alert={stat.alert}
+                comingSoon={stat.comingSoon}
+              />
+            ))}
+          </div>
 
           <div className={css.grid}>
             {cards.map(card => (
@@ -167,10 +294,12 @@ const CoachDashboardPage = () => {
                 icon={card.icon}
                 titleId={card.titleId}
                 hintId={card.hintId}
+                alertHintId={card.alertHintId}
                 ctaId={card.ctaId}
                 linkName={card.linkName}
                 linkParams={card.linkParams}
                 className={card.className}
+                alertCount={card.key === 'inbox' ? newRequestsCount : 0}
               />
             ))}
           </div>
@@ -178,6 +307,7 @@ const CoachDashboardPage = () => {
       </main>
 
       <FooterContainer />
+      <PeakUpGlobalBookingRequestNotifier />
     </Page>
   );
 };

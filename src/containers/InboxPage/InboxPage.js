@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { compose } from 'redux';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import { useConfiguration } from '../../context/configurationContext';
@@ -35,11 +35,7 @@ import {
 
 import { archiveConversation } from '../../ducks/archivedConversations.duck';
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
-import { isScrollingDisabled, manageDisableScrolling } from '../../ducks/ui.duck';
-import {
-  markBookingRequestPopupSeen,
-  pickNewBookingRequestForPopup,
-} from '../../util/peakupBookingRequestPopup';
+import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { filterTransactionsExcludingArchived } from '../../util/archivedConversations';
 import {
   H2,
@@ -62,9 +58,6 @@ import NotFoundPage from '../../containers/NotFoundPage/NotFoundPage';
 import layoutCss from '../../components/LayoutComposer/LayoutSideNavigation/LayoutSideNavigation.module.css';
 import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 import InboxSearchForm from './InboxSearchForm/InboxSearchForm';
-import NewBookingRequestModal from './NewBookingRequestModal/NewBookingRequestModal';
-
-const NEW_BOOKING_REQUEST_MODAL_ID = 'NewBookingRequestModal';
 
 import { stateDataShape, getStateData } from './InboxPage.stateData';
 import css from './InboxPage.module.css';
@@ -267,9 +260,7 @@ export const InboxPageComponent = props => {
   const routeConfiguration = useRouteConfiguration();
   const history = useHistory();
   const intl = useIntl();
-  const dispatch = useDispatch();
   const location = useLocation();
-  const [popupTransaction, setPopupTransaction] = useState(null);
   const {
     currentUser,
     fetchInProgress,
@@ -298,38 +289,6 @@ export const InboxPageComponent = props => {
   const isOrders = tab === 'orders';
   const inboxTransactions = filterTransactionsExcludingArchived(transactions, currentUser);
 
-  const handleCloseBookingPopup = useCallback(() => {
-    const userId = currentUser?.id?.uuid;
-    const txId = popupTransaction?.id?.uuid;
-    if (userId && txId) {
-      markBookingRequestPopupSeen(userId, txId);
-    }
-    setPopupTransaction(null);
-  }, [currentUser, popupTransaction]);
-
-  const onManageDisableScrolling = useCallback(
-    (componentId, disableScrolling) => {
-      dispatch(manageDisableScrolling(componentId, disableScrolling));
-    },
-    [dispatch]
-  );
-
-  useEffect(() => {
-    if (fetchInProgress || isOrders || !currentUser?.id?.uuid) {
-      return undefined;
-    }
-
-    const tx = pickNewBookingRequestForPopup(inboxTransactions, currentUser);
-    if (!tx) {
-      return undefined;
-    }
-
-    const timer = window.setTimeout(() => {
-      setPopupTransaction(prev => (prev ? prev : tx));
-    }, 500);
-
-    return () => window.clearTimeout(timer);
-  }, [fetchInProgress, isOrders, currentUser, inboxTransactions]);
   const hasNoResults =
     !fetchInProgress && inboxTransactions.length === 0 && !fetchOrdersOrSalesError;
   const ordersTitle = intl.formatMessage({ id: 'InboxPage.ordersTitle' });
@@ -503,14 +462,6 @@ export const InboxPageComponent = props => {
           />
         ) : null}
       </LayoutSideNavigation>
-      <NewBookingRequestModal
-        id={NEW_BOOKING_REQUEST_MODAL_ID}
-        isOpen={Boolean(popupTransaction)}
-        transaction={popupTransaction}
-        onClose={handleCloseBookingPopup}
-        onManageDisableScrolling={onManageDisableScrolling}
-        intl={intl}
-      />
     </Page>
   );
 };
