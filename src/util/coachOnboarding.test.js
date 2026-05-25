@@ -11,6 +11,7 @@ import {
   hasCoachOnboardingProfileIntent,
   hasCoachOnboardingIntent,
   hasCoachOnboardingUrlSignal,
+  isCoachApplicantProfile,
   isCoachApplicationReturnPath,
   isAuthSignupPathname,
   isCoachOnboardingQueryActive,
@@ -18,6 +19,8 @@ import {
   isOnlyCustomerProfile,
   persistCoachOnboardingIntent,
   resolveCoachOnboardingRedirect,
+  resolvePostLoginRedirect,
+  resolvePostVerifyRedirect,
   rewriteCoachSignupHref,
   shouldContinueCoachOnboarding,
   syncCoachOnboardingIntent,
@@ -31,6 +34,7 @@ describe('coachOnboarding', () => {
   afterEach(() => {
     localStorage.clear();
   });
+
   it('detects provider signup user types', () => {
     expect(isCoachProviderSignupUserType('instructor')).toBe(true);
     expect(isCoachProviderSignupUserType('customer')).toBe(false);
@@ -66,7 +70,7 @@ describe('coachOnboarding', () => {
     expect(getCustomerUserTypeForCoachSignup(userTypes)).toBe('customer');
   });
 
-  it('persists application path and resolves post-verify redirect to coach application', () => {
+  it('persists application path in localStorage for entry flow only', () => {
     persistCoachOnboardingIntent({ ref: 'CODE01' });
     expect(getCoachOnboardingRedirectPath()).toBe('/coach-application?ref=CODE01');
     expect(hasCoachOnboardingIntent()).toBe(true);
@@ -91,16 +95,28 @@ describe('coachOnboarding', () => {
     expect(isCoachOnboardingQueryActive('?ref=ABC')).toBe(false);
   });
 
-  it('resolves coach redirect from query param without localStorage', () => {
-    expect(
-      resolveCoachOnboardingRedirect({
-        location: { pathname: '/signup', search: '?coachOnboarding=1&ref=CODE01' },
-        from: null,
-      })
-    ).toBe('/coach-application?ref=CODE01');
+  it('always redirects to login after email verification', () => {
+    expect(resolvePostVerifyRedirect()).toBe('/login');
   });
 
-  it('detects coach onboarding intent from profile publicData after login', () => {
+  it('does not redirect from localStorage alone after login', () => {
+    persistCoachOnboardingIntent({ ref: 'CODE01' });
+  const customerUser = {
+      id: 'user-1',
+      attributes: {
+        profile: {
+          publicData: {
+            userType: 'customer',
+          },
+        },
+      },
+    };
+
+    expect(resolveCoachOnboardingRedirect({ currentUser: customerUser })).toBe(null);
+    expect(resolvePostLoginRedirect(customerUser)).toBe('/');
+  });
+
+  it('redirects coach applicants to application after login from profile flags', () => {
     const currentUser = {
       id: 'user-1',
       attributes: {
@@ -114,20 +130,26 @@ describe('coachOnboarding', () => {
     };
 
     expect(hasCoachOnboardingProfileIntent(currentUser)).toBe(true);
-    expect(
-      shouldContinueCoachOnboarding({
-        currentUser,
-        location: { pathname: '/login', search: '' },
-        from: null,
-      })
-    ).toBe(true);
-    expect(
-      resolveCoachOnboardingRedirect({
-        currentUser,
-        location: { pathname: '/login', search: '' },
-        from: null,
-      })
-    ).toBe('/coach-application?ref=CODE01');
+    expect(isCoachApplicantProfile(currentUser)).toBe(true);
+    expect(shouldContinueCoachOnboarding({ currentUser })).toBe(true);
+    expect(resolveCoachOnboardingRedirect({ currentUser })).toBe('/coach-application?ref=CODE01');
+    expect(resolvePostLoginRedirect(currentUser)).toBe('/coach-application?ref=CODE01');
+  });
+
+  it('redirects instructor userType to coach application after login', () => {
+    const instructorUser = {
+      id: 'user-1',
+      attributes: {
+        profile: {
+          publicData: {
+            userType: 'instructor',
+          },
+        },
+      },
+    };
+
+    expect(hasCoachOnboardingProfileIntent(instructorUser)).toBe(true);
+    expect(resolvePostLoginRedirect(instructorUser)).toBe('/coach-application');
   });
 
   it('does not treat customer userType alone as coach intent', () => {
@@ -144,42 +166,9 @@ describe('coachOnboarding', () => {
 
     expect(hasCoachOnboardingProfileIntent(customerUser)).toBe(false);
     expect(isOnlyCustomerProfile(customerUser)).toBe(true);
-    expect(
-      resolveCoachOnboardingRedirect({
-        currentUser: customerUser,
-        location: { pathname: '/', search: '' },
-        from: null,
-      })
-    ).toBe(null);
-    expect(
-      shouldContinueCoachOnboarding({
-        currentUser: customerUser,
-        location: { pathname: '/login', search: '' },
-        from: null,
-      })
-    ).toBe(false);
-  });
-
-  it('does not treat instructor userType alone as coach intent', () => {
-    const instructorUser = {
-      id: 'user-1',
-      attributes: {
-        profile: {
-          publicData: {
-            userType: 'instructor',
-          },
-        },
-      },
-    };
-
-    expect(hasCoachOnboardingProfileIntent(instructorUser)).toBe(false);
-    expect(
-      resolveCoachOnboardingRedirect({
-        currentUser: instructorUser,
-        location: { pathname: '/', search: '' },
-        from: null,
-      })
-    ).toBe(null);
+    expect(resolveCoachOnboardingRedirect({ currentUser: customerUser })).toBe(null);
+    expect(shouldContinueCoachOnboarding({ currentUser: customerUser })).toBe(false);
+    expect(resolvePostLoginRedirect(customerUser)).toBe('/');
   });
 
   it('matches signup paths with optional user type segment', () => {

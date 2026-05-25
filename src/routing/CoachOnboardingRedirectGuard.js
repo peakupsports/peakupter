@@ -8,12 +8,11 @@ import {
   isCoachApplicationReturnPath,
   isVerifyEmailPathname,
   resolveCoachOnboardingRedirect,
-  syncCoachOnboardingIntent,
 } from '../util/coachOnboarding';
 
 /**
- * Global backstop: verified users with coach onboarding intent must not stay on
- * customer-facing routes (landing, search, etc.).
+ * Global backstop: verified coach applicants must not stay on customer-facing routes.
+ * Redirect decision uses profile publicData only — not localStorage.
  */
 const CoachOnboardingRedirectGuard = () => {
   const location = useLocation();
@@ -28,20 +27,6 @@ const CoachOnboardingRedirectGuard = () => {
   useLayoutEffect(() => {
     const user = ensureCurrentUser(currentUser);
 
-    // eslint-disable-next-line no-console
-    console.log('[PeakUp Coach Redirect Guard Mounted]', {
-      pathname: location.pathname,
-      isAuthenticated,
-      userId: user.id || null,
-    });
-
-    syncCoachOnboardingIntent({
-      location,
-      from: location.state?.from || null,
-      pathname: location.pathname,
-      currentUser: user.id ? user : null,
-    });
-
     const emailVerified =
       isAuthenticated && user.id && user.attributes.emailVerified && user.attributes.pendingEmail == null;
 
@@ -53,8 +38,6 @@ const CoachOnboardingRedirectGuard = () => {
     if (emailVerified && !authPageHandlesRedirect && !verificationInProgress) {
       const target = resolveCoachOnboardingRedirect({
         currentUser: user.id ? user : null,
-        location,
-        from: location.state?.from || null,
       });
       const currentPath = `${location.pathname}${location.search || ''}`;
       const alreadyAtDestination = isCoachApplicationReturnPath(currentPath);

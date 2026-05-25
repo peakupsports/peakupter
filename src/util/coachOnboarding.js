@@ -250,6 +250,7 @@ export function persistCoachOnboardingIntent({ ref } = {}) {
 export function buildCoachOnboardingProfilePublicData({ ref } = {}) {
   const normalizedRef = String(ref || '').trim();
   return {
+    userType: 'instructor',
     coachOnboardingIntent: true,
     pendingCoachApplication: true,
     ...(normalizedRef ? { coachReferralCode: normalizedRef } : {}),
@@ -377,16 +378,40 @@ export function isOnlyCustomerProfile(currentUser) {
 
 /**
  * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {object}
+ */
+export function getCoachOnboardingProfilePublicData(currentUser) {
+  return currentUser?.attributes?.profile?.publicData || {};
+}
+
+/**
+ * Reliable post-login signal from profile publicData (not localStorage).
+ *
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
  * @returns {boolean}
  */
-export function hasCoachOnboardingProfileIntent(currentUser) {
-  const publicData = currentUser?.attributes?.profile?.publicData || {};
+export function isCoachApplicantProfile(currentUser) {
+  if (!currentUser?.id) {
+    return false;
+  }
+
+  const publicData = getCoachOnboardingProfilePublicData(currentUser);
+  const userType = String(publicData.userType || '').trim().toLowerCase();
 
   return (
+    isCoachProviderSignupUserType(userType) ||
     publicData.coachOnboardingIntent === true ||
     publicData.pendingCoachApplication === true ||
     publicData.peakupCoachApplicant === true
   );
+}
+
+/**
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {boolean}
+ */
+export function hasCoachOnboardingProfileIntent(currentUser) {
+  return isCoachApplicantProfile(currentUser);
 }
 
 /**
@@ -409,66 +434,81 @@ export function resolveCoachOnboardingReferralCode({ currentUser, location, from
         parseReferralCodeFromSearch(from?.search);
   const refFromStorage = getCoachOnboardingStoredReferralCode();
 
-  return refFromStorage || refFromLocation || refFromFrom || refFromProfile;
+  return refFromProfile || refFromStorage || refFromLocation || refFromFrom;
 }
 
-export function shouldContinueCoachOnboarding({ currentUser, location, from } = {}) {
-  return Boolean(resolveCoachOnboardingRedirect({ currentUser, location, from }));
+export function shouldContinueCoachOnboarding({ currentUser } = {}) {
+  return isCoachApplicantProfile(currentUser);
 }
 
 /**
- * Resolve the post-auth coach application path from storage, router state, or query.
+ * After email verification, always send users to login.
  *
+ * @returns {string}
+ */
+export function resolvePostVerifyRedirect() {
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp VERIFY REDIRECT]', { target: '/login' });
+  return '/login';
+}
+
+/**
+ * Post-login redirect based on persisted profile publicData.
+ *
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
  * @param {object} [options]
- * @param {import('../util/types').propTypes.currentUser|null|undefined} [options.currentUser]
- * @param {import('react-router-dom').Location} [options.location]
  * @param {string|object|null} [options.from]
  * @returns {string|null}
  */
-export function resolveCoachOnboardingRedirect({ currentUser, location, from } = {}) {
-  if (hasCoachOnboardingUrlSignal({ location, from })) {
-    const ref = resolveCoachOnboardingReferralCode({ currentUser, location, from });
-    const path = buildCoachApplicationPath({ ref });
-    const stored = readCoachOnboardingIntent();
-
-    // eslint-disable-next-line no-console
-    console.log('[PeakUp Post Login Redirect Target]', {
-      source: 'resolveCoachOnboardingRedirect',
-      signal: 'url-or-storage',
-      ref,
-      path,
-      storedApplicationPath: stored?.returnPath || null,
-      pathname: location?.pathname,
-    });
-
-    return path;
-  }
-
+export function resolvePostLoginRedirect(currentUser, { from } = {}) {
   if (!currentUser?.id) {
     return null;
   }
 
-  if (isOnlyCustomerProfile(currentUser)) {
-    return null;
-  }
-
-  if (!hasCoachOnboardingProfileIntent(currentUser)) {
-    return null;
-  }
-
-  const ref = resolveCoachOnboardingReferralCode({ currentUser, location, from });
-  const path = buildCoachApplicationPath({ ref });
+  const publicData = getCoachOnboardingProfilePublicData(currentUser);
+  const coachApplicant = isCoachApplicantProfile(currentUser);
 
   // eslint-disable-next-line no-console
-  console.log('[PeakUp Post Login Redirect Target]', {
-    source: 'resolveCoachOnboardingRedirect',
-    signal: 'profile',
-    ref,
-    path,
-    pathname: location?.pathname,
+  console.log('[PeakUp LOGIN REDIRECT DECISION]', {
+    userId: currentUser.id,
+    userType: publicData.userType,
+    coachOnboardingIntent: publicData.coachOnboardingIntent,
+    pendingCoachApplication: publicData.pendingCoachApplication,
+    peakupCoachApplicant: publicData.peakupCoachApplicant,
+    coachApplicant,
   });
 
-  return path;
+  if (coachApplicant) {
+    const ref = resolveCoachOnboardingReferralCode({ currentUser });
+    return buildCoachApplicationPath({ ref });
+  }
+
+  if (from) {
+    if (typeof from === 'string') {
+      return from;
+    }
+    if (from.pathname) {
+      return `${from.pathname}${from.search || ''}`;
+    }
+  }
+
+  return '/';
+}
+
+/**
+ * Coach-application redirect for guards — profile publicData only (no localStorage).
+ *
+ * @param {object} [options]
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} [options.currentUser]
+ * @returns {string|null}
+ */
+export function resolveCoachOnboardingRedirect({ currentUser } = {}) {
+  if (!isCoachApplicantProfile(currentUser)) {
+    return null;
+  }
+
+  const ref = resolveCoachOnboardingReferralCode({ currentUser });
+  return buildCoachApplicationPath({ ref });
 }
 
 /**

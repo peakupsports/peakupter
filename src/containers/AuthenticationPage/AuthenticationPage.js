@@ -53,8 +53,6 @@ import {
   filterCoachOnboardingUserTypes,
   getCustomerUserTypeForCoachSignup,
   getCoachOnboardingStoredReferralCode,
-  hasCoachOnboardingIntent,
-  hasCoachOnboardingProfileIntent,
   hasCoachOnboardingUrlSignal,
   isCoachOnboardingQueryActive,
   isCoachOnboardingReturn,
@@ -63,8 +61,7 @@ import {
   parseReferralCodeFromPath,
   buildCoachSignupAuthSearch,
   buildCoachOnboardingProfilePublicData,
-  resolveCoachOnboardingRedirect,
-  shouldContinueCoachOnboarding,
+  resolvePostLoginRedirect,
   syncCoachOnboardingIntent,
 } from '../../util/coachOnboarding';
 
@@ -357,48 +354,12 @@ export const AuthenticationPageComponent = props => {
   const showEmailVerification = !isLogin && currentUserLoaded && !user.attributes.emailVerified;
 
   useEffect(() => {
-    if (!mounted || !isAuthenticated || !currentUserLoaded) {
+    if (!mounted || !isAuthenticated || !currentUserLoaded || !user.attributes.emailVerified) {
       return;
     }
 
-    // eslint-disable-next-line no-console
-    console.log('[PeakUp Post Login User Loaded]', {
-      userId: user.id,
-      emailVerified: user.attributes.emailVerified,
-      pathname: location.pathname,
-      tab: isLogin ? 'login' : 'signup',
-    });
-
-    const shouldContinue = shouldContinueCoachOnboarding({
-      currentUser: user,
-      location,
-      from,
-    });
-
-    // eslint-disable-next-line no-console
-    console.log('[PeakUp Post Login Coach Intent]', {
-      shouldContinue,
-      localStorageIntent: hasCoachOnboardingIntent(),
-      queryActive: isCoachOnboardingQueryActive(location.search),
-      profileIntent: hasCoachOnboardingProfileIntent(user),
-      referralCode:
-        getCoachOnboardingStoredReferralCode() || parseReferralCodeFromLocation(location),
-    });
-
-    const target = resolveCoachOnboardingRedirect({
-      currentUser: user,
-      location,
-      from,
-    });
-
-    if (target) {
-      // eslint-disable-next-line no-console
-      console.log('[PeakUp Post Login Redirect Target]', {
-        source: 'AuthenticationPage',
-        target,
-      });
-    }
-  }, [mounted, isAuthenticated, currentUserLoaded, user, location, from, isLogin]);
+    resolvePostLoginRedirect(user, { from });
+  }, [mounted, isAuthenticated, currentUserLoaded, user, from]);
 
   const marketplaceName = config.marketplaceName;
   const schemaTitle = isLogin
@@ -411,31 +372,18 @@ export const AuthenticationPageComponent = props => {
     [css.hideOnMobile]: showEmailVerification,
   });
 
-  const coachReturnPath = mounted
-    ? resolveCoachOnboardingRedirect({
-        currentUser: currentUserLoaded ? user : null,
-        location,
-        from,
-      })
-    : null;
-  const postAuthRedirectTarget = coachReturnPath || from;
+  const postLoginRedirectTarget =
+    mounted && currentUserLoaded && user.attributes.emailVerified
+      ? resolvePostLoginRedirect(user, { from })
+      : null;
   const shouldRedirectAfterAuth =
-    isAuthenticated && currentUserLoaded && !showEmailVerification && postAuthRedirectTarget;
-  const pendingCoachIntent = shouldContinueCoachOnboarding({
-    currentUser: currentUserLoaded ? user : null,
-    location,
-    from,
-  });
-  const shouldRedirectToLandingPage =
+    isAuthenticated && currentUserLoaded && !showEmailVerification && postLoginRedirectTarget;
+  if (
+    !mounted &&
     isAuthenticated &&
     currentUserLoaded &&
     !showEmailVerification &&
-    !postAuthRedirectTarget &&
-    !pendingCoachIntent;
-  if (
-    !mounted &&
-    (shouldRedirectToLandingPage ||
-      (isAuthenticated && currentUserLoaded && !showEmailVerification && pendingCoachIntent))
+    postLoginRedirectTarget
   ) {
     // Show a blank page for already authenticated users,
     // when the first rendering on client side is not yet done
@@ -450,18 +398,7 @@ export const AuthenticationPageComponent = props => {
   }
 
   if (shouldRedirectAfterAuth) {
-    const redirectTo = coachReturnPath || postAuthRedirectTarget;
-    if (coachReturnPath) {
-      // eslint-disable-next-line no-console
-      console.log('[PeakUp Coach Redirect Triggered]', {
-        source: 'AuthenticationPage',
-        to: coachReturnPath,
-      });
-    }
-    return <Redirect to={redirectTo} />;
-  } else if (shouldRedirectToLandingPage) {
-    // Already authenticated, redirect to the landing page (this was direct access to /login or /signup)
-    return <NamedRedirect name="LandingPage" />;
+    return <Redirect to={postLoginRedirectTarget} />;
   } else if (show404) {
     // User type not found, show 404
     return <NotFoundPage staticContext={staticContext} />;
@@ -582,7 +519,7 @@ export const AuthenticationPageComponent = props => {
                     onSubmit={getHandleSubmitSignup({
                       submitSignup,
                       userFields,
-                      ...(isCoachOnboardingFlow || hasCoachOnboardingIntent()
+                      ...(isCoachOnboardingFlow
                         ? {
                             coachOnboardingPublicData: buildCoachOnboardingProfilePublicData({
                               ref: coachSignupRef,

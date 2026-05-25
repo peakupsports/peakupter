@@ -1,10 +1,8 @@
 import React from 'react';
 import { Form as FinalForm, Field } from 'react-final-form';
-import { Link } from 'react-router-dom';
 
 import { FormattedMessage } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
-import { consumeCoachOnboardingRedirectPath } from '../../../util/coachOnboarding';
 import {
   Heading,
   Form,
@@ -31,13 +29,7 @@ const EmailVerificationForm = props => (
   <FinalForm
     {...props}
     render={formRenderProps => {
-      const {
-        currentUser,
-        inProgress = false,
-        handleSubmit,
-        verificationError,
-        coachOnboardingRedirect,
-      } = formRenderProps;
+      const { currentUser, inProgress = false, handleSubmit, verificationError } = formRenderProps;
 
       const { email, emailVerified, pendingEmail, profile } = currentUser.attributes;
       const emailToVerify = <strong>{pendingEmail || email}</strong>;
@@ -86,16 +78,8 @@ const EmailVerificationForm = props => (
         </div>
       );
 
-      const successButton = coachOnboardingRedirect ? (
-        <Link
-          className={css.submitButton}
-          to={coachOnboardingRedirect}
-          onClick={() => consumeCoachOnboardingRedirectPath()}
-        >
-          <FormattedMessage id="EmailVerificationForm.coachOnboardingSuccessButtonText" />
-        </Link>
-      ) : (
-        <NamedLink className={css.submitButton} name="LandingPage">
+      const successButton = (
+        <NamedLink className={css.submitButton} name="LoginPage">
           <FormattedMessage id="EmailVerificationForm.successButtonText" />
         </NamedLink>
       );
@@ -109,13 +93,7 @@ const EmailVerificationForm = props => (
             </Heading>
 
             <p className={css.modalMessage}>
-              <FormattedMessage
-                id={
-                  coachOnboardingRedirect
-                    ? 'EmailVerificationForm.coachOnboardingSuccessText'
-                    : 'EmailVerificationForm.successText'
-                }
-              />
+              <FormattedMessage id="EmailVerificationForm.successText" />
             </p>
           </div>
 

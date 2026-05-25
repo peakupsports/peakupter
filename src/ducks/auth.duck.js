@@ -106,6 +106,14 @@ const signupThunk = createAsyncThunk(
     const { rejectWithValue, extra: sdk, dispatch } = thunkAPI;
     const { coachOnboardingPublicData, ...createParams } = params;
 
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp SIGNUP INTENT]', {
+      email: createParams.email,
+      signupUserType: createParams.publicData?.userType || null,
+      signupPublicData: createParams.publicData || null,
+      coachOnboardingPublicData: coachOnboardingPublicData || null,
+    });
+
     return sdk.currentUser
       .create(createParams)
       .then(() =>
@@ -119,6 +127,14 @@ const signupThunk = createAsyncThunk(
         return sdk.currentUser
           .updateProfile({ publicData: coachOnboardingPublicData })
           .then(() => dispatch(fetchCurrentUser({ enforce: true })))
+          .then(() => {
+            // eslint-disable-next-line no-console
+            console.log('[PeakUp SIGNUP INTENT]', {
+              phase: 'coach-profile-update-success',
+              email: createParams.email,
+              coachOnboardingPublicData,
+            });
+          })
           .catch(profileError => {
             logSignupError(profileError, {
               phase: 'coach-profile-update-after-signup',
