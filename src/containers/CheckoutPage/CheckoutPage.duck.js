@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { pick } from '../../util/common';
 import { initiatePrivileged, transitionPrivileged } from '../../util/api';
 import { denormalisedResponseEntities } from '../../util/data';
-import { storableError } from '../../util/errors';
+import { logCheckoutBreakdownError, storableError } from '../../util/errors';
 import {
   logPeakupMultiSlotErrorJson,
   logPeakupMultiSlotInitiateParams,
@@ -338,12 +338,25 @@ const speculateTransactionPayloadCreator = (
     return tx;
   };
 
+  const speculateRequestParams = {
+    processAlias,
+    transition: transitionName,
+    isPrivilegedTransition,
+    isTransition,
+    listingId: orderParams?.listingId?.uuid || transitionParams?.listingId?.uuid || null,
+    transactionId: transactionId?.uuid || transactionId || null,
+  };
+
   const handleError = e => {
     if (orderParams?.peakupBookingSlots?.length > 1) {
       logPeakupMultiSlotErrorJson(e);
     }
+    logCheckoutBreakdownError(e, {
+      step: 'speculate-transaction',
+      requestParams: speculateRequestParams,
+    });
     log.error(e, 'speculate-transaction-failed', {
-      listingId: transitionParams.listingId.uuid,
+      ...speculateRequestParams,
       ...quantityMaybe,
       ...bookingParamsMaybe,
       ...orderData,
@@ -401,8 +414,8 @@ export const speculateTransaction = (
   transactionId,
   transitionName,
   isPrivilegedTransition
-) => dispatch => {
-  return dispatch(
+) => dispatch =>
+  dispatch(
     speculateTransactionThunk({
       orderParams,
       processAlias,
@@ -410,8 +423,7 @@ export const speculateTransaction = (
       transitionName,
       isPrivilegedTransition,
     })
-  ).unwrap();
-};
+  );
 
 ///////////////////////////
 // Fetch Stripe Customer //
@@ -509,7 +521,6 @@ const checkoutPageSlice = createSlice({
           Math.abs(lastTransitionedAt?.getTime() - localTime.getTime()) < minute;
       })
       .addCase(speculateTransactionThunk.rejected, (state, action) => {
-        console.error(action.payload);
         state.speculateTransactionInProgress = false;
         state.speculateTransactionError = action.payload;
       })

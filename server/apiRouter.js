@@ -24,6 +24,8 @@ const ambassadorActivation = require('./api/ambassador-activation');
 const ambassadorActivationsAdmin = require('./api/ambassador-activations-admin');
 const referralCenter = require('./api/referral-center');
 const ambassadorAdminOverview = require('./api/ambassador-admin-overview');
+const peakupCoachBlockCancel = require('./api/peakup-coach-block-cancel');
+const cancellationCasesAdmin = require('./api/cancellation-cases-admin');
 
 const createUserWithIdp = require('./api/auth/createUserWithIdp');
 
@@ -39,6 +41,12 @@ router.post('/coach-application', express.json({ limit: '30mb' }), coachApplicat
 
 // Ambassador Program activation for verified coaches.
 router.post('/ambassador-activation', express.json({ limit: '64kb' }), ambassadorActivation);
+router.get('/peakup/coach-block-cancel', (req, res) => {
+  res.status(405).json({ message: 'Method not allowed. Use POST with JSON body.' });
+});
+router.post('/peakup/coach-block-cancel', express.json({ limit: '256kb' }), peakupCoachBlockCancel);
+// eslint-disable-next-line no-console
+console.log('[PeakUp API ROUTE REGISTERED] /api/peakup/coach-block-cancel');
 
 // Live Referral Center dashboard for active ambassadors.
 router.get('/referral-center', referralCenter);
@@ -46,6 +54,7 @@ router.get('/referral-center', referralCenter);
 // Internal admin review (protected by COACH_APPLICATION_ADMIN_TOKEN).
 router.use('/coach-applications', coachApplicationsAdmin);
 router.use('/ambassador-activations', ambassadorActivationsAdmin);
+router.use('/cancellation-cases', cancellationCasesAdmin);
 router.get(
   '/ambassador-admin/overview',
   ambassadorAdminOverview.requireCoachApplicationAdmin,

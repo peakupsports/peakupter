@@ -100,6 +100,15 @@ export const ListingPageComponent = props => {
     ...restOfProps
   } = props;
 
+  if (showListingError && showListingError.status === 404) {
+    return <NotFoundPage staticContext={props.staticContext} />;
+  }
+
+  if (showListingError) {
+    const topbar = <TopbarContainer />;
+    return <ErrorPage topbar={topbar} scrollingDisabled={scrollingDisabled} intl={intl} />;
+  }
+
   const derivedData = getDerivedRenderData({
     rawParams,
     getListing,
@@ -172,13 +181,7 @@ export const ListingPageComponent = props => {
     <TopbarContainer disableSearch={isPeakupBookingListing} topbarCenterContent={topbarCenterContent} />
   );
 
-  if (showListingError && showListingError.status === 404) {
-    // 404 listing not found
-    return <NotFoundPage staticContext={props.staticContext} />;
-  } else if (showListingError) {
-    // Other error in fetching listing
-    return <ErrorPage topbar={topbar} scrollingDisabled={scrollingDisabled} intl={intl} />;
-  } else if (!currentListing.id) {
+  if (!currentListing.id) {
     // Still loading the listing
     return <LoadingPage topbar={topbar} scrollingDisabled={scrollingDisabled} intl={intl} />;
   }

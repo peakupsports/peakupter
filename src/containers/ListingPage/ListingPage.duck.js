@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { types as sdkTypes, createImageVariantConfig } from '../../util/sdkLoader';
-import { storableError } from '../../util/errors';
+import { logPeakupSafeListingError, storableError, toErrorInstance } from '../../util/errors';
 import {
   createContactSharingBlockedError,
   containsContactInfo,
@@ -212,7 +212,12 @@ const showListingPayloadCreator = ({ listingId, config, isOwn = false }, thunkAP
       return data;
     })
     .catch(e => {
-      return rejectWithValue(storableError(e));
+      logPeakupSafeListingError(e, {
+        listingId: listingId?.uuid,
+        isOwn,
+        phase: 'showListing',
+      });
+      return rejectWithValue(storableError(toErrorInstance(e)));
     });
 };
 

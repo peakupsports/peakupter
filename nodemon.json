@@ -1,0 +1,12 @@
+{
+  "watch": ["server"],
+  "ignore": ["server/data/**", "**/*.test.js"],
+  "ext": "js",
+  "delay": 1500,
+  "stdin": false,
+  "signal": "SIGTERM",
+  "env": {
+    "NODE_ENV": "development",
+    "REACT_APP_DEV_API_SERVER_PORT": "3500"
+  }
+}

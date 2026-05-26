@@ -41,7 +41,7 @@ export const setStoredAdminToken = token => {
   }
 };
 
-const adminFetch = async (path, options = {}) => {
+export const adminFetch = async (path, options = {}) => {
   const token = getStoredAdminToken();
   const url = `${apiBaseUrl()}${path}`;
   const headers = {

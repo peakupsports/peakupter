@@ -139,6 +139,8 @@ export const mapTransactionToCoachCalendarSessions = (transaction, intl) => {
       defaultMessage: 'Athlete',
     });
 
+  const sessionTitle = transaction.listing?.attributes?.title || '';
+
   const txId = transaction.id?.uuid || 'booking';
   const isHourly = [LINE_ITEM_HOUR, LINE_ITEM_FIXED].includes(lineItemUnitType);
   const sessions = [];
@@ -175,6 +177,7 @@ export const mapTransactionToCoachCalendarSessions = (transaction, intl) => {
       endTime,
       timeLabel,
       customerName,
+      sessionTitle,
       statusLabel,
       processState,
       isAllDay,

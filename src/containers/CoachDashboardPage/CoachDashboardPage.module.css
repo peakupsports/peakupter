@@ -7,8 +7,10 @@
   --dashGlass: rgba(11, 18, 30, 0.72);
   --dashGlassHi: rgba(18, 28, 44, 0.88);
   --dashGlassBorder: rgba(25, 223, 242, 0.2);
-  --dashInk: rgba(244, 246, 250, 0.94);
-  --dashInkSoft: rgba(244, 246, 250, 0.68);
+  --dashInk: rgba(244, 246, 250, 0.96);
+  --dashInkSoft: rgba(244, 246, 250, 0.62);
+  --dashIconSize: 46px;
+  --dashIconGlyph: 1.45rem;
 }
 
 .main {
@@ -46,27 +48,31 @@
 }
 
 .hero {
-  margin-bottom: 20px;
-  padding: 20px 18px;
-  border-radius: 18px;
-  border: 1px solid var(--dashGlassBorder);
+  margin-bottom: 28px;
+  padding: 22px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 210, 255, 0.22);
   background:
-    linear-gradient(145deg, rgba(18, 28, 44, 0.92) 0%, rgba(11, 18, 30, 0.78) 100%);
+    radial-gradient(120% 80% at 0% 0%, rgba(0, 210, 255, 0.1) 0%, transparent 52%),
+    radial-gradient(90% 70% at 100% 100%, rgba(157, 255, 79, 0.04) 0%, transparent 48%),
+    linear-gradient(155deg, rgba(20, 32, 52, 0.94) 0%, rgba(10, 16, 28, 0.82) 55%, rgba(8, 14, 26, 0.88) 100%);
   box-shadow:
-    0 14px 40px rgba(0, 0, 0, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    0 14px 40px rgba(0, 0, 0, 0.34),
+    0 0 0 1px rgba(0, 210, 255, 0.08),
+    0 0 32px rgba(0, 210, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 @media (--viewportMedium) {
   .hero {
-    margin-bottom: 24px;
-    padding: 26px 28px;
+    margin-bottom: 36px;
+    padding: 28px 32px;
     border-radius: 22px;
   }
 }
 
 .eyebrow {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -77,8 +83,8 @@
 .title {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin: 0 0 8px;
+  gap: 4px;
+  margin: 0 0 10px;
   font-size: clamp(1.65rem, 3.8vw, 2.1rem);
   font-weight: 700;
   line-height: 1.12;
@@ -88,26 +94,26 @@
 .titleLine {
   display: block;
   font-weight: 600;
-  color: rgba(244, 246, 250, 0.82);
+  color: rgba(244, 246, 250, 0.78);
 }
 
 .titleName {
   display: block;
-  font-size: clamp(1.85rem, 4.4vw, 2.45rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: clamp(1.95rem, 4.6vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: #ffffff;
   text-shadow:
-    0 0 18px rgba(25, 223, 242, 0.45),
-    0 0 36px rgba(25, 223, 242, 0.18),
-    0 1px 0 rgba(255, 255, 255, 0.12);
+    0 0 22px rgba(0, 210, 255, 0.5),
+    0 0 44px rgba(0, 210, 255, 0.22),
+    0 2px 0 rgba(255, 255, 255, 0.14);
 }
 
 .lead {
   margin: 0;
   max-width: 48ch;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--dashInkSoft);
 }
 
@@ -120,94 +126,119 @@
 .statsRow {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 28px;
 }
 
 @media (--viewportMedium) {
   .statsRow {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 14px;
+    margin-bottom: 36px;
   }
 }
 
 .stat {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(25, 223, 242, 0.14);
-  background: rgba(11, 18, 30, 0.55);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  gap: 6px;
+  padding: 16px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 210, 255, 0.14);
+  background:
+    linear-gradient(165deg, rgba(14, 22, 38, 0.88) 0%, rgba(8, 14, 26, 0.72) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 20px rgba(0, 0, 0, 0.18);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 @media (--viewportMedium) {
   .stat {
-    padding: 16px 14px;
+    padding: 18px 16px;
   }
 }
 
 .statValue {
-  font-size: 1.35rem;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  color: var(--dashInk);
+  font-size: clamp(1.55rem, 3.2vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #ffffff;
 }
 
 .statLabel {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--dashInkSoft);
+  color: rgba(230, 238, 255, 0.52);
 }
 
 .statAlert {
-  border-color: rgba(255, 77, 90, 0.45);
-  background: linear-gradient(180deg, rgba(255, 77, 90, 0.06) 0%, rgba(8, 14, 28, 0.72) 100%);
+  border-color: rgba(255, 77, 90, 0.48);
+  background:
+    linear-gradient(165deg, rgba(255, 77, 90, 0.1) 0%, rgba(8, 14, 28, 0.78) 55%, rgba(6, 12, 22, 0.85) 100%);
   box-shadow:
-    0 0 0 1px rgba(255, 77, 90, 0.14),
-    0 0 20px rgba(255, 77, 90, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 0 0 1px rgba(255, 77, 90, 0.16),
+    0 0 24px rgba(255, 77, 90, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .statValueAlert {
-  color: rgba(255, 248, 250, 0.98);
-  text-shadow: 0 0 12px rgba(255, 77, 90, 0.2);
+  color: rgba(255, 252, 253, 1);
+  text-shadow:
+    0 0 16px rgba(255, 77, 90, 0.28),
+    0 0 28px rgba(255, 77, 90, 0.12);
 }
 
 .statAlert .statLabel {
-  color: rgba(255, 200, 206, 0.88);
+  color: rgba(255, 210, 214, 0.82);
+}
+
+.statHighlight {
+  border-color: rgba(0, 210, 255, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(0, 210, 255, 0.1),
+    0 0 20px rgba(0, 210, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.statHighlight .statValue {
+  text-shadow: 0 0 18px rgba(0, 210, 255, 0.18);
+}
+
+.statHighlight .statLabel {
+  color: rgba(200, 235, 255, 0.58);
 }
 
 .statValueComingSoon {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: none;
-  color: rgba(244, 246, 250, 0.52);
+  color: rgba(244, 246, 250, 0.48);
 }
 
 @media (--viewportMedium) {
   .statLabel {
-    font-size: 11px;
+    font-size: 10px;
   }
 }
 
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 14px;
 }
 
 @media (--viewportMedium) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    gap: 18px;
   }
 }
 
@@ -221,10 +252,10 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-height: 132px;
-  padding: 18px 16px;
-  border-radius: 16px;
+  gap: 10px;
+  min-height: 140px;
+  padding: 20px 18px;
+  border-radius: 18px;
   border: 1px solid var(--dashGlassBorder);
   background: var(--dashGlass);
   box-shadow:
@@ -233,10 +264,10 @@
   text-decoration: none;
   color: inherit;
   transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease,
-    box-shadow 160ms ease;
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms ease,
+    background 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .cardAlert {
@@ -263,8 +294,8 @@
 
 .cardBadge {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 14px;
+  right: 14px;
   z-index: 1;
   min-width: 22px;
   height: 22px;
@@ -282,32 +313,46 @@
 }
 
 .cardIconAlert {
-  background: rgba(255, 77, 90, 0.14);
-  border-color: rgba(255, 77, 90, 0.38);
-  box-shadow: 0 0 14px rgba(255, 77, 90, 0.12);
+  background: rgba(255, 77, 90, 0.12) !important;
+  border-color: rgba(255, 77, 90, 0.38) !important;
+  color: rgba(255, 230, 234, 0.98) !important;
+  box-shadow:
+    0 0 16px rgba(255, 77, 90, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
 }
 
 .card:hover,
 .card:focus-visible {
-  transform: translateY(-2px);
-  border-color: rgba(25, 223, 242, 0.48);
+  transform: translateY(-3px);
+  border-color: rgba(0, 210, 255, 0.42);
   background: var(--dashGlassHi);
   box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.36),
-    0 0 24px rgba(25, 223, 242, 0.14),
-    0 0 0 1px rgba(25, 223, 242, 0.16);
+    0 18px 44px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(0, 210, 255, 0.2),
+    0 0 32px rgba(0, 210, 255, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
   outline: none;
+}
+
+.card:hover .cardIcon,
+.card:focus-visible .cardIcon {
+  border-color: rgba(0, 210, 255, 0.32);
+  background: rgba(0, 210, 255, 0.12);
+  box-shadow:
+    0 0 20px rgba(0, 210, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: rgba(220, 248, 255, 0.98);
 }
 
 .cardAlert:hover,
 .cardAlert:focus-visible {
-  transform: translateY(-2px);
-  border-color: rgba(255, 77, 90, 0.58);
+  transform: translateY(-3px);
+  border-color: rgba(255, 77, 90, 0.62);
   background: linear-gradient(180deg, rgba(255, 77, 90, 0.09) 0%, rgba(10, 16, 30, 0.78) 100%);
   box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.36),
-    0 0 0 1px rgba(255, 77, 90, 0.2),
-    0 0 28px rgba(255, 77, 90, 0.22),
+    0 18px 44px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 77, 90, 0.24),
+    0 0 36px rgba(255, 77, 90, 0.26),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
   outline: none;
 }
@@ -316,12 +361,30 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  font-size: 18px;
-  background: rgba(25, 223, 242, 0.12);
-  border: 1px solid rgba(25, 223, 242, 0.22);
+  width: var(--dashIconSize);
+  height: var(--dashIconSize);
+  border-radius: 13px;
+  font-size: var(--dashIconGlyph);
+  line-height: 1;
+  color: rgba(210, 245, 255, 0.92);
+  background: rgba(0, 210, 255, 0.08);
+  border: 1px solid rgba(0, 210, 255, 0.18);
+  box-shadow:
+    0 0 18px rgba(0, 210, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    border-color 200ms ease,
+    background 200ms ease,
+    box-shadow 200ms ease,
+    color 200ms ease;
+}
+
+@media (--viewportMedium) {
+  .cardIcon {
+    --dashIconSize: 48px;
+    --dashIconGlyph: 1.5rem;
+    border-radius: 14px;
+  }
 }
 
 .cardTitle {
@@ -353,8 +416,21 @@
 }
 
 .cardAmbassador .cardIcon {
-  background: rgba(157, 255, 79, 0.12);
-  border-color: rgba(157, 255, 79, 0.28);
+  color: rgba(230, 255, 210, 0.95);
+  background: rgba(157, 255, 79, 0.1);
+  border-color: rgba(157, 255, 79, 0.22);
+  box-shadow:
+    0 0 18px rgba(157, 255, 79, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.cardAmbassador:hover .cardIcon,
+.cardAmbassador:focus-visible .cardIcon {
+  border-color: rgba(157, 255, 79, 0.36);
+  background: rgba(157, 255, 79, 0.14);
+  box-shadow:
+    0 0 22px rgba(157, 255, 79, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .cardAmbassador .cardCta {

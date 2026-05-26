@@ -84,6 +84,49 @@ export const getBlockBookingConflicts = ({ dates, allDayBlocked, newSlot = null,
  * @param {CoachCalendarBlockBookingConflict[]} conflicts
  * @returns {string}
  */
+/**
+ * One row per transaction (multi-day bookings may appear on several dates).
+ *
+ * @param {CoachCalendarBlockBookingConflict[]} conflicts
+ * @returns {import('./coachCalendarBookingEvents').CoachCalendarBookingSession[]}
+ */
+export const getUniqueConflictSessions = conflicts => {
+  const seen = new Set();
+  const sessions = [];
+
+  (conflicts || []).forEach(({ session }) => {
+    const txId = session?.transactionId;
+    if (!txId || seen.has(txId)) {
+      return;
+    }
+    seen.add(txId);
+    sessions.push(session);
+  });
+
+  return sessions;
+};
+
+/**
+ * @param {CoachCalendarBlockBookingConflict[]} conflicts
+ * @param {import('../../util/reactIntl').IntlShape} intl
+ * @returns {Object[]}
+ */
+export const buildCoachBlockCancelSessionsPayload = (conflicts, intl) =>
+  getUniqueConflictSessions(conflicts).map(session => ({
+    transactionId: session.transactionId,
+    customerName: session.customerName,
+    sessionTitle: session.sessionTitle || '',
+    dateKey: session.dateKey,
+    timeLabel: session.timeLabel,
+    statusLabel: session.statusLabel,
+    dateLabel: intl.formatDate(new Date(`${session.dateKey}T12:00:00`), {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+  }));
+
 export const formatBlockBookingConflictMessage = (intl, conflicts) => {
   if (!conflicts.length) {
     return '';

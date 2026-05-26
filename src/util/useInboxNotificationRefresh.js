@@ -12,7 +12,8 @@ import {
   isCoachPlatformMode,
 } from './peakupPlatformMode';
 
-export const INBOX_NOTIFICATION_POLL_INTERVAL_MS = 20000;
+/** Poll interval — kept conservative to avoid Sharetribe 429 on messages/query. */
+export const INBOX_NOTIFICATION_POLL_INTERVAL_MS = 60000;
 
 /**
  * Keep inbox notification counts live for Topbar and coach dashboard surfaces.

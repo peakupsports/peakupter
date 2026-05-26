@@ -98,6 +98,16 @@ export const ListingPageComponent = props => {
     ...restOfProps
   } = props;
 
+  const topbar = <TopbarContainer />;
+
+  if (showListingError && showListingError.status === 404) {
+    return <NotFoundPage staticContext={props.staticContext} />;
+  }
+
+  if (showListingError) {
+    return <ErrorPage topbar={topbar} scrollingDisabled={scrollingDisabled} intl={intl} />;
+  }
+
   const derivedData = getDerivedRenderData({
     rawParams,
     getListing,
@@ -145,15 +155,7 @@ export const ListingPageComponent = props => {
     hasInvalidListingData,
   } = derivedData;
 
-  const topbar = <TopbarContainer />;
-
-  if (showListingError && showListingError.status === 404) {
-    // 404 listing not found
-    return <NotFoundPage staticContext={props.staticContext} />;
-  } else if (showListingError) {
-    // Other error in fetching listing
-    return <ErrorPage topbar={topbar} scrollingDisabled={scrollingDisabled} intl={intl} />;
-  } else if (!currentListing.id) {
+  if (!currentListing.id) {
     // Still loading the listing
     return <LoadingPage topbar={topbar} scrollingDisabled={scrollingDisabled} intl={intl} />;
   }

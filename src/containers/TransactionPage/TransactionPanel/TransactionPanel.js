@@ -211,6 +211,7 @@ export class TransactionPanelComponent extends Component {
       transactionFieldsComponent,
       onArchiveConversation,
       archiveConversationDisabled,
+      listingUnavailable = false,
     } = this.props;
 
     const isConversationView =
@@ -222,6 +223,7 @@ export class TransactionPanelComponent extends Component {
     const isProvider = transactionRole === 'provider';
 
     const listingDeleted = !!listing?.attributes?.deleted;
+    const suppressListingLink = listingDeleted || listingUnavailable;
     const isCustomerBanned = !!customer?.attributes?.banned;
     const isCustomerDeleted = !!customer?.attributes?.deleted;
     const isProviderBanned = !!provider?.attributes?.banned;
@@ -404,7 +406,7 @@ export class TransactionPanelComponent extends Component {
               customerName={customerDisplayName}
               listingId={listing?.id?.uuid}
               listingTitle={listingTitle}
-              listingDeleted={listingDeleted}
+              listingDeleted={suppressListingLink}
               isPeakUpBookingTheme={isPeakUpBookingTheme}
             />
 
@@ -570,12 +572,12 @@ export class TransactionPanelComponent extends Component {
                   showListingImage={showListingImage}
                   isPeakUpBookingTheme={isPeakUpBookingTheme}
                   listingTitle={
-                    listingDeleted ? (
+                    suppressListingLink || !listing?.id?.uuid ? (
                       listingTitle
                     ) : (
                       <NamedLink
                         name="ListingPage"
-                        params={{ id: listing.id?.uuid, slug: createSlug(listingTitle) }}
+                        params={{ id: listing.id.uuid, slug: createSlug(listingTitle) }}
                       >
                         {listingTitle}
                       </NamedLink>

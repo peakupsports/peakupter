@@ -4,7 +4,7 @@ import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 import { createImageVariantConfig } from '../../util/sdkLoader';
 import { storableError } from '../../util/errors';
 import { denormalisedResponseEntities } from '../../util/data';
-import { REVIEW_TYPE_OF_PROVIDER } from '../../util/types';
+import { batchedReviewStats } from '../../util/coachReviewStats';
 import {
   boundsPlainFromCoordinates,
   fallbackAlpsBoundsPlain,
@@ -15,44 +15,6 @@ const MAX_LISTING_PAGES = 4;
 const PER_PAGE = 50;
 const MAX_REVIEW_SUBJECTS = 48;
 const REVIEW_CONCURRENCY = 6;
-
-const fetchReviewStatsForAuthor = async (sdk, authorUuid) => {
-  const res = await sdk.reviews.query({
-    subject_id: authorUuid,
-    state: 'public',
-    perPage: 100,
-    page: 1,
-  });
-  const rows = denormalisedResponseEntities(res);
-  const ofProvider = rows.filter(r => r.attributes?.type === REVIEW_TYPE_OF_PROVIDER);
-  const count = ofProvider.length;
-  const sum = ofProvider.reduce((acc, r) => acc + (r.attributes?.rating || 0), 0);
-  return { count, average: count > 0 ? sum / count : null };
-};
-
-const batchedReviewStats = async (sdk, authorUuids) => {
-  const stats = {};
-  const queue = [...authorUuids].slice(0, MAX_REVIEW_SUBJECTS);
-
-  while (queue.length) {
-    const batch = queue.splice(0, REVIEW_CONCURRENCY);
-    // eslint-disable-next-line no-await-in-loop
-    const results = await Promise.all(
-      batch.map(async uuid => {
-        try {
-          const r = await fetchReviewStatsForAuthor(sdk, uuid);
-          return { uuid, stats: r };
-        } catch {
-          return { uuid, stats: { count: 0, average: null } };
-        }
-      })
-    );
-    results.forEach(({ uuid, stats: s }) => {
-      stats[uuid] = s;
-    });
-  }
-  return stats;
-};
 
 export const fetchCoachesExploreThunk = createAsyncThunk(
   'CoachesExplorePage/fetchCoachesExplore',
@@ -111,7 +73,11 @@ export const fetchCoachesExploreThunk = createAsyncThunk(
 
       const coaches = mergeListingsByAuthor(aggregatedListingsRefs);
       const authorUuids = coaches.map(c => c.authorUuid);
-      const reviewStatsByAuthorUuid = await batchedReviewStats(sdk, authorUuids);
+      const { stats: reviewStatsByAuthorUuid } = await batchedReviewStats(sdk, authorUuids, {
+        concurrency: REVIEW_CONCURRENCY,
+        maxSubjects: MAX_REVIEW_SUBJECTS,
+        source: 'CoachesExplorePage.fetch',
+      });
 
       const enriched = coaches.map(c => ({
         ...c,

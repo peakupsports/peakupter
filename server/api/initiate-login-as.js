@@ -7,7 +7,12 @@ const USING_SSL = process.env.REACT_APP_SHARETRIBE_USING_SSL === 'true';
 
 // redirect_uri param used when initiating a login as authentication flow and
 // when requesting a token using an authorization code
-const loginAsRedirectUri = `${ROOT_URL.replace(/\/$/, '')}/api/login-as`;
+const getLoginAsRedirectUri = () => {
+  if (!ROOT_URL) {
+    return null;
+  }
+  return `${ROOT_URL.replace(/\/$/, '')}/api/login-as`;
+};
 
 // Cookies used for authorization code authentication.
 const stateKey = `st-${CLIENT_ID}-oauth2State`;
@@ -56,6 +61,11 @@ module.exports = (req, res) => {
   const codeChallenge = urlifyBase64(hash);
   const authorizeServerUrl = `${CONSOLE_URL}/api/authorize-as`;
   const { target_path: targetPath } = req.query || {};
+
+  const loginAsRedirectUri = getLoginAsRedirectUri();
+  if (!loginAsRedirectUri) {
+    return res.status(409).send('Marketplace canonical root URL is missing.');
+  }
 
   const location = `${authorizeServerUrl}?\
 response_type=code&\

@@ -12,6 +12,7 @@
  * @property {string} endTime HH:mm in listing timezone
  * @property {string} timeLabel Display range e.g. "08:00–10:00" or "All day"
  * @property {string} customerName
+ * @property {string} sessionTitle Listing / session title
  * @property {string} statusLabel Localised status (Requested / Accepted)
  * @property {string} processState Raw process state id
  * @property {boolean} isAllDay

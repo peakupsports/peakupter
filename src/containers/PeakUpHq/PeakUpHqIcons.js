@@ -31,6 +31,12 @@ const ICONS = {
       <path {...stroke} d="M12 3 14.5 9H21l-5.5 4 2 6L12 15l-5.5 4 2-6L3 9h6.5L12 3Z" />
     </svg>
   ),
+  cancellations: (
+    <svg {...iconProps}>
+      <circle {...stroke} cx="12" cy="12" r="8" />
+      <path {...stroke} d="M9 9l6 6M15 9l-6 6" />
+    </svg>
+  ),
   ambassadors: (
     <svg {...iconProps}>
       <circle {...stroke} cx="12" cy="8" r="3.5" />

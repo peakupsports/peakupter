@@ -1,0 +1,425 @@
+@import '../../../styles/customMediaQueries.css';
+
+.pageHeader {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin-bottom: 20px;
+  padding-bottom: 4px;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 13, 20, 0.98) 0%,
+    rgba(10, 13, 20, 0.92) 72%,
+    rgba(10, 13, 20, 0) 100%
+  );
+  backdrop-filter: blur(10px);
+}
+
+.opsBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.opsBar button {
+  min-height: 42px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (--viewportMedium) {
+  .summaryGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+.summaryCard {
+  position: relative;
+  padding: 18px 16px;
+  border-radius: 16px;
+  background: linear-gradient(
+    168deg,
+    rgba(18, 28, 44, 0.82) 0%,
+    rgba(11, 18, 30, 0.68) 100%
+  );
+  border: 1px solid rgba(25, 223, 242, 0.16);
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.summaryCardHigh {
+  border-color: rgba(255, 140, 64, 0.35);
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.22),
+    0 0 28px rgba(255, 120, 48, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.summaryLabel {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 250, 0.62);
+}
+
+.summaryValue {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 34px);
+  font-weight: 800;
+  line-height: 1.1;
+  color: #f4f8ff;
+}
+
+.summaryValueAlert {
+  background: linear-gradient(95deg, #ffb84d 0%, #ff6b4a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.tableSection {
+  padding: 0;
+  overflow: hidden;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.caseTable {
+  width: 100%;
+  min-width: 880px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.caseTable th,
+.caseTable td {
+  padding: 14px 12px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(244, 246, 250, 0.9);
+}
+
+.caseTable th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 250, 0.58);
+  background: rgba(8, 14, 24, 0.96);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.caseTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.caseRow {
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.caseRow:hover td {
+  background: rgba(25, 223, 242, 0.06);
+}
+
+.caseRowSelected td {
+  background: rgba(25, 223, 242, 0.1);
+  box-shadow: inset 3px 0 0 #19dff2;
+}
+
+.cellMuted {
+  color: rgba(244, 246, 250, 0.72);
+  font-size: 13px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.statusOpen {
+  color: #9dff4f;
+  background: rgba(157, 255, 79, 0.12);
+  border-color: rgba(157, 255, 79, 0.32);
+}
+
+.statusInProgress {
+  color: #19dff2;
+  background: rgba(25, 223, 242, 0.12);
+  border-color: rgba(25, 223, 242, 0.32);
+}
+
+.statusResolved {
+  color: #7dffb0;
+  background: rgba(125, 255, 176, 0.1);
+  border-color: rgba(125, 255, 176, 0.28);
+}
+
+.statusRefundPending {
+  color: #ffd27a;
+  background: rgba(255, 210, 122, 0.1);
+  border-color: rgba(255, 210, 122, 0.28);
+}
+
+.statusDefault {
+  color: rgba(244, 246, 250, 0.82);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.statusDismissed {
+  color: rgba(200, 210, 228, 0.88);
+  background: rgba(120, 130, 150, 0.16);
+  border-color: rgba(180, 190, 210, 0.22);
+}
+
+.urgencyBadgeHigh {
+  color: #fff;
+  background: linear-gradient(95deg, #ff8c3a 0%, #ff4d4d 100%);
+  border-color: rgba(255, 120, 64, 0.45);
+  box-shadow: 0 4px 16px rgba(255, 90, 48, 0.28);
+}
+
+.urgencyBadgeNormal {
+  color: rgba(244, 246, 250, 0.78);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.stateCard {
+  margin: 0 0 20px;
+  padding: 28px 20px;
+  border-radius: 16px;
+  text-align: center;
+  font-size: 15px;
+  color: rgba(244, 246, 250, 0.72);
+  background: linear-gradient(
+    168deg,
+    rgba(18, 28, 44, 0.78) 0%,
+    rgba(11, 18, 30, 0.62) 100%
+  );
+  border: 1px solid rgba(25, 223, 242, 0.14);
+}
+
+.errorBanner {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #ff9f9f;
+  background: rgba(48, 16, 20, 0.5);
+  border: 1px solid rgba(255, 120, 120, 0.28);
+}
+
+.detailPanel {
+  margin-top: 20px;
+}
+
+.detailHeading {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 800;
+  color: rgba(244, 246, 250, 0.95);
+}
+
+.detailGrid {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+@media (--viewportMedium) {
+  .detailGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+.detailBlock {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(8, 14, 24, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.detailLabel {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 250, 0.58);
+}
+
+.detailValue {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(244, 246, 250, 0.92);
+  word-break: break-word;
+}
+
+.formStack {
+  display: grid;
+  gap: 14px;
+}
+
+.notesField {
+  width: 100%;
+  min-height: 120px;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(244, 246, 250, 0.95);
+  color-scheme: dark;
+  -webkit-text-fill-color: rgba(244, 246, 250, 0.95);
+  caret-color: #19dff2;
+  background: linear-gradient(
+    168deg,
+    rgba(10, 18, 32, 0.92) 0%,
+    rgba(8, 14, 26, 0.88) 100%
+  );
+  border: 1px solid rgba(25, 223, 242, 0.28);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.18);
+  resize: vertical;
+}
+
+.notesField::placeholder {
+  color: rgba(180, 198, 224, 0.45);
+  opacity: 1;
+}
+
+.notesField:focus,
+.selectField:focus {
+  outline: none;
+  border-color: rgba(94, 245, 214, 0.65);
+  box-shadow:
+    0 0 0 2px rgba(25, 223, 242, 0.18),
+    0 0 24px rgba(25, 223, 242, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.selectField {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  color: rgba(244, 246, 250, 0.92);
+  color-scheme: dark;
+  background: linear-gradient(
+    168deg,
+    rgba(10, 18, 32, 0.92) 0%,
+    rgba(8, 14, 26, 0.88) 100%
+  );
+  border: 1px solid rgba(25, 223, 242, 0.28);
+  border-radius: 12px;
+}
+
+.selectField option {
+  color: #0b1220;
+  background: #f4f8ff;
+}
+
+.workflowMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.workflowMetaItem {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: rgba(244, 246, 250, 0.78);
+  background: rgba(8, 14, 24, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.detailStatusRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.actionRow button {
+  min-height: 42px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actionDanger {
+  color: #ffb4b4;
+  background: rgba(48, 16, 20, 0.55);
+  border: 1px solid rgba(255, 120, 120, 0.35);
+}
+
+.actionDanger:hover:not(:disabled) {
+  border-color: rgba(255, 120, 120, 0.55);
+  background: rgba(64, 20, 26, 0.72);
+}
+
+.outcomePending {
+  color: #ffb84d;
+}
+
+.outcomeCancelled {
+  color: #7dffb0;
+}
+
+.gateCard {
+  max-width: 480px;
+}

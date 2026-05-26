@@ -21,6 +21,14 @@ export const PEAKUP_HQ_SECTIONS = [
     live: false,
   },
   {
+    id: 'cancellation-center',
+    routeName: 'PeakUpHqCancellationCenterPage',
+    icon: 'cancellations',
+    titleId: 'PeakUpHq.section.cancellations.title',
+    descriptionId: 'PeakUpHq.section.cancellations.description',
+    live: true,
+  },
+  {
     id: 'ambassadors',
     routeName: 'PeakUpHqAmbassadorsPage',
     icon: 'ambassadors',

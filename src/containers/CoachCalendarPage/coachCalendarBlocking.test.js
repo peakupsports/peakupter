@@ -1,6 +1,7 @@
 import {
   blockOverlapsBookingSession,
   getBlockBookingConflicts,
+  getUniqueConflictSessions,
   timeRangesOverlap,
 } from './coachCalendarBlocking';
 
@@ -35,5 +36,15 @@ describe('coachCalendarBlocking', () => {
     });
     expect(conflicts).toHaveLength(1);
     expect(conflicts[0].session.customerName).toBe('Simon');
+  });
+
+  it('dedupes conflicts by transaction id', () => {
+    const txSession = { ...session, transactionId: 'tx-1' };
+    const conflicts = [
+      { dateKey: '2026-05-28', session: txSession },
+      { dateKey: '2026-05-29', session: { ...txSession, id: 's2', dateKey: '2026-05-29' } },
+    ];
+    expect(getUniqueConflictSessions(conflicts)).toHaveLength(1);
+    expect(getUniqueConflictSessions(conflicts)[0].transactionId).toBe('tx-1');
   });
 });

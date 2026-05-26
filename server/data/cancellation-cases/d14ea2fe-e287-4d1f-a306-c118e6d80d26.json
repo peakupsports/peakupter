@@ -1,0 +1,35 @@
+{
+  "id": "d14ea2fe-e287-4d1f-a306-c118e6d80d26",
+  "status": "resolved",
+  "urgency": "normal",
+  "reason": "coach_calendar_block",
+  "coachUserId": "69e16a44-5217-4220-9f45-618ca5dcfe5d",
+  "coachName": "Giangio",
+  "customerUserId": "69f61e22-a3b8-428e-9403-6d47d07c2fab",
+  "customerName": "Simon",
+  "customerEmail": "",
+  "transactionId": "6a0f04e3-3c08-475f-b862-8ad843c9952c",
+  "sessionTitle": "ORARIO START AND END",
+  "bookingAt": "2026-05-27 01:00–02:00",
+  "bookingStatus": "Accepted",
+  "blockSummary": {
+    "kind": "all-day",
+    "dateKeys": [
+      "2026-05-27"
+    ],
+    "rangeLabel": "27 May 2026",
+    "slot": null
+  },
+  "cancellationOutcome": "cancellation_pending",
+  "refundStatus": "pending_review",
+  "reassignmentStatus": "not_started",
+  "adminNotes": "prova",
+  "customerNotified": true,
+  "emailSent": false,
+  "messageSent": true,
+  "createdAt": "2026-05-25T23:49:40.655Z",
+  "updatedAt": "2026-05-26T10:22:37.954Z",
+  "resolvedAt": "2026-05-26T10:22:37.954Z",
+  "dismissedAt": null,
+  "reopenedAt": null
+}

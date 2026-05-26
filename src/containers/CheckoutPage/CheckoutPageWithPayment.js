@@ -232,6 +232,27 @@ const fetchSpeculatedTransactionIfNeeded = (orderParams, pageData, fetchSpeculat
 
   if (shouldFetchSpeculatedTransaction) {
     const processAlias = pageData.listing.attributes.publicData?.transactionProcessAlias;
+    const expectedProcessAlias = 'default-booking/release-1';
+
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp CHECKOUT PROCESS]', {
+      processName,
+      processAlias,
+      expectedProcessAlias,
+      aliasMatches: processAlias === expectedProcessAlias,
+      listingId: pageData.listing?.id?.uuid,
+      lastTransition: tx?.attributes?.lastTransition || null,
+      transactionProcessName: tx?.attributes?.processName || null,
+      transactionProcessVersion: tx?.attributes?.processVersion ?? null,
+    });
+
+    if (processAlias && processAlias !== expectedProcessAlias) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[PeakUp CHECKOUT PROCESS] listing transactionProcessAlias is "${processAlias}"; expected "${expectedProcessAlias}" for current booking checkout.`
+      );
+    }
+
     const transactionId = tx ? tx.id : null;
     const isInquiryInPaymentProcess =
       tx?.attributes?.lastTransition === process.transitions.INQUIRE;
@@ -563,8 +584,11 @@ export const CheckoutPageWithPayment = props => {
     tx?.attributes?.lineItems?.length > 0 ? getFormattedTotalPrice(tx, intl) : null;
 
   const process = processName ? getProcess(processName) : null;
-  const transitions = process.transitions;
-  const isPaymentExpired = hasPaymentExpired(existingTransaction, process, isClockInSync);
+  const transitions = process?.transitions;
+  const isPaymentExpired =
+    process && transitions
+      ? hasPaymentExpired(existingTransaction, process, isClockInSync)
+      : false;
 
   // Allow showing page when currentUser is still being downloaded,
   // but show payment form only when user info is loaded.
@@ -602,7 +626,9 @@ export const CheckoutPageWithPayment = props => {
   const isNegotiation = processName === NEGOTIATION_PROCESS_NAME;
 
   const txTransitions = existingTransaction?.attributes?.transitions || [];
-  const hasInquireTransition = txTransitions.find(tr => tr.transition === transitions.INQUIRE);
+  const hasInquireTransition = transitions
+    ? txTransitions.find(tr => tr.transition === transitions.INQUIRE)
+    : false;
   const showInitialMessageInput = !hasInquireTransition && !isNegotiation;
 
   // Get first and last name of the current user and use it in the StripePaymentForm to autofill the name field

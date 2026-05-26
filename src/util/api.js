@@ -7,11 +7,9 @@ import { types as sdkTypes, transit } from './sdkLoader';
 import Decimal from 'decimal.js';
 
 export const apiBaseUrl = marketplaceRootURL => {
-  const port = process.env.REACT_APP_DEV_API_SERVER_PORT;
-  const useDevApiServer = process.env.NODE_ENV === 'development' && !!port;
-
-  // In development, the dev API server is running in a different port
-  if (useDevApiServer) {
+  // In development the API server runs on a separate port (default 3500).
+  if (process.env.NODE_ENV === 'development') {
+    const port = process.env.REACT_APP_DEV_API_SERVER_PORT || '3500';
     return `http://localhost:${port}`;
   }
 
@@ -73,10 +71,17 @@ const request = (path, options = {}) => {
 
     if (res.status >= 400) {
       return res.json().then(data => {
-        let e = new Error();
-        e = Object.assign(e, data);
-
-        throw e;
+        const message =
+          typeof data?.message === 'string'
+            ? data.message
+            : typeof data?.statusText === 'string'
+            ? data.statusText
+            : 'Request failed';
+        const err = new Error(message);
+        err.status = res.status;
+        err.statusText = data?.statusText || res.statusText;
+        err.data = data;
+        throw err;
       });
     }
     if (contentType === 'application/transit+json') {

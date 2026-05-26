@@ -73,8 +73,14 @@ const DashboardCard = ({
   );
 };
 
-const QuickStat = ({ labelId, value, alert = false, comingSoon = false }) => (
-  <div className={classNames(css.stat, alert ? css.statAlert : null)}>
+const QuickStat = ({ labelId, value, alert = false, highlight = false, comingSoon = false }) => (
+  <div
+    className={classNames(
+      css.stat,
+      alert ? css.statAlert : null,
+      highlight ? css.statHighlight : null
+    )}
+  >
     <span
       className={classNames(
         css.statValue,
@@ -222,6 +228,8 @@ const CoachDashboardPage = () => {
   const description = intl.formatMessage({ id: 'CoachDashboardPage.schemaDescription' });
 
   const hasNewRequests = newRequestsCount > 0;
+  const hasUpcomingSessions =
+    upcomingSessionsCount != null && upcomingSessionsCount > 0;
 
   const stats = [
     {
@@ -233,6 +241,7 @@ const CoachDashboardPage = () => {
       key: 'sessions',
       labelId: 'CoachDashboardPage.statUpcomingSessions',
       value: formatCountStatValue(upcomingSessionsCount),
+      highlight: hasUpcomingSessions,
     },
     {
       key: 'requests',
@@ -282,6 +291,7 @@ const CoachDashboardPage = () => {
                 labelId={stat.labelId}
                 value={stat.value}
                 alert={stat.alert}
+                highlight={stat.highlight}
                 comingSoon={stat.comingSoon}
               />
             ))}

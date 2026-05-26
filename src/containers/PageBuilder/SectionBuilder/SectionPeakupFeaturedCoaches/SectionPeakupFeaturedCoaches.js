@@ -1,11 +1,20 @@
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { createSelector } from '@reduxjs/toolkit';
 
 // Configurations + utilities
 import { useConfiguration } from '../../../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 import { getMarketplaceEntities } from '../../../../ducks/marketplaceData.duck';
+import {
+  featuredCoachesHealStaleReviewsLoaded,
+  fetchFeaturedCoaches,
+} from '../../../../ducks/featuredCoaches.duck';
+import {
+  logPeakupDataRegressionCheckFeaturedCoaches,
+  logPeakupFeaturedReviewMerge,
+} from '../../../../util/coachReviewStats';
 import {
   comparePeakupFeaturedCoaches,
   resolveDisplayBadgeIds,
@@ -26,52 +35,51 @@ import css from './SectionPeakupFeaturedCoaches.module.css';
 
 const FEATURED_COACH_BADGE_SRC = '/CoachPagePic/Featured_Coach.jpg';
 
+const selectFeaturedCoachRows = state => state.featuredCoaches?.coaches || [];
+
 /**
- * Selector: rebuild `coachCard` props for each row in `state.featuredCoaches.coaches`,
- * denormalising the related `user` and `listing` entities from `state.marketplaceData`.
- *
- * @param {Object} state Redux store
+ * Memoized: rebuild coach card props from slice rows + marketplace entities.
  */
-const selectFeaturedCoachCards = state => {
-  const rows = state.featuredCoaches?.coaches || [];
-  if (!rows.length) return [];
+const selectFeaturedCoachCards = createSelector(
+  [selectFeaturedCoachRows, state => state.marketplaceData?.entities],
+  (rows, entities) => {
+    if (!rows.length || !entities) return [];
 
-  const userRefs = rows.map(r => ({ id: { uuid: r.authorUuid }, type: 'user' }));
-  const listingRefs = rows
-    .filter(r => r.listingId)
-    .map(r => ({ id: { uuid: r.listingId }, type: 'listing' }));
+    const userRefs = rows.map(r => ({ id: { uuid: r.authorUuid }, type: 'user' }));
+    const listingRefs = rows
+      .filter(r => r.listingId)
+      .map(r => ({ id: { uuid: r.listingId }, type: 'listing' }));
 
-  const users = getMarketplaceEntities(state, userRefs);
-  const listings = getMarketplaceEntities(state, listingRefs);
-  const usersByUuid = new Map(users.map(u => [u.id?.uuid, u]));
-  const listingsByUuid = new Map(listings.map(l => [l.id?.uuid, l]));
+    const users = getMarketplaceEntities({ marketplaceData: { entities } }, userRefs);
+    const listings = getMarketplaceEntities({ marketplaceData: { entities } }, listingRefs);
+    const usersByUuid = new Map(users.map(u => [u.id?.uuid, u]));
+    const listingsByUuid = new Map(listings.map(l => [l.id?.uuid, l]));
 
-  return rows
-    .map(row => {
-      const author = usersByUuid.get(row.authorUuid);
-      if (!author) return null;
-      const representativeListing = row.listingId
-        ? listingsByUuid.get(row.listingId) || null
-        : null;
-      const authorPd = author?.attributes?.profile?.publicData || {};
-      // Display badges are auto-derived (admin-only Founder/Ambassador,
-      // Top coach for >=10y, Certified coach as default).
-      const computedBadgeIds = resolveDisplayBadgeIds(authorPd);
-      return {
-        authorUuid: row.authorUuid,
-        author,
-        representativeListing,
-        sportKeys: row.sportKeys || [],
-        reviewCount: row.reviewCount || 0,
-        reviewAverage: row.reviewAverage ?? null,
-        // Prefer slice value if present, but fall back to live profile.publicData
-        badgeIds: Array.isArray(row.badgeIds) && row.badgeIds.length ? row.badgeIds : computedBadgeIds,
-        badgePriority: row.badgePriority || 0,
-      };
-    })
-    .filter(Boolean)
-    .sort(comparePeakupFeaturedCoaches);
-};
+    return rows
+      .map(row => {
+        const author = usersByUuid.get(row.authorUuid);
+        if (!author) return null;
+        const representativeListing = row.listingId
+          ? listingsByUuid.get(row.listingId) || null
+          : null;
+        const authorPd = author?.attributes?.profile?.publicData || {};
+        const computedBadgeIds = resolveDisplayBadgeIds(authorPd);
+        return {
+          authorUuid: row.authorUuid,
+          author,
+          representativeListing,
+          sportKeys: row.sportKeys || [],
+          reviewCount: row.reviewCount || 0,
+          reviewAverage: row.reviewAverage ?? null,
+          badgeIds:
+            Array.isArray(row.badgeIds) && row.badgeIds.length ? row.badgeIds : computedBadgeIds,
+          badgePriority: row.badgePriority || 0,
+        };
+      })
+      .filter(Boolean)
+      .sort(comparePeakupFeaturedCoaches);
+  }
+);
 
 /** Quanto scorrere a ogni click sulle frecce (≈ una card + gap). */
 const SCROLL_STEP_PX = 320;
@@ -95,17 +103,11 @@ FeaturedCoachScrollerCard.displayName = 'FeaturedCoachScrollerCard';
 
 /**
  * Featured PeakUp coaches — landing-page section.
- *
- * Renders the highest-priority coaches as `PeakUpCoachFigurineCard` (gold-bordered "figurina"),
- * sorted by badge tier (Founder > Ambassador > Top coach > Certified coach > none) then by
- * review score (Bayesian-light blend of average × volume); see
- * {@link comparePeakupFeaturedCoaches} in `src/util/profileCoachSticker.js`.
- *
- * Layout: una riga sola con scroll orizzontale (snap) + frecce su desktop.
  */
 const SectionPeakupFeaturedCoaches = props => {
   const intl = useIntl();
   const config = useConfiguration();
+  const dispatch = useDispatch();
   const {
     sectionId,
     className,
@@ -116,67 +118,99 @@ const SectionPeakupFeaturedCoaches = props => {
     options = {},
   } = props;
 
-  const featuredCoaches = options?.featuredCoaches || {};
-  const { onFetchFeaturedCoaches, onFetchFeaturedCoachReviews } = featuredCoaches;
-
   const fetchStatus = useSelector(state => state.featuredCoaches?.fetchStatus || 'idle');
   const fetchError = useSelector(state => state.featuredCoaches?.fetchError || null);
   const reviewsStatus = useSelector(state => state.featuredCoaches?.reviewsStatus || 'idle');
+  const reviewsLoaded = useSelector(state => state.featuredCoaches?.reviewsLoaded === true);
+  const coachRows = useSelector(selectFeaturedCoachRows);
   const cards = useSelector(selectFeaturedCoachCards);
-  const hasMissingUserPublicData = cards.some(
-    c => !c?.author?.attributes?.profile?.publicData
-  );
-  const hasMissingAvatarVariants = cards.some(c => {
-    const img = c?.author?.profileImage;
-    if (!img?.id) return false;
-    const variants = img?.attributes?.variants || {};
-    // Card uses square-small(2x)/default fallback. If none exist, it will show placeholder.
-    return !variants['square-small'] && !variants['square-small2x'] && !variants['default'];
-  });
-  const didRefetchForUserPublicDataRef = useRef(false);
-  const didRefetchForAvatarVariantsRef = useRef(false);
+
+  const configRef = useRef(config);
+  configRef.current = config;
+  const didRequestFullFetchRef = useRef(false);
+  const didRequestReviewsFetchRef = useRef(false);
+  const didLogRegressionCheckRef = useRef(false);
+  const didLogReviewMergeRef = useRef(false);
 
   useEffect(() => {
-    if (fetchStatus === 'idle' && typeof onFetchFeaturedCoaches === 'function') {
-      onFetchFeaturedCoaches({ config });
+    dispatch(featuredCoachesHealStaleReviewsLoaded());
+  }, [dispatch]);
+
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp FEATURED SECTION STATE]', {
+      status: fetchStatus,
+      reviewsStatus,
+      coachCount: coachRows.length,
+      cardCount: cards.length,
+      reviewsLoaded,
+      didRequestFullFetch: didRequestFullFetchRef.current,
+      didRequestReviewsFetch: didRequestReviewsFetchRef.current,
+    });
+  }, [fetchStatus, reviewsStatus, coachRows.length, cards.length, reviewsLoaded]);
+
+  useEffect(() => {
+    if (fetchStatus === 'loading' || reviewsStatus === 'loading') return;
+
+    const needsReviews =
+      fetchStatus === 'succeeded' && coachRows.length > 0 && reviewsLoaded === false;
+
+    if (needsReviews) {
+      if (didRequestReviewsFetchRef.current) return;
+      didRequestReviewsFetchRef.current = true;
+      dispatch(
+        fetchFeaturedCoaches({ config: configRef.current, reviewsOnly: true, force: true })
+      );
+      return;
     }
-    // We intentionally only react to fetchStatus 'idle': avoids refetch storms on tab focus.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchStatus, onFetchFeaturedCoaches]);
 
-  useEffect(() => {
-    if (fetchStatus !== 'succeeded') return;
-    if (!cards.length) return;
-    if (reviewsStatus !== 'idle') return;
-    if (typeof onFetchFeaturedCoachReviews !== 'function') return;
-
-    const authorUuids = cards.map(c => c.authorUuid).filter(Boolean);
-    onFetchFeaturedCoachReviews({ authorUuids });
-  }, [fetchStatus, cards, reviewsStatus, onFetchFeaturedCoachReviews]);
-
-  useEffect(() => {
-    if (
-      fetchStatus === 'succeeded' &&
-      hasMissingUserPublicData &&
-      !didRefetchForUserPublicDataRef.current &&
-      typeof onFetchFeaturedCoaches === 'function'
-    ) {
-      didRefetchForUserPublicDataRef.current = true;
-      onFetchFeaturedCoaches({ config });
+    if (fetchStatus === 'succeeded' || fetchStatus === 'failed') {
+      return;
     }
-  }, [fetchStatus, hasMissingUserPublicData, onFetchFeaturedCoaches, config]);
+
+    if (didRequestFullFetchRef.current) return;
+    didRequestFullFetchRef.current = true;
+    dispatch(fetchFeaturedCoaches({ config: configRef.current }));
+  }, [dispatch, fetchStatus, reviewsStatus, reviewsLoaded, coachRows.length]);
 
   useEffect(() => {
-    if (
-      fetchStatus === 'succeeded' &&
-      hasMissingAvatarVariants &&
-      !didRefetchForAvatarVariantsRef.current &&
-      typeof onFetchFeaturedCoaches === 'function'
-    ) {
-      didRefetchForAvatarVariantsRef.current = true;
-      onFetchFeaturedCoaches({ config });
+    if (reviewsStatus === 'failed' && !reviewsLoaded) {
+      didRequestReviewsFetchRef.current = false;
     }
-  }, [fetchStatus, hasMissingAvatarVariants, onFetchFeaturedCoaches, config]);
+  }, [reviewsStatus, reviewsLoaded]);
+
+  useEffect(() => {
+    if (!reviewsLoaded || !cards.length || !coachRows.length) return;
+    if (didLogReviewMergeRef.current) return;
+    didLogReviewMergeRef.current = true;
+    coachRows.forEach(row => {
+      const card = cards.find(c => c.authorUuid === row.authorUuid);
+      if (card) logPeakupFeaturedReviewMerge(row, card);
+    });
+  }, [reviewsLoaded, cards, coachRows]);
+
+  useEffect(() => {
+    if (!reviewsLoaded || !cards.length) return;
+    if (didLogRegressionCheckRef.current) return;
+    didLogRegressionCheckRef.current = true;
+    const displayNameByUuid = {};
+    cards.forEach(card => {
+      if (!card?.authorUuid) return;
+      const name = card.author?.attributes?.profile?.displayName;
+      if (name) displayNameByUuid[card.authorUuid] = name;
+    });
+    logPeakupDataRegressionCheckFeaturedCoaches(
+      cards.map(card => ({
+        authorUuid: card.authorUuid,
+        reviewCount: card.reviewCount,
+        reviewAverage: card.reviewAverage,
+      })),
+      {
+        displayNameByUuid,
+        source: 'SectionPeakupFeaturedCoaches.selectFeaturedCoachCards',
+      }
+    );
+  }, [reviewsLoaded, cards]);
 
   const fieldComponents = options?.fieldComponents;
   const fieldOptions = { fieldComponents };
@@ -185,7 +219,6 @@ const SectionPeakupFeaturedCoaches = props => {
   const inProgress = fetchStatus === 'loading' && cards.length === 0;
   const noCoachesFound = fetchStatus === 'succeeded' && cards.length === 0;
 
-  // Scroller refs — nav disabled state via DOM refs (no React state on scroll).
   const scrollerRef = useRef(null);
   const navPrevRef = useRef(null);
   const navNextRef = useRef(null);

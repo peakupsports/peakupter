@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -56,6 +56,7 @@ import {
   requestUpdateListing,
 } from '../EditListingPage/EditListingPage.duck';
 import { invalidateListingPageTimeSlotsCache } from '../ListingPage/ListingPage.duck';
+import { manageDisableScrolling } from '../../ducks/ui.duck';
 
 import css from './CoachCalendarPage.module.css';
 import {
@@ -65,9 +66,12 @@ import {
 } from './coachCalendarBookings';
 import { getCoachCalendarBookingCountForDate } from './coachCalendarBookingEvents';
 import {
-  formatBlockBookingConflictMessage,
+  buildCoachBlockCancelSessionsPayload,
   getBlockBookingConflicts,
+  getUniqueConflictSessions,
 } from './coachCalendarBlocking';
+import { postCoachBlockCancel } from '../../util/coachCalendarBlockCancel';
+import CoachCalendarBlockConflictModal from './CoachCalendarBlockConflictModal/CoachCalendarBlockConflictModal';
 import {
   getInclusiveDateRange,
   isDateInRangeBounds,
@@ -331,9 +335,22 @@ const buildForceSyncResultSummary = (syncResult, context = {}) => {
   };
 };
 
-const CoachCalendarPageComponent = () => {
+const CoachCalendarPageComponent = props => {
+  const { onManageDisableScrolling: onManageDisableScrollingProp } = props;
   const intl = useIntl();
   const dispatch = useDispatch();
+
+  const onManageDisableScrollingFromDispatch = useCallback(
+    (componentId, disableScrolling) => {
+      dispatch(manageDisableScrolling(componentId, disableScrolling));
+    },
+    [dispatch]
+  );
+
+  const onManageDisableScrolling =
+    typeof onManageDisableScrollingProp === 'function'
+      ? onManageDisableScrollingProp
+      : onManageDisableScrollingFromDispatch;
   const history = useHistory();
   const location = useLocation();
   const config = useConfiguration();
@@ -413,6 +430,14 @@ const CoachCalendarPageComponent = () => {
   const [availabilitySyncFeedback, setAvailabilitySyncFeedback] = useState(null);
   const [rateLimitRemainingMs, setRateLimitRemainingMs] = useState(0);
   const [bookingSessions, setBookingSessions] = useState([]);
+  const [pendingBlockAction, setPendingBlockAction] = useState(null);
+  const [blockCancelInProgress, setBlockCancelInProgress] = useState(false);
+  const [blockCancelError, setBlockCancelError] = useState(null);
+  const pendingBlockActionRef = useRef(null);
+
+  useEffect(() => {
+    pendingBlockActionRef.current = pendingBlockAction;
+  }, [pendingBlockAction]);
 
   const isForceSyncBlocked = rateLimitRemainingMs > 0;
 
@@ -533,11 +558,154 @@ const CoachCalendarPageComponent = () => {
     return bookings.sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [bookingsByDateKey, selectedRangeDates]);
 
-  const confirmBlockDespiteBookings = conflicts => {
-    if (!conflicts.length) {
-      return true;
+  const refreshCoachCalendarBookings = () =>
+    dispatch(requestFetchCoachCalendarBookings({ year: viewYear, month: viewMonth }))
+      .then(transactions => {
+        setBookingSessions(buildCoachCalendarBookingSessions(transactions, intl));
+      })
+      .catch(() => {
+        setBookingSessions([]);
+      });
+
+  const buildBlockSummary = (kind, slotPayload = null) => ({
+    kind,
+    dateKeys: selectedRangeDates.map(toDateKey),
+    rangeLabel: selectedRangeLabel,
+    slot: slotPayload,
+  });
+
+  const openBlockConflictModal = (kind, conflicts, slotPayload = null) => {
+    setBlockCancelError(null);
+    setBlockCancelInProgress(false);
+    const nextPending = {
+      kind,
+      conflicts,
+      slotPayload,
+      blockSummary: buildBlockSummary(kind, slotPayload),
+    };
+    pendingBlockActionRef.current = nextPending;
+    setPendingBlockAction(nextPending);
+  };
+
+  const closeBlockConflictModal = () => {
+    if (blockCancelInProgress) {
+      return;
     }
-    return window.confirm(formatBlockBookingConflictMessage(intl, conflicts));
+    setPendingBlockAction(null);
+    setBlockCancelError(null);
+  };
+
+  const commitPendingBlock = () => {
+    const pending = pendingBlockActionRef.current;
+    if (!pending) {
+      return;
+    }
+
+    const { kind, slotPayload } = pending;
+
+    if (kind === 'all-day') {
+      applyToSelectedRange(() => ({
+        allDayBlocked: true,
+        blockedSlots: [],
+      }));
+      setBlockScope('all-day');
+    } else if (slotPayload) {
+      applyToSelectedRange((current, date) => ({
+        allDayBlocked: false,
+        blockedSlots: [
+          ...current.blockedSlots,
+          {
+            id: `block-${toDateKey(date)}-${Date.now()}`,
+            ...slotPayload,
+          },
+        ],
+      }));
+      setNewSlot({ ...DEFAULT_NEW_SLOT });
+      setBlockScope('specific');
+    }
+
+    pendingBlockActionRef.current = null;
+    setPendingBlockAction(null);
+    setBlockCancelError(null);
+  };
+
+  const handleConfirmBlockWithCancellations = async () => {
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp BLOCK CANCEL SUBMIT START]');
+
+    try {
+      const pending = pendingBlockActionRef.current;
+      const conflictCount = pending?.conflicts?.length || 0;
+
+      // eslint-disable-next-line no-console
+      console.log('[PeakUp BLOCK CANCEL SUBMIT START]', {
+        hasPending: Boolean(pending),
+        conflictCount,
+        kind: pending?.kind,
+      });
+
+      if (!conflictCount) {
+        // eslint-disable-next-line no-console
+        console.log('[PeakUp BLOCK CANCEL SUBMIT START] no conflicts — applying block only');
+        commitPendingBlock();
+        return;
+      }
+
+      const uniqueSessions = getUniqueConflictSessions(pending.conflicts);
+      const transactionIds = uniqueSessions.map(s => s.transactionId).filter(Boolean);
+
+      if (!transactionIds.length) {
+        // eslint-disable-next-line no-console
+        console.error('[PeakUp BLOCK CANCEL SUBMIT FATAL] no transactionIds on conflict sessions');
+        setBlockCancelError(
+          intl.formatMessage({
+            id: 'CoachCalendarPage.blockConflictError',
+            defaultMessage:
+              'Could not cancel sessions. Please try again or contact PeakUp support.',
+          })
+        );
+        return;
+      }
+
+      setBlockCancelInProgress(true);
+      setBlockCancelError(null);
+
+      const payload = {
+        transactionIds,
+        sessions: buildCoachBlockCancelSessionsPayload(pending.conflicts, intl),
+        blockSummary: pending.blockSummary,
+      };
+
+      const result = await postCoachBlockCancel(payload);
+
+      if (result?.cancelledCount === 0 && result?.pendingCount > 0) {
+        const apiMessage = result?.results?.find(r => r.transitionError)?.transitionError;
+        setBlockCancelError(
+          apiMessage ||
+            intl.formatMessage({
+              id: 'CoachCalendarPage.blockConflictError',
+              defaultMessage:
+                'Could not cancel sessions. Please try again or contact PeakUp support.',
+            })
+        );
+        return;
+      }
+
+      commitPendingBlock();
+      await refreshCoachCalendarBookings();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[PeakUp BLOCK CANCEL SUBMIT FATAL]', e);
+      setBlockCancelError(
+        e.message ||
+          intl.formatMessage({
+            id: 'CoachCalendarPage.blockConflictError',
+            defaultMessage: 'Could not cancel sessions. Please try again or contact PeakUp support.',
+          })
+      );
+    } finally {
+      setBlockCancelInProgress(false);
+    }
   };
 
   const calendarCells = useMemo(
@@ -814,7 +982,8 @@ const CoachCalendarPageComponent = () => {
       newSlot: slotPayload,
       bookingsByDateKey,
     });
-    if (!confirmBlockDespiteBookings(conflicts)) {
+    if (conflicts.length) {
+      openBlockConflictModal('time-range', conflicts, slotPayload);
       return;
     }
 
@@ -839,7 +1008,8 @@ const CoachCalendarPageComponent = () => {
       allDayBlocked: true,
       bookingsByDateKey,
     });
-    if (!confirmBlockDespiteBookings(conflicts)) {
+    if (conflicts.length) {
+      openBlockConflictModal('all-day', conflicts);
       return;
     }
 
@@ -1670,6 +1840,17 @@ const CoachCalendarPageComponent = () => {
           </div>
         </div>
       </LayoutSingleColumn>
+
+      <CoachCalendarBlockConflictModal
+        isOpen={Boolean(pendingBlockAction?.conflicts?.length)}
+        onClose={closeBlockConflictModal}
+        onConfirm={handleConfirmBlockWithCancellations}
+        conflicts={pendingBlockAction?.conflicts || []}
+        confirmInProgress={blockCancelInProgress}
+        errorMessage={blockCancelError}
+        intl={intl}
+        onManageDisableScrolling={onManageDisableScrolling}
+      />
     </Page>
   );
 };

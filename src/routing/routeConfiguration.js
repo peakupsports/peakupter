@@ -35,6 +35,11 @@ const PeakUpHqAmbassadorsPage = loadable(() =>
     /* webpackChunkName: "PeakUpHqAmbassadorsPage" */ '../containers/PeakUpHq/PeakUpHqAmbassadorsPage/PeakUpHqAmbassadorsPage'
   )
 );
+const PeakUpHqCancellationCenterPage = loadable(() =>
+  import(
+    /* webpackChunkName: "PeakUpHqCancellationCenterPage" */ '../containers/PeakUpHq/PeakUpHqCancellationCenterPage/PeakUpHqCancellationCenterPage'
+  )
+);
 const PeakUpHqPlaceholderPage = loadable(() =>
   import(
     /* webpackChunkName: "PeakUpHqPlaceholderPage" */ '../containers/PeakUpHq/PeakUpHqPlaceholderPage/PeakUpHqPlaceholderPage'
@@ -243,6 +248,13 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       auth: true,
       component: PeakUpHqAmbassadorsPage,
       loadData: pageDataLoadingAPI.PeakUpHqAmbassadorsPage.loadData,
+    },
+    {
+      path: '/admin/cancellation-center',
+      name: 'PeakUpHqCancellationCenterPage',
+      auth: true,
+      component: PeakUpHqCancellationCenterPage,
+      loadData: pageDataLoadingAPI.PeakUpHqCancellationCenterPage.loadData,
     },
     {
       path: '/admin/verification-center',

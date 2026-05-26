@@ -505,7 +505,7 @@ const OrderPanel = props => {
     onSubmit: isBooking ? bookingOnSubmit : onSubmit,
     price,
     marketplaceCurrency,
-    listingId: listing.id,
+    listingId: listing?.id ?? null,
     isOwnListing,
     marketplaceName,
     onFetchTransactionLineItems,

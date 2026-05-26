@@ -70,6 +70,39 @@
   color: var(--colorFail);
 }
 
+.listingUnavailableBanner {
+  margin: 0 24px 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(25, 223, 242, 0.28);
+  background: rgba(8, 14, 26, 0.72);
+  color: var(--peakUpTextMuted, rgba(210, 222, 238, 0.88));
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.errorBoundaryFallback {
+  composes: loading;
+  max-width: 42rem;
+  margin: 24px auto;
+  padding: 24px;
+  text-align: center;
+}
+
+.errorBoundaryTitle {
+  margin: 0 0 12px;
+  color: var(--colorGrey900);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.errorBoundaryDetail {
+  margin: 0;
+  color: var(--colorFail);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 .tabContent {
   display: none;
 }

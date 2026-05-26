@@ -10,7 +10,12 @@ import {
   monthIdString,
   stringifyDateToISO8601,
 } from '../../util/dates';
-import { isTransactionsTransitionInvalidTransition, storableError } from '../../util/errors';
+import {
+  isTransactionsTransitionInvalidTransition,
+  logPeakupTransactionFallbackError,
+  storableError,
+  toErrorInstance,
+} from '../../util/errors';
 import { transactionLineItems, transitionPrivileged } from '../../util/api';
 import * as log from '../../util/log';
 import {
@@ -27,8 +32,15 @@ import {
 
 import { addMarketplaceEntities, getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 import { unarchiveConversationIfIncomingMessage } from '../../ducks/archivedConversations.duck';
-import { fetchCurrentUserNotifications } from '../../ducks/user.duck';
-import { getLatestMessage } from '../../util/transactionNotificationCount';
+import {
+  fetchCurrentUserNotifications,
+  suppressCustomerOrderNotificationAfterSend,
+} from '../../ducks/user.duck';
+import {
+  acknowledgeCustomerOrderAfterSend,
+  getInboxRoleForTransaction,
+  getLatestMessage,
+} from '../../util/transactionNotificationCount';
 import { markTransactionReadOnOpen } from '../../util/unreadNotifications';
 import {
   createContactSharingBlockedError,
@@ -252,9 +264,8 @@ const fetchTransactionPayloadCreator = (
   { id, txRole, config },
   { dispatch, rejectWithValue, extra: sdk }
 ) => {
-  const listingRelationship = txResponse => {
-    return txResponse.data.data.relationships.listing.data;
-  };
+  const getListingIdFromResponse = txResponse =>
+    txResponse?.data?.data?.relationships?.listing?.data?.id;
 
   return sdk.transactions
     .show(
@@ -280,30 +291,85 @@ const fetchTransactionPayloadCreator = (
       { expand: true }
     )
     .then(response => {
-      const listingId = listingRelationship(response).id;
+      const listingId = getListingIdFromResponse(response);
+      const transactionId = response?.data?.data?.id;
       const entities = updatedEntities({}, response.data);
-      const listingRef = { id: listingId, type: 'listing' };
-      const transactionRef = { id, type: 'transaction' };
-      const denormalised = denormalisedEntities(entities, [listingRef, transactionRef]);
-      const listing = denormalised[0];
-      const transaction = denormalised[1];
-      const processName = resolveLatestProcessName(transaction.attributes.processName);
+      const transactionRef = { id: transactionId, type: 'transaction' };
 
-      try {
-        const process = getProcess(processName);
-        const isInquiry = process.getState(transaction) === process.states.INQUIRY;
+      let listing = null;
+      let transactionEntity = null;
 
-        // Fetch time slots for transactions that are in inquired state
-        const canFetchTimeslots =
-          txRole === 'customer' && isBookingProcess(processName) && isInquiry;
-
-        if (canFetchTimeslots) {
-          fetchMonthlyTimeSlots(dispatch, listing);
+      if (listingId) {
+        const listingRef = { id: listingId, type: 'listing' };
+        try {
+          const denormalised = denormalisedEntities(
+            entities,
+            [listingRef, transactionRef],
+            false
+          );
+          listing =
+            denormalised.find(entity => entity?.id?.uuid === listingId.uuid) || null;
+          transactionEntity =
+            denormalised.find(entity => entity?.id?.uuid === transactionId?.uuid) || null;
+        } catch (listingDenormalizeError) {
+          logPeakupTransactionFallbackError(listingDenormalizeError, {
+            transactionId: transactionId?.uuid,
+            listingId: listingId?.uuid,
+            phase: 'fetchTransaction.listingDenormalize',
+          });
+          const denormalised = denormalisedEntities(entities, [transactionRef], false);
+          transactionEntity =
+            denormalised.find(entity => entity?.id?.uuid === transactionId?.uuid) ||
+            denormalised[0] ||
+            null;
         }
-      } catch (error) {
-        if (appSettings.dev) {
-          // eslint-disable-next-line no-console
-          console.log(`transaction process (${processName}) was not recognized`);
+      } else {
+        const denormalised = denormalisedEntities(entities, [transactionRef], false);
+        transactionEntity =
+          denormalised.find(entity => entity?.id?.uuid === transactionId?.uuid) ||
+          denormalised[0] ||
+          null;
+      }
+
+      if (!listing && listingId) {
+        logPeakupTransactionFallbackError(
+          new Error('Listing relationship present but listing entity missing from response'),
+          {
+            transactionId: transactionId?.uuid,
+            listingId: listingId?.uuid,
+            phase: 'fetchTransaction.missingListingEntity',
+          }
+        );
+      }
+
+      if (transactionEntity && typeof window !== 'undefined') {
+        const processName = resolveLatestProcessName(transactionEntity.attributes?.processName);
+        let processState = null;
+        try {
+          const process = getProcess(processName);
+          processState = process.getState(transactionEntity);
+          const isInquiry = processState === process.states.INQUIRY;
+          const canFetchTimeslots =
+            txRole === 'customer' && isBookingProcess(processName) && isInquiry;
+
+          if (canFetchTimeslots && listing) {
+            fetchMonthlyTimeSlots(dispatch, listing);
+          }
+
+          if (processState === process.states.CANCELED) {
+            // eslint-disable-next-line no-console
+            console.log('[PeakUp CANCELED TRANSACTION LOAD]', {
+              transactionId: transactionId?.uuid,
+              listingId: listingId?.uuid,
+              listingLoaded: Boolean(listing),
+              processState,
+            });
+          }
+        } catch (error) {
+          if (appSettings.dev) {
+            // eslint-disable-next-line no-console
+            console.log(`transaction process (${processName}) was not recognized`);
+          }
         }
       }
 
@@ -317,7 +383,8 @@ const fetchTransactionPayloadCreator = (
       return response;
     })
     .catch(e => {
-      return rejectWithValue(storableError(e));
+      logPeakupTransactionFallbackError(e, { phase: 'fetchTransaction' });
+      return rejectWithValue(storableError(toErrorInstance(e)));
     });
 };
 
@@ -528,6 +595,20 @@ const sendMessagePayloadCreator = (
     .send({ transactionId: txId, content: message })
     .then(response => {
       const messageId = response.data.data.id;
+      const messageCreatedAt =
+        response.data.data.attributes?.createdAt || new Date().toISOString();
+      const currentUserId = getState().user?.currentUser?.id?.uuid;
+      const txUuid = typeof txId === 'object' ? txId?.uuid : txId;
+
+      if (
+        transaction &&
+        currentUserId &&
+        txUuid &&
+        getInboxRoleForTransaction(transaction, currentUserId) === 'order'
+      ) {
+        acknowledgeCustomerOrderAfterSend(currentUserId, txUuid, messageCreatedAt);
+        dispatch(suppressCustomerOrderNotificationAfterSend({ transactionId: txUuid }));
+      }
 
       // We fetch the first page again to add sent message to the page data
       // and update possible incoming messages too.

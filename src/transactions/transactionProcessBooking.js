@@ -45,8 +45,11 @@ export const transitions = {
   // The backend automatically expire the transaction.
   EXPIRE: 'transition/expire',
 
-  // Admin can also cancel the transition.
+  // Operator (Integration API / Console) can cancel accepted bookings.
   CANCEL: 'transition/cancel',
+  // Provider can cancel accepted or delivered bookings (e.g. coach calendar block).
+  PROVIDER_CANCEL: 'transition/provider-cancel',
+  PROVIDER_CANCEL_FROM_DELIVERED: 'transition/provider-cancel-from-delivered',
 
   // The backend will mark the transaction completed.
   COMPLETE: 'transition/complete',
@@ -144,6 +147,7 @@ export const graph = {
     [states.ACCEPTED]: {
       on: {
         [transitions.CANCEL]: states.CANCELED,
+        [transitions.PROVIDER_CANCEL]: states.CANCELED,
         [transitions.COMPLETE]: states.DELIVERED,
         [transitions.OPERATOR_COMPLETE]: states.DELIVERED,
       },
@@ -152,6 +156,7 @@ export const graph = {
     [states.CANCELED]: {},
     [states.DELIVERED]: {
       on: {
+        [transitions.PROVIDER_CANCEL_FROM_DELIVERED]: states.CANCELED,
         [transitions.EXPIRE_REVIEW_PERIOD]: states.REVIEWED,
         [transitions.REVIEW_1_BY_CUSTOMER]: states.REVIEWED_BY_CUSTOMER,
         [transitions.REVIEW_1_BY_PROVIDER]: states.REVIEWED_BY_PROVIDER,
@@ -249,4 +254,13 @@ export const isRefunded = transition => {
 
 export const statesNeedingProviderAttention = [states.INQUIRY, states.PREAUTHORIZED];
 
-export const statesNeedingCustomerAttention = [states.INQUIRY];
+/**
+ * Transaction states polled for customer inbox / Topbar unread notifications.
+ * Includes canceled so post-cancellation messages still surface the red dot.
+ */
+export const statesNeedingCustomerAttention = [
+  states.INQUIRY,
+  states.ACCEPTED,
+  states.DELIVERED,
+  states.CANCELED,
+];

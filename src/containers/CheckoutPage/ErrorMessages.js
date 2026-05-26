@@ -12,6 +12,7 @@ import {
   isTooManyRequestsError,
   transactionInitiateOrderStripeErrors,
   isProviderCommissionBiggerThanMinPrice,
+  getCheckoutBreakdownErrorMessage,
 } from '../../util/errors';
 
 import css from './CheckoutPage.module.css';
@@ -104,7 +105,7 @@ export const getErrorMessages = (
       <FormattedMessage id="CheckoutPage.providerCommissionBiggerThanMinPrice" />
     );
   } else if (speculateTransactionError) {
-    speculateErrorMessage = <FormattedMessage id="CheckoutPage.speculateFailedMessage" />;
+    speculateErrorMessage = getCheckoutBreakdownErrorMessage(speculateTransactionError);
   }
 
   // Add paragraph-container for the error message, if it exists
@@ -117,13 +118,7 @@ export const getErrorMessages = (
   const speculateErrorMessageParagraph = speculateErrorMessage ? (
     <p className={css.orderError}>{speculateErrorMessage}</p>
   ) : null;
-  const speculateTransactionErrorMessageParagraph =
-    speculateTransactionError &&
-    !isTransactionInitiateMissingStripeAccountError(speculateTransactionError) ? (
-      <p className={css.speculateError}>
-        <FormattedMessage id="CheckoutPage.speculateTransactionError" />
-      </p>
-    ) : null;
+  const speculateTransactionErrorMessageParagraph = null;
 
   // Stripe might throw error when retrieving payment intent
   const retrievePaymentIntentErrorMessageParagraph = retrievePaymentIntentError ? (

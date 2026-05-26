@@ -15,6 +15,7 @@ export const PEAKUP_HQ_ROUTE_NAMES = [
   'PeakUpHqDashboardPage',
   'PeakUpHqFeaturedCoachesPage',
   'PeakUpHqAmbassadorsPage',
+  'PeakUpHqCancellationCenterPage',
   'PeakUpHqVerificationPage',
   'PeakUpHqReportsPage',
   'PeakUpHqPaymentsPage',

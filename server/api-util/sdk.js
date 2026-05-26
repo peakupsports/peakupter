@@ -50,7 +50,7 @@ const memoryStore = token => {
 };
 
 // Read the user token from the request cookie
-const getUserToken = req => {
+exports.getUserToken = req => {
   const cookieTokenStore = sharetribeSdk.tokenStore.expressCookieStore({
     clientId: CLIENT_ID,
     req,
@@ -140,7 +140,7 @@ exports.getSdk = (req, res) => {
 
 // Trusted token is powerful, it should not be passed away from the server.
 exports.getTrustedSdk = req => {
-  const userToken = getUserToken(req);
+  const userToken = exports.getUserToken(req);
 
   // Initiate an SDK instance for token exchange
   const sdk = sharetribeSdk.createInstance({

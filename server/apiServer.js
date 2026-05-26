@@ -16,14 +16,30 @@ const robotsTxtRoute = require('./resources/robotsTxt');
 const sitemapResourceRoute = require('./resources/sitemap');
 
 const radix = 10;
-const PORT = parseInt(process.env.REACT_APP_DEV_API_SERVER_PORT, radix);
+const PORT = parseInt(process.env.REACT_APP_DEV_API_SERVER_PORT || '3500', radix);
 const app = express();
+
+const marketplaceRootUrl =
+  process.env.REACT_APP_MARKETPLACE_ROOT_URL || 'http://localhost:3000';
+const devCorsOrigins = new Set([
+  marketplaceRootUrl,
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+]);
 
 // NOTE: CORS is only needed in this dev API server because it's
 // running in a different port than the main app.
 app.use(
   cors({
-    origin: process.env.REACT_APP_MARKETPLACE_ROOT_URL,
+    origin(origin, callback) {
+      if (!origin || devCorsOrigins.has(origin)) {
+        callback(null, origin || marketplaceRootUrl);
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn(`[PeakUp API CORS] blocked origin: ${origin}`);
+        callback(null, false);
+      }
+    },
     credentials: true,
   })
 );
@@ -47,7 +63,20 @@ app.get('/robots.txt', robotsTxtRoute);
 // Handle different sitemap-* resources. E.g. /sitemap-index.xml
 app.get('/sitemap-:resource', sitemapResourceRoute);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`API server listening on ${PORT}`);
+});
+
+server.on('error', err => {
+  if (err.code === 'EADDRINUSE') {
+    // eslint-disable-next-line no-console
+    console.error(
+      `[PeakUp API] Port ${PORT} is already in use. Stop other dev API processes (another yarn dev or dev-backend).`
+    );
+  } else {
+    // eslint-disable-next-line no-console
+    console.error('[PeakUp API] Server failed to start:', err);
+  }
+  process.exit(1);
 });

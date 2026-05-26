@@ -1,10 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-import { storableError } from '../util/errors';
+import { storableError, toErrorInstance } from '../util/errors';
 import { denormalisedResponseEntities } from '../util/data';
 import { createImageVariantConfig } from '../util/sdkLoader';
-import { REVIEW_TYPE_OF_PROVIDER } from '../util/types';
 import { mergeListingsByAuthor } from '../util/coachExplore';
+import { batchedReviewStats, logPeakupFeaturedCoachReviews } from '../util/coachReviewStats';
 import {
   peakupCoachBadgePriorityFor,
   resolveDisplayBadgeIds,
@@ -15,70 +15,121 @@ import { addMarketplaceEntities } from './marketplaceData.duck';
  * Featured Coaches duck — feeds the landing page “Featured coach” section with PeakUp figurine
  * cards ranked by badge priority and review score (see {@link comparePeakupFeaturedCoaches}).
  *
- * The fetch is run client-side once per session (idempotent). Reviews are batched per author
- * (similar to CoachesExplorePage.duck) so we can build a credible ranking without a backend job.
+ * One listings query + one batched review pass per successful load (no duplicate review fetch).
  */
 
 // Landing UX: show cards fast. We keep this intentionally low to avoid long blank waits.
 const MAX_LISTING_PAGES = 1;
 const PER_PAGE = 50;
 const MAX_FEATURED_COACHES = 18;
-const REVIEW_CONCURRENCY = 5;
+/** Keep concurrency modest — each coach is still one reviews.query call. */
+const REVIEW_CONCURRENCY = 3;
 
-const fetchReviewStatsForAuthor = async (sdk, authorUuid) => {
-  const res = await sdk.reviews.query({
-    subject_id: authorUuid,
-    state: 'public',
-    perPage: 100,
-    page: 1,
+let featuredLoadCount = 0;
+
+const logFeaturedLoadCount = (meta = {}) => {
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp FEATURED LOAD COUNT]', {
+    count: featuredLoadCount,
+    ...meta,
   });
-  const rows = denormalisedResponseEntities(res);
-  const ofProvider = rows.filter(r => r.attributes?.type === REVIEW_TYPE_OF_PROVIDER);
-  const count = ofProvider.length;
-  const sum = ofProvider.reduce((acc, r) => acc + (r.attributes?.rating || 0), 0);
-  return { count, average: count > 0 ? sum / count : null };
 };
 
-const batchedReviewStats = async (sdk, authorUuids) => {
-  const stats = {};
-  const queue = [...new Set(authorUuids)].filter(Boolean);
+const buildCoachesPayload = (top, reviewStatsByAuthorUuid) =>
+  top.map(c => {
+    const stats = reviewStatsByAuthorUuid[c.authorUuid];
+    return {
+      authorUuid: c.authorUuid,
+      listingId: c.representativeListing?.id?.uuid || null,
+      sportKeys: c.sportKeys || [],
+      reviewCount: stats?.count || 0,
+      reviewAverage: stats?.average ?? null,
+      badgeIds: c.badgeIds,
+      badgePriority: c.badgePriority,
+    };
+  });
 
-  while (queue.length) {
-    const batch = queue.splice(0, REVIEW_CONCURRENCY);
-    // eslint-disable-next-line no-await-in-loop
-    const results = await Promise.all(
-      batch.map(async uuid => {
-        try {
-          const r = await fetchReviewStatsForAuthor(sdk, uuid);
-          return { uuid, stats: r };
-        } catch {
-          return { uuid, stats: { count: 0, average: null } };
-        }
-      })
-    );
-    results.forEach(({ uuid, stats: s }) => {
-      stats[uuid] = s;
-    });
+const displayNameByUuidFromTop = top =>
+  top.reduce((acc, c) => {
+    const name = c.author?.attributes?.profile?.displayName;
+    if (c.authorUuid && name) acc[c.authorUuid] = name;
+    return acc;
+  }, {});
+
+const logFeaturedThunkEnter = (getState, arg) => {
+  const slice = getState().featuredCoaches || {};
+  const mode = arg?.reviewsOnly ? 'reviewsOnly' : 'full';
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp FEATURED THUNK ENTER]', {
+    mode,
+    statusBefore: slice.fetchStatus || 'idle',
+    coachCountBefore: (slice.coaches || []).length,
+    reviewsLoadedBefore: slice.reviewsLoaded === true,
+    force: !!arg?.force,
+  });
+};
+
+const shouldSkipFeaturedCoachesFetch = (getState, arg) => {
+  const { force, reviewsOnly } = arg || {};
+  const { fetchStatus, coaches, reviewsLoaded, reviewsStatus } = getState().featuredCoaches || {};
+
+  if (reviewsOnly) {
+    if (force) return false;
+    if (fetchStatus !== 'succeeded' || !(coaches || []).length) return true;
+    if (reviewsLoaded === true) return true;
+    if (reviewsStatus === 'loading') return true;
+    return false;
   }
-  return stats;
+
+  if (force) return false;
+  if (fetchStatus === 'loading') return true;
+  if (fetchStatus === 'succeeded' && (coaches || []).length > 0 && reviewsLoaded === true) {
+    return true;
+  }
+  return false;
 };
 
 export const fetchFeaturedCoachesThunk = createAsyncThunk(
   'featuredCoaches/fetch',
-  async ({ config }, { dispatch, rejectWithValue, extra: sdk }) => {
+  async ({ config, reviewsOnly, force }, { dispatch, getState, rejectWithValue, extra: sdk }) => {
+    logFeaturedThunkEnter(getState, { reviewsOnly, force });
     try {
+      if (reviewsOnly) {
+        const existing = getState().featuredCoaches?.coaches || [];
+        const authorUuids = existing.map(c => c.authorUuid).filter(Boolean);
+        const { stats: reviewStatsByAuthorUuid, rateLimited } = await batchedReviewStats(
+          sdk,
+          authorUuids,
+          {
+            concurrency: REVIEW_CONCURRENCY,
+            maxSubjects: MAX_FEATURED_COACHES,
+            batchDelayMs: 400,
+            source: 'featuredCoaches.reviewsOnly',
+          }
+        );
+
+        const coachesPayload = existing.map(c => {
+          const stats = reviewStatsByAuthorUuid[c.authorUuid];
+          return {
+            ...c,
+            reviewCount: stats?.count || 0,
+            reviewAverage: stats?.average ?? null,
+          };
+        });
+
+        logPeakupFeaturedCoachReviews(coachesPayload, {
+          source: 'featuredCoaches.reviewsOnly',
+        });
+
+        return { coaches: coachesPayload, reviewsLoaded: !rateLimited };
+      }
+
       const variantPrefix = 'listing-card';
       const { aspectWidth = 1, aspectHeight = 1 } = config?.layout?.listingImage || {};
       const aspectRatio = aspectHeight / aspectWidth;
 
-      // `fields.image` is global (applies to listing images AND profile images): we MUST
-      // include the avatar variants here, otherwise PeakUpCoachFigurineCard receives a
-      // profileImage with no variants and shows the placeholder initial.
       const imageFields = {
         include: ['author', 'author.profileImage', 'images'],
-        // Important: PeakUpCoachFigurineCard + badge ranking read coach badge ids from
-        // `author.attributes.profile.publicData`. Without this, landing cards can render
-        // without badges (or update later) depending on what the API returns by default.
         'fields.user': ['profile.displayName', 'profile.abbreviatedName', 'profile.publicData'],
         'fields.image': [
           `variants.${variantPrefix}`,
@@ -111,8 +162,6 @@ export const fetchFeaturedCoachesThunk = createAsyncThunk(
         const denorm = denormalisedResponseEntities(response);
         aggregatedListings.push(...denorm);
 
-        // Publish something ASAP (after first page) so badges/cards appear quickly.
-        // We keep landing fast: review enrichment is intentionally skipped here.
         if (!didPublishPrelim) {
           didPublishPrelim = true;
           const coachesFast = mergeListingsByAuthor(aggregatedListings);
@@ -154,7 +203,6 @@ export const fetchFeaturedCoachesThunk = createAsyncThunk(
 
       const coaches = mergeListingsByAuthor(aggregatedListings);
 
-      // Pre-compute badge priority on each coach so the comparator is cheap and deterministic.
       const withBadges = coaches.map(c => {
         const badgeIds = resolveDisplayBadgeIds(c.author?.attributes?.profile?.publicData);
         return {
@@ -164,7 +212,6 @@ export const fetchFeaturedCoachesThunk = createAsyncThunk(
         };
       });
 
-      // Final selection: badge priority first, then name.
       const top = [...withBadges]
         .sort((a, b) => {
           const pa = a.badgePriority || 0;
@@ -174,40 +221,57 @@ export const fetchFeaturedCoachesThunk = createAsyncThunk(
           const nb = (b.author?.attributes?.profile?.displayName || '').toLowerCase();
           return na.localeCompare(nb);
         })
-        .slice(0, MAX_FEATURED_COACHES)
-        .map(c => ({
-          ...c,
-          reviewCount: 0,
-          reviewAverage: null,
-        }));
+        .slice(0, MAX_FEATURED_COACHES);
 
-      // Store only stable ids/refs in Redux to keep the slice serialisable; rich entities live in marketplaceData.
-      const coachesPayload = top.map(c => ({
-        authorUuid: c.authorUuid,
-        listingId: c.representativeListing?.id?.uuid || null,
-        sportKeys: c.sportKeys || [],
-        reviewCount: c.reviewCount,
-        reviewAverage: c.reviewAverage,
-        badgeIds: c.badgeIds,
-        badgePriority: c.badgePriority,
-      }));
+      const authorUuids = top.map(c => c.authorUuid).filter(Boolean);
+      const { stats: reviewStatsByAuthorUuid, rateLimited } = await batchedReviewStats(
+        sdk,
+        authorUuids,
+        {
+          concurrency: REVIEW_CONCURRENCY,
+          maxSubjects: MAX_FEATURED_COACHES,
+          batchDelayMs: 400,
+          source: 'featuredCoaches.fetch',
+        }
+      );
 
-      return { coaches: coachesPayload };
+      const coachesPayload = buildCoachesPayload(top, reviewStatsByAuthorUuid);
+
+      logPeakupFeaturedCoachReviews(coachesPayload, {
+        source: 'featuredCoaches.fetch',
+        displayNameByUuid: displayNameByUuidFromTop(top),
+      });
+
+      return { coaches: coachesPayload, reviewsLoaded: !rateLimited };
     } catch (e) {
-      return rejectWithValue(storableError(e));
+      return rejectWithValue(storableError(toErrorInstance(e)));
     }
+  },
+  {
+    condition: (arg, { getState }) => {
+      const skip = shouldSkipFeaturedCoachesFetch(getState, arg);
+      if (skip) {
+        const slice = getState().featuredCoaches || {};
+        // eslint-disable-next-line no-console
+        console.log('[PeakUp FEATURED THUNK SKIP]', {
+          mode: arg?.reviewsOnly ? 'reviewsOnly' : 'full',
+          status: slice.fetchStatus,
+          coachCount: (slice.coaches || []).length,
+          reviewsLoaded: slice.reviewsLoaded === true,
+          reviewsStatus: slice.reviewsStatus,
+        });
+      }
+      return !skip;
+    },
   }
 );
 
+/** @deprecated Reviews load inside fetchFeaturedCoachesThunk; kept for API compatibility. */
 export const fetchFeaturedCoachReviewsThunk = createAsyncThunk(
   'featuredCoaches/fetchReviews',
-  async ({ authorUuids }, { rejectWithValue, extra: sdk }) => {
-    try {
-      const stats = await batchedReviewStats(sdk, authorUuids || []);
-      return { stats };
-    } catch (e) {
-      return rejectWithValue(storableError(e));
-    }
+  async () => ({ stats: {} }),
+  {
+    condition: () => false,
   }
 );
 
@@ -216,6 +280,9 @@ const initialState = {
   fetchError: null,
   reviewsStatus: 'idle',
   reviewsError: null,
+  reviewsLoaded: false,
+  /** Set when a review batch completes successfully (heals legacy reviewsLoaded without batch). */
+  reviewsLoadedAt: null,
   /** @type {Array<{ authorUuid: string, listingId: string|null, sportKeys: string[], reviewCount: number, reviewAverage: number|null, badgeIds: string[], badgePriority: number }>} */
   coaches: [],
 };
@@ -227,60 +294,66 @@ const slice = createSlice({
     featuredCoachesReset: () => initialState,
     featuredCoachesSetCoaches: (state, action) => {
       state.coaches = action.payload?.coaches || [];
+      // Preliminary listing payload — reviews not merged yet.
+      state.reviewsLoaded = false;
+      state.reviewsLoadedAt = null;
+    },
+    featuredCoachesHealStaleReviewsLoaded: state => {
+      if (state.reviewsLoaded && !state.reviewsLoadedAt) {
+        state.reviewsLoaded = false;
+      }
     },
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchFeaturedCoachesThunk.pending, state => {
-        state.fetchStatus = 'loading';
-        state.fetchError = null;
-      })
-      .addCase(fetchFeaturedCoachesThunk.fulfilled, (state, action) => {
-        state.fetchStatus = 'succeeded';
-        state.fetchError = null;
-        state.coaches = action.payload.coaches;
-        // new list → allow reviews refetch
-        state.reviewsStatus = 'idle';
-        state.reviewsError = null;
-      })
-      .addCase(fetchFeaturedCoachesThunk.rejected, (state, action) => {
-        state.fetchStatus = 'failed';
-        state.fetchError = action.payload;
-      });
-
-    builder
-      .addCase(fetchFeaturedCoachReviewsThunk.pending, state => {
+      .addCase(fetchFeaturedCoachesThunk.pending, (state, action) => {
+        const reviewsOnly = !!action.meta?.arg?.reviewsOnly;
+        if (!reviewsOnly) {
+          featuredLoadCount += 1;
+          logFeaturedLoadCount({ phase: 'start' });
+          state.fetchStatus = 'loading';
+          state.fetchError = null;
+        }
         state.reviewsStatus = 'loading';
         state.reviewsError = null;
+        if (!reviewsOnly) {
+          state.reviewsLoaded = false;
+        }
       })
-      .addCase(fetchFeaturedCoachReviewsThunk.fulfilled, (state, action) => {
+      .addCase(fetchFeaturedCoachesThunk.fulfilled, (state, action) => {
+        const reviewsOnly = !!action.meta?.arg?.reviewsOnly;
+        if (!reviewsOnly) {
+          logFeaturedLoadCount({ phase: 'fulfilled', coachCount: action.payload.coaches?.length || 0 });
+          state.fetchStatus = 'succeeded';
+          state.fetchError = null;
+        }
+        state.coaches = action.payload.coaches;
         state.reviewsStatus = 'succeeded';
         state.reviewsError = null;
-        const stats = action.payload?.stats || {};
-        state.coaches = (state.coaches || []).map(c => {
-          const s = stats[c.authorUuid];
-          if (!s) return c;
-          return {
-            ...c,
-            reviewCount: s.count || 0,
-            reviewAverage: s.average ?? null,
-          };
-        });
+        state.reviewsLoaded = action.payload.reviewsLoaded === true;
+        state.reviewsLoadedAt = action.payload.reviewsLoaded === true ? Date.now() : null;
       })
-      .addCase(fetchFeaturedCoachReviewsThunk.rejected, (state, action) => {
+      .addCase(fetchFeaturedCoachesThunk.rejected, (state, action) => {
+        const reviewsOnly = !!action.meta?.arg?.reviewsOnly;
+        if (!reviewsOnly) {
+          logFeaturedLoadCount({ phase: 'rejected' });
+          state.fetchStatus = 'failed';
+          state.fetchError = action.payload;
+        }
         state.reviewsStatus = 'failed';
         state.reviewsError = action.payload;
+        state.reviewsLoaded = false;
+        state.reviewsLoadedAt = null;
       });
   },
 });
 
-export const { featuredCoachesReset, featuredCoachesSetCoaches } = slice.actions;
+export const {
+  featuredCoachesReset,
+  featuredCoachesSetCoaches,
+  featuredCoachesHealStaleReviewsLoaded,
+} = slice.actions;
 export default slice.reducer;
 
-/**
- * Action creator alias the page can dispatch (mirrors `featuredListings.duck`).
- *
- * @param {{ config: any }} args
- */
 export const fetchFeaturedCoaches = args => fetchFeaturedCoachesThunk(args);
 export const fetchFeaturedCoachReviews = args => fetchFeaturedCoachReviewsThunk(args);

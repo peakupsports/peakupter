@@ -1,5 +1,18 @@
 const READ_AT_STORAGE_PREFIX = 'peakupInboxReadAt';
 const LEGACY_READ_TX_PREFIX = 'peakupReadTransactions';
+const MESSAGE_ACK_STORAGE_PREFIX = 'peakupInboxMessageAck';
+
+const getMessageAckAtFromStorage = (userId, transactionId) => {
+  const txUuid = normalizeTxUuid(transactionId);
+  if (typeof window === 'undefined' || !userId || !txUuid) {
+    return null;
+  }
+  try {
+    return window.sessionStorage.getItem(`${MESSAGE_ACK_STORAGE_PREFIX}:${userId}:${txUuid}`);
+  } catch (e) {
+    return null;
+  }
+};
 
 export const getReadAtStorageKey = userId => `${READ_AT_STORAGE_PREFIX}:${userId}`;
 
@@ -140,24 +153,13 @@ export const shouldCountTransactionAsUnread = (currentUserId, transactionId, las
   const lastMessageCreatedAt = lastMessage?.attributes?.createdAt ?? null;
   const isOwnMessage = !lastMessage || lastMessageAuthorId === currentUserId;
   const readAt = getTransactionReadAt(currentUserId, txUuid);
+  const ackAt = getMessageAckAtFromStorage(currentUserId, txUuid);
+  const messageTime = lastMessageCreatedAt ? new Date(lastMessageCreatedAt).getTime() : null;
   const isRead =
-    !!readAt &&
-    !!lastMessageCreatedAt &&
-    new Date(lastMessageCreatedAt).getTime() <= new Date(readAt).getTime();
+    !!messageTime &&
+    ((!!readAt && messageTime <= new Date(readAt).getTime()) ||
+      (!!ackAt && messageTime <= new Date(ackAt).getTime()));
   const shouldCount = !!lastMessage && !isOwnMessage && !isRead;
-
-  if (typeof window !== 'undefined') {
-    // eslint-disable-next-line no-console
-    console.log('[PeakUp INBOX DOT SOURCE]', {
-      currentUserId,
-      transactionId: txUuid,
-      lastMessageAuthorId,
-      lastMessageCreatedAt,
-      isOwnMessage,
-      isRead,
-      shouldCount,
-    });
-  }
 
   return shouldCount;
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
@@ -35,8 +35,10 @@ import {
 
 import { archiveConversation } from '../../ducks/archivedConversations.duck';
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
+import { resetInboxDotAfterInboxLoad } from '../../ducks/user.duck';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { filterTransactionsExcludingArchived } from '../../util/archivedConversations';
+import { logCustomerDotRendered } from '../../util/transactionNotificationCount';
 import {
   H2,
   Avatar,
@@ -274,6 +276,7 @@ export const InboxPageComponent = props => {
     scrollingDisabled,
     transactions,
     onArchiveConversation,
+    onResetInboxDotAfterLoad,
   } = props;
   const { tab } = params;
   const validTab = tab === 'orders' || tab === 'sales';
@@ -288,6 +291,51 @@ export const InboxPageComponent = props => {
 
   const isOrders = tab === 'orders';
   const inboxTransactions = filterTransactionsExcludingArchived(transactions, currentUser);
+  const lastInboxResetKeyRef = useRef(null);
+
+  const customerCount = customerNotificationCount;
+  const providerCount = providerNotificationCount;
+  const renderedCustomerBadge =
+    customerCount > 0 ? (customerCount > 99 ? '99+' : customerCount) : 0;
+  const renderedProviderBadge =
+    providerCount > 0 ? (providerCount > 99 ? '99+' : providerCount) : 0;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp INBOX TAB BADGE STATE]', {
+      customerCount,
+      providerCount,
+      renderedCustomerBadge,
+      renderedProviderBadge,
+      activeTab: tab,
+    });
+  }, [customerCount, providerCount, renderedCustomerBadge, renderedProviderBadge, tab]);
+
+  useEffect(() => {
+    logCustomerDotRendered(customerCount, unreadOrderTransactionIds);
+  }, [customerCount, unreadOrderTransactionIds]);
+
+  useEffect(() => {
+    if (fetchInProgress || fetchOrdersOrSalesError || !currentUser?.id?.uuid) {
+      return;
+    }
+    const resetKey = `${tab}:${inboxTransactions.map(tx => tx.id?.uuid).join(',')}`;
+    if (lastInboxResetKeyRef.current === resetKey) {
+      return;
+    }
+    lastInboxResetKeyRef.current = resetKey;
+    onResetInboxDotAfterLoad(inboxTransactions, { inboxTab: tab });
+  }, [
+    fetchInProgress,
+    fetchOrdersOrSalesError,
+    currentUser?.id?.uuid,
+    inboxTransactions,
+    onResetInboxDotAfterLoad,
+    tab,
+  ]);
 
   const hasNoResults =
     !fetchInProgress && inboxTransactions.length === 0 && !fetchOrdersOrSalesError;
@@ -355,9 +403,7 @@ export const InboxPageComponent = props => {
           text: (
             <span>
               <FormattedMessage id="InboxPage.ordersTabTitle" />
-              {customerNotificationCount > 0 ? (
-                <NotificationBadge count={customerNotificationCount} />
-              ) : null}
+              {customerCount > 0 ? <NotificationBadge count={renderedCustomerBadge} /> : null}
             </span>
           ),
           selected: isOrders,
@@ -375,9 +421,7 @@ export const InboxPageComponent = props => {
           text: (
             <span>
               <FormattedMessage id="InboxPage.salesTabTitle" />
-              {providerNotificationCount > 0 ? (
-                <NotificationBadge count={providerNotificationCount} />
-              ) : null}
+              {providerCount > 0 ? <NotificationBadge count={renderedProviderBadge} /> : null}
             </span>
           ),
           selected: !isOrders,
@@ -491,6 +535,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   onArchiveConversation: transactionId => dispatch(archiveConversation(transactionId)),
+  onResetInboxDotAfterLoad: (visibleTransactions, options) =>
+    dispatch(resetInboxDotAfterInboxLoad(visibleTransactions, options)),
 });
 
 const InboxPage = compose(connect(mapStateToProps, mapDispatchToProps))(InboxPageComponent);

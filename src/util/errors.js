@@ -365,13 +365,74 @@ export const isStripeDeletionFailedNonZeroBalance = error => {
 };
 
 const isUselessErrorMessage = message =>
-  message == null || message === '' || message === '[object Object]';
+  message == null || message === '' || message === '[object Object]' || message === '{}';
 
 /**
  * @param {*} error
  * @param {string} fallback
  * @returns {string}
  */
+export const BOOKING_LOAD_ERROR_FALLBACK =
+  'Something went wrong while loading this booking.';
+
+/**
+ * Human-readable error string for UI and logs (never render raw API error objects).
+ *
+ * @param {*} err
+ * @param {string} [fallback]
+ * @returns {string}
+ */
+export const getReadableErrorMessage = (err, fallback = BOOKING_LOAD_ERROR_FALLBACK) =>
+  getReadableApiErrorMessage(err, fallback);
+
+/**
+ * @param {*} err
+ * @param {string} [fallback]
+ * @returns {Error}
+ */
+export const toErrorInstance = (err, fallback = BOOKING_LOAD_ERROR_FALLBACK) => {
+  const message = getReadableErrorMessage(err, fallback);
+  if (err instanceof Error) {
+    if (err.message === message) {
+      return err;
+    }
+    const wrapped = new Error(message);
+    wrapped.cause = err;
+    return wrapped;
+  }
+  const error = new Error(message);
+  if (err != null) {
+    error.cause = err;
+  }
+  return error;
+};
+
+/**
+ * @param {*} error
+ * @param {Object} [context]
+ */
+export const logPeakupSafeListingError = (error, context = {}) => {
+  // eslint-disable-next-line no-console
+  console.warn('[PeakUp SAFE LISTING ERROR]', {
+    readableMessage: getReadableErrorMessage(error),
+    ...context,
+    error,
+  });
+};
+
+/**
+ * @param {*} error
+ * @param {Object} [context]
+ */
+export const logPeakupTransactionFallbackError = (error, context = {}) => {
+  // eslint-disable-next-line no-console
+  console.warn('[PeakUp TRANSACTION FALLBACK ERROR]', {
+    readableMessage: getReadableErrorMessage(error),
+    ...context,
+    error,
+  });
+};
+
 export const getReadableApiErrorMessage = (error, fallback) => {
   if (!error) {
     return fallback;
@@ -400,7 +461,10 @@ export const getReadableApiErrorMessage = (error, fallback) => {
 
   if (typeof error?.message === 'object' && error.message) {
     try {
-      return JSON.stringify(error.message);
+      const serialized = JSON.stringify(error.message);
+      if (!isUselessErrorMessage(serialized)) {
+        return serialized;
+      }
     } catch (e) {
       // fall through
     }
@@ -468,6 +532,46 @@ export const logSignupError = (error, context = {}) => {
 };
 
 /**
+ * Human-readable checkout breakdown / speculate transaction error for UI.
+ *
+ * @param {*} error
+ * @param {string} [fallback]
+ * @returns {string}
+ */
+export const getCheckoutBreakdownErrorMessage = (
+  error,
+  fallback = 'Failed to fetch breakdown information.'
+) => getReadableApiErrorMessage(error, fallback);
+
+/**
+ * @param {*} error
+ * @param {object} [context] request params (processAlias, transition, listingId, etc.)
+ */
+export const logCheckoutBreakdownError = (error, context = {}) => {
+  const apiErrors =
+    error?.apiErrors ||
+    responseAPIErrors(error) ||
+    error?.data?.errors ||
+    error?.response?.data?.errors ||
+    null;
+
+  const apiBody = error?.data ?? error?.response?.data ?? null;
+
+  // eslint-disable-next-line no-console
+  console.error('[PeakUp CHECKOUT BREAKDOWN ERROR]', {
+    status: error?.status ?? null,
+    statusText: error?.statusText ?? null,
+    message: error?.message ?? null,
+    name: error?.name ?? null,
+    apiErrors,
+    apiBody,
+    readableMessage: getCheckoutBreakdownErrorMessage(error),
+    requestParams: context.requestParams || null,
+    ...context,
+  });
+};
+
+/**
  * PeakUp: contact details blocked before booking request.
  */
 export const isContactSharingBlockedError = error =>
@@ -501,14 +605,14 @@ export const storableError = err => {
     normalizedMessage ||
     getReadableApiErrorMessage(
       { ...error, apiErrors: apiErrors.length ? apiErrors : error.apiErrors },
-      ''
+      BOOKING_LOAD_ERROR_FALLBACK
     );
 
   // Returned object is the same as prop type check in util/types -> error
   return {
     type: 'error',
-    name,
-    message,
+    name: name || 'Error',
+    message: message || BOOKING_LOAD_ERROR_FALLBACK,
     status,
     statusText,
     apiErrors,

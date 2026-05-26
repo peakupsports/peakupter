@@ -33,10 +33,18 @@ import {
   isInquiryProcess,
 } from '../../transactions/transaction';
 
-import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
+import { getTransactionForTransactionPage } from '../../util/transactionPageEntities';
 import { userDisplayNameAsString } from '../../util/data';
 import { isPeakUpConversationView } from '../../util/peakUpConversationView';
 import { isPeakUpBookingTransactionView } from '../../util/peakUpTransactionView';
+import {
+  BOOKING_LOAD_ERROR_FALLBACK,
+  getReadableErrorMessage,
+} from '../../util/errors';
+import {
+  isCanceledBookingTransaction,
+  resolveTransactionPageListing,
+} from '../../util/transactionListingFallback';
 import CheckoutHeroBackground from '../CheckoutPage/CheckoutHeroBackground';
 import { isScrollingDisabled, manageDisableScrolling } from '../../ducks/ui.duck';
 import { initializeCardPaymentData } from '../../ducks/stripe.duck.js';
@@ -82,6 +90,7 @@ import {
   fetchTimeSlots,
   fetchTransactionLineItems,
 } from './TransactionPage.duck';
+import TransactionPageErrorBoundary from './TransactionPageErrorBoundary';
 import css from './TransactionPage.module.css';
 import { getCurrentUserTypeRoles, hasPermissionToViewData } from '../../util/userHelpers.js';
 
@@ -181,7 +190,10 @@ const handleNavigateToMakeOfferPage = parameters => () => {
     createResourceLocatorString(
       'MakeOfferPage',
       routes,
-      { id: listing.id.uuid, slug: createSlug(listing.attributes.title) },
+      {
+        id: listing?.id?.uuid,
+        slug: createSlug(listing?.attributes?.title || ''),
+      },
       { transactionId: transaction.id.uuid }
     )
   );
@@ -316,7 +328,16 @@ export const TransactionPageComponent = props => {
     ...restOfProps
   } = props;
 
-  const { listing, provider, customer, booking } = transaction || {};
+  const {
+    listing: listingFromTransaction,
+    provider,
+    customer,
+    booking,
+  } = transaction || {};
+  const { listing, listingUnavailable } = resolveTransactionPageListing(
+    transaction,
+    listingFromTransaction
+  );
   const txTransitions = transaction?.attributes?.transitions || [];
   const isProviderRole = transactionRole === PROVIDER;
   const isCustomerRole = transactionRole === CUSTOMER;
@@ -340,6 +361,37 @@ export const TransactionPageComponent = props => {
   } catch (error) {
     // Process was not recognized!
   }
+
+  useEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !transaction?.id?.uuid ||
+      !process ||
+      !isCanceledBookingTransaction(transaction, process)
+    ) {
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp CANCELED TRANSACTION LOAD]', {
+      transactionId: transaction.id.uuid,
+      listingUnavailable,
+      hasListingEntity: Boolean(listingFromTransaction?.id?.uuid),
+      hasMessages: messages?.length > 0,
+    });
+    if (listingUnavailable) {
+      // eslint-disable-next-line no-console
+      console.warn('[PeakUp CANCELED LISTING LOAD ERROR]', {
+        transactionId: transaction.id.uuid,
+        message: 'Using transaction fallback listing for canceled booking UI',
+      });
+    }
+  }, [
+    transaction?.id?.uuid,
+    process,
+    listingUnavailable,
+    listingFromTransaction?.id?.uuid,
+    messages?.length,
+  ]);
 
   const isTxOnPaymentPending = tx => {
     return process ? process.getState(tx) === process.states.PENDING_PAYMENT : null;
@@ -506,7 +558,10 @@ export const TransactionPageComponent = props => {
     id: 'TransactionPage.deletedListing',
   });
   const listingDeleted = listing?.attributes?.deleted;
-  const listingTitle = listingDeleted ? deletedListingTitle : listing?.attributes?.title;
+  const suppressListingLink = listingDeleted || listingUnavailable;
+  const listingTitle = listingDeleted
+    ? deletedListingTitle
+    : listing?.attributes?.title || deletedListingTitle;
 
   const isCustomerBanned = !!customer?.attributes?.banned;
   const isCustomerDeleted = !!customer?.attributes?.deleted;
@@ -576,10 +631,25 @@ export const TransactionPageComponent = props => {
     ? 'TransactionPage.loadingOrderData'
     : 'TransactionPage.loadingSaleData';
 
+  const fetchErrorReadable = fetchTransactionError
+    ? getReadableErrorMessage(
+        fetchTransactionError,
+        intl.formatMessage({
+          id: fetchErrorMessage,
+          defaultMessage: BOOKING_LOAD_ERROR_FALLBACK,
+        })
+      )
+    : null;
+
+  const showCanceledListingUnavailableBanner = Boolean(
+    isDataAvailable &&
+      listingUnavailable &&
+      process &&
+      isCanceledBookingTransaction(transaction, process)
+  );
+
   const loadingOrFailedFetching = fetchTransactionError ? (
-    <p className={css.error}>
-      <FormattedMessage id={`${fetchErrorMessage}`} />
-    </p>
+    <p className={css.error}>{fetchErrorReadable}</p>
   ) : transaction && !process ? (
     <div className={css.error}>
       <FormattedMessage id="TransactionPage.unknownTransactionProcess" />
@@ -723,8 +793,8 @@ export const TransactionPageComponent = props => {
             id: `TransactionPage.${processName}.${transactionRole}.${stateData.processState}.title`,
           },
           {
-            customerName: customer?.attributes.profile.displayName,
-            providerName: provider?.attributes.profile.displayName,
+            customerName: customer?.attributes?.profile?.displayName,
+            providerName: provider?.attributes?.profile?.displayName,
           }
         )
     : null;
@@ -780,6 +850,7 @@ export const TransactionPageComponent = props => {
           tertiaryButtonProps={stateData?.tertiaryButtonProps}
           actionButtonOrder={stateData?.actionButtonOrder}
           isListingDeleted={listingDeleted}
+      listingUnavailable={listingUnavailable}
           isProvider={isProviderRole}
           transitions={txTransitions}
           {...getDataValidationResult(transaction, process)}
@@ -849,7 +920,7 @@ export const TransactionPageComponent = props => {
           title={listingTitle}
           titleDesktop={
             <H4 as="h2" className={css.orderPanelTitle}>
-              {listingDeleted ? (
+              {suppressListingLink ? (
                 listingTitle
               ) : (
                 <NamedLink
@@ -861,7 +932,7 @@ export const TransactionPageComponent = props => {
               )}
             </H4>
           }
-          author={listing.author}
+          author={listing?.author || provider}
           onSubmit={isNegotiationProcess ? onMakeOffer : handleSubmitOrderRequest}
           onManageDisableScrolling={onManageDisableScrolling}
           {...restOfProps}
@@ -911,6 +982,11 @@ export const TransactionPageComponent = props => {
               [css.peakUpBookingForeground]: isPeakUpBookingTheme,
             })}
           >
+            {showCanceledListingUnavailableBanner ? (
+              <p className={css.listingUnavailableBanner} role="status">
+                <FormattedMessage id="TransactionPage.unavailableBookingFallback" />
+              </p>
+            ) : null}
             {panel}
           </div>
         </div>
@@ -1021,8 +1097,7 @@ const mapStateToProps = state => {
   } = state.TransactionPage;
   const { currentUser } = state.user;
 
-  const transactions = getMarketplaceEntities(state, transactionRef ? [transactionRef] : []);
-  const transaction = transactions.length > 0 ? transactions[0] : null;
+  const transaction = getTransactionForTransactionPage(state, transactionRef);
 
   return {
     currentUser,
@@ -1070,12 +1145,18 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-const TransactionPage = compose(
+const TransactionPageConnected = compose(
   withRouter,
   connect(
     mapStateToProps,
     mapDispatchToProps
   )
 )(TransactionPageComponent);
+
+const TransactionPage = props => (
+  <TransactionPageErrorBoundary>
+    <TransactionPageConnected {...props} />
+  </TransactionPageErrorBoundary>
+);
 
 export default TransactionPage;
