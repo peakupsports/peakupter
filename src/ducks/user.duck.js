@@ -13,8 +13,9 @@ import { filterTransactionsExcludingArchived } from '../util/archivedConversatio
 import { isDevelopmentMode } from '../util/isDevelopmentMode';
 import { cleanupInboxNotificationReferences } from '../util/inboxNotificationCleanup';
 import {
-  acknowledgeVisibleInboxTransactions,
+  dedupeTransactionIds,
   logCustomerDotRendered,
+  logInboxListOpenNoAck,
   recountInboxNotificationCounts,
 } from '../util/transactionNotificationCount';
 
@@ -197,24 +198,25 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
         sdk,
       });
 
-      const saleUnread = recount.saleUnread;
-      const orderUnread = recount.orderUnread;
-      const saleNotificationsCount = saleUnread.length;
-      const orderNotificationsCount = orderUnread.length;
+      const unreadSaleTransactionIds = dedupeTransactionIds(
+        recount.saleUnreadIds || recount.saleUnread.map(entry => entry.id)
+      );
+      const unreadOrderTransactionIds = dedupeTransactionIds(
+        recount.orderUnreadIds || recount.orderUnread.map(entry => entry.id)
+      );
+      const saleNotificationsCount = unreadSaleTransactionIds.length;
+      const orderNotificationsCount = unreadOrderTransactionIds.length;
 
       if (typeof window !== 'undefined') {
-        logCustomerDotRendered(
-          orderNotificationsCount,
-          orderUnread.map(entry => entry.id)
-        );
+        logCustomerDotRendered(orderNotificationsCount, unreadOrderTransactionIds);
         if (isDevelopmentMode()) {
           // eslint-disable-next-line no-console
           console.log('[PeakUp INBOX DOT RECALCULATED]', {
             saleCount: saleNotificationsCount,
             orderCount: orderNotificationsCount,
             totalCount: saleNotificationsCount + orderNotificationsCount,
-            unreadSaleTransactionIds: saleUnread.map(entry => entry.id),
-            unreadOrderTransactionIds: orderUnread.map(entry => entry.id),
+            unreadSaleTransactionIds,
+            unreadOrderTransactionIds,
             ghostOrderIdsRemoved: recount.ghostOrderIds,
             ghostSaleIdsRemoved: recount.ghostSaleIds,
           });
@@ -224,8 +226,8 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
       return {
         saleNotificationsCount,
         orderNotificationsCount,
-        unreadSaleTransactionIds: saleUnread.map(entry => entry.id),
-        unreadOrderTransactionIds: orderUnread.map(entry => entry.id),
+        unreadSaleTransactionIds,
+        unreadOrderTransactionIds,
         fetchSeq,
       };
     })
@@ -397,11 +399,11 @@ export const clearStaleInboxNotificationCounts = () => (dispatch, getState) => {
 };
 
 /**
- * After Inbox page loads, mark visible threads read and recalculate the badge.
+ * Inbox list opened — purge ghost cached IDs only; do not acknowledge visible threads.
  *
  * @param {Array} visibleTransactions denormalised inbox rows
  */
-export const resetInboxDotAfterInboxLoad =
+export const onInboxListLoaded =
   (visibleTransactions, options = {}) =>
   async (dispatch, getState, sdk) => {
     const currentUserId = getState().user?.currentUser?.id?.uuid;
@@ -411,15 +413,9 @@ export const resetInboxDotAfterInboxLoad =
     }
 
     const userState = getState().user || {};
+    const visibleCount = visibleTransactions?.length || 0;
 
-    if (typeof window !== 'undefined' && isDevelopmentMode()) {
-      // eslint-disable-next-line no-console
-      console.log('[PeakUp INBOX DOT RESET]', {
-        visibleCount: visibleTransactions?.length || 0,
-        currentUserId,
-        inboxTab: options.inboxTab,
-      });
-    }
+    logInboxListOpenNoAck(options.inboxTab, visibleCount, currentUserId);
 
     const cleanup = await cleanupInboxNotificationReferences({
       currentUserId,
@@ -431,18 +427,22 @@ export const resetInboxDotAfterInboxLoad =
       cachedUnreadOrderIds: userState.unreadOrderTransactionIds || [],
     });
 
-    dispatch(
-      purgeGhostInboxUnreadIds({
-        validTransactionIds: cleanup.validTransactionIds,
-        ghostSaleIds: cleanup.ghostSaleIds,
-        ghostOrderIds: cleanup.ghostOrderIds,
-      })
-    );
+    if (cleanup.ghostSaleIds.length > 0 || cleanup.ghostOrderIds.length > 0) {
+      dispatch(
+        purgeGhostInboxUnreadIds({
+          validTransactionIds: cleanup.validTransactionIds,
+          ghostSaleIds: cleanup.ghostSaleIds,
+          ghostOrderIds: cleanup.ghostOrderIds,
+        })
+      );
+      dispatch(fetchCurrentUserNotifications());
+    }
 
-    await acknowledgeVisibleInboxTransactions(visibleTransactions || [], currentUserId, sdk);
-    inboxBadgeResetHoldUntil = Date.now() + INBOX_BADGE_RESET_HOLD_MS;
-    dispatch(resetInboxNotificationBadgesToZero());
+    return cleanup;
   };
+
+/** @deprecated Use onInboxListLoaded — inbox list must not clear badges. */
+export const resetInboxDotAfterInboxLoad = onInboxListLoaded;
 
 const fetchCurrentUserPayloadCreator = (options, thunkAPI) => {
   const { getState, dispatch, extra: sdk, rejectWithValue } = thunkAPI;
@@ -628,19 +628,32 @@ const userSlice = createSlice({
       state.currentUserHasOrders = true;
     },
     /**
-     * Immediately lower inbox badge after the user opens a thread (before API recount).
-     * @param {{ inboxRole: 'sale' | 'order' }} action.payload
+     * Remove one transaction from unread badge state after the user opens that thread.
+     * @param {{ inboxRole: 'sale' | 'order', transactionId?: string }} action.payload
      */
     optimisticallyClearOneInboxNotification: (state, action) => {
-      const { inboxRole } = action.payload;
-      const countKey =
-        inboxRole === 'sale'
-          ? 'currentUserSaleNotificationCount'
-          : 'currentUserOrderNotificationCount';
+      const { inboxRole, transactionId } = action.payload;
 
-      if (state[countKey] > 0) {
-        state[countKey] -= 1;
+      if (inboxRole === 'sale') {
+        if (transactionId) {
+          state.unreadSaleTransactionIds = dedupeTransactionIds(
+            state.unreadSaleTransactionIds.filter(id => id !== transactionId)
+          );
+        } else if (state.currentUserSaleNotificationCount > 0) {
+          state.currentUserSaleNotificationCount -= 1;
+        }
+        state.currentUserSaleNotificationCount = state.unreadSaleTransactionIds.length;
+        return;
       }
+
+      if (transactionId) {
+        state.unreadOrderTransactionIds = dedupeTransactionIds(
+          state.unreadOrderTransactionIds.filter(id => id !== transactionId)
+        );
+      } else if (state.currentUserOrderNotificationCount > 0) {
+        state.currentUserOrderNotificationCount -= 1;
+      }
+      state.currentUserOrderNotificationCount = state.unreadOrderTransactionIds.length;
     },
     /**
      * Customer sent a message — drop this order from unread immediately (before API recount).
@@ -653,8 +666,8 @@ const userSlice = createSlice({
       }
 
       const hadUnread = state.unreadOrderTransactionIds.includes(transactionId);
-      state.unreadOrderTransactionIds = state.unreadOrderTransactionIds.filter(
-        id => id !== transactionId
+      state.unreadOrderTransactionIds = dedupeTransactionIds(
+        state.unreadOrderTransactionIds.filter(id => id !== transactionId)
       );
       state.currentUserOrderNotificationCount = state.unreadOrderTransactionIds.length;
 
@@ -691,9 +704,11 @@ const userSlice = createSlice({
       const ghostSaleIds = action.payload?.ghostSaleIds || [];
       const ghostOrderIds = action.payload?.ghostOrderIds || [];
 
-      state.unreadSaleTransactionIds = state.unreadSaleTransactionIds.filter(id => valid.has(id));
-      state.unreadOrderTransactionIds = state.unreadOrderTransactionIds.filter(id =>
-        valid.has(id)
+      state.unreadSaleTransactionIds = dedupeTransactionIds(
+        state.unreadSaleTransactionIds.filter(id => valid.has(id))
+      );
+      state.unreadOrderTransactionIds = dedupeTransactionIds(
+        state.unreadOrderTransactionIds.filter(id => valid.has(id))
       );
 
       if (ghostSaleIds.length > 0 || ghostOrderIds.length > 0) {
@@ -774,8 +789,10 @@ const userSlice = createSlice({
         state.lastAppliedInboxNotificationsFetchSeq = fetchSeq;
         state.currentUserSaleNotificationCount = saleNotificationsCount;
         state.currentUserOrderNotificationCount = orderNotificationsCount;
-        state.unreadSaleTransactionIds = unreadSaleTransactionIds;
-        state.unreadOrderTransactionIds = unreadOrderTransactionIds;
+        state.unreadSaleTransactionIds = dedupeTransactionIds(unreadSaleTransactionIds);
+        state.unreadOrderTransactionIds = dedupeTransactionIds(unreadOrderTransactionIds);
+        state.currentUserSaleNotificationCount = state.unreadSaleTransactionIds.length;
+        state.currentUserOrderNotificationCount = state.unreadOrderTransactionIds.length;
         state.inboxNotificationsFetchInProgress = false;
         state.inboxNotificationsLoaded = true;
       })

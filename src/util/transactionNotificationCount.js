@@ -329,6 +329,44 @@ const buildCustomerDotTxDiagnostics = (tx, currentUserId, messages) => {
 };
 
 /**
+ * @param {Array} transactions
+ * @returns {Array}
+ */
+export const dedupeTransactionsById = transactions => {
+  const seen = new Set();
+  return (transactions || []).filter(tx => {
+    const id = tx?.id?.uuid;
+    if (!id || seen.has(id)) {
+      return false;
+    }
+    seen.add(id);
+    return true;
+  });
+};
+
+/**
+ * @param {string[]} ids
+ * @returns {string[]}
+ */
+export const dedupeTransactionIds = ids => [...new Set((ids || []).filter(Boolean))];
+
+/**
+ * @param {Array<{ id: string }>} entries
+ * @returns {Array<{ id: string }>}
+ */
+export const dedupeUnreadEntriesByTransactionId = entries => {
+  const seen = new Set();
+  return (entries || []).filter(entry => {
+    const id = entry?.id;
+    if (!id || seen.has(id)) {
+      return false;
+    }
+    seen.add(id);
+    return true;
+  });
+};
+
+/**
  * Log customer order badge render state (Redux / UI).
  *
  * @param {number} orderCount
@@ -730,6 +768,63 @@ export const acknowledgeThreadOnOpen = async (currentUserId, transactionId, mess
  */
 export const acknowledgeTransactionThread = (currentUserId, transactionId, messages, tx, sdk) =>
   acknowledgeThreadOnOpen(currentUserId, transactionId, messages, tx, sdk);
+
+const logThreadAck = (transactionId, inboxRole, currentUserId) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp THREAD ACK]', {
+    transactionId,
+    inboxRole,
+    currentUserId,
+  });
+};
+
+const logInboxListOpenNoAck = (inboxTab, visibleCount, currentUserId) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp INBOX LIST OPEN NO ACK]', {
+    inboxTab,
+    visibleCount,
+    currentUserId,
+  });
+};
+
+/**
+ * Acknowledge a single transaction thread when the user opens it (not the inbox list).
+ *
+ * @param {Object} params
+ * @param {string} params.currentUserId
+ * @param {string|Object} params.transactionId
+ * @param {Array} params.messages
+ * @param {Object} [params.tx]
+ * @param {Object} params.sdk
+ * @returns {Promise<{ inboxRole: 'sale'|'order'|null, transactionId: string|null }>}
+ */
+export const acknowledgeInboxThreadOnOpen = async ({
+  currentUserId,
+  transactionId,
+  messages,
+  tx,
+  sdk,
+}) => {
+  const txUuid = typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
+  if (!currentUserId || !txUuid) {
+    return { inboxRole: null, transactionId: null };
+  }
+
+  const inboxRole = tx ? getInboxRoleForTransaction(tx, currentUserId) : null;
+
+  await acknowledgeTransactionThread(currentUserId, txUuid, messages, tx, sdk);
+  logThreadAck(txUuid, inboxRole, currentUserId);
+
+  return { inboxRole, transactionId: txUuid };
+};
+
+export { logInboxListOpenNoAck };
 
 /**
  * Resolve inbox tab role for a transaction relative to the current user.
@@ -1266,11 +1361,11 @@ export const recountInboxNotificationCounts = async ({
     }
   });
 
-  const salesForRecount = (saleTransactions || []).filter(tx =>
-    inboxSaleIds.has(tx?.id?.uuid)
+  const salesForRecount = dedupeTransactionsById(
+    (saleTransactions || []).filter(tx => inboxSaleIds.has(tx?.id?.uuid))
   );
-  const ordersForRecount = (orderTransactions || []).filter(tx =>
-    inboxOrderIds.has(tx?.id?.uuid)
+  const ordersForRecount = dedupeTransactionsById(
+    (orderTransactions || []).filter(tx => inboxOrderIds.has(tx?.id?.uuid))
   );
 
   const saleValidated = await collectValidatedUnreadForRecount({
@@ -1288,13 +1383,12 @@ export const recountInboxNotificationCounts = async ({
     inboxOnly: 'order',
   });
 
-  const saleUnread = saleValidated.validatedUnread;
-  const orderUnread = orderValidated.validatedUnread;
+  const saleUnread = dedupeUnreadEntriesByTransactionId(saleValidated.validatedUnread);
+  const orderUnread = dedupeUnreadEntriesByTransactionId(orderValidated.validatedUnread);
+  const orderUnreadIds = dedupeTransactionIds(orderUnread.map(entry => entry.id));
+  const saleUnreadIds = dedupeTransactionIds(saleUnread.map(entry => entry.id));
 
-  logCustomerDotRendered(
-    orderUnread.length,
-    orderUnread.map(entry => entry.id)
-  );
+  logCustomerDotRendered(orderUnreadIds.length, orderUnreadIds);
 
   const removedOrderIds = [
     ...ghostOrderIds,
@@ -1303,10 +1397,10 @@ export const recountInboxNotificationCounts = async ({
   logGhostOrderCountRemoved(removedOrderIds);
 
   logRecountTransactionIds({
-    saleValidatedIds: saleUnread.map(entry => entry.id),
-    orderValidatedIds: orderUnread.map(entry => entry.id),
-    saleCount: saleUnread.length,
-    orderCount: orderUnread.length,
+    saleValidatedIds: saleUnreadIds,
+    orderValidatedIds: orderUnreadIds,
+    saleCount: saleUnreadIds.length,
+    orderCount: orderUnreadIds.length,
     notificationSalePoolIds: [...notificationSaleIds],
     notificationOrderPoolIds: [...notificationOrderIds],
     inboxSaleApiIds: [...inboxSaleIds],
@@ -1320,6 +1414,8 @@ export const recountInboxNotificationCounts = async ({
   return {
     saleUnread,
     orderUnread,
+    saleUnreadIds,
+    orderUnreadIds,
     ghostSaleIds,
     ghostOrderIds,
     removedOrderDetails: orderValidated.removed,

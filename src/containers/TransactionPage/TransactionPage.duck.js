@@ -34,14 +34,14 @@ import { addMarketplaceEntities, getMarketplaceEntities } from '../../ducks/mark
 import { unarchiveConversationIfIncomingMessage } from '../../ducks/archivedConversations.duck';
 import {
   fetchCurrentUserNotifications,
+  optimisticallyClearOneInboxNotification,
   suppressCustomerOrderNotificationAfterSend,
 } from '../../ducks/user.duck';
 import {
   acknowledgeCustomerOrderAfterSend,
+  acknowledgeInboxThreadOnOpen,
   getInboxRoleForTransaction,
-  getLatestMessage,
 } from '../../util/transactionNotificationCount';
-import { markTransactionReadOnOpen } from '../../util/unreadNotifications';
 import {
   createContactSharingBlockedError,
   shouldBlockContactSharingInMessage,
@@ -493,22 +493,36 @@ export const makeTransition = (txId, transitionName, params) => dispatch => {
 
 const getTransactionUuid = txId => (typeof txId === 'object' && txId.uuid ? txId.uuid : txId);
 
-const markThreadReadFromMessages = (dispatch, getState, txId, messages) => {
+const markThreadReadFromMessages = (dispatch, getState, sdk, txId, messages) => {
   if (typeof window === 'undefined') {
-    return;
+    return Promise.resolve();
   }
 
   const currentUserId = getState().user?.currentUser?.id?.uuid;
   const txUuid = getTransactionUuid(txId);
 
   if (!currentUserId || !txUuid) {
-    return;
+    return Promise.resolve();
   }
 
-  const latestMessage = getLatestMessage(messages);
-  const readAt = latestMessage?.attributes?.createdAt || new Date().toISOString();
-  markTransactionReadOnOpen(currentUserId, txUuid, readAt);
-  dispatch(fetchCurrentUserNotifications());
+  const transactionRefs = [{ id: txId, type: 'transaction' }];
+  const transactions = getMarketplaceEntities(getState(), transactionRefs);
+  const tx = transactions.length > 0 ? transactions[0] : null;
+
+  return acknowledgeInboxThreadOnOpen({
+    currentUserId,
+    transactionId: txUuid,
+    messages,
+    tx,
+    sdk,
+  }).then(({ inboxRole, transactionId }) => {
+    if (inboxRole && transactionId) {
+      dispatch(
+        optimisticallyClearOneInboxNotification({ inboxRole, transactionId })
+      );
+    }
+    dispatch(fetchCurrentUserNotifications());
+  });
 };
 
 ////////////////////
@@ -545,7 +559,9 @@ const fetchMessagesPayloadCreator = (
 
       if (page === 1) {
         unarchiveConversationIfIncomingMessage(dispatch, getState, txId, messages);
-        markThreadReadFromMessages(dispatch, getState, txId, messages);
+        markThreadReadFromMessages(dispatch, getState, sdk, txId, messages).catch(() => {
+          // Badge recount will retry on next poll.
+        });
       }
 
       return { messages, pagination };

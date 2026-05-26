@@ -35,7 +35,7 @@ import {
 
 import { archiveConversation } from '../../ducks/archivedConversations.duck';
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
-import { resetInboxDotAfterInboxLoad } from '../../ducks/user.duck';
+import { onInboxListLoaded } from '../../ducks/user.duck';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { filterTransactionsExcludingArchived } from '../../util/archivedConversations';
 import { isDevelopmentMode } from '../../util/isDevelopmentMode';
@@ -277,7 +277,7 @@ export const InboxPageComponent = props => {
     scrollingDisabled,
     transactions,
     onArchiveConversation,
-    onResetInboxDotAfterLoad,
+    onInboxListLoaded: onInboxListLoadedProp,
   } = props;
   const { tab } = params;
   const validTab = tab === 'orders' || tab === 'sales';
@@ -328,13 +328,13 @@ export const InboxPageComponent = props => {
       return;
     }
     lastInboxResetKeyRef.current = resetKey;
-    onResetInboxDotAfterLoad(inboxTransactions, { inboxTab: tab });
+    onInboxListLoadedProp(inboxTransactions, { inboxTab: tab });
   }, [
     fetchInProgress,
     fetchOrdersOrSalesError,
     currentUser?.id?.uuid,
     inboxTransactions,
-    onResetInboxDotAfterLoad,
+    onInboxListLoadedProp,
     tab,
   ]);
 
@@ -536,8 +536,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   onArchiveConversation: transactionId => dispatch(archiveConversation(transactionId)),
-  onResetInboxDotAfterLoad: (visibleTransactions, options) =>
-    dispatch(resetInboxDotAfterInboxLoad(visibleTransactions, options)),
+    onInboxListLoaded: (visibleTransactions, options) =>
+    dispatch(onInboxListLoaded(visibleTransactions, options)),
 });
 
 const InboxPage = compose(connect(mapStateToProps, mapDispatchToProps))(InboxPageComponent);
