@@ -300,10 +300,16 @@ export const cleanupInboxNotificationReferences = async ({
 }) => {
   const visibleIds = collectTransactionUuids(visibleTransactions);
   const poolIds = await fetchNotificationPoolTransactionIds(sdk, currentUser, currentUserId);
-  const allValid = new Set([...visibleIds, ...poolIds]);
+  const inboxOrderIds =
+    inboxTab === 'orders'
+      ? await fetchInboxTabTransactionIds(sdk, currentUser, 'order')
+      : new Set();
+  const allValid = new Set([...visibleIds, ...poolIds, ...inboxOrderIds]);
 
   const ghostSaleIds = cachedUnreadSaleIds.filter(id => !poolIds.has(id));
-  const ghostOrderIds = cachedUnreadOrderIds.filter(id => !poolIds.has(id));
+  const ghostOrderIds = cachedUnreadOrderIds.filter(
+    id => !inboxOrderIds.has(id) && !visibleIds.has(id)
+  );
 
   [...ghostSaleIds, ...ghostOrderIds].forEach(transactionId => {
     purgeTransactionInboxNotificationStorage(currentUserId, transactionId, 'ghost_redux_unread');

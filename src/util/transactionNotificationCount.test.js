@@ -374,7 +374,7 @@ describe('transactionNotificationCount', () => {
     expect(getStatesNeedingCustomerAttention()).toContain('canceled');
   });
 
-  it('counts unread coach cancellation message for customer on canceled booking', async () => {
+  it('does not count canceled booking messages for customer order badge', async () => {
     const canceledAt = '2026-05-20T12:00:00.000Z';
     const tx = createTx({
       lastTransition: bookingTransitions.PROVIDER_CANCEL,
@@ -405,8 +405,116 @@ describe('transactionNotificationCount', () => {
       },
     };
 
-    expect(await countTransactionNotifications([tx], customerId, sdk)).toBe(1);
+    expect(await countTransactionNotifications([tx], customerId, sdk)).toBe(0);
     expect(await countTransactionNotifications([tx], providerId, sdk)).toBe(0);
+  });
+
+  it('recount excludes ghost customer order not returned by inbox API', async () => {
+    const tx = createTx({
+      lastTransition: bookingTransitions.INQUIRE,
+      transitions: [{ transition: bookingTransitions.INQUIRE, by: 'customer' }],
+    });
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'order' ? [] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'message-coach' },
+                type: 'message',
+                attributes: { createdAt: '2026-05-19T10:00:00.000Z', content: 'Hi' },
+                relationships: { sender: { data: { id: { uuid: providerId }, type: 'user' } } },
+              },
+            ],
+            included: [{ id: { uuid: providerId }, type: 'user' }],
+          },
+        }),
+      },
+    };
+
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [],
+      orderTransactions: [tx],
+      currentUserId: customerId,
+      currentUser: { id: { uuid: customerId } },
+      sdk,
+    });
+
+    expect(recount.orderUnread).toHaveLength(0);
+    expect(recount.ghostOrderIds).toContain(txId);
+    expect(logSpy).toHaveBeenCalledWith(
+      '[PeakUp CUSTOMER DOT IGNORED]',
+      expect.objectContaining({
+        transactionId: txId,
+        reasonIgnored: 'ghost_not_in_inbox_api',
+      })
+    );
+
+    logSpy.mockRestore();
+    jest.restoreAllMocks();
+  });
+
+  it('recount excludes canceled customer order even when provider messaged', async () => {
+    const canceledAt = '2026-05-20T12:00:00.000Z';
+    const tx = createTx({
+      lastTransition: bookingTransitions.PROVIDER_CANCEL,
+      transitions: [
+        { transition: bookingTransitions.CONFIRM_PAYMENT, by: 'customer' },
+        { transition: bookingTransitions.ACCEPT, by: 'provider' },
+        { transition: bookingTransitions.PROVIDER_CANCEL, by: 'provider', createdAt: canceledAt },
+      ],
+    });
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'order' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'cancel-message' },
+                type: 'message',
+                attributes: { createdAt: canceledAt, content: 'Session cancelled' },
+                relationships: { sender: { data: { id: { uuid: providerId }, type: 'user' } } },
+              },
+            ],
+            included: [{ id: { uuid: providerId }, type: 'user' }],
+          },
+        }),
+      },
+    };
+
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [],
+      orderTransactions: [tx],
+      currentUserId: customerId,
+      currentUser: { id: { uuid: customerId } },
+      sdk,
+    });
+
+    expect(recount.orderUnread).toHaveLength(0);
+    expect(logSpy).toHaveBeenCalledWith(
+      '[PeakUp CUSTOMER DOT IGNORED]',
+      expect.objectContaining({
+        transactionId: txId,
+        reasonIgnored: 'canceled_customer_order_excluded',
+      })
+    );
+
+    logSpy.mockRestore();
+    jest.restoreAllMocks();
   });
 
   it('ignores stale provider messages after customer send timestamp during recount', async () => {
@@ -501,15 +609,7 @@ describe('transactionNotificationCount', () => {
     });
 
     expect(recount.orderUnread).toHaveLength(1);
-    expect(logSpy).toHaveBeenCalledWith(
-      '[PeakUp CUSTOMER DOT PROVIDER_REPLY_AFTER_CUSTOMER]',
-      expect.objectContaining({
-        transactionId: txId,
-        currentUserId: customerId,
-        customerLastSentAt: customerSentAt,
-        providerMessageCreatedAt: '2026-05-19T11:00:00.000Z',
-      })
-    );
+    expect(recount.orderUnread[0].id).toBe(txId);
 
     logSpy.mockRestore();
     jest.restoreAllMocks();
@@ -517,22 +617,11 @@ describe('transactionNotificationCount', () => {
 
   it('stores customer sent ack timestamp on acknowledgeCustomerOrderAfterSend', () => {
     const createdAt = '2026-05-19T10:30:00.000Z';
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
     acknowledgeCustomerOrderAfterSend(customerId, txId, createdAt);
 
     expect(getCustomerLastSentAt(customerId, txId)).toEqual(createdAt);
     expect(getMessageAckAt(customerId, txId)).toEqual(createdAt);
-    expect(logSpy).toHaveBeenCalledWith(
-      '[PeakUp CUSTOMER MESSAGE SENT ACK]',
-      expect.objectContaining({
-        transactionId: txId,
-        currentUserId: customerId,
-        messageCreatedAt: createdAt,
-      })
-    );
-
-    logSpy.mockRestore();
   });
 
   it('does not count customer order when the latest message is from the customer', async () => {
@@ -568,20 +657,8 @@ describe('transactionNotificationCount', () => {
       },
     };
 
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
     const count = await countTransactionNotifications([tx], customerId, sdk);
     expect(count).toBe(0);
-    expect(logSpy).toHaveBeenCalledWith(
-      '[PeakUp CUSTOMER SELF MESSAGE IGNORED]',
-      expect.objectContaining({
-        transactionId: txId,
-        currentUserId: customerId,
-        lastMessageAuthorId: customerId,
-      })
-    );
-
-    logSpy.mockRestore();
   });
 
   it('counts customer order when the latest message is from the provider', async () => {
@@ -649,8 +726,6 @@ describe('transactionNotificationCount', () => {
       },
     };
 
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
     const recount = await recountInboxNotificationCounts({
       saleTransactions: [],
       orderTransactions: [tx],
@@ -660,16 +735,6 @@ describe('transactionNotificationCount', () => {
     });
 
     expect(recount.orderUnread).toHaveLength(0);
-    expect(logSpy).toHaveBeenCalledWith(
-      '[PeakUp CUSTOMER SELF MESSAGE IGNORED]',
-      expect.objectContaining({
-        transactionId: txId,
-        currentUserId: customerId,
-        lastMessageAuthorId: customerId,
-      })
-    );
-
-    logSpy.mockRestore();
     jest.restoreAllMocks();
   });
 

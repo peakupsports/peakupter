@@ -10,6 +10,7 @@ import {
   getStatesNeedingCustomerAttention,
 } from '../transactions/transaction';
 import { filterTransactionsExcludingArchived } from '../util/archivedConversations';
+import { isDevelopmentMode } from '../util/isDevelopmentMode';
 import { cleanupInboxNotificationReferences } from '../util/inboxNotificationCleanup';
 import {
   acknowledgeVisibleInboxTransactions,
@@ -206,16 +207,18 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
           orderNotificationsCount,
           orderUnread.map(entry => entry.id)
         );
-        // eslint-disable-next-line no-console
-        console.log('[PeakUp INBOX DOT RECALCULATED]', {
-          saleCount: saleNotificationsCount,
-          orderCount: orderNotificationsCount,
-          totalCount: saleNotificationsCount + orderNotificationsCount,
-          unreadSaleTransactionIds: saleUnread.map(entry => entry.id),
-          unreadOrderTransactionIds: orderUnread.map(entry => entry.id),
-          ghostOrderIdsRemoved: recount.ghostOrderIds,
-          ghostSaleIdsRemoved: recount.ghostSaleIds,
-        });
+        if (isDevelopmentMode()) {
+          // eslint-disable-next-line no-console
+          console.log('[PeakUp INBOX DOT RECALCULATED]', {
+            saleCount: saleNotificationsCount,
+            orderCount: orderNotificationsCount,
+            totalCount: saleNotificationsCount + orderNotificationsCount,
+            unreadSaleTransactionIds: saleUnread.map(entry => entry.id),
+            unreadOrderTransactionIds: orderUnread.map(entry => entry.id),
+            ghostOrderIdsRemoved: recount.ghostOrderIds,
+            ghostSaleIdsRemoved: recount.ghostSaleIds,
+          });
+        }
       }
 
       return {
@@ -326,7 +329,7 @@ export const fetchInboxNotificationsIfReady =
     return Promise.resolve(null);
   }
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && isDevelopmentMode()) {
     // eslint-disable-next-line no-console
     console.log('[PeakUp INBOX NOTIFICATIONS FETCH]', { currentUserId });
   }
@@ -383,7 +386,7 @@ export const clearStaleInboxNotificationCounts = () => (dispatch, getState) => {
 
   dispatch(clearStaleInboxNotificationCountsAction());
 
-  if (typeof window !== 'undefined' && previousTotal > 0) {
+  if (typeof window !== 'undefined' && previousTotal > 0 && isDevelopmentMode()) {
     // eslint-disable-next-line no-console
     console.log('[PeakUp INBOX DOT STALE CLEARED]', {
       previousTotal,
@@ -409,7 +412,7 @@ export const resetInboxDotAfterInboxLoad =
 
     const userState = getState().user || {};
 
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isDevelopmentMode()) {
       // eslint-disable-next-line no-console
       console.log('[PeakUp INBOX DOT RESET]', {
         visibleCount: visibleTransactions?.length || 0,
@@ -437,6 +440,7 @@ export const resetInboxDotAfterInboxLoad =
     );
 
     await acknowledgeVisibleInboxTransactions(visibleTransactions || [], currentUserId, sdk);
+    inboxBadgeResetHoldUntil = Date.now() + INBOX_BADGE_RESET_HOLD_MS;
     dispatch(resetInboxNotificationBadgesToZero());
   };
 
@@ -655,16 +659,18 @@ const userSlice = createSlice({
       state.currentUserOrderNotificationCount = state.unreadOrderTransactionIds.length;
 
       if (typeof window !== 'undefined') {
-        // eslint-disable-next-line no-console
-        console.log('[PeakUp CUSTOMER DOT SUPPRESSED AFTER SEND]', {
-          transactionId,
-          hadUnread,
-          orderCount: state.currentUserOrderNotificationCount,
-        });
         logCustomerDotRendered(
           state.currentUserOrderNotificationCount,
           state.unreadOrderTransactionIds
         );
+        if (isDevelopmentMode()) {
+          // eslint-disable-next-line no-console
+          console.log('[PeakUp CUSTOMER DOT SUPPRESSED AFTER SEND]', {
+            transactionId,
+            hadUnread,
+            orderCount: state.currentUserOrderNotificationCount,
+          });
+        }
       }
     },
     setInboxNotificationCounts: (state, action) => {
@@ -776,7 +782,7 @@ const userSlice = createSlice({
       .addCase(fetchCurrentUserNotificationsThunk.rejected, (state, action) => {
         const previousTotal =
           state.currentUserSaleNotificationCount + state.currentUserOrderNotificationCount;
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && isDevelopmentMode()) {
           // eslint-disable-next-line no-console
           console.warn('[PeakUp INBOX NOTIFICATIONS FETCH ERROR]', action.payload);
           if (previousTotal > 0) {

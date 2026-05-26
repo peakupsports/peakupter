@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../util/reactIntl';
+import { isDevelopmentMode } from '../../../util/isDevelopmentMode';
 import { NamedLink, NotificationBadge } from '../../../components';
 
 import css from './TopbarInboxLink.module.css';
@@ -43,7 +44,7 @@ const TopbarInboxLink = props => {
   const renderedBadgeCount = hasNotifications ? badgeCount : 0;
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (typeof window === 'undefined' || !isDevelopmentMode()) {
       return;
     }
     // eslint-disable-next-line no-console

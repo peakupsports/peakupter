@@ -15,6 +15,7 @@ import {
   collectTransactionUuids,
   fetchInboxTabTransactionIds,
 } from './inboxNotificationCleanup';
+import { isDevelopmentMode } from './isDevelopmentMode';
 
 // Transaction states where inbox attention depends on messaging, not only process state.
 export const MESSAGE_ATTENTION_STATES = new Set(['inquiry', 'free-inquiry']);
@@ -24,7 +25,7 @@ const CUSTOMER_LAST_SENT_PREFIX = 'peakupCustomerLastSentAt';
 const LATEST_MESSAGE_QUERY_PAGE_SIZE = 100;
 
 const debugInboxNotifications = (...args) => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && isDevelopmentMode()) {
     // eslint-disable-next-line no-console
     console.log('[PeakUp inbox notifications]', ...args);
   }
@@ -121,7 +122,7 @@ export const purgeTransactionInboxNotificationStorage = (
     // Ignore quota / privacy errors.
   }
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && isDevelopmentMode()) {
     // eslint-disable-next-line no-console
     console.log('[PeakUp INBOX STALE TRANSACTION REMOVED]', {
       transactionId: txUuid,
@@ -345,7 +346,7 @@ export const logCustomerDotRendered = (orderCount, unreadOrderTransactionIds = [
 };
 
 const logCustomerDotSource = (tx, currentUserId, messages, reasonCounted) => {
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' || !isDevelopmentMode()) {
     return;
   }
   // eslint-disable-next-line no-console
@@ -367,7 +368,14 @@ const logCustomerDotIgnored = (transactionId, reasonIgnored) => {
 };
 
 const logCustomerDotIgnoredForTx = (tx, currentUserId, messages, reasonIgnored) => {
-  logCustomerDotIgnored(tx?.id?.uuid, reasonIgnored);
+  if (typeof window === 'undefined') {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp CUSTOMER DOT IGNORED]', {
+    ...buildCustomerDotTxDiagnostics(tx, currentUserId, messages),
+    reasonIgnored,
+  });
 };
 
 const getCustomerOrderNotCountedReason = (
@@ -375,18 +383,35 @@ const getCustomerOrderNotCountedReason = (
   currentUserId,
   messages,
   incomingMessage,
-  txUuid
+  txUuid,
+  inboxTransactionIds
 ) => {
+  if (inboxTransactionIds && txUuid && !inboxTransactionIds.has(txUuid)) {
+    return 'ghost_not_in_inbox_api';
+  }
+  if (getInboxRoleForTransaction(tx, currentUserId) !== 'order') {
+    return 'not_customer_order_role';
+  }
   if (!messages?.length) {
     return 'no_messages';
   }
+  if (getTransactionProcessState(tx) === 'canceled') {
+    return 'canceled_customer_order_excluded';
+  }
   const latestMessage = getLatestMessage(messages);
   const latestAuthorId = latestMessage ? getMessageSenderUuid(latestMessage) : null;
+  if (!latestAuthorId) {
+    return 'latest_message_sender_unknown';
+  }
   if (latestAuthorId === currentUserId) {
     return 'latest_message_from_customer';
   }
   if (!incomingMessage) {
     return 'no_provider_message_after_customer_send';
+  }
+  const incomingAuthorId = getMessageSenderUuid(incomingMessage);
+  if (!incomingAuthorId || incomingAuthorId === currentUserId) {
+    return 'incoming_not_from_provider';
   }
   if (!isIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
     return 'incoming_already_read_or_acked';
@@ -394,9 +419,66 @@ const getCustomerOrderNotCountedReason = (
   return 'not_unread';
 };
 
+/**
+ * Whether a customer/order transaction should increment the "As a customer" badge.
+ * Provider/sale counting uses separate logic and is unchanged.
+ *
+ * @param {Object} tx
+ * @param {string} currentUserId
+ * @param {Array} messages
+ * @param {{ inboxTransactionIds?: Set<string> }} [options]
+ * @returns {boolean}
+ */
+export const shouldCountCustomerOrderUnreadForBadge = (
+  tx,
+  currentUserId,
+  messages,
+  { inboxTransactionIds } = {}
+) => {
+  const txUuid = tx?.id?.uuid;
+  if (!txUuid || !currentUserId) {
+    return false;
+  }
+
+  if (inboxTransactionIds && !inboxTransactionIds.has(txUuid)) {
+    return false;
+  }
+
+  if (getInboxRoleForTransaction(tx, currentUserId) !== 'order') {
+    return false;
+  }
+
+  if (!messages?.length) {
+    return false;
+  }
+
+  if (getTransactionProcessState(tx) === 'canceled') {
+    return false;
+  }
+
+  const latestMessage = getLatestMessage(messages);
+  const latestAuthorId = latestMessage ? getMessageSenderUuid(latestMessage) : null;
+  if (!latestAuthorId || latestAuthorId === currentUserId) {
+    return false;
+  }
+
+  const incomingMessage = getUnreadIncomingMessageForInboxCount(tx, currentUserId, messages, {
+    forceOrderRole: true,
+  });
+  if (!incomingMessage) {
+    return false;
+  }
+
+  const incomingAuthorId = getMessageSenderUuid(incomingMessage);
+  if (!incomingAuthorId || incomingAuthorId === currentUserId) {
+    return false;
+  }
+
+  return isIncomingMessageUnread(currentUserId, txUuid, incomingMessage);
+};
+
 const logCustomerSelfMessageIgnored = (transactionId, currentUserId, lastMessageAuthorId) => {
-  logCustomerDotIgnored(transactionId, 'latest_message_from_customer');
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' || !isDevelopmentMode()) {
     return;
   }
   // eslint-disable-next-line no-console
@@ -408,7 +490,7 @@ const logCustomerSelfMessageIgnored = (transactionId, currentUserId, lastMessage
 };
 
 const logCustomerMessageSentAck = (transactionId, currentUserId, messageCreatedAt) => {
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' || !isDevelopmentMode()) {
     return;
   }
   // eslint-disable-next-line no-console
@@ -425,7 +507,7 @@ const logCustomerDotProviderReplyAfterCustomer = (
   customerLastSentAt,
   providerMessageCreatedAt
 ) => {
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' || !isDevelopmentMode()) {
     return;
   }
   // eslint-disable-next-line no-console
@@ -622,7 +704,7 @@ export const acknowledgeThreadOnOpen = async (currentUserId, transactionId, mess
 
   const ackAfter = getMessageAckAt(currentUserId, transactionId);
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && isDevelopmentMode()) {
     // eslint-disable-next-line no-console
     console.log('[PeakUp inbox ack on open]', {
       transactionId,
@@ -791,14 +873,16 @@ const logUnreadCancellationMessage = (tx, currentUserId, latestMessage, isUnread
     return;
   }
 
-  // eslint-disable-next-line no-console
-  console.log('[PeakUp UNREAD CANCELLATION MESSAGE]', {
-    transactionId: tx?.id?.uuid,
-    currentUserId,
-    processState,
-    lastMessageAuthorId: latestMessage ? getMessageSenderUuid(latestMessage) : null,
-    lastMessageCreatedAt: latestMessage?.attributes?.createdAt ?? null,
-  });
+  if (isDevelopmentMode()) {
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp UNREAD CANCELLATION MESSAGE]', {
+      transactionId: tx?.id?.uuid,
+      currentUserId,
+      processState,
+      lastMessageAuthorId: latestMessage ? getMessageSenderUuid(latestMessage) : null,
+      lastMessageCreatedAt: latestMessage?.attributes?.createdAt ?? null,
+    });
+  }
 };
 
 const hasUnreadMessageActivity = async (tx, currentUserId, sdk) => {
@@ -826,15 +910,25 @@ const hasUnreadMessageActivity = async (tx, currentUserId, sdk) => {
     return false;
   }
 
-  const incomingMessage = getUnreadIncomingMessageForInboxCount(tx, currentUserId, messages);
+  const role = getInboxRoleForTransaction(tx, currentUserId);
+  const incomingMessage = getUnreadIncomingMessageForInboxCount(tx, currentUserId, messages, {
+    forceOrderRole: role === 'order',
+  });
   const processState = getTransactionProcessState(tx);
 
   if (processState === 'canceled') {
+    if (role === 'order') {
+      return false;
+    }
     if (!isIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
       return false;
     }
     logUnreadCancellationMessage(tx, currentUserId, incomingMessage, true);
     return true;
+  }
+
+  if (role === 'order') {
+    return shouldCountCustomerOrderUnreadForBadge(tx, currentUserId, messages);
   }
 
   if (isIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
@@ -980,7 +1074,7 @@ export const countTransactionNotifications = async (transactions, currentUserId,
 };
 
 const logRecountTransactionIds = meta => {
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' || !isDevelopmentMode()) {
     return;
   }
   // eslint-disable-next-line no-console
@@ -988,7 +1082,7 @@ const logRecountTransactionIds = meta => {
 };
 
 const logGhostOrderCountRemoved = removedTransactionIds => {
-  if (typeof window === 'undefined' || !removedTransactionIds?.length) {
+  if (typeof window === 'undefined' || !removedTransactionIds?.length || !isDevelopmentMode()) {
     return;
   }
   // eslint-disable-next-line no-console
@@ -1059,19 +1153,37 @@ const collectValidatedUnreadForRecount = async ({
     const incomingMessage = getUnreadIncomingMessageForInboxCount(tx, currentUserId, messages, {
       forceOrderRole: isOrderRecount,
     });
+
+    if (isOrderRecount) {
+      if (shouldCountCustomerOrderUnreadForBadge(tx, currentUserId, messages, { inboxTransactionIds })) {
+        validatedUnread.push({
+          id: txUuid,
+          role,
+          latestOtherPartyMessageAt: incomingMessage?.attributes?.createdAt ?? null,
+          lastMessageAuthorId: incomingMessage ? getMessageSenderUuid(incomingMessage) : null,
+          isUnread: true,
+        });
+        logCustomerDotSource(tx, currentUserId, messages, 'incoming_message_unread');
+      } else {
+        const reasonIgnored = getCustomerOrderNotCountedReason(
+          tx,
+          currentUserId,
+          messages,
+          incomingMessage,
+          txUuid,
+          inboxTransactionIds
+        );
+        removed.push({ id: txUuid, reason: reasonIgnored });
+        logCustomerDotIgnoredForTx(tx, currentUserId, messages, reasonIgnored);
+      }
+      continue;
+    }
+
     const processState = getTransactionProcessState(tx);
 
     if (processState === 'canceled') {
       if (!isIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
         removed.push({ id: txUuid, reason: 'canceled_acknowledged' });
-        if (isOrderRecount) {
-          logCustomerDotIgnoredForTx(
-            tx,
-            currentUserId,
-            messages,
-            getCustomerOrderNotCountedReason(tx, currentUserId, messages, incomingMessage, txUuid)
-          );
-        }
         continue;
       }
       validatedUnread.push({
@@ -1081,9 +1193,6 @@ const collectValidatedUnreadForRecount = async ({
         lastMessageAuthorId: incomingMessage ? getMessageSenderUuid(incomingMessage) : null,
         isUnread: true,
       });
-      if (isOrderRecount) {
-        logCustomerDotSource(tx, currentUserId, messages, 'canceled_unread_message');
-      }
       continue;
     }
 
@@ -1095,9 +1204,6 @@ const collectValidatedUnreadForRecount = async ({
         lastMessageAuthorId: incomingMessage ? getMessageSenderUuid(incomingMessage) : null,
         isUnread: true,
       });
-      if (isOrderRecount) {
-        logCustomerDotSource(tx, currentUserId, messages, 'incoming_message_unread');
-      }
       continue;
     }
 
@@ -1113,14 +1219,6 @@ const collectValidatedUnreadForRecount = async ({
     }
 
     removed.push({ id: txUuid, reason: 'not_unread' });
-    if (isOrderRecount) {
-      logCustomerDotIgnoredForTx(
-        tx,
-        currentUserId,
-        messages,
-        getCustomerOrderNotCountedReason(tx, currentUserId, messages, incomingMessage, txUuid)
-      );
-    }
   }
 
   return { validatedUnread, removed };
@@ -1160,7 +1258,12 @@ export const recountInboxNotificationCounts = async ({
   );
   ghostOrderIds.forEach(id => {
     purgeTransactionInboxNotificationStorage(currentUserId, id, 'not_in_inbox_api');
-    logCustomerDotIgnored(id, 'ghost_not_in_inbox_api');
+    const ghostTx = (orderTransactions || []).find(tx => tx?.id?.uuid === id);
+    if (ghostTx) {
+      logCustomerDotIgnoredForTx(ghostTx, currentUserId, [], 'ghost_not_in_inbox_api');
+    } else {
+      logCustomerDotIgnored(id, 'ghost_not_in_inbox_api');
+    }
   });
 
   const salesForRecount = (saleTransactions || []).filter(tx =>

@@ -38,6 +38,7 @@ import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 import { resetInboxDotAfterInboxLoad } from '../../ducks/user.duck';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { filterTransactionsExcludingArchived } from '../../util/archivedConversations';
+import { isDevelopmentMode } from '../../util/isDevelopmentMode';
 import { logCustomerDotRendered } from '../../util/transactionNotificationCount';
 import {
   H2,
@@ -301,7 +302,7 @@ export const InboxPageComponent = props => {
     providerCount > 0 ? (providerCount > 99 ? '99+' : providerCount) : 0;
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (typeof window === 'undefined' || !isDevelopmentMode()) {
       return;
     }
     // eslint-disable-next-line no-console
