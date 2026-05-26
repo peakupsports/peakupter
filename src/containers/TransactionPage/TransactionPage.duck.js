@@ -40,7 +40,9 @@ import {
 import {
   acknowledgeCustomerOrderAfterSend,
   acknowledgeInboxThreadOnOpen,
+  beginInboxThreadAck,
   getInboxRoleForTransaction,
+  logThreadAckResult,
 } from '../../util/transactionNotificationCount';
 import {
   createContactSharingBlockedError,
@@ -493,36 +495,136 @@ export const makeTransition = (txId, transitionName, params) => dispatch => {
 
 const getTransactionUuid = txId => (typeof txId === 'object' && txId.uuid ? txId.uuid : txId);
 
-const markThreadReadFromMessages = (dispatch, getState, sdk, txId, messages) => {
+const logThreadLoadStart = (transactionId, transactionRole) => {
   if (typeof window === 'undefined') {
-    return Promise.resolve();
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp THREAD LOAD START]', {
+    transactionId,
+    transactionRole,
+  });
+};
+
+const logThreadLoadSuccess = (transactionId, messageCount) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp THREAD LOAD SUCCESS]', {
+    transactionId,
+    messageCount,
+  });
+};
+
+const logThreadLoadFailure = (transactionId, error) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.warn('[PeakUp THREAD LOAD FAILURE]', {
+    transactionId,
+    error: error?.message || error,
+  });
+};
+
+const logThreadAckNonFatalError = (transactionId, error) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.warn('[PeakUp THREAD ACK NON_FATAL_ERROR]', {
+    transactionId,
+    error: error?.message || error,
+  });
+};
+
+const resolveInboxRoleForThread = (tx, currentUserId, transactionRole) => {
+  try {
+    if (tx && currentUserId) {
+      return getInboxRoleForTransaction(tx, currentUserId);
+    }
+    if (transactionRole === 'customer') {
+      return 'order';
+    }
+    if (transactionRole === 'provider') {
+      return 'sale';
+    }
+  } catch (e) {
+    return null;
+  }
+  return null;
+};
+
+/**
+ * Best-effort notification ack after messages loaded — must never throw.
+ */
+const runThreadNotificationAckBestEffort = async (
+  dispatch,
+  getState,
+  sdk,
+  txId,
+  messages,
+  transactionRole
+) => {
+  if (typeof window === 'undefined') {
+    return;
   }
 
-  const currentUserId = getState().user?.currentUser?.id?.uuid;
   const txUuid = getTransactionUuid(txId);
+  if (!txUuid) {
+    return;
+  }
 
-  if (!currentUserId || !txUuid) {
-    return Promise.resolve();
+  const userState = getState().user || {};
+  const currentUserId = userState.currentUser?.id?.uuid;
+  if (!currentUserId) {
+    return;
   }
 
   const transactionRefs = [{ id: txId, type: 'transaction' }];
   const transactions = getMarketplaceEntities(getState(), transactionRefs);
   const tx = transactions.length > 0 ? transactions[0] : null;
+  if (!tx) {
+    return;
+  }
 
-  return acknowledgeInboxThreadOnOpen({
+  const inboxRole = resolveInboxRoleForThread(tx, currentUserId, transactionRole);
+  if (!inboxRole) {
+    return;
+  }
+
+  const countsBefore = {
+    orderCount: userState.currentUserOrderNotificationCount || 0,
+    saleCount: userState.currentUserSaleNotificationCount || 0,
+    unreadOrderTransactionIds: userState.unreadOrderTransactionIds || [],
+    unreadSaleTransactionIds: userState.unreadSaleTransactionIds || [],
+  };
+
+  beginInboxThreadAck({
+    currentUserId,
+    transactionId: txUuid,
+    inboxRole,
+    countsBefore,
+  });
+  dispatch(optimisticallyClearOneInboxNotification({ inboxRole, transactionId: txUuid }));
+
+  await acknowledgeInboxThreadOnOpen({
     currentUserId,
     transactionId: txUuid,
     messages,
     tx,
     sdk,
-  }).then(({ inboxRole, transactionId }) => {
-    if (inboxRole && transactionId) {
-      dispatch(
-        optimisticallyClearOneInboxNotification({ inboxRole, transactionId })
-      );
-    }
-    dispatch(fetchCurrentUserNotifications());
   });
+
+  const afterState = getState().user || {};
+  logThreadAckResult(txUuid, inboxRole, {
+    orderCount: afterState.currentUserOrderNotificationCount || 0,
+    saleCount: afterState.currentUserSaleNotificationCount || 0,
+    unreadOrderTransactionIds: afterState.unreadOrderTransactionIds || [],
+    unreadSaleTransactionIds: afterState.unreadSaleTransactionIds || [],
+  });
+  dispatch(fetchCurrentUserNotifications());
 };
 
 ////////////////////
@@ -533,6 +635,11 @@ const fetchMessagesPayloadCreator = (
   { dispatch, getState, rejectWithValue, extra: sdk }
 ) => {
   const paging = { page, perPage: MESSAGES_PAGE_SIZE };
+  const txUuid = getTransactionUuid(txId);
+
+  if (page === 1) {
+    logThreadLoadStart(txUuid, transactionRole);
+  }
 
   return sdk.messages
     .query({
@@ -546,27 +653,45 @@ const fetchMessagesPayloadCreator = (
       const { totalItems, totalPages, page: fetchedPage } = response.data.meta;
       const pagination = { totalItems, totalPages, page: fetchedPage };
 
+      if (page === 1) {
+        logThreadLoadSuccess(txUuid, messages.length);
+      }
+
       // Check if totalItems has changed between fetched pagination pages
       // if totalItems has changed, fetch first page again to include new incoming messages.
       // TODO if there're more than 100 incoming messages,
       // this should loop through most recent pages instead of fetching just the first one.
       if (totalItems > 0 && page > 1) {
         // Background update for new incoming messages
-        dispatch(fetchMessagesThunk({ txId, page: 1, config })).catch(() => {
+        dispatch(fetchMessagesThunk({ txId, page: 1, config, transactionRole })).catch(() => {
           // Background update, no need to to do anything atm.
         });
       }
 
       if (page === 1) {
-        unarchiveConversationIfIncomingMessage(dispatch, getState, txId, messages);
-        markThreadReadFromMessages(dispatch, getState, sdk, txId, messages).catch(() => {
-          // Badge recount will retry on next poll.
+        try {
+          unarchiveConversationIfIncomingMessage(dispatch, getState, txId, messages);
+        } catch (e) {
+          logThreadAckNonFatalError(txUuid, e);
+        }
+
+        // Notification ack is best-effort only — never block message render.
+        void runThreadNotificationAckBestEffort(
+          dispatch,
+          getState,
+          sdk,
+          txId,
+          messages,
+          transactionRole
+        ).catch(e => {
+          logThreadAckNonFatalError(txUuid, e);
         });
       }
 
       return { messages, pagination };
     })
     .catch(e => {
+      logThreadLoadFailure(txUuid, e);
       return rejectWithValue(storableError(e));
     });
 };
@@ -1012,5 +1137,5 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
     dispatch(fetchTransactionThunk({ id: txId, txRole, config })),
     dispatch(fetchMessagesThunk({ txId, page: 1, config, transactionRole: txRole })),
     dispatch(fetchTransitionsThunk({ id: txId })),
-  ]).then(() => dispatch(fetchCurrentUserNotifications()));
+  ]);
 };

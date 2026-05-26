@@ -13,6 +13,10 @@ import { filterTransactionsExcludingArchived } from '../util/archivedConversatio
 import { isDevelopmentMode } from '../util/isDevelopmentMode';
 import { cleanupInboxNotificationReferences } from '../util/inboxNotificationCleanup';
 import {
+  filterTransactionIdsExcludingThreadSuppress,
+  suppressInboxThreadAfterOpen,
+} from '../util/inboxThreadAckSuppress';
+import {
   dedupeTransactionIds,
   logCustomerDotRendered,
   logInboxListOpenNoAck,
@@ -198,11 +202,15 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
         sdk,
       });
 
-      const unreadSaleTransactionIds = dedupeTransactionIds(
-        recount.saleUnreadIds || recount.saleUnread.map(entry => entry.id)
+      const unreadSaleTransactionIds = filterTransactionIdsExcludingThreadSuppress(
+        currentUserId,
+        dedupeTransactionIds(recount.saleUnreadIds || recount.saleUnread.map(entry => entry.id)),
+        'sale'
       );
-      const unreadOrderTransactionIds = dedupeTransactionIds(
-        recount.orderUnreadIds || recount.orderUnread.map(entry => entry.id)
+      const unreadOrderTransactionIds = filterTransactionIdsExcludingThreadSuppress(
+        currentUserId,
+        dedupeTransactionIds(recount.orderUnreadIds || recount.orderUnread.map(entry => entry.id)),
+        'order'
       );
       const saleNotificationsCount = unreadSaleTransactionIds.length;
       const orderNotificationsCount = unreadOrderTransactionIds.length;
@@ -663,6 +671,11 @@ const userSlice = createSlice({
       const transactionId = action.payload?.transactionId;
       if (!transactionId) {
         return;
+      }
+
+      const currentUserId = state.currentUser?.id?.uuid;
+      if (currentUserId) {
+        suppressInboxThreadAfterOpen(currentUserId, transactionId, 'order');
       }
 
       const hadUnread = state.unreadOrderTransactionIds.includes(transactionId);

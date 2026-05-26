@@ -16,6 +16,11 @@ import {
   fetchInboxTabTransactionIds,
 } from './inboxNotificationCleanup';
 import { isDevelopmentMode } from './isDevelopmentMode';
+import {
+  filterTransactionIdsExcludingThreadSuppress,
+  isInboxThreadAckSuppressed,
+  suppressInboxThreadAfterOpen,
+} from './inboxThreadAckSuppress';
 
 // Transaction states where inbox attention depends on messaging, not only process state.
 export const MESSAGE_ATTENTION_STATES = new Set(['inquiry', 'free-inquiry']);
@@ -424,6 +429,9 @@ const getCustomerOrderNotCountedReason = (
   txUuid,
   inboxTransactionIds
 ) => {
+  if (isInboxThreadAckSuppressed(currentUserId, txUuid, 'order', messages)) {
+    return 'thread_ack_suppressed';
+  }
   if (inboxTransactionIds && txUuid && !inboxTransactionIds.has(txUuid)) {
     return 'ghost_not_in_inbox_api';
   }
@@ -475,6 +483,10 @@ export const shouldCountCustomerOrderUnreadForBadge = (
 ) => {
   const txUuid = tx?.id?.uuid;
   if (!txUuid || !currentUserId) {
+    return false;
+  }
+
+  if (isInboxThreadAckSuppressed(currentUserId, txUuid, 'order', messages)) {
     return false;
   }
 
@@ -769,15 +781,33 @@ export const acknowledgeThreadOnOpen = async (currentUserId, transactionId, mess
 export const acknowledgeTransactionThread = (currentUserId, transactionId, messages, tx, sdk) =>
   acknowledgeThreadOnOpen(currentUserId, transactionId, messages, tx, sdk);
 
-const logThreadAck = (transactionId, inboxRole, currentUserId) => {
+const logThreadAckStart = (transactionId, inboxRole, countsBefore) => {
   if (typeof window === 'undefined') {
     return;
   }
   // eslint-disable-next-line no-console
-  console.log('[PeakUp THREAD ACK]', {
+  console.log('[PeakUp THREAD ACK START]', {
     transactionId,
-    inboxRole,
-    currentUserId,
+    role: inboxRole,
+    orderCount: countsBefore?.orderCount ?? 0,
+    saleCount: countsBefore?.saleCount ?? 0,
+    unreadOrderTransactionIds: countsBefore?.unreadOrderTransactionIds ?? [],
+    unreadSaleTransactionIds: countsBefore?.unreadSaleTransactionIds ?? [],
+  });
+};
+
+const logThreadAckResult = (transactionId, inboxRole, countsAfter) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp THREAD ACK RESULT]', {
+    transactionId,
+    role: inboxRole,
+    orderCount: countsAfter?.orderCount ?? 0,
+    saleCount: countsAfter?.saleCount ?? 0,
+    unreadOrderTransactionIds: countsAfter?.unreadOrderTransactionIds ?? [],
+    unreadSaleTransactionIds: countsAfter?.unreadSaleTransactionIds ?? [],
   });
 };
 
@@ -791,6 +821,28 @@ const logInboxListOpenNoAck = (inboxTab, visibleCount, currentUserId) => {
     visibleCount,
     currentUserId,
   });
+};
+
+/**
+ * Immediately suppress recount + clear Redux for one opened thread (before async ack).
+ *
+ * @param {Object} params
+ * @param {string} params.currentUserId
+ * @param {string|Object} params.transactionId
+ * @param {'sale'|'order'|null} params.inboxRole
+ * @param {Object} [params.countsBefore]
+ * @returns {{ transactionId: string|null, inboxRole: 'sale'|'order'|null, suppressUntil: number }}
+ */
+export const beginInboxThreadAck = ({ currentUserId, transactionId, inboxRole, countsBefore }) => {
+  const txUuid = typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
+  if (!currentUserId || !txUuid || !inboxRole) {
+    return { transactionId: txUuid || null, inboxRole: inboxRole || null, suppressUntil: 0 };
+  }
+
+  logThreadAckStart(txUuid, inboxRole, countsBefore);
+  const suppressUntil = suppressInboxThreadAfterOpen(currentUserId, txUuid, inboxRole);
+
+  return { transactionId: txUuid, inboxRole, suppressUntil };
 };
 
 /**
@@ -819,12 +871,11 @@ export const acknowledgeInboxThreadOnOpen = async ({
   const inboxRole = tx ? getInboxRoleForTransaction(tx, currentUserId) : null;
 
   await acknowledgeTransactionThread(currentUserId, txUuid, messages, tx, sdk);
-  logThreadAck(txUuid, inboxRole, currentUserId);
 
   return { inboxRole, transactionId: txUuid };
 };
 
-export { logInboxListOpenNoAck };
+export { logInboxListOpenNoAck, logThreadAckResult };
 
 /**
  * Resolve inbox tab role for a transaction relative to the current user.
@@ -1245,6 +1296,15 @@ const collectValidatedUnreadForRecount = async ({
     }
 
     const role = getInboxRoleForTransaction(tx, currentUserId);
+    const suppressRole = isOrderRecount ? 'order' : 'sale';
+    if (isInboxThreadAckSuppressed(currentUserId, txUuid, suppressRole, messages)) {
+      removed.push({ id: txUuid, reason: 'thread_ack_suppressed' });
+      if (isOrderRecount) {
+        logCustomerDotIgnoredForTx(tx, currentUserId, messages, 'thread_ack_suppressed');
+      }
+      continue;
+    }
+
     const incomingMessage = getUnreadIncomingMessageForInboxCount(tx, currentUserId, messages, {
       forceOrderRole: isOrderRecount,
     });
@@ -1281,6 +1341,10 @@ const collectValidatedUnreadForRecount = async ({
         removed.push({ id: txUuid, reason: 'canceled_acknowledged' });
         continue;
       }
+      if (isInboxThreadAckSuppressed(currentUserId, txUuid, 'sale', messages)) {
+        removed.push({ id: txUuid, reason: 'thread_ack_suppressed' });
+        continue;
+      }
       validatedUnread.push({
         id: txUuid,
         role,
@@ -1292,6 +1356,10 @@ const collectValidatedUnreadForRecount = async ({
     }
 
     if (isIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
+      if (isInboxThreadAckSuppressed(currentUserId, txUuid, 'sale', messages)) {
+        removed.push({ id: txUuid, reason: 'thread_ack_suppressed' });
+        continue;
+      }
       validatedUnread.push({
         id: txUuid,
         role,
@@ -1303,6 +1371,10 @@ const collectValidatedUnreadForRecount = async ({
     }
 
     if (role === 'sale' && hasUnreadStateAttention(tx, currentUserId)) {
+      if (isInboxThreadAckSuppressed(currentUserId, txUuid, 'sale', messages)) {
+        removed.push({ id: txUuid, reason: 'thread_ack_suppressed' });
+        continue;
+      }
       validatedUnread.push({
         id: txUuid,
         role,
@@ -1383,10 +1455,20 @@ export const recountInboxNotificationCounts = async ({
     inboxOnly: 'order',
   });
 
-  const saleUnread = dedupeUnreadEntriesByTransactionId(saleValidated.validatedUnread);
-  const orderUnread = dedupeUnreadEntriesByTransactionId(orderValidated.validatedUnread);
-  const orderUnreadIds = dedupeTransactionIds(orderUnread.map(entry => entry.id));
-  const saleUnreadIds = dedupeTransactionIds(saleUnread.map(entry => entry.id));
+  const saleUnreadDeduped = dedupeUnreadEntriesByTransactionId(saleValidated.validatedUnread);
+  const orderUnreadDeduped = dedupeUnreadEntriesByTransactionId(orderValidated.validatedUnread);
+  const orderUnreadIds = filterTransactionIdsExcludingThreadSuppress(
+    currentUserId,
+    dedupeTransactionIds(orderUnreadDeduped.map(entry => entry.id)),
+    'order'
+  );
+  const saleUnreadIds = filterTransactionIdsExcludingThreadSuppress(
+    currentUserId,
+    dedupeTransactionIds(saleUnreadDeduped.map(entry => entry.id)),
+    'sale'
+  );
+  const orderUnread = orderUnreadDeduped.filter(entry => orderUnreadIds.includes(entry.id));
+  const saleUnread = saleUnreadDeduped.filter(entry => saleUnreadIds.includes(entry.id));
 
   logCustomerDotRendered(orderUnreadIds.length, orderUnreadIds);
 

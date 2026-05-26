@@ -4,6 +4,7 @@ import {
   acknowledgeInboxThreadOnOpen,
   acknowledgeTransactionMessages,
   acknowledgeTransactionThread,
+  beginInboxThreadAck,
   countTransactionNotifications,
   dedupeTransactionIds,
   dedupeTransactionsById,
@@ -16,6 +17,7 @@ import {
   recountInboxNotificationCounts,
   setMessageAckAt,
 } from './transactionNotificationCount';
+import { suppressInboxThreadAfterOpen } from './inboxThreadAckSuppress';
 import * as inboxNotificationCleanup from './inboxNotificationCleanup';
 import { markTransactionReadOnOpen } from './unreadNotifications';
 import { getProcess, getStatesNeedingCustomerAttention } from '../transactions/transaction';
@@ -947,7 +949,7 @@ describe('transactionNotificationCount', () => {
     logSpy.mockRestore();
   });
 
-  it('acknowledgeInboxThreadOnOpen logs thread ack with role', async () => {
+  it('beginInboxThreadAck and acknowledgeInboxThreadOnOpen handle thread open flow', async () => {
     const tx = createTx({
       lastTransition: bookingTransitions.INQUIRE,
       transitions: [{ transition: bookingTransitions.INQUIRE, by: 'customer' }],
@@ -980,6 +982,13 @@ describe('transactionNotificationCount', () => {
 
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
+    beginInboxThreadAck({
+      currentUserId: customerId,
+      transactionId: txId,
+      inboxRole: 'order',
+      countsBefore: { orderCount: 1, saleCount: 0 },
+    });
+
     const result = await acknowledgeInboxThreadOnOpen({
       currentUserId: customerId,
       transactionId: txId,
@@ -990,14 +999,260 @@ describe('transactionNotificationCount', () => {
 
     expect(result).toEqual({ inboxRole: 'order', transactionId: txId });
     expect(logSpy).toHaveBeenCalledWith(
-      '[PeakUp THREAD ACK]',
+      '[PeakUp THREAD ACK START]',
       expect.objectContaining({
         transactionId: txId,
-        inboxRole: 'order',
-        currentUserId: customerId,
+        role: 'order',
+      })
+    );
+    expect(logSpy).toHaveBeenCalledWith(
+      '[PeakUp THREAD ACK SUPPRESS]',
+      expect.objectContaining({
+        transactionId: txId,
+        role: 'order',
       })
     );
 
     logSpy.mockRestore();
+  });
+
+  it('recount does not re-add customer thread while thread-ack suppress is active', async () => {
+    const tx = createTx({
+      lastTransition: bookingTransitions.INQUIRE,
+      transitions: [{ transition: bookingTransitions.INQUIRE, by: 'customer' }],
+    });
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'order' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'message-coach' },
+                type: 'message',
+                attributes: { createdAt: '2026-05-19T10:00:00.000Z', content: 'Reply' },
+                relationships: { sender: { data: { id: { uuid: providerId }, type: 'user' } } },
+              },
+            ],
+            included: [{ id: { uuid: providerId }, type: 'user' }],
+          },
+        }),
+      },
+    };
+
+    suppressInboxThreadAfterOpen(customerId, txId, 'order');
+
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [],
+      orderTransactions: [tx],
+      currentUserId: customerId,
+      currentUser: { id: { uuid: customerId } },
+      sdk,
+    });
+
+    expect(recount.orderUnreadIds).toHaveLength(0);
+    expect(logSpy).toHaveBeenCalledWith(
+      '[PeakUp CUSTOMER DOT IGNORED]',
+      expect.objectContaining({
+        transactionId: txId,
+        reasonIgnored: 'thread_ack_suppressed',
+      })
+    );
+
+    logSpy.mockRestore();
+    jest.restoreAllMocks();
+  });
+
+  it('beginInboxThreadAck suppresses before API ack and recount stays at 0 for that thread', async () => {
+    const tx = createTx({
+      lastTransition: bookingTransitions.INQUIRE,
+      transitions: [{ transition: bookingTransitions.INQUIRE, by: 'customer' }],
+    });
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'order' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'message-coach' },
+                type: 'message',
+                attributes: { createdAt: '2026-05-19T10:00:00.000Z', content: 'Reply' },
+                relationships: { sender: { data: { id: { uuid: providerId }, type: 'user' } } },
+              },
+            ],
+            included: [{ id: { uuid: providerId }, type: 'user' }],
+          },
+        }),
+      },
+    };
+
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    beginInboxThreadAck({
+      currentUserId: customerId,
+      transactionId: txId,
+      inboxRole: 'order',
+      countsBefore: { orderCount: 1, saleCount: 0, unreadOrderTransactionIds: [txId] },
+    });
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [],
+      orderTransactions: [tx],
+      currentUserId: customerId,
+      currentUser: { id: { uuid: customerId } },
+      sdk,
+    });
+
+    expect(recount.orderUnreadIds).toHaveLength(0);
+    expect(logSpy).toHaveBeenCalledWith(
+      '[PeakUp THREAD ACK START]',
+      expect.objectContaining({ transactionId: txId, role: 'order' })
+    );
+
+    logSpy.mockRestore();
+    jest.restoreAllMocks();
+  });
+
+  it('customer order unread count is 1 with one provider message and no suppress', async () => {
+    const tx = createTx({
+      lastTransition: bookingTransitions.INQUIRE,
+      transitions: [{ transition: bookingTransitions.INQUIRE, by: 'customer' }],
+    });
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'order' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'message-coach' },
+                type: 'message',
+                attributes: { createdAt: '2026-05-19T10:00:00.000Z', content: 'Reply' },
+                relationships: { sender: { data: { id: { uuid: providerId }, type: 'user' } } },
+              },
+            ],
+            included: [{ id: { uuid: providerId }, type: 'user' }],
+          },
+        }),
+      },
+    };
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [],
+      orderTransactions: [tx, tx],
+      currentUserId: customerId,
+      currentUser: { id: { uuid: customerId } },
+      sdk,
+    });
+
+    expect(recount.orderUnreadIds).toEqual([txId]);
+    expect(recount.orderUnreadIds).toHaveLength(1);
+    jest.restoreAllMocks();
+  });
+
+  it('opening provider thread suppress does not change customer order recount', async () => {
+    const tx = createTx({
+      lastTransition: bookingTransitions.INQUIRE,
+      transitions: [{ transition: bookingTransitions.INQUIRE, by: 'customer' }],
+    });
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'order' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'message-coach' },
+                type: 'message',
+                attributes: { createdAt: '2026-05-19T10:00:00.000Z', content: 'Reply' },
+                relationships: { sender: { data: { id: { uuid: providerId }, type: 'user' } } },
+              },
+            ],
+            included: [{ id: { uuid: providerId }, type: 'user' }],
+          },
+        }),
+      },
+    };
+
+    suppressInboxThreadAfterOpen(providerId, txId, 'sale');
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [],
+      orderTransactions: [tx],
+      currentUserId: customerId,
+      currentUser: { id: { uuid: customerId } },
+      sdk,
+    });
+
+    expect(recount.orderUnreadIds).toEqual([txId]);
+    jest.restoreAllMocks();
+  });
+
+  it('latest customer message keeps order unread at 0 after customer reply', async () => {
+    const tx = createTx({
+      lastTransition: bookingTransitions.INQUIRE,
+      transitions: [{ transition: bookingTransitions.INQUIRE, by: 'customer' }],
+    });
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'order' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'message-coach' },
+                type: 'message',
+                attributes: { createdAt: '2026-05-19T09:00:00.000Z', content: 'Hi' },
+                relationships: { sender: { data: { id: { uuid: providerId }, type: 'user' } } },
+              },
+              {
+                id: { uuid: 'message-customer' },
+                type: 'message',
+                attributes: { createdAt: '2026-05-19T11:00:00.000Z', content: 'Thanks' },
+                relationships: { sender: { data: { id: { uuid: customerId }, type: 'user' } } },
+              },
+            ],
+            included: [
+              { id: { uuid: providerId }, type: 'user' },
+              { id: { uuid: customerId }, type: 'user' },
+            ],
+          },
+        }),
+      },
+    };
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [],
+      orderTransactions: [tx],
+      currentUserId: customerId,
+      currentUser: { id: { uuid: customerId } },
+      sdk,
+    });
+
+    expect(recount.orderUnreadIds).toHaveLength(0);
+    jest.restoreAllMocks();
   });
 });

@@ -1,0 +1,174 @@
+import { getMessageSenderUuid } from './unreadNotifications';
+
+const THREAD_ACK_SUPPRESS_STORAGE_KEY = 'peakupThreadAckSuppress';
+const THREAD_ACK_SUPPRESS_MS = 90000;
+
+const memorySuppress = new Map();
+
+/**
+ * @param {string} currentUserId
+ * @param {'sale'|'order'} inboxRole
+ * @param {string} transactionId
+ * @returns {string}
+ */
+const getSuppressKey = (currentUserId, inboxRole, transactionId) =>
+  `${currentUserId}:${inboxRole}:${transactionId}`;
+
+const readSuppressMap = () => {
+  if (typeof window === 'undefined') {
+    return Object.fromEntries(memorySuppress);
+  }
+  try {
+    const raw = window.sessionStorage.getItem(THREAD_ACK_SUPPRESS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return Object.fromEntries(memorySuppress);
+  }
+};
+
+const writeSuppressMap = map => {
+  if (typeof window === 'undefined') {
+    memorySuppress.clear();
+    Object.entries(map).forEach(([key, value]) => memorySuppress.set(key, value));
+    return;
+  }
+  try {
+    window.sessionStorage.setItem(THREAD_ACK_SUPPRESS_STORAGE_KEY, JSON.stringify(map));
+  } catch (e) {
+    memorySuppress.clear();
+    Object.entries(map).forEach(([key, value]) => memorySuppress.set(key, value));
+  }
+};
+
+/**
+ * @param {string} currentUserId
+ * @param {string} transactionId
+ * @param {'sale'|'order'} inboxRole
+ * @param {number} [durationMs]
+ * @returns {number} suppressUntil epoch ms
+ */
+export const suppressInboxThreadAfterOpen = (
+  currentUserId,
+  transactionId,
+  inboxRole,
+  durationMs = THREAD_ACK_SUPPRESS_MS
+) => {
+  const txUuid = typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
+  if (!currentUserId || !txUuid || !inboxRole) {
+    return 0;
+  }
+
+  const suppressUntil = Date.now() + durationMs;
+  const key = getSuppressKey(currentUserId, inboxRole, txUuid);
+  const map = readSuppressMap();
+  map[key] = {
+    suppressUntil,
+    suppressedAt: new Date().toISOString(),
+    inboxRole,
+  };
+  writeSuppressMap(map);
+
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp THREAD ACK SUPPRESS]', {
+      transactionId: txUuid,
+      role: inboxRole,
+      suppressUntil: new Date(suppressUntil).toISOString(),
+    });
+  }
+
+  return suppressUntil;
+};
+
+export const clearInboxThreadAckSuppress = (currentUserId, transactionId, inboxRole) => {
+  const txUuid = typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
+  if (!currentUserId || !txUuid || !inboxRole) {
+    return;
+  }
+  const key = getSuppressKey(currentUserId, inboxRole, txUuid);
+  const map = readSuppressMap();
+  if (map[key]) {
+    delete map[key];
+    writeSuppressMap(map);
+  }
+};
+
+const getLatestOtherPartyMessage = (messages, currentUserId) => {
+  if (!messages?.length || !currentUserId) {
+    return null;
+  }
+  return messages.reduce((latest, message) => {
+    const senderId = getMessageSenderUuid(message);
+    if (!senderId || senderId === currentUserId) {
+      return latest;
+    }
+    if (!latest) {
+      return message;
+    }
+    const latestAt = new Date(latest.attributes.createdAt).getTime();
+    const messageAt = new Date(message.attributes.createdAt).getTime();
+    return messageAt > latestAt ? message : latest;
+  }, null);
+};
+
+/**
+ * True when recount should skip this transaction because the user just opened the thread.
+ * Clears suppress when a newer other-party message arrived after suppress started.
+ *
+ * @param {string} currentUserId
+ * @param {string} transactionId
+ * @param {'sale'|'order'} inboxRole
+ * @param {Array} [messages]
+ * @returns {boolean}
+ */
+export const isInboxThreadAckSuppressed = (
+  currentUserId,
+  transactionId,
+  inboxRole,
+  messages = []
+) => {
+  const txUuid = typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
+  if (!currentUserId || !txUuid || !inboxRole) {
+    return false;
+  }
+
+  const key = getSuppressKey(currentUserId, inboxRole, txUuid);
+  const map = readSuppressMap();
+  const entry = map[key];
+  if (!entry) {
+    return false;
+  }
+
+  if (Date.now() > entry.suppressUntil) {
+    delete map[key];
+    writeSuppressMap(map);
+    return false;
+  }
+
+  const latestOtherParty = getLatestOtherPartyMessage(messages, currentUserId);
+  const latestAt = latestOtherParty?.attributes?.createdAt;
+  if (latestAt && entry.suppressedAt) {
+    if (new Date(latestAt).getTime() > new Date(entry.suppressedAt).getTime()) {
+      delete map[key];
+      writeSuppressMap(map);
+      return false;
+    }
+  }
+
+  return true;
+};
+
+/**
+ * @param {string} currentUserId
+ * @param {string[]} transactionIds
+ * @param {'sale'|'order'} inboxRole
+ * @returns {string[]}
+ */
+export const filterTransactionIdsExcludingThreadSuppress = (
+  currentUserId,
+  transactionIds,
+  inboxRole
+) => {
+  const unique = [...new Set((transactionIds || []).filter(Boolean))];
+  return unique.filter(id => !isInboxThreadAckSuppressed(currentUserId, id, inboxRole));
+};
