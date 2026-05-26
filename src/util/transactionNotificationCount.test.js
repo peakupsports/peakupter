@@ -468,6 +468,111 @@ describe('transactionNotificationCount', () => {
     jest.restoreAllMocks();
   });
 
+  it('recount excludes completed booking in review period from customer order badge', async () => {
+    const completedAt = '2026-05-20T14:00:00.000Z';
+    const tx = createTx({
+      lastTransition: bookingTransitions.COMPLETE,
+      transitions: [
+        { transition: bookingTransitions.CONFIRM_PAYMENT, by: 'customer' },
+        { transition: bookingTransitions.ACCEPT, by: 'provider' },
+        { transition: bookingTransitions.COMPLETE, by: 'operator', createdAt: completedAt },
+      ],
+    });
+
+    expect(getProcess('default-booking').getState(tx)).toBe('delivered');
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'order' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'coach-followup' },
+                type: 'message',
+                attributes: { createdAt: '2026-05-20T15:00:00.000Z', content: 'Thanks!' },
+                relationships: { sender: { data: { id: { uuid: providerId }, type: 'user' } } },
+              },
+            ],
+            included: [{ id: { uuid: providerId }, type: 'user' }],
+          },
+        }),
+      },
+    };
+
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [],
+      orderTransactions: [tx],
+      currentUserId: customerId,
+      currentUser: { id: { uuid: customerId } },
+      sdk,
+    });
+
+    expect(recount.orderUnread).toHaveLength(0);
+    expect(logSpy).toHaveBeenCalledWith(
+      '[PeakUp CUSTOMER DOT IGNORED]',
+      expect.objectContaining({
+        transactionId: txId,
+        reasonIgnored: 'completed_or_review_period_transaction',
+      })
+    );
+
+    logSpy.mockRestore();
+    jest.restoreAllMocks();
+  });
+
+  it('recount excludes reviewed booking from customer order badge', async () => {
+    const tx = createTx({
+      lastTransition: bookingTransitions.EXPIRE_REVIEW_PERIOD,
+      transitions: [
+        { transition: bookingTransitions.CONFIRM_PAYMENT, by: 'customer' },
+        { transition: bookingTransitions.ACCEPT, by: 'provider' },
+        { transition: bookingTransitions.COMPLETE, by: 'operator' },
+        { transition: bookingTransitions.EXPIRE_REVIEW_PERIOD, by: 'system' },
+      ],
+    });
+
+    expect(getProcess('default-booking').getState(tx)).toBe('reviewed');
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'order' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'coach-msg' },
+                type: 'message',
+                attributes: { createdAt: '2026-05-20T16:00:00.000Z', content: 'See you' },
+                relationships: { sender: { data: { id: { uuid: providerId }, type: 'user' } } },
+              },
+            ],
+            included: [{ id: { uuid: providerId }, type: 'user' }],
+          },
+        }),
+      },
+    };
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [],
+      orderTransactions: [tx],
+      currentUserId: customerId,
+      currentUser: { id: { uuid: customerId } },
+      sdk,
+    });
+
+    expect(recount.orderUnread).toHaveLength(0);
+    jest.restoreAllMocks();
+  });
+
   it('recount excludes canceled customer order even when provider messaged', async () => {
     const canceledAt = '2026-05-20T12:00:00.000Z';
     const tx = createTx({

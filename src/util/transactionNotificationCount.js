@@ -421,6 +421,47 @@ const logCustomerDotIgnoredForTx = (tx, currentUserId, messages, reasonIgnored) 
   });
 };
 
+/** Post-booking states where customer badge should not reflect message unread. */
+const CUSTOMER_ORDER_POST_BOOKING_STATES = new Set([
+  'delivered',
+  'reviewed',
+  'reviewed-by-customer',
+  'reviewed-by-provider',
+]);
+
+/**
+ * Booking/purchase completed or in review window — not active customer-order attention.
+ *
+ * @param {Object} tx
+ * @returns {boolean}
+ */
+const isCustomerOrderCompletedOrReviewPeriodTransaction = tx => {
+  const processName = tx?.attributes?.processName;
+  if (!processName) {
+    return false;
+  }
+
+  let processState = null;
+  try {
+    processState = getProcess(processName).getState(tx);
+  } catch (e) {
+    processState = null;
+  }
+  if (processState && CUSTOMER_ORDER_POST_BOOKING_STATES.has(processState)) {
+    return true;
+  }
+
+  const lastTransition = tx?.attributes?.lastTransition;
+  if (!lastTransition) {
+    return false;
+  }
+  try {
+    return getProcess(processName).isCompleted(lastTransition);
+  } catch (e) {
+    return false;
+  }
+};
+
 const getCustomerOrderNotCountedReason = (
   tx,
   currentUserId,
@@ -443,6 +484,9 @@ const getCustomerOrderNotCountedReason = (
   }
   if (getTransactionProcessState(tx) === 'canceled') {
     return 'canceled_customer_order_excluded';
+  }
+  if (isCustomerOrderCompletedOrReviewPeriodTransaction(tx)) {
+    return 'completed_or_review_period_transaction';
   }
   const latestMessage = getLatestMessage(messages);
   const latestAuthorId = latestMessage ? getMessageSenderUuid(latestMessage) : null;
@@ -503,6 +547,10 @@ export const shouldCountCustomerOrderUnreadForBadge = (
   }
 
   if (getTransactionProcessState(tx) === 'canceled') {
+    return false;
+  }
+
+  if (isCustomerOrderCompletedOrReviewPeriodTransaction(tx)) {
     return false;
   }
 
