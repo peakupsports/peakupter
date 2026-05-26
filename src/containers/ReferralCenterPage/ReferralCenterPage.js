@@ -157,7 +157,7 @@ const CopyButton = ({ labelId, copiedLabelId, value, className, variant = 'prima
       disabled={!value}
     >
       {copied ? (
-        <FormattedMessage id={copiedLabelId || 'ReferralCenterPage.copiedCheck'} />
+        <FormattedMessage id={copiedLabelId || 'ReferralCenterPage.copied'} />
       ) : (
         <>
           <ShareIcon className={css.copyButtonIcon} />
@@ -656,7 +656,20 @@ const ReferralCenterPage = () => {
         </div>
       </ScrollReveal>
 
-      <ScrollReveal className={css.gridTop} delay={80}>
+      <ScrollReveal delay={60} className={css.kpiStrip}>
+        <section className={css.kpiRow} aria-label={intl.formatMessage({ id: 'ReferralCenterPage.statsAria' })}>
+          {PLACEHOLDER_STATS.map(stat => (
+            <article key={stat.id} className={css.kpiCard}>
+              <p className={css.kpiLabel}>
+                <FormattedMessage id={stat.labelId} />
+              </p>
+              <p className={css.kpiValue}>{statValues[stat.id]}</p>
+            </article>
+          ))}
+        </section>
+      </ScrollReveal>
+
+      <ScrollReveal delay={80}>
         <section className={css.shareCard} aria-labelledby="referral-tools-heading">
           <div className={css.shareCardHeader}>
             <ShareIcon className={css.shareCardIcon} />
@@ -670,20 +683,25 @@ const ReferralCenterPage = () => {
             </div>
           </div>
 
-          <div className={css.shareUrlBlock}>
+          <div className={css.referralLinkBlock}>
             <span className={css.fieldLabel}>
               <FormattedMessage id="ReferralCenterPage.linkLabel" />
             </span>
-            <div className={css.shareUrlRow}>
+            <div className={css.referralLinkRow}>
               <a
-                className={css.shareUrlValue}
+                className={css.referralLinkValue}
                 href={referralLink}
                 target="_blank"
                 rel="noopener noreferrer"
+                title={referralLink}
               >
                 {referralLinkDisplay}
               </a>
-              <CopyButton labelId="ReferralCenterPage.copyLink" value={referralLink} />
+              <CopyButton
+                labelId="ReferralCenterPage.copyLink"
+                value={referralLink}
+                className={css.referralLinkCopyButton}
+              />
             </div>
           </div>
 
@@ -693,17 +711,6 @@ const ReferralCenterPage = () => {
             referralCode={referralCode}
             intl={intl}
           />
-        </section>
-
-        <section className={css.statsGrid} aria-label={intl.formatMessage({ id: 'ReferralCenterPage.statsAria' })}>
-          {PLACEHOLDER_STATS.map(stat => (
-            <article key={stat.id} className={css.statCard}>
-              <p className={css.statLabel}>
-                <FormattedMessage id={stat.labelId} />
-              </p>
-              <p className={css.statValue}>{statValues[stat.id]}</p>
-            </article>
-          ))}
         </section>
       </ScrollReveal>
 
