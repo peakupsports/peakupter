@@ -1,6 +1,7 @@
 const READ_AT_STORAGE_PREFIX = 'peakupInboxReadAt';
 const LEGACY_READ_TX_PREFIX = 'peakupReadTransactions';
 const MESSAGE_ACK_STORAGE_PREFIX = 'peakupInboxMessageAck';
+const PROVIDER_SALE_READ_PREFIX = 'peakupProviderSaleReadAt';
 
 const getMessageAckAtFromStorage = (userId, transactionId) => {
   const txUuid = normalizeTxUuid(transactionId);
@@ -162,6 +163,59 @@ export const shouldCountTransactionAsUnread = (currentUserId, transactionId, las
   const shouldCount = !!lastMessage && !isOwnMessage && !isRead;
 
   return shouldCount;
+};
+
+/**
+ * Persistent provider/coach read cursor for a sale inbox thread (survives polling/recount).
+ *
+ * @param {string} userId
+ * @param {string|Object} transactionId
+ * @returns {string|null} ISO timestamp
+ */
+export const getProviderSaleThreadReadAt = (userId, transactionId) => {
+  const txUuid = normalizeTxUuid(transactionId);
+  if (typeof window === 'undefined' || !userId || !txUuid) {
+    return null;
+  }
+  try {
+    return window.sessionStorage.getItem(`${PROVIDER_SALE_READ_PREFIX}:${userId}:${txUuid}`);
+  } catch (e) {
+    return null;
+  }
+};
+
+/**
+ * @param {string} userId
+ * @param {string|Object} transactionId
+ * @param {string} readAt ISO timestamp
+ */
+export const removeProviderSaleThreadReadAt = (userId, transactionId) => {
+  const txUuid = normalizeTxUuid(transactionId);
+  if (typeof window === 'undefined' || !userId || !txUuid) {
+    return;
+  }
+  try {
+    window.sessionStorage.removeItem(`${PROVIDER_SALE_READ_PREFIX}:${userId}:${txUuid}`);
+  } catch (e) {
+    // Ignore quota / privacy errors.
+  }
+};
+
+export const setProviderSaleThreadReadAt = (userId, transactionId, readAt) => {
+  const txUuid = normalizeTxUuid(transactionId);
+  if (typeof window === 'undefined' || !userId || !txUuid || !readAt) {
+    return;
+  }
+  try {
+    const key = `${PROVIDER_SALE_READ_PREFIX}:${userId}:${txUuid}`;
+    const existing = window.sessionStorage.getItem(key);
+    if (existing && new Date(readAt).getTime() <= new Date(existing).getTime()) {
+      return;
+    }
+    window.sessionStorage.setItem(key, readAt);
+  } catch (e) {
+    // Ignore quota / privacy errors.
+  }
 };
 
 /** @deprecated Use getTransactionReadAt / shouldCountTransactionAsUnread */

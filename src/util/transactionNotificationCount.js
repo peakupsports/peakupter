@@ -5,10 +5,13 @@ import { transitions as inquiryTransitions } from '../transactions/transactionPr
 import { isProviderNewBookingRequest } from './peakupBookingRequestPopup';
 import {
   getMessageSenderUuid,
+  getProviderSaleThreadReadAt,
   getReadAtStorageKey,
   getTransactionReadAt,
   getTransactionReadAtMap,
   markTransactionReadOnOpen,
+  removeProviderSaleThreadReadAt,
+  setProviderSaleThreadReadAt,
 } from './unreadNotifications';
 import { markBookingRequestPopupSeen } from './peakupBookingRequestPopup';
 import {
@@ -37,8 +40,13 @@ const debugInboxNotifications = (...args) => {
   }
 };
 
-export const getMessageAckStorageKey = (currentUserId, transactionId) =>
-  `${ACK_STORAGE_PREFIX}:${currentUserId}:${transactionId}`;
+const normalizeTransactionId = transactionId =>
+  typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
+
+export const getMessageAckStorageKey = (currentUserId, transactionId) => {
+  const txUuid = normalizeTransactionId(transactionId);
+  return `${ACK_STORAGE_PREFIX}:${currentUserId}:${txUuid}`;
+};
 
 export const getCustomerLastSentAtStorageKey = (currentUserId, transactionId) => {
   const txUuid = typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
@@ -88,11 +96,12 @@ export const setCustomerLastSentAt = (currentUserId, transactionId, createdAt) =
 };
 
 export const getMessageAckAt = (currentUserId, transactionId) => {
-  if (typeof window === 'undefined' || !currentUserId || !transactionId) {
+  const txUuid = normalizeTransactionId(transactionId);
+  if (typeof window === 'undefined' || !currentUserId || !txUuid) {
     return null;
   }
   try {
-    return window.sessionStorage.getItem(getMessageAckStorageKey(currentUserId, transactionId));
+    return window.sessionStorage.getItem(getMessageAckStorageKey(currentUserId, txUuid));
   } catch (e) {
     return null;
   }
@@ -124,6 +133,7 @@ export const purgeTransactionInboxNotificationStorage = (
     }
     window.sessionStorage.removeItem(getMessageAckStorageKey(currentUserId, txUuid));
     window.sessionStorage.removeItem(getCustomerLastSentAtStorageKey(currentUserId, txUuid));
+    removeProviderSaleThreadReadAt(currentUserId, txUuid);
   } catch (e) {
     // Ignore quota / privacy errors.
   }
@@ -159,18 +169,19 @@ const fetchMessagesForTransaction = (sdk, txId) =>
     });
 
 export const setMessageAckAt = (currentUserId, transactionId, createdAt) => {
-  if (typeof window === 'undefined' || !currentUserId || !transactionId || !createdAt) {
+  const txUuid = normalizeTransactionId(transactionId);
+  if (typeof window === 'undefined' || !currentUserId || !txUuid || !createdAt) {
     return;
   }
   try {
-    const existingAckAt = getMessageAckAt(currentUserId, transactionId);
+    const existingAckAt = getMessageAckAt(currentUserId, txUuid);
     if (
       existingAckAt &&
       new Date(createdAt).getTime() <= new Date(existingAckAt).getTime()
     ) {
       return;
     }
-    window.sessionStorage.setItem(getMessageAckStorageKey(currentUserId, transactionId), createdAt);
+    window.sessionStorage.setItem(getMessageAckStorageKey(currentUserId, txUuid), createdAt);
   } catch (e) {
     // Ignore quota / privacy errors.
   }
@@ -765,7 +776,7 @@ const getUnreadIncomingMessageForInboxCount = (tx, currentUserId, messages, opti
 };
 
 export const isIncomingMessageUnread = (currentUserId, transactionId, message) => {
-  const txUuid = typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
+  const txUuid = normalizeTransactionId(transactionId);
   if (!message || !currentUserId || !txUuid) {
     return false;
   }
@@ -790,6 +801,105 @@ export const isIncomingMessageUnread = (currentUserId, transactionId, message) =
   }
 
   return true;
+};
+
+/**
+ * Provider/sale inbox unread check — uses persistent provider read cursor first.
+ *
+ * @param {string} currentUserId
+ * @param {string|Object} transactionId
+ * @param {Object|null} message
+ * @returns {boolean}
+ */
+export const isProviderSaleIncomingMessageUnread = (currentUserId, transactionId, message) => {
+  const txUuid = normalizeTransactionId(transactionId);
+  if (!message || !currentUserId || !txUuid) {
+    return false;
+  }
+
+  const senderId = getMessageSenderUuid(message);
+  if (!senderId || senderId === currentUserId) {
+    return false;
+  }
+
+  const createdAt = message?.attributes?.createdAt;
+  if (!createdAt) {
+    return false;
+  }
+
+  const providerReadAt = getProviderSaleThreadReadAt(currentUserId, txUuid);
+  if (
+    providerReadAt &&
+    new Date(createdAt).getTime() <= new Date(providerReadAt).getTime()
+  ) {
+    return false;
+  }
+
+  return isIncomingMessageUnread(currentUserId, txUuid, message);
+};
+
+const pickMaxIsoTimestamp = (...candidates) => {
+  const valid = candidates.filter(Boolean);
+  if (!valid.length) {
+    return new Date().toISOString();
+  }
+  return valid.reduce((max, at) => (new Date(at) > new Date(max) ? at : max));
+};
+
+/**
+ * Persist provider/coach sale-thread read state when opening a transaction thread.
+ *
+ * @param {string} currentUserId
+ * @param {string|Object} transactionId
+ * @param {Array} messages
+ * @param {Object} [tx]
+ * @param {Object} [sdk]
+ * @returns {Promise<{ readAt: string|null }>}
+ */
+export const persistProviderSaleThreadReadAck = async (
+  currentUserId,
+  transactionId,
+  messages,
+  tx,
+  sdk
+) => {
+  const txUuid = normalizeTransactionId(transactionId);
+  if (!currentUserId || !txUuid) {
+    return { readAt: null };
+  }
+
+  let latestOtherParty = getLatestOtherPartyMessage(messages, currentUserId);
+  if (sdk && txUuid) {
+    const fromApi = await fetchLatestOtherPartyMessageForTransaction(
+      sdk,
+      txUuid,
+      currentUserId
+    );
+    latestOtherParty = pickNewestOtherPartyMessage(latestOtherParty, fromApi);
+  }
+
+  const latestAny = getLatestMessage(messages || []);
+  const readAt = pickMaxIsoTimestamp(
+    new Date().toISOString(),
+    latestOtherParty?.attributes?.createdAt,
+    latestAny?.attributes?.createdAt,
+    tx?.attributes?.lastTransitionedAt
+  );
+
+  setProviderSaleThreadReadAt(currentUserId, txUuid, readAt);
+  setMessageAckAt(currentUserId, txUuid, readAt);
+  markTransactionReadOnOpen(currentUserId, txUuid, readAt);
+
+  if (typeof window !== 'undefined' && isDevelopmentMode()) {
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp provider sale thread read ack]', {
+      transactionId: txUuid,
+      readAt,
+      latestOtherPartyMessageAt: latestOtherParty?.attributes?.createdAt ?? null,
+    });
+  }
+
+  return { readAt };
 };
 
 /**
@@ -829,7 +939,9 @@ export const acknowledgeThreadOnOpen = async (currentUserId, transactionId, mess
   } else {
     const latestAny = getLatestMessage(messages);
     if (latestAny?.attributes?.createdAt) {
-      setMessageAckAt(currentUserId, transactionId, latestAny.attributes.createdAt);
+      const readAt = latestAny.attributes.createdAt;
+      setMessageAckAt(currentUserId, transactionId, readAt);
+      markTransactionReadOnOpen(currentUserId, transactionId, readAt);
       cleared = true;
     }
   }
@@ -944,15 +1056,21 @@ export const acknowledgeInboxThreadOnOpen = async ({
   messages,
   tx,
   sdk,
+  inboxRole: inboxRoleParam,
 }) => {
-  const txUuid = typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
+  const txUuid = normalizeTransactionId(transactionId);
   if (!currentUserId || !txUuid) {
     return { inboxRole: null, transactionId: null };
   }
 
-  const inboxRole = tx ? getInboxRoleForTransaction(tx, currentUserId) : null;
+  const inboxRole =
+    inboxRoleParam ?? (tx ? getInboxRoleForTransaction(tx, currentUserId) : null);
 
-  await acknowledgeTransactionThread(currentUserId, txUuid, messages, tx, sdk);
+  if (inboxRole === 'sale') {
+    await persistProviderSaleThreadReadAck(currentUserId, txUuid, messages, tx, sdk);
+  } else {
+    await acknowledgeTransactionThread(currentUserId, txUuid, messages, tx, sdk);
+  }
 
   return { inboxRole, transactionId: txUuid };
 };
@@ -1145,7 +1263,7 @@ const hasUnreadMessageActivity = async (tx, currentUserId, sdk) => {
     if (role === 'order') {
       return false;
     }
-    if (!isIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
+    if (!isProviderSaleIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
       return false;
     }
     logUnreadCancellationMessage(tx, currentUserId, incomingMessage, true);
@@ -1156,7 +1274,7 @@ const hasUnreadMessageActivity = async (tx, currentUserId, sdk) => {
     return shouldCountCustomerOrderUnreadForBadge(tx, currentUserId, messages);
   }
 
-  if (isIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
+  if (isProviderSaleIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
     return true;
   }
 
@@ -1502,7 +1620,7 @@ const collectValidatedUnreadForRecount = async ({
     const processState = getTransactionProcessState(tx);
 
     if (processState === 'canceled') {
-      if (!isIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
+      if (!isProviderSaleIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
         removed.push({ id: txUuid, reason: 'canceled_acknowledged' });
         continue;
       }
@@ -1528,7 +1646,7 @@ const collectValidatedUnreadForRecount = async ({
       continue;
     }
 
-    if (isIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
+    if (isProviderSaleIncomingMessageUnread(currentUserId, txUuid, incomingMessage)) {
       if (isInboxThreadAckSuppressed(currentUserId, txUuid, 'sale', messages)) {
         removed.push({ id: txUuid, reason: 'thread_ack_suppressed' });
         continue;
@@ -1551,7 +1669,7 @@ const collectValidatedUnreadForRecount = async ({
       continue;
     }
 
-    removed.push({ id: txUuid, reason: 'not_unread' });
+    removed.push({ id: txUuid, reason: 'provider_sale_thread_read' });
   }
 
   return { validatedUnread, removed };

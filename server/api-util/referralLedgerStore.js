@@ -122,6 +122,40 @@ const updateReferralEntry = (id, patch) => {
   return updated;
 };
 
+/**
+ * Permanently remove a referral ledger entry.
+ *
+ * @param {string} id
+ * @returns {boolean}
+ */
+const deleteReferralEntry = id => {
+  const normalized = String(id || '').trim();
+  if (!normalized) {
+    return false;
+  }
+  const filePath = entryPathForId(normalized);
+  if (!fs.existsSync(filePath)) {
+    return false;
+  }
+  fs.unlinkSync(filePath);
+  return true;
+};
+
+/**
+ * Remove referral ledger row for a deleted coach application.
+ *
+ * @param {string} applicationId
+ * @returns {object|null} removed entry snapshot
+ */
+const deleteReferralByApplicationId = applicationId => {
+  const entry = findReferralByApplicationId(applicationId);
+  if (!entry) {
+    return null;
+  }
+  deleteReferralEntry(entry.id);
+  return entry;
+};
+
 const syncReferralFromApplication = application => {
   const code = String(application.ambassadorReferralCode || '').trim();
   if (!code) {
@@ -171,6 +205,8 @@ module.exports = {
   LEDGER_DIR,
   REFERRAL_STATUSES,
   createReferralEntry,
+  deleteReferralByApplicationId,
+  deleteReferralEntry,
   findReferralByApplicationId,
   listAllReferrals,
   listReferralsForAmbassador,

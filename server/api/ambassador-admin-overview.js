@@ -1,4 +1,5 @@
 const { listAmbassadorActivations } = require('../api-util/ambassadorActivationStore');
+const { filterValidReferralsForAggregates } = require('../api-util/referralAggregateUtils');
 const { listAllReferrals } = require('../api-util/referralLedgerStore');
 const { listCoachApplications } = require('../api-util/coachApplicationStore');
 const {
@@ -13,7 +14,7 @@ const { requireCoachApplicationAdmin } = require('../api-util/coachApplicationAd
 
 const buildAmbassadorOverview = () => {
   const activations = listAmbassadorActivations();
-  const referrals = listAllReferrals();
+  const { validReferrals: referrals } = filterValidReferralsForAggregates(listAllReferrals());
   const applications = listCoachApplications();
   const allRewards = listAllRewards();
   const globalRewards = summarizeAllRewards();

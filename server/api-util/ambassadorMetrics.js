@@ -1,5 +1,10 @@
 const { listCoachApplications } = require('./coachApplicationStore');
 const {
+  filterValidReferralsForAggregates,
+  logReferralAggregates,
+  pruneOrphanReferralLedgerEntries,
+} = require('./referralAggregateUtils');
+const {
   listReferralsForAmbassador,
   REFERRAL_STATUSES,
   syncReferralFromApplication,
@@ -96,13 +101,20 @@ const countReviews = async (trustedSdk, userId) => {
 const fetchAmbassadorMetrics = async ({ trustedSdk, currentUser, ambassadorUserId }) => {
   syncReferralsFromApplications(ambassadorUserId);
 
-  const referrals = listReferralsForAmbassador(ambassadorUserId);
+  const rawReferrals = listReferralsForAmbassador(ambassadorUserId);
+  const { validReferrals, deletedUsersFiltered } = filterValidReferralsForAggregates(rawReferrals);
+  pruneOrphanReferralLedgerEntries(deletedUsersFiltered);
+
+  const referrals = validReferrals;
   const invitedCount = referrals.length;
   const pendingCount = referrals.filter(item =>
     [REFERRAL_STATUSES.INVITED, REFERRAL_STATUSES.APPLIED].includes(item.status)
   ).length;
   const verifiedCount = referrals.filter(item => item.status === REFERRAL_STATUSES.VERIFIED).length;
   const activeCount = referrals.filter(item => item.status === REFERRAL_STATUSES.ACTIVE).length;
+  const activeReferralRecords = referrals.filter(item =>
+    [REFERRAL_STATUSES.VERIFIED, REFERRAL_STATUSES.ACTIVE].includes(item.status)
+  );
 
   const userId = currentUser?.id?.uuid || ambassadorUserId;
   const profile = currentUser?.attributes?.profile || {};
@@ -120,6 +132,20 @@ const fetchAmbassadorMetrics = async ({ trustedSdk, currentUser, ambassadorUserI
 
   const profileCompleteness = computeProfileCompleteness(profile);
 
+  const finalCounts = {
+    invited: invitedCount,
+    pending: pendingCount,
+    active: activeCount || verifiedCount,
+  };
+
+  logReferralAggregates({
+    ambassadorId: ambassadorUserId,
+    referralRecords: rawReferrals,
+    activeReferralRecords,
+    deletedUsersFiltered,
+    finalCounts,
+  });
+
   return {
     reviews,
     completedSessions,
@@ -128,12 +154,10 @@ const fetchAmbassadorMetrics = async ({ trustedSdk, currentUser, ambassadorUserI
     coachCancellations,
     avgResponseHours,
     profileCompleteness,
-    stats: {
-      invited: invitedCount,
-      pending: pendingCount,
-      active: activeCount || verifiedCount,
-    },
-    referrals: listReferralsForAmbassador(ambassadorUserId).map(toPublicReferral),
+    stats: finalCounts,
+    referrals: referrals.map(toPublicReferral),
+    validReferralIds: referrals.map(item => item.id),
+    validApplicationIds: [...new Set(referrals.map(item => item.applicationId).filter(Boolean))],
   };
 };
 

@@ -150,8 +150,10 @@ const promotePendingRewardsForAmbassador = ambassadorUserId => {
   return pending.length;
 };
 
-const summarizeRewardsForAmbassador = ambassadorUserId => {
-  const records = listRewardsForAmbassador(ambassadorUserId);
+const summarizeRewardsForAmbassador = (ambassadorUserId, recordsOverride) => {
+  const records = Array.isArray(recordsOverride)
+    ? recordsOverride
+    : listRewardsForAmbassador(ambassadorUserId);
   const nowMonth = new Date().toISOString().slice(0, 7);
 
   const totals = records.reduce(

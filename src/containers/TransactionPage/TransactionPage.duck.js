@@ -606,16 +606,13 @@ const runThreadNotificationAckBestEffort = async (
   });
   dispatch(optimisticallyClearOneInboxNotification({ inboxRole, transactionId: txUuid }));
 
-  if (!tx) {
-    return;
-  }
-
   await acknowledgeInboxThreadOnOpen({
     currentUserId,
     transactionId: txUuid,
     messages,
     tx,
     sdk,
+    inboxRole,
   });
 
   const afterState = getState().user || {};

@@ -14,9 +14,11 @@ import {
   getMessageAckAt,
   getMessageAckStorageKey,
   logInboxListOpenNoAck,
+  persistProviderSaleThreadReadAck,
   recountInboxNotificationCounts,
   setMessageAckAt,
 } from './transactionNotificationCount';
+import { getProviderSaleThreadReadAt } from './unreadNotifications';
 import { suppressInboxThreadAfterOpen } from './inboxThreadAckSuppress';
 import * as inboxNotificationCleanup from './inboxNotificationCleanup';
 import { markTransactionReadOnOpen } from './unreadNotifications';
@@ -354,6 +356,64 @@ describe('transactionNotificationCount', () => {
     };
 
     suppressInboxThreadAfterOpen(providerId, txId, 'sale');
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [tx],
+      orderTransactions: [],
+      currentUserId: providerId,
+      currentUser: { id: { uuid: providerId } },
+      sdk,
+    });
+
+    expect(recount.saleUnreadIds).toHaveLength(0);
+    jest.restoreAllMocks();
+  });
+
+  it('recount excludes provider sale after persistent provider read ack survives polling', async () => {
+    const messageAt = '2026-05-19T10:00:00.000Z';
+    const tx = createTx({
+      lastTransition: bookingTransitions.INQUIRE,
+      transitions: [{ transition: bookingTransitions.INQUIRE, by: 'customer' }],
+    });
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'sale' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'message-customer' },
+                type: 'message',
+                attributes: { createdAt: messageAt, content: 'Hi coach' },
+                relationships: { sender: { data: { id: { uuid: customerId }, type: 'user' } } },
+              },
+            ],
+            included: [{ id: { uuid: customerId }, type: 'user' }],
+          },
+        }),
+      },
+    };
+
+    await persistProviderSaleThreadReadAck(
+      providerId,
+      txId,
+      [
+        {
+          attributes: { createdAt: messageAt },
+          sender: { id: { uuid: customerId } },
+        },
+      ],
+      tx,
+      null
+    );
+
+    const providerReadAt = getProviderSaleThreadReadAt(providerId, txId);
+    expect(providerReadAt).toBeTruthy();
+    expect(new Date(providerReadAt).getTime()).toBeGreaterThanOrEqual(new Date(messageAt).getTime());
 
     const recount = await recountInboxNotificationCounts({
       saleTransactions: [tx],

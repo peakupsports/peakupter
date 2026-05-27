@@ -1,10 +1,16 @@
 const { resolveReferralCode } = require('./referralCodeRegistry');
 const {
   createReferralEntry,
+  deleteReferralByApplicationId,
   findReferralByApplicationId,
   REFERRAL_STATUSES,
 } = require('./referralLedgerStore');
-const { ACTIVITY_TYPES, logReferralActivity } = require('./referralActivityStore');
+const {
+  ACTIVITY_TYPES,
+  deleteActivityForApplication,
+  deleteActivityForReferralId,
+  logReferralActivity,
+} = require('./referralActivityStore');
 
 /**
  * Track a coach application against an ambassador referral code.
@@ -87,7 +93,39 @@ const syncReferralOnApplicationStatusChange = application => {
   return entry;
 };
 
+/**
+ * Remove referral ledger + activity when a coach application is deleted.
+ *
+ * @param {string|object} applicationOrId application record or id
+ * @returns {{ referralId: string|null, applicationId: string|null }}
+ */
+const removeReferralDataForDeletedApplication = applicationOrId => {
+  const applicationId =
+    typeof applicationOrId === 'string' ? applicationOrId : applicationOrId?.id;
+  const normalizedId = String(applicationId || '').trim();
+  if (!normalizedId) {
+    return { referralId: null, applicationId: null };
+  }
+
+  const entry = deleteReferralByApplicationId(normalizedId);
+  const referralId = entry?.id || null;
+
+  deleteActivityForApplication(normalizedId);
+  if (referralId) {
+    deleteActivityForReferralId(referralId);
+  }
+
+  if (entry) {
+    console.info(
+      `[referral-tracking] Removed referral ${referralId} for deleted application ${normalizedId}`
+    );
+  }
+
+  return { referralId, applicationId: normalizedId };
+};
+
 module.exports = {
+  removeReferralDataForDeletedApplication,
   syncReferralOnApplicationStatusChange,
   trackCoachApplicationReferral,
 };

@@ -1,12 +1,17 @@
 const path = require('path');
 const {
+  APPLICATION_STATUSES,
   listCoachApplications,
   getCoachApplication,
   updateCoachApplicationStatus,
   deleteCoachApplication,
   resolveDocumentFile,
 } = require('../api-util/coachApplicationStore');
-const { syncReferralOnApplicationStatusChange } = require('../api-util/referralTracking');
+const { applyCoachApprovalToSharetribe } = require('../api-util/coachApprovalSharetribe');
+const {
+  removeReferralDataForDeletedApplication,
+  syncReferralOnApplicationStatusChange,
+} = require('../api-util/referralTracking');
 const { requireCoachApplicationAdmin } = require('../api-util/coachApplicationAdminAuth');
 
 const guessMimeType = fileName => {
@@ -49,22 +54,43 @@ const getApplication = (req, res) => {
 };
 
 /** PATCH /api/coach-applications/:id/status */
-const patchStatus = (req, res) => {
+const patchStatus = async (req, res) => {
   try {
     const { status } = req.body || {};
+    const existing = getCoachApplication(req.params.id);
+
+    if (
+      status === APPLICATION_STATUSES.APPROVED &&
+      existing.status !== APPLICATION_STATUSES.APPROVED
+    ) {
+      await applyCoachApprovalToSharetribe(existing);
+    }
+
     const application = updateCoachApplicationStatus(req.params.id, status);
     syncReferralOnApplicationStatusChange(application);
     res.status(200).json({ application });
   } catch (e) {
-    const status = e.status && Number.isFinite(e.status) ? e.status : 500;
-    res.status(status).json({ message: e.message || 'Failed to update status' });
+    console.error('[coach-applications] status update failed:', {
+      message: e.message,
+      status: e.status,
+      sharetribeStep: e.sharetribeStep || null,
+      sharetribeError: e.sharetribeError || null,
+    });
+    const statusCode = e.status && Number.isFinite(e.status) ? e.status : 500;
+    res.status(statusCode).json({
+      message: e.message || 'Failed to update status',
+      code: e.code || e.data?.errors?.[0]?.code || null,
+      sharetribeStep: e.sharetribeStep || null,
+    });
   }
 };
 
 /** DELETE /api/coach-applications/:id */
 const deleteApplication = (req, res) => {
   try {
+    const application = getCoachApplication(req.params.id);
     const result = deleteCoachApplication(req.params.id);
+    removeReferralDataForDeletedApplication(application);
     res.status(200).json({ deleted: true, id: result.id });
   } catch (e) {
     const status = e.status && Number.isFinite(e.status) ? e.status : 500;

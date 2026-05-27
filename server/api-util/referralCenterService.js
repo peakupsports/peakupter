@@ -1,6 +1,10 @@
 const { evaluateBronzeProgress } = require('./ambassadorBronzeCriteria');
 const { fetchAmbassadorMetrics } = require('./ambassadorMetrics');
 const { evaluateAndUnlockAmbassadorRewards } = require('./ambassadorTierEngine');
+const {
+  filterValidActivityForAggregates,
+  filterValidRewardsForAggregates,
+} = require('./referralAggregateUtils');
 const { listActivityForAmbassador } = require('./referralActivityStore');
 const {
   formatMinorAsCurrency,
@@ -71,11 +75,19 @@ const buildReferralCenterDashboard = async ({ sdk, trustedSdk, currentUser }) =>
   });
 
   const bronzeProgress = unlockResult.bronzeProgress || evaluateBronzeProgress(metrics);
-  const rewardsSummary = summarizeRewardsForAmbassador(ambassadorUserId);
-  const rewardHistory = listRewardsForAmbassador(ambassadorUserId)
-    .slice(0, 25)
-    .map(toPublicRewardRecord);
-  const activity = listActivityForAmbassador(ambassadorUserId, 12);
+  const validReferralIds = new Set(metrics.validReferralIds || []);
+  const validApplicationIds = new Set(metrics.validApplicationIds || []);
+  const validRewards = filterValidRewardsForAggregates(
+    listRewardsForAmbassador(ambassadorUserId),
+    validReferralIds
+  );
+  const rewardsSummary = summarizeRewardsForAmbassador(ambassadorUserId, validRewards);
+  const rewardHistory = validRewards.slice(0, 25).map(toPublicRewardRecord);
+  const activity = filterValidActivityForAggregates(
+    listActivityForAmbassador(ambassadorUserId, 12),
+    validReferralIds,
+    validApplicationIds
+  );
 
   return {
     stats: {

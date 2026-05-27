@@ -46,6 +46,50 @@ const logReferralActivity = payload => {
   return event;
 };
 
+const deleteActivityForApplication = applicationId => {
+  const normalized = String(applicationId || '').trim();
+  if (!normalized) {
+    return 0;
+  }
+
+  ensureDir(ACTIVITY_DIR);
+  let removed = 0;
+  fs.readdirSync(ACTIVITY_DIR)
+    .filter(name => name.endsWith('.json'))
+    .forEach(name => {
+      const filePath = path.join(ACTIVITY_DIR, name);
+      const event = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      if (String(event?.meta?.applicationId || '').trim() === normalized) {
+        fs.unlinkSync(filePath);
+        removed += 1;
+      }
+    });
+
+  return removed;
+};
+
+const deleteActivityForReferralId = referralId => {
+  const normalized = String(referralId || '').trim();
+  if (!normalized) {
+    return 0;
+  }
+
+  ensureDir(ACTIVITY_DIR);
+  let removed = 0;
+  fs.readdirSync(ACTIVITY_DIR)
+    .filter(name => name.endsWith('.json'))
+    .forEach(name => {
+      const filePath = path.join(ACTIVITY_DIR, name);
+      const event = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      if (String(event?.meta?.referralId || '').trim() === normalized) {
+        fs.unlinkSync(filePath);
+        removed += 1;
+      }
+    });
+
+  return removed;
+};
+
 const listActivityForAmbassador = (ambassadorUserId, limit = 20) => {
   ensureDir(ACTIVITY_DIR);
   const normalizedUserId = String(ambassadorUserId || '').trim();
@@ -63,7 +107,10 @@ const listActivityForAmbassador = (ambassadorUserId, limit = 20) => {
 };
 
 module.exports = {
+  ACTIVITY_DIR,
   ACTIVITY_TYPES,
+  deleteActivityForApplication,
+  deleteActivityForReferralId,
   listActivityForAmbassador,
   logReferralActivity,
 };
