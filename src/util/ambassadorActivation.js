@@ -3,6 +3,7 @@
  */
 
 import { resolveAmbassadorRewardsUnlockedWithDevOverride } from './ambassadorDevBronzeOverride';
+import { resolveAmbassadorFounderOverride } from './ambassadorFounderOverride';
 import { isPeakUpHqAdmin } from './peakupAdmin';
 import { getCurrentUserTypeRoles, isUserAuthorized } from './userHelpers';
 import { coachStickerShowsVerifiedSeal } from './profileCoachSticker';
@@ -112,15 +113,26 @@ export const getAmbassadorProfileState = currentUser => {
   const pd = currentUser?.attributes?.profile?.publicData || {};
   const storedUnlocked =
     pd.ambassadorRewardsUnlocked === true || pd.ambassadorRewardsUnlocked === 'true';
+  const founderOverride = resolveAmbassadorFounderOverride({
+    publicData: pd,
+    userId: currentUser?.id?.uuid,
+  });
+  const devRewardsUnlocked = resolveAmbassadorRewardsUnlockedWithDevOverride({
+    userId: currentUser?.id?.uuid,
+    email: currentUser?.attributes?.email,
+    referralCode: pd.ambassadorReferralCode,
+    storedUnlocked,
+  });
+
   return {
     ambassadorActive: isAmbassadorActive(currentUser),
-    ambassadorTier: pd.ambassadorTier ? String(pd.ambassadorTier) : null,
-    ambassadorRewardsUnlocked: resolveAmbassadorRewardsUnlockedWithDevOverride({
-      userId: currentUser?.id?.uuid,
-      email: currentUser?.attributes?.email,
-      referralCode: pd.ambassadorReferralCode,
-      storedUnlocked,
-    }),
+    ambassadorTier: founderOverride.overrideActive
+      ? founderOverride.ambassadorTier
+      : pd.ambassadorTier
+        ? String(pd.ambassadorTier)
+        : null,
+    ambassadorRewardsUnlocked: founderOverride.overrideActive ? true : devRewardsUnlocked,
+    founderOverrideActive: founderOverride.overrideActive,
     ambassadorJoinedAt: pd.ambassadorJoinedAt ? String(pd.ambassadorJoinedAt) : null,
     ambassadorReferralCode: pd.ambassadorReferralCode
       ? String(pd.ambassadorReferralCode).trim()

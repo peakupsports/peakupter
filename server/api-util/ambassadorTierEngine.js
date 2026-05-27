@@ -1,4 +1,5 @@
 const { evaluateBronzeProgress } = require('./ambassadorBronzeCriteria');
+const { resolveAmbassadorFounderOverride } = require('./ambassadorFounderOverride');
 const { sendAmbassadorRewardsUnlockEmail } = require('./ambassadorRewardsUnlockEmail');
 const { ACTIVITY_TYPES, logReferralActivity } = require('./referralActivityStore');
 const { promotePendingRewardsForAmbassador } = require('./referralRewardsStore');
@@ -24,6 +25,29 @@ const TIER_COMMISSION_PERCENT = {
  */
 const evaluateAndUnlockAmbassadorRewards = async ({ sdk, currentUser, metrics }) => {
   const publicData = currentUser?.attributes?.profile?.publicData || {};
+  const founderOverride = resolveAmbassadorFounderOverride({
+    publicData,
+    userId: currentUser?.id?.uuid,
+  });
+
+  if (founderOverride.overrideActive) {
+    const bronzeProgress = evaluateBronzeProgress(metrics);
+    return {
+      unlocked: true,
+      justUnlocked: false,
+      bronzeProgress: {
+        ...bronzeProgress,
+        allComplete: true,
+        completedCount: bronzeProgress.totalCount,
+        criteria: bronzeProgress.criteria.map(item => ({
+          ...item,
+          completed: true,
+          progress: 100,
+        })),
+      },
+    };
+  }
+
   const alreadyUnlocked = truthy(publicData.ambassadorRewardsUnlocked);
   const bronzeProgress = evaluateBronzeProgress(metrics);
   const ambassadorUserId = currentUser?.id?.uuid;

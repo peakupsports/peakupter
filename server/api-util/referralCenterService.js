@@ -1,4 +1,8 @@
 const { evaluateBronzeProgress } = require('./ambassadorBronzeCriteria');
+const {
+  applyFounderBronzeProgressOverride,
+  resolveAmbassadorFounderOverride,
+} = require('./ambassadorFounderOverride');
 const { resolveAmbassadorRewardsUnlockedWithDevOverride } = require('./ambassadorDevBronzeOverride');
 const { fetchAmbassadorMetrics } = require('./ambassadorMetrics');
 const { evaluateAndUnlockAmbassadorRewards } = require('./ambassadorTierEngine');
@@ -66,21 +70,28 @@ const buildReferralCenterDashboard = async ({ sdk, trustedSdk, currentUser }) =>
   const ambassadorEmail = currentUser?.attributes?.email || '';
   const ambassadorReferralCode = publicData.ambassadorReferralCode || null;
 
+  const founderOverride = resolveAmbassadorFounderOverride({
+    publicData,
+    userId: ambassadorUserId,
+  });
+
   const metrics = await fetchAmbassadorMetrics({
     trustedSdk,
     currentUser,
     ambassadorUserId,
   });
 
-  const unlockResult = await evaluateAndUnlockAmbassadorRewards({
-    sdk,
-    currentUser,
-    metrics,
-  });
+  const unlockResult = founderOverride.overrideActive
+    ? { unlocked: true, justUnlocked: false, bronzeProgress: evaluateBronzeProgress(metrics) }
+    : await evaluateAndUnlockAmbassadorRewards({
+        sdk,
+        currentUser,
+        metrics,
+      });
 
   const storedRewardsUnlocked =
     unlockResult.unlocked || Boolean(publicData.ambassadorRewardsUnlocked);
-  const { unlocked: ambassadorRewardsUnlocked, overrideActive: devBronzeOverrideActive } =
+  const { unlocked: devBronzeUnlocked, overrideActive: devBronzeOverrideActive } =
     resolveAmbassadorRewardsUnlockedWithDevOverride({
       userId: ambassadorUserId,
       email: ambassadorEmail,
@@ -88,11 +99,17 @@ const buildReferralCenterDashboard = async ({ sdk, trustedSdk, currentUser }) =>
       storedUnlocked: storedRewardsUnlocked,
     });
 
-  if (devBronzeOverrideActive && ambassadorUserId) {
+  const ambassadorRewardsUnlocked = founderOverride.overrideActive
+    ? true
+    : devBronzeUnlocked;
+
+  if ((founderOverride.overrideActive || devBronzeOverrideActive) && ambassadorUserId) {
     promotePendingRewardsForAmbassador(ambassadorUserId);
   }
 
-  const bronzeProgress = unlockResult.bronzeProgress || evaluateBronzeProgress(metrics);
+  const bronzeProgress = founderOverride.overrideActive
+    ? applyFounderBronzeProgressOverride(unlockResult.bronzeProgress || evaluateBronzeProgress(metrics))
+    : unlockResult.bronzeProgress || evaluateBronzeProgress(metrics);
   const validReferralIds = new Set(metrics.validReferralIds || []);
   const validApplicationIds = new Set(metrics.validApplicationIds || []);
   const validRewards = filterValidRewardsForAggregates(
@@ -137,6 +154,12 @@ const buildReferralCenterDashboard = async ({ sdk, trustedSdk, currentUser }) =>
       allComplete: bronzeProgress.allComplete,
     },
     ambassadorRewardsUnlocked,
+    ambassadorTier: founderOverride.overrideActive
+      ? founderOverride.ambassadorTier
+      : publicData.ambassadorTier || 'bronze',
+    founderOverrideActive: founderOverride.overrideActive,
+    founderCommissionPercent: founderOverride.commissionPercent,
+    hideTierProgression: founderOverride.hideTierProgression,
     devBronzeOverrideActive,
     rewardsJustUnlocked: unlockResult.justUnlocked,
     rewardsUnlockedAt: publicData.ambassadorRewardsUnlockedAt || unlockResult.unlockedAt || null,

@@ -8,6 +8,7 @@ import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { getAmbassadorProfileState, isAmbassadorActive } from '../../util/ambassadorActivation';
+import { FOUNDER_BADGE_IMAGE } from '../../util/ambassadorFounderOverride';
 import { fetchReferralCenterDashboard } from '../../util/api';
 import {
   buildAmbassadorShareLink,
@@ -29,6 +30,7 @@ import {
   NEXT_TIER_REQUIREMENT_IDS,
   HERO_PROGRESS_TIER_IDS,
   PLACEHOLDER_STATS,
+  REFERRAL_CENTER_TIER_IMAGES,
   REFERRAL_STATUS_LABEL_IDS,
   REFERRAL_TABLE_COLUMNS,
   REWARD_BREAKDOWN_STATS,
@@ -548,23 +550,6 @@ const ReferralCenterPage = () => {
     [location.hash, location.pathname, location.search]
   );
 
-  const tierConfig = useMemo(
-    () => getAmbassadorTierConfig(profileState.ambassadorTier),
-    [profileState.ambassadorTier]
-  );
-  const nextTierConfig = useMemo(
-    () => getNextAmbassadorTierConfig(profileState.ambassadorTier),
-    [profileState.ambassadorTier]
-  );
-  const nextTierReward = useMemo(
-    () => (nextTierConfig ? getTierCommissionReward(nextTierConfig.id) : null),
-    [nextTierConfig]
-  );
-  const currentTierReward = useMemo(
-    () => getTierCommissionReward(tierConfig.id),
-    [tierConfig.id]
-  );
-
   const referralCode = profileState.ambassadorReferralCode || '';
   const referralLink = useMemo(
     () => buildAmbassadorShareLink(referralCode, config),
@@ -616,8 +601,46 @@ const ReferralCenterPage = () => {
     };
   }, [ambassadorActive, isAuthenticated, profileState.ambassadorReferralCode]);
 
-  const rewardsUnlocked =
-    dashboard?.ambassadorRewardsUnlocked ?? profileState.ambassadorRewardsUnlocked;
+  const isFounderOverride =
+    dashboard?.founderOverrideActive ?? profileState.founderOverrideActive ?? false;
+
+  const effectiveTier = isFounderOverride
+    ? dashboard?.ambassadorTier || profileState.ambassadorTier || 'diamond'
+    : profileState.ambassadorTier;
+
+  const tierConfig = useMemo(() => {
+    if (isFounderOverride) {
+      const diamondConfig = getAmbassadorTierConfig('diamond');
+      return {
+        ...diamondConfig,
+        id: 'founder',
+        tierClass: 'founder',
+        nameId: 'ReferralCenterPage.founderTierName',
+        imageSrc: FOUNDER_BADGE_IMAGE || REFERRAL_CENTER_TIER_IMAGES.founder,
+      };
+    }
+    return getAmbassadorTierConfig(effectiveTier);
+  }, [effectiveTier, isFounderOverride]);
+
+  const nextTierConfig = useMemo(
+    () => (isFounderOverride ? null : getNextAmbassadorTierConfig(effectiveTier)),
+    [effectiveTier, isFounderOverride]
+  );
+  const nextTierReward = useMemo(
+    () => (nextTierConfig ? getTierCommissionReward(nextTierConfig.id) : null),
+    [nextTierConfig]
+  );
+  const currentTierReward = useMemo(
+    () =>
+      isFounderOverride
+        ? getTierCommissionReward('diamond')
+        : getTierCommissionReward(tierConfig.id),
+    [isFounderOverride, tierConfig.id]
+  );
+
+  const rewardsUnlocked = isFounderOverride
+    ? true
+    : dashboard?.ambassadorRewardsUnlocked ?? profileState.ambassadorRewardsUnlocked;
 
   const referrals = dashboard?.referrals || [];
   const hasReferrals = referrals.length > 0;
@@ -714,22 +737,26 @@ const ReferralCenterPage = () => {
               <span className={classNames(css.statusPill, css.statusPillAmbassador)}>
                 <FormattedMessage id="ReferralCenterPage.statusActiveAmbassador" />
               </span>
-              <span
-                className={classNames(
-                  css.statusPill,
-                  rewardsUnlocked
-                    ? css.statusPillUnlocked
-                    : css.statusPillLocked
-                )}
-              >
-                <FormattedMessage
-                  id={
-                    rewardsUnlocked
-                      ? 'ReferralCenterPage.statusRewardsUnlocked'
-                      : 'ReferralCenterPage.statusRewardsLocked'
-                  }
-                />
-              </span>
+              {isFounderOverride ? (
+                <span className={classNames(css.statusPill, css.statusPillFounder)}>
+                  <FormattedMessage id="ReferralCenterPage.statusFounderAccess" />
+                </span>
+              ) : (
+                <span
+                  className={classNames(
+                    css.statusPill,
+                    rewardsUnlocked ? css.statusPillUnlocked : css.statusPillLocked
+                  )}
+                >
+                  <FormattedMessage
+                    id={
+                      rewardsUnlocked
+                        ? 'ReferralCenterPage.statusRewardsUnlocked'
+                        : 'ReferralCenterPage.statusRewardsLocked'
+                    }
+                  />
+                </span>
+              )}
               {ambassadorSinceLabel ? (
                 <span className={css.sincePill}>
                   <FormattedMessage
@@ -774,10 +801,21 @@ const ReferralCenterPage = () => {
               </div>
             </div>
             <p className={css.tierBadgeLabel}>
-              <FormattedMessage id="ReferralCenterPage.currentTierLabel" />
+              <FormattedMessage
+                id={
+                  isFounderOverride
+                    ? 'ReferralCenterPage.founderTierLabel'
+                    : 'ReferralCenterPage.currentTierLabel'
+                }
+              />
             </p>
             <p className={css.tierBadgeName}>{tierName}</p>
-            {nextTierConfig ? (
+            {isFounderOverride ? (
+              <p className={css.founderAccessMessage}>
+                <FormattedMessage id="ReferralCenterPage.founderAccessMessage" />
+              </p>
+            ) : null}
+            {!isFounderOverride && nextTierConfig ? (
               <div className={css.tierProgress}>
                 <p className={css.tierProgressHint}>
                   <FormattedMessage
@@ -979,11 +1017,15 @@ const ReferralCenterPage = () => {
         {rewardsUnlocked ? (
           <p className={css.rewardsLeadUnlocked}>
             <FormattedMessage
-              id="ReferralCenterPage.rewardsUnlockedLead"
+              id={
+                isFounderOverride
+                  ? 'ReferralCenterPage.founderRewardsUnlockedLead'
+                  : 'ReferralCenterPage.rewardsUnlockedLead'
+              }
               values={{
                 percent: currentTierReward
                   ? intl.formatMessage({ id: currentTierReward.percentId })
-                  : '2%',
+                  : '6%',
               }}
             />
           </p>
@@ -1042,12 +1084,28 @@ const ReferralCenterPage = () => {
         <ActivityFeed activity={dashboard?.activity || []} />
       </ScrollReveal>
 
-      <ScrollReveal delay={200} className={classNames(css.glassCard, css.nextLevelCard)} aria-labelledby="next-level-heading">
+      <ScrollReveal
+        delay={200}
+        className={classNames(css.glassCard, css.nextLevelCard)}
+        aria-labelledby="next-level-heading"
+      >
         <h2 id="next-level-heading" className={css.cardTitle}>
-          <FormattedMessage id="ReferralCenterPage.nextLevelTitle" />
+          <FormattedMessage
+            id={
+              isFounderOverride
+                ? 'ReferralCenterPage.founderLevelTitle'
+                : 'ReferralCenterPage.nextLevelTitle'
+            }
+          />
         </h2>
 
-        {nextTierConfig ? (
+        {isFounderOverride ? (
+          <p className={css.founderLevelComplete}>
+            <FormattedMessage id="ReferralCenterPage.founderLevelComplete" />
+          </p>
+        ) : null}
+
+        {!isFounderOverride && nextTierConfig ? (
           <>
             <div className={css.nextLevelTrack}>
               <div className={classNames(css.nextLevelNode, css.nextLevelNodeCurrent)}>

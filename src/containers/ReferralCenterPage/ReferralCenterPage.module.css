@@ -420,6 +420,47 @@
   );
 }
 
+.tierBadge_founder .tierBadgeHalo {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(214, 245, 255, 0.55) 0%,
+    rgba(120, 200, 255, 0.28) 38%,
+    rgba(157, 255, 79, 0.12) 55%,
+    transparent 72%
+  );
+}
+
+.tierBadge_founder .tierBadgeFrame {
+  border-color: rgba(214, 245, 255, 0.55);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.35),
+    0 0 36px rgba(180, 230, 255, 0.28);
+}
+
+.statusPillFounder {
+  color: #e8f7ff;
+  background: linear-gradient(135deg, rgba(120, 200, 255, 0.35), rgba(214, 245, 255, 0.18));
+  border: 1px solid rgba(214, 245, 255, 0.45);
+}
+
+.founderAccessMessage {
+  margin: 10px 0 0;
+  max-width: 280px;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: rgba(214, 245, 255, 0.92);
+  text-align: center;
+}
+
+.founderLevelComplete {
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 600;
+  color: rgba(214, 245, 255, 0.9);
+}
+
 .tierBadge_bronze:hover .tierBadgeImage,
 .tierBadge_silver:hover .tierBadgeImage,
 .tierBadge_gold:hover .tierBadgeImage,

@@ -17,6 +17,7 @@ export const REFERRAL_CENTER_TIER_IMAGES = {
   gold: '/CoachPagePic/Ambassador_gold.jpg',
   platinum: '/CoachPagePic/Ambassador_platinum.jpg',
   diamond: '/CoachPagePic/Ambassador_diamond.jpg',
+  founder: '/CoachPagePic/Badge_founder.jpg',
 };
 
 export const PLACEHOLDER_STATS = [

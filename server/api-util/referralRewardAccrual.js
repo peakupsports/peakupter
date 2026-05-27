@@ -1,4 +1,5 @@
 const { resolveAmbassadorRewardsUnlockedWithDevOverride } = require('./ambassadorDevBronzeOverride');
+const { resolveAmbassadorFounderOverride } = require('./ambassadorFounderOverride');
 const { TIER_COMMISSION_PERCENT } = require('./ambassadorTierEngine');
 const { ACTIVITY_TYPES, logReferralActivity } = require('./referralActivityStore');
 const { findReferralForCoach, linkReferralToCoachUser } = require('./referralCoachLookup');
@@ -209,14 +210,24 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
     return null;
   }
 
-  const tier = String(ambassadorPublicData.ambassadorTier || 'bronze').toLowerCase();
-  const ambassadorPercent = TIER_COMMISSION_PERCENT[tier] || TIER_COMMISSION_PERCENT.bronze;
-  const rewardsUnlocked = resolveAmbassadorRewardsUnlockedWithDevOverride({
+  const founderOverride = resolveAmbassadorFounderOverride({
+    publicData: ambassadorPublicData,
     userId: ambassadorUserId,
-    email: ambassadorUser?.attributes?.email,
-    referralCode: ambassadorPublicData.ambassadorReferralCode,
-    storedUnlocked: truthy(ambassadorPublicData.ambassadorRewardsUnlocked),
-  }).unlocked;
+  });
+  const tier = founderOverride.overrideActive
+    ? founderOverride.ambassadorTier
+    : String(ambassadorPublicData.ambassadorTier || 'bronze').toLowerCase();
+  const ambassadorPercent = founderOverride.overrideActive
+    ? founderOverride.commissionPercent
+    : TIER_COMMISSION_PERCENT[tier] || TIER_COMMISSION_PERCENT.bronze;
+  const rewardsUnlocked = founderOverride.overrideActive
+    ? true
+    : resolveAmbassadorRewardsUnlockedWithDevOverride({
+        userId: ambassadorUserId,
+        email: ambassadorUser?.attributes?.email,
+        referralCode: ambassadorPublicData.ambassadorReferralCode,
+        storedUnlocked: truthy(ambassadorPublicData.ambassadorRewardsUnlocked),
+      }).unlocked;
 
   const economics = extractTransactionEconomics(transaction);
   const flowEconomics = {
