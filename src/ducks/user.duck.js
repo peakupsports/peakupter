@@ -20,6 +20,7 @@ import {
   dedupeTransactionIds,
   logCustomerDotRendered,
   logInboxListOpenNoAck,
+  logInboxNotificationFinalWrite,
   recountInboxNotificationCounts,
 } from '../util/transactionNotificationCount';
 
@@ -202,29 +203,48 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
         sdk,
       });
 
-      const unreadSaleTransactionIds = filterTransactionIdsExcludingThreadSuppress(
-        currentUserId,
-        dedupeTransactionIds(recount.saleUnreadIds || recount.saleUnread.map(entry => entry.id)),
-        'sale'
+      const saleValidatedIds = dedupeTransactionIds(
+        filterTransactionIdsExcludingThreadSuppress(
+          currentUserId,
+          dedupeTransactionIds(recount.saleUnreadIds || []),
+          'sale'
+        )
       );
-      const unreadOrderTransactionIds = filterTransactionIdsExcludingThreadSuppress(
-        currentUserId,
-        dedupeTransactionIds(recount.orderUnreadIds || recount.orderUnread.map(entry => entry.id)),
-        'order'
+      const orderValidatedIds = dedupeTransactionIds(
+        filterTransactionIdsExcludingThreadSuppress(
+          currentUserId,
+          dedupeTransactionIds(recount.orderUnreadIds || []),
+          'order'
+        )
       );
-      const saleNotificationsCount = unreadSaleTransactionIds.length;
-      const orderNotificationsCount = unreadOrderTransactionIds.length;
+
+      const finalSaleIds = [...saleValidatedIds];
+      const finalOrderIds = [...orderValidatedIds];
+      const previousUnreadSaleIds = dedupeTransactionIds(state.user?.unreadSaleTransactionIds || []);
+      const previousUnreadOrderIds = dedupeTransactionIds(state.user?.unreadOrderTransactionIds || []);
+
+      logInboxNotificationFinalWrite({
+        saleValidatedIds,
+        orderValidatedIds,
+        previousUnreadSaleIds,
+        previousUnreadOrderIds,
+        finalSaleIds,
+        finalOrderIds,
+      });
+
+      const saleNotificationsCount = finalSaleIds.length;
+      const orderNotificationsCount = finalOrderIds.length;
 
       if (typeof window !== 'undefined') {
-        logCustomerDotRendered(orderNotificationsCount, unreadOrderTransactionIds);
+        logCustomerDotRendered(orderNotificationsCount, finalOrderIds);
         if (isDevelopmentMode()) {
           // eslint-disable-next-line no-console
           console.log('[PeakUp INBOX DOT RECALCULATED]', {
             saleCount: saleNotificationsCount,
             orderCount: orderNotificationsCount,
             totalCount: saleNotificationsCount + orderNotificationsCount,
-            unreadSaleTransactionIds,
-            unreadOrderTransactionIds,
+            unreadSaleTransactionIds: finalSaleIds,
+            unreadOrderTransactionIds: finalOrderIds,
             ghostOrderIdsRemoved: recount.ghostOrderIds,
             ghostSaleIdsRemoved: recount.ghostSaleIds,
           });
@@ -234,8 +254,8 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
       return {
         saleNotificationsCount,
         orderNotificationsCount,
-        unreadSaleTransactionIds,
-        unreadOrderTransactionIds,
+        unreadSaleTransactionIds: finalSaleIds,
+        unreadOrderTransactionIds: finalOrderIds,
         fetchSeq,
       };
     })
@@ -790,8 +810,6 @@ const userSlice = createSlice({
           return;
         }
         const {
-          saleNotificationsCount,
-          orderNotificationsCount,
           unreadSaleTransactionIds = [],
           unreadOrderTransactionIds = [],
           fetchSeq = 0,
@@ -800,12 +818,14 @@ const userSlice = createSlice({
           return;
         }
         state.lastAppliedInboxNotificationsFetchSeq = fetchSeq;
-        state.currentUserSaleNotificationCount = saleNotificationsCount;
-        state.currentUserOrderNotificationCount = orderNotificationsCount;
-        state.unreadSaleTransactionIds = dedupeTransactionIds(unreadSaleTransactionIds);
-        state.unreadOrderTransactionIds = dedupeTransactionIds(unreadOrderTransactionIds);
-        state.currentUserSaleNotificationCount = state.unreadSaleTransactionIds.length;
-        state.currentUserOrderNotificationCount = state.unreadOrderTransactionIds.length;
+
+        const finalSaleIds = dedupeTransactionIds(unreadSaleTransactionIds);
+        const finalOrderIds = dedupeTransactionIds(unreadOrderTransactionIds);
+
+        state.unreadSaleTransactionIds = finalSaleIds;
+        state.unreadOrderTransactionIds = finalOrderIds;
+        state.currentUserSaleNotificationCount = finalSaleIds.length;
+        state.currentUserOrderNotificationCount = finalOrderIds.length;
         state.inboxNotificationsFetchInProgress = false;
         state.inboxNotificationsLoaded = true;
       })

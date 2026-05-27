@@ -1,6 +1,7 @@
 import { getMessageSenderUuid } from './unreadNotifications';
 
 const THREAD_ACK_SUPPRESS_STORAGE_KEY = 'peakupThreadAckSuppress';
+/** Legacy default duration — recount no longer expires suppress by time alone. */
 const THREAD_ACK_SUPPRESS_MS = 90000;
 
 const memorySuppress = new Map();
@@ -61,9 +62,11 @@ export const suppressInboxThreadAfterOpen = (
   const suppressUntil = Date.now() + durationMs;
   const key = getSuppressKey(currentUserId, inboxRole, txUuid);
   const map = readSuppressMap();
+  const openedAt = new Date().toISOString();
   map[key] = {
     suppressUntil,
-    suppressedAt: new Date().toISOString(),
+    suppressedAt: openedAt,
+    openedAt,
     inboxRole,
   };
   writeSuppressMap(map);
@@ -78,6 +81,31 @@ export const suppressInboxThreadAfterOpen = (
   }
 
   return suppressUntil;
+};
+
+/**
+ * @param {string} currentUserId
+ * @param {string|Object} transactionId
+ * @param {'sale'|'order'} inboxRole
+ * @returns {Object|null}
+ */
+export const getInboxThreadAckSuppressEntry = (currentUserId, transactionId, inboxRole) => {
+  const txUuid = typeof transactionId === 'object' ? transactionId?.uuid : transactionId;
+  if (!currentUserId || !txUuid || !inboxRole) {
+    return null;
+  }
+  const key = getSuppressKey(currentUserId, inboxRole, txUuid);
+  const entry = readSuppressMap()[key];
+  if (!entry) {
+    return null;
+  }
+  return {
+    suppressKey: key,
+    inboxRole: entry.inboxRole || inboxRole,
+    suppressedAt: entry.suppressedAt ?? null,
+    openedAt: entry.openedAt ?? entry.suppressedAt ?? null,
+    suppressUntil: entry.suppressUntil ?? null,
+  };
 };
 
 export const clearInboxThreadAckSuppress = (currentUserId, transactionId, inboxRole) => {
@@ -139,16 +167,17 @@ export const isInboxThreadAckSuppressed = (
     return false;
   }
 
-  if (Date.now() > entry.suppressUntil) {
-    delete map[key];
-    writeSuppressMap(map);
-    return false;
-  }
-
-  const latestOtherParty = getLatestOtherPartyMessage(messages, currentUserId);
-  const latestAt = latestOtherParty?.attributes?.createdAt;
-  if (latestAt && entry.suppressedAt) {
-    if (new Date(latestAt).getTime() > new Date(entry.suppressedAt).getTime()) {
+  const openedAt = entry.suppressedAt || entry.openedAt;
+  if (messages?.length && openedAt) {
+    const latestOtherParty = getLatestOtherPartyMessage(messages, currentUserId);
+    const latestAt = latestOtherParty?.attributes?.createdAt;
+    const latestAuthorId = latestOtherParty ? getMessageSenderUuid(latestOtherParty) : null;
+    if (
+      latestAt &&
+      latestAuthorId &&
+      latestAuthorId !== currentUserId &&
+      new Date(latestAt).getTime() > new Date(openedAt).getTime()
+    ) {
       delete map[key];
       writeSuppressMap(map);
       return false;

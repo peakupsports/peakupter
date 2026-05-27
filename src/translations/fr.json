@@ -428,6 +428,8 @@
   "ReferralCenterPage.ctaLevels": "Voir les niveaux Ambassador",
   "ReferralCenterPage.ctaProgram": "Découvrir le programme Ambassador",
   "ReferralCenterPage.currentTierLabel": "Niveau actuel",
+  "ReferralCenterPage.tierProgressAria": "Progression vers {tier}",
+  "ReferralCenterPage.tierProgressUntilNext": "{count, plural, =0 {Prêt pour {tier}} one {# parrainage avant {tier}} other {# parrainages avant {tier}}}",
   "ReferralCenterPage.emptyBody": "Partagez votre code de parrainage pour développer votre réseau PeakUp.",
   "ReferralCenterPage.emptyCtaCopyLink": "Copier le lien de parrainage",
   "ReferralCenterPage.emptyTitle": "Aucun coach parrainé pour le moment.",

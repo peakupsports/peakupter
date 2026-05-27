@@ -18,6 +18,7 @@ import {
 import { isDevelopmentMode } from './isDevelopmentMode';
 import {
   filterTransactionIdsExcludingThreadSuppress,
+  getInboxThreadAckSuppressEntry,
   isInboxThreadAckSuppressed,
   suppressInboxThreadAfterOpen,
 } from './inboxThreadAckSuppress';
@@ -385,6 +386,38 @@ export const logCustomerDotRendered = (orderCount, unreadOrderTransactionIds = [
   console.log('[PeakUp CUSTOMER DOT RENDERED]', {
     orderCount,
     unreadOrderTransactionIds,
+  });
+};
+
+/**
+ * Log Redux inbox badge write — validated IDs only, never merged cache.
+ */
+export const logInboxNotificationFinalWrite = ({
+  saleValidatedIds = [],
+  orderValidatedIds = [],
+  previousUnreadSaleIds = [],
+  previousUnreadOrderIds = [],
+  finalSaleIds = [],
+  finalOrderIds = [],
+}) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const saleCount = finalSaleIds.length;
+  const orderCount = finalOrderIds.length;
+  // eslint-disable-next-line no-console
+  console.warn('[PeakUp NOTIFICATION FINAL WRITE]', {
+    saleValidatedIds,
+    orderValidatedIds,
+    previousUnreadSaleIds,
+    previousUnreadOrderIds,
+    finalSaleIds,
+    finalOrderIds,
+    saleCount,
+    orderCount,
+    totalCount: saleCount + orderCount,
+    droppedFromCacheSale: previousUnreadSaleIds.filter(id => !finalSaleIds.includes(id)),
+    droppedFromCacheOrder: previousUnreadOrderIds.filter(id => !finalOrderIds.includes(id)),
   });
 };
 
@@ -785,6 +818,7 @@ export const acknowledgeThreadOnOpen = async (currentUserId, transactionId, mess
   if (latestOtherParty?.attributes?.createdAt) {
     latestOtherPartyMessageAt = latestOtherParty.attributes.createdAt;
     setMessageAckAt(currentUserId, transactionId, latestOtherPartyMessageAt);
+    markTransactionReadOnOpen(currentUserId, transactionId, latestOtherPartyMessageAt);
     cleared = true;
   } else if (!messages?.length) {
     acknowledgeTransactionInquiry(currentUserId, transactionId, tx);
@@ -1092,9 +1126,6 @@ const hasUnreadMessageActivity = async (tx, currentUserId, sdk) => {
   }
 
   if (!messages.length) {
-    if (hasUnreadStateAttention(tx, currentUserId)) {
-      return true;
-    }
     purgeTransactionInboxNotificationStorage(currentUserId, txUuid, 'no_messages');
     markTransactionReadOnOpen(
       currentUserId,
@@ -1129,7 +1160,7 @@ const hasUnreadMessageActivity = async (tx, currentUserId, sdk) => {
     return true;
   }
 
-  return hasUnreadStateAttention(tx, currentUserId);
+  return false;
 };
 
 /**
@@ -1286,6 +1317,86 @@ const logGhostOrderCountRemoved = removedTransactionIds => {
 };
 
 /**
+ * Log when provider/sale recount adds a transaction to the badge.
+ */
+const logProviderPollingSource = (
+  tx,
+  currentUserId,
+  messages,
+  reasonCounted,
+  isUnread,
+  { saleValidatedIds = [], finalSaleIds = [] } = {}
+) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const txUuid = tx?.id?.uuid;
+  const suppressEntry = getInboxThreadAckSuppressEntry(currentUserId, txUuid, 'sale');
+  const latestMessage = messages?.length ? getLatestMessage(messages) : null;
+  // eslint-disable-next-line no-console
+  console.warn('[PeakUp PROVIDER POLLING SOURCE]', {
+    transactionId: txUuid,
+    state: getTransactionProcessState(tx),
+    lastTransition: tx?.attributes?.lastTransition ?? null,
+    listingId: getListingIdFromTx(tx),
+    latestMessageAuthorId: latestMessage ? getMessageSenderUuid(latestMessage) : null,
+    currentUserId,
+    latestMessageCreatedAt: latestMessage?.attributes?.createdAt ?? null,
+    isUnread,
+    isSuppressed: isInboxThreadAckSuppressed(currentUserId, txUuid, 'sale', messages),
+    suppressKey: suppressEntry?.suppressKey ?? null,
+    suppressedAt: suppressEntry?.suppressedAt ?? null,
+    openedAt: suppressEntry?.openedAt ?? null,
+    reasonCounted,
+    saleValidatedIds,
+    finalSaleIds: finalSaleIds.length ? finalSaleIds : saleValidatedIds,
+  });
+};
+
+/**
+ * Log when polling/recount adds a transaction to the badge (diagnose ghost re-counts).
+ */
+const logPollingBadgeSource = (
+  tx,
+  currentUserId,
+  messages,
+  role,
+  reasonCounted,
+  { orderValidatedIds = [], saleValidatedIds = [] } = {}
+) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const txUuid = tx?.id?.uuid;
+  const suppressRole = role === 'order' ? 'order' : 'sale';
+  const suppressEntry = getInboxThreadAckSuppressEntry(currentUserId, txUuid, suppressRole);
+  // eslint-disable-next-line no-console
+  console.warn('[PeakUp POLLING BADGE SOURCE]', {
+    role,
+    transactionId: txUuid,
+    listingId: getListingIdFromTx(tx),
+    state: getTransactionProcessState(tx),
+    lastTransition: tx?.attributes?.lastTransition ?? null,
+    latestMessageAuthorId: messages?.length
+      ? getMessageSenderUuid(getLatestMessage(messages))
+      : null,
+    currentUserId,
+    latestMessageCreatedAt: messages?.length
+      ? getLatestMessage(messages)?.attributes?.createdAt ?? null
+      : null,
+    suppressedAt: suppressEntry?.suppressedAt ?? null,
+    openedAt: suppressEntry?.openedAt ?? null,
+    suppressKey: suppressEntry?.suppressKey ?? null,
+    reasonCounted,
+    isSuppressed: isInboxThreadAckSuppressed(currentUserId, txUuid, suppressRole, messages),
+    unreadOrderTransactionIds: orderValidatedIds,
+    unreadSaleTransactionIds: saleValidatedIds,
+    orderValidatedIds,
+    saleValidatedIds,
+  });
+};
+
+/**
  * Single-pass recount validation — builds the unread list only from transactions
  * that pass inbox API + message checks. Never reuses a pre-filter raw unread array.
  *
@@ -1367,6 +1478,12 @@ const collectValidatedUnreadForRecount = async ({
           isUnread: true,
         });
         logCustomerDotSource(tx, currentUserId, messages, 'incoming_message_unread');
+        logPollingBadgeSource(tx, currentUserId, messages, 'order', 'incoming_message_unread', {
+          orderValidatedIds: dedupeTransactionIds([
+            ...validatedUnread.map(entry => entry.id),
+          ]),
+          saleValidatedIds: [],
+        });
       } else {
         const reasonIgnored = getCustomerOrderNotCountedReason(
           tx,
@@ -1400,6 +1517,14 @@ const collectValidatedUnreadForRecount = async ({
         lastMessageAuthorId: incomingMessage ? getMessageSenderUuid(incomingMessage) : null,
         isUnread: true,
       });
+      logProviderPollingSource(
+        tx,
+        currentUserId,
+        messages,
+        'canceled_unread_message',
+        true,
+        { saleValidatedIds: dedupeTransactionIds(validatedUnread.map(entry => entry.id)) }
+      );
       continue;
     }
 
@@ -1415,21 +1540,14 @@ const collectValidatedUnreadForRecount = async ({
         lastMessageAuthorId: incomingMessage ? getMessageSenderUuid(incomingMessage) : null,
         isUnread: true,
       });
-      continue;
-    }
-
-    if (role === 'sale' && hasUnreadStateAttention(tx, currentUserId)) {
-      if (isInboxThreadAckSuppressed(currentUserId, txUuid, 'sale', messages)) {
-        removed.push({ id: txUuid, reason: 'thread_ack_suppressed' });
-        continue;
-      }
-      validatedUnread.push({
-        id: txUuid,
-        role,
-        latestOtherPartyMessageAt: null,
-        lastMessageAuthorId: null,
-        isUnread: true,
-      });
+      logProviderPollingSource(
+        tx,
+        currentUserId,
+        messages,
+        'incoming_message_unread',
+        true,
+        { saleValidatedIds: dedupeTransactionIds(validatedUnread.map(entry => entry.id)) }
+      );
       continue;
     }
 

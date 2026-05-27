@@ -20,11 +20,14 @@ export const REFERRAL_CENTER_TIER_IMAGES = {
 };
 
 export const PLACEHOLDER_STATS = [
-  { id: 'invited', labelId: 'ReferralCenterPage.statInvited' },
-  { id: 'pending', labelId: 'ReferralCenterPage.statPending' },
-  { id: 'active', labelId: 'ReferralCenterPage.statActive' },
-  { id: 'rewards', labelId: 'ReferralCenterPage.statRealEarnings' },
+  { id: 'invited', labelId: 'ReferralCenterPage.statInvited', icon: 'invited' },
+  { id: 'pending', labelId: 'ReferralCenterPage.statPending', icon: 'pending' },
+  { id: 'active', labelId: 'ReferralCenterPage.statActive', icon: 'active' },
+  { id: 'rewards', labelId: 'ReferralCenterPage.statRealEarnings', icon: 'rewards' },
 ];
+
+/** Tier labels shown on the hero progress rail (Bronze → Silver → Gold). */
+export const HERO_PROGRESS_TIER_IDS = ['bronze', 'silver', 'gold'];
 
 export const REWARD_BREAKDOWN_STATS = [
   { id: 'earned', labelId: 'ReferralCenterPage.statEarnedRewards' },

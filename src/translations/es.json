@@ -428,6 +428,8 @@
   "ReferralCenterPage.ctaLevels": "Ver niveles Ambassador",
   "ReferralCenterPage.ctaProgram": "Explorar el programa Ambassador",
   "ReferralCenterPage.currentTierLabel": "Nivel actual",
+  "ReferralCenterPage.tierProgressAria": "Progreso hacia {tier}",
+  "ReferralCenterPage.tierProgressUntilNext": "{count, plural, =0 {Listo para {tier}} one {# referido hasta {tier}} other {# referidos hasta {tier}}}",
   "ReferralCenterPage.emptyBody": "Comparte tu código de referido para hacer crecer tu red PeakUp.",
   "ReferralCenterPage.emptyCtaCopyLink": "Copiar enlace de referido",
   "ReferralCenterPage.emptyTitle": "Aún no hay coaches referidos.",

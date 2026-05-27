@@ -13,11 +13,22 @@ describe('inboxThreadAckSuppress', () => {
     window.sessionStorage.clear();
   });
 
-  it('suppresses a transaction for the given role until hold expires', () => {
+  it('suppresses a transaction for the given role until a new other-party message', () => {
     suppressInboxThreadAfterOpen(customerId, txId, 'order');
 
     expect(isInboxThreadAckSuppressed(customerId, txId, 'order')).toBe(true);
     expect(isInboxThreadAckSuppressed(customerId, txId, 'sale')).toBe(false);
+  });
+
+  it('does not expire suppress by time alone after suppressUntil passes', () => {
+    suppressInboxThreadAfterOpen(customerId, txId, 'order');
+    const raw = window.sessionStorage.getItem('peakupThreadAckSuppress');
+    const map = JSON.parse(raw);
+    const key = `${customerId}:order:${txId}`;
+    map[key].suppressUntil = Date.now() - 1000;
+    window.sessionStorage.setItem('peakupThreadAckSuppress', JSON.stringify(map));
+
+    expect(isInboxThreadAckSuppressed(customerId, txId, 'order')).toBe(true);
   });
 
   it('clears suppress when a newer other-party message arrives', () => {

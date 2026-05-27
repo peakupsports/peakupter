@@ -20,12 +20,14 @@ import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
 
 import sportTheme from '../SportPagesTheme.module.css';
+import { AMBASSADOR_LEVELS } from '../AmbassadorProgramPage/ambassadorProgramContent';
 import {
   AMBASSADOR_PROGRAM_LEVELS_HASH,
   getAmbassadorTierConfig,
   getNextAmbassadorTierConfig,
   getTierCommissionReward,
   NEXT_TIER_REQUIREMENT_IDS,
+  HERO_PROGRESS_TIER_IDS,
   PLACEHOLDER_STATS,
   REFERRAL_STATUS_LABEL_IDS,
   REFERRAL_TABLE_COLUMNS,
@@ -119,6 +121,52 @@ const ShareIcon = ({ className }) => (
   </svg>
 );
 
+const KpiStatIcon = ({ variant, className }) => {
+  if (variant === 'pending') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.75" />
+        <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (variant === 'active') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M13 3L5 14h6l-1 7 9-13h-6l1-5z"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+  if (variant === 'rewards') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M12 3v18M8 7h8M9 11c0-2 1.5-3 3-3s3 1 3 3-1.5 3-3 3"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="9" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.75" />
+      <path
+        d="M4 19c0-3 2.5-5 5-5s5 2 5 5M16 11h5M16 15h3"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};
+
 const NetworkIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 64 64" fill="none" aria-hidden="true">
     <circle cx="32" cy="14" r="6" stroke="currentColor" strokeWidth="2" />
@@ -193,7 +241,7 @@ const ShareTools = ({ referralLink, referralLinkDisplay, referralCode, intl }) =
 
   return (
     <div className={css.shareTools}>
-      <div className={css.shareToolsRow}>
+      <div className={css.shareToolsActions}>
         <a
           className={classNames(css.shareToolButton, css.shareToolWhatsapp)}
           href={whatsAppHref}
@@ -206,15 +254,17 @@ const ShareTools = ({ referralLink, referralLinkDisplay, referralCode, intl }) =
           labelId="ReferralCenterPage.copyInviteMessage"
           value={inviteMessage}
           variant="secondary"
+          className={css.shareToolCopyButton}
         />
       </div>
       {qrSrc ? (
         <div className={css.qrBlock}>
+          <div className={css.qrGlow} aria-hidden="true" />
           <img
             className={css.qrImage}
             src={qrSrc}
-            width={180}
-            height={180}
+            width={140}
+            height={140}
             alt={intl.formatMessage({ id: 'ReferralCenterPage.qrAlt' })}
             loading="lazy"
           />
@@ -560,6 +610,21 @@ const ReferralCenterPage = () => {
 
   const tierName = intl.formatMessage({ id: tierConfig.nameId });
 
+  const heroProgressTiers = useMemo(
+    () =>
+      HERO_PROGRESS_TIER_IDS.map(tierId => {
+        const level = AMBASSADOR_LEVELS.find(item => item.id === tierId);
+        return {
+          id: tierId,
+          name: level ? intl.formatMessage({ id: level.nameId }) : tierId,
+        };
+      }),
+    [intl]
+  );
+
+  const tierProgressPercent = Math.min(100, Math.round(((statValues.invited ?? 0) / 5) * 100));
+  const currentTierIndex = heroProgressTiers.findIndex(t => t.id === tierConfig.id);
+
   const schemaTitle = intl.formatMessage(
     { id: 'ReferralCenterPage.schemaTitle' },
     { marketplaceName }
@@ -579,8 +644,8 @@ const ReferralCenterPage = () => {
         <div className={css.heroTierGlow} aria-hidden="true" />
         <div className={css.heroGlow} aria-hidden="true" />
 
-        <div className={css.heroTop}>
-          <div className={css.heroCopy}>
+        <div className={css.heroGrid}>
+          <div className={css.heroLeft}>
             <p className={css.eyebrow}>
               <FormattedMessage id="ReferralCenterPage.eyebrow" />
             </p>
@@ -619,51 +684,103 @@ const ReferralCenterPage = () => {
                 </span>
               ) : null}
             </div>
+
+            <div className={css.heroCodeSection}>
+              <div className={css.heroCodeCard}>
+                <span className={css.heroShareLabel}>
+                  <FormattedMessage id="ReferralCenterPage.codeLabel" />
+                </span>
+                <code className={css.heroShareCode}>{referralCode || '—'}</code>
+              </div>
+              <CopyButton
+                labelId="ReferralCenterPage.copyCode"
+                value={referralCode}
+                className={css.heroCopyCta}
+              />
+            </div>
           </div>
 
-          <aside className={css.tierBadgeCard} aria-label={tierName}>
-            <div className={classNames(css.tierBadgeFrame, css[`tierBadge_${tierConfig.tierClass}`])}>
-              <img
-                className={css.tierBadgeImage}
-                src={tierConfig.imageSrc}
-                alt=""
-                loading="eager"
-                decoding="async"
-              />
+          <aside className={css.heroRight} aria-label={tierName}>
+            <div className={css.tierBadgeShowcase}>
+              <div className={css.tierBadgeHalo} aria-hidden="true" />
+              <div
+                className={classNames(
+                  css.tierBadgeFrame,
+                  css[`tierBadge_${tierConfig.tierClass}`]
+                )}
+              >
+                <img
+                  className={css.tierBadgeImage}
+                  src={tierConfig.imageSrc}
+                  alt=""
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
             </div>
             <p className={css.tierBadgeLabel}>
               <FormattedMessage id="ReferralCenterPage.currentTierLabel" />
             </p>
             <p className={css.tierBadgeName}>{tierName}</p>
+            {nextTierConfig ? (
+              <div className={css.tierProgress}>
+                <p className={css.tierProgressHint}>
+                  <FormattedMessage
+                    id="ReferralCenterPage.tierProgressUntilNext"
+                    values={{
+                      count: Math.max(0, 5 - (statValues.invited ?? 0)),
+                      tier: intl.formatMessage({ id: nextTierConfig.nameId }),
+                    }}
+                  />
+                </p>
+                <div className={css.tierStepLabels}>
+                  {heroProgressTiers.map((tier, index) => (
+                    <span
+                      key={tier.id}
+                      className={classNames(
+                        css.tierStepLabel,
+                        index <= currentTierIndex ? css.tierStepLabelActive : null,
+                        index === currentTierIndex + 1 ? css.tierStepLabelNext : null
+                      )}
+                    >
+                      {tier.name}
+                    </span>
+                  ))}
+                </div>
+                <div
+                  className={css.tierProgressTrack}
+                  role="progressbar"
+                  aria-valuenow={tierProgressPercent}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={intl.formatMessage(
+                    { id: 'ReferralCenterPage.tierProgressAria' },
+                    { tier: intl.formatMessage({ id: nextTierConfig.nameId }) }
+                  )}
+                >
+                  <span className={css.tierProgressFill} style={{ width: `${tierProgressPercent}%` }} />
+                </div>
+              </div>
+            ) : null}
           </aside>
-        </div>
-
-        <div className={css.heroShareBar}>
-          <div className={css.heroShareCodeBlock}>
-            <span className={css.heroShareLabel}>
-              <FormattedMessage id="ReferralCenterPage.codeLabel" />
-            </span>
-            <code className={css.heroShareCode}>{referralCode || '—'}</code>
-          </div>
-          <div className={css.heroShareActions}>
-            <CopyButton labelId="ReferralCenterPage.copyCode" value={referralCode} />
-            <CopyButton
-              labelId="ReferralCenterPage.copyLink"
-              value={referralLink}
-              variant="secondary"
-            />
-          </div>
         </div>
       </ScrollReveal>
 
       <ScrollReveal delay={60} className={css.kpiStrip}>
         <section className={css.kpiRow} aria-label={intl.formatMessage({ id: 'ReferralCenterPage.statsAria' })}>
           {PLACEHOLDER_STATS.map(stat => (
-            <article key={stat.id} className={css.kpiCard}>
-              <p className={css.kpiLabel}>
-                <FormattedMessage id={stat.labelId} />
-              </p>
-              <p className={css.kpiValue}>{statValues[stat.id]}</p>
+            <article
+              key={stat.id}
+              className={classNames(css.kpiCard, css[`kpiCard_${stat.icon}`])}
+            >
+              <KpiStatIcon variant={stat.icon} className={css.kpiIcon} />
+              <div className={css.kpiCardBody}>
+                <p className={css.kpiLabel}>
+                  <FormattedMessage id={stat.labelId} />
+                </p>
+                <p className={css.kpiValue}>{statValues[stat.id]}</p>
+              </div>
+              <span className={css.kpiAccentBar} aria-hidden="true" />
             </article>
           ))}
         </section>

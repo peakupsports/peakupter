@@ -585,9 +585,6 @@ const runThreadNotificationAckBestEffort = async (
   const transactionRefs = [{ id: txId, type: 'transaction' }];
   const transactions = getMarketplaceEntities(getState(), transactionRefs);
   const tx = transactions.length > 0 ? transactions[0] : null;
-  if (!tx) {
-    return;
-  }
 
   const inboxRole = resolveInboxRoleForThread(tx, currentUserId, transactionRole);
   if (!inboxRole) {
@@ -608,6 +605,10 @@ const runThreadNotificationAckBestEffort = async (
     countsBefore,
   });
   dispatch(optimisticallyClearOneInboxNotification({ inboxRole, transactionId: txUuid }));
+
+  if (!tx) {
+    return;
+  }
 
   await acknowledgeInboxThreadOnOpen({
     currentUserId,
