@@ -181,6 +181,29 @@ const getCoachApplication = id => {
   return normalizeRecord({ ...record, id: record.id || id });
 };
 
+const updateCoachApplicationApplicantUserId = (id, applicantUserId) => {
+  const normalizedUserId = String(applicantUserId || '').trim();
+  if (!normalizedUserId) {
+    const err = new Error('applicantUserId is required');
+    err.status = 400;
+    throw err;
+  }
+
+  const application = getCoachApplication(id);
+  if (String(application.applicantUserId || '').trim() === normalizedUserId) {
+    return application;
+  }
+
+  const dir = submissionDirForId(id);
+  const updated = normalizeRecord({
+    ...application,
+    applicantUserId: normalizedUserId,
+    updatedAt: new Date().toISOString(),
+  });
+  writeSubmissionJson(dir, updated);
+  return updated;
+};
+
 const updateCoachApplicationStatus = (id, status) => {
   const validStatuses = Object.values(APPLICATION_STATUSES);
   if (!validStatuses.includes(status)) {
@@ -250,6 +273,7 @@ module.exports = {
   saveCoachApplicationSubmission,
   listCoachApplications,
   getCoachApplication,
+  updateCoachApplicationApplicantUserId,
   updateCoachApplicationStatus,
   deleteCoachApplication,
   resolveDocumentFile,

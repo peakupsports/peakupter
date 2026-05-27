@@ -1,9 +1,15 @@
+import { PEAKUP_COACH_PROFILE_LANGUAGE_KEY } from '../config/configPeakUpCoachUserFields';
+
 import {
   extractSportKeysFromCoachProfile,
   extractSportKeysFromListing,
   normalizeSportKey,
 } from './coachExplore';
-import { formatProfileSportsForSticker } from './profileCoachSticker';
+import { getFieldValue } from './fieldHelpers';
+import {
+  formatProfileLanguagesForSticker,
+  formatProfileSportsForSticker,
+} from './profileCoachSticker';
 
 export const PEAKUP_PRE_BOOKING_PARTICIPANT_TYPES = ['self', 'child', 'group'];
 
@@ -61,6 +67,59 @@ export const resolvePreBookingSportOptions = (intl, listing, author) => {
 };
 
 /**
+ * Coach languages saved via Profile Settings → same `publicData` key as
+ * `initialValuesForUserFields` / `pickUserFieldsData` (`languages`, form field `pub_languages`).
+ *
+ * @param {Object|null|undefined} publicData
+ * @returns {string[]}
+ */
+export const coachLanguagesFromProfilePublicData = publicData => {
+  const raw = getFieldValue(publicData, PEAKUP_COACH_PROFILE_LANGUAGE_KEY);
+  if (raw == null) {
+    return [];
+  }
+  const list = Array.isArray(raw) ? raw : [raw];
+  const seen = new Set();
+  const out = [];
+  for (const item of list) {
+    const code = String(item || '')
+      .trim()
+      .toLowerCase();
+    if (!code || seen.has(code)) {
+      continue;
+    }
+    seen.add(code);
+    out.push(code);
+  }
+  return out;
+};
+
+/**
+ * Session language options from coach Profile Settings only (multi-enum `languages`).
+ *
+ * @param {import('./reactIntl').intlShape} intl
+ * @param {Object|null|undefined} author
+ * @returns {Array<{ value: string, label: string }>}
+ */
+export const resolvePreBookingLanguageOptions = (intl, author) => {
+  const publicData = author?.attributes?.profile?.publicData;
+  const resolvedLanguages = coachLanguagesFromProfilePublicData(publicData);
+  const resolvedLanguageOptions = formatProfileLanguagesForSticker(intl, resolvedLanguages)
+    .map(entry => ({ value: entry.key, label: entry.label }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp PREBOOKING LANGUAGES]', {
+    authorId: author?.id?.uuid ?? null,
+    publicData,
+    resolvedLanguages,
+    resolvedLanguageOptions,
+  });
+
+  return resolvedLanguageOptions;
+};
+
+/**
  * @param {import('./reactIntl').intlShape} intl
  * @returns {Array<{ value: string, label: string }>}
  */
@@ -101,26 +160,49 @@ export const getPreBookingParticipantCountOptions = (max = 12) =>
  *
  * @param {Object} values
  * @param {Array<{ value: string, label: string }>} sportOptions
+ * @param {Array<{ value: string, label: string }>} [languageOptions=[]]
  * @returns {Object|null}
  */
-export const normalizePeakupPreBookingDetails = (values, sportOptions = []) => {
+export const normalizePeakupPreBookingDetails = (
+  values,
+  sportOptions = [],
+  languageOptions = []
+) => {
   const sport = values?.sport?.trim?.() || '';
   const participantType = values?.participantType?.trim?.() || '';
   const skillLevel = values?.skillLevel?.trim?.() || '';
+  const sessionLanguage = values?.sessionLanguage?.trim?.() || '';
   const countRaw = values?.participantCount;
   const participantCount = Number.parseInt(countRaw, 10);
 
-  if (!sport || !participantType || !skillLevel || !Number.isInteger(participantCount)) {
+  const requiresSessionLanguage = languageOptions.length > 0;
+
+  if (
+    !sport ||
+    !participantType ||
+    !skillLevel ||
+    !Number.isInteger(participantCount) ||
+    (requiresSessionLanguage && !sessionLanguage)
+  ) {
     return null;
   }
 
   const sportOption = sportOptions.find(o => o.value === sport);
+  const languageOption = languageOptions.find(o => o.value === sessionLanguage);
+  const sessionLanguageMaybe = sessionLanguage
+    ? {
+        sessionLanguage,
+        sessionLanguageLabel: languageOption?.label || sessionLanguage,
+      }
+    : {};
+
   return {
     sport,
     sportLabel: sportOption?.label || sport,
     participantType,
     skillLevel,
     participantCount,
+    ...sessionLanguageMaybe,
   };
 };
 

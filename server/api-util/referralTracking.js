@@ -1,9 +1,11 @@
 const { resolveReferralCode } = require('./referralCodeRegistry');
+const { buildReferralLinkPatch } = require('./referralLedgerRepair');
 const {
   createReferralEntry,
   deleteReferralByApplicationId,
   findReferralByApplicationId,
   REFERRAL_STATUSES,
+  updateReferralEntry,
 } = require('./referralLedgerStore');
 const {
   ACTIVITY_TYPES,
@@ -35,12 +37,15 @@ const trackCoachApplicationReferral = application => {
     return null;
   }
 
+  const applicantUserId = String(application.applicantUserId || '').trim();
   const entry = createReferralEntry({
     ambassadorUserId: ambassador.ambassadorUserId,
     ambassadorReferralCode: ambassador.ambassadorReferralCode,
     applicationId: application.id,
     applicantName: application.fullName,
     applicantEmail: application.email,
+    referredCoachUserId: applicantUserId || null,
+    referredCoachEmail: application.email || null,
     status: REFERRAL_STATUSES.APPLIED,
     joinedAt: application.submittedAt,
   });
@@ -76,8 +81,14 @@ const syncReferralOnApplicationStatusChange = application => {
   }
 
   if (application.status === 'approved') {
-    const { updateReferralEntry } = require('./referralLedgerStore');
-    const updated = updateReferralEntry(entry.id, { status: REFERRAL_STATUSES.VERIFIED });
+    const { patch: linkPatch } = buildReferralLinkPatch(entry, application);
+    const updated = updateReferralEntry(entry.id, {
+      ...linkPatch,
+      status: linkPatch.referredCoachUserId
+        ? REFERRAL_STATUSES.ACTIVE
+        : REFERRAL_STATUSES.VERIFIED,
+      rewardStatus: linkPatch.referredCoachUserId ? 'earning' : entry.rewardStatus || 'pending',
+    });
 
     logReferralActivity({
       ambassadorUserId: entry.ambassadorUserId,

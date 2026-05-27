@@ -43,6 +43,7 @@ import {
 import { PEAKUP_OPEN_PREBOOKING_SEARCH_FLAG } from '../../util/coachBookingNavigation';
 import {
   createBookingSubmitHandler,
+  resolvePreBookingLanguageOptions,
   resolvePreBookingSportOptions,
 } from '../../util/peakupPreBooking';
 import { coachPreferredMeetingPointsList } from '../../util/peakupMeetingPoint';
@@ -415,6 +416,10 @@ const OrderPanel = props => {
     () => resolvePreBookingSportOptions(intl, listing, author),
     [intl, listing, author]
   );
+  const languageOptions = useMemo(
+    () => resolvePreBookingLanguageOptions(intl, author),
+    [intl, author]
+  );
   const showBookingCalendar =
     !isBooking || isOwnListing || !!preBookingSession?.peakupPreBooking;
   const needsPreBookingStep =
@@ -537,6 +542,7 @@ const OrderPanel = props => {
           onClose={closePreBookingIntro}
           onContinue={continueToBookingCalendar}
           sportOptions={sportOptions}
+          languageOptions={languageOptions}
           preferredMeetingPoints={preferredMeetingPoints}
         />
       ) : null}

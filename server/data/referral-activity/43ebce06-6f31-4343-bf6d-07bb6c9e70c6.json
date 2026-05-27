@@ -1,0 +1,14 @@
+{
+  "id": "43ebce06-6f31-4343-bf6d-07bb6c9e70c6",
+  "ambassadorUserId": "69e16a44-5217-4220-9f45-618ca5dcfe5d",
+  "type": "first_booking",
+  "title": "First booking completed",
+  "body": "alex completed a booking — 2.34 CHF ambassador reward.",
+  "meta": {
+    "transactionId": "6a174afb-076b-4d34-9f51-92307fc1cb99",
+    "rewardId": "2a4c8fed-4d9d-4824-b94d-4465ee9ec2ea",
+    "referralId": "becffbe3-a775-4bee-8ee8-db7fd319979a",
+    "amountMinor": 234
+  },
+  "createdAt": "2026-05-27T20:10:10.897Z"
+}

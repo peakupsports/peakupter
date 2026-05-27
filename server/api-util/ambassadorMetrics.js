@@ -1,3 +1,4 @@
+const { attachLiveActiveListingsToReferrals } = require('./referralCoachActiveListings');
 const { listCoachApplications } = require('./coachApplicationStore');
 const {
   filterValidReferralsForAggregates,
@@ -105,7 +106,7 @@ const fetchAmbassadorMetrics = async ({ trustedSdk, currentUser, ambassadorUserI
   const { validReferrals, deletedUsersFiltered } = filterValidReferralsForAggregates(rawReferrals);
   pruneOrphanReferralLedgerEntries(deletedUsersFiltered);
 
-  const referrals = validReferrals;
+  const referrals = await attachLiveActiveListingsToReferrals(trustedSdk, validReferrals);
   const invitedCount = referrals.length;
   const pendingCount = referrals.filter(item =>
     [REFERRAL_STATUSES.INVITED, REFERRAL_STATUSES.APPLIED].includes(item.status)

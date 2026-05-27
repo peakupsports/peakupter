@@ -7,8 +7,11 @@
   "applicantEmail": "alex@example.com",
   "status": "verified",
   "listingsCount": 0,
-  "rewardStatus": "pending",
+  "rewardStatus": "earning",
   "joinedAt": "2026-05-27T16:03:50.870Z",
   "createdAt": "2026-05-27T16:03:50.960Z",
-  "updatedAt": "2026-05-27T17:00:42.212Z"
+  "updatedAt": "2026-05-27T20:11:06.240Z",
+  "referredCoachUserId": "6a171550-7913-4bea-b32e-7f32ce10b2e7",
+  "referredCoachEmail": "alex@example.com",
+  "firstBookingRewardAt": "2026-05-27T20:10:10.896Z"
 }

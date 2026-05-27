@@ -24,6 +24,8 @@ const ambassadorActivation = require('./api/ambassador-activation');
 const ambassadorActivationsAdmin = require('./api/ambassador-activations-admin');
 const referralCenter = require('./api/referral-center');
 const ambassadorAdminOverview = require('./api/ambassador-admin-overview');
+const referralRewardsBackfill = require('./api/referral-rewards-backfill');
+const referralLedgerRepair = require('./api/referral-ledger-repair');
 const peakupCoachBlockCancel = require('./api/peakup-coach-block-cancel');
 const cancellationCasesAdmin = require('./api/cancellation-cases-admin');
 
@@ -59,6 +61,32 @@ router.get(
   '/ambassador-admin/overview',
   ambassadorAdminOverview.requireCoachApplicationAdmin,
   ambassadorAdminOverview
+);
+
+// Dev/admin: repair referral ledger coach ↔ ambassador links.
+router.post(
+  '/referral-ledger/repair',
+  express.json({ limit: '64kb' }),
+  referralLedgerRepair.requireCoachApplicationAdmin,
+  referralLedgerRepair.runRepair
+);
+router.get(
+  '/referral-ledger/repair',
+  referralLedgerRepair.requireCoachApplicationAdmin,
+  referralLedgerRepair.runRepair
+);
+
+// Dev/admin: accrue missing ambassador rewards for Console-completed bookings.
+router.post(
+  '/referral-rewards/backfill',
+  express.json({ limit: '64kb' }),
+  referralRewardsBackfill.requireCoachApplicationAdmin,
+  referralRewardsBackfill.runBackfill
+);
+router.get(
+  '/referral-rewards/backfill',
+  referralRewardsBackfill.requireCoachApplicationAdmin,
+  referralRewardsBackfill.runBackfill
 );
 
 // JSON routes (e.g. PeakUp soft holds) — must run before Transit body parser.

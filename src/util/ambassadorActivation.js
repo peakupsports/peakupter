@@ -2,6 +2,7 @@
  * Ambassador Program activation — verified coach onboarding helpers.
  */
 
+import { resolveAmbassadorRewardsUnlockedWithDevOverride } from './ambassadorDevBronzeOverride';
 import { isPeakUpHqAdmin } from './peakupAdmin';
 import { getCurrentUserTypeRoles, isUserAuthorized } from './userHelpers';
 import { coachStickerShowsVerifiedSeal } from './profileCoachSticker';
@@ -109,11 +110,17 @@ export const isAmbassadorActive = currentUser => {
  */
 export const getAmbassadorProfileState = currentUser => {
   const pd = currentUser?.attributes?.profile?.publicData || {};
+  const storedUnlocked =
+    pd.ambassadorRewardsUnlocked === true || pd.ambassadorRewardsUnlocked === 'true';
   return {
     ambassadorActive: isAmbassadorActive(currentUser),
     ambassadorTier: pd.ambassadorTier ? String(pd.ambassadorTier) : null,
-    ambassadorRewardsUnlocked:
-      pd.ambassadorRewardsUnlocked === true || pd.ambassadorRewardsUnlocked === 'true',
+    ambassadorRewardsUnlocked: resolveAmbassadorRewardsUnlockedWithDevOverride({
+      userId: currentUser?.id?.uuid,
+      email: currentUser?.attributes?.email,
+      referralCode: pd.ambassadorReferralCode,
+      storedUnlocked,
+    }),
     ambassadorJoinedAt: pd.ambassadorJoinedAt ? String(pd.ambassadorJoinedAt) : null,
     ambassadorReferralCode: pd.ambassadorReferralCode
       ? String(pd.ambassadorReferralCode).trim()

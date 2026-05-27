@@ -57,19 +57,41 @@ const findRewardByTransactionId = transactionId => {
 };
 
 /**
- * Calculate ambassador commission from coach net payout (minor units).
+ * Net PeakUp revenue (minor units) — platform fee minus Stripe, with booking fallback.
  *
- * @param {number} coachNetPayoutMinor
+ * @param {object} economics
+ * @returns {number}
+ */
+const calculateNetPeakupRevenueMinor = ({
+  bookingAmountMinor = 0,
+  coachNetPayoutMinor = 0,
+  platformFeeMinor = 0,
+  stripeFeeMinor = 0,
+}) => {
+  const platformFee = Number(platformFeeMinor) || 0;
+  const stripe = Number(stripeFeeMinor) || 0;
+  if (platformFee > 0) {
+    return Math.max(0, platformFee - stripe);
+  }
+  const gross = Number(bookingAmountMinor) || 0;
+  const coachNet = Number(coachNetPayoutMinor) || 0;
+  return Math.max(0, gross - coachNet - stripe);
+};
+
+/**
+ * Calculate ambassador commission from net PeakUp revenue (minor units).
+ *
+ * @param {number} netPeakupRevenueMinor
  * @param {number} commissionPercent e.g. 2 for 2%
  * @returns {number}
  */
-const calculateAmbassadorCommissionMinor = (coachNetPayoutMinor, commissionPercent) => {
-  const payout = Number(coachNetPayoutMinor) || 0;
+const calculateAmbassadorCommissionMinor = (netPeakupRevenueMinor, commissionPercent) => {
+  const netRevenue = Number(netPeakupRevenueMinor) || 0;
   const percent = Number(commissionPercent) || 0;
-  if (payout <= 0 || percent <= 0) {
+  if (netRevenue <= 0 || percent <= 0) {
     return 0;
   }
-  return Math.round((payout * percent) / 100);
+  return Math.round((netRevenue * percent) / 100);
 };
 
 /**
@@ -94,11 +116,22 @@ const calculateBookingRewardBreakdown = ({
       ? coachNetPayoutMinor
       : Math.max(0, afterStripe - peakUpFeeMinor);
 
+  const netPeakupRevenueMinor = calculateNetPeakupRevenueMinor({
+    bookingAmountMinor: total,
+    coachNetPayoutMinor: coachNet,
+    platformFeeMinor: peakUpFeeMinor,
+    stripeFeeMinor: stripe,
+  });
+
   return {
     stripeFeeMinor: stripe,
     platformFeeMinor: peakUpFeeMinor,
     coachNetPayoutMinor: coachNet,
-    ambassadorRewardMinor: calculateAmbassadorCommissionMinor(coachNet, ambassadorPercent),
+    netPeakupRevenueMinor,
+    ambassadorRewardMinor: calculateAmbassadorCommissionMinor(
+      netPeakupRevenueMinor,
+      ambassadorPercent
+    ),
   };
 };
 
@@ -119,6 +152,7 @@ const recordRewardAccrual = payload => {
     bookingAmountMinor: Number(payload.bookingAmountMinor) || 0,
     stripeFeeMinor: Number(payload.stripeFeeMinor) || 0,
     platformFeeMinor: Number(payload.platformFeeMinor) || 0,
+    netPeakupRevenueMinor: Number(payload.netPeakupRevenueMinor) || 0,
     coachNetPayoutMinor: Number(payload.coachNetPayoutMinor) || 0,
     ambassadorPercent: Number(payload.ambassadorPercent) || 0,
     amountMinor: Number(payload.amountMinor) || 0,
@@ -281,6 +315,7 @@ const detectSuspiciousRewardSpikes = (records, options = {}) => {
 
 module.exports = {
   REWARD_STATUSES,
+  calculateNetPeakupRevenueMinor,
   calculateAmbassadorCommissionMinor,
   calculateBookingRewardBreakdown,
   detectSuspiciousRewardSpikes,

@@ -41,9 +41,15 @@ const buildCurrencyPlaceholder = () => {
  * salvati lato Console (admin-only Founder/Ambassador), ma non è più esposto
  * come form field nel ProfileSettings — vedi nota sotto sull'entry rimossa.
  */
+/**
+ * `publicData` key for Profile Settings “Languages you coach” (`pub_languages` in the form).
+ * @see ProfileSettingsForm.js `PUB_LANGUAGES_KEY` / pickUserFieldsData → `languages`
+ */
+export const PEAKUP_COACH_PROFILE_LANGUAGE_KEY = 'languages';
+
 export const PEAK_UP_COACH_PROFILE_KEYS = [
   'sports',
-  'languages',
+  PEAKUP_COACH_PROFILE_LANGUAGE_KEY,
   'peakupCoachBadges',
   'currency',
   'priceFrom',

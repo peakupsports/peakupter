@@ -1,3 +1,4 @@
+const { getCoachApplication } = require('./coachApplicationStore');
 const {
   REFERRAL_STATUSES,
   listAllReferrals,
@@ -17,6 +18,23 @@ const normalizeEmail = email =>
  * @param {string} [params.coachEmail]
  * @returns {object|null}
  */
+const findReferralByApplicationApplicantUserId = (referrals, coachUserId) => {
+  return (
+    referrals.find(entry => {
+      const applicationId = String(entry?.applicationId || '').trim();
+      if (!applicationId) {
+        return false;
+      }
+      try {
+        const application = getCoachApplication(applicationId);
+        return String(application?.applicantUserId || '').trim() === coachUserId;
+      } catch (error) {
+        return false;
+      }
+    }) || null
+  );
+};
+
 const findReferralForCoach = ({ coachUserId, coachEmail }) => {
   const referrals = listAllReferrals();
   const normalizedUserId = String(coachUserId || '').trim();
@@ -26,6 +44,14 @@ const findReferralForCoach = ({ coachUserId, coachEmail }) => {
     const byUserId = referrals.find(entry => String(entry.referredCoachUserId) === normalizedUserId);
     if (byUserId) {
       return byUserId;
+    }
+
+    const byApplicationUserId = findReferralByApplicationApplicantUserId(
+      referrals,
+      normalizedUserId
+    );
+    if (byApplicationUserId) {
+      return byApplicationUserId;
     }
   }
 

@@ -600,6 +600,53 @@
   color: rgba(220, 232, 248, 0.88);
 }
 
+/* Sports & languages: selected option labels + checkboxes (readability on dark PeakUp panel) */
+.peakUpForm .coachSportsLangSection :global([class*='FieldCheckbox_text']) {
+  opacity: 0.58;
+  color: rgba(198, 218, 232, 0.9);
+  font-weight: 400;
+  text-shadow: none;
+  transition: all 180ms ease;
+}
+
+.peakUpForm
+  .coachSportsLangSection
+  :global([class*='FieldCheckbox_input']:checked + label [class*='FieldCheckbox_text']) {
+  color: #eafbff;
+  font-weight: 600;
+  opacity: 1;
+  text-shadow:
+    0 0 10px rgba(23, 217, 255, 0.5),
+    0 0 3px rgba(57, 243, 209, 0.35);
+  transition: all 180ms ease;
+}
+
+.peakUpForm .coachSportsLangSection :global([class*='FieldCheckbox_box']),
+.peakUpForm .coachSportsLangSection :global([class*='FieldCheckbox_checked']) {
+  transition: all 180ms ease;
+}
+
+.peakUpForm
+  .coachSportsLangSection
+  :global([class*='FieldCheckbox_input']:not(:checked) + label [class*='FieldCheckbox_box']) {
+  stroke: rgba(23, 217, 255, 0.28);
+}
+
+.peakUpForm
+  .coachSportsLangSection
+  :global([class*='FieldCheckbox_input']:checked + label [class*='FieldCheckbox_box']) {
+  stroke: #39f3d1;
+  filter: drop-shadow(0 0 5px rgba(23, 217, 255, 0.55));
+}
+
+.peakUpForm
+  .coachSportsLangSection
+  :global([class*='FieldCheckbox_input']:checked + label [class*='FieldCheckbox_checked']) {
+  fill: #17d9ff;
+  stroke: #39f3d1;
+  filter: drop-shadow(0 0 8px rgba(23, 217, 255, 0.55));
+}
+
 .peakUpForm :global([class*='HelpText_root']) {
   color: rgba(195, 210, 226, 0.65) !important;
 }

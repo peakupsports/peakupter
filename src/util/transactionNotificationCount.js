@@ -1435,6 +1435,33 @@ const logGhostOrderCountRemoved = removedTransactionIds => {
 };
 
 /**
+ * Coach dashboard "New requests" regression diagnostics (preauthorized booking requests).
+ */
+export const logDashboardRequestRegression = ({
+  previousExpectedSource = 'hasUnreadStateAttention',
+  currentSource,
+  transactionId,
+  lastTransition = null,
+  isInboxVisible = false,
+  isCounted = false,
+  reason = null,
+}) => {
+  if (typeof window === 'undefined' || !transactionId) {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp DASHBOARD REQUEST REGRESSION]', {
+    previousExpectedSource,
+    currentSource,
+    transactionId,
+    lastTransition,
+    isInboxVisible,
+    isCounted,
+    reason,
+  });
+};
+
+/**
  * Log when provider/sale recount adds a transaction to the badge.
  */
 const logProviderPollingSource = (
@@ -1559,6 +1586,39 @@ const collectValidatedUnreadForRecount = async ({
     }
 
     if (!messages.length) {
+      if (!isOrderRecount && hasUnreadStateAttention(tx, currentUserId)) {
+        const role = getInboxRoleForTransaction(tx, currentUserId);
+        const isInboxVisible = inboxTransactionIds ? inboxTransactionIds.has(txUuid) : false;
+        if (isInboxThreadAckSuppressed(currentUserId, txUuid, 'sale', messages)) {
+          removed.push({ id: txUuid, reason: 'thread_ack_suppressed' });
+          logDashboardRequestRegression({
+            currentSource: 'hasUnreadStateAttention',
+            transactionId: txUuid,
+            lastTransition: tx?.attributes?.lastTransition ?? null,
+            isInboxVisible,
+            isCounted: false,
+            reason: 'thread_ack_suppressed_no_messages',
+          });
+          continue;
+        }
+        validatedUnread.push({
+          id: txUuid,
+          role,
+          latestOtherPartyMessageAt: null,
+          lastMessageAuthorId: null,
+          isUnread: true,
+        });
+        logDashboardRequestRegression({
+          currentSource: 'hasUnreadStateAttention',
+          transactionId: txUuid,
+          lastTransition: tx?.attributes?.lastTransition ?? null,
+          isInboxVisible,
+          isCounted: true,
+          reason: 'new_booking_request_no_messages',
+        });
+        continue;
+      }
+
       removed.push({ id: txUuid, reason: 'no_messages' });
       purgeTransactionInboxNotificationStorage(currentUserId, txUuid, 'no_messages');
       markTransactionReadOnOpen(
@@ -1568,6 +1628,15 @@ const collectValidatedUnreadForRecount = async ({
       );
       if (isOrderRecount) {
         logCustomerDotIgnoredForTx(tx, currentUserId, messages, 'no_messages');
+      } else if (isProviderNewBookingRequest(tx, currentUserId)) {
+        logDashboardRequestRegression({
+          currentSource: 'no_messages',
+          transactionId: txUuid,
+          lastTransition: tx?.attributes?.lastTransition ?? null,
+          isInboxVisible: inboxTransactionIds ? inboxTransactionIds.has(txUuid) : false,
+          isCounted: false,
+          reason: 'no_messages',
+        });
       }
       continue;
     }
@@ -1666,10 +1735,62 @@ const collectValidatedUnreadForRecount = async ({
         true,
         { saleValidatedIds: dedupeTransactionIds(validatedUnread.map(entry => entry.id)) }
       );
+      if (isProviderNewBookingRequest(tx, currentUserId)) {
+        logDashboardRequestRegression({
+          currentSource: 'isProviderSaleIncomingMessageUnread',
+          transactionId: txUuid,
+          lastTransition: tx?.attributes?.lastTransition ?? null,
+          isInboxVisible: inboxTransactionIds ? inboxTransactionIds.has(txUuid) : false,
+          isCounted: true,
+          reason: 'incoming_message_unread',
+        });
+      }
       continue;
     }
 
-    removed.push({ id: txUuid, reason: 'provider_sale_thread_read' });
+    if (role === 'sale' && hasUnreadStateAttention(tx, currentUserId)) {
+      if (isInboxThreadAckSuppressed(currentUserId, txUuid, 'sale', messages)) {
+        removed.push({ id: txUuid, reason: 'thread_ack_suppressed' });
+        logDashboardRequestRegression({
+          currentSource: 'hasUnreadStateAttention',
+          transactionId: txUuid,
+          lastTransition: tx?.attributes?.lastTransition ?? null,
+          isInboxVisible: inboxTransactionIds ? inboxTransactionIds.has(txUuid) : false,
+          isCounted: false,
+          reason: 'thread_ack_suppressed',
+        });
+        continue;
+      }
+      validatedUnread.push({
+        id: txUuid,
+        role,
+        latestOtherPartyMessageAt: null,
+        lastMessageAuthorId: null,
+        isUnread: true,
+      });
+      logDashboardRequestRegression({
+        currentSource: 'hasUnreadStateAttention',
+        transactionId: txUuid,
+        lastTransition: tx?.attributes?.lastTransition ?? null,
+        isInboxVisible: inboxTransactionIds ? inboxTransactionIds.has(txUuid) : false,
+        isCounted: true,
+        reason: 'new_booking_request_state',
+      });
+      continue;
+    }
+
+    if (isProviderNewBookingRequest(tx, currentUserId)) {
+      logDashboardRequestRegression({
+        currentSource: 'isProviderSaleIncomingMessageUnread',
+        transactionId: txUuid,
+        lastTransition: tx?.attributes?.lastTransition ?? null,
+        isInboxVisible: inboxTransactionIds ? inboxTransactionIds.has(txUuid) : false,
+        isCounted: false,
+        reason: 'not_unread',
+      });
+    }
+
+    removed.push({ id: txUuid, reason: 'not_unread' });
   }
 
   return { validatedUnread, removed };

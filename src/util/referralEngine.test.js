@@ -2,6 +2,7 @@ const { evaluateBronzeProgress } = require('../../server/api-util/ambassadorBron
 const {
   calculateAmbassadorCommissionMinor,
   calculateBookingRewardBreakdown,
+  calculateNetPeakupRevenueMinor,
   summarizeRewardsForAmbassador,
 } = require('../../server/api-util/referralRewardsStore');
 const { normalizeReferralCode } = require('../../server/api-util/referralCodeRegistry');
@@ -25,8 +26,15 @@ describe('ambassador referral engine', () => {
     expect(result.completedCount).toBe(6);
   });
 
-  it('calculates ambassador commission from coach net payout', () => {
-    expect(calculateAmbassadorCommissionMinor(10000, 2)).toBe(200);
+  it('calculates net PeakUp revenue and ambassador commission from it', () => {
+    const net = calculateNetPeakupRevenueMinor({
+      bookingAmountMinor: 10000,
+      coachNetPayoutMinor: 8200,
+      platformFeeMinor: 1200,
+      stripeFeeMinor: 300,
+    });
+    expect(net).toBe(900);
+    expect(calculateAmbassadorCommissionMinor(net, 2)).toBe(18);
   });
 
   it('derives booking reward breakdown', () => {
@@ -38,6 +46,7 @@ describe('ambassador referral engine', () => {
     });
 
     expect(breakdown.platformFeeMinor).toBeGreaterThan(0);
+    expect(breakdown.netPeakupRevenueMinor).toBeGreaterThan(0);
     expect(breakdown.ambassadorRewardMinor).toBeGreaterThan(0);
   });
 
@@ -69,6 +78,7 @@ describe('ambassador referral engine', () => {
     expect(economics.bookingAmountMinor).toBe(10000);
     expect(economics.coachNetPayoutMinor).toBe(8200);
     expect(economics.platformFeeMinor).toBe(1200);
+    expect(economics.netPeakupRevenueMinor).toBe(880);
     expect(economics.currency).toBe('CHF');
   });
 });

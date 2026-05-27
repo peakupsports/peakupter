@@ -36,6 +36,7 @@ const required = value => (value ? undefined : 'required');
  * @param {Function} props.onClose Called for dismiss / “Maybe later”
  * @param {Function} props.onContinue Receives `{ peakupPreBooking, peakupMeetingPoint? }`
  * @param {Array<{ value: string, label: string }>} props.sportOptions
+ * @param {Array<{ value: string, label: string }>} [props.languageOptions]
  * @param {Array<Object>} [props.preferredMeetingPoints] Coach saved meeting points
  */
 const PreBookingIntroModal = ({
@@ -44,6 +45,7 @@ const PreBookingIntroModal = ({
   onClose,
   onContinue,
   sportOptions = [],
+  languageOptions = [],
   preferredMeetingPoints = [],
 }) => {
   const intl = useIntl();
@@ -62,11 +64,14 @@ const PreBookingIntroModal = ({
   const hasMeetingPoints = preferredMeetingPoints.length > 0;
   const meetingPointRequired =
     hasMeetingPoints && preferredMeetingPoints.length > 1 ? required : undefined;
+  const hasLanguageOptions = languageOptions.length > 0;
+  const sessionLanguageRequired = hasLanguageOptions ? required : undefined;
 
   const initialValues = {
     sport: sportOptions.length === 1 ? sportOptions[0].value : '',
     participantType: '',
     skillLevel: '',
+    sessionLanguage: languageOptions.length === 1 ? languageOptions[0].value : '',
     participantCount: '1',
     ...peakupMeetingPointInitialValues(preferredMeetingPoints),
   };
@@ -88,7 +93,11 @@ const PreBookingIntroModal = ({
       <FinalForm
         initialValues={initialValues}
         onSubmit={values => {
-          const normalized = normalizePeakupPreBookingDetails(values, sportOptions);
+          const normalized = normalizePeakupPreBookingDetails(
+            values,
+            sportOptions,
+            languageOptions
+          );
           if (!normalized) {
             return;
           }
@@ -195,6 +204,31 @@ const PreBookingIntroModal = ({
                   </option>
                 ))}
               </FieldSelect>
+
+              {hasLanguageOptions ? (
+                <FieldSelect
+                  id={`${id}.sessionLanguage`}
+                  name="sessionLanguage"
+                  className={css.field}
+                  label={intl.formatMessage({
+                    id: 'PreBookingIntroModal.sessionLanguageLabel',
+                    defaultMessage: 'Preferred session language',
+                  })}
+                  validate={sessionLanguageRequired}
+                >
+                  <option value="">
+                    {intl.formatMessage({
+                      id: 'PreBookingIntroModal.sessionLanguagePlaceholder',
+                      defaultMessage: 'Select a language',
+                    })}
+                  </option>
+                  {languageOptions.map(opt => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </FieldSelect>
+              ) : null}
 
               <FieldSelect
                 id={`${id}.participantCount`}

@@ -3,6 +3,7 @@ const {
   APPLICATION_STATUSES,
   listCoachApplications,
   getCoachApplication,
+  updateCoachApplicationApplicantUserId,
   updateCoachApplicationStatus,
   deleteCoachApplication,
   resolveDocumentFile,
@@ -59,14 +60,21 @@ const patchStatus = async (req, res) => {
     const { status } = req.body || {};
     const existing = getCoachApplication(req.params.id);
 
+    let approvalResult = null;
     if (
       status === APPLICATION_STATUSES.APPROVED &&
       existing.status !== APPLICATION_STATUSES.APPROVED
     ) {
-      await applyCoachApprovalToSharetribe(existing);
+      approvalResult = await applyCoachApprovalToSharetribe(existing);
+      if (approvalResult?.userId && !String(existing.applicantUserId || '').trim()) {
+        updateCoachApplicationApplicantUserId(req.params.id, approvalResult.userId);
+      }
     }
 
-    const application = updateCoachApplicationStatus(req.params.id, status);
+    let application = updateCoachApplicationStatus(req.params.id, status);
+    if (approvalResult?.userId && !String(application.applicantUserId || '').trim()) {
+      application = { ...application, applicantUserId: approvalResult.userId };
+    }
     syncReferralOnApplicationStatusChange(application);
     res.status(200).json({ application });
   } catch (e) {

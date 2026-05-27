@@ -1,9 +1,11 @@
+const { resolveAmbassadorRewardsUnlockedWithDevOverride } = require('./ambassadorDevBronzeOverride');
 const { TIER_COMMISSION_PERCENT } = require('./ambassadorTierEngine');
 const { ACTIVITY_TYPES, logReferralActivity } = require('./referralActivityStore');
 const { findReferralForCoach, linkReferralToCoachUser } = require('./referralCoachLookup');
 const {
   REWARD_STATUSES,
   calculateAmbassadorCommissionMinor,
+  calculateNetPeakupRevenueMinor,
   findRewardByTransactionId,
   recordRewardAccrual,
 } = require('./referralRewardsStore');
@@ -52,6 +54,12 @@ const extractTransactionEconomics = transaction => {
   const coachNetPayoutMinor = getMoneyAmountMinor(attrs.payoutTotal);
   const platformFeeMinor = sumPlatformFeeMinor(lineItems);
   const stripeFeeMinor = estimateStripeFeeMinor(bookingAmountMinor);
+  const netPeakupRevenueMinor = calculateNetPeakupRevenueMinor({
+    bookingAmountMinor,
+    coachNetPayoutMinor,
+    platformFeeMinor,
+    stripeFeeMinor,
+  });
 
   return {
     currency,
@@ -59,6 +67,7 @@ const extractTransactionEconomics = transaction => {
     coachNetPayoutMinor,
     platformFeeMinor,
     stripeFeeMinor,
+    netPeakupRevenueMinor,
   };
 };
 
@@ -81,6 +90,44 @@ const fetchUserProfile = async (trustedSdk, userId) => {
 };
 
 /**
+ * @param {object} payload
+ */
+const logReferralFlowCheck = payload => {
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp REFERRAL FLOW CHECK]', {
+    transactionId: payload.transactionId ?? null,
+    lastTransition: payload.lastTransition ?? null,
+    providerId: payload.providerId ?? null,
+    referrerId: payload.referrerId ?? null,
+    ambassadorTier: payload.ambassadorTier ?? null,
+    percentage: payload.percentage ?? null,
+    grossAmount: payload.grossAmount ?? null,
+    peakupFee: payload.peakupFee ?? null,
+    stripeFee: payload.stripeFee ?? null,
+    netPeakupRevenue: payload.netPeakupRevenue ?? null,
+    rewardAmount: payload.rewardAmount ?? null,
+    rewardExists: payload.rewardExists ?? false,
+    reason: payload.reason ?? null,
+  });
+};
+
+const flowLogBase = (transaction, transitionName) => ({
+  transactionId: getTransactionId(transaction),
+  lastTransition: transitionName || transaction?.attributes?.lastTransition || null,
+  providerId: getProviderId(transaction),
+  referrerId: null,
+  ambassadorTier: null,
+  percentage: null,
+  grossAmount: null,
+  peakupFee: null,
+  stripeFee: null,
+  netPeakupRevenue: null,
+  rewardAmount: null,
+  rewardExists: false,
+  reason: null,
+});
+
+/**
  * Process ambassador reward accrual after a completed booking transition.
  *
  * @param {object} params
@@ -90,26 +137,42 @@ const fetchUserProfile = async (trustedSdk, userId) => {
  * @returns {Promise<object|null>}
  */
 const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transaction }) => {
+  const base = flowLogBase(transaction, transitionName);
+
   if (!REWARD_ACCRUAL_TRANSITIONS.has(transitionName)) {
+    logReferralFlowCheck({
+      ...base,
+      reason: 'transition_not_eligible',
+    });
     return null;
   }
 
   const transactionId = getTransactionId(transaction);
   if (!transactionId) {
+    logReferralFlowCheck({ ...base, reason: 'missing_transaction_id' });
     return null;
   }
 
-  if (findRewardByTransactionId(transactionId)) {
+  const existingReward = findRewardByTransactionId(transactionId);
+  if (existingReward) {
+    logReferralFlowCheck({
+      ...base,
+      rewardExists: true,
+      rewardAmount: existingReward.amountMinor,
+      reason: 'reward_already_recorded',
+    });
     return null;
   }
 
   const providerId = getProviderId(transaction);
   if (!providerId) {
+    logReferralFlowCheck({ ...base, reason: 'missing_provider_id' });
     return null;
   }
 
   const providerUser = await fetchUserProfile(trustedSdk, providerId);
   if (!providerUser) {
+    logReferralFlowCheck({ ...base, reason: 'provider_profile_not_found' });
     return null;
   }
 
@@ -118,6 +181,7 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
 
   let referral = findReferralForCoach({ coachUserId: providerId, coachEmail });
   if (!referral) {
+    logReferralFlowCheck({ ...base, reason: 'no_referral_ledger_for_coach' });
     return null;
   }
 
@@ -125,6 +189,11 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
 
   const ambassadorUserId = referral.ambassadorUserId;
   if (!ambassadorUserId || ambassadorUserId === providerId) {
+    logReferralFlowCheck({
+      ...base,
+      referrerId: ambassadorUserId,
+      reason: 'missing_or_self_referrer',
+    });
     return null;
   }
 
@@ -132,24 +201,57 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
   const ambassadorPublicData = ambassadorUser?.attributes?.profile?.publicData || {};
 
   if (!truthy(ambassadorPublicData.ambassadorActive)) {
+    logReferralFlowCheck({
+      ...base,
+      referrerId: ambassadorUserId,
+      reason: 'ambassador_not_active',
+    });
     return null;
   }
 
   const tier = String(ambassadorPublicData.ambassadorTier || 'bronze').toLowerCase();
   const ambassadorPercent = TIER_COMMISSION_PERCENT[tier] || TIER_COMMISSION_PERCENT.bronze;
-  const rewardsUnlocked = truthy(ambassadorPublicData.ambassadorRewardsUnlocked);
+  const rewardsUnlocked = resolveAmbassadorRewardsUnlockedWithDevOverride({
+    userId: ambassadorUserId,
+    email: ambassadorUser?.attributes?.email,
+    referralCode: ambassadorPublicData.ambassadorReferralCode,
+    storedUnlocked: truthy(ambassadorPublicData.ambassadorRewardsUnlocked),
+  }).unlocked;
 
   const economics = extractTransactionEconomics(transaction);
-  if (economics.coachNetPayoutMinor <= 0) {
+  const flowEconomics = {
+    grossAmount: economics.bookingAmountMinor,
+    peakupFee: economics.platformFeeMinor,
+    stripeFee: economics.stripeFeeMinor,
+    netPeakupRevenue: economics.netPeakupRevenueMinor,
+  };
+
+  if (economics.netPeakupRevenueMinor <= 0) {
+    logReferralFlowCheck({
+      ...base,
+      referrerId: ambassadorUserId,
+      ambassadorTier: tier,
+      percentage: ambassadorPercent,
+      ...flowEconomics,
+      reason: 'net_peakup_revenue_zero',
+    });
     return null;
   }
 
   const ambassadorRewardMinor = calculateAmbassadorCommissionMinor(
-    economics.coachNetPayoutMinor,
+    economics.netPeakupRevenueMinor,
     ambassadorPercent
   );
 
   if (ambassadorRewardMinor <= 0) {
+    logReferralFlowCheck({
+      ...base,
+      referrerId: ambassadorUserId,
+      ambassadorTier: tier,
+      percentage: ambassadorPercent,
+      ...flowEconomics,
+      reason: 'reward_amount_zero',
+    });
     return null;
   }
 
@@ -163,6 +265,7 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
     bookingAmountMinor: economics.bookingAmountMinor,
     stripeFeeMinor: economics.stripeFeeMinor,
     platformFeeMinor: economics.platformFeeMinor,
+    netPeakupRevenueMinor: economics.netPeakupRevenueMinor,
     coachNetPayoutMinor: economics.coachNetPayoutMinor,
     ambassadorPercent,
     amountMinor: ambassadorRewardMinor,
@@ -202,6 +305,17 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
     });
   }
 
+  logReferralFlowCheck({
+    ...base,
+    referrerId: ambassadorUserId,
+    ambassadorTier: tier,
+    percentage: ambassadorPercent,
+    ...flowEconomics,
+    rewardAmount: ambassadorRewardMinor,
+    rewardExists: true,
+    reason: rewardsUnlocked ? 'reward_recorded_earned' : 'reward_recorded_pending',
+  });
+
   console.info(
     `[referral-reward-accrual] Recorded ${record.id} for ambassador ${ambassadorUserId} on tx ${transactionId}`
   );
@@ -221,5 +335,6 @@ const updateReferralEntrySafe = (id, patch) => {
 module.exports = {
   REWARD_ACCRUAL_TRANSITIONS,
   extractTransactionEconomics,
+  logReferralFlowCheck,
   processReferralRewardAccrual,
 };

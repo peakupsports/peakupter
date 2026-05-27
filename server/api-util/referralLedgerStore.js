@@ -92,6 +92,8 @@ const createReferralEntry = payload => {
     applicationId: payload.applicationId,
     applicantName: payload.applicantName,
     applicantEmail: payload.applicantEmail,
+    referredCoachUserId: payload.referredCoachUserId || null,
+    referredCoachEmail: payload.referredCoachEmail || payload.applicantEmail || null,
     status: payload.status || REFERRAL_STATUSES.APPLIED,
     listingsCount: payload.listingsCount || 0,
     rewardStatus: payload.rewardStatus || 'pending',
@@ -180,12 +182,15 @@ const syncReferralFromApplication = application => {
     return null;
   }
 
+  const applicantUserId = String(application.applicantUserId || '').trim();
   return createReferralEntry({
     ambassadorUserId: ambassador.ambassadorUserId,
     ambassadorReferralCode: ambassador.ambassadorReferralCode,
     applicationId: application.id,
     applicantName: application.fullName,
     applicantEmail: application.email,
+    referredCoachUserId: applicantUserId || null,
+    referredCoachEmail: application.email || null,
     status,
     joinedAt: application.submittedAt,
   });

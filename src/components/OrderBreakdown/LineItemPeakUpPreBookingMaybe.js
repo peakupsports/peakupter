@@ -19,7 +19,15 @@ const LineItemPeakUpPreBookingMaybe = ({ peakupPreBooking }) => {
     return null;
   }
 
-  const { sportLabel, sport, participantType, skillLevel, participantCount } = peakupPreBooking;
+  const {
+    sportLabel,
+    sport,
+    participantType,
+    skillLevel,
+    sessionLanguage,
+    sessionLanguageLabel,
+    participantCount,
+  } = peakupPreBooking;
   if (!sport && !participantType && !skillLevel && participantCount == null) {
     return null;
   }
@@ -56,6 +64,15 @@ const LineItemPeakUpPreBookingMaybe = ({ peakupPreBooking }) => {
             defaultMessage: 'Skill level',
           }),
           value: skillLabel,
+        }
+      : null,
+    sessionLanguageLabel || sessionLanguage
+      ? {
+          label: intl.formatMessage({
+            id: 'OrderBreakdown.peakupPreBookingSessionLanguage',
+            defaultMessage: 'Preferred session language',
+          }),
+          value: sessionLanguageLabel || sessionLanguage,
         }
       : null,
     Number.isInteger(participantCount)

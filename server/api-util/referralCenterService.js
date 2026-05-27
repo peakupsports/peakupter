@@ -1,4 +1,5 @@
 const { evaluateBronzeProgress } = require('./ambassadorBronzeCriteria');
+const { resolveAmbassadorRewardsUnlockedWithDevOverride } = require('./ambassadorDevBronzeOverride');
 const { fetchAmbassadorMetrics } = require('./ambassadorMetrics');
 const { evaluateAndUnlockAmbassadorRewards } = require('./ambassadorTierEngine');
 const {
@@ -9,6 +10,7 @@ const { listActivityForAmbassador } = require('./referralActivityStore');
 const {
   formatMinorAsCurrency,
   listRewardsForAmbassador,
+  promotePendingRewardsForAmbassador,
   summarizeRewardsForAmbassador,
   toPublicRewardRecord,
 } = require('./referralRewardsStore');
@@ -61,6 +63,8 @@ const mapBronzeCriteriaForClient = bronzeProgress =>
 const buildReferralCenterDashboard = async ({ sdk, trustedSdk, currentUser }) => {
   const ambassadorUserId = currentUser?.id?.uuid;
   const publicData = currentUser?.attributes?.profile?.publicData || {};
+  const ambassadorEmail = currentUser?.attributes?.email || '';
+  const ambassadorReferralCode = publicData.ambassadorReferralCode || null;
 
   const metrics = await fetchAmbassadorMetrics({
     trustedSdk,
@@ -73,6 +77,20 @@ const buildReferralCenterDashboard = async ({ sdk, trustedSdk, currentUser }) =>
     currentUser,
     metrics,
   });
+
+  const storedRewardsUnlocked =
+    unlockResult.unlocked || Boolean(publicData.ambassadorRewardsUnlocked);
+  const { unlocked: ambassadorRewardsUnlocked, overrideActive: devBronzeOverrideActive } =
+    resolveAmbassadorRewardsUnlockedWithDevOverride({
+      userId: ambassadorUserId,
+      email: ambassadorEmail,
+      referralCode: ambassadorReferralCode,
+      storedUnlocked: storedRewardsUnlocked,
+    });
+
+  if (devBronzeOverrideActive && ambassadorUserId) {
+    promotePendingRewardsForAmbassador(ambassadorUserId);
+  }
 
   const bronzeProgress = unlockResult.bronzeProgress || evaluateBronzeProgress(metrics);
   const validReferralIds = new Set(metrics.validReferralIds || []);
@@ -118,8 +136,8 @@ const buildReferralCenterDashboard = async ({ sdk, trustedSdk, currentUser }) =>
       totalCount: bronzeProgress.totalCount,
       allComplete: bronzeProgress.allComplete,
     },
-    ambassadorRewardsUnlocked:
-      unlockResult.unlocked || Boolean(publicData.ambassadorRewardsUnlocked),
+    ambassadorRewardsUnlocked,
+    devBronzeOverrideActive,
     rewardsJustUnlocked: unlockResult.justUnlocked,
     rewardsUnlockedAt: publicData.ambassadorRewardsUnlockedAt || unlockResult.unlockedAt || null,
     activity,

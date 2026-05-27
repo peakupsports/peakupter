@@ -353,6 +353,50 @@ const RewardHistoryRow = ({ entry }) => {
   );
 };
 
+/**
+ * Hero KPI for ambassador earnings — when locked, shows real earnings (0) and locked pending total.
+ */
+const KpiRewardsCard = ({ rewardsUnlocked, earnedFormatted, lockedFormatted }) => (
+  <article
+    className={classNames(
+      css.kpiCard,
+      css.kpiCard_rewards,
+      !rewardsUnlocked ? css.kpiCard_rewardsLocked : null
+    )}
+  >
+    <KpiStatIcon variant="rewards" className={css.kpiIcon} />
+    <div className={css.kpiCardBody}>
+      {rewardsUnlocked ? (
+        <>
+          <p className={css.kpiLabel}>
+            <FormattedMessage id="ReferralCenterPage.statRealEarnings" />
+          </p>
+          <p className={css.kpiValue}>{earnedFormatted}</p>
+        </>
+      ) : (
+        <>
+          <div className={css.kpiLockedSection}>
+            <p className={css.kpiLabel}>
+              <FormattedMessage id="ReferralCenterPage.statRealEarnings" />
+            </p>
+            <p className={classNames(css.kpiValue, css.kpiValueMuted)}>{earnedFormatted}</p>
+          </div>
+          <div className={css.kpiLockedSection}>
+            <p className={css.kpiLabel}>
+              <FormattedMessage id="ReferralCenterPage.statLockedRewards" />
+            </p>
+            <p className={classNames(css.kpiValue, css.kpiValueLocked)}>{lockedFormatted}</p>
+            <p className={css.kpiSubtitle}>
+              <FormattedMessage id="ReferralCenterPage.lockedRewardsSubtitle" />
+            </p>
+          </div>
+        </>
+      )}
+    </div>
+    <span className={css.kpiAccentBar} aria-hidden="true" />
+  </article>
+);
+
 const RewardHistoryPanel = ({ rewardHistory }) => {
   if (!rewardHistory?.length) {
     return (
@@ -599,6 +643,17 @@ const ReferralCenterPage = () => {
     [dashboard]
   );
 
+  const rewardBreakdownStats = useMemo(() => {
+    if (rewardsUnlocked) {
+      return REWARD_BREAKDOWN_STATS;
+    }
+    return REWARD_BREAKDOWN_STATS.map(stat =>
+      stat.id === 'pending'
+        ? { ...stat, labelId: 'ReferralCenterPage.statLockedRewards' }
+        : stat
+    );
+  }, [rewardsUnlocked]);
+
   const rewardHistory = dashboard?.rewardHistory || [];
 
   const ambassadorSinceLabel = useMemo(() => {
@@ -768,21 +823,30 @@ const ReferralCenterPage = () => {
 
       <ScrollReveal delay={60} className={css.kpiStrip}>
         <section className={css.kpiRow} aria-label={intl.formatMessage({ id: 'ReferralCenterPage.statsAria' })}>
-          {PLACEHOLDER_STATS.map(stat => (
-            <article
-              key={stat.id}
-              className={classNames(css.kpiCard, css[`kpiCard_${stat.icon}`])}
-            >
-              <KpiStatIcon variant={stat.icon} className={css.kpiIcon} />
-              <div className={css.kpiCardBody}>
-                <p className={css.kpiLabel}>
-                  <FormattedMessage id={stat.labelId} />
-                </p>
-                <p className={css.kpiValue}>{statValues[stat.id]}</p>
-              </div>
-              <span className={css.kpiAccentBar} aria-hidden="true" />
-            </article>
-          ))}
+          {PLACEHOLDER_STATS.map(stat =>
+            stat.id === 'rewards' ? (
+              <KpiRewardsCard
+                key={stat.id}
+                rewardsUnlocked={rewardsUnlocked}
+                earnedFormatted={rewardBreakdownValues.earned}
+                lockedFormatted={rewardBreakdownValues.pending}
+              />
+            ) : (
+              <article
+                key={stat.id}
+                className={classNames(css.kpiCard, css[`kpiCard_${stat.icon}`])}
+              >
+                <KpiStatIcon variant={stat.icon} className={css.kpiIcon} />
+                <div className={css.kpiCardBody}>
+                  <p className={css.kpiLabel}>
+                    <FormattedMessage id={stat.labelId} />
+                  </p>
+                  <p className={css.kpiValue}>{statValues[stat.id]}</p>
+                </div>
+                <span className={css.kpiAccentBar} aria-hidden="true" />
+              </article>
+            )
+          )}
         </section>
       </ScrollReveal>
 
@@ -839,15 +903,39 @@ const ReferralCenterPage = () => {
           <FormattedMessage id="ReferralCenterPage.rewardsFlowHint" />
         </p>
         <section className={css.rewardBreakdownGrid} aria-label={intl.formatMessage({ id: 'ReferralCenterPage.rewardsBreakdownAria' })}>
-          {REWARD_BREAKDOWN_STATS.map(stat => (
-            <article key={stat.id} className={css.rewardBreakdownCard}>
+          {rewardBreakdownStats.map(stat => (
+            <article
+              key={stat.id}
+              className={classNames(
+                css.rewardBreakdownCard,
+                !rewardsUnlocked && stat.id === 'pending' ? css.rewardBreakdownCardLocked : null,
+                !rewardsUnlocked && stat.id === 'earned' ? css.rewardBreakdownCardMuted : null
+              )}
+            >
               <p className={css.statLabel}>
                 <FormattedMessage id={stat.labelId} />
               </p>
-              <p className={css.rewardBreakdownValue}>{rewardBreakdownValues[stat.id]}</p>
+              <p
+                className={classNames(
+                  css.rewardBreakdownValue,
+                  !rewardsUnlocked && stat.id === 'pending' ? css.rewardBreakdownValueLocked : null
+                )}
+              >
+                {rewardBreakdownValues[stat.id]}
+              </p>
+              {!rewardsUnlocked && stat.id === 'pending' ? (
+                <p className={css.rewardBreakdownSubtitle}>
+                  <FormattedMessage id="ReferralCenterPage.lockedRewardsSubtitle" />
+                </p>
+              ) : null}
             </article>
           ))}
         </section>
+        {!rewardsUnlocked ? (
+          <p className={css.lockedRewardsNote}>
+            <FormattedMessage id="ReferralCenterPage.lockedRewardsNote" />
+          </p>
+        ) : null}
       </ScrollReveal>
 
       <ScrollReveal delay={110} className={css.glassCard} aria-labelledby="reward-history-heading">
