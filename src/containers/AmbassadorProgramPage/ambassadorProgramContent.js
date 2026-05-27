@@ -216,34 +216,6 @@ export const EARNINGS_FLOW_STEPS = [
 /** @deprecated Use EARNINGS_FLOW_STEPS */
 export const EARNINGS_EXAMPLE_ROWS = EARNINGS_FLOW_STEPS;
 
-/** Placeholder ambassador cards — static mockup only. */
-export const PLACEHOLDER_AMBASSADORS = [
-  {
-    id: 'a1',
-    nameId: 'AmbassadorProgramPage.ambassador1Name',
-    sportId: 'AmbassadorProgramPage.ambassador1Sport',
-    locationId: 'AmbassadorProgramPage.ambassador1Location',
-    levelId: 'AmbassadorProgramPage.ambassador1Level',
-    initials: 'MR',
-  },
-  {
-    id: 'a2',
-    nameId: 'AmbassadorProgramPage.ambassador2Name',
-    sportId: 'AmbassadorProgramPage.ambassador2Sport',
-    locationId: 'AmbassadorProgramPage.ambassador2Location',
-    levelId: 'AmbassadorProgramPage.ambassador2Level',
-    initials: 'SL',
-  },
-  {
-    id: 'a3',
-    nameId: 'AmbassadorProgramPage.ambassador3Name',
-    sportId: 'AmbassadorProgramPage.ambassador3Sport',
-    locationId: 'AmbassadorProgramPage.ambassador3Location',
-    levelId: 'AmbassadorProgramPage.ambassador3Level',
-    initials: 'JK',
-  },
-];
-
 export const FAQ_ITEMS = [
   {
     id: 'automatic',

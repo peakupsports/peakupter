@@ -221,3 +221,6 @@ export const activateAmbassadorProgram = body =>
 
 /** Live Referral Center dashboard for active ambassadors. */
 export const fetchReferralCenterDashboard = () => getJsonFromLocalApi('/api/referral-center');
+
+/** Public ambassadors for Ambassador Program “Meet our Ambassadors” section. */
+export const fetchAmbassadorsShowcase = () => getJsonFromLocalApi('/api/ambassadors-showcase');

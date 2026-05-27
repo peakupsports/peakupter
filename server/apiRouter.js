@@ -53,6 +53,10 @@ console.log('[PeakUp API ROUTE REGISTERED] /api/peakup/coach-block-cancel');
 // Live Referral Center dashboard for active ambassadors.
 router.get('/referral-center', referralCenter);
 
+// Public ambassador cards for Ambassador Program page.
+const ambassadorsShowcase = require('./api/ambassadors-showcase');
+router.get('/ambassadors-showcase', ambassadorsShowcase);
+
 // Internal admin review (protected by COACH_APPLICATION_ADMIN_TOKEN).
 router.use('/coach-applications', coachApplicationsAdmin);
 router.use('/ambassador-activations', ambassadorActivationsAdmin);

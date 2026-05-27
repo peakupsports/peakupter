@@ -17,7 +17,6 @@ import {
   FAQ_ITEMS,
   HERO_HIGHLIGHTS,
   HOW_IT_WORKS_STEPS,
-  PLACEHOLDER_AMBASSADORS,
   QUALIFICATION_CRITERIA,
   REWARDS_BENEFITS,
   SECTION_IDS,
@@ -26,11 +25,11 @@ import {
 } from './ambassadorProgramContent';
 import AmbassadorLevelPopup from './AmbassadorLevelPopup';
 import AmbassadorActivationModal from './AmbassadorActivationModal';
+import MeetAmbassadorsSection from './MeetAmbassadorsSection';
 import { LEVEL_POPUP_GLOBAL } from './ambassadorLevelPopupContent';
 import css from './AmbassadorProgramPage.module.css';
 
 const HERO_BADGE_SRC = AMBASSADOR_HERO_BADGE_SRC;
-const AMBASSADOR_BADGE_SRC = '/CoachPagePic/Badge_ambassador.jpg';
 
 const HeroFeatureIconMedia = ({ imageSrc, icon }) => {
   const [imageFailed, setImageFailed] = useState(false);
@@ -271,7 +270,7 @@ const FlowArrow = () => (
 
 /**
  * Public coach-facing PeakUp Ambassador Program page at /ambassador-program.
- * Static mockup v1 — modular content in `ambassadorProgramContent.js` for future data wiring.
+ * Public program page — ambassador showcase loads live profiles via `/api/ambassadors-showcase`.
  */
 const AmbassadorProgramPage = () => {
   const intl = useIntl();
@@ -607,48 +606,8 @@ const AmbassadorProgramPage = () => {
 
           <div className={css.sectionDivider} aria-hidden="true" />
 
-          <ScrollReveal
-            as="section"
-            id={SECTION_IDS.ambassadors}
-            className={css.section}
-            delay={220}
-            aria-labelledby="ambassador-meet-heading"
-          >
-            <p className={css.sectionLabel}>
-              <FormattedMessage id="AmbassadorProgramPage.ambassadorsLabel" />
-            </p>
-            <h2 id="ambassador-meet-heading" className={css.sectionTitle}>
-              <FormattedMessage id="AmbassadorProgramPage.ambassadorsTitle" />
-            </h2>
-            <div className={css.ambassadorsTrack}>
-              <ul className={css.ambassadorsScroller}>
-                {PLACEHOLDER_AMBASSADORS.map(coach => (
-                  <li key={coach.id} className={css.ambassadorCard}>
-                  <div className={css.ambassadorAvatar} aria-hidden="true">
-                    {coach.initials}
-                  </div>
-                  <img
-                    className={css.ambassadorBadgeMini}
-                    src={AMBASSADOR_BADGE_SRC}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <h3 className={css.ambassadorName}>
-                    <FormattedMessage id={coach.nameId} />
-                  </h3>
-                  <p className={css.ambassadorMeta}>
-                    <FormattedMessage id={coach.sportId} />
-                    {' · '}
-                    <FormattedMessage id={coach.locationId} />
-                  </p>
-                  <span className={css.ambassadorLevelPill}>
-                    <FormattedMessage id={coach.levelId} />
-                  </span>
-                </li>
-              ))}
-              </ul>
-            </div>
+          <ScrollReveal delay={220}>
+            <MeetAmbassadorsSection />
           </ScrollReveal>
 
           <ScrollReveal
