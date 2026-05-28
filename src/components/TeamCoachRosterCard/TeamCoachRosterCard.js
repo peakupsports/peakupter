@@ -13,7 +13,7 @@ import {
   TIER_BADGE_MESSAGE_IDS,
   TIER_BADGE_DEFAULT_LABELS,
 } from '../../util/coachTier';
-import { isVerifiedCoachForTeamRoster } from '../../util/peakupTeam';
+import { isVerifiedCoachForTeamRoster, extractCoachUserUuid } from '../../util/peakupTeam';
 
 import Avatar from '../Avatar/Avatar';
 import PeakUpLocationPin from '../PeakUpLocationPin/PeakUpLocationPin';
@@ -44,10 +44,18 @@ const TeamCoachRosterCard = props => {
   const { coach, rosterStatus = 'active', onRemove, onCancelInvite, className } = props;
   const intl = useIntl();
 
+  const profileId = extractCoachUserUuid(coach);
+  if (!coach || !profileId) {
+    if (typeof console !== 'undefined') {
+      // eslint-disable-next-line no-console
+      console.warn('[TeamCoachRosterCard] skipping coach without valid id', coach);
+    }
+    return null;
+  }
+
   const profile = coach?.attributes?.profile || {};
-  const publicData = profile.publicData || {};
-  const displayName = profile.displayName || '';
-  const profileId = coach?.id?.uuid || coach?.id;
+  const publicData = profile.publicData || coach?.publicData || {};
+  const displayName = profile.displayName || coach?.displayName || '';
   const profileImage = coach?.profileImage || null;
   const tierId = pickPrimaryTierId(publicData);
   const tierStyle = tierId ? getTierStyleVars(tierId) : null;
@@ -61,13 +69,11 @@ const TeamCoachRosterCard = props => {
   const locationLabel = getCoachShortLocationLabel({ author: coach }, { intl });
   const verified = isVerifiedCoachForTeamRoster(coach);
   const statusKey =
-    rosterStatus === 'active'
-      ? 'active'
-      : rosterStatus === 'pending'
+    rosterStatus === 'pending'
       ? 'pending'
-      : !verified
-      ? 'not_verified'
-      : rosterStatus;
+      : verified || rosterStatus === 'active' || rosterStatus === 'eligible'
+      ? 'active'
+      : 'not_verified';
 
   const profileImageVariants = profileImage
     ? Object.keys(profileImage?.attributes?.variants || {}).filter(k =>
@@ -84,7 +90,7 @@ const TeamCoachRosterCard = props => {
         alt={displayName}
       />
     ) : (
-      <Avatar className={css.avatar} user={coach} />
+      <Avatar className={css.avatar} user={coach} disableProfileLink />
     );
 
   const tierLabel = topBadgeId

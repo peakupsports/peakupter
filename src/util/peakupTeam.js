@@ -201,12 +201,86 @@ export const teamRowHasMapCoordinates = teamRow => {
  * @returns {boolean}
  */
 export const isVerifiedCoachForTeamRoster = (coachUser = null) => {
-  const pd = coachUser?.attributes?.profile?.publicData || {};
+  const pd =
+    coachUser?.attributes?.profile?.publicData || coachUser?.publicData || {};
+  const approvedStatus = value =>
+    String(value || '')
+      .trim()
+      .toLowerCase() === 'approved';
   return (
     truthy(pd.peakupVerifiedCoach) ||
     truthy(pd.coachApproved) ||
-    truthy(pd.profileVerified)
+    truthy(pd.profileVerified) ||
+    truthy(pd.isApprovedCoach) ||
+    truthy(pd.isVerifiedCoach) ||
+    approvedStatus(pd.approvalStatus) ||
+    approvedStatus(pd.coachApplicationStatus) ||
+    approvedStatus(pd.applicationStatus)
   );
+};
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/**
+ * Resolve Sharetribe user UUID from a coach entity (SDK shape or API-mapped shape).
+ *
+ * @param {Object|null|undefined} coach
+ * @returns {string|null}
+ */
+export const extractCoachUserUuid = coach => {
+  const explicitUserId = coach?.userId;
+  if (typeof explicitUserId === 'string' && UUID_RE.test(explicitUserId.trim())) {
+    return explicitUserId.trim();
+  }
+
+  const rawId = coach?.id;
+  if (!rawId) {
+    return null;
+  }
+  if (typeof rawId === 'string') {
+    return UUID_RE.test(rawId) ? rawId : null;
+  }
+  const uuid = rawId?.uuid;
+  return uuid && UUID_RE.test(String(uuid)) ? String(uuid) : null;
+};
+
+/**
+ * Normalize team coach entities from server search/manage APIs for UI components.
+ *
+ * @param {Object|null|undefined} coach
+ * @returns {Object|null}
+ */
+export const normalizeTeamCoachEntity = coach => {
+  if (!coach || typeof coach !== 'object') {
+    return null;
+  }
+  const uuid = extractCoachUserUuid(coach);
+  if (!uuid) {
+    return null;
+  }
+
+  const publicData = coach.publicData || coach.attributes?.profile?.publicData || {};
+  const displayName = coach.displayName || coach.attributes?.profile?.displayName || '';
+  const email = coach.email || coach.attributes?.email || null;
+
+  return {
+    ...coach,
+    id: { uuid },
+    userId: uuid,
+    type: coach.type || 'user',
+    displayName,
+    email,
+    publicData,
+    attributes: coach.attributes || {
+      email,
+      profile: {
+        displayName,
+        publicData,
+      },
+    },
+    profileImage: coach.profileImage || null,
+  };
 };
 
 /**

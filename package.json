@@ -227,7 +227,8 @@
     "test-server": "jest --roots ./server --testMatch='**/server/**/*.test.js' --testEnvironment=node",
     "heroku-postbuild": "yarn run build",
     "postinstall": "patch-package",
-    "translate": "node scripts/translations.js"
+    "translate": "node scripts/translations.js",
+    "coach-legacy-approve": "node scripts/coach-legacy-approve.js"
   },
   "browserslist": {
     "production": [

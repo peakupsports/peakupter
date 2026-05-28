@@ -32,6 +32,7 @@ const referralCenter = require('./api/referral-center');
 const ambassadorAdminOverview = require('./api/ambassador-admin-overview');
 const referralRewardsBackfill = require('./api/referral-rewards-backfill');
 const referralLedgerRepair = require('./api/referral-ledger-repair');
+const coachLegacyApprove = require('./api/coach-legacy-approve');
 const peakupCoachBlockCancel = require('./api/peakup-coach-block-cancel');
 const cancellationCasesAdmin = require('./api/cancellation-cases-admin');
 
@@ -116,6 +117,19 @@ router.get(
   '/referral-rewards/backfill',
   referralRewardsBackfill.requireCoachApplicationAdmin,
   referralRewardsBackfill.runBackfill
+);
+
+// Dev/admin: approve legacy manually-created coach accounts (dry-run by default).
+router.post(
+  '/coach-legacy-approve',
+  express.json({ limit: '64kb' }),
+  coachLegacyApprove.requireCoachApplicationAdmin,
+  coachLegacyApprove.runLegacyCoachApprove
+);
+router.get(
+  '/coach-legacy-approve',
+  coachLegacyApprove.requireCoachApplicationAdmin,
+  coachLegacyApprove.runLegacyCoachApprove
 );
 
 // JSON routes (e.g. PeakUp soft holds) — must run before Transit body parser.
