@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
-import { FormattedMessage, useIntl } from '../../util/reactIntl';
-import { inviteTeamCoach, searchTeamCoaches } from '../../util/api';
+import { FormattedMessage, useIntl } from '../../../util/reactIntl';
+import { inviteTeamCoach, searchTeamCoaches } from '../../../util/api';
 
 import { Button, Modal, TeamCoachRosterCard } from '../../../components';
 
