@@ -46,10 +46,10 @@ export const HERO_HIGHLIGHTS = [
 ];
 
 export const HOW_IT_WORKS_STEP_IMAGE = {
-  code: '/code.jpg',
-  invite: '/Invate.jpg',
-  join: '/They_earn.jpg',
-  earn: '/You_earn.jpg',
+  code: '/CoachPagePic/code.jpg',
+  invite: '/CoachPagePic/Invate.jpg',
+  join: '/CoachPagePic/They_earn.jpg',
+  earn: '/CoachPagePic/You_earn.jpg',
 };
 
 export const HOW_IT_WORKS_STEPS = [
