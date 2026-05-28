@@ -1,0 +1,119 @@
+.root {
+  composes: marketplaceModalRootStyles from global;
+}
+
+.panel {
+  padding: 24px 20px 20px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.title {
+  composes: marketplaceModalTitleStyles from global;
+  margin: 0 0 8px;
+}
+
+.lead {
+  composes: marketplaceModalDescriptionStyles from global;
+  margin: 0 0 20px;
+  color: rgba(244, 247, 251, 0.82);
+  line-height: 1.45;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tab {
+  flex: 1 1 0;
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(244, 247, 251, 0.78);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: var(--fontWeightSemiBold);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.tabActive {
+  border-color: rgba(25, 223, 242, 0.45);
+  background: rgba(25, 223, 242, 0.1);
+  color: #f4f7fb;
+}
+
+.searchRow {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.searchLabel {
+  composes: marketplaceSmallFontStyles from global;
+  font-weight: var(--fontWeightSemiBold);
+  color: #f4f7fb;
+}
+
+.searchControls {
+  display: grid;
+  gap: 12px;
+
+  @media (--viewportMedium) {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}
+
+.searchInput {
+  composes: marketplaceInputStyles from global;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.error {
+  composes: marketplaceModalErrorStyles from global;
+  margin: 0 0 12px;
+}
+
+.results {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.resultItem {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resultActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.notEligible {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0;
+  color: rgba(196, 210, 228, 0.72);
+  text-align: right;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}

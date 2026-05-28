@@ -1,0 +1,202 @@
+.link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.profileLink {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(var(--tier-rgb, 25, 223, 242), 0.18);
+  background:
+    linear-gradient(165deg, rgba(14, 24, 42, 0.92) 0%, rgba(8, 14, 26, 0.88) 100%);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: rgba(var(--tier-rgb, 25, 223, 242), 0.38);
+    box-shadow:
+      0 14px 32px rgba(0, 0, 0, 0.28),
+      0 0 20px rgba(var(--tier-rgb, 25, 223, 242), 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.photoWrap {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid var(--tier-border, rgba(25, 223, 242, 0.45));
+  box-shadow: 0 0 12px rgba(var(--tier-rgb, 25, 223, 242), 0.18);
+}
+
+.photo,
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nameRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.name {
+  composes: marketplaceDefaultFontStyles from global;
+  margin: 0;
+  font-size: 15px;
+  font-weight: var(--fontWeightBold);
+  line-height: 1.25;
+  color: #f4f7fb;
+  overflow-wrap: anywhere;
+}
+
+.status {
+  flex: 0 0 auto;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: var(--fontWeightSemiBold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.statusActive {
+  color: #9ef7c8;
+  background: rgba(46, 204, 113, 0.14);
+  border: 1px solid rgba(46, 204, 113, 0.28);
+}
+
+.statusPending {
+  color: #ffd98a;
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.28);
+}
+
+.statusNotVerified {
+  color: #c8d4e4;
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.tier {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0;
+  color: var(--tier-accent, #19dff2);
+  font-weight: var(--fontWeightSemiBold);
+}
+
+.sports {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0;
+  color: rgba(196, 210, 228, 0.82);
+  line-height: 1.35;
+}
+
+.locationRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  max-width: 100%;
+}
+
+.locationPin {
+  flex: 0 0 auto;
+}
+
+.locationText {
+  composes: marketplaceTinyFontStyles from global;
+  color: rgba(196, 210, 228, 0.78);
+  font-weight: var(--fontWeightSemiBold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.actionBtn {
+  composes: marketplaceTinyFontStyles from global;
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(244, 247, 251, 0.88);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: var(--fontWeightSemiBold);
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+@media (hover: hover) {
+  .actionBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+}
+
+.actionBtn:focus-visible {
+  outline: 2px solid #19dff2;
+  outline-offset: 2px;
+}
+
+.link .actionBtn {
+  position: relative;
+  z-index: 2;
+}
+
+@media (--viewportMedium) {
+  .card {
+    padding: 16px;
+  }
+
+  .photoWrap {
+    width: 80px;
+    height: 80px;
+  }
+}

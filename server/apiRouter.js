@@ -24,6 +24,7 @@ const teamApplication = require('./api/team-application');
 const coachApplicationsAdmin = require('./api/coach-applications-admin');
 const teamApplicationsAdmin = require('./api/team-applications-admin');
 const teamRoster = require('./api/team-roster');
+const teamRosterManage = require('./api/team-roster-manage');
 const teamMembers = require('./api/team-members');
 const ambassadorActivation = require('./api/ambassador-activation');
 const ambassadorActivationsAdmin = require('./api/ambassador-activations-admin');
@@ -47,6 +48,21 @@ const router = express.Router();
 router.post('/coach-application', express.json({ limit: '30mb' }), coachApplication);
 router.post('/team-application', express.json({ limit: '2mb' }), teamApplication);
 router.post('/team-roster', express.json({ limit: '64kb' }), teamRoster);
+router.get('/team-roster/manage', teamRosterManage.getManage);
+router.get('/team-roster/search', teamRosterManage.search);
+router.post('/team-roster/invite', express.json({ limit: '64kb' }), teamRosterManage.invite);
+router.post(
+  '/team-roster/invite/cancel',
+  express.json({ limit: '64kb' }),
+  teamRosterManage.cancelInvite
+);
+router.post(
+  '/team-roster/member/remove',
+  express.json({ limit: '64kb' }),
+  teamRosterManage.removeMember
+);
+router.post('/team-roster/respond', express.json({ limit: '64kb' }), teamRosterManage.respondInvite);
+router.get('/team-roster/my-invites', teamRosterManage.myInvites);
 router.get('/team-members/:teamId', teamMembers);
 
 // Ambassador Program activation for verified coaches.

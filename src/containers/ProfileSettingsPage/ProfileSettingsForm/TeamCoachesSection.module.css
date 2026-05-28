@@ -1,0 +1,111 @@
+.root {
+  /* Nested inside `.sectionContainer` — spacing only */
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  @media (--viewportMedium) {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+.title {
+  margin: 0 0 6px;
+}
+
+.lead {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0;
+  color: rgba(196, 210, 228, 0.82);
+  line-height: 1.45;
+  max-width: 52ch;
+}
+
+.addBtn {
+  flex-shrink: 0;
+  border-radius: 999px !important;
+  padding-inline: 18px !important;
+  background-image: linear-gradient(
+    118deg,
+    rgba(15, 33, 56, 0.95) 0%,
+    rgba(26, 74, 122, 0.92) 42%,
+    rgba(21, 155, 255, 0.88) 72%,
+    rgba(25, 223, 242, 0.85) 100%
+  ) !important;
+  border: 1px solid rgba(25, 223, 242, 0.42) !important;
+}
+
+.status {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0;
+  color: rgba(196, 210, 228, 0.72);
+}
+
+.error {
+  composes: marketplaceModalErrorStyles from global;
+  margin: 0 0 12px;
+}
+
+.empty {
+  padding: 24px 18px;
+  border-radius: 14px;
+  border: 1px dashed rgba(25, 223, 242, 0.22);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: center;
+}
+
+.emptyTitle {
+  composes: marketplaceDefaultFontStyles from global;
+  margin: 0 0 6px;
+  font-weight: var(--fontWeightSemiBold);
+  color: #f4f7fb;
+}
+
+.emptyLead {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0;
+  color: rgba(196, 210, 228, 0.72);
+  line-height: 1.45;
+}
+
+.grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+
+  @media (--viewportMedium) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  @media (--viewportLarge) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.gridItem {
+  min-width: 0;
+  position: relative;
+}
+
+.actionOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 14, 26, 0.45);
+  border-radius: 16px;
+  color: #f4f7fb;
+  font-size: 24px;
+  pointer-events: none;
+}

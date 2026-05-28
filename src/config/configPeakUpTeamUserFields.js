@@ -21,6 +21,7 @@ export const PEAK_UP_TEAM_PROFILE_KEYS = [
   'peakupVerifiedTeam',
   'teamApproved',
   'peakupTeamMemberIds',
+  'peakupTeamPendingInviteIds',
 ];
 
 const TEAM_SPORT_OPTIONS = [

@@ -1,0 +1,60 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 18px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 193, 7, 0.32);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 193, 7, 0.1) 0%,
+    rgba(14, 24, 42, 0.88) 48%,
+    rgba(8, 14, 26, 0.92) 100%
+  );
+  box-shadow: 0 0 24px rgba(255, 193, 7, 0.08);
+
+  @media (--viewportMedium) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 22px;
+  }
+}
+
+.title {
+  composes: marketplaceDefaultFontStyles from global;
+  margin: 0 0 6px;
+  font-weight: var(--fontWeightBold);
+  color: #f4f7fb;
+}
+
+.lead {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0;
+  color: rgba(196, 210, 228, 0.82);
+  line-height: 1.45;
+  max-width: 52ch;
+}
+
+.error {
+  composes: marketplaceModalErrorStyles from global;
+  margin: 8px 0 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.acceptBtn {
+  border-radius: 999px !important;
+}
+
+.declineBtn {
+  border-radius: 999px !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}

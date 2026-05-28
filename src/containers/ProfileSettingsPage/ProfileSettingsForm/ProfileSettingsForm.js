@@ -34,6 +34,8 @@ import FieldTeamSinceYear from './FieldTeamSinceYear';
 import { FieldTeamPrimarySport, FieldTeamSecondarySport } from './FieldTeamIdentitySport';
 import FieldPreferredMeetingPoints from './FieldPreferredMeetingPoints';
 import ViewProfileLink from '../ViewProfileLink';
+import TeamCoachesSection from './TeamCoachesSection';
+import TeamInviteBanner from './TeamInviteBanner';
 
 /* userFieldProps use namespaced keys (e.g. pub_sports); raw keys alone never match */
 const PEAK_UP_PROFILE_FIELD_KEYS = new Set(
@@ -55,7 +57,6 @@ const TEAM_DETAILS_FIELD_ORDER = [
   PUB_TEAM_TAGLINE_KEY,
   PUB_TEAM_WEBSITE_KEY,
   PUB_TEAM_INSTAGRAM_KEY,
-  PUB_TEAM_COACH_COUNT_KEY,
 ];
 
 const mergeTeamFieldConfigLabels = (fieldProps, intl) => {
@@ -148,6 +149,8 @@ const TEAM_FORM_HIDDEN_FIELD_KEYS = new Set([
   addScopePrefix('public', 'peakupVerifiedTeam'),
   addScopePrefix('public', 'teamApproved'),
   addScopePrefix('public', 'peakupTeamMemberIds'),
+  addScopePrefix('public', 'peakupTeamPendingInviteIds'),
+  PUB_TEAM_COACH_COUNT_KEY,
   PUB_TEAM_FOUNDED_KEY,
   PUB_LANGUAGES_KEY,
   PUB_EXPERIENCE_KEY,
@@ -520,6 +523,7 @@ class ProfileSettingsFormComponent extends Component {
                 handleSubmit(e);
               }}
             >
+              {isCoachProfileUser ? <TeamInviteBanner /> : null}
               <div className={classNames(css.sectionContainer, css.profileHeroSection)}>
                 <H4 as="h2" className={css.sectionTitle}>
                   <FormattedMessage
@@ -689,6 +693,12 @@ class ProfileSettingsFormComponent extends Component {
                     <FormattedMessage id="ProfileSettingsForm.teamMapLocationInfo" />
                   </p>
                   <FieldTeamMapLocation formId={formId} />
+                </div>
+              ) : null}
+
+              {isTeamUser ? (
+                <div className={css.sectionContainer}>
+                  <TeamCoachesSection />
                 </div>
               ) : null}
 

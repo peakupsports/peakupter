@@ -224,6 +224,30 @@ export const fetchTeamMembers = teamId => getJsonFromLocalApi(`/api/team-members
 /** Sync team roster (team owner or HQ admin token). */
 export const syncTeamRoster = body => postJsonToLocalApi('/api/team-roster', body);
 
+/** Team settings: connected coaches with statuses. */
+export const fetchTeamRosterManage = () => getJsonFromLocalApi('/api/team-roster/manage');
+
+/** Search PeakUp coaches to invite (team owner). */
+export const searchTeamCoaches = q =>
+  getJsonFromLocalApi(`/api/team-roster/search?${new URLSearchParams({ q }).toString()}`);
+
+/** Invite a coach to join the team (pending until accepted). */
+export const inviteTeamCoach = body => postJsonToLocalApi('/api/team-roster/invite', body);
+
+/** Cancel a pending team coach invitation. */
+export const cancelTeamCoachInvite = body =>
+  postJsonToLocalApi('/api/team-roster/invite/cancel', body);
+
+/** Remove an active coach from the team roster. */
+export const removeTeamCoachMember = body =>
+  postJsonToLocalApi('/api/team-roster/member/remove', body);
+
+/** Coach accepts or declines a team invitation. */
+export const respondToTeamInvite = body => postJsonToLocalApi('/api/team-roster/respond', body);
+
+/** Pending team invitations for the signed-in coach. */
+export const fetchMyTeamInvites = () => getJsonFromLocalApi('/api/team-roster/my-invites');
+
 /** Activate Ambassador Program for the logged-in verified coach. */
 export const activateAmbassadorProgram = body =>
   postJsonToLocalApi('/api/ambassador-activation', body);
