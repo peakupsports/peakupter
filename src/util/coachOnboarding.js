@@ -3,6 +3,8 @@
  * Provider user types cannot skip the application via /signup/:userType.
  */
 
+import { resolveTeamPostLoginRedirectTarget } from './peakupTeam';
+
 export const COACH_PROVIDER_SIGNUP_USER_TYPES = new Set([
   'coach',
   'provider',
@@ -766,6 +768,10 @@ export function resolvePostLoginRedirectTarget(currentUser) {
 
   if (pendingCoachApplication) {
     return buildCoachApplicationPath({ ref: ambassadorRef });
+  }
+  const teamTarget = resolveTeamPostLoginRedirectTarget(currentUser);
+  if (teamTarget) {
+    return teamTarget;
   }
   if (coachProviderProfile) {
     return COACH_DASHBOARD_PATH;

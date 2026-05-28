@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 
@@ -9,7 +10,8 @@ import { parse, stringify } from '../../util/urlHelpers';
 
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
-import { Page, SportBar, CoachCard } from '../../components';
+import { matchesEntityFilter } from '../../util/peakupTeam';
+import { Page, SportBar, CoachCard, TeamCard } from '../../components';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 
 import {
@@ -20,6 +22,7 @@ import {
   coachMapSearchForFreshGeolocationIntent,
   debugCoachMapLocate,
   filterCoachesBySport,
+  filterTeamsBySport,
   formatCoachExploreSportSlug,
   haversineDistanceKm,
   logCoachMapLocateVerbose,
@@ -28,6 +31,7 @@ import {
 } from '../../util/coachExplore';
 import { sortByPeakUpTopLevelSportOrder } from '../../util/peakupSportTaxonomy';
 import { getCoachCoordinates } from '../../util/profileCoachSticker';
+import { getTeamCoordinates } from '../../util/peakupTeam';
 import { coachPreferredMeetingPointsList } from '../../util/peakupMeetingPoint';
 // TEMP DEMO COACHES FOR MARKETING REEL – REMOVE BEFORE PRODUCTION
 // Single source of truth in `./demoCoaches.js`. To remove, delete this
@@ -386,9 +390,12 @@ const CoachMapPage = props => {
   }, [scrollCoachMapPanelMobileIntoView]);
 
   const scrollingDisabled = useSelector(isScrollingDisabled);
-  const { coaches: realCoaches, fetchStatus, boundsPlain } = useSelector(
-    state => state.CoachesExplorePage
-  );
+  const {
+    coaches: realCoaches,
+    teams: realTeams = [],
+    fetchStatus,
+    boundsPlain,
+  } = useSelector(state => state.CoachesExplorePage);
 
   // Merge real coaches with frontend-only demo entries so the map reads as
   // an internationally active platform from the very first render (real
@@ -932,7 +939,12 @@ const CoachMapPage = props => {
     return null;
   }, [explicitLocationReference, userLocation]);
 
+  const entityFilter = queryExplore.entityFilter || 'all';
+
   const filteredCoaches = useMemo(() => {
+    if (!matchesEntityFilter(entityFilter, 'coach')) {
+      return [];
+    }
     const bySport = filterCoachesBySport(coaches, selectedSport);
     if (!geoReference) return bySport;
     const refLat = geoReference.lat;
@@ -947,7 +959,27 @@ const CoachMapPage = props => {
       if (da !== db) return da - db;
       return String(a.authorUuid || '').localeCompare(String(b.authorUuid || ''));
     });
-  }, [coaches, selectedSport, geoReference]);
+  }, [coaches, selectedSport, geoReference, entityFilter]);
+
+  const filteredTeams = useMemo(() => {
+    if (!matchesEntityFilter(entityFilter, 'team')) {
+      return [];
+    }
+    const bySport = filterTeamsBySport(realTeams, selectedSport);
+    if (!geoReference) return bySport;
+    const refLat = geoReference.lat;
+    const refLng = geoReference.lng;
+    return [...bySport].sort((a, b) => {
+      const ca = getTeamCoordinates(a);
+      const cb = getTeamCoordinates(b);
+      const daKm = ca ? haversineDistanceKm(refLat, refLng, ca.lat, ca.lng) : null;
+      const dbKm = cb ? haversineDistanceKm(refLat, refLng, cb.lat, cb.lng) : null;
+      const da = daKm == null || !Number.isFinite(daKm) ? Infinity : daKm;
+      const db = dbKm == null || !Number.isFinite(dbKm) ? Infinity : dbKm;
+      if (da !== db) return da - db;
+      return String(a.authorUuid || '').localeCompare(String(b.authorUuid || ''));
+    });
+  }, [realTeams, selectedSport, geoReference, entityFilter]);
 
   // Bounds derived from the *filtered* coach set so changing the SportBar
   // (or any other filter) refits the map to only the visible coaches.
@@ -1140,8 +1172,11 @@ const CoachMapPage = props => {
     dispatch(fetchCoachesExploreThunk({ config }));
   }, [config, dispatch]);
 
-  const handleMarkerHover = useCallback((coach, isHovering) => {
-    setActiveListingId(isHovering ? coach?.representativeListing?.id || null : null);
+  const [hoveredAuthorUuid, setHoveredAuthorUuid] = useState(null);
+
+  const handleMarkerHover = useCallback((entity, isHovering) => {
+    setHoveredAuthorUuid(isHovering ? entity?.authorUuid || null : null);
+    setActiveListingId(isHovering ? entity?.representativeListing?.id || null : null);
   }, []);
 
   // Marker click: persist the selection so the marker stays highlighted AND
@@ -1162,10 +1197,11 @@ const CoachMapPage = props => {
   // Coordinates come from `getCoachCoordinates`, which falls back from the
   // representative listing's `geolocation` to the coach's profile publicData
   // (lat/lng, location.selectedPlace.origin, configured `coachCity` slug).
-  const handleMapClick = useCallback(coach => {
-    if (!coach) return;
-    const coords = getCoachCoordinates(coach);
-    setSelectedCoachKey(coach.authorUuid || null);
+  const handleMapClick = useCallback(entity => {
+    if (!entity) return;
+    const coords =
+      entity.entityType === 'team' ? getTeamCoordinates(entity) : getCoachCoordinates(entity);
+    setSelectedCoachKey(entity.authorUuid || null);
     if (coords) {
       setFlyToTarget({ lat: coords.lat, lng: coords.lng, ts: Date.now() });
     }
@@ -1194,14 +1230,14 @@ const CoachMapPage = props => {
   // set on the same URL change, so no extra flyTo is needed here.
   useEffect(() => {
     if (!selectedCoachKey) return;
-    const stillVisible = filteredCoaches.some(
-      c => c.authorUuid === selectedCoachKey
-    );
+    const stillVisible =
+      filteredCoaches.some(c => c.authorUuid === selectedCoachKey) ||
+      filteredTeams.some(t => t.authorUuid === selectedCoachKey);
     if (!stillVisible) {
       setSelectedCoachKey(null);
       setActiveListingId(null);
     }
-  }, [filteredCoaches, selectedCoachKey]);
+  }, [filteredCoaches, filteredTeams, selectedCoachKey]);
 
   const marketplaceName = config.branding.marketplaceName || 'Marketplace';
   const schemaTitle = intl.formatMessage({ id: 'CoachMapPage.schemaTitle' }, { marketplaceName });
@@ -1354,12 +1390,34 @@ const CoachMapPage = props => {
                 <FormattedMessage id="CoachesPage.retry" />
               </button>
             </div>
-          ) : filteredCoaches.length === 0 ? (
+          ) : filteredCoaches.length === 0 && filteredTeams.length === 0 ? (
             <p className={css.status}>
               <FormattedMessage id="CoachesPage.empty" />
             </p>
           ) : (
             <>
+              <div className={css.entityFilter} role="tablist" aria-label="Entity filter">
+                {['all', 'coaches', 'teams'].map(value => (
+                  <button
+                    key={value}
+                    type="button"
+                    role="tab"
+                    aria-selected={entityFilter === value}
+                    className={classNames(
+                      css.entityFilterBtn,
+                      entityFilter === value && css.entityFilterBtnActive
+                    )}
+                    onClick={() => {
+                      const params = parse(location.search);
+                      const next = { ...params, entity: value === 'all' ? undefined : value };
+                      if (value === 'all') delete next.entity;
+                      history.push({ search: stringify(next) });
+                    }}
+                  >
+                    <FormattedMessage id={`CoachMapPage.entity.${value}`} />
+                  </button>
+                ))}
+              </div>
               {showNoNearbyCoachesNotice ? (
                 <p className={css.proximityNotice} role="status">
                   <FormattedMessage
@@ -1373,19 +1431,50 @@ const CoachMapPage = props => {
                 </p>
               ) : null}
               <div className={css.sidebarList}>
-                {filteredCoaches.map(coach => (
-                  <CoachCard
-                    key={coach.authorUuid}
-                    coach={coach}
-                    className={css.sidebarCoachCard}
-                    isSelected={selectedCoachKey === coach.authorUuid}
-                    onMouseEnter={() =>
-                      setActiveListingId(coach.representativeListing?.id || null)
-                    }
-                    onMouseLeave={() => setActiveListingId(null)}
-                    onMapClick={handleMapClick}
-                  />
-                ))}
+                {filteredTeams.length > 0 ? (
+                  <section className={css.sidebarSection}>
+                    <h2 className={css.sidebarSectionTitle}>
+                      <FormattedMessage id="CoachMapPage.teamsSection" />
+                    </h2>
+                    {filteredTeams.map(team => (
+                      <TeamCard
+                        key={team.authorUuid}
+                        team={team}
+                        className={css.sidebarCoachCard}
+                        isSelected={selectedCoachKey === team.authorUuid}
+                        onMouseEnter={() => setHoveredAuthorUuid(team.authorUuid)}
+                        onMouseLeave={() => setHoveredAuthorUuid(null)}
+                        onMapClick={handleMapClick}
+                        onSelect={() => {
+                          setSelectedCoachKey(team.authorUuid);
+                          setActiveListingId(team.representativeListing?.id || null);
+                        }}
+                      />
+                    ))}
+                  </section>
+                ) : null}
+                {filteredCoaches.length > 0 ? (
+                  <section className={css.sidebarSection}>
+                    {filteredTeams.length > 0 ? (
+                      <h2 className={css.sidebarSectionTitle}>
+                        <FormattedMessage id="CoachMapPage.coachesSection" />
+                      </h2>
+                    ) : null}
+                    {filteredCoaches.map(coach => (
+                      <CoachCard
+                        key={coach.authorUuid}
+                        coach={coach}
+                        className={css.sidebarCoachCard}
+                        isSelected={selectedCoachKey === coach.authorUuid}
+                        onMouseEnter={() =>
+                          setActiveListingId(coach.representativeListing?.id || null)
+                        }
+                        onMouseLeave={() => setActiveListingId(null)}
+                        onMapClick={handleMapClick}
+                      />
+                    ))}
+                  </section>
+                ) : null}
               </div>
             </>
           )}
@@ -1394,9 +1483,12 @@ const CoachMapPage = props => {
         <div className={css.mapPanel} ref={mapPanelRef}>
           <CoachMap3D
             coaches={filteredCoaches}
+            teams={filteredTeams}
             className={css.mapSurface}
             activeListingId={activeListingId}
             selectedListingId={selectedListingId}
+            selectedAuthorUuid={selectedCoachKey}
+            hoveredAuthorUuid={hoveredAuthorUuid}
             selectedSport={selectedSport}
             flyToTarget={flyToTarget}
             bounds={mapFitBoundsPlain}

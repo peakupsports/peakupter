@@ -693,6 +693,14 @@
   pointer-events: none;
 }
 
+@media (max-width: 767px) {
+  .stickerOverlayStack {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+}
+
 /* Colonna bandiere lingue: ora figlia di `.stickerOverlayStack` (no più
  * absolute). Dimensioni dei `.stickerLanguagePill` (28×28), gap (8px) e
  * font-size invariati: si vede esattamente come prima, solo la radice è
@@ -721,35 +729,67 @@
 .stickerLocationPill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: flex-start;
+  gap: 7px;
   max-width: 100%;
   min-width: 0;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(10, 16, 28, 0.78);
+  background: rgba(10, 16, 28, 0.82);
   border: 1px solid var(--tier-border, rgba(255, 255, 255, 0.4));
   color: var(--colorWhite);
   font-size: 12px;
-  font-weight: var(--fontWeightSemiBold);
+  font-weight: var(--fontWeightBold);
   letter-spacing: 0.01em;
-  line-height: 1.2;
+  line-height: 1.25;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   box-shadow:
-    0 0 0 1.5px rgba(255, 255, 255, 0.12),
-    0 4px 10px rgba(var(--tier-rgb, 16, 33, 62), 0.18);
+    0 0 0 1.5px rgba(255, 255, 255, 0.1),
+    0 4px 12px rgba(var(--tier-rgb, 16, 33, 62), 0.22);
   box-sizing: border-box;
+  pointer-events: auto;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
 }
 
-.stickerLocationPin {
+@media (max-width: 767px) {
+  .stickerLocationPill {
+    width: 100%;
+    justify-content: center;
+    padding-inline: 14px;
+  }
+}
+
+@media (hover: hover) {
+  .stickerLocationPill:hover {
+    border-color: var(--tier-accent, rgba(25, 223, 242, 0.55));
+    background: rgba(12, 20, 34, 0.9);
+    box-shadow:
+      0 0 0 1.5px rgba(var(--tier-rgb, 25, 223, 242), 0.14),
+      0 6px 16px rgba(var(--tier-rgb, 16, 33, 62), 0.28),
+      0 0 14px rgba(var(--tier-rgb, 25, 223, 242), 0.12);
+    transform: translateY(-1px);
+  }
+
+  .stickerLocationPill:hover .stickerLocationPinIcon {
+    filter: drop-shadow(0 0 8px rgba(var(--tier-rgb, 25, 223, 242), 0.42));
+    transform: scale(1.06);
+  }
+}
+
+.stickerLocationPinIcon {
   flex: 0 0 auto;
-  font-size: 13px;
-  line-height: 1;
+  align-self: center;
 }
 
 .stickerLocationText {
   flex: 1 1 auto;
   min-width: 0;
+  font-weight: var(--fontWeightBold);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

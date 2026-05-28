@@ -3,6 +3,8 @@
  */
 import { loadData as AboutPageLoader } from './AboutPage/AboutPage.duck';
 import { loadData as CoachApplicationPageLoader } from './CoachApplicationPage/CoachApplicationPage.duck';
+import { loadData as TeamApplicationPageLoader } from './TeamApplicationPage/TeamApplicationPage.duck';
+import { loadData as AdminTeamApplicationsPageLoader } from './AdminTeamApplicationsPage/AdminTeamApplicationsPage.duck';
 import { loadData as CoachDashboardPageLoader } from './CoachDashboardPage/CoachDashboardPage.duck';
 import { loadData as AdminCoachApplicationsPageLoader } from './AdminCoachApplicationsPage/AdminCoachApplicationsPage.duck';
 import { loadData as PeakUpHqDashboardPageLoader } from './PeakUpHq/PeakUpHqDashboardPage/PeakUpHqDashboardPage.duck';
@@ -47,11 +49,17 @@ const getPageDataLoadingAPI = () => {
     CoachApplicationPage: {
       loadData: CoachApplicationPageLoader,
     },
+    TeamApplicationPage: {
+      loadData: TeamApplicationPageLoader,
+    },
     CoachDashboardPage: {
       loadData: CoachDashboardPageLoader,
     },
     AdminCoachApplicationsPage: {
       loadData: AdminCoachApplicationsPageLoader,
+    },
+    AdminTeamApplicationsPage: {
+      loadData: AdminTeamApplicationsPageLoader,
     },
     PeakUpHQPage: {
       loadData: PeakUpHqDashboardPageLoader,

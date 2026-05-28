@@ -53,6 +53,7 @@ const ProfileMenu = ({
   showAmbassadorMenu,
   showPeakUpHqLink,
   coachNavMode,
+  teamNavMode = false,
   canSwitchPlatformMode,
   onExploreAsCustomer,
   onReturnToCoachMode,
@@ -97,6 +98,26 @@ const ProfileMenu = ({
         <PeakUpHqIcon name="dashboard" className={css.menuLinkIconDashboard} />
         <span className={css.menuLinkText}>
           <FormattedMessage id="TopbarDesktop.dashboardLink" />
+        </span>
+      </NamedLink>
+    </MenuItem>
+  );
+
+  const teamDashboardLink = (
+    <MenuItem key="TeamDashboard">
+      <NamedLink
+        className={classNames(
+          css.menuLink,
+          css.menuLinkWithIcon,
+          css.menuLinkDashboard,
+          currentPageClass('ProfileSettingsPage')
+        )}
+        name="ProfileSettingsPage"
+      >
+        <span className={css.menuItemBorder} />
+        <PeakUpHqIcon name="dashboard" className={css.menuLinkIconDashboard} />
+        <span className={css.menuLinkText}>
+          <FormattedMessage id="TopbarDesktop.teamDashboardLink" />
         </span>
       </NamedLink>
     </MenuItem>
@@ -302,7 +323,9 @@ const ProfileMenu = ({
 
   let menuItems = [];
 
-  if (coachNavMode) {
+  if (teamNavMode) {
+    menuItems = [teamDashboardLink, requestsLink, accountSettingsLink, peakUpHqLink, logoutItem];
+  } else if (coachNavMode) {
     menuItems = [
       dashboardLink,
       createServiceLink,
@@ -402,10 +425,12 @@ const TopbarDesktop = props => {
     showCreateListingsLink,
     showCoachCalendarLink,
     coachNavMode,
+    teamNavMode = false,
     canSwitchPlatformMode,
     onExploreAsCustomer,
     onReturnToCoachMode,
     logoLinkName = 'LandingPage',
+    logoLinkParams,
     inboxTab,
     topbarCenterContent,
   } = props;
@@ -418,12 +443,13 @@ const TopbarDesktop = props => {
   const marketplaceName = config.marketplaceName;
   const authenticatedOnClientSide = mounted && isAuthenticated;
   const isAuthenticatedOrJustHydrated = isAuthenticated || !mounted;
+  const providerNavMode = coachNavMode || teamNavMode;
 
   const giveSpaceForSearch = customLinks == null || customLinks?.length === 0;
   const classes = classNames(
     rootClassName || css.root,
     chromeTheme === 'sportPremium' ? css.rootSportPremium : null,
-    coachNavMode ? css.rootCoachNav : null,
+    providerNavMode ? css.rootCoachNav : null,
     currentPage === 'CoachMapPage' ? css.rootCoachMap : null,
     className
   );
@@ -433,10 +459,10 @@ const TopbarDesktop = props => {
       saleNotificationCount={currentUserSaleNotificationCount}
       orderNotificationCount={currentUserOrderNotificationCount}
       inboxTab={inboxTab}
-      coachNavMode={coachNavMode}
+      coachNavMode={providerNavMode}
       currentPage={currentPage}
       className={css.topbarLink}
-      labelClassName={coachNavMode ? undefined : css.topbarLinkLabel}
+      labelClassName={providerNavMode ? undefined : css.topbarLinkLabel}
     />
   ) : null;
 
@@ -453,6 +479,7 @@ const TopbarDesktop = props => {
       showAmbassadorMenu={showAmbassadorMenu}
       showPeakUpHqLink={showPeakUpHqLink}
       coachNavMode={coachNavMode}
+      teamNavMode={teamNavMode}
       canSwitchPlatformMode={canSwitchPlatformMode}
       onExploreAsCustomer={onExploreAsCustomer}
       onReturnToCoachMode={onReturnToCoachMode}
@@ -494,7 +521,7 @@ const TopbarDesktop = props => {
 
   const rightActionsMaybe = (
     <>
-      {!coachNavMode ? (
+      {!providerNavMode ? (
         <CustomLinksMenu
           currentPage={currentPage}
           customLinks={customLinks}
@@ -524,6 +551,7 @@ const TopbarDesktop = props => {
           alt={intl.formatMessage({ id: 'TopbarDesktop.logo' }, { marketplaceName })}
           linkToExternalSite={config?.topbar?.logoLink}
           linkName={logoLinkName}
+          linkParams={logoLinkParams}
         />
       </div>
 

@@ -1,4 +1,5 @@
 import { isCoachProviderProfileUserType } from './coachOnboarding';
+import { isTeamProviderProfileUserType } from './peakupTeam';
 
 export const PLATFORM_MODE_COACH = 'coach';
 export const PLATFORM_MODE_CUSTOMER = 'customer';
@@ -14,7 +15,7 @@ const VALID_MODES = new Set([PLATFORM_MODE_COACH, PLATFORM_MODE_CUSTOMER]);
  * @returns {boolean}
  */
 export const canUseCoachPlatformMode = currentUser =>
-  isCoachProviderProfileUserType(currentUser);
+  isCoachProviderProfileUserType(currentUser) && !isTeamProviderProfileUserType(currentUser);
 
 /**
  * @param {string|null|undefined} mode

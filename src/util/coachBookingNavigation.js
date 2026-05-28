@@ -10,6 +10,9 @@ import { isBookingProcessAlias } from '../transactions/transaction';
 /** Query flag: ListingPage renders PeakUp coach booking shell (not public listing browse). */
 export const PEAKUP_COACH_BOOKING_SEARCH_FLAG = 'peakupCoachBooking';
 
+/** Team booking shell on ListingPage (same UX as coach booking). */
+export const PEAKUP_TEAM_BOOKING_SEARCH_FLAG = 'peakupTeamBooking';
+
 /** Open pre-booking intake modal on arrival (before calendar). */
 export const PEAKUP_OPEN_PREBOOKING_SEARCH_FLAG = 'peakupPreBooking';
 
@@ -181,6 +184,59 @@ export const hasPeakUpCoachBookingSearchFlag = search => {
   const parsed = parse(typeof search === 'string' ? search : '');
   const flag = parsed[PEAKUP_COACH_BOOKING_SEARCH_FLAG];
   return flag === '1' || flag === 1 || flag === true || flag === 'true';
+};
+
+export const hasPeakUpTeamBookingSearchFlag = search => {
+  const parsed = parse(typeof search === 'string' ? search : '');
+  const flag = parsed[PEAKUP_TEAM_BOOKING_SEARCH_FLAG];
+  return flag === '1' || flag === 1 || flag === true || flag === 'true';
+};
+
+const teamBookingSearchParams = ({ orderOpen = false, openPreBooking = false } = {}) => {
+  const params = { [PEAKUP_TEAM_BOOKING_SEARCH_FLAG]: '1' };
+  if (openPreBooking) {
+    params[PEAKUP_OPEN_PREBOOKING_SEARCH_FLAG] = '1';
+  }
+  if (orderOpen) {
+    params.orderOpen = true;
+  }
+  return params;
+};
+
+export const buildPeakUpTeamBookingPath = ({
+  routes,
+  bookingListing,
+  orderOpen = false,
+  openPreBooking = false,
+}) => {
+  const listingId = bookingListing?.id?.uuid;
+  if (!listingId || !routes) {
+    return null;
+  }
+  const slug = createSlug(bookingListing.attributes?.title || 'team-session');
+  return createResourceLocatorString(
+    'ListingPage',
+    routes,
+    { id: listingId, slug },
+    teamBookingSearchParams({ orderOpen, openPreBooking })
+  );
+};
+
+export const buildPeakUpTeamProfileBookPath = ({
+  routes,
+  profileId,
+  orderOpen = false,
+  openPreBooking = true,
+}) => {
+  if (!profileId || !routes) {
+    return null;
+  }
+  return createResourceLocatorString(
+    'ProfilePage',
+    routes,
+    { id: profileId },
+    teamBookingSearchParams({ orderOpen, openPreBooking })
+  );
 };
 
 /**

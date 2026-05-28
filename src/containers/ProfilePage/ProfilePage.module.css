@@ -786,6 +786,19 @@
   align-items: center;
 }
 
+.teamAffiliationChip {
+  composes: marketplaceTinyFontStyles from global;
+  display: block;
+  margin: 4px 0 0;
+  color: var(--marketplaceColor);
+  text-decoration: none;
+  font-weight: var(--fontWeightSemiBold);
+}
+
+.teamAffiliationChip:hover {
+  text-decoration: underline;
+}
+
 .stickerName {
   flex: 1 1 auto;
   min-width: 0;
@@ -1141,6 +1154,64 @@
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.18),
     0 0 6px rgba(var(--tier-rgb, 16, 33, 62), 0.10);
+}
+
+.stickerHeroLocationPill {
+  gap: 7px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 6px 12px;
+  font-weight: var(--fontWeightBold);
+  pointer-events: auto;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+@media (max-width: 767px) {
+  .stickerHeroLocationPill {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (hover: hover) {
+  .stickerHeroLocationPill:hover {
+    border-color: var(--tier-accent, rgba(25, 223, 242, 0.55));
+    background: rgba(12, 20, 34, 0.68);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.2),
+      0 0 12px rgba(var(--tier-rgb, 25, 223, 242), 0.14);
+    transform: translateY(-1px);
+  }
+
+  .stickerHeroLocationPill:hover .stickerHeroLocationPin {
+    filter: drop-shadow(0 0 8px rgba(var(--tier-rgb, 25, 223, 242), 0.42));
+    transform: scale(1.06);
+  }
+}
+
+.stickerHeroLocationPin {
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.stickerHeroLocationText {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stickerHeroLocationFlag {
+  flex: 0 0 auto;
+  margin-left: -2px;
+  font-size: 10px;
+  line-height: 1;
+  opacity: 0.9;
 }
 
 /* Sport emoji bubble — airy / almost-transparent body so the photo
@@ -2047,25 +2118,52 @@
   }
 }
 
-/* Location sticker: intestazione pin + foto + blocchi tipo mockup PeakUp */
-.stickerLocationHeadingWithPin {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
+/* Location sticker: pin accanto al nome città + blocco premium con hover leggero */
+.stickerBioLocation {
+  @media (--viewportLarge) {
+    padding-inline: clamp(16px, 2.2vw, 24px);
+  }
 }
 
-.stickerLocationHeadingPin {
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  stroke: #19dff2;
-  stroke-width: 2px;
-  filter: drop-shadow(0 0 5px rgba(25, 223, 242, 0.16));
+.stickerLocationPanel {
+  margin-top: 4px;
+  padding: 8px 4px 6px;
+  border-radius: 12px;
+  transition:
+    background 200ms ease,
+    box-shadow 200ms ease;
+}
 
-  @media (--viewportMedium) {
-    width: 17px;
-    height: 17px;
+@media (hover: hover) {
+  .stickerLocationPanel:hover {
+    background: rgba(var(--tier-rgb, 25, 223, 242), 0.045);
+    box-shadow: inset 0 0 0 1px rgba(var(--tier-rgb, 25, 223, 242), 0.1);
   }
+
+  .stickerLocationPanel:hover .stickerLocationCityPin {
+    filter: drop-shadow(0 0 9px rgba(var(--tier-rgb, 25, 223, 242), 0.45));
+    transform: scale(1.05);
+  }
+}
+
+.stickerLocationCityRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.stickerLocationCityPin {
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.stickerLocationCityName {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: var(--fontWeightBold);
+  overflow-wrap: anywhere;
 }
 
 .stickerLocationRich {
@@ -2478,7 +2576,12 @@
   color: var(--tier-accent, var(--stickerGold));
 }
 
-.peakUpTierRoot .stickerLocationHeadingPin {
+.peakUpTierRoot .stickerLocationCityPin {
+  stroke: var(--tier-accent, var(--stickerGold));
+}
+
+.peakUpTierRoot .stickerLocationCityPin path:first-of-type {
+  fill: var(--tier-accent, var(--stickerGold));
   stroke: var(--tier-accent, var(--stickerGold));
 }
 

@@ -1,0 +1,47 @@
+.link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card {
+  border: 1px solid var(--colorGrey100);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--colorWhite);
+  transition: box-shadow 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.photoWrap {
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--colorGrey50);
+}
+
+.photo,
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.body {
+  padding: 12px;
+}
+
+.name {
+  composes: marketplaceDefaultFontStyles from global;
+  font-size: 15px;
+  font-weight: var(--fontWeightSemiBold);
+  margin: 0 0 4px;
+}
+
+.sports {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0;
+  color: var(--colorGrey700);
+}

@@ -11,8 +11,12 @@ import { getPropsForCustomUserFieldInputs } from '../../../util/userHelpers';
 import { Form, PrimaryButton, FieldTextInput, CustomExtendedDataField } from '../../../components';
 
 import FieldSelectUserType from '../FieldSelectUserType';
+import SignupPathSelector from '../SignupPathSelector/SignupPathSelector';
 import UserFieldDisplayName from '../UserFieldDisplayName';
 import UserFieldPhoneNumber from '../UserFieldPhoneNumber';
+
+import { getCustomerUserTypeForCoachSignup } from '../../../util/coachOnboarding';
+import { getSignupPathOptions, shouldUseSignupPathSelector } from '../../../util/signupPaths';
 
 import css from './SignupForm.module.css';
 
@@ -34,7 +38,12 @@ const SignupFormComponent = props => (
   <FinalForm
     {...props}
     mutators={{ ...arrayMutators }}
-    initialValues={{ userType: props.preselectedUserType || getSoleUserTypeMaybe(props.userTypes) }}
+    initialValues={{
+      userType:
+        props.preselectedUserType ||
+        getCustomerUserTypeForCoachSignup(props.userTypes) ||
+        getSoleUserTypeMaybe(props.userTypes),
+    }}
     render={formRenderProps => {
       const {
         rootClassName,
@@ -49,9 +58,31 @@ const SignupFormComponent = props => (
         userTypes,
         userFields,
         values,
+        form,
+        showSignupPathSelector,
+        pathSelectorUserTypes,
+        coachSignupTo,
+        onUserTypeChange,
       } = formRenderProps;
 
       const { userType } = values || {};
+      const typesForPathCards = pathSelectorUserTypes || userTypes;
+      const usePathSelector = shouldUseSignupPathSelector({
+        showSignupPathSelector,
+        userTypes: typesForPathCards,
+      });
+      const { customerUserType, teamUserType } = getSignupPathOptions(typesForPathCards);
+      const isTeamSignup = Boolean(teamUserType && userType === teamUserType);
+      const isClientSignup = Boolean(
+        customerUserType && userType === customerUserType
+      );
+      const displayNamePlaceholderId = usePathSelector
+        ? isTeamSignup
+          ? 'SignupForm.displayNamePlaceholderTeam'
+          : isClientSignup
+          ? 'SignupForm.displayNamePlaceholderClient'
+          : 'SignupForm.displayNamePlaceholder'
+        : 'SignupForm.displayNamePlaceholder';
 
       // email
       const emailRequired = validators.required(
@@ -113,12 +144,19 @@ const SignupFormComponent = props => (
       const submitInProgress = inProgress;
       const submitDisabled = invalid || submitInProgress || isPasswordUsedMoreThanOnce(values);
 
-      return (
-        <Form className={classes} onSubmit={handleSubmit}>
+      const handlePathSelect = nextType => {
+        form.change('userType', nextType);
+        if (typeof onUserTypeChange === 'function') {
+          onUserTypeChange(nextType);
+        }
+      };
+
+      const formBody = (
+        <>
           <FieldSelectUserType
             name="userType"
             userTypes={userTypes}
-            hasExistingUserType={!!preselectedUserType}
+            hasExistingUserType={!!preselectedUserType || usePathSelector}
             intl={intl}
           />
 
@@ -181,6 +219,7 @@ const SignupFormComponent = props => (
                 className={css.row}
                 userTypeConfig={userTypeConfig}
                 intl={intl}
+                displayNamePlaceholderId={displayNamePlaceholderId}
               />
 
               <FieldTextInput
@@ -226,6 +265,27 @@ const SignupFormComponent = props => (
               <FormattedMessage id="SignupForm.signUp" />
             </PrimaryButton>
           </div>
+        </>
+      );
+
+      return (
+        <Form className={classes} onSubmit={handleSubmit}>
+          {usePathSelector ? (
+            <div className={css.signupSplit}>
+              <aside className={css.signupSplitPaths} aria-label="Join PeakUp">
+                <SignupPathSelector
+                  splitLayout
+                  userTypes={typesForPathCards}
+                  selectedUserType={userType}
+                  onSelectUserType={handlePathSelect}
+                  coachSignupTo={coachSignupTo}
+                />
+              </aside>
+              <div className={css.signupSplitForm}>{formBody}</div>
+            </div>
+          ) : (
+            formBody
+          )}
         </Form>
       );
     }}
@@ -245,6 +305,10 @@ const SignupFormComponent = props => (
  * @param {string} props.preselectedUserType - The preselected user type
  * @param {propTypes.userTypes} props.userTypes - The user types
  * @param {propTypes.listingFields} props.userFields - The user fields
+ * @param {boolean} [props.showSignupPathSelector] - Show 3-card PeakUp path selector
+ * @param {propTypes.userTypes} [props.pathSelectorUserTypes] - Full user types for path cards (incl. team)
+ * @param {Object} [props.coachSignupTo] - NamedLink `to` for coach path card
+ * @param {(userType: string) => void} [props.onUserTypeChange] - Sync selected type to parent (e.g. SSO)
  * @returns {JSX.Element}
  */
 const SignupForm = props => {

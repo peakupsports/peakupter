@@ -275,6 +275,44 @@ describe('coachOnboarding', () => {
     expect(resolvePostLoginRedirect(customerUser)).toBe('/');
   });
 
+  it('redirects incomplete team to profile settings after login', () => {
+    const incompleteTeamUser = {
+      id: { uuid: 'team-user-1' },
+      attributes: {
+        profile: {
+          displayName: 'Team Azzurro',
+          publicData: {
+            userType: 'team',
+          },
+        },
+      },
+    };
+
+    expect(isCoachProviderProfileUserType(incompleteTeamUser)).toBe(false);
+    expect(resolvePostLoginRedirect(incompleteTeamUser)).toBe('/profile-settings');
+  });
+
+  it('redirects complete team to profile settings after login (V1)', () => {
+    const completeTeamUser = {
+      id: { uuid: 'team-user-2' },
+      attributes: {
+        profile: {
+          displayName: 'Team Azzurro',
+          publicData: {
+            userType: 'team',
+            teamCityText: 'St. Moritz, Switzerland',
+            lat: 46.5,
+            lng: 9.8,
+            teamBio: 'Alpine ski crew.',
+          },
+        },
+      },
+    };
+
+    expect(isCoachProviderProfileUserType(completeTeamUser)).toBe(false);
+    expect(resolvePostLoginRedirect(completeTeamUser)).toBe('/profile-settings');
+  });
+
   it('matches signup paths with optional user type segment', () => {
     expect(isAuthSignupPathname('/signup')).toBe(true);
     expect(isAuthSignupPathname('/signup/customer')).toBe(true);

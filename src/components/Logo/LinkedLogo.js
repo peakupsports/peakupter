@@ -18,6 +18,7 @@ import css from './LinkedLogo.module.css';
  * @param {Object} props.linkToExternalSite
  * @param {string} props.linkToExternalSite.href
  * @param {string?} props.linkName internal route name when no external logo link is set
+ * @param {Object?} props.linkParams path params for the named route
  * @param {string?} props.alt alt text for logo image
  * @returns {JSX.Element} linked logo component
  */
@@ -31,6 +32,7 @@ const LinkedLogo = props => {
     layout = 'desktop',
     linkToExternalSite,
     linkName = 'LandingPage',
+    linkParams = {},
     alt,
     ...rest
   } = props;
@@ -46,7 +48,7 @@ const LinkedLogo = props => {
       />
     </ExternalLink>
   ) : (
-    <NamedLink id={id} className={classes} name={linkName} {...rest}>
+    <NamedLink id={id} className={classes} name={linkName} params={linkParams} {...rest}>
       <Logo
         layout={layout}
         className={logoClassName}

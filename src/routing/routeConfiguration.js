@@ -11,6 +11,16 @@ const CoachApplicationPage = loadable(() =>
     /* webpackChunkName: "CoachApplicationPage" */ '../containers/CoachApplicationPage/CoachApplicationPage'
   )
 );
+const TeamApplicationPage = loadable(() =>
+  import(
+    /* webpackChunkName: "TeamApplicationPage" */ '../containers/TeamApplicationPage/TeamApplicationPage'
+  )
+);
+const AdminTeamApplicationsPage = loadable(() =>
+  import(
+    /* webpackChunkName: "AdminTeamApplicationsPage" */ '../containers/AdminTeamApplicationsPage/AdminTeamApplicationsPage'
+  )
+);
 const CoachDashboardPage = loadable(() =>
   import(
     /* webpackChunkName: "CoachDashboardPage" */ '../containers/CoachDashboardPage/CoachDashboardPage'
@@ -187,6 +197,14 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       loadData: pageDataLoadingAPI.CoachApplicationPage.loadData,
     },
     {
+      path: '/team-application',
+      name: 'TeamApplicationPage',
+      component: TeamApplicationPage,
+      auth: true,
+      authPage: 'LoginPage',
+      loadData: pageDataLoadingAPI.TeamApplicationPage.loadData,
+    },
+    {
       path: '/coach-dashboard',
       name: 'CoachDashboardPage',
       auth: true,
@@ -225,6 +243,13 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       component: AdminCoachApplicationsPage,
       auth: true,
       loadData: pageDataLoadingAPI.AdminCoachApplicationsPage.loadData,
+    },
+    {
+      path: '/admin/team-applications',
+      name: 'AdminTeamApplicationsPage',
+      component: AdminTeamApplicationsPage,
+      auth: true,
+      loadData: pageDataLoadingAPI.AdminTeamApplicationsPage.loadData,
     },
     {
       path: '/admin/coach-applications/:applicationId',

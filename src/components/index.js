@@ -33,6 +33,7 @@ export { default as IconReviewUser } from './IconReviewUser/IconReviewUser';
 export { default as IconSearch } from './IconSearch/IconSearch';
 export { default as IconSynchronize } from './IconSynchronize/IconSynchronize';
 export { default as IconLocation } from './IconLocation/IconLocation';
+export { default as PeakUpLocationPin } from './PeakUpLocationPin/PeakUpLocationPin';
 export { default as IconSocialMediaFacebook } from './IconSocialMediaFacebook/IconSocialMediaFacebook';
 export { default as IconSocialMediaInstagram } from './IconSocialMediaInstagram/IconSocialMediaInstagram';
 export { default as IconSocialMediaTwitter } from './IconSocialMediaTwitter/IconSocialMediaTwitter';
@@ -136,6 +137,8 @@ export { default as CoachStickerCard } from './CoachStickerCard/CoachStickerCard
 export { default as CoachCard } from './CoachCard/CoachCard';
 export { default as PeakUpCoachFigurineCard } from './PeakUpCoachFigurineCard/PeakUpCoachFigurineCard';
 export { default as PeakUpCustomerCard } from './PeakUpCustomerCard/PeakUpCustomerCard';
+export { default as TeamMemberCard } from './TeamMemberCard/TeamMemberCard';
+export { default as TeamCard } from './TeamCard/TeamCard';
 export { default as Map } from './Map/Map';
 export { default as Page } from './Page/Page';
 export { default as Reviews } from './Reviews/Reviews';

@@ -17,6 +17,7 @@ import {
 } from '../../util/coachTier';
 
 import { Avatar } from '../Avatar/Avatar';
+import PeakUpLocationPin from '../PeakUpLocationPin/PeakUpLocationPin';
 import NamedLink from '../NamedLink/NamedLink';
 import ResponsiveImage from '../ResponsiveImage/ResponsiveImage';
 
@@ -292,8 +293,8 @@ const CoachCard = props => {
           ) : null}
 
           {displayLocation ? (
-            <div className={css.locationRow}>
-              <span aria-hidden>📍</span>
+            <div className={css.locationRow} title={displayLocation}>
+              <PeakUpLocationPin size="sm" rootClassName={css.locationPin} />
               <span className={css.locationText}>{displayLocation}</span>
             </div>
           ) : null}

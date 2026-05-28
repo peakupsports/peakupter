@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { ACCOUNT_SETTINGS_PAGES } from '../../routing/routeConfiguration';
 import { useConfiguration } from '../../context/configurationContext';
 import { isPeakUpHqAdmin, isPeakUpHqRouteName } from '../../util/peakupAdmin';
+import { isTeamProviderProfileUserType } from '../../util/peakupTeam';
 import { LinkTabNavHorizontal } from '../../components';
 
 import css from './UserNav.module.css';
@@ -33,6 +34,7 @@ const UserNav = props => {
   const config = useConfiguration();
   const currentUser = useSelector(state => state.user.currentUser);
   const showPeakUpHqLink = isPeakUpHqAdmin(currentUser, config);
+  const isTeamUser = isTeamProviderProfileUserType(currentUser);
   const classes = classNames(rootClassName || css.root, className);
 
   const manageListingsTabMaybe = showManageListingsLink
@@ -81,7 +83,11 @@ const UserNav = props => {
     ...manageListingsTabMaybe,
     ...coachCalendarTabMaybe,
     {
-      text: <FormattedMessage id="UserNav.profileSettings" />,
+      text: (
+        <FormattedMessage
+          id={isTeamUser ? 'UserNav.teamWorkspace' : 'UserNav.profileSettings'}
+        />
+      ),
       selected: currentPage === 'ProfileSettingsPage',
       disabled: false,
       linkProps: {

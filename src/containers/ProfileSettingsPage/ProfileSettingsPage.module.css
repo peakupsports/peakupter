@@ -100,37 +100,103 @@
   }
 }
 
-.profileLink {
-  composes: buttonSecondaryInline from global;
-
+/* PeakUp premium gradient pill — hero CTA language for profile preview */
+.viewProfileCta {
+  position: relative;
+  z-index: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 18px;
+  min-height: 44px;
+  padding: 0 24px;
   margin: 0;
   float: none;
-
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(11, 18, 32, 0.55);
-  color: rgba(228, 235, 243, 0.9) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  color: #061018 !important;
+  background: linear-gradient(
+    112deg,
+    #17d9ff 0%,
+    #2ab8f0 18%,
+    #39f3d1 42%,
+    #72e86a 72%,
+    #d4e84a 100%
+  );
+  box-shadow:
+    0 8px 26px rgba(0, 0, 0, 0.34),
+    0 0 22px rgba(23, 217, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38);
   transition:
-    color 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    background 180ms ease;
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms ease,
+    filter 220ms ease;
+  overflow: hidden;
 }
 
-.profileLink:hover,
-.profileLink:focus-visible {
-  color: #17d9ff !important;
-  border-color: rgba(23, 217, 255, 0.35);
-  background: rgba(17, 28, 46, 0.75);
-  box-shadow:
-    0 6px 20px rgba(0, 0, 0, 0.28),
-    0 0 18px rgba(23, 217, 255, 0.12);
+.viewProfileCta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32) 0%, transparent 48%);
+  pointer-events: none;
+}
+
+.viewProfileCta::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: -2;
+  border-radius: inherit;
+  background: linear-gradient(
+    112deg,
+    rgba(23, 217, 255, 0.45) 0%,
+    rgba(57, 243, 209, 0.35) 50%,
+    rgba(157, 255, 79, 0.3) 100%
+  );
+  opacity: 0;
+  filter: blur(6px);
+  transition: opacity 220ms ease;
+  pointer-events: none;
+}
+
+.viewProfileCta:hover,
+.viewProfileCta:focus-visible {
+  color: #061018 !important;
   text-decoration: none;
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.38),
+    0 0 30px rgba(23, 217, 255, 0.3),
+    0 0 44px rgba(157, 255, 79, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+.viewProfileCta:hover::after,
+.viewProfileCta:focus-visible::after {
+  opacity: 1;
+}
+
+.viewProfileCta:active {
+  transform: translateY(0);
+  filter: brightness(1.02);
+}
+
+.viewProfileCtaCompact {
+  min-height: 40px;
+  padding: 0 18px;
+  font-size: 13px;
+
+  @media (--viewportMedium) {
+    min-height: 44px;
+    padding: 0 22px;
+    font-size: 14px;
+  }
 }

@@ -101,6 +101,9 @@ const sportEnumOptions = () => {
   }));
 };
 
+/** Central PeakUp sport library (SportBar + coach profile + team identity). */
+export const PEAKUP_SPORT_ENUM_OPTIONS = sportEnumOptions();
+
 const languageEnumOptions = [
   { option: 'it', label: 'Italiano' },
   { option: 'en', label: 'English' },

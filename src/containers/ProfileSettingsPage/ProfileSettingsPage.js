@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
-import { PROFILE_PAGE_PENDING_APPROVAL_VARIANT } from '../../util/urlHelpers';
 import { ensureCurrentUser } from '../../util/data';
 import {
   getCurrentUserTypeRoles,
@@ -16,21 +15,32 @@ import {
   showCreateListingLinkForUser,
 } from '../../util/userHelpers';
 import {
+  isTeamProviderProfileUserType,
+  getTeamPrimarySportFormValue,
+  getTeamSecondarySportFormValue,
+  teamIdentitySportsFormValuesToPublicData,
+} from '../../util/peakupTeam';
+import {
   coachMapLocationFromPublicData,
   publicDataPatchFromCoachMapLocation,
 } from '../../util/coachMapLocationForm';
+import {
+  teamMapLocationFromPublicData,
+  publicDataPatchFromTeamMapLocation,
+} from '../../util/teamMapLocationForm';
 import {
   preferredMeetingPointsFromPublicData,
   publicDataPatchFromPreferredMeetingPoints,
 } from '../../util/preferredMeetingPoints';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
-import { H3, Page, UserNav, NamedLink, LayoutSingleColumn } from '../../components';
+import { H3, Page, UserNav, LayoutSingleColumn } from '../../components';
 
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 import FooterContainer from '../../containers/FooterContainer/FooterContainer';
 
 import ProfileSettingsForm from './ProfileSettingsForm/ProfileSettingsForm';
+import ViewProfileLink from './ViewProfileLink';
 
 import { updateProfile, uploadImage } from './ProfileSettingsPage.duck';
 import css from './ProfileSettingsPage.module.css';
@@ -40,23 +50,6 @@ const onImageUploadHandler = (values, fn) => {
   if (file) {
     fn({ id, imageId, file });
   }
-};
-
-const ViewProfileLink = props => {
-  const { userUUID, isUnauthorizedUser } = props;
-  return userUUID && isUnauthorizedUser ? (
-    <NamedLink
-      className={css.profileLink}
-      name="ProfilePageVariant"
-      params={{ id: userUUID, variant: PROFILE_PAGE_PENDING_APPROVAL_VARIANT }}
-    >
-      <FormattedMessage id="ProfileSettingsPage.viewProfileLink" />
-    </NamedLink>
-  ) : userUUID ? (
-    <NamedLink className={css.profileLink} name="ProfilePage" params={{ id: userUUID }}>
-      <FormattedMessage id="ProfileSettingsPage.viewProfileLink" />
-    </NamedLink>
-  ) : null;
 };
 
 /**
@@ -104,6 +97,10 @@ export const ProfileSettingsPageComponent = props => {
       displayName,
       bio: rawBio,
       pub_coachMapLocation,
+      pub_teamMapLocation,
+      pub_teamMainSport,
+      pub_teamPrimarySport,
+      pub_teamSecondarySport,
       preferredMeetingPoints,
       teachingHoursStart,
       teachingHoursEnd,
@@ -117,23 +114,38 @@ export const ProfileSettingsPageComponent = props => {
     // Ensure that the optional bio is a string
     const bio = rawBio || '';
 
-    const coachLocationPatch = publicDataPatchFromCoachMapLocation(pub_coachMapLocation);
-    const meetingPointsPatch =
-      publicDataPatchFromPreferredMeetingPoints(preferredMeetingPoints);
+    const isTeamUser = userType === 'team';
+    const coachLocationPatch = isTeamUser
+      ? publicDataPatchFromTeamMapLocation(pub_teamMapLocation)
+      : publicDataPatchFromCoachMapLocation(pub_coachMapLocation);
+    const meetingPointsPatch = isTeamUser
+      ? {}
+      : publicDataPatchFromPreferredMeetingPoints(preferredMeetingPoints);
 
     const profile = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       ...displayNameMaybe,
       bio,
-      /* coachCityText from form overwrites address derived from map; lat/lng/location come from map patch */
       publicData: {
         ...publicData,
         ...coachLocationPatch,
         ...meetingPointsPatch,
-        ...(teachingHoursStart ? { teachingHoursStart } : { teachingHoursStart: null }),
-        ...(teachingHoursEnd ? { teachingHoursEnd } : { teachingHoursEnd: null }),
+        ...(isTeamUser
+          ? {}
+          : {
+              ...(teachingHoursStart ? { teachingHoursStart } : { teachingHoursStart: null }),
+              ...(teachingHoursEnd ? { teachingHoursEnd } : { teachingHoursEnd: null }),
+            }),
         ...pickUserFieldsData(rest, 'public', userType, userFields),
+        ...(isTeamUser && bio ? { teamBio: bio } : {}),
+        ...(isTeamUser
+          ? teamIdentitySportsFormValuesToPublicData(
+              pub_teamPrimarySport || pub_teamMainSport,
+              pub_teamSecondarySport
+            )
+          : {}),
+        ...(isTeamUser ? { sports: null } : {}),
       },
     };
     const uploadedImage = props.image;
@@ -157,6 +169,8 @@ export const ProfileSettingsPageComponent = props => {
   const profileImage = image || { imageId: profileImageId };
   const userTypeConfig = userTypes.find(config => config.userType === userType);
   const { provider: isCoachUser } = getCurrentUserTypeRoles(config, currentUser);
+  const isTeamUser = isTeamProviderProfileUserType(currentUser);
+  const isCoachProfileUser = isCoachUser && !isTeamUser;
   const isDisplayNameIncluded = userTypeConfig?.defaultUserFields?.displayName !== false;
   // ProfileSettingsForm decides if it's allowed to show the input field.
   const displayNameMaybe = isDisplayNameIncluded && displayName ? { displayName } : {};
@@ -172,10 +186,13 @@ export const ProfileSettingsPageComponent = props => {
         bio,
         profileImage: user.profileImage,
         pub_coachMapLocation: coachMapLocationFromPublicData(publicData),
+        pub_teamMapLocation: teamMapLocationFromPublicData(publicData),
         preferredMeetingPoints: preferredMeetingPointsFromPublicData(publicData),
         teachingHoursStart: publicData?.teachingHoursStart || '',
         teachingHoursEnd: publicData?.teachingHoursEnd || '',
         ...initialValuesForUserFields(publicData, 'public', userType, userFields),
+        pub_teamPrimarySport: getTeamPrimarySportFormValue(publicData),
+        pub_teamSecondarySport: getTeamSecondarySportFormValue(publicData),
       }}
       profileImage={profileImage}
       onImageUpload={e => onImageUploadHandler(e, onImageUpload)}
@@ -188,13 +205,19 @@ export const ProfileSettingsPageComponent = props => {
       userFields={publicUserFields}
       userTypeConfig={userTypeConfig}
       isCoachUser={isCoachUser}
+      isTeamUser={isTeamUser}
+      profilePreviewUserUUID={user?.id?.uuid}
+      profilePreviewUnauthorized={isUnauthorizedUser}
     />
   ) : null;
 
-  const title = intl.formatMessage({ id: 'ProfileSettingsPage.title' });
+  const title = intl.formatMessage(
+    { id: isTeamUser ? 'ProfileSettingsPage.titleTeam' : 'ProfileSettingsPage.title' },
+    { marketplaceName: config.marketplaceName }
+  );
 
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
-  const showCoachCalendarLink = Boolean(isCoachUser);
+  const showCoachCalendarLink = Boolean(isCoachProfileUser);
 
   return (
     <Page
@@ -222,19 +245,29 @@ export const ProfileSettingsPageComponent = props => {
               <p className={css.pageLabel}>
                 <FormattedMessage
                   id={
-                    isCoachUser
+                    isTeamUser
+                      ? 'ProfileSettingsPage.pageLabelTeamDashboard'
+                      : isCoachProfileUser
                       ? 'ProfileSettingsPage.pageLabel'
                       : 'ProfileSettingsPage.pageLabelCustomer'
                   }
                 />
               </p>
               <H3 as="h1" className={css.heading}>
-                <FormattedMessage id="ProfileSettingsPage.heading" />
+                <FormattedMessage
+                  id={
+                    isTeamUser
+                      ? 'ProfileSettingsPage.headingTeam'
+                      : 'ProfileSettingsPage.heading'
+                  }
+                />
               </H3>
               <p className={css.pageSubtitle}>
                 <FormattedMessage
                   id={
-                    isCoachUser
+                    isTeamUser
+                      ? 'ProfileSettingsPage.pageSubtitleTeam'
+                      : isCoachUser
                       ? 'ProfileSettingsPage.pageSubtitle'
                       : 'ProfileSettingsPage.pageSubtitleCustomer'
                   }
@@ -242,7 +275,11 @@ export const ProfileSettingsPageComponent = props => {
               </p>
             </div>
             <div className={css.pageHeaderAside}>
-              <ViewProfileLink userUUID={user?.id?.uuid} isUnauthorizedUser={isUnauthorizedUser} />
+              <ViewProfileLink
+                userUUID={user?.id?.uuid}
+                isUnauthorizedUser={isUnauthorizedUser}
+                size="compact"
+              />
             </div>
           </header>
           {profileSettingsForm}

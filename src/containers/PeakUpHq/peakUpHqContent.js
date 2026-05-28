@@ -13,6 +13,14 @@ export const PEAKUP_HQ_SECTIONS = [
     live: true,
   },
   {
+    id: 'team-applications',
+    routeName: 'AdminTeamApplicationsPage',
+    icon: 'applications',
+    titleId: 'PeakUpHq.section.teamApplications.title',
+    descriptionId: 'PeakUpHq.section.teamApplications.description',
+    live: true,
+  },
+  {
     id: 'featured-coaches',
     routeName: 'PeakUpHqFeaturedCoachesPage',
     icon: 'featured',

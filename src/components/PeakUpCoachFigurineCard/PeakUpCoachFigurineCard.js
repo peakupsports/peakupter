@@ -17,6 +17,7 @@ import {
 import { getTierStyleVars } from '../../util/coachTier';
 
 import NamedLink from '../NamedLink/NamedLink';
+import PeakUpLocationPin from '../PeakUpLocationPin/PeakUpLocationPin';
 import ResponsiveImage from '../ResponsiveImage/ResponsiveImage';
 
 import peakUpFounderLogo from '../../assets/peakup-founder-logo.png';
@@ -321,7 +322,7 @@ const PeakUpCoachFigurineCard = props => {
               {/* Floating overlay stack — single anchored column at the
                   bottom-left of the photo. Holds the language flag stack
                   and, beneath the last flag, a single location pill that
-                  contains BOTH `📍` and the full location label. The
+                  contains BOTH the tier pin and the full location label. The
                   stack is locked at `right: 8px` so the pill can stretch
                   nearly the full photo width — giving long city/region/
                   country labels room to breathe before falling back to
@@ -349,9 +350,7 @@ const PeakUpCoachFigurineCard = props => {
                         { location: displayLocation }
                       )}
                     >
-                      <span className={css.stickerLocationPin} aria-hidden>
-                        📍
-                      </span>
+                      <PeakUpLocationPin size="sm" rootClassName={css.stickerLocationPinIcon} />
                       <span className={css.stickerLocationText}>{displayLocation}</span>
                       {/* Country flag of the COACHING LOCATION (from the
                           saved Mapbox geocode), NOT the coach's

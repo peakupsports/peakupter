@@ -1,6 +1,11 @@
 @import '../../styles/customMediaQueries.css';
 
 .layoutWrapperMain {
+  @media (--viewportMedium) {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
 }
 
 .root {
@@ -25,7 +30,16 @@
   @media (--viewportMedium) {
     margin-top: 5vh;
     margin-bottom: 7.5vh;
-    min-height: 700px;
+    min-height: 0;
+  }
+}
+
+/* Signup tab: allow above-the-fold fit on laptop (desktop compacting scoped below) */
+.contentSignup {
+  @media (--viewportMedium) {
+    min-height: 0;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 }
 
@@ -99,19 +113,13 @@
 }
 
 .signupForm {
-  margin-top: 24px;
-
-  /* We don't want the form to take the whole space so that on mobile view
-  the social login buttons will be after the sign up button
-  and not in the bottom of the page.
-  We also need to add flex-basis value so that Safari will show the
-  whole form correctly.  */
+  margin-top: 12px;
   flex-grow: 0;
-  flex-basis: 340px;
+  flex-basis: auto;
+  width: 100%;
 
   @media (--viewportMedium) {
-    flex-basis: 410px;
-    margin-top: 30px;
+    margin-top: 16px;
     padding-top: 2px;
   }
 }
@@ -347,6 +355,26 @@
   background-color: transparent;
 }
 
+@media (--viewportMedium) {
+  .peakUpAuthPage .root,
+  .peakUpAuthPage [class*='ResponsiveBackgroundImageContainer_root'] {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 100%;
+  }
+
+  .peakUpAuthPage .contentContainerSignup,
+  .peakUpAuthPage [class*='AuthenticationPage_contentContainerSignup'] {
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    padding-top: 10px;
+    padding-bottom: 24px;
+    box-sizing: border-box;
+  }
+}
+
 .peakUpAuthPage [class*='ResponsiveBackgroundImageContainer_overlay'] {
   background:
     radial-gradient(70% 55% at 50% 38%, rgba(7, 11, 22, 0.62) 0%, rgba(7, 11, 22, 0.84) 70%, rgba(7, 11, 22, 0.94) 100%),
@@ -376,10 +404,84 @@
 @media (--viewportMedium) {
   .peakUpAuthPage .content,
   .peakUpAuthPage [class*='AuthenticationPage_content'] {
-    flex-basis: 520px;
+    flex-basis: min(100%, 960px);
+    max-width: 960px;
     padding: 44px 40px;
     margin-top: 7vh;
     margin-bottom: 7vh;
+  }
+
+  /* Signup: card sizing only — vertical position from contentContainerSignup flex center */
+  .peakUpAuthPage .contentSignup,
+  .peakUpAuthPage [class*='AuthenticationPage_contentSignup'] {
+    padding: 22px 32px 18px;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .peakUpAuthPage .contentSignup .signupForm {
+    margin-top: 8px;
+    padding-top: 0;
+  }
+
+  .peakUpAuthPage .contentSignup .tabs {
+    margin-top: 0;
+    margin-bottom: 18px;
+  }
+
+  .peakUpAuthPage .contentSignup [class*='TabNavHorizontal_tab'] {
+    padding-bottom: 6px;
+  }
+
+  .peakUpAuthPage .contentSignup .tab,
+  .peakUpAuthPage .contentSignup [class*='AuthenticationPage_tab'] {
+    font-size: 22px;
+    line-height: 26px;
+  }
+
+  .peakUpAuthPage .contentSignup label,
+  .peakUpAuthPage .contentSignup [class*='FieldTextInput_label'] {
+    padding-top: 1px;
+    padding-bottom: 4px;
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .peakUpAuthPage .contentSignup input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']),
+  .peakUpAuthPage .contentSignup textarea,
+  .peakUpAuthPage .contentSignup select {
+    padding: 8px 13px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .peakUpAuthPage .contentSignup [class*='Button_primaryButtonRoot'] {
+    min-height: 44px;
+    padding: 0 24px;
+  }
+
+  .peakUpAuthPage .contentSignup [class*='marketplaceModalBottomWrapper'] {
+    margin-top: 12px;
+  }
+
+  .peakUpAuthPage .contentSignup [class*='SocialLoginButtons_socialButtonsOr'] {
+    height: 24px;
+    margin: 8px 0 6px;
+  }
+
+  .peakUpAuthPage .contentSignup [class*='SocialLoginButtons_socialButtonWrapper'] {
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
+
+  .peakUpAuthPage .contentSignup [class*='TermsAndConditions_root'] {
+    padding-bottom: 2px;
+  }
+
+  .peakUpAuthPage .contentSignup [class*='TermsAndConditions_finePrint'] {
+    padding: 0;
+    font-size: 13px;
+    line-height: 1.3;
   }
 }
 
@@ -573,132 +675,11 @@
   background-color: transparent;
 }
 
-/* ====================================================================
- * Signup choice card — premium "Apply as Coach" CTA + "Join as Client"
- * teaser, rendered above the SignupForm on the signup tab only.
- * ==================================================================== */
-.signupChoice {
-  margin-top: 12px;
-  margin-bottom: 28px;
-  padding: 22px 22px 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(17, 28, 46, 0.52) 0%, rgba(11, 18, 32, 0.66) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-.signupChoiceTitle {
-  margin: 0 0 4px;
-  color: #ffffff;
-  font-size: 0.98rem;
-  font-weight: 700;
-  letter-spacing: 0.005em;
-}
-
-.signupChoiceSubtitle {
-  margin: 0 0 16px;
-  color: rgba(220, 232, 248, 0.7);
-  font-size: 0.86rem;
-  line-height: 1.4;
-}
-
-.signupChoiceCoach {
-  position: relative;
-  z-index: 5;
-  isolation: isolate;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 14px 18px;
-  border: 1px solid rgba(232, 248, 255, 0.26);
-  border-radius: 16px;
-  background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 30%, rgba(255, 255, 255, 0) 60%),
-    linear-gradient(90deg, #17d9ff 0%, #39f3d1 45%, #9dff4f 100%);
-  color: #06101C;
-  text-decoration: none;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 14px 28px rgba(2, 8, 16, 0.32),
-    0 0 22px rgba(23, 217, 255, 0.18),
-    0 0 36px rgba(157, 255, 79, 0.1);
-  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 240ms ease, filter 220ms ease;
-}
-
-.signupChoiceCoach:hover,
-.signupChoiceCoach:focus-visible {
-  transform: translateY(-1px);
-  filter: brightness(1.04);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.26),
-    0 18px 34px rgba(2, 8, 16, 0.4),
-    0 0 28px rgba(23, 217, 255, 0.26),
-    0 0 46px rgba(157, 255, 79, 0.16);
-  color: #06101C;
-  text-decoration: none;
-}
-
-.signupChoiceCoachLabel {
-  font-size: 1rem;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-}
-
-.signupChoiceCoachHint {
-  font-size: 0.84rem;
-  font-weight: 500;
-  letter-spacing: 0.005em;
-  opacity: 0.86;
-}
-
-.signupChoiceDivider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 14px 0 12px;
-  color: rgba(195, 210, 226, 0.5);
-  font-size: 0.78rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.signupChoiceDivider::before,
-.signupChoiceDivider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background-image: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.18) 50%, transparent 100%);
-}
-
-.signupChoiceClientLabel {
-  margin: 0 0 2px;
-  color: #ffffff;
-  font-size: 0.94rem;
-  font-weight: 700;
-}
-
-.signupChoiceClientHint {
-  margin: 0;
-  color: rgba(220, 232, 248, 0.68);
-  font-size: 0.84rem;
-  line-height: 1.4;
-}
-
 /* Small / mobile: tighten paddings */
 @media (max-width: 767px) {
   .peakUpAuthPage .content,
   .peakUpAuthPage [class*='AuthenticationPage_content'] {
     border-radius: 20px;
     padding: 28px 22px;
-  }
-
-  .signupChoice {
-    padding: 18px 16px 14px;
-    border-radius: 18px;
-  }
-
-  .signupChoiceCoach {
-    padding: 12px 14px;
   }
 }

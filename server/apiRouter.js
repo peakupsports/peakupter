@@ -20,7 +20,11 @@ const deleteAccount = require('./api/delete-account');
 const peakupBookingHold = require('./api/peakup-booking-hold');
 const peakupBookingHoldRelease = require('./api/peakup-booking-hold-release');
 const coachApplication = require('./api/coach-application');
+const teamApplication = require('./api/team-application');
 const coachApplicationsAdmin = require('./api/coach-applications-admin');
+const teamApplicationsAdmin = require('./api/team-applications-admin');
+const teamRoster = require('./api/team-roster');
+const teamMembers = require('./api/team-members');
 const ambassadorActivation = require('./api/ambassador-activation');
 const ambassadorActivationsAdmin = require('./api/ambassador-activations-admin');
 const referralCenter = require('./api/referral-center');
@@ -41,6 +45,9 @@ const router = express.Router();
 
 // Coach applications include base64 document payloads — higher limit on this route only.
 router.post('/coach-application', express.json({ limit: '30mb' }), coachApplication);
+router.post('/team-application', express.json({ limit: '2mb' }), teamApplication);
+router.post('/team-roster', express.json({ limit: '64kb' }), teamRoster);
+router.get('/team-members/:teamId', teamMembers);
 
 // Ambassador Program activation for verified coaches.
 router.post('/ambassador-activation', express.json({ limit: '64kb' }), ambassadorActivation);
@@ -60,6 +67,7 @@ router.get('/ambassadors-showcase', ambassadorsShowcase);
 
 // Internal admin review (protected by COACH_APPLICATION_ADMIN_TOKEN).
 router.use('/coach-applications', coachApplicationsAdmin);
+router.use('/team-applications', teamApplicationsAdmin);
 router.use('/ambassador-activations', ambassadorActivationsAdmin);
 router.use('/cancellation-cases', cancellationCasesAdmin);
 router.get(

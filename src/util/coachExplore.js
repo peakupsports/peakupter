@@ -672,6 +672,7 @@ export const getCoachShortLocationLabel = (coach, opts = {}) => {
     pd.locationName,
     pd.workingLocationLabel,
     pd.coachCityText,
+    pd.teamCityText,
   ];
   for (const candidate of visualOrdered) {
     const cleaned = firstAddressSegment(candidate);
@@ -893,10 +894,11 @@ export const getCoachMapLocationLabel = (coach, opts = {}) => {
  * @param {Object|null|undefined} pd a publicData-like object
  * @returns {string[]} deduped, normalised sport keys
  */
-const sportKeysFromPublicData = pd => {
+export const sportKeysFromPublicData = pd => {
   const data = pd || {};
   const raw = [];
   if (Array.isArray(data.sports)) raw.push(...data.sports);
+  if (Array.isArray(data.teamSports)) raw.push(...data.teamSports);
   if (typeof data.sport === 'string') raw.push(data.sport);
   if (Array.isArray(data.coachSports)) raw.push(...data.coachSports);
   if (Array.isArray(data.activities)) raw.push(...data.activities);
@@ -936,14 +938,44 @@ export const pickRepresentativeListing = listings => {
   return withGeo || listings[0];
 };
 
+const truthyPublicFlag = value => {
+  if (value === true) return true;
+  if (typeof value === 'string') return value.toLowerCase() === 'true';
+  return false;
+};
+
+/** @param {Object|null|undefined} author listing.author */
+export const isTeamAuthorUser = author => {
+  const ut = author?.attributes?.profile?.publicData?.userType;
+  return String(ut || '')
+    .trim()
+    .toLowerCase() === 'team';
+};
+
+/** Verified team eligible for public map / directory. */
+export const isPublicVerifiedTeamAuthor = author => {
+  if (!isTeamAuthorUser(author)) {
+    return false;
+  }
+  const pd = author?.attributes?.profile?.publicData || {};
+  if (!truthyPublicFlag(pd.peakupVerifiedTeam) && !truthyPublicFlag(pd.teamApproved)) {
+    return false;
+  }
+  const visibility = String(pd.peakupTeamVisibility || 'public').toLowerCase();
+  return visibility !== 'draft';
+};
+
 /**
  * Group listings by author and build coach rows for explore UI.
+ * Excludes team provider accounts (see mergeTeamsByAuthor).
  *
  * @param {Object[]} denormalisedListings listings with `author`
  * @returns {Object[]} coach summaries
  */
 export const mergeListingsByAuthor = denormalisedListings => {
-  const publicListings = filterListingsForPublicBrowsing(denormalisedListings);
+  const publicListings = filterListingsForPublicBrowsing(denormalisedListings).filter(
+    l => !isTeamAuthorUser(l.author)
+  );
   const byAuthor = new Map();
   for (const listing of publicListings) {
     const author = listing.author;
@@ -995,6 +1027,91 @@ export const mergeListingsByAuthor = denormalisedListings => {
 };
 
 /**
+ * Group team provider listings into map/explore rows.
+ *
+ * @param {Object[]} denormalisedListings
+ * @returns {Object[]}
+ */
+const teamPublicDataHasLatLng = pd => {
+  const data = pd || {};
+  const lat = typeof data.lat === 'number' ? data.lat : Number(data.lat);
+  const lng = typeof data.lng === 'number' ? data.lng : Number(data.lng);
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    return true;
+  }
+  const origin =
+    data.teamLocation?.selectedPlace?.origin || data.location?.selectedPlace?.origin;
+  return (
+    origin != null &&
+    Number.isFinite(origin.lat) &&
+    Number.isFinite(origin.lng)
+  );
+};
+
+/** Verified team row with coordinates for map pins (avoids circular import with peakupTeam). */
+export const teamRowHasGeocodedBase = teamRow => {
+  const geo = teamRow?.representativeListing?.attributes?.geolocation;
+  if (geo?.lat != null && geo?.lng != null) {
+    return true;
+  }
+  const pd = teamRow?.author?.attributes?.profile?.publicData;
+  return teamPublicDataHasLatLng(pd);
+};
+
+export const mergeTeamsByAuthor = denormalisedListings => {
+  const publicListings = filterListingsForPublicBrowsing(denormalisedListings).filter(l =>
+    isTeamAuthorUser(l.author)
+  );
+  const byAuthor = new Map();
+  for (const listing of publicListings) {
+    const author = listing.author;
+    const uuid = author?.id?.uuid;
+    if (!uuid) continue;
+    if (!isPublicVerifiedTeamAuthor(author)) continue;
+    if (!byAuthor.has(uuid)) {
+      byAuthor.set(uuid, []);
+    }
+    byAuthor.get(uuid).push(listing);
+  }
+
+  const teams = [];
+  for (const [, authorListings] of byAuthor) {
+    const representativeListing = pickRepresentativeListing(authorListings);
+    if (!representativeListing?.author) continue;
+
+    const hourlyPrice = getLowestCoachHourlyBookingPrice(authorListings);
+    const sportKeys = new Set();
+    extractSportKeysFromCoachProfile(representativeListing.author).forEach(k => sportKeys.add(k));
+    const pd = representativeListing.author?.attributes?.profile?.publicData || {};
+    const teamSports = pd.teamSports;
+    if (Array.isArray(teamSports)) {
+      teamSports.forEach(s => {
+        const k = normalizeSportKey(s);
+        if (k) sportKeys.add(k);
+      });
+    }
+    for (const l of authorListings) {
+      extractSportKeysFromListing(l).forEach(k => sportKeys.add(k));
+    }
+
+    const row = {
+      entityType: 'team',
+      authorUuid: representativeListing.author.id.uuid,
+      author: representativeListing.author,
+      representativeListing,
+      sportKeys: [...sportKeys],
+      hourlyPrice,
+      teamTagline: pd.teamTagline || null,
+    };
+
+    if (teamRowHasGeocodedBase(row)) {
+      teams.push(row);
+    }
+  }
+  return teams;
+};
+
+/**
  * @param {Object[]} coaches from mergeListingsByAuthor
  * @param {string} selectedSport raw sport key from SportBar ('' = all)
  * @returns {Object[]}
@@ -1006,6 +1123,20 @@ export const filterCoachesBySport = (coaches, selectedSport) => {
   const keys = new Set(matchSportFilterKeys(v).map(normalizeSportKey));
   return coaches.filter(c =>
     (c.sportKeys || []).some(sk => keys.has(normalizeSportKey(sk)))
+  );
+};
+
+/**
+ * @param {Object[]} teams from mergeTeamsByAuthor
+ * @param {string} selectedSport
+ * @returns {Object[]}
+ */
+export const filterTeamsBySport = (teams, selectedSport) => {
+  const v = selectedSportToFilterHyphen(selectedSport);
+  if (!v) return teams.slice();
+  const keys = new Set(matchSportFilterKeys(v).map(normalizeSportKey));
+  return teams.filter(t =>
+    (t.sportKeys || []).some(sk => keys.has(normalizeSportKey(sk)))
   );
 };
 
@@ -1034,6 +1165,11 @@ export const parseCoachExploreSearch = search => {
   // Trimmed only — UUID validation happens downstream when the value
   // is matched against the loaded coaches.
   const coachId = String(params.get('coachId') || '').trim();
+  const teamId = String(params.get('teamId') || '').trim();
+  const entity = String(params.get('entity') || 'all')
+    .trim()
+    .toLowerCase();
+  const entityFilter = ['all', 'coaches', 'teams'].includes(entity) ? entity : 'all';
   const meetingPointId = String(params.get('meetingPointId') || '').trim();
 
   const locateRaw = String(params.get('locate') || '')
@@ -1041,7 +1177,17 @@ export const parseCoachExploreSearch = search => {
     .toLowerCase();
   const locate = locateRaw === '1' || locateRaw === 'true' || locateRaw === 'yes';
 
-  return { sportKey, userLat, userLng, locationLabel, coachId, meetingPointId, locate };
+  return {
+    sportKey,
+    userLat,
+    userLng,
+    locationLabel,
+    coachId,
+    teamId,
+    entityFilter,
+    meetingPointId,
+    locate,
+  };
 };
 
 /**

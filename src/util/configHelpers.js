@@ -3,6 +3,7 @@ import { getSupportedProcessesInfo, isBookingProcessAlias } from '../transaction
 import { sanitizeText } from './sanitize';
 import { EXTENDED_DATA_SCHEMA_TYPES } from './types';
 import { peakUpCoachUserFields } from '../config/configPeakUpCoachUserFields';
+import { peakUpTeamUserFields, peakUpTeamUserTypes } from '../config/configPeakUpTeamUserFields';
 
 const isTestEnvironment = process.env.NODE_ENV === 'test';
 // Generic helpers for validating config values
@@ -1388,16 +1389,20 @@ const mergeUserConfig = (hostedConfig, defaultConfigs) => {
   // When debugging, include default configs by passing 'true' here.
   // Otherwise, use user fields from hosted assets.
   const shouldMerge = mergeDefaultTypesAndFieldsForDebugging(false);
-  const userTypes = shouldMerge
+  const userTypesBase = shouldMerge
     ? union(hostedUserTypes, defaultUserTypes, 'userType')
     : hostedUserTypes;
+  const userTypes = union(userTypesBase, peakUpTeamUserTypes, 'userType');
   const mergedHostedUserFields = shouldMerge
     ? union(hostedUserFields, defaultUserFields, 'key')
     : hostedUserFields;
 
-  // PeakUp coach extended fields (sports, price, geo, …) always merged from local config.
-  // Union keeps first insertion order; later duplicate keys replace values (second array wins).
-  const userFields = union(mergedHostedUserFields, peakUpCoachUserFields, 'key');
+  // PeakUp coach + team extended fields always merged from local config.
+  const userFields = union(
+    union(mergedHostedUserFields, peakUpCoachUserFields, 'key'),
+    peakUpTeamUserFields,
+    'key'
+  );
 
   // To include user type validation (if you have user types in your default configuration),
   // pass userTypes to the validUserFields function as well:

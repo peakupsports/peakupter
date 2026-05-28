@@ -4,9 +4,90 @@
   composes: marketplaceModalFormRootStyles from global;
 
   justify-content: flex-start;
+  width: 100%;
 
   @media (--viewportMedium) {
-    justify-content: space-between;
+    justify-content: flex-start;
+  }
+}
+
+/* Mobile: cards → form. Desktop: [ paths | form ] */
+.signupSplit {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.signupSplitPaths {
+  flex-shrink: 0;
+}
+
+@media (--viewportMedium) {
+  .signupSplit {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .signupSplitPaths {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 42%;
+    align-self: flex-start;
+    justify-content: flex-start;
+    max-width: 360px;
+    padding: 0 24px 0 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    box-sizing: border-box;
+  }
+
+  .signupSplitForm {
+    flex: 1 1 58%;
+    min-width: 0;
+    padding-left: 24px;
+    padding-top: 0;
+  }
+
+  .signupSplitForm .name {
+    margin-top: 8px;
+  }
+
+  .signupSplitForm .row,
+  .signupSplitForm .customFields {
+    margin-top: 8px;
+  }
+
+  .signupSplitForm .password {
+    margin-top: 8px;
+  }
+
+  .signupSplitForm .bottomWrapper {
+    margin-top: 10px;
+  }
+
+  /* First field (email) — no extra top gap in split column */
+  .signupSplitForm .defaultUserFields > :first-child {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .signupSplitForm .name {
+    margin-top: 16px;
+  }
+
+  .signupSplitForm .row,
+  .signupSplitForm .customFields {
+    margin-top: 16px;
+  }
+
+  .signupSplitForm .password {
+    margin-top: 16px;
+  }
+
+  .signupSplitForm .bottomWrapper {
+    margin-top: 20px;
   }
 }
 

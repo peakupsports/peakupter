@@ -215,6 +215,15 @@ export const peakupBookingHoldRelease = body =>
 export const submitCoachApplication = body =>
   postJsonToLocalApi('/api/coach-application', body);
 
+/** Submit PeakUp team / club application. */
+export const submitTeamApplication = body => postJsonToLocalApi('/api/team-application', body);
+
+/** Public verified roster for a team profile page. */
+export const fetchTeamMembers = teamId => getJsonFromLocalApi(`/api/team-members/${teamId}`);
+
+/** Sync team roster (team owner or HQ admin token). */
+export const syncTeamRoster = body => postJsonToLocalApi('/api/team-roster', body);
+
 /** Activate Ambassador Program for the logged-in verified coach. */
 export const activateAmbassadorProgram = body =>
   postJsonToLocalApi('/api/ambassador-activation', body);

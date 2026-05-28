@@ -21,7 +21,15 @@ import { FieldTextInput } from '../../components';
  * @returns {JSX.Element}
  */
 const UserFieldDisplayName = props => {
-  const { rootClassName, className, formId, formName, userTypeConfig, intl } = props;
+  const {
+    rootClassName,
+    className,
+    formId,
+    formName,
+    userTypeConfig,
+    intl,
+    displayNamePlaceholderId,
+  } = props;
 
   const { displayInSignUp, required } = userTypeConfig?.displayNameSettings || {};
   const isDisabled = userTypeConfig?.defaultUserFields?.displayName === false;
@@ -52,7 +60,7 @@ const UserFieldDisplayName = props => {
         id: `${formName}.displayNameLabel`,
       })}
       placeholder={intl.formatMessage({
-        id: `${formName}.displayNamePlaceholder`,
+        id: displayNamePlaceholderId || `${formName}.displayNamePlaceholder`,
       })}
       {...validateMaybe}
     />

@@ -42,7 +42,13 @@ import css from './Topbar.module.css';
 import { getCurrentUserTypeRoles, showCreateListingLinkForUser } from '../../../util/userHelpers';
 import { showAmbassadorMenuForUser } from '../../../util/ambassadorNav';
 import { isPeakUpHqAdmin } from '../../../util/peakupAdmin';
-import { canUseCoachPlatformMode, isCoachPlatformMode, readPlatformModeFromStorage, resolvePlatformMode } from '../../../util/peakupPlatformMode';
+import {
+  canUseCoachPlatformMode,
+  isCoachPlatformMode,
+  readPlatformModeFromStorage,
+  resolvePlatformMode,
+} from '../../../util/peakupPlatformMode';
+import { isTeamProviderProfileUserType, resolveTeamLogoLink } from '../../../util/peakupTeam';
 import {
   hydratePlatformMode,
   selectPlatformMode,
@@ -275,7 +281,10 @@ const TopbarComponent = props => {
   const effectivePlatformMode = platformModeHydrated
     ? platformMode
     : resolvePlatformMode(currentUser, readPlatformModeFromStorage());
-  const coachNavMode = canSwitchPlatformMode && isCoachPlatformMode(effectivePlatformMode);
+  const teamNavMode = isTeamProviderProfileUserType(currentUser);
+  const coachNavMode =
+    !teamNavMode && canSwitchPlatformMode && isCoachPlatformMode(effectivePlatformMode);
+  const providerNavMode = coachNavMode || teamNavMode;
   const isCoachNavModeReady = !canSwitchPlatformMode || platformModeHydrated;
 
   useInboxNotificationRefresh({
@@ -308,7 +317,7 @@ const TopbarComponent = props => {
    * - if only customer role – orders
    * - if both roles – determine by currentUserHasListings value
    */
-  const topbarInboxTab = coachNavMode
+  const topbarInboxTab = providerNavMode
     ? 'sales'
     : !isCustomer
     ? 'sales'
@@ -326,9 +335,15 @@ const TopbarComponent = props => {
   // Custom links are sorted so that group="primary" are always at the beginning of the list.
   const sortedCustomLinks = sortCustomLinks(config.topbar?.customLinks);
   const customLinks = getResolvedCustomLinks(sortedCustomLinks, routeConfiguration, location);
-  const discoveryTopbarEnabled = isCoachNavModeReady && !coachNavMode;
+  const discoveryTopbarEnabled = isCoachNavModeReady && !providerNavMode;
   const topbarCustomLinks = discoveryTopbarEnabled ? customLinks : [];
-  const logoLinkName = coachNavMode ? 'CoachDashboardPage' : 'LandingPage';
+  const teamLogoLink = teamNavMode ? resolveTeamLogoLink(currentUser) : null;
+  const logoLinkName = teamLogoLink
+    ? teamLogoLink.linkName
+    : coachNavMode
+    ? 'CoachDashboardPage'
+    : 'LandingPage';
+  const logoLinkParams = teamLogoLink?.linkParams;
   const resolvedCurrentPage = currentPage || getResolvedCurrentPage(location, routeConfiguration);
   const isSportPremiumChrome = chromeTheme === 'sportPremium';
 
@@ -409,7 +424,7 @@ const TopbarComponent = props => {
 
   const totalNotificationCount =
     currentUserSaleNotificationCount + currentUserOrderNotificationCount;
-  const coachInboxNotificationCount = coachNavMode
+  const coachInboxNotificationCount = providerNavMode
     ? currentUserSaleNotificationCount
     : totalNotificationCount;
   const showInboxDot = coachInboxNotificationCount > 0;
@@ -435,6 +450,7 @@ const TopbarComponent = props => {
       showAmbassadorMenu={showAmbassadorMenu}
       showPeakUpHqLink={showPeakUpHqLink}
       coachNavMode={coachNavMode}
+      teamNavMode={teamNavMode}
       canSwitchPlatformMode={canSwitchPlatformMode}
       onExploreAsCustomer={handleExploreAsCustomer}
       onReturnToCoachMode={handleReturnToCoachMode}
@@ -519,19 +535,19 @@ const TopbarComponent = props => {
   );
 
   const mobileCoachInboxMaybe =
-    coachNavMode && isAuthenticated ? (
+    providerNavMode && isAuthenticated ? (
       <TopbarInboxLink
         id="inbox-link-mobile"
         saleNotificationCount={currentUserSaleNotificationCount}
         orderNotificationCount={currentUserOrderNotificationCount}
         inboxTab={topbarInboxTab}
-        coachNavMode={coachNavMode}
+        coachNavMode={providerNavMode}
         currentPage={resolvedCurrentPage}
         variant="mobile"
       />
     ) : null;
 
-  const mobileRightSlotMaybe = coachNavMode && isAuthenticated
+  const mobileRightSlotMaybe = providerNavMode && isAuthenticated
     ? mobileCoachInboxMaybe
     : mobileSearchButtonMaybe;
 
@@ -572,7 +588,7 @@ const TopbarComponent = props => {
         className={classNames(
           mobileRootClassName || css.container,
           isSportPremiumChrome ? css.containerSportPremium : null,
-          coachNavMode ? css.containerCoachNav : null,
+          providerNavMode ? css.containerCoachNav : null,
           resolvedCurrentPage === 'CoachMapPage' ? css.containerCoachMap : null,
           mobileClassName
         )}
@@ -595,6 +611,7 @@ const TopbarComponent = props => {
           alt={intl.formatMessage({ id: 'Topbar.logoIcon' })}
           linkToExternalSite={config?.topbar?.logoLink}
           linkName={logoLinkName}
+          linkParams={logoLinkParams}
         />
         {mobileRightSlotMaybe}
       </nav>
@@ -625,10 +642,12 @@ const TopbarComponent = props => {
           showCreateListingsLink={showCreateListingsLink}
           showCoachCalendarLink={showCoachCalendarLink}
           coachNavMode={coachNavMode}
+          teamNavMode={teamNavMode}
           canSwitchPlatformMode={canSwitchPlatformMode}
           onExploreAsCustomer={handleExploreAsCustomer}
           onReturnToCoachMode={handleReturnToCoachMode}
           logoLinkName={logoLinkName}
+          logoLinkParams={logoLinkParams}
           inboxTab={topbarInboxTab}
           topbarCenterContent={
             discoveryTopbarEnabled

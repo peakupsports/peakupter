@@ -82,7 +82,7 @@ import {
   NamedRedirect,
   CustomExtendedDataSection,
   ResponsiveImage,
-  IconLocation,
+  PeakUpLocationPin,
 } from '../../components';
 
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
@@ -93,6 +93,9 @@ import layoutSideNavCss from '../../components/LayoutComposer/LayoutSideNavigati
 
 import PeakUpProfileTrustTopbar from './PeakUpProfileTrustTopbar';
 import CustomerProfileLayout from './CustomerProfileLayout/CustomerProfileLayout';
+import TeamProfileLayout from './TeamProfileLayout/TeamProfileLayout';
+import { isPeakUpTeamProfile, isPeakUpTeamUser } from '../../util/peakupTeam';
+import { resolveCoachTeamAffiliation } from '../../util/peakupTeam';
 import PeakupCoachBadgesHierarchyModal from '../../components/PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal';
 import ContactCoachModal from './ContactCoachModal/ContactCoachModal';
 import { sendInquiry, setInitialValues as setListingPageInitialValues } from '../ListingPage/ListingPage.duck';
@@ -375,6 +378,7 @@ export const AsideContent = props => {
 
   const config = useConfiguration();
   const profilePd = user?.attributes?.profile?.publicData || {};
+  const teamAffiliation = resolveCoachTeamAffiliation(profilePd);
   const userTypeRoles = getCurrentUserTypeRoles(config, user);
   const peakUpCoachAside = shouldShowPeakUpProfileSticker(listings, profilePd, userTypeRoles);
   const representativeListingForInquiry = peakUpCoachAside
@@ -535,6 +539,18 @@ export const AsideContent = props => {
             </span>
             <span className={css.stickerName}>{displayName}</span>
           </div>
+          {teamAffiliation?.isPublic && teamAffiliation.teamId ? (
+            <NamedLink
+              className={css.teamAffiliationChip}
+              name="ProfilePage"
+              params={{ id: teamAffiliation.teamId }}
+            >
+              <FormattedMessage
+                id="ProfilePage.teamAffiliation"
+                values={{ teamName: teamAffiliation.teamName || 'Team' }}
+              />
+            </NamedLink>
+          ) : null}
           <div
             className={css.stickerFounderLogoSlot}
             aria-hidden={!isFounder}
@@ -641,16 +657,22 @@ export const AsideContent = props => {
               <div className={css.stickerInfoOverlay}>
                 {locationLabel ? (
                   <div className={css.stickerInfoRow}>
-                    <span className={classNames(css.stickerMiniBadge, css.stickerMiniBadgeInfo)}>
-                      {/* `locationFlag` is the country flag of the COACHING
-                          place (derived from the saved Mapbox geocode), NOT
-                          the coach's nationality flag (rendered in the
-                          header). When Mapbox can't resolve the country
-                          (legacy/sparse data) the flag is omitted entirely
-                          and the pill simply reads `📍 Laax`. */}
-                      📍 {locationLabel}
-                      {locationFlag ? <> {locationFlag}</> : null}
-                    </span>
+                    <div
+                      className={classNames(
+                        css.stickerMiniBadge,
+                        css.stickerMiniBadgeInfo,
+                        css.stickerHeroLocationPill
+                      )}
+                      title={locationLabel}
+                    >
+                      <PeakUpLocationPin size="sm" rootClassName={css.stickerHeroLocationPin} />
+                      <span className={css.stickerHeroLocationText}>{locationLabel}</span>
+                      {locationFlag ? (
+                        <span className={css.stickerHeroLocationFlag} aria-hidden>
+                          {locationFlag}
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
                 ) : null}
 
@@ -1204,23 +1226,14 @@ export const MainContent = props => {
         {hasStickerLocationDetail || hasStickerSessionsDetail ? (
           <>
             {hasStickerLocationDetail ? (
-              <section className={css.stickerBio}>
-                <div
-                  className={classNames(
-                    css.stickerBioTitle,
-                    stickerLocationUseFeaturedLayout && css.stickerLocationHeadingWithPin
-                  )}
-                >
-                  {stickerLocationUseFeaturedLayout ? (
-                    <span aria-hidden>
-                      <IconLocation rootClassName={css.stickerLocationHeadingPin} />
-                    </span>
-                  ) : null}
+              <section className={classNames(css.stickerBio, css.stickerBioLocation)}>
+                <div className={css.stickerBioTitle}>
                   <FormattedMessage id="ProfilePage.coachDetailLocationHeading" />
                 </div>
                 {stickerLocationUseFeaturedLayout ? (
                   <div
                     className={classNames(
+                      css.stickerLocationPanel,
                       css.stickerLocationRich,
                       stickerMiniMapSrc && css.stickerLocationRichWithThumb,
                       css.longWord
@@ -1265,14 +1278,22 @@ export const MainContent = props => {
                         {stickerLocationShowRichCopy ? (
                           <>
                             <p className={css.stickerLocationRichTitle}>
-                              {stickerLocationHasSlug ? (
-                                <FormattedMessage
-                                  id={`ProfilePage.coachCityLocationStickerTitle_${stickerLocationMediaSlug}`}
-                                  defaultMessage={stickerLocationCityForCopy}
+                              <span className={css.stickerLocationCityRow}>
+                                <PeakUpLocationPin
+                                  size="lg"
+                                  rootClassName={css.stickerLocationCityPin}
                                 />
-                              ) : (
-                                stickerLocationCityForCopy
-                              )}
+                                <span className={css.stickerLocationCityName}>
+                                  {stickerLocationHasSlug ? (
+                                    <FormattedMessage
+                                      id={`ProfilePage.coachCityLocationStickerTitle_${stickerLocationMediaSlug}`}
+                                      defaultMessage={stickerLocationCityForCopy}
+                                    />
+                                  ) : (
+                                    stickerLocationCityForCopy
+                                  )}
+                                </span>
+                              </span>
                             </p>
                             {stickerLocationHasSlug ? (
                               <p className={css.stickerLocationRichRegion}>
@@ -1321,8 +1342,19 @@ export const MainContent = props => {
                     </div>
                   </div>
                 ) : (
-                  <div className={classNames(css.stickerBioText, css.longWord)}>
-                    {String(stickerLocationLineRaw).trim()}
+                  <div className={css.stickerLocationPanel}>
+                    <p
+                      className={classNames(
+                        css.stickerLocationCityRow,
+                        css.stickerBioText,
+                        css.longWord
+                      )}
+                    >
+                      <PeakUpLocationPin size="md" rootClassName={css.stickerLocationCityPin} />
+                      <span className={css.stickerLocationCityName}>
+                        {String(stickerLocationLineRaw).trim()}
+                      </span>
+                    </p>
                   </div>
                 )}
               </section>
@@ -1603,6 +1635,8 @@ export const ProfilePageComponent = props => {
     profilePublicData,
     userTypeRoles
   );
+  const peakUpTeamLayout =
+    isPeakUpTeamProfile(profilePublicData, userTypeRoles) || isPeakUpTeamUser(profileUser);
 
   const isDataLoaded = isPreview
     ? currentUser != null || userShowError != null
@@ -1664,6 +1698,22 @@ export const ProfilePageComponent = props => {
     },
     name: schemaTitle,
   };
+
+  if (peakUpTeamLayout) {
+    return (
+      <Page scrollingDisabled={scrollingDisabled} title={schemaTitle} schema={pageSchema}>
+        <TeamProfileLayout
+          profileUser={profileUser}
+          displayName={displayName}
+          bio={bio}
+          publicData={profilePublicData}
+          profileUserUuid={profileUser?.id?.uuid}
+          showEditProfileLink={mounted && isCurrentUser}
+          intl={intl}
+        />
+      </Page>
+    );
+  }
 
   if (peakUpCustomerLayout) {
     return (

@@ -250,14 +250,48 @@
 .locationRow {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--coachCardLocationColor, var(--colorGrey600));
-  line-height: 1.3;
+  gap: 7px;
+  max-width: 100%;
   min-width: 0;
+  margin-top: 2px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--coachCardLocationColor, var(--colorGrey700));
+  line-height: 1.3;
+  background: rgba(var(--tier-rgb, 16, 33, 62), 0.05);
+  border: 1px solid rgba(var(--tier-rgb, 16, 33, 62), 0.1);
+  box-sizing: border-box;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+@media (hover: hover) {
+  .locationRow:hover {
+    border-color: var(--tier-border, rgba(var(--tier-rgb, 16, 33, 62), 0.22));
+    background: rgba(var(--tier-rgb, 16, 33, 62), 0.08);
+    box-shadow: 0 0 14px rgba(var(--tier-rgb, 16, 33, 62), 0.08);
+    transform: translateY(-1px);
+  }
+
+  .locationRow:hover .locationPin {
+    filter: drop-shadow(0 0 7px rgba(var(--tier-rgb, 16, 33, 62), 0.35));
+    transform: scale(1.05);
+  }
+}
+
+.locationPin {
+  flex: 0 0 auto;
+  align-self: center;
 }
 
 .locationText {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: var(--fontWeightSemiBold);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

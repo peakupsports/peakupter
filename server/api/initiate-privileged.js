@@ -150,7 +150,7 @@ module.exports = (req, res) => {
         });
       }
 
-      const mergedProtectedData = referralSnapshot
+      let mergedProtectedData = referralSnapshot
         ? {
             ...(safeParams?.protectedData && typeof safeParams.protectedData === 'object'
               ? safeParams.protectedData
@@ -158,6 +158,23 @@ module.exports = (req, res) => {
             ...referralSnapshot,
           }
         : safeParams?.protectedData;
+
+      const assignedCoachUserId = orderData?.assignedCoachUserId
+        ? String(orderData.assignedCoachUserId).trim()
+        : '';
+      if (assignedCoachUserId) {
+        mergedProtectedData = {
+          ...(mergedProtectedData && typeof mergedProtectedData === 'object'
+            ? mergedProtectedData
+            : {}),
+          assignedCoachUserId,
+          ...(orderData?.assignedCoachDisplayName
+            ? {
+                assignedCoachDisplayName: String(orderData.assignedCoachDisplayName).trim(),
+              }
+            : {}),
+        };
+      }
 
       // Add lineItems to the body params
       const body = {

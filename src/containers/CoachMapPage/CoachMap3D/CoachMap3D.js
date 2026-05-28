@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 
 import { getCoachCoordinates } from '../../../util/profileCoachSticker';
+import { getTeamCoordinates } from '../../../util/peakupTeam';
 import { pickPrimaryTierId, getTierColors } from '../../../util/coachTier';
 import {
   debugCoachMapLocate,
@@ -13,6 +14,7 @@ import {
 import { matchSportFilterKeys } from '../../../util/sportFilterKeys';
 
 import CoachMapPopup from './CoachMapPopup';
+import TeamMapPopup from './TeamMapPopup';
 import css from './CoachMap3D.module.css';
 
 // Satellite + minimal vector overlay: soft premium daytime via fog/sky + light
@@ -282,6 +284,8 @@ const isMapboxAvailable = () =>
  * @param {Array}  props.coaches             Aggregated coach rows (with representativeListing).
  * @param {Object} [props.activeListingId]   Sharetribe SDK UUID of the hovered listing.
  * @param {Object} [props.selectedListingId] Sharetribe SDK UUID of the selected listing (persistent).
+ * @param {string} [props.selectedAuthorUuid] Selected coach or team author UUID (persistent highlight).
+ * @param {string} [props.hoveredAuthorUuid] Hovered coach or team author UUID.
  * @param {string} [props.selectedSport]     Raw SportBar value ('' / 'mtb' / 'snowboard' / …).
  *                                           When set, marker glyphs switch to the filtered sport
  *                                           so the map feels context-aware (a coach who teaches
@@ -304,8 +308,11 @@ const isMapboxAvailable = () =>
 const CoachMap3D = props => {
   const {
     coaches = [],
+    teams = [],
     activeListingId = null,
     selectedListingId = null,
+    selectedAuthorUuid = null,
+    hoveredAuthorUuid = null,
     selectedSport = '',
     flyToTarget = null,
     bounds = null,
@@ -524,11 +531,8 @@ const CoachMap3D = props => {
 
     // Pass 1 — resolve & validate base coords per coach.
     const validRows = [];
-    coaches.forEach(coach => {
-      const key = coach?.authorUuid;
-      if (!key) return;
-      const coords = getCoachCoordinates(coach);
-      if (!coords) return;
+    const pushRow = (entity, key, coords, isTeam) => {
+      if (!key || !coords) return;
       let { lat, lng } = coords;
       if (Math.abs(lat) > 90 && Math.abs(lng) <= 90) {
         const tmp = lat;
@@ -536,10 +540,20 @@ const CoachMap3D = props => {
         lng = tmp;
       }
       if (!isInRange(lat, lng)) return;
-      validRows.push({ coach, key, lat, lng });
+      validRows.push({ coach: entity, key, lat, lng, isTeam });
+    };
+
+    coaches.forEach(coach => {
+      pushRow(coach, coach?.authorUuid, getCoachCoordinates(coach), false);
+    });
+
+    teams.forEach(team => {
+      pushRow(team, team?.authorUuid, getTeamCoordinates(team), true);
     });
 
     // Pass 2 — group by fingerprint (~11m bucket via toFixed(4)).
+    // Future: split fpGroups by entityType (`coach` vs `team`) for separate
+    // cluster layers / hub halos when zoomed to resort scale (e.g. Laax).
     const fpGroups = new Map();
     validRows.forEach(row => {
       const fp = `${row.lat.toFixed(SPIDERFY_FINGERPRINT_DECIMALS)},${row.lng.toFixed(
@@ -563,7 +577,7 @@ const CoachMap3D = props => {
       bucket.sort((a, b) => a.key.localeCompare(b.key));
 
       bucket.forEach((row, dupIndex) => {
-        const { coach, key } = row;
+        const { coach, key, isTeam } = row;
         let { lat, lng } = row;
 
         // Single coach in this bucket → keep real coordinates exactly.
@@ -608,16 +622,22 @@ const CoachMap3D = props => {
           // When the user switches the SportBar filter, the effect re-runs
           // (deps include `selectedSport`) and every existing marker swaps
           // its emoji to the active sport — no marker re-creation needed.
-          existing.container.textContent = dominantEmoji(coach, activeFilterKeys);
-          applyTierVars(existing.container);
+          existing.container.textContent = isTeam ? '◆' : dominantEmoji(coach, activeFilterKeys);
+          existing.container.classList.toggle(css.markerPinTeam, isTeam);
+          if (!isTeam) {
+            applyTierVars(existing.container);
+          }
           return;
         }
 
         const container = document.createElement('div');
-        container.className = css.markerPin;
+        container.className = isTeam ? `${css.markerPin} ${css.markerPinTeam}` : css.markerPin;
         container.dataset.coachKey = key;
-        container.textContent = dominantEmoji(coach, activeFilterKeys);
-        applyTierVars(container);
+        container.dataset.entityType = isTeam ? 'team' : 'coach';
+        container.textContent = isTeam ? '◆' : dominantEmoji(coach, activeFilterKeys);
+        if (!isTeam) {
+          applyTierVars(container);
+        }
 
         container.addEventListener('mouseenter', () => onMarkerHoverRef.current(coach, true));
         container.addEventListener('mouseleave', () => onMarkerHoverRef.current(coach, false));
@@ -652,22 +672,36 @@ const CoachMap3D = props => {
     // on filter toggle, but listing both is defensive against future
     // memoization/sort changes upstream that could keep the same
     // reference across two filters that produce identical visible sets.
-  }, [coaches, isReady, selectedSport]);
+  }, [coaches, teams, isReady, selectedSport]);
 
-  // Highlight the hovered AND/OR selected listing's marker.
+  // Highlight hovered listing and/or selected author (coach or team).
   useEffect(() => {
     const activeUuid = activeListingId?.uuid;
     const selectedUuid = selectedListingId?.uuid;
-    const matches = (uuid, key) =>
+    const matchesListing = (uuid, key) =>
       !!uuid &&
-      coaches.some(
+      (coaches.some(
         c => c.authorUuid === key && c.representativeListing?.id?.uuid === uuid
-      );
+      ) ||
+        teams.some(
+          t => t.authorUuid === key && t.representativeListing?.id?.uuid === uuid
+        ));
     markersRef.current.forEach((entry, key) => {
-      const isActive = matches(activeUuid, key) || matches(selectedUuid, key);
+      const isActive =
+        matchesListing(activeUuid, key) ||
+        matchesListing(selectedUuid, key) ||
+        selectedAuthorUuid === key ||
+        hoveredAuthorUuid === key;
       entry.container.classList.toggle(css.markerPinActive, !!isActive);
     });
-  }, [activeListingId, selectedListingId, coaches]);
+  }, [
+    activeListingId,
+    selectedListingId,
+    selectedAuthorUuid,
+    hoveredAuthorUuid,
+    coaches,
+    teams,
+  ]);
 
   // Fly the camera to the requested target whenever it changes (the parent
   // bumps `ts` on each click so re-selecting the same coach also re-flies).
@@ -801,13 +835,22 @@ const CoachMap3D = props => {
   // Resolve the currently-selected coach from the listing id so we can render
   // its premium popup. We match on the representative listing's UUID, which is
   // also what drives `markerPinActive` for the persistent click highlight.
-  const selectedCoach = useMemo(() => {
+  const selectedEntity = useMemo(() => {
+    if (selectedAuthorUuid) {
+      return (
+        teams.find(t => t.authorUuid === selectedAuthorUuid) ||
+        coaches.find(c => c.authorUuid === selectedAuthorUuid) ||
+        null
+      );
+    }
     const uuid = selectedListingId?.uuid;
     if (!uuid) return null;
     return (
-      coaches.find(c => c.representativeListing?.id?.uuid === uuid) || null
+      coaches.find(c => c.representativeListing?.id?.uuid === uuid) ||
+      teams.find(t => t.representativeListing?.id?.uuid === uuid) ||
+      null
     );
-  }, [coaches, selectedListingId]);
+  }, [coaches, teams, selectedListingId, selectedAuthorUuid]);
 
   // Open / move / close the Mapbox Popup based on `selectedCoach`. The popup's
   // DOM container is created here and exposed via state so React can portal
@@ -817,7 +860,10 @@ const CoachMap3D = props => {
     const map = mapRef.current;
     if (!map || !window.mapboxgl) return undefined;
 
-    const popupTierId = pickPrimaryTierId(selectedCoach?.author?.attributes?.profile?.publicData);
+    const popupTierId =
+      selectedEntity?.entityType === 'team'
+        ? null
+        : pickPrimaryTierId(selectedEntity?.author?.attributes?.profile?.publicData);
     const popupTierColors = getTierColors(popupTierId);
     const applyPopupTierVars = popupInstance => {
       const popupEl = popupInstance?.getElement?.();
@@ -833,7 +879,7 @@ const CoachMap3D = props => {
       }
     };
 
-    if (!selectedCoach) {
+    if (!selectedEntity) {
       if (popupRef.current) {
         popupRef.current.remove();
         popupRef.current = null;
@@ -847,14 +893,17 @@ const CoachMap3D = props => {
     // the marker off the cluster center. Falls back to the raw coordinates
     // in the brief window where the marker hasn't been created yet
     // (e.g. ?coachId= deep-link landing before the coaches list resolves).
-    const markerEntry = markersRef.current.get(selectedCoach.authorUuid);
+    const markerEntry = markersRef.current.get(selectedEntity.authorUuid);
     let lngLat = null;
     if (markerEntry?.marker) {
       const ll = markerEntry.marker.getLngLat();
       if (ll) lngLat = [ll.lng, ll.lat];
     }
     if (!lngLat) {
-      const coords = getCoachCoordinates(selectedCoach);
+      const coords =
+        selectedEntity?.entityType === 'team'
+          ? getTeamCoordinates(selectedEntity)
+          : getCoachCoordinates(selectedEntity);
       if (coords) lngLat = [coords.lng, coords.lat];
     }
     if (!lngLat) {
@@ -910,7 +959,7 @@ const CoachMap3D = props => {
     // *before* Mapbox has finished loading (markers not yet rendered, popup
     // anchored to fallback raw coords) gets re-anchored to the actual
     // marker position once the marker sync runs and `markersRef` is hot.
-  }, [selectedCoach, isReady]);
+  }, [selectedEntity, isReady]);
 
   // Belt & suspenders: tear down the popup on unmount in case the
   // selection-driven effect didn't get a chance to clean up.
@@ -943,7 +992,7 @@ const CoachMap3D = props => {
   // Listener is attached only while a popup is open, so it never runs
   // when there's nothing to close.
   useEffect(() => {
-    if (!selectedCoach) return undefined;
+    if (!selectedEntity) return undefined;
 
     const handleDocClick = event => {
       const target = event.target;
@@ -971,7 +1020,7 @@ const CoachMap3D = props => {
       document.removeEventListener('click', handleDocClick);
       window.removeEventListener('keydown', handleKey);
     };
-  }, [selectedCoach]);
+  }, [selectedEntity]);
 
   return (
     <>
@@ -981,12 +1030,16 @@ const CoachMap3D = props => {
         role="region"
         aria-label="Coach 3D map"
       />
-      {popupContainer && selectedCoach
+      {popupContainer && selectedEntity
         ? createPortal(
-            <CoachMapPopup
-              coach={selectedCoach}
-              onClose={() => onPopupCloseRef.current()}
-            />,
+            selectedEntity.entityType === 'team' ? (
+              <TeamMapPopup team={selectedEntity} onClose={() => onPopupCloseRef.current()} />
+            ) : (
+              <CoachMapPopup
+                coach={selectedEntity}
+                onClose={() => onPopupCloseRef.current()}
+              />
+            ),
             popupContainer
           )
         : null}

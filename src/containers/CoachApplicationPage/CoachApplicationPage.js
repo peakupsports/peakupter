@@ -12,6 +12,7 @@ import {
   parseReferralCodeFromLocation,
 } from '../../util/coachOnboarding';
 import { resolveCoachApplicationInitialReferralCode } from '../../util/coachApplication';
+import { isTeamProviderProfileUserType } from '../../util/peakupTeam';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { fetchCurrentUser } from '../../ducks/user.duck';
 
@@ -97,6 +98,10 @@ const CoachApplicationPage = () => {
     () => resolveCoachApplicationInitialReferralCode({ location, currentUser: user }),
     [location, user]
   );
+
+  if (isTeamProviderProfileUserType(user)) {
+    return <Redirect to={{ pathname: '/team-application' }} />;
+  }
 
   if (!isAuthenticated || !user.id || !user.attributes.emailVerified) {
     return (

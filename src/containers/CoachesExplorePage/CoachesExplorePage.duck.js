@@ -9,6 +9,7 @@ import {
   boundsPlainFromCoordinates,
   fallbackAlpsBoundsPlain,
   mergeListingsByAuthor,
+  mergeTeamsByAuthor,
 } from '../../util/coachExplore';
 
 const MAX_LISTING_PAGES = 4;
@@ -71,7 +72,11 @@ export const fetchCoachesExploreThunk = createAsyncThunk(
         page += 1;
       }
 
-      const coaches = mergeListingsByAuthor(aggregatedListingsRefs);
+      const coaches = mergeListingsByAuthor(aggregatedListingsRefs).map(c => ({
+        ...c,
+        entityType: 'coach',
+      }));
+      const teams = mergeTeamsByAuthor(aggregatedListingsRefs);
       const authorUuids = coaches.map(c => c.authorUuid);
       const { stats: reviewStatsByAuthorUuid } = await batchedReviewStats(sdk, authorUuids, {
         concurrency: REVIEW_CONCURRENCY,
@@ -93,19 +98,27 @@ export const fetchCoachesExploreThunk = createAsyncThunk(
         return na.localeCompare(nb);
       });
 
+      const teamCoords = teams
+        .map(t => t.representativeListing?.attributes?.geolocation)
+        .filter(Boolean);
       const coords = enriched
         .map(c => c.representativeListing?.attributes?.geolocation)
-        .filter(Boolean);
+        .filter(Boolean)
+        .concat(teamCoords);
 
       let boundsPlain = boundsPlainFromCoordinates(coords);
       if (!boundsPlain) {
         boundsPlain = fallbackAlpsBoundsPlain();
       }
 
-      const mapListingIds = enriched.map(c => c.representativeListing?.id).filter(Boolean);
+      const mapListingIds = enriched
+        .map(c => c.representativeListing?.id)
+        .concat(teams.map(t => t.representativeListing?.id))
+        .filter(Boolean);
 
       return {
         coaches: enriched,
+        teams,
         boundsPlain,
         mapListingIds,
       };
@@ -119,6 +132,7 @@ const initialState = {
   fetchStatus: 'idle',
   fetchError: null,
   coaches: [],
+  teams: [],
   boundsPlain: null,
   mapListingIds: [],
 };
@@ -139,6 +153,7 @@ const coachesExploreSlice = createSlice({
         state.fetchStatus = 'succeeded';
         state.fetchError = null;
         state.coaches = action.payload.coaches;
+        state.teams = action.payload.teams || [];
         state.boundsPlain = action.payload.boundsPlain;
         state.mapListingIds = action.payload.mapListingIds;
       })
@@ -146,6 +161,7 @@ const coachesExploreSlice = createSlice({
         state.fetchStatus = 'failed';
         state.fetchError = action.payload;
         state.coaches = [];
+        state.teams = [];
       });
   },
 });

@@ -39,7 +39,17 @@ const initiateOrderPayloadCreator = (
     peakupBookingHoldId && typeof peakupBookingHoldId === 'string' ? { peakupBookingHoldId } : {};
 
   // Parameters only for client app's server
-  const orderData = deliveryMethod ? { deliveryMethod } : {};
+  const orderData = {
+    ...(deliveryMethod ? { deliveryMethod } : {}),
+    ...(orderParams?.assignedCoachUserId
+      ? {
+          assignedCoachUserId: orderParams.assignedCoachUserId,
+          ...(orderParams?.assignedCoachDisplayName
+            ? { assignedCoachDisplayName: orderParams.assignedCoachDisplayName }
+            : {}),
+        }
+      : {}),
+  };
 
   // Parameters for Marketplace API
   const transitionParams = {
@@ -302,6 +312,14 @@ const speculateTransactionPayloadCreator = (
   const orderData = {
     ...(deliveryMethod ? { deliveryMethod } : {}),
     ...(priceVariantName ? { priceVariantName } : {}),
+    ...(orderParams?.assignedCoachUserId
+      ? {
+          assignedCoachUserId: orderParams.assignedCoachUserId,
+          ...(orderParams?.assignedCoachDisplayName
+            ? { assignedCoachDisplayName: orderParams.assignedCoachDisplayName }
+            : {}),
+        }
+      : {}),
   };
 
   // Parameters for Marketplace API

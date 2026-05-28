@@ -22,6 +22,7 @@ export const PEAKUP_HQ_ROUTE_NAMES = [
   'PeakUpHqActivityPage',
   'AdminCoachApplicationsPage',
   'AdminCoachApplicationDetailPage',
+  'AdminTeamApplicationsPage',
 ];
 
 const isDevelopmentEnv = () =>

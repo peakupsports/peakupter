@@ -4,6 +4,7 @@ import {
   resolveCoachLocationStickerSlug,
 } from '../config/configCoachCity';
 import { listingHasPeakupBookingFlag } from './coachExplore';
+import { isPeakUpTeamUserType } from './peakupTeam';
 import { normalizeExtendedDataTextForDisplay } from './fieldHelpers';
 
 /**
@@ -979,6 +980,9 @@ export const isCoachProfileStickerEligible = (
   userTypeRoles = {}
 ) => {
   const pd = profilePublicData || {};
+  if (isPeakUpTeamUserType(pd)) {
+    return false;
+  }
   const coachOnlyProfile = hasPeakUpCoachOnlyProfilePublicData(pd);
   const listingHints = hasPeakUpListingCoachHints(listings);
   const isProvider = Boolean(userTypeRoles?.provider);
@@ -1079,6 +1083,10 @@ export const shouldShowPeakUpProfileSticker = (
   const pd = profilePublicData || {};
   const list = Array.isArray(listings) ? listings : [];
   const roles = userTypeRoles || {};
+
+  if (isPeakUpTeamUserType(pd)) {
+    return false;
+  }
 
   const profileCoachHints = hasPeakUpCoachProfilePublicData(pd);
   const listingCoachHints = hasPeakUpListingCoachHints(list);

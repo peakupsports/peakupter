@@ -1,0 +1,13 @@
+{
+  "id": "c70c2f01-da70-4091-9a5b-38fd6899bb50",
+  "userId": "6a184233-f391-44bb-852a-813b65404d71",
+  "coachName": "Meret",
+  "email": "meret@example.com",
+  "referralCode": "MeretPKUP01",
+  "ambassadorTier": "bronze",
+  "ambassadorRewardsUnlocked": false,
+  "activatedAt": "2026-05-28T13:43:42.895Z",
+  "referralLink": "http://localhost:3500/coach-signup?ref=MeretPKUP01",
+  "welcomeEmailSentAt": null,
+  "welcomeEmailError": "No transactional email provider configured. Set RESEND_API_KEY, POSTMARK_SERVER_TOKEN, or PEAKUP_TRANSACTIONAL_EMAIL_WEBHOOK_URL."
+}

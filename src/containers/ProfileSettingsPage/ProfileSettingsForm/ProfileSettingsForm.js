@@ -12,6 +12,7 @@ import * as validators from '../../../util/validators';
 import { isUploadImageOverLimitError } from '../../../util/errors';
 import { addScopePrefix, getPropsForCustomUserFieldInputs } from '../../../util/userHelpers';
 import { PEAK_UP_COACH_PROFILE_KEYS } from '../../../config/configPeakUpCoachUserFields';
+import { PEAK_UP_TEAM_PROFILE_KEYS } from '../../../config/configPeakUpTeamUserFields';
 
 import {
   Form,
@@ -28,12 +29,58 @@ import {
 import css from './ProfileSettingsForm.module.css';
 
 import FieldCoachMapLocation from './FieldCoachMapLocation';
+import FieldTeamMapLocation from './FieldTeamMapLocation';
+import FieldTeamSinceYear from './FieldTeamSinceYear';
+import { FieldTeamPrimarySport, FieldTeamSecondarySport } from './FieldTeamIdentitySport';
 import FieldPreferredMeetingPoints from './FieldPreferredMeetingPoints';
+import ViewProfileLink from '../ViewProfileLink';
 
 /* userFieldProps use namespaced keys (e.g. pub_sports); raw keys alone never match */
 const PEAK_UP_PROFILE_FIELD_KEYS = new Set(
   PEAK_UP_COACH_PROFILE_KEYS.map(k => addScopePrefix('public', k))
 );
+
+const PEAK_TEAM_PROFILE_FIELD_KEYS = new Set(
+  PEAK_UP_TEAM_PROFILE_KEYS.map(k => addScopePrefix('public', k))
+);
+
+const PUB_TEAM_FOUNDED_KEY = addScopePrefix('public', 'teamFoundedYear');
+const PUB_TEAM_CITY_KEY = addScopePrefix('public', 'teamCityText');
+const PUB_TEAM_TAGLINE_KEY = addScopePrefix('public', 'teamTagline');
+const PUB_TEAM_WEBSITE_KEY = addScopePrefix('public', 'teamWebsite');
+const PUB_TEAM_INSTAGRAM_KEY = addScopePrefix('public', 'teamInstagram');
+const PUB_TEAM_COACH_COUNT_KEY = addScopePrefix('public', 'teamCoachCount');
+
+const TEAM_DETAILS_FIELD_ORDER = [
+  PUB_TEAM_TAGLINE_KEY,
+  PUB_TEAM_WEBSITE_KEY,
+  PUB_TEAM_INSTAGRAM_KEY,
+  PUB_TEAM_COACH_COUNT_KEY,
+];
+
+const mergeTeamFieldConfigLabels = (fieldProps, intl) => {
+  const labelIdByKey = {
+    [PUB_TEAM_CITY_KEY]: 'ProfileSettingsForm.teamLocationLabel',
+    [PUB_TEAM_TAGLINE_KEY]: 'ProfileSettingsForm.teamTaglineLabel',
+    [PUB_TEAM_WEBSITE_KEY]: 'ProfileSettingsForm.teamWebsiteLabel',
+    [PUB_TEAM_INSTAGRAM_KEY]: 'ProfileSettingsForm.teamInstagramLabel',
+    [PUB_TEAM_COACH_COUNT_KEY]: 'ProfileSettingsForm.teamCoachCountLabel',
+  };
+  const labelId = labelIdByKey[fieldProps.key];
+  if (!labelId || !fieldProps.fieldConfig) {
+    return fieldProps;
+  }
+  return {
+    ...fieldProps,
+    fieldConfig: {
+      ...fieldProps.fieldConfig,
+      saveConfig: {
+        ...fieldProps.fieldConfig.saveConfig,
+        label: intl.formatMessage({ id: labelId }),
+      },
+    },
+  };
+};
 
 const PUB_SPORTS_KEY = addScopePrefix('public', 'sports');
 const PUB_LANGUAGES_KEY = addScopePrefix('public', 'languages');
@@ -92,11 +139,26 @@ const PEAK_PRICING_DISPLAY_ORDER = [PUB_PRICE_FROM_KEY, PUB_CURRENCY_KEY];
 const PUB_EXPERIENCE_KEY = addScopePrefix('public', 'experience');
 const PUB_COUNTRY_KEY = addScopePrefix('public', 'country');
 
+/** Team accounts: hide duplicate or HQ-only keys from the settings form. */
+const TEAM_FORM_HIDDEN_FIELD_KEYS = new Set([
+  addScopePrefix('public', 'teamSports'),
+  addScopePrefix('public', 'teamBio'),
+  addScopePrefix('public', 'teamCityText'),
+  addScopePrefix('public', 'peakupTeamVisibility'),
+  addScopePrefix('public', 'peakupVerifiedTeam'),
+  addScopePrefix('public', 'teamApproved'),
+  addScopePrefix('public', 'peakupTeamMemberIds'),
+  PUB_TEAM_FOUNDED_KEY,
+  PUB_LANGUAGES_KEY,
+  PUB_EXPERIENCE_KEY,
+  PUB_COUNTRY_KEY,
+]);
+
 const ACCEPT_IMAGES = 'image/*';
 const UPLOAD_CHANGE_DELAY = 2000; // Show spinner so that browser has time to load img srcset
 
 const DisplayNameMaybe = props => {
-  const { userTypeConfig, intl, embeddedInProfileHero } = props;
+  const { userTypeConfig, intl, embeddedInProfileHero, isTeamUser = false } = props;
 
   const isDisabled = userTypeConfig?.defaultUserFields?.displayName === false;
   if (isDisabled) {
@@ -131,12 +193,16 @@ const DisplayNameMaybe = props => {
         id="displayName"
         name="displayName"
         label={intl.formatMessage({
-          id: embeddedInProfileHero
+          id: isTeamUser
+            ? 'ProfileSettingsForm.teamDisplayNameLabel'
+            : embeddedInProfileHero
             ? 'ProfileSettingsForm.displayNameHeading'
             : 'ProfileSettingsForm.displayNameLabel',
         })}
         placeholder={intl.formatMessage({
-          id: 'ProfileSettingsForm.displayNamePlaceholder',
+          id: isTeamUser
+            ? 'ProfileSettingsForm.teamDisplayNamePlaceholder'
+            : 'ProfileSettingsForm.displayNamePlaceholder',
         })}
         {...validateMaybe}
       />
@@ -157,6 +223,7 @@ const DisplayNameMaybe = props => {
  * @param {Object} props.userTypeConfig - The user type config
  * @param {string} props.userTypeConfig.userType - The user type
  * @param {boolean} [props.isCoachUser] - Provider-role user: show coach profile fields and copy
+ * @param {boolean} [props.isTeamUser] - Team / crew account: minimal crew brand settings
  * @param {Array<Object>} props.userFields - The user fields
  * @param {Object} [props.profileImage] - The profile image
  * @param {string} props.marketplaceName - The marketplace name
@@ -220,8 +287,10 @@ class ProfileSettingsFormComponent extends Component {
             userFields,
             userTypeConfig,
             isCoachUser = true,
+            isTeamUser = false,
           } = fieldRenderProps;
 
+          const isCoachProfileUser = isCoachUser && !isTeamUser;
           const user = ensureCurrentUser(currentUser);
 
           // First name
@@ -250,10 +319,12 @@ class ProfileSettingsFormComponent extends Component {
 
           // Bio
           const bioLabel = intl.formatMessage({
-            id: 'ProfileSettingsForm.bioLabel',
+            id: isTeamUser ? 'ProfileSettingsForm.teamBioLabel' : 'ProfileSettingsForm.bioLabel',
           });
           const bioPlaceholder = intl.formatMessage({
-            id: 'ProfileSettingsForm.bioPlaceholder',
+            id: isTeamUser
+              ? 'ProfileSettingsForm.teamBioPlaceholder'
+              : 'ProfileSettingsForm.bioPlaceholder',
           });
 
           const uploadingOverlay =
@@ -345,7 +416,13 @@ class ProfileSettingsFormComponent extends Component {
           // still arrives from the Console-hosted user-fields asset
           // (Founder / Ambassador must remain admin-only).
           const peakUpFieldProps = userFieldProps.filter(p => {
-            if (!PEAK_UP_PROFILE_FIELD_KEYS.has(p.key) || PEAK_HIDDEN_FIELD_KEYS.has(p.key)) {
+            if (PEAK_HIDDEN_FIELD_KEYS.has(p.key)) {
+              return false;
+            }
+            if (isTeamUser) {
+              return false;
+            }
+            if (!PEAK_UP_PROFILE_FIELD_KEYS.has(p.key)) {
               return false;
             }
             if (isCoachUser) {
@@ -370,26 +447,52 @@ class ProfileSettingsFormComponent extends Component {
             if (PEAK_ROW_SPORTS_LANG_KEYS.has(p.key) || PEAK_ROW_PRICING_KEYS.has(p.key)) {
               return false;
             }
-            if (!isCoachUser && PEAK_COACH_ONLY_FIELD_KEYS.has(p.key)) {
+            if (!isCoachProfileUser && PEAK_COACH_ONLY_FIELD_KEYS.has(p.key)) {
               return false;
             }
             return true;
           });
-          const otherUserFieldProps = userFieldProps.filter(
-            p => !PEAK_UP_PROFILE_FIELD_KEYS.has(p.key) && !PEAK_HIDDEN_FIELD_KEYS.has(p.key)
-          );
-          const experienceFieldForHero = isCoachUser
+          const otherUserFieldProps = userFieldProps.filter(p => {
+            if (PEAK_HIDDEN_FIELD_KEYS.has(p.key)) {
+              return false;
+            }
+            if (PEAK_UP_PROFILE_FIELD_KEYS.has(p.key)) {
+              return false;
+            }
+            if (isTeamUser && PEAK_TEAM_PROFILE_FIELD_KEYS.has(p.key)) {
+              return false;
+            }
+            if (isTeamUser && TEAM_FORM_HIDDEN_FIELD_KEYS.has(p.key)) {
+              return false;
+            }
+            return true;
+          });
+
+          const teamFieldProps = isTeamUser
+            ? userFieldProps
+                .filter(
+                  p =>
+                    PEAK_TEAM_PROFILE_FIELD_KEYS.has(p.key) &&
+                    !TEAM_FORM_HIDDEN_FIELD_KEYS.has(p.key)
+                )
+                .map(p => mergeTeamFieldConfigLabels(p, intl))
+            : [];
+
+          const teamDetailsFields = TEAM_DETAILS_FIELD_ORDER.map(key =>
+            teamFieldProps.find(p => p.key === key)
+          ).filter(Boolean);
+
+          const experienceFieldForHero = isCoachProfileUser
             ? otherUserFieldProps.find(p => p.key === PUB_EXPERIENCE_KEY)
             : null;
-          const countryFieldForHero = otherUserFieldProps.find(p => p.key === PUB_COUNTRY_KEY);
+          const countryFieldForHero = isTeamUser
+            ? null
+            : otherUserFieldProps.find(p => p.key === PUB_COUNTRY_KEY);
           const otherUserFieldPropsRest = otherUserFieldProps.filter(p => {
-            if (p.key === PUB_COUNTRY_KEY) {
+            if (p.key === PUB_COUNTRY_KEY || p.key === PUB_EXPERIENCE_KEY) {
               return false;
             }
-            if (p.key === PUB_EXPERIENCE_KEY) {
-              return false;
-            }
-            if (!isCoachUser && PEAK_COACH_ONLY_FIELD_KEYS.has(p.key)) {
+            if (!isCoachProfileUser && PEAK_COACH_ONLY_FIELD_KEYS.has(p.key)) {
               return false;
             }
             return true;
@@ -419,7 +522,13 @@ class ProfileSettingsFormComponent extends Component {
             >
               <div className={classNames(css.sectionContainer, css.profileHeroSection)}>
                 <H4 as="h2" className={css.sectionTitle}>
-                  <FormattedMessage id="ProfileSettingsForm.yourProfilePicture" />
+                  <FormattedMessage
+                    id={
+                      isTeamUser
+                        ? 'ProfileSettingsForm.teamProfilePicture'
+                        : 'ProfileSettingsForm.yourProfilePicture'
+                    }
+                  />
                 </H4>
                 <div className={css.profilePictureLayout}>
                   <div className={css.profilePictureColLeft}>
@@ -482,46 +591,70 @@ class ProfileSettingsFormComponent extends Component {
                       }}
                     </Field>
                     <div className={css.profilePictureColHelp}>
-                      <div className={css.tip}>
-                        <FormattedMessage id="ProfileSettingsForm.tip" />
-                      </div>
-                      <div className={css.fileInfo}>
-                        <FormattedMessage id="ProfileSettingsForm.fileInfo" />
-                      </div>
+                      {isTeamUser ? (
+                        <p className={css.extraInfo}>
+                          <FormattedMessage id="ProfileSettingsForm.teamProfilePictureHelp" />
+                        </p>
+                      ) : (
+                        <>
+                          <div className={css.tip}>
+                            <FormattedMessage id="ProfileSettingsForm.tip" />
+                          </div>
+                          <div className={css.fileInfo}>
+                            <FormattedMessage id="ProfileSettingsForm.fileInfo" />
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className={css.profilePictureColRight}>
-                    <div className={css.nameFieldsInHero}>
-                      <H4 as="h2" className={classNames(css.sectionTitle, css.subsectionTitle)}>
-                        <FormattedMessage id="ProfileSettingsForm.yourName" />
-                      </H4>
-                      <div className={css.nameContainer}>
-                        <FieldTextInput
-                          className={css.firstName}
-                          type="text"
-                          id="firstName"
-                          name="firstName"
-                          label={firstNameLabel}
-                          placeholder={firstNamePlaceholder}
-                          validate={firstNameRequired}
-                        />
-                        <FieldTextInput
-                          className={css.lastName}
-                          type="text"
-                          id="lastName"
-                          name="lastName"
-                          label={lastNameLabel}
-                          placeholder={lastNamePlaceholder}
-                          validate={lastNameRequired}
-                        />
+                    {!isTeamUser ? (
+                      <div className={css.nameFieldsInHero}>
+                        <H4 as="h2" className={classNames(css.sectionTitle, css.subsectionTitle)}>
+                          <FormattedMessage id="ProfileSettingsForm.yourName" />
+                        </H4>
+                        <div className={css.nameContainer}>
+                          <FieldTextInput
+                            className={css.firstName}
+                            type="text"
+                            id="firstName"
+                            name="firstName"
+                            label={firstNameLabel}
+                            placeholder={firstNamePlaceholder}
+                            validate={firstNameRequired}
+                          />
+                          <FieldTextInput
+                            className={css.lastName}
+                            type="text"
+                            id="lastName"
+                            name="lastName"
+                            label={lastNameLabel}
+                            placeholder={lastNamePlaceholder}
+                            validate={lastNameRequired}
+                          />
+                        </div>
                       </div>
-                    </div>
+                    ) : null}
                     <DisplayNameMaybe
                       embeddedInProfileHero
                       userTypeConfig={userTypeConfig}
                       intl={intl}
+                      isTeamUser={isTeamUser}
                     />
-                    {countryHeroFieldProps || experienceHeroFieldProps ? (
+                    {isTeamUser ? (
+                      <div className={css.profileHeroMetaRow}>
+                        <div className={css.teamSinceFieldCol}>
+                          <FieldTeamSinceYear formId={formId} />
+                        </div>
+                        <div className={css.teamIdentitySportFieldCol}>
+                          <FieldTeamPrimarySport formId={formId} />
+                        </div>
+                        <div className={css.teamIdentitySportFieldCol}>
+                          <FieldTeamSecondarySport formId={formId} />
+                        </div>
+                      </div>
+                    ) : null}
+                    {!isTeamUser && (countryHeroFieldProps || experienceHeroFieldProps) ? (
                       <div className={css.profileHeroMetaRow}>
                         {countryHeroFieldProps ? (
                           <div className={css.profileHeroMetaCol}>
@@ -547,16 +680,36 @@ class ProfileSettingsFormComponent extends Component {
                 </div>
               </div>
 
+              {isTeamUser ? (
+                <div className={css.sectionContainer}>
+                  <H4 as="h2" className={css.sectionTitle}>
+                    <FormattedMessage id="ProfileSettingsForm.teamMapLocationHeading" />
+                  </H4>
+                  <p className={css.extraInfo}>
+                    <FormattedMessage id="ProfileSettingsForm.teamMapLocationInfo" />
+                  </p>
+                  <FieldTeamMapLocation formId={formId} />
+                </div>
+              ) : null}
+
               <div
                 className={classNames(css.sectionContainer, {
                   [css.lastSection]:
                     !isCoachUser &&
+                    !isTeamUser &&
                     coachPeakSportsLanguages.length === 0 &&
-                    otherUserFieldPropsRest.length === 0,
+                    otherUserFieldPropsRest.length === 0 &&
+                    teamDetailsFields.length === 0,
                 })}
               >
                 <H4 as="h2" className={css.sectionTitle}>
-                  <FormattedMessage id="ProfileSettingsForm.bioHeading" />
+                  <FormattedMessage
+                    id={
+                      isTeamUser
+                        ? 'ProfileSettingsForm.teamBioHeading'
+                        : 'ProfileSettingsForm.bioHeading'
+                    }
+                  />
                 </H4>
                 <FieldTextInput
                   type="textarea"
@@ -568,7 +721,9 @@ class ProfileSettingsFormComponent extends Component {
                 <p className={css.extraInfo}>
                   <FormattedMessage
                     id={
-                      isCoachUser
+                      isTeamUser
+                        ? 'ProfileSettingsForm.teamBioInfo'
+                        : isCoachUser
                         ? 'ProfileSettingsForm.bioInfo'
                         : 'ProfileSettingsForm.bioInfoCustomer'
                     }
@@ -576,6 +731,23 @@ class ProfileSettingsFormComponent extends Component {
                   />
                 </p>
               </div>
+              {isTeamUser && teamDetailsFields.length > 0 ? (
+                <div
+                  className={classNames(css.sectionContainer, {
+                    [css.lastSection]: coachPeakSportsLanguages.length === 0,
+                  })}
+                >
+                  <H4 as="h2" className={css.sectionTitle}>
+                    <FormattedMessage id="ProfileSettingsForm.teamDetailsHeading" />
+                  </H4>
+                  <p className={css.extraInfo}>
+                    <FormattedMessage id="ProfileSettingsForm.teamDetailsInfo" />
+                  </p>
+                  {teamDetailsFields.map(({ key, ...fieldProps }) => (
+                    <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
+                  ))}
+                </div>
+              ) : null}
               {otherUserFieldPropsRest.length > 0 ? (
                 <div className={css.sectionContainer}>
                   {otherUserFieldPropsRest.map(({ key, ...fieldProps }) => (
@@ -587,13 +759,15 @@ class ProfileSettingsFormComponent extends Component {
               {coachPeakSportsLanguages.length > 0 ? (
                 <div
                   className={classNames(css.sectionContainer, css.coachSportsLangSection, {
-                    [css.lastSection]: !isCoachUser,
+                    [css.lastSection]: !isCoachProfileUser,
                   })}
                 >
                   <H4 as="h2" className={css.sectionTitle}>
                     <FormattedMessage
                       id={
-                        isCoachUser
+                        isTeamUser
+                          ? 'ProfileSettingsForm.teamSportsHeading'
+                          : isCoachUser
                           ? 'ProfileSettingsForm.sportsAndLanguagesHeading'
                           : coachHasSportsAndLanguages
                           ? 'ProfileSettingsForm.clientSportsAndLanguagesHeading'
@@ -603,6 +777,11 @@ class ProfileSettingsFormComponent extends Component {
                       }
                     />
                   </H4>
+                  {isTeamUser ? (
+                    <p className={css.extraInfo}>
+                      <FormattedMessage id="ProfileSettingsForm.teamSportsInfo" />
+                    </p>
+                  ) : null}
                   <div
                     className={
                       coachHasSportsAndLanguages ? css.coachSportsLangPair : css.coachRowTwoCol
@@ -624,7 +803,7 @@ class ProfileSettingsFormComponent extends Component {
               {/* Coach badges section removed: Founder / Ambassador are admin-only,
                   Top coach / Certified coach are auto-derived from experience. */}
 
-              {isCoachUser && coachPeakPricing.length > 0 ? (
+              {isCoachProfileUser && coachPeakPricing.length > 0 ? (
                 <div className={css.sectionContainer}>
                   <H4 as="h2" className={css.sectionTitle}>
                     <FormattedMessage id="ProfileSettingsForm.coachSessionPriceHeading" />
@@ -640,7 +819,7 @@ class ProfileSettingsFormComponent extends Component {
                 </div>
               ) : null}
 
-              {isCoachUser ? (
+              {isCoachProfileUser ? (
                 <div className={css.sectionContainer}>
                   <H4 as="h2" className={css.sectionTitle}>
                     <FormattedMessage id="ProfileSettingsForm.teachingHoursHeading" />
@@ -677,7 +856,7 @@ class ProfileSettingsFormComponent extends Component {
                 </div>
               ) : null}
 
-              {isCoachUser ? (
+              {isCoachProfileUser ? (
                 <div className={css.sectionContainer}>
                   <H4 as="h2" className={css.sectionTitle}>
                     <FormattedMessage id="ProfileSettingsForm.coachLocationHeading" />
@@ -695,7 +874,7 @@ class ProfileSettingsFormComponent extends Component {
                   <FieldCoachMapLocation formId={formId} />
                 </div>
               ) : null}
-              {isCoachUser ? (
+              {isCoachProfileUser ? (
                 <div className={classNames(css.sectionContainer, css.lastSection)}>
                   <H4 as="h2" className={css.sectionTitle}>
                     <FormattedMessage id="ProfileSettingsForm.preferredMeetingPointsHeading" />
@@ -707,15 +886,21 @@ class ProfileSettingsFormComponent extends Component {
                 </div>
               ) : null}
               {submitError}
-              <Button
-                className={css.submitButton}
-                type="submit"
-                inProgress={submitInProgress}
-                disabled={submitDisabled}
-                ready={pristineSinceLastSubmit}
-              >
-                <FormattedMessage id="ProfileSettingsForm.saveChanges" />
-              </Button>
+              <div className={css.formActions}>
+                <Button
+                  className={css.submitButton}
+                  type="submit"
+                  inProgress={submitInProgress}
+                  disabled={submitDisabled}
+                  ready={pristineSinceLastSubmit}
+                >
+                  <FormattedMessage id="ProfileSettingsForm.saveChanges" />
+                </Button>
+                <ViewProfileLink
+                  userUUID={this.props.profilePreviewUserUUID}
+                  isUnauthorizedUser={this.props.profilePreviewUnauthorized}
+                />
+              </div>
             </Form>
           );
         }}

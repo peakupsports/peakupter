@@ -76,6 +76,7 @@ const TopbarMobileMenu = props => {
     showAmbassadorMenu,
     showPeakUpHqLink,
     coachNavMode,
+    teamNavMode = false,
     canSwitchPlatformMode,
     onExploreAsCustomer,
     onReturnToCoachMode,
@@ -175,6 +176,17 @@ const TopbarMobileMenu = props => {
         <span className={css.dashboardNavInner}>
           <PeakUpHqIcon name="dashboard" className={css.dashboardNavIcon} />
           <FormattedMessage id="TopbarMobileMenu.dashboardLink" />
+        </span>
+      </NamedLink>
+    </li>
+  );
+
+  const teamDashboardLink = (
+    <li className={classNames(css.navigationLink, currentPageClass('ProfileSettingsPage'))}>
+      <NamedLink name="ProfileSettingsPage">
+        <span className={css.dashboardNavInner}>
+          <PeakUpHqIcon name="dashboard" className={css.dashboardNavIcon} />
+          <FormattedMessage id="TopbarMobileMenu.teamDashboardLink" />
         </span>
       </NamedLink>
     </li>
@@ -320,7 +332,16 @@ const TopbarMobileMenu = props => {
 
   let accountLinks = null;
 
-  if (coachNavMode) {
+  if (teamNavMode) {
+    accountLinks = (
+      <>
+        {teamDashboardLink}
+        {requestsLink}
+        {accountLink}
+        {peakUpHqLink}
+      </>
+    );
+  } else if (coachNavMode) {
     accountLinks = (
       <>
         {dashboardLink}
@@ -385,7 +406,7 @@ const TopbarMobileMenu = props => {
         </InlineTextButton>
 
         <ul className={css.accountLinksWrapper}>{accountLinks}</ul>
-        {!coachNavMode ? <ul className={css.customLinksWrapper}>{extraLinks}</ul> : null}
+        {!coachNavMode && !teamNavMode ? <ul className={css.customLinksWrapper}>{extraLinks}</ul> : null}
         <div className={css.spacer} />
       </div>
     </div>

@@ -39,7 +39,11 @@ import {
   fetchTransactionLineItems,
 } from './ListingPage.duck';
 
-import { hasPeakUpCoachBookingSearchFlag } from '../../util/coachBookingNavigation';
+import {
+  hasPeakUpCoachBookingSearchFlag,
+  hasPeakUpTeamBookingSearchFlag,
+} from '../../util/coachBookingNavigation';
+import { isPeakUpTeamUser } from '../../util/peakupTeam';
 
 import {
   LoadingPage,
@@ -157,8 +161,11 @@ export const ListingPageComponent = props => {
   } = derivedData;
 
   const isPeakupBookingListing = publicData?.peakupBookingListing === true;
+  const isTeamBookingShell =
+    isPeakUpTeamUser(ensuredAuthor) && hasPeakUpTeamBookingSearchFlag(location.search);
   const isPeakupCoachBookingShell =
-    isPeakupBookingListing && hasPeakUpCoachBookingSearchFlag(location.search);
+    (isPeakupBookingListing && hasPeakUpCoachBookingSearchFlag(location.search)) ||
+    isTeamBookingShell;
   const topbarCenterContent = isPeakupBookingListing ? (
     <div className={css.peakupTopbarCenter}>
       <Avatar className={css.peakupTopbarCenterAvatar} user={ensuredAuthor} disableProfileLink />
