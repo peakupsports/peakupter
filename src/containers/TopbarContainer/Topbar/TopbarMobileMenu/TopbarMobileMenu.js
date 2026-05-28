@@ -22,6 +22,7 @@ import {
 import PeakUpHqIcon from '../../../PeakUpHq/PeakUpHqIcons';
 
 import css from './TopbarMobileMenu.module.css';
+import { CreateServiceMobileNavItem } from '../TopbarCreateServiceLink';
 
 const CustomLinkComponent = ({ linkConfig, currentPage }) => {
   const { group, text, type, href, route } = linkConfig;
@@ -187,6 +188,10 @@ const TopbarMobileMenu = props => {
     </li>
   ) : null;
 
+  const createServiceLink = showCreateListingsLink ? (
+    <CreateServiceMobileNavItem currentPageClass={currentPageClass} />
+  ) : null;
+
   const calendarLink = (
     <li className={classNames(css.navigationLink, currentPageClass('CoachCalendarPage'))}>
       <NamedLink name="CoachCalendarPage">
@@ -319,6 +324,7 @@ const TopbarMobileMenu = props => {
     accountLinks = (
       <>
         {dashboardLink}
+        {createServiceLink}
         {listingsLink}
         {calendarLink}
         {earningsLink}
@@ -346,6 +352,7 @@ const TopbarMobileMenu = props => {
       <>
         {inboxLink}
         {dashboardLink}
+        {createServiceLink}
         {listingsLink}
         {calendarLink}
         {earningsLink}

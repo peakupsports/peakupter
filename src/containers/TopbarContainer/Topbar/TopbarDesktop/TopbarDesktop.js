@@ -20,6 +20,7 @@ import TopbarSearchForm from '../TopbarSearchForm/TopbarSearchForm';
 import CustomLinksMenu from './CustomLinksMenu/CustomLinksMenu';
 import PeakUpHqIcon from '../../../PeakUpHq/PeakUpHqIcons';
 import TopbarInboxLink from '../TopbarInboxLink';
+import { CreateServiceProfileMenuItem } from '../TopbarCreateServiceLink';
 
 import css from './TopbarDesktop.module.css';
 
@@ -100,6 +101,12 @@ const ProfileMenu = ({
       </NamedLink>
     </MenuItem>
   );
+
+  const createServiceLink = showManageListingsLink ? (
+    <MenuItem key="NewListingPage">
+      <CreateServiceProfileMenuItem currentPageClass={currentPageClass} />
+    </MenuItem>
+  ) : null;
 
   const listingsLink = showManageListingsLink ? (
     <MenuItem key="ManageListingsPage">
@@ -298,6 +305,7 @@ const ProfileMenu = ({
   if (coachNavMode) {
     menuItems = [
       dashboardLink,
+      createServiceLink,
       listingsLink,
       calendarLink,
       earningsLink,
@@ -321,6 +329,7 @@ const ProfileMenu = ({
   } else if (showCoachCalendarLink) {
     menuItems = [
       dashboardLink,
+      createServiceLink,
       listingsLink,
       calendarLink,
       earningsLink,

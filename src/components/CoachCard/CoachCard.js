@@ -2,8 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
-import { types as sdkTypes } from '../../util/sdkLoader';
-import { formatMoney, unitDivisor } from '../../util/currency';
+import { formatMoney } from '../../util/currency';
 import { ensureUser } from '../../util/data';
 import { getCoachMapLocationLabel } from '../../util/coachExplore';
 import {
@@ -22,8 +21,6 @@ import NamedLink from '../NamedLink/NamedLink';
 import ResponsiveImage from '../ResponsiveImage/ResponsiveImage';
 
 import css from './CoachCard.module.css';
-
-const { Money } = sdkTypes;
 
 const PROFILE_IMAGE_VARIANTS = ['square-small', 'square-small2x'];
 
@@ -66,31 +63,6 @@ const formatDemoCoachPrice = (intl, publicData) => {
   }
 };
 
-/**
- * Build a Money from the coach profile's `publicData.priceFrom` (major units)
- * and `publicData.currency`. Returns `null` when the inputs are missing,
- * non-numeric, or when the currency has no known minor-unit divisor – the
- * caller can then fall back to the listing-based price.
- *
- * @param {Object} publicData author profile public data
- * @returns {Object|null} sdkTypes.Money or null
- */
-const buildProfilePriceMoney = publicData => {
-  if (!publicData) return null;
-  const rawAmount = publicData.priceFrom;
-  const amountMajor =
-    rawAmount === null || rawAmount === undefined || rawAmount === '' ? NaN : Number(rawAmount);
-  if (!Number.isFinite(amountMajor) || amountMajor <= 0) return null;
-  const currency = publicData.currency;
-  if (!currency || typeof currency !== 'string') return null;
-  try {
-    const subunits = Math.round(amountMajor * unitDivisor(currency));
-    if (!Number.isFinite(subunits)) return null;
-    return new Money(subunits, currency);
-  } catch (e) {
-    return null;
-  }
-};
 
 /**
  * Sidebar coach card for `/coach-map`.
@@ -130,7 +102,6 @@ const CoachCard = props => {
   const {
     author: rawAuthor,
     representativeListing,
-    minPrice,
     reviewAverage,
     reviewCount,
   } = coach || {};
@@ -185,24 +156,18 @@ const CoachCard = props => {
   // shows the friendly "coming soon" alert.
   const isDemo = Boolean(coach?.isDemo);
 
-  // Price source order:
-  //   1. coach profile (`publicData.priceFrom` + `publicData.currency`)
-  //      – set from ProfileSettingsPage, this is the "main" coaching price.
-  //   2. cheapest listing (`coach.minPrice`) – legacy fallback for coaches
-  //      who haven't configured a profile-level price yet.
-  // Listing prices elsewhere in the marketplace are unaffected.
-  const profilePriceMoney = buildProfilePriceMoney(publicData);
-  const listingMinPrice =
-    minPrice && typeof minPrice.amount === 'number' ? minPrice : null;
-  const priceForDisplay = profilePriceMoney || listingMinPrice;
+  // Coach hourly price must come ONLY from the coach hourly-booking listing.
+  // Fixed-price listings are intentionally ignored for this display.
+  const hourlyPriceMoney =
+    coach?.hourlyPrice && typeof coach.hourlyPrice.amount === 'number' ? coach.hourlyPrice : null;
   // Demo coaches: use a clean integer currency formatter (`€95` / `$140` /
   // `CHF 220`) so the marketing reel reflects each coach's country. Real
   // listings still go through `formatMoney`, which is locked to the
   // marketplace currency.
   const formattedPrice = coach?.isDemo
     ? formatDemoCoachPrice(intl, publicData)
-    : priceForDisplay
-    ? formatMoney(intl, priceForDisplay)
+    : hourlyPriceMoney
+    ? formatMoney(intl, hourlyPriceMoney)
     : null;
 
   const profileImageVariants = profileImage

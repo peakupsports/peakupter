@@ -1690,6 +1690,8 @@
   "ManageListingCard.unsupportedPrice": "({currency})",
   "ManageListingCard.unsupportedPriceTitle": "Unsupported currency ({currency})",
   "ManageListingsPage.createListing": "Post a new listing",
+  "ManageListingsPage.createServiceCTA": "+ Create new service",
+  "ManageListingsPage.createServiceCTASubtext": "Add a new coach offer",
   "ManageListingsPage.loadingOwnListings": "Loading listings…",
   "ManageListingsPage.noResults": "You haven't listed any listings.",
   "ManageListingsPage.queryError": "Query failed. Please try again.",

@@ -10,30 +10,7 @@
  * con lat/lng globali; non usiamo più il menu elenco città SV.
  */
 
-import { allowedListingCurrencies } from './settingsCurrency';
-
-// Human-readable labels for the currency dropdown shown to coaches.
-// The list of options is driven by `allowedListingCurrencies` (single source
-// of truth). This map only provides display text for known codes; if the
-// whitelist ever grows, the missing label falls back to the ISO code.
-const CURRENCY_LABEL = {
-  CHF: 'CHF (Swiss franc)',
-  EUR: 'EUR (Euro)',
-  USD: 'USD (US dollar)',
-  GBP: 'GBP (British pound)',
-};
-
-const buildCurrencyEnumOptions = () =>
-  (allowedListingCurrencies || []).map(option => ({
-    option,
-    label: CURRENCY_LABEL[option] || option,
-  }));
-
-const buildCurrencyPlaceholder = () => {
-  const list = allowedListingCurrencies || [];
-  if (list.length <= 2) return list.join(' or ');
-  return `${list.slice(0, -1).join(', ')} or ${list[list.length - 1]}`;
-};
+// NOTE: Coach hourly price is derived from the hourly booking listing only.
 
 /** Chiavi `publicData` scritte dal blocco “Coach & sessions” (e lette sulla Profile page).
  *
@@ -51,8 +28,6 @@ export const PEAK_UP_COACH_PROFILE_KEYS = [
   'sports',
   PEAKUP_COACH_PROFILE_LANGUAGE_KEY,
   'peakupCoachBadges',
-  'currency',
-  'priceFrom',
   'coachCityText',
   'coachTravelNearby',
 ];
@@ -178,45 +153,9 @@ export const peakUpCoachUserFields = [
   // `publicData.peakupCoachBadges`).
   // Top coach / Certified coach are auto-derived from `experience` years —
   // see `resolveDisplayBadgeIds` in `src/util/profileCoachSticker.js`.
-  {
-    key: 'currency',
-    scope: 'public',
-    schemaType: 'enum',
-    // Driven by `allowedListingCurrencies` so this dropdown stays in sync with
-    // the listing-pricing whitelist (CHF / EUR / USD / GBP).
-    enumOptions: buildCurrencyEnumOptions(),
-    showConfig: {
-      label: 'Session price currency',
-    },
-    saveConfig: {
-      label: 'Price currency',
-      displayInSignUp: false,
-      isRequired: false,
-      placeholderMessage: buildCurrencyPlaceholder(),
-    },
-    userTypeConfig: {
-      limitToUserTypeIds: false,
-      userTypeIds: [],
-    },
-  },
-  {
-    key: 'priceFrom',
-    scope: 'public',
-    schemaType: 'long',
-    showConfig: {
-      label: 'Starting price',
-    },
-    saveConfig: {
-      label: 'Starting price (per hour)',
-      displayInSignUp: false,
-      isRequired: false,
-      placeholderMessage: 'e.g. 80',
-    },
-    userTypeConfig: {
-      limitToUserTypeIds: false,
-      userTypeIds: [],
-    },
-  },
+  // NOTE: Coach hourly price must come from the hourly booking listing only
+  // (`listing.attributes.price`). We intentionally do NOT expose or store a
+  // profile-level hourly price anymore.
   {
     // Visual short label shown on the profile, the figurina coach card,
     // the CoachCard sidebar, and the CoachMap popup. This is the user-

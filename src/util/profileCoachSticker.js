@@ -527,14 +527,9 @@ export const resolveCoachStickerDisplay = (profilePd = {}, listing = null) => {
   const sports = mergeCoachSports(pd, lp);
   const languages = mergeCoachLanguages(pd, lp);
 
-  const priceFrom = pd.priceFrom ?? lp.priceFrom;
-  const currency = pd.currency ?? lp.currency ?? 'CHF';
-
   return {
     sports,
     languages,
-    priceFrom,
-    currency,
     locationLine,
     lat: latResolved,
     lng: lngResolved,
@@ -910,8 +905,6 @@ export const hasPeakUpCoachProfilePublicData = (profilePublicData = {}) => {
   if (Array.isArray(pd.languages) && pd.languages.length > 0) return true;
   if (pd.coachLevel != null && String(pd.coachLevel).trim() !== '') return true;
   if (pd.experience != null && String(pd.experience).trim() !== '') return true;
-  if (pd.priceFrom != null && String(pd.priceFrom).trim() !== '') return true;
-  if (pd.currency != null && String(pd.currency).trim() !== '') return true;
   if (finiteNum(pd.lat) != null || finiteNum(pd.lng) != null) return true;
   if (finiteNum(pd.latitude) != null || finiteNum(pd.longitude) != null) return true;
   if (finiteNum(pd.location?.selectedPlace?.origin?.lat) != null) return true;
@@ -954,8 +947,6 @@ export const hasPeakUpCoachOnlyProfilePublicData = (profilePublicData = {}) => {
   const pd = profilePublicData || {};
   if (pd.coachLevel != null && String(pd.coachLevel).trim() !== '') return true;
   if (pd.experience != null && String(pd.experience).trim() !== '') return true;
-  if (pd.priceFrom != null && String(pd.priceFrom).trim() !== '') return true;
-  if (pd.currency != null && String(pd.currency).trim() !== '') return true;
   if (finiteNum(pd.lat) != null || finiteNum(pd.lng) != null) return true;
   if (finiteNum(pd.latitude) != null || finiteNum(pd.longitude) != null) return true;
   if (finiteNum(pd.location?.selectedPlace?.origin?.lat) != null) return true;

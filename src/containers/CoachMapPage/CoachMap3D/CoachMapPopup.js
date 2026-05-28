@@ -2,8 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
-import { types as sdkTypes } from '../../../util/sdkLoader';
-import { formatMoney, unitDivisor } from '../../../util/currency';
+import { formatMoney } from '../../../util/currency';
 import { ensureUser } from '../../../util/data';
 import { getCoachMapLocationLabel } from '../../../util/coachExplore';
 import {
@@ -29,33 +28,8 @@ import {
 
 import css from './CoachMapPopup.module.css';
 
-const { Money } = sdkTypes;
-
 const PROFILE_IMAGE_VARIANTS = ['square-small', 'square-small2x'];
 
-/**
- * Build a Money from `publicData.priceFrom` (major units) + `publicData.currency`.
- * Mirrors the helper used in CoachCard so the popup price matches the card price.
- *
- * @param {Object} publicData
- * @returns {Object|null}
- */
-const buildProfilePriceMoney = publicData => {
-  if (!publicData) return null;
-  const rawAmount = publicData.priceFrom;
-  const amountMajor =
-    rawAmount === null || rawAmount === undefined || rawAmount === '' ? NaN : Number(rawAmount);
-  if (!Number.isFinite(amountMajor) || amountMajor <= 0) return null;
-  const currency = publicData.currency;
-  if (!currency || typeof currency !== 'string') return null;
-  try {
-    const subunits = Math.round(amountMajor * unitDivisor(currency));
-    if (!Number.isFinite(subunits)) return null;
-    return new Money(subunits, currency);
-  } catch (e) {
-    return null;
-  }
-};
 
 /**
  * Premium popup card rendered inside the Mapbox Popup container.
@@ -74,7 +48,6 @@ const CoachMapPopup = ({ coach, onClose }) => {
   const {
     author: rawAuthor,
     representativeListing,
-    minPrice,
     reviewAverage,
     reviewCount,
   } = coach;
@@ -109,18 +82,16 @@ const CoachMapPopup = ({ coach, onClose }) => {
   // shows the friendly "coming soon" alert.
   const isDemo = Boolean(coach?.isDemo);
 
-  // Same price source order as CoachCard: profile first, listing min price as
-  // fallback. Marketplace listing prices elsewhere are unaffected.
+  // Hourly price must come ONLY from the coach hourly-booking listing.
   // Demo coaches bypass `formatMoney` so each demo card / popup reflects
   // the coach's local currency (`€95`, `$140`, `CHF 220`, …) – see
   // `formatDemoPrice` in `../demoCoaches.js`.
-  const profilePriceMoney = buildProfilePriceMoney(publicData);
-  const listingMinPrice = minPrice && typeof minPrice.amount === 'number' ? minPrice : null;
-  const priceForDisplay = profilePriceMoney || listingMinPrice;
+  const hourlyPriceMoney =
+    coach?.hourlyPrice && typeof coach.hourlyPrice.amount === 'number' ? coach.hourlyPrice : null;
   const formattedPrice = isDemo
     ? formatDemoPrice(intl, publicData)
-    : priceForDisplay
-    ? formatMoney(intl, priceForDisplay)
+    : hourlyPriceMoney
+    ? formatMoney(intl, hourlyPriceMoney)
     : null;
 
   const profileImageVariants = profileImage

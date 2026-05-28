@@ -44,22 +44,41 @@ import css from './ManageListingsPage.module.css';
 import DiscardDraftModal from './DiscardDraftModal/DiscardDraftModal';
 
 const Heading = props => {
-  const { listingsAreLoaded, pagination } = props;
+  const { listingsAreLoaded, pagination, showCreateServiceCTA } = props;
   const hasResults = listingsAreLoaded && pagination.totalItems > 0;
   const hasNoResults = listingsAreLoaded && pagination.totalItems === 0;
 
+  const createServiceCtaMaybe = showCreateServiceCTA ? (
+    <div className={css.createServiceCtaWrapper}>
+      <NamedLink className={css.createServiceCtaButton} name="NewListingPage">
+        <span className={css.createServiceCtaText}>
+          <FormattedMessage id="ManageListingsPage.createServiceCTA" />
+        </span>
+        <span className={css.createServiceCtaSubtext}>
+          <FormattedMessage id="ManageListingsPage.createServiceCTASubtext" />
+        </span>
+      </NamedLink>
+    </div>
+  ) : null;
+
   return hasResults ? (
-    <H3 as="h1" className={css.heading}>
-      <FormattedMessage
-        id="ManageListingsPage.youHaveListings"
-        values={{ count: pagination.totalItems }}
-      />
-    </H3>
+    <div className={css.headingRow}>
+      <H3 as="h1" className={css.heading}>
+        <FormattedMessage
+          id="ManageListingsPage.youHaveListings"
+          values={{ count: pagination.totalItems }}
+        />
+      </H3>
+      {createServiceCtaMaybe}
+    </div>
   ) : hasNoResults ? (
     <div className={css.noResultsContainer}>
-      <H3 as="h1" className={css.headingNoListings}>
-        <FormattedMessage id="ManageListingsPage.noResults" />
-      </H3>
+      <div className={css.headingRow}>
+        <H3 as="h1" className={css.headingNoListings}>
+          <FormattedMessage id="ManageListingsPage.noResults" />
+        </H3>
+        {createServiceCtaMaybe}
+      </div>
       <p className={css.createListingParagraph}>
         <NamedLink className={css.createListingLink} name="NewListingPage">
           <FormattedMessage id="ManageListingsPage.createListing" />
@@ -208,6 +227,7 @@ export const ManageListingsPageComponent = props => {
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
   const { provider: isProvider } = getCurrentUserTypeRoles(config, currentUser);
   const showCoachCalendarLink = Boolean(isProvider);
+  const showCreateServiceCTA = Boolean(showManageListingsLink && isProvider);
 
   return (
     <Page
@@ -234,7 +254,11 @@ export const ManageListingsPageComponent = props => {
         {queryListingsError ? queryError : null}
 
         <div className={css.listingPanel}>
-          <Heading listingsAreLoaded={listingsAreLoaded} pagination={pagination} />
+          <Heading
+            listingsAreLoaded={listingsAreLoaded}
+            pagination={pagination}
+            showCreateServiceCTA={showCreateServiceCTA}
+          />
 
           <ul className={css.listingCards}>
             {listings.map(l => (

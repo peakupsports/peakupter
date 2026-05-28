@@ -1620,6 +1620,8 @@
   "ManageListingCard.unsupportedPrice": "({currency})",
   "ManageListingCard.unsupportedPriceTitle": "Devise non supportée ({currency})",
   "ManageListingsPage.createListing": "Déposer une annonce",
+  "ManageListingsPage.createServiceCTA": "+ Créer un nouveau service",
+  "ManageListingsPage.createServiceCTASubtext": "Ajouter une nouvelle offre de coach",
   "ManageListingsPage.loadingOwnListings": "Chargement des annonces…",
   "ManageListingsPage.noResults": "Vous n'avez ajouté aucune annonce.",
   "ManageListingsPage.queryError": "La demande a échoué. Veuillez réessayer.",

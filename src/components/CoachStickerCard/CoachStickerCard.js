@@ -28,7 +28,7 @@ const CoachStickerCard = props => {
   const config = useConfiguration();
   const intl = useIntl();
 
-  const { author, representativeListing, sportKeys = [], minPrice, reviewAverage, reviewCount } =
+  const { author, representativeListing, sportKeys = [], hourlyPrice, reviewAverage, reviewCount } =
     coach || {};
   const listing = representativeListing;
 
@@ -71,9 +71,7 @@ const CoachStickerCard = props => {
       : {};
 
   const formattedPriceMaybe =
-    minPrice && typeof minPrice.amount === 'number'
-      ? formatMoney(intl, minPrice)
-      : null;
+    hourlyPrice && typeof hourlyPrice.amount === 'number' ? formatMoney(intl, hourlyPrice) : null;
 
   return (
     <article

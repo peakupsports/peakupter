@@ -1,5 +1,6 @@
 import { coachCityLabel } from '../config/configCoachCity';
 import { matchSportFilterKeys } from './sportFilterKeys';
+import { getCoachHourlyBookingPrice } from './coachHourlyPrice';
 
 /** Hosted listing flag PeakUp booking (Flex accetta anche stringhe). */
 export const listingHasPeakupBookingFlag = listing => {
@@ -959,6 +960,10 @@ export const mergeListingsByAuthor = denormalisedListings => {
     const representativeListing = pickRepresentativeListing(authorListings);
     if (!representativeListing?.author) continue;
 
+    // Hourly booking listing price (single source of truth for coach hourly pricing UI).
+    // Fixed-price listings are intentionally ignored for the hourly price display.
+    const hourlyPrice = getCoachHourlyBookingPrice(authorListings);
+
     const sportKeys = new Set();
     // Coach-level sports come first so coaches who declared sports only on
     // their profile (e.g. "Surf") still pass the SportBar filter even when no
@@ -983,6 +988,7 @@ export const mergeListingsByAuthor = denormalisedListings => {
       representativeListing,
       sportKeys: [...sportKeys],
       minPrice,
+      hourlyPrice,
     });
   }
   return coaches;

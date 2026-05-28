@@ -1620,6 +1620,8 @@
   "ManageListingCard.unsupportedPrice": "({currency})",
   "ManageListingCard.unsupportedPriceTitle": "Nicht unterstütze Währung ({currency})",
   "ManageListingsPage.createListing": "Neuen Eintrag erstellen",
+  "ManageListingsPage.createServiceCTA": "+ Neuen Service erstellen",
+  "ManageListingsPage.createServiceCTASubtext": "Neues Coach-Angebot hinzufügen",
   "ManageListingsPage.loadingOwnListings": "Einträge werden geladen…",
   "ManageListingsPage.noResults": "Du hast keine Einträge aufgelistet.",
   "ManageListingsPage.queryError": "Abfrage fehlgeschlagen. Bitte versuche es erneut.",

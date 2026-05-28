@@ -33,6 +33,7 @@ import { useRouteConfiguration } from '../../context/routeConfigurationContext';
 import { richText } from '../../util/richText';
 import { ensureUser } from '../../util/data';
 import { createSlug, parse } from '../../util/urlHelpers';
+import { unitDivisor } from '../../util/currency';
 import {
   filterListingsForPublicBrowsing,
   pickRepresentativeListing,
@@ -48,6 +49,7 @@ import {
   pickPeakupCoachBookingDestinationListing,
   peakUpCoachBookingLinkSearch,
 } from '../../util/coachBookingNavigation';
+import { pickCoachHourlyBookingListing } from '../../util/coachHourlyPrice';
 import { getMapProviderApiAccess, staticPinMapImageUrl } from '../../util/maps';
 import {
   formatCoachExperienceLabel,
@@ -441,14 +443,20 @@ export const AsideContent = props => {
   const cc = countryRaw?.toString?.()?.trim?.() || '';
   const countryEmoji = cc ? countryCodeToFlagEmoji(cc.length === 2 ? cc.toUpperCase() : cc) : '';
 
-  const { priceFrom, currency: stickerCurrency = 'CHF' } = stickerDisplay;
+  const hourlyListingForPrice = pickCoachHourlyBookingListing(listings);
+  const hourlyPriceMoney = hourlyListingForPrice?.attributes?.price || null;
+  const hourlyPriceMajor =
+    hourlyPriceMoney && typeof hourlyPriceMoney.amount === 'number' && hourlyPriceMoney.currency
+      ? Math.round(hourlyPriceMoney.amount / unitDivisor(hourlyPriceMoney.currency))
+      : null;
+  const stickerCurrency = hourlyPriceMoney?.currency || 'CHF';
 
   const priceLabel =
-    priceFrom != null && String(priceFrom).trim() !== ''
+    hourlyPriceMajor != null
       ? intl.formatMessage(
           { id: 'ProfilePage.stickerPriceFrom' },
           {
-            price: `${String(priceFrom).trim()} ${currencyTicker(stickerCurrency)}`.trim(),
+            price: `${String(hourlyPriceMajor).trim()} ${currencyTicker(stickerCurrency)}`.trim(),
           }
         )
       : null;
@@ -984,13 +992,18 @@ export const MainContent = props => {
   );
 
   const {
-    priceFrom: stickerPriceFromRaw,
-    currency: stickerBookingCurrency = 'CHF',
     locationLine: stickerLocationLineLegacyRaw,
     lat: stickerGeoLatRaw,
     lng: stickerGeoLngRaw,
     locationStickerSlug: stickerLocationStickerSlugRaw,
   } = stickerSource;
+  const hourlyListingForStickerPrice = pickCoachHourlyBookingListing(listings);
+  const stickerHourlyMoney = hourlyListingForStickerPrice?.attributes?.price || null;
+  const stickerBookingCurrency = stickerHourlyMoney?.currency || 'CHF';
+  const stickerPriceFromRaw =
+    stickerHourlyMoney && typeof stickerHourlyMoney.amount === 'number' && stickerHourlyMoney.currency
+      ? Math.round(stickerHourlyMoney.amount / unitDivisor(stickerHourlyMoney.currency))
+      : null;
 
   // Resolve location labels from a single source of truth so the figurina
   // (short) and the right-column "Location" box (full) are always

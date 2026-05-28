@@ -42,6 +42,9 @@ const PUB_LANGUAGES_KEY = addScopePrefix('public', 'languages');
 // auto-derived from coach experience. The constant is kept in a Set used to
 // hide the field even if the hosted Console user-fields asset still includes it.
 const PUB_PEAK_BADGES_KEY = addScopePrefix('public', 'peakupCoachBadges');
+// NOTE: Coach hourly price now comes from the hourly booking listing only.
+// These legacy profile fields are intentionally hidden (and should be removed
+// from hosted user-fields config over time).
 const PUB_CURRENCY_KEY = addScopePrefix('public', 'currency');
 const PUB_PRICE_FROM_KEY = addScopePrefix('public', 'priceFrom');
 // `coachCityText` is no longer a separate form field. It is now derived
@@ -64,7 +67,12 @@ const HOUR_OPTIONS = buildHourOptions();
 
 const PEAK_ROW_SPORTS_LANG_KEYS = new Set([PUB_SPORTS_KEY, PUB_LANGUAGES_KEY]);
 // Hidden / hard-removed keys: never rendered as user-editable form fields.
-const PEAK_HIDDEN_FIELD_KEYS = new Set([PUB_PEAK_BADGES_KEY, PUB_COACH_CITY_TEXT_KEY]);
+const PEAK_HIDDEN_FIELD_KEYS = new Set([
+  PUB_PEAK_BADGES_KEY,
+  PUB_COACH_CITY_TEXT_KEY,
+  PUB_CURRENCY_KEY,
+  PUB_PRICE_FROM_KEY,
+]);
 const PEAK_ROW_PRICING_KEYS = new Set([PUB_CURRENCY_KEY, PUB_PRICE_FROM_KEY]);
 /** Coach-only PeakUp public fields — hidden on client (customer) profile settings. */
 const PEAK_COACH_ONLY_FIELD_KEYS = new Set([
