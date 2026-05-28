@@ -91,7 +91,7 @@ const CoachMapPopup = ({ coach, onClose }) => {
   const formattedPrice = isDemo
     ? formatDemoPrice(intl, publicData)
     : hourlyPriceMoney
-    ? formatMoney(intl, hourlyPriceMoney)
+    ? `${formatMoney(intl, hourlyPriceMoney)}/h`
     : null;
 
   const profileImageVariants = profileImage

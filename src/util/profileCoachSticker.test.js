@@ -460,6 +460,25 @@ describe('ProfilePage layout gates (customer vs coach)', () => {
     expect(isCoachProfileStickerEligible([], publicData, customerRoles)).toBe(true);
   });
 
+  it('uses coach layout for new coach with userType only (no profile fields or listings)', () => {
+    const publicData = { userType: 'coach' };
+    expect(shouldShowPeakUpProfileSticker([], publicData)).toBe(true);
+    expect(shouldShowPeakUpProfileSticker([], publicData, coachRoles)).toBe(true);
+    expect(isPeakUpCustomerMemberProfile([], publicData, coachRoles)).toBe(false);
+    expect(isCoachProfileStickerEligible([], publicData, coachRoles)).toBe(true);
+  });
+
+  it('uses coach layout for provider-only role with empty profile', () => {
+    const publicData = {};
+    expect(shouldShowPeakUpProfileSticker([], publicData, coachRoles)).toBe(true);
+    expect(isCoachProfileStickerEligible([], publicData, coachRoles)).toBe(true);
+  });
+
+  it('uses coach layout when coach onboarding flags are set before profile fields', () => {
+    const publicData = { coachOnboardingIntent: true, pendingCoachApplication: true };
+    expect(shouldShowPeakUpProfileSticker([], publicData)).toBe(true);
+  });
+
   it('dual-role accounts do not use PeakUp customer layout (legacy/coach paths instead)', () => {
     const publicData = { userType: 'a', sports: ['snowboard'], languages: ['de'] };
     expect(isCoachProfileStickerEligible([], publicData, dualRoles)).toBe(false);

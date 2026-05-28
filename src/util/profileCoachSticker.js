@@ -989,11 +989,11 @@ export const isCoachProfileStickerEligible = (
   }
 
   if (isExplicitCoachProviderUserType(pd)) {
-    return shouldShowPeakUpProfileSticker(listings, pd);
+    return shouldShowPeakUpProfileSticker(listings, pd, userTypeRoles);
   }
 
   if (isProvider && !isCustomer) {
-    return shouldShowPeakUpProfileSticker(listings, pd);
+    return shouldShowPeakUpProfileSticker(listings, pd, userTypeRoles);
   }
 
   if (isProvider && isCustomer) {
@@ -1047,17 +1047,59 @@ export const isPeakUpCustomerMemberProfile = (
   return false;
 };
 
-export const shouldShowPeakUpProfileSticker = (listings = [], profilePublicData = {}) => {
+/**
+ * Coach onboarding / applicant flags on profile publicData (set at coach signup).
+ *
+ * @param {Object} profilePublicData
+ * @returns {boolean}
+ */
+export const hasCoachOnboardingProfilePublicData = (profilePublicData = {}) => {
+  const pd = profilePublicData || {};
+  return (
+    pd.coachOnboardingIntent === true ||
+    pd.pendingCoachApplication === true ||
+    pd.peakupCoachApplicant === true
+  );
+};
+
+/**
+ * PeakUp coach figurina + dark profile shell.
+ * Identity (userType, provider role, onboarding flags) wins over empty profile/listings.
+ *
+ * @param {Array} listings
+ * @param {Object} profilePublicData
+ * @param {{ customer?: boolean; provider?: boolean }|null} [userTypeRoles]
+ * @returns {boolean}
+ */
+export const shouldShowPeakUpProfileSticker = (
+  listings = [],
+  profilePublicData = {},
+  userTypeRoles = null
+) => {
   const pd = profilePublicData || {};
   const list = Array.isArray(listings) ? listings : [];
+  const roles = userTypeRoles || {};
 
   const profileCoachHints = hasPeakUpCoachProfilePublicData(pd);
-
   const listingCoachHints = hasPeakUpListingCoachHints(list);
+  const hintBasedCoach = !list.length ? profileCoachHints : listingCoachHints || profileCoachHints;
 
-  if (!list.length) {
-    return profileCoachHints;
+  // Explicit customer accounts: coach shell only when profile/listings carry coach signals.
+  if (isExplicitCustomerUserType(pd) && !isExplicitCoachProviderUserType(pd)) {
+    return hintBasedCoach;
   }
 
-  return listingCoachHints || profileCoachHints;
+  if (isExplicitCoachProviderUserType(pd)) {
+    return true;
+  }
+
+  if (hasCoachOnboardingProfilePublicData(pd)) {
+    return true;
+  }
+
+  if (roles.provider && !roles.customer) {
+    return true;
+  }
+
+  return hintBasedCoach;
 };

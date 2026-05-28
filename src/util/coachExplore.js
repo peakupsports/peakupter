@@ -1,6 +1,6 @@
 import { coachCityLabel } from '../config/configCoachCity';
 import { matchSportFilterKeys } from './sportFilterKeys';
-import { getCoachHourlyBookingPrice } from './coachHourlyPrice';
+import { getLowestCoachHourlyBookingPrice } from './coachHourlyPrice';
 
 /** Hosted listing flag PeakUp booking (Flex accetta anche stringhe). */
 export const listingHasPeakupBookingFlag = listing => {
@@ -962,7 +962,7 @@ export const mergeListingsByAuthor = denormalisedListings => {
 
     // Hourly booking listing price (single source of truth for coach hourly pricing UI).
     // Fixed-price listings are intentionally ignored for the hourly price display.
-    const hourlyPrice = getCoachHourlyBookingPrice(authorListings);
+    const hourlyPrice = getLowestCoachHourlyBookingPrice(authorListings);
 
     const sportKeys = new Set();
     // Coach-level sports come first so coaches who declared sports only on

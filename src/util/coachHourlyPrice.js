@@ -48,15 +48,32 @@ export const pickCoachHourlyBookingListing = (listings = []) => {
 };
 
 /**
- * Read the hourly booking price Money from the coach hourly-booking listing.
+ * Read the LOWEST hourly booking price Money across the coach's hourly-booking listings.
  *
  * @param {Array<Object>} listings denormalised listings for the same coach
  * @returns {Object|null} sdkTypes.Money-like value or null
  */
-export const getCoachHourlyBookingPrice = listings => {
-  const listing = pickCoachHourlyBookingListing(listings);
-  const price = listing?.attributes?.price;
-  if (!price || typeof price.amount !== 'number' || !price.currency) return null;
-  return price;
+export const getLowestCoachHourlyBookingPrice = listings => {
+  const list = Array.isArray(listings) ? listings : [];
+  if (list.length === 0) return null;
+
+  let best = null;
+  for (const l of list) {
+    if (listingHasPeakupBookingFlag(l)) continue;
+    const pd = l?.attributes?.publicData || {};
+    if (pd.unitType !== 'hour') continue;
+    if (!isBookingProcessAlias(pd.transactionProcessAlias)) continue;
+
+    const price = l?.attributes?.price;
+    if (!price || typeof price.amount !== 'number' || !price.currency) continue;
+    if (!best || price.amount < best.amount) {
+      best = price;
+    }
+  }
+
+  return best;
 };
+
+// Back-compat alias (legacy callers). Prefer `getLowestCoachHourlyBookingPrice`.
+export const getCoachHourlyBookingPrice = getLowestCoachHourlyBookingPrice;
 

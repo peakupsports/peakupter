@@ -71,7 +71,9 @@ const CoachStickerCard = props => {
       : {};
 
   const formattedPriceMaybe =
-    hourlyPrice && typeof hourlyPrice.amount === 'number' ? formatMoney(intl, hourlyPrice) : null;
+    hourlyPrice && typeof hourlyPrice.amount === 'number'
+      ? `${formatMoney(intl, hourlyPrice)}/h`
+      : null;
 
   return (
     <article

@@ -167,7 +167,7 @@ const CoachCard = props => {
   const formattedPrice = coach?.isDemo
     ? formatDemoCoachPrice(intl, publicData)
     : hourlyPriceMoney
-    ? formatMoney(intl, hourlyPriceMoney)
+    ? `${formatMoney(intl, hourlyPriceMoney)}/h`
     : null;
 
   const profileImageVariants = profileImage

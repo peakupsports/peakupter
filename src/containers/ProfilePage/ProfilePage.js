@@ -49,7 +49,7 @@ import {
   pickPeakupCoachBookingDestinationListing,
   peakUpCoachBookingLinkSearch,
 } from '../../util/coachBookingNavigation';
-import { pickCoachHourlyBookingListing } from '../../util/coachHourlyPrice';
+import { getLowestCoachHourlyBookingPrice } from '../../util/coachHourlyPrice';
 import { getMapProviderApiAccess, staticPinMapImageUrl } from '../../util/maps';
 import {
   formatCoachExperienceLabel,
@@ -373,8 +373,10 @@ export const AsideContent = props => {
   const [isBadgeHierarchyOpen, setBadgeHierarchyOpen] = useState(false);
   const [isInquiryModalOpen, setInquiryModalOpen] = useState(false);
 
+  const config = useConfiguration();
   const profilePd = user?.attributes?.profile?.publicData || {};
-  const peakUpCoachAside = shouldShowPeakUpProfileSticker(listings, profilePd);
+  const userTypeRoles = getCurrentUserTypeRoles(config, user);
+  const peakUpCoachAside = shouldShowPeakUpProfileSticker(listings, profilePd, userTypeRoles);
   const representativeListingForInquiry = peakUpCoachAside
     ? pickRepresentativeListing(listings)
     : null;
@@ -443,8 +445,7 @@ export const AsideContent = props => {
   const cc = countryRaw?.toString?.()?.trim?.() || '';
   const countryEmoji = cc ? countryCodeToFlagEmoji(cc.length === 2 ? cc.toUpperCase() : cc) : '';
 
-  const hourlyListingForPrice = pickCoachHourlyBookingListing(listings);
-  const hourlyPriceMoney = hourlyListingForPrice?.attributes?.price || null;
+  const hourlyPriceMoney = getLowestCoachHourlyBookingPrice(listings);
   const hourlyPriceMajor =
     hourlyPriceMoney && typeof hourlyPriceMoney.amount === 'number' && hourlyPriceMoney.currency
       ? Math.round(hourlyPriceMoney.amount / unitDivisor(hourlyPriceMoney.currency))
@@ -456,7 +457,7 @@ export const AsideContent = props => {
       ? intl.formatMessage(
           { id: 'ProfilePage.stickerPriceFrom' },
           {
-            price: `${String(hourlyPriceMajor).trim()} ${currencyTicker(stickerCurrency)}`.trim(),
+            price: `${String(hourlyPriceMajor).trim()} ${currencyTicker(stickerCurrency)}/h`.trim(),
           }
         )
       : null;
@@ -953,7 +954,7 @@ export const MainContent = props => {
 
   const publicBrowseListings = filterListingsForPublicBrowsing(listings);
   const hasListings = publicBrowseListings.length > 0;
-  const isPeakUpCoachProfile = shouldShowPeakUpProfileSticker(listings, publicData);
+  const isPeakUpCoachProfile = shouldShowPeakUpProfileSticker(listings, publicData, userTypeRoles);
   const hasMatchMedia = typeof window !== 'undefined' && window?.matchMedia;
   const isMobileLayout =
     mounted && hasMatchMedia
@@ -997,8 +998,7 @@ export const MainContent = props => {
     lng: stickerGeoLngRaw,
     locationStickerSlug: stickerLocationStickerSlugRaw,
   } = stickerSource;
-  const hourlyListingForStickerPrice = pickCoachHourlyBookingListing(listings);
-  const stickerHourlyMoney = hourlyListingForStickerPrice?.attributes?.price || null;
+  const stickerHourlyMoney = getLowestCoachHourlyBookingPrice(listings);
   const stickerBookingCurrency = stickerHourlyMoney?.currency || 'CHF';
   const stickerPriceFromRaw =
     stickerHourlyMoney && typeof stickerHourlyMoney.amount === 'number' && stickerHourlyMoney.currency
@@ -1532,7 +1532,12 @@ export const ProfilePageComponent = props => {
   const isCurrentUser = currentUser?.id && currentUser?.id?.uuid === pathParams.id;
   const profileUser = useCurrentUser ? currentUser : user;
   const { bio, displayName, publicData, metadata } = profileUser?.attributes?.profile || {};
-  const peakUpCoachLayout = shouldShowPeakUpProfileSticker(listings, publicData || {});
+  const userTypeRoles = getCurrentUserTypeRoles(config, profileUser);
+  const peakUpCoachLayout = shouldShowPeakUpProfileSticker(
+    listings,
+    publicData || {},
+    userTypeRoles
+  );
 
   useEffect(() => {
     if (!mounted || !peakUpCoachLayout || !location?.search) {
@@ -1587,7 +1592,6 @@ export const ProfilePageComponent = props => {
   const hasNoViewingRightsUser = currentUser && !hasPermissionToViewData(currentUser);
   const hasNoViewingRightsOnPrivateMarketplace = isPrivateMarketplace && hasNoViewingRightsUser;
 
-  const userTypeRoles = getCurrentUserTypeRoles(config, profileUser);
   const profilePublicData = publicData || {};
   const isCoachStickerEligible = isCoachProfileStickerEligible(
     listings,
