@@ -235,7 +235,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: var(--datepickerSelectedBgColor);
+    background: var(--datepickerSelectedBg, var(--datepickerSelectedBgColor));
     border-radius: calc(37px / 2);
     color: var(--datepickerFgColor);
   }
@@ -252,7 +252,7 @@
   }
 
   &:hover .renderedDay {
-    background-color: var(--datepickerSelectedHoveredBgColor);
+    background: var(--datepickerSelectedBg, var(--datepickerSelectedHoveredBgColor));
     color: var(--datepickerSelectedHoveredFgColor);
   }
 }

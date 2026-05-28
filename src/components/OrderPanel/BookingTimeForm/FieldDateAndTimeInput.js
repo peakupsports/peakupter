@@ -53,7 +53,8 @@ import css from './FieldDateAndTimeInput.module.css';
 // https://www.sharetribe.com/api-reference/marketplace.html#query-time-slots
 
 const getAvailableEndTimes = params => {
-  const { intl, timeZone, bookingStartTime, bookingEndDate, selectedTimeSlot } = params;
+  const { intl, timeZone, bookingStartTime, bookingEndDate, selectedTimeSlot, teachingHoursEnd } =
+    params;
   if (!selectedTimeSlot || !selectedTimeSlot.attributes || !bookingEndDate || !bookingStartTime) {
     return [];
   }
@@ -85,6 +86,29 @@ const getAvailableEndTimes = params => {
       : dayAfterBookingEnd;
   }
 
+  // PeakUp: teaching hours cap (end boundary) to keep end-time options inside coach working hours.
+  try {
+    const match = /^(\d{1,2}):(\d{2})$/.exec(String(teachingHoursEnd || '').trim());
+    if (match) {
+      const hours = Number(match[1]);
+      const minutes = Number(match[2]);
+      const minutesTotal = hours * 60 + minutes;
+      if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+        const teachingEndBoundary = getStartOf(startOfEndDay, 'minute', timeZone, minutesTotal, 'minutes');
+        if (isDateSameOrAfter(endLimit, teachingEndBoundary)) {
+          endLimit = teachingEndBoundary;
+        }
+      }
+    } else if (!teachingHoursEnd) {
+      const fallbackTeachingEnd = getStartOf(startOfEndDay, 'minute', timeZone, 19 * 60, 'minutes');
+      if (isDateSameOrAfter(endLimit, fallbackTeachingEnd)) {
+        endLimit = fallbackTeachingEnd;
+      }
+    }
+  } catch (e) {
+    // ignore and use endLimit as computed
+  }
+
   return getEndHours(startLimit, endLimit, timeZone, intl);
 };
 
@@ -98,7 +122,9 @@ const getAllTimeValues = (
   selectedStartTime,
   selectedEndDate,
   selectedEndTime,
-  seatsEnabled
+  seatsEnabled,
+  teachingHoursStart,
+  teachingHoursEnd
 ) => {
   const startTimes = selectedStartTime
     ? []
@@ -108,6 +134,9 @@ const getAllTimeValues = (
         bookingStart: startDate,
         timeSlotsOnSelectedDate: timeSlots,
         seatsEnabled,
+        teachingHoursStart,
+        teachingHoursEnd,
+        now: new Date(),
       });
 
   // Value selectedStartTime is a string when user has selected it through the form.
@@ -236,6 +265,7 @@ const getAllTimeValues = (
     bookingStartTime: startTime,
     bookingEndDate: endDate,
     selectedTimeSlot: combinedTimeSlot,
+    teachingHoursEnd,
   });
 
   // We need to convert the timestamp we use as a default value
@@ -329,6 +359,8 @@ const updateBookingFieldsOnStartDateChange = params => {
     formApi,
     intl,
     hasFetchedDateTimeSlots = false,
+    teachingHoursStart,
+    teachingHoursEnd,
   } = params;
   const minDurationStartingInDay = 60;
   const timeSlotsOnSelectedDate = getTimeSlotsOnSelectedDate(
@@ -348,7 +380,9 @@ const updateBookingFieldsOnStartDateChange = params => {
     null,
     null,
     null,
-    seatsEnabled
+    seatsEnabled,
+    teachingHoursStart,
+    teachingHoursEnd
   );
 
   formApi.batch(() => {
@@ -373,6 +407,8 @@ const onBookingStartDateChange = (props, setCurrentMonth) => value => {
     listingId,
     onFetchTimeSlots,
     values,
+    teachingHoursStart,
+    teachingHoursEnd,
   } = props;
   if (!value || !value.date) {
     formApi.batch(() => {
@@ -407,6 +443,8 @@ const onBookingStartDateChange = (props, setCurrentMonth) => value => {
     seatsEnabled,
     formApi,
     intl,
+    teachingHoursStart,
+    teachingHoursEnd,
   };
 
   const { startTime, endTime } = updateBookingFieldsOnStartDateChange({
@@ -451,13 +489,26 @@ const onBookingStartTimeChange = props => value => {
     values,
     handleFetchLineItems,
     seatsEnabled,
+    teachingHoursStart,
+    teachingHoursEnd,
   } = props;
   const priceVariantName = values.priceVariantName || null;
   const startDate = values.bookingStartDate.date;
   const bookingStartIdString = stringifyDateToISO8601(startDate, timeZone);
   const timeSlotsOnSelectedDate = timeSlotsForDate[bookingStartIdString]?.timeSlots || [];
 
-  const { endTime } = getAllTimeValues(intl, timeZone, timeSlotsOnSelectedDate, startDate, value);
+  const { endTime } = getAllTimeValues(
+    intl,
+    timeZone,
+    timeSlotsOnSelectedDate,
+    startDate,
+    value,
+    undefined,
+    undefined,
+    seatsEnabled,
+    teachingHoursStart,
+    teachingHoursEnd
+  );
 
   formApi.batch(() => {
     formApi.change('bookingEndTime', endTime);
@@ -551,6 +602,8 @@ const FieldDateAndTimeInput = props => {
     seatsEnabled,
     intl,
     dayCountAvailableForBooking,
+    teachingHoursStart,
+    teachingHoursEnd,
   } = props;
 
   const classes = classNames(rootClassName || css.root, className);
@@ -607,6 +660,26 @@ const FieldDateAndTimeInput = props => {
     bookingStart: bookingStartDate,
     timeSlotsOnSelectedDate: timeSlotsOnDate,
     seatsEnabled,
+    teachingHoursStart,
+    teachingHoursEnd,
+    now: new Date(),
+  });
+
+  const normalizeTime = value => {
+    const str = String(value || '').trim();
+    const match = /^(\d{1,2}):(\d{2})$/.exec(str);
+    if (!match) return null;
+    const hh = String(match[1]).padStart(2, '0');
+    return `${hh}:${match[2]}`;
+  };
+
+  // eslint-disable-next-line no-console
+  console.info('[PeakUp TEACHING HOURS FINAL]', {
+    teachingHoursStart: teachingHoursStart || null,
+    teachingHoursEnd: teachingHoursEnd || null,
+    normalizedTeachingHoursStart: normalizeTime(teachingHoursStart),
+    normalizedTeachingHoursEnd: normalizeTime(teachingHoursEnd),
+    startTimesGenerated: availableStartTimes.map(t => t?.time).filter(Boolean),
   });
 
   const bookingTimeSlotsDebugSnapshot =
@@ -642,7 +715,9 @@ const FieldDateAndTimeInput = props => {
     bookingStartTime || firstAvailableStartTime,
     bookingEndDate || bookingStartDate,
     bookingEndTime,
-    seatsEnabled
+    seatsEnabled,
+    teachingHoursStart,
+    teachingHoursEnd
   );
 
   const seatsOptions = selectedTimeSlot?.attributes?.seats
@@ -737,7 +812,22 @@ const FieldDateAndTimeInput = props => {
     return !timeSlotData?.hasAvailability;
   };
 
-  let placeholderTime = getPlaceholder('08:00', intl, timeZone);
+  const normalizeTeachingTime = value => {
+    const str = String(value || '').trim();
+    const match = /^(\d{1,2}):(\d{2})$/.exec(str);
+    if (!match) return null;
+    const hh = Number(match[1]);
+    const mm = Number(match[2]);
+    if (!Number.isFinite(hh) || !Number.isFinite(mm)) return null;
+    if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null;
+    return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+  };
+
+  // PeakUp: default start time should reflect coach availability when possible.
+  // 1) teachingHoursStart when valid (e.g. "07:00")
+  // 2) otherwise next upcoming slot placeholder from existing helper
+  let placeholderTime =
+    normalizeTeachingTime(teachingHoursStart) || getPlaceholder('08:00', intl, timeZone);
 
   const startOfToday = getStartOf(TODAY, 'day', timeZone);
   const bookingEndTimeAvailable = bookingStartDate && (bookingStartTime || startTime);

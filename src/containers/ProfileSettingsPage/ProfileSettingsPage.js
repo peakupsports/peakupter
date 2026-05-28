@@ -105,6 +105,8 @@ export const ProfileSettingsPageComponent = props => {
       bio: rawBio,
       pub_coachMapLocation,
       preferredMeetingPoints,
+      teachingHoursStart,
+      teachingHoursEnd,
       ...rest
     } = values;
 
@@ -129,6 +131,8 @@ export const ProfileSettingsPageComponent = props => {
         ...publicData,
         ...coachLocationPatch,
         ...meetingPointsPatch,
+        ...(teachingHoursStart ? { teachingHoursStart } : { teachingHoursStart: null }),
+        ...(teachingHoursEnd ? { teachingHoursEnd } : { teachingHoursEnd: null }),
         ...pickUserFieldsData(rest, 'public', userType, userFields),
       },
     };
@@ -169,6 +173,8 @@ export const ProfileSettingsPageComponent = props => {
         profileImage: user.profileImage,
         pub_coachMapLocation: coachMapLocationFromPublicData(publicData),
         preferredMeetingPoints: preferredMeetingPointsFromPublicData(publicData),
+        teachingHoursStart: publicData?.teachingHoursStart || '',
+        teachingHoursEnd: publicData?.teachingHoursEnd || '',
         ...initialValuesForUserFields(publicData, 'public', userType, userFields),
       }}
       profileImage={profileImage}

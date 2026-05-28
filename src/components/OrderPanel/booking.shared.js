@@ -474,7 +474,16 @@ export const getAvailableStartTimesForFixedDuration = params => {
  * @returns {Array}
  */
 export const getAvailableStartTimesForHourlyBooking = params => {
-  const { intl, timeZone, bookingStart, timeSlotsOnSelectedDate, seatsEnabled = false } = params;
+  const {
+    intl,
+    timeZone,
+    bookingStart,
+    timeSlotsOnSelectedDate,
+    seatsEnabled = false,
+    teachingHoursStart,
+    teachingHoursEnd,
+    now,
+  } = params;
 
   if (!bookingStart) {
     return [];
@@ -492,6 +501,44 @@ export const getAvailableStartTimesForHourlyBooking = params => {
   const bookingStartDate = getStartOf(bookingStart, 'day', timeZone);
   const nextDate = getStartOf(bookingStartDate, 'day', timeZone, 1, 'days');
 
+  const parseTimeToMinutes = value => {
+    const str = String(value || '').trim();
+    const match = /^(\d{1,2}):(\d{2})$/.exec(str);
+    if (!match) return null;
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return null;
+    if (hours < 0 || hours > 23) return null;
+    if (minutes < 0 || minutes > 59) return null;
+    return hours * 60 + minutes;
+  };
+
+  const clampTeachingWindow = (dayStart, dayEndExclusive) => {
+    const fallbackStart = 9 * 60;
+    const fallbackEnd = 19 * 60;
+    const startMin = parseTimeToMinutes(teachingHoursStart);
+    const endMin = parseTimeToMinutes(teachingHoursEnd);
+    const startMinutes = startMin != null ? startMin : fallbackStart;
+    const endMinutes = endMin != null ? endMin : fallbackEnd;
+    if (endMinutes <= startMinutes) {
+      return {
+        start: getStartOf(dayStart, 'minute', timeZone, fallbackStart, 'minutes'),
+        end: getStartOf(dayStart, 'minute', timeZone, fallbackEnd, 'minutes'),
+      };
+    }
+    return {
+      start: getStartOf(dayStart, 'minute', timeZone, startMinutes, 'minutes'),
+      end: getStartOf(dayStart, 'minute', timeZone, endMinutes, 'minutes'),
+    };
+  };
+
+  const { start: teachingStart, end: teachingEnd } = clampTeachingWindow(bookingStartDate, nextDate);
+  const nowDate = now instanceof Date ? now : new Date();
+  const startOfToday = getStartOf(nowDate, 'day', timeZone);
+  const startOfTomorrow = getStartOf(nowDate, 'day', timeZone, 1, 'days');
+  const isBookingDayToday = isInRange(bookingStartDate, startOfToday, startOfTomorrow, 'day', timeZone);
+  const nextHour = findNextBoundary(nowDate, 1, 'hour', timeZone);
+
   return getAvailableStartTimesFromSlots({
     slots,
     buildStartTimesForInterval: ({ intervalStart, intervalEnd }) => {
@@ -500,7 +547,19 @@ export const getAvailableStartTimesForHourlyBooking = params => {
         : intervalStart;
       const endLimit = isDateSameOrAfter(intervalEnd, nextDate) ? nextDate : intervalEnd;
 
-      return getStartHours(startLimit, endLimit, timeZone, intl);
+      const clampedStart = [startLimit, teachingStart, isBookingDayToday ? nextHour : null]
+        .filter(Boolean)
+        .reduce((max, candidate) => (candidate.getTime() > max.getTime() ? candidate : max), startLimit);
+
+      const clampedEnd = [endLimit, teachingEnd]
+        .filter(Boolean)
+        .reduce((min, candidate) => (candidate.getTime() < min.getTime() ? candidate : min), endLimit);
+
+      if (!isDateSameOrAfter(clampedEnd, clampedStart)) {
+        return [];
+      }
+
+      return getStartHours(clampedStart, clampedEnd, timeZone, intl);
     },
   });
 };

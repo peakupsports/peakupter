@@ -76,6 +76,12 @@ const getProviderId = transaction => transaction?.relationships?.provider?.data?
 
 const getTransactionId = transaction => transaction?.id?.uuid || null;
 
+const getCustomerId = transaction => transaction?.relationships?.customer?.data?.id?.uuid || null;
+
+const getTransactionProtectedData = transaction => transaction?.attributes?.protectedData || {};
+
+const getTransactionMetadata = transaction => transaction?.attributes?.metadata || {};
+
 const fetchUserProfile = async (trustedSdk, userId) => {
   if (!userId) {
     return null;
@@ -98,8 +104,12 @@ const logReferralFlowCheck = payload => {
   console.log('[PeakUp REFERRAL FLOW CHECK]', {
     transactionId: payload.transactionId ?? null,
     lastTransition: payload.lastTransition ?? null,
+    customerId: payload.customerId ?? null,
     providerId: payload.providerId ?? null,
     referrerId: payload.referrerId ?? null,
+    providerReferralOwner: payload.providerReferralOwner ?? null,
+    transactionProtectedData: payload.transactionProtectedData ?? null,
+    transactionMetadata: payload.transactionMetadata ?? null,
     ambassadorTier: payload.ambassadorTier ?? null,
     percentage: payload.percentage ?? null,
     grossAmount: payload.grossAmount ?? null,
@@ -115,8 +125,12 @@ const logReferralFlowCheck = payload => {
 const flowLogBase = (transaction, transitionName) => ({
   transactionId: getTransactionId(transaction),
   lastTransition: transitionName || transaction?.attributes?.lastTransition || null,
+  customerId: getCustomerId(transaction),
   providerId: getProviderId(transaction),
   referrerId: null,
+  providerReferralOwner: null,
+  transactionProtectedData: null,
+  transactionMetadata: null,
   ambassadorTier: null,
   percentage: null,
   grossAmount: null,
@@ -171,6 +185,14 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
     return null;
   }
 
+  const txProtectedData = getTransactionProtectedData(transaction);
+  const txMetadata = getTransactionMetadata(transaction);
+  const providerReferralOwner =
+    txProtectedData?.peakupReferralOwnerId ||
+    txProtectedData?.referralOwnerId ||
+    txMetadata?.peakupReferralOwnerId ||
+    null;
+
   const providerUser = await fetchUserProfile(trustedSdk, providerId);
   if (!providerUser) {
     logReferralFlowCheck({ ...base, reason: 'provider_profile_not_found' });
@@ -180,19 +202,36 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
   const coachEmail = providerUser.attributes?.email || '';
   const coachName = providerUser.attributes?.profile?.displayName || 'Coach';
 
-  let referral = findReferralForCoach({ coachUserId: providerId, coachEmail });
+  let referral = null;
+  if (providerReferralOwner) {
+    // Fast-path: transaction already captured the provider referral owner.
+    referral = { ambassadorUserId: providerReferralOwner, id: txProtectedData?.peakupReferralId };
+  } else {
+    referral = findReferralForCoach({ coachUserId: providerId, coachEmail });
+  }
   if (!referral) {
-    logReferralFlowCheck({ ...base, reason: 'no_referral_ledger_for_coach' });
+    logReferralFlowCheck({
+      ...base,
+      providerReferralOwner,
+      transactionProtectedData: txProtectedData,
+      transactionMetadata: txMetadata,
+      reason: 'no_referral_ledger_for_coach',
+    });
     return null;
   }
 
-  referral = linkReferralToCoachUser(referral, { userId: providerId, email: coachEmail });
+  if (!providerReferralOwner) {
+    referral = linkReferralToCoachUser(referral, { userId: providerId, email: coachEmail });
+  }
 
   const ambassadorUserId = referral.ambassadorUserId;
   if (!ambassadorUserId || ambassadorUserId === providerId) {
     logReferralFlowCheck({
       ...base,
       referrerId: ambassadorUserId,
+      providerReferralOwner,
+      transactionProtectedData: txProtectedData,
+      transactionMetadata: txMetadata,
       reason: 'missing_or_self_referrer',
     });
     return null;
@@ -205,6 +244,9 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
     logReferralFlowCheck({
       ...base,
       referrerId: ambassadorUserId,
+      providerReferralOwner,
+      transactionProtectedData: txProtectedData,
+      transactionMetadata: txMetadata,
       reason: 'ambassador_not_active',
     });
     return null;
@@ -241,6 +283,9 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
     logReferralFlowCheck({
       ...base,
       referrerId: ambassadorUserId,
+      providerReferralOwner,
+      transactionProtectedData: txProtectedData,
+      transactionMetadata: txMetadata,
       ambassadorTier: tier,
       percentage: ambassadorPercent,
       ...flowEconomics,
@@ -258,6 +303,9 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
     logReferralFlowCheck({
       ...base,
       referrerId: ambassadorUserId,
+      providerReferralOwner,
+      transactionProtectedData: txProtectedData,
+      transactionMetadata: txMetadata,
       ambassadorTier: tier,
       percentage: ambassadorPercent,
       ...flowEconomics,
@@ -319,6 +367,9 @@ const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transa
   logReferralFlowCheck({
     ...base,
     referrerId: ambassadorUserId,
+    providerReferralOwner,
+    transactionProtectedData: txProtectedData,
+    transactionMetadata: txMetadata,
     ambassadorTier: tier,
     percentage: ambassadorPercent,
     ...flowEconomics,

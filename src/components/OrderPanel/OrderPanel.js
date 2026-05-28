@@ -340,6 +340,28 @@ const OrderPanel = props => {
     showListingImage,
   } = props;
 
+  const authorProfilePublicData = author?.attributes?.profile?.publicData || {};
+  const teachingHoursStart = authorProfilePublicData?.teachingHoursStart;
+  const teachingHoursEnd = authorProfilePublicData?.teachingHoursEnd;
+  const fallbackUsed = !teachingHoursStart || !teachingHoursEnd;
+
+  useEffect(() => {
+    const listingId = listing?.id?.uuid || listing?.id || null;
+    const authorId = author?.id?.uuid || author?.id || null;
+    if (!listingId || !authorId) {
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.info('[PeakUp TEACHING HOURS SOURCE]', {
+      listingId,
+      authorId,
+      authorPublicData: authorProfilePublicData,
+      teachingHoursStart: teachingHoursStart || null,
+      teachingHoursEnd: teachingHoursEnd || null,
+      fallbackUsed,
+    });
+  }, [listing?.id?.uuid, author?.id?.uuid, teachingHoursStart, teachingHoursEnd, fallbackUsed]);
+
   const publicData = listing?.attributes?.publicData || {};
   const { listingType, unitType, transactionProcessAlias = '', priceVariants, startTimeInterval } =
     publicData || {};
@@ -520,6 +542,9 @@ const OrderPanel = props => {
     payoutDetailsWarning,
     preferredMeetingPoints,
     skipMeetingPointSelect,
+    // PeakUp: coach-specific teaching hours (stored on coach profile publicData).
+    teachingHoursStart,
+    teachingHoursEnd,
   };
 
   const showClosedListingHelpText = listing.id && isClosed;

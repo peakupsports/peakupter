@@ -188,14 +188,29 @@ module.exports = (req, res) => {
       const transitionName = bodyParams?.transition;
 
       if (!isSpeculative && transaction) {
-        const { processReferralRewardAccrual } = require('../api-util/referralRewardAccrual');
-        processReferralRewardAccrual({
-          trustedSdk,
+        const { processReferralRewardAccrual, REWARD_ACCRUAL_TRANSITIONS } = require('../api-util/referralRewardAccrual');
+        const transactionId = transaction?.id?.uuid || null;
+        const providerId = transaction?.relationships?.provider?.data?.id?.uuid || null;
+        const eligible = Boolean(transitionName && REWARD_ACCRUAL_TRANSITIONS.has(transitionName));
+
+        // eslint-disable-next-line no-console
+        console.info('[PeakUp REFERRAL ACCRUAL TRIGGER]', {
           transitionName,
-          transaction,
-        }).catch(error => {
-          console.error('[referral-reward-accrual] async processing failed:', error);
+          transactionId,
+          providerId,
+          accrualExecuted: eligible,
+          skipReason: eligible ? null : 'transition_not_eligible',
         });
+
+        if (eligible) {
+          processReferralRewardAccrual({
+            trustedSdk,
+            transitionName,
+            transaction,
+          }).catch(error => {
+            console.error('[referral-reward-accrual] async processing failed:', error);
+          });
+        }
       }
 
       res

@@ -953,6 +953,8 @@ export const MainContent = props => {
       : true;
 
   const hasBio = !!bio;
+  const modalTierId = isPeakUpCoachProfile ? pickPrimaryTierId(publicData || {}) : null;
+  const modalTierStyle = modalTierId ? getTierStyleVars(modalTierId) : null;
   const stickerBioRichTextOpts = {
     linkify: true,
     longWordMinLength: MIN_LENGTH_FOR_LONG_WORDS,
@@ -1390,16 +1392,21 @@ export const MainContent = props => {
         onClose={() => setIsBioModalOpen(false)}
         onManageDisableScrolling={onManageDisableScrolling}
         usePortal
+        closeOnOutsideClick
+        scrollLayerClassName={css.peakUpBioModalOverlay}
+        containerClassName={css.peakUpBioModalContainer}
+        contentClassName={css.peakUpBioModalContent}
       >
-        <div className={css.stickerAboutModalBody}>
-          <h2 className={css.stickerAboutModalHeading}>
-            <FormattedMessage
-              id="ProfilePage.stickerAboutModalHeading"
-              defaultMessage="About {name}"
-              values={{ name: displayName || '' }}
-            />
-          </h2>
-          <div className={css.stickerAboutModalContent}>{bioWithLinks}</div>
+        <div className={css.peakUpBioModalSurface} style={modalTierStyle || undefined}>
+          <div className={css.stickerAboutModalBody}>
+            <h2 className={css.stickerAboutModalHeading}>
+              <FormattedMessage id="ProfilePage.stickerAboutHeading" defaultMessage="About me" />
+            </h2>
+            {displayName ? (
+              <p className={css.stickerAboutModalSubheading}>{displayName}</p>
+            ) : null}
+            <div className={css.stickerAboutModalContent}>{bioWithLinks}</div>
+          </div>
         </div>
       </Modal>
     ) : null;
@@ -1718,6 +1725,7 @@ export const ProfilePageComponent = props => {
           listings={listings}
           reviews={reviews}
           profileUserUuid={profileUser?.id?.uuid}
+          onManageDisableScrolling={onManageDisableScrolling}
           {...rest}
         />
       </>

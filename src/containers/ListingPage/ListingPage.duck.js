@@ -175,6 +175,9 @@ const showListingPayloadCreator = ({ listingId, config, isOwn = false }, thunkAP
   const params = {
     id: listingId,
     include: ['author', 'author.profileImage', 'images', 'currentStock'],
+    // PeakUp: OrderPanel needs coach teaching hours from author publicData.
+    // Without explicit user fields, the included author may omit profile.publicData on some setups.
+    'fields.user': ['profile.displayName', 'profile.publicData'],
     'fields.image': [
       // Scaled variants for large images
       'variants.scaled-small',
@@ -209,6 +212,29 @@ const showListingPayloadCreator = ({ listingId, config, isOwn = false }, thunkAP
       const listingFields = config?.listing?.listingFields;
       const sanitizeConfig = { listingFields };
       dispatch(addMarketplaceEntities(data, sanitizeConfig));
+
+      // PeakUp: best-effort follow-up fetch of the listing author profile so OrderPanel
+      // reliably receives `profile.publicData.teachingHoursStart/End` even if the included
+      // author entity arrives sparse.
+      try {
+        const authorId = data?.data?.data?.relationships?.author?.data?.id;
+        if (authorId) {
+          sdk.users
+            .show({
+              id: authorId,
+              'fields.user': ['profile.displayName', 'profile.publicData'],
+            })
+            .then(userResponse => {
+              dispatch(addMarketplaceEntities(userResponse, {}));
+            })
+            .catch(() => {
+              // Ignore: booking must still work with fallback hours.
+            });
+        }
+      } catch (e) {
+        // Ignore: best-effort only.
+      }
+
       return data;
     })
     .catch(e => {

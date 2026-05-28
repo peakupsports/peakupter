@@ -20,6 +20,7 @@ import {
   ImageFromFile,
   IconSpinner,
   FieldTextInput,
+  FieldSelect,
   H4,
   CustomExtendedDataField,
 } from '../../../components';
@@ -49,6 +50,17 @@ const PUB_PRICE_FROM_KEY = addScopePrefix('public', 'priceFrom');
 // publicData only as a back-compat mirror of the short label. Hide it
 // from the rendered form so coaches see ONE location field.
 const PUB_COACH_CITY_TEXT_KEY = addScopePrefix('public', 'coachCityText');
+
+const TEACHING_HOURS_START_DEFAULT = '09:00';
+const TEACHING_HOURS_END_DEFAULT = '19:00';
+
+const buildHourOptions = () =>
+  Array.from({ length: 24 }, (_, hour) => {
+    const hh = String(hour).padStart(2, '0');
+    return { key: `${hh}:00`, label: `${hh}:00` };
+  });
+
+const HOUR_OPTIONS = buildHourOptions();
 
 const PEAK_ROW_SPORTS_LANG_KEYS = new Set([PUB_SPORTS_KEY, PUB_LANGUAGES_KEY]);
 // Hidden / hard-removed keys: never rendered as user-editable form fields.
@@ -616,6 +628,43 @@ class ProfileSettingsFormComponent extends Component {
                     {coachPeakPricing.map(({ key, ...fieldProps }) => (
                       <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
                     ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {isCoachUser ? (
+                <div className={css.sectionContainer}>
+                  <H4 as="h2" className={css.sectionTitle}>
+                    <FormattedMessage id="ProfileSettingsForm.teachingHoursHeading" />
+                  </H4>
+                  <p className={css.extraInfo}>
+                    <FormattedMessage id="ProfileSettingsForm.teachingHoursInfo" />
+                  </p>
+                  <div className={css.coachRowTwoCol}>
+                    <FieldSelect
+                      id="teachingHoursStart"
+                      name="teachingHoursStart"
+                      label={intl.formatMessage({ id: 'ProfileSettingsForm.teachingHoursStartLabel' })}
+                    >
+                      <option value="">{TEACHING_HOURS_START_DEFAULT}</option>
+                      {HOUR_OPTIONS.map(opt => (
+                        <option key={`teach-start-${opt.key}`} value={opt.key}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </FieldSelect>
+                    <FieldSelect
+                      id="teachingHoursEnd"
+                      name="teachingHoursEnd"
+                      label={intl.formatMessage({ id: 'ProfileSettingsForm.teachingHoursEndLabel' })}
+                    >
+                      <option value="">{TEACHING_HOURS_END_DEFAULT}</option>
+                      {HOUR_OPTIONS.map(opt => (
+                        <option key={`teach-end-${opt.key}`} value={opt.key}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </FieldSelect>
                   </div>
                 </div>
               ) : null}

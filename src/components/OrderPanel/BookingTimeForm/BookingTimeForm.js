@@ -151,6 +151,8 @@ export const BookingTimeForm = props => {
     peakupMultiSlotBooking = false,
     preferredMeetingPoints = [],
     skipMeetingPointSelect = false,
+    teachingHoursStart,
+    teachingHoursEnd,
     formId,
     onSubmit,
     listingId,
@@ -398,6 +400,8 @@ export const BookingTimeForm = props => {
                 timeZone={timeZone}
                 dayCountAvailableForBooking={dayCountAvailableForBooking}
                 handleFetchLineItems={onHandleFetchLineItems}
+                teachingHoursStart={teachingHoursStart}
+                teachingHoursEnd={teachingHoursEnd}
               />
             ) : null}
 

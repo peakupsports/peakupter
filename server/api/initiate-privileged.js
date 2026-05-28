@@ -13,6 +13,7 @@ const {
   validatePeakUpHoldBeforeInitiate,
   finalizePeakUpHoldAfterSuccessfulInitiate,
 } = require('../api-util/peakupBookingHoldAssertions');
+const { findReferralForCoach } = require('../api-util/referralCoachLookup');
 
 const { Money } = sharetribeSdk.types;
 
@@ -92,14 +93,80 @@ module.exports = (req, res) => {
     })
     .then(trustedSdk => {
       const { params } = bodyParams;
+      const safeParams = omitPeakupInternalParams(params);
+
+      // Referral ownership is provider-based (coach → ambassador), not customer-code based.
+      // Snapshot into protectedData as best-effort; never block checkout on failures.
+      let referralSnapshot = null;
+      try {
+        const providerId = listingForHold?.relationships?.author?.data?.id?.uuid || null;
+        if (!providerId) {
+          console.info('[PeakUp REFERRAL SNAPSHOT INITIATE]', {
+            providerId: null,
+            referralOwnerId: null,
+            referralId: null,
+            skippedReason: 'missing_provider_id',
+          });
+        } else {
+          const referral = findReferralForCoach({ coachUserId: providerId }) || null;
+          const referralOwnerId = referral?.ambassadorUserId || null;
+          const referralId = referral?.id || null;
+
+          if (!referral) {
+            console.info('[PeakUp REFERRAL SNAPSHOT INITIATE]', {
+              providerId,
+              referralOwnerId: null,
+              referralId: null,
+              skippedReason: 'no_referral_ledger',
+            });
+          } else if (!referralOwnerId) {
+            console.info('[PeakUp REFERRAL SNAPSHOT INITIATE]', {
+              providerId,
+              referralOwnerId: null,
+              referralId,
+              skippedReason: 'missing_referral_owner',
+            });
+          } else {
+            referralSnapshot = {
+              peakupReferralOwnerId: referralOwnerId,
+              peakupReferredCoachId: providerId,
+              peakupReferralId: referralId,
+            };
+            console.info('[PeakUp REFERRAL SNAPSHOT INITIATE]', {
+              providerId,
+              referralOwnerId,
+              referralId,
+              skippedReason: null,
+            });
+          }
+        }
+      } catch (error) {
+        console.warn('[PeakUp REFERRAL SNAPSHOT INITIATE]', {
+          providerId: listingForHold?.relationships?.author?.data?.id?.uuid || null,
+          referralOwnerId: null,
+          referralId: null,
+          skippedReason: 'error',
+          error: error?.message || String(error),
+        });
+      }
+
+      const mergedProtectedData = referralSnapshot
+        ? {
+            ...(safeParams?.protectedData && typeof safeParams.protectedData === 'object'
+              ? safeParams.protectedData
+              : {}),
+            ...referralSnapshot,
+          }
+        : safeParams?.protectedData;
 
       // Add lineItems to the body params
       const body = {
         ...bodyParams,
         params: {
-          ...omitPeakupInternalParams(params),
+          ...safeParams,
           lineItems,
           ...metadataMaybe,
+          ...(mergedProtectedData ? { protectedData: mergedProtectedData } : {}),
         },
       };
 
@@ -121,6 +188,8 @@ module.exports = (req, res) => {
         .set('Content-Type', 'application/transit+json')
         .send(
           serialize({
+
+          
             status,
             statusText,
             data,
