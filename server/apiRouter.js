@@ -33,6 +33,9 @@ const ambassadorAdminOverview = require('./api/ambassador-admin-overview');
 const referralRewardsBackfill = require('./api/referral-rewards-backfill');
 const referralLedgerRepair = require('./api/referral-ledger-repair');
 const coachLegacyApprove = require('./api/coach-legacy-approve');
+const coachManagementAdmin = require('./api/coach-management-admin');
+const customerManagementAdmin = require('./api/customer-management-admin');
+const teamManagementAdmin = require('./api/team-management-admin');
 const peakupCoachBlockCancel = require('./api/peakup-coach-block-cancel');
 const cancellationCasesAdmin = require('./api/cancellation-cases-admin');
 
@@ -91,6 +94,37 @@ router.get(
   '/ambassador-admin/overview',
   ambassadorAdminOverview.requireCoachApplicationAdmin,
   ambassadorAdminOverview
+);
+
+// PeakUp HQ — Coach Management (directory + partner priority).
+router.get(
+  '/coach-management-admin',
+  coachManagementAdmin.requireCoachApplicationAdmin,
+  coachManagementAdmin.listCoaches
+);
+router.post(
+  '/coach-management-admin/partner-priority',
+  express.json({ limit: '64kb' }),
+  coachManagementAdmin.requireCoachApplicationAdmin,
+  coachManagementAdmin.assignPartnerPriority
+);
+router.post(
+  '/coach-management-admin/partner-priority/clear',
+  express.json({ limit: '64kb' }),
+  coachManagementAdmin.requireCoachApplicationAdmin,
+  coachManagementAdmin.removePartnerPriority
+);
+
+router.get(
+  '/customer-management-admin',
+  customerManagementAdmin.requireCoachApplicationAdmin,
+  customerManagementAdmin.listCustomers
+);
+
+router.get(
+  '/team-management-admin',
+  teamManagementAdmin.requireCoachApplicationAdmin,
+  teamManagementAdmin.listTeams
 );
 
 // Dev/admin: repair referral ledger coach ↔ ambassador links.

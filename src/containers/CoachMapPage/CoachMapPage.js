@@ -445,6 +445,7 @@ const CoachMapPage = props => {
   // the in-memory filter and the URL perfectly in lockstep on every
   // render.
   const selectedSport = queryExplore.sportKey;
+
   // Hover state on cards/markers — transient.
   const [activeListingId, setActiveListingId] = useState(null);
   // Click "Map" on a CoachCard => persistent selection that survives mouseleave

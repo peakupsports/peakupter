@@ -12,7 +12,7 @@ import FooterContainer from '../../FooterContainer/FooterContainer';
 import PeakUpHqAdminGate from '../PeakUpHqAdminGate';
 import PeakUpHqShell from '../PeakUpHqShell';
 import PeakUpHqIcon from '../PeakUpHqIcons';
-import { PEAKUP_HQ_SECTIONS } from '../peakUpHqContent';
+import { PEAKUP_HQ_NAV_GROUPS } from '../peakUpHqContent';
 
 import sportTheme from '../../SportPagesTheme.module.css';
 import css from './PeakUpHqDashboardPage.module.css';
@@ -39,40 +39,44 @@ const PeakUpHqDashboardPage = () => {
         <main className={css.main}>
           <div className={css.rail}>
             <PeakUpHqShell activeSectionId="dashboard">
-              <ul className={css.grid}>
-                {PEAKUP_HQ_SECTIONS.map(section => (
-                  <li key={section.id}>
-                    <NamedLink
-                      name={section.routeName}
-                      className={css.cardLink}
-                    >
-                      <article className={css.card}>
-                        <span className={css.cardIcon} aria-hidden="true">
-                          <PeakUpHqIcon name={section.icon} className={css.cardIconSvg} />
-                        </span>
-                        <h2 className={css.cardTitle}>
-                          <FormattedMessage id={section.titleId} />
-                        </h2>
-                        <p className={css.cardDescription}>
-                          <FormattedMessage id={section.descriptionId} />
-                        </p>
-                        <span
-                          className={classNames(
-                            css.cardMeta,
-                            !section.live && css.cardMetaMuted
-                          )}
-                        >
-                          {section.live ? (
-                            <FormattedMessage id="PeakUpHq.cardOpen" />
-                          ) : (
-                            <FormattedMessage id="PeakUpHq.comingSoon" />
-                          )}
-                        </span>
-                      </article>
-                    </NamedLink>
-                  </li>
-                ))}
-              </ul>
+              {PEAKUP_HQ_NAV_GROUPS.map(group => (
+                <section key={group.id} className={css.groupSection} aria-labelledby={`hq-group-${group.id}`}>
+                  <h2 id={`hq-group-${group.id}`} className={css.groupTitle}>
+                    <FormattedMessage id={group.labelId} />
+                  </h2>
+                  <ul className={css.grid}>
+                    {group.sections.map(section => (
+                      <li key={section.id}>
+                        <NamedLink name={section.routeName} className={css.cardLink}>
+                          <article className={css.card}>
+                            <span className={css.cardIcon} aria-hidden="true">
+                              <PeakUpHqIcon name={section.icon} className={css.cardIconSvg} />
+                            </span>
+                            <h3 className={css.cardTitle}>
+                              <FormattedMessage id={section.titleId} />
+                            </h3>
+                            <p className={css.cardDescription}>
+                              <FormattedMessage id={section.descriptionId} />
+                            </p>
+                            <span
+                              className={classNames(
+                                css.cardMeta,
+                                !section.live && css.cardMetaMuted
+                              )}
+                            >
+                              {section.live ? (
+                                <FormattedMessage id="PeakUpHq.cardOpen" />
+                              ) : (
+                                <FormattedMessage id="PeakUpHq.comingSoon" />
+                              )}
+                            </span>
+                          </article>
+                        </NamedLink>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
             </PeakUpHqShell>
           </div>
         </main>

@@ -403,6 +403,7 @@ const runLegacyCoachApprovalScan = async (opts = {}) => {
 
 module.exports = {
   hasCoachVerificationPublicData,
+  hasCoachProfileSignals,
   looksLikeLegacyCoachUser,
   buildLegacyCoachApprovalPatch,
   approveLegacyCoachUser,

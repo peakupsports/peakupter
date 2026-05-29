@@ -10,6 +10,9 @@ import { loadData as AdminCoachApplicationsPageLoader } from './AdminCoachApplic
 import { loadData as PeakUpHqDashboardPageLoader } from './PeakUpHq/PeakUpHqDashboardPage/PeakUpHqDashboardPage.duck';
 import { loadData as PeakUpHqPlaceholderPageLoader } from './PeakUpHq/PeakUpHqPlaceholderPage/PeakUpHqPlaceholderPage.duck';
 import { loadData as PeakUpHqAmbassadorsPageLoader } from './PeakUpHq/PeakUpHqAmbassadorsPage/PeakUpHqAmbassadorsPage.duck';
+import { loadData as PeakUpHqFeaturedCoachesPageLoader } from './PeakUpHq/PeakUpHqFeaturedCoachesPage/PeakUpHqFeaturedCoachesPage.duck';
+import { loadData as PeakUpHqCustomerManagementPageLoader } from './PeakUpHq/PeakUpHqCustomerManagementPage/PeakUpHqCustomerManagementPage.duck';
+import { loadData as PeakUpHqTeamManagementPageLoader } from './PeakUpHq/PeakUpHqTeamManagementPage/PeakUpHqTeamManagementPage.duck';
 import { loadData as PeakUpHqCancellationCenterPageLoader } from './PeakUpHq/PeakUpHqCancellationCenterPage/PeakUpHqCancellationCenterPage.duck';
 import { loadData as TermsPageLoader } from './TermsPage/TermsPage.duck';
 import { loadData as PrivacyPageLoader } from './PrivacyPage/PrivacyPage.duck';
@@ -64,8 +67,14 @@ const getPageDataLoadingAPI = () => {
     PeakUpHQPage: {
       loadData: PeakUpHqDashboardPageLoader,
     },
-    PeakUpHqFeaturedCoachesPage: {
-      loadData: PeakUpHqPlaceholderPageLoader,
+    PeakUpHqCoachManagementPage: {
+      loadData: PeakUpHqFeaturedCoachesPageLoader,
+    },
+    PeakUpHqCustomerManagementPage: {
+      loadData: PeakUpHqCustomerManagementPageLoader,
+    },
+    PeakUpHqTeamManagementPage: {
+      loadData: PeakUpHqTeamManagementPageLoader,
     },
     PeakUpHqAmbassadorsPage: {
       loadData: PeakUpHqAmbassadorsPageLoader,

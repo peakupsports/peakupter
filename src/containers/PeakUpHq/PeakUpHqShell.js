@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { FormattedMessage } from '../../util/reactIntl';
 import { NamedLink } from '../../components';
 import PeakUpHqIcon from './PeakUpHqIcons';
-import { PEAKUP_HQ_SECTIONS } from './peakUpHqContent';
+import { PEAKUP_HQ_NAV_GROUPS } from './peakUpHqContent';
 
 import css from './PeakUpHqShell.module.css';
 
@@ -48,28 +48,40 @@ const PeakUpHqShell = props => {
                 <FormattedMessage id="PeakUpHq.nav.overview" />
               </NamedLink>
             </li>
-            {PEAKUP_HQ_SECTIONS.map(section => {
-              const isActive = activeSectionId === section.id;
+            {PEAKUP_HQ_NAV_GROUPS.map(group => (
+              <li key={group.id} className={css.sideNavGroup}>
+                <p className={css.sideNavGroupLabel}>
+                  <FormattedMessage id={group.labelId} />
+                </p>
+                <ul className={css.sideNavSubList}>
+                  {group.sections.map(section => {
+                    const isActive = activeSectionId === section.id;
 
-              return (
-                <li key={section.id}>
-                  <NamedLink
-                    name={section.routeName}
-                    className={classNames(css.sideNavLink, isActive && css.sideNavLinkActive)}
-                  >
-                    <PeakUpHqIcon name={section.icon} className={css.sideNavIcon} />
-                    <span className={css.sideNavLabel}>
-                      <FormattedMessage id={section.titleId} />
-                    </span>
-                    {!section.live ? (
-                      <span className={css.comingSoon}>
-                        <FormattedMessage id="PeakUpHq.comingSoon" />
-                      </span>
-                    ) : null}
-                  </NamedLink>
-                </li>
-              );
-            })}
+                    return (
+                      <li key={section.id}>
+                        <NamedLink
+                          name={section.routeName}
+                          className={classNames(
+                            css.sideNavLink,
+                            isActive && css.sideNavLinkActive
+                          )}
+                        >
+                          <PeakUpHqIcon name={section.icon} className={css.sideNavIcon} />
+                          <span className={css.sideNavLabel}>
+                            <FormattedMessage id={section.titleId} />
+                          </span>
+                          {!section.live ? (
+                            <span className={css.comingSoon}>
+                              <FormattedMessage id="PeakUpHq.comingSoon" />
+                            </span>
+                          ) : null}
+                        </NamedLink>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            ))}
           </ul>
         </nav>
       </aside>

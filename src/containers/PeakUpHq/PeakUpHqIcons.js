@@ -31,6 +31,27 @@ const ICONS = {
       <path {...stroke} d="M12 3 14.5 9H21l-5.5 4 2 6L12 15l-5.5 4 2-6L3 9h6.5L12 3Z" />
     </svg>
   ),
+  coaches: (
+    <svg {...iconProps}>
+      <circle {...stroke} cx="12" cy="8" r="3.5" />
+      <path {...stroke} d="M5 20c.8-3.2 3-5 7-5s6.2 1.8 7 5" />
+      <path {...stroke} d="M8 11h8" />
+    </svg>
+  ),
+  customers: (
+    <svg {...iconProps}>
+      <circle {...stroke} cx="12" cy="9" r="3.5" />
+      <path {...stroke} d="M5 20c.6-2.8 2.4-4.5 7-4.5s6.4 1.7 7 4.5" />
+    </svg>
+  ),
+  teams: (
+    <svg {...iconProps}>
+      <circle {...stroke} cx="8" cy="9" r="2.5" />
+      <circle {...stroke} cx="16" cy="9" r="2.5" />
+      <path {...stroke} d="M3 20c.4-2.2 2.2-3.5 5-3.5M21 20c-.4-2.2-2.2-3.5-5-3.5" />
+      <path {...stroke} d="M10 20c.3-1.2 1.2-2 2-2s1.7.8 2 2" />
+    </svg>
+  ),
   cancellations: (
     <svg {...iconProps}>
       <circle {...stroke} cx="12" cy="12" r="8" />

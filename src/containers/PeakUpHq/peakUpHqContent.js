@@ -1,82 +1,138 @@
 /**
  * PeakUp HQ navigation and dashboard section registry.
- * Extend this list when new admin tools ship.
+ * Grouped for the three core user hubs + operational workflows.
  */
 
-export const PEAKUP_HQ_SECTIONS = [
+const coreHub = (id, routeName, icon, titleId, descriptionId) => ({
+  id,
+  routeName,
+  icon,
+  titleId,
+  descriptionId,
+  live: true,
+  group: 'core',
+});
+
+const workflowSection = (id, routeName, icon, titleId, descriptionId, live = true) => ({
+  id,
+  routeName,
+  icon,
+  titleId,
+  descriptionId,
+  live,
+  group: 'workflows',
+});
+
+const platformSection = (id, routeName, icon, titleId, descriptionId, live = false) => ({
+  id,
+  routeName,
+  icon,
+  titleId,
+  descriptionId,
+  live,
+  group: 'platform',
+});
+
+export const PEAKUP_HQ_NAV_GROUPS = [
   {
-    id: 'coach-applications',
-    routeName: 'AdminCoachApplicationsPage',
-    icon: 'applications',
-    titleId: 'PeakUpHq.section.coachApplications.title',
-    descriptionId: 'PeakUpHq.section.coachApplications.description',
-    live: true,
+    id: 'core',
+    labelId: 'PeakUpHq.nav.group.core',
+    sections: [
+      coreHub(
+        'coach-management',
+        'PeakUpHqCoachManagementPage',
+        'coaches',
+        'PeakUpHq.section.coachManagement.title',
+        'PeakUpHq.section.coachManagement.description'
+      ),
+      coreHub(
+        'customer-management',
+        'PeakUpHqCustomerManagementPage',
+        'customers',
+        'PeakUpHq.section.customerManagement.title',
+        'PeakUpHq.section.customerManagement.description'
+      ),
+      coreHub(
+        'team-management',
+        'PeakUpHqTeamManagementPage',
+        'teams',
+        'PeakUpHq.section.teamManagement.title',
+        'PeakUpHq.section.teamManagement.description'
+      ),
+    ],
   },
   {
-    id: 'team-applications',
-    routeName: 'AdminTeamApplicationsPage',
-    icon: 'applications',
-    titleId: 'PeakUpHq.section.teamApplications.title',
-    descriptionId: 'PeakUpHq.section.teamApplications.description',
-    live: true,
+    id: 'workflows',
+    labelId: 'PeakUpHq.nav.group.workflows',
+    sections: [
+      workflowSection(
+        'coach-applications',
+        'AdminCoachApplicationsPage',
+        'applications',
+        'PeakUpHq.section.coachApplications.title',
+        'PeakUpHq.section.coachApplications.description'
+      ),
+      workflowSection(
+        'team-applications',
+        'AdminTeamApplicationsPage',
+        'applications',
+        'PeakUpHq.section.teamApplications.title',
+        'PeakUpHq.section.teamApplications.description'
+      ),
+      workflowSection(
+        'ambassadors',
+        'PeakUpHqAmbassadorsPage',
+        'ambassadors',
+        'PeakUpHq.section.ambassadors.title',
+        'PeakUpHq.section.ambassadors.description'
+      ),
+      workflowSection(
+        'cancellation-center',
+        'PeakUpHqCancellationCenterPage',
+        'cancellations',
+        'PeakUpHq.section.cancellations.title',
+        'PeakUpHq.section.cancellations.description'
+      ),
+    ],
   },
   {
-    id: 'featured-coaches',
-    routeName: 'PeakUpHqFeaturedCoachesPage',
-    icon: 'featured',
-    titleId: 'PeakUpHq.section.featuredCoaches.title',
-    descriptionId: 'PeakUpHq.section.featuredCoaches.description',
-    live: false,
-  },
-  {
-    id: 'cancellation-center',
-    routeName: 'PeakUpHqCancellationCenterPage',
-    icon: 'cancellations',
-    titleId: 'PeakUpHq.section.cancellations.title',
-    descriptionId: 'PeakUpHq.section.cancellations.description',
-    live: true,
-  },
-  {
-    id: 'ambassadors',
-    routeName: 'PeakUpHqAmbassadorsPage',
-    icon: 'ambassadors',
-    titleId: 'PeakUpHq.section.ambassadors.title',
-    descriptionId: 'PeakUpHq.section.ambassadors.description',
-    live: true,
-  },
-  {
-    id: 'verification',
-    routeName: 'PeakUpHqVerificationPage',
-    icon: 'verification',
-    titleId: 'PeakUpHq.section.verification.title',
-    descriptionId: 'PeakUpHq.section.verification.description',
-    live: false,
-  },
-  {
-    id: 'reports',
-    routeName: 'PeakUpHqReportsPage',
-    icon: 'reports',
-    titleId: 'PeakUpHq.section.reports.title',
-    descriptionId: 'PeakUpHq.section.reports.description',
-    live: false,
-  },
-  {
-    id: 'payments',
-    routeName: 'PeakUpHqPaymentsPage',
-    icon: 'payments',
-    titleId: 'PeakUpHq.section.payments.title',
-    descriptionId: 'PeakUpHq.section.payments.description',
-    live: false,
-  },
-  {
-    id: 'activity',
-    routeName: 'PeakUpHqActivityPage',
-    icon: 'activity',
-    titleId: 'PeakUpHq.section.activity.title',
-    descriptionId: 'PeakUpHq.section.activity.description',
-    live: false,
+    id: 'platform',
+    labelId: 'PeakUpHq.nav.group.platform',
+    sections: [
+      platformSection(
+        'verification',
+        'PeakUpHqVerificationPage',
+        'verification',
+        'PeakUpHq.section.verification.title',
+        'PeakUpHq.section.verification.description'
+      ),
+      platformSection(
+        'reports',
+        'PeakUpHqReportsPage',
+        'reports',
+        'PeakUpHq.section.reports.title',
+        'PeakUpHq.section.reports.description'
+      ),
+      platformSection(
+        'payments',
+        'PeakUpHqPaymentsPage',
+        'payments',
+        'PeakUpHq.section.payments.title',
+        'PeakUpHq.section.payments.description'
+      ),
+      platformSection(
+        'activity',
+        'PeakUpHqActivityPage',
+        'activity',
+        'PeakUpHq.section.activity.title',
+        'PeakUpHq.section.activity.description'
+      ),
+    ],
   },
 ];
+
+/** Flat list — backwards compatible with existing imports. */
+export const PEAKUP_HQ_SECTIONS = PEAKUP_HQ_NAV_GROUPS.flatMap(group => group.sections);
 
 export const getPeakUpHqSectionByRouteName = routeName =>
   PEAKUP_HQ_SECTIONS.find(section => section.routeName === routeName);

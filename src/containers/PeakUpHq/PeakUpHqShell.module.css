@@ -101,6 +101,31 @@
   gap: 6px;
 }
 
+.sideNavGroup {
+  margin-top: 14px;
+}
+
+.sideNavGroup:first-of-type {
+  margin-top: 0;
+}
+
+.sideNavGroupLabel {
+  margin: 0 0 6px 12px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 250, 0.38);
+}
+
+.sideNavSubList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
 .sideNavLink {
   position: relative;
   display: flex;

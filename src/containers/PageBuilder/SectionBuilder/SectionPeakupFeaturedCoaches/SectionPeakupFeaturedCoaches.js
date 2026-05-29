@@ -158,9 +158,7 @@ const SectionPeakupFeaturedCoaches = props => {
     if (needsReviews) {
       if (didRequestReviewsFetchRef.current) return;
       didRequestReviewsFetchRef.current = true;
-      dispatch(
-        fetchFeaturedCoaches({ config: configRef.current, reviewsOnly: true, force: true })
-      );
+      dispatch(fetchFeaturedCoaches({ config: configRef.current, reviewsOnly: true, force: true }));
       return;
     }
 

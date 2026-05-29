@@ -13,7 +13,9 @@ export const PEAKUP_HQ_ADMIN_PUBLIC_DATA_KEY = 'peakUpHqAdmin';
 export const PEAKUP_HQ_ROUTE_NAMES = [
   'PeakUpHQPage',
   'PeakUpHqDashboardPage',
-  'PeakUpHqFeaturedCoachesPage',
+  'PeakUpHqCoachManagementPage',
+  'PeakUpHqCustomerManagementPage',
+  'PeakUpHqTeamManagementPage',
   'PeakUpHqAmbassadorsPage',
   'PeakUpHqCancellationCenterPage',
   'PeakUpHqVerificationPage',

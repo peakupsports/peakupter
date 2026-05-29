@@ -55,6 +55,21 @@ const PeakUpHqPlaceholderPage = loadable(() =>
     /* webpackChunkName: "PeakUpHqPlaceholderPage" */ '../containers/PeakUpHq/PeakUpHqPlaceholderPage/PeakUpHqPlaceholderPage'
   )
 );
+const PeakUpHqCoachManagementPage = loadable(() =>
+  import(
+    /* webpackChunkName: "PeakUpHqCoachManagementPage" */ '../containers/PeakUpHq/PeakUpHqFeaturedCoachesPage/PeakUpHqFeaturedCoachesPage'
+  )
+);
+const PeakUpHqCustomerManagementPage = loadable(() =>
+  import(
+    /* webpackChunkName: "PeakUpHqCustomerManagementPage" */ '../containers/PeakUpHq/PeakUpHqCustomerManagementPage/PeakUpHqCustomerManagementPage'
+  )
+);
+const PeakUpHqTeamManagementPage = loadable(() =>
+  import(
+    /* webpackChunkName: "PeakUpHqTeamManagementPage" */ '../containers/PeakUpHq/PeakUpHqTeamManagementPage/PeakUpHqTeamManagementPage'
+  )
+);
 const TermsPage = loadable(() =>
   import(/* webpackChunkName: "TermsPage" */ '../containers/TermsPage/TermsPage')
 );
@@ -259,13 +274,31 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       loadData: pageDataLoadingAPI.AdminCoachApplicationsPage.loadData,
     },
     {
-      path: '/admin/featured-coaches',
-      name: 'PeakUpHqFeaturedCoachesPage',
+      path: '/admin/coach-management',
+      name: 'PeakUpHqCoachManagementPage',
       auth: true,
-      component: props => (
-        <PeakUpHqPlaceholderPage routeName="PeakUpHqFeaturedCoachesPage" {...props} />
-      ),
-      loadData: pageDataLoadingAPI.PeakUpHqFeaturedCoachesPage.loadData,
+      component: PeakUpHqCoachManagementPage,
+      loadData: pageDataLoadingAPI.PeakUpHqCoachManagementPage.loadData,
+    },
+    {
+      path: '/admin/customer-management',
+      name: 'PeakUpHqCustomerManagementPage',
+      auth: true,
+      component: PeakUpHqCustomerManagementPage,
+      loadData: pageDataLoadingAPI.PeakUpHqCustomerManagementPage.loadData,
+    },
+    {
+      path: '/admin/team-management',
+      name: 'PeakUpHqTeamManagementPage',
+      auth: true,
+      component: PeakUpHqTeamManagementPage,
+      loadData: pageDataLoadingAPI.PeakUpHqTeamManagementPage.loadData,
+    },
+    {
+      path: '/admin/featured-coaches',
+      name: 'PeakUpHqFeaturedCoachesRedirect',
+      auth: true,
+      component: () => <NamedRedirect name="PeakUpHqCoachManagementPage" />,
     },
     {
       path: '/admin/ambassadors',
