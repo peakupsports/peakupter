@@ -1,0 +1,120 @@
+@import '../../styles/customMediaQueries.css';
+
+.avatarFrame {
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid rgba(25, 223, 242, 0.28);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(23, 217, 255, 0.18) 0%, transparent 55%),
+    linear-gradient(160deg, rgba(14, 24, 40, 0.96) 0%, rgba(8, 14, 26, 0.92) 100%);
+  box-shadow:
+    0 0 20px rgba(23, 217, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.avatarMd {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+}
+
+.avatarLg {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+}
+
+@media (--viewportMedium) {
+  .avatarLg {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+  }
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+}
+
+.avatarImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: rgba(220, 248, 255, 0.96);
+}
+
+.brandBlock {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+@media (--viewportMedium) {
+  .brandBlock {
+    gap: 20px;
+  }
+}
+
+.brandCopy {
+  flex: 1;
+  min-width: 0;
+}
+
+.teamName {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: #ffffff;
+  text-shadow: 0 0 18px rgba(23, 217, 255, 0.18);
+}
+
+@media (--viewportMedium) {
+  .teamName {
+    font-size: 20px;
+  }
+}
+
+.metaList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: rgba(176, 196, 220, 0.84);
+}
+
+.metaPin {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  opacity: 0.82;
+}
+
+.metaEmoji {
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}

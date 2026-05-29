@@ -5,12 +5,16 @@
  */
 import CoachesExplorePage from './CoachesExplorePage/CoachesExplorePage.duck';
 import CoachDashboardPage from './CoachDashboardPage/CoachDashboardPage.duck';
+import CoachDashboardBookingsPage from './CoachDashboardPage/CoachDashboardBookingsPage.duck';
 import CustomerDashboardPage from './CustomerDashboardPage/CustomerDashboardPage.duck';
+import CustomerDashboardBookingsPage from './CustomerDashboardPage/CustomerDashboardBookingsPage.duck';
 import TeamDashboardPage from './TeamDashboardPage/TeamDashboardPage.duck';
+import TeamDashboardBookingsPage from './TeamDashboardPage/TeamDashboardBookingsPage.duck';
 import CheckoutPage from './CheckoutPage/CheckoutPage.duck';
 import ContactDetailsPage from './ContactDetailsPage/ContactDetailsPage.duck';
 import EditListingPage from './EditListingPage/EditListingPage.duck';
 import InboxPage from './InboxPage/InboxPage.duck';
+import TeamInvitationInboxPage from './TeamInvitationInboxPage/TeamInvitationInboxPage.duck';
 import ListingPage from './ListingPage/ListingPage.duck';
 import MakeOfferPage from './MakeOfferPage/MakeOfferPage.duck';
 import ManageListingsPage from './ManageListingsPage/ManageListingsPage.duck';
@@ -29,12 +33,16 @@ import TransactionPage from './TransactionPage/TransactionPage.duck';
 export {
   CoachesExplorePage,
   CoachDashboardPage,
+  CoachDashboardBookingsPage,
   CustomerDashboardPage,
+  CustomerDashboardBookingsPage,
   TeamDashboardPage,
+  TeamDashboardBookingsPage,
   CheckoutPage,
   ContactDetailsPage,
   EditListingPage,
   InboxPage,
+  TeamInvitationInboxPage,
   ListingPage,
   MakeOfferPage,
   ManageListingsPage,

@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from '../../../util/reactIntl';
 import { richText } from '../../../util/richText';
 import { extractSportKeysFromCoachProfile } from '../../../util/coachExplore';
-import { getPeakupTeamSports, getTeamShortLocationLabel, isPeakUpVerifiedTeam } from '../../../util/peakupTeam';
+import { getPeakupTeamMemberIds, getPeakupTeamSports, getTeamShortLocationLabel, isPeakUpVerifiedTeam } from '../../../util/peakupTeam';
 import { formatProfileSportsForSticker, resolveDisplayBadgeIds } from '../../../util/profileCoachSticker';
 import { fetchTeamMembers } from '../../../util/api';
 import { Button, PeakUpCoachFigurineCard, PeakUpLocationPin } from '../../../components';
@@ -84,9 +84,12 @@ const TeamProfileLayout = props => {
   const locationLabel = getTeamShortLocationLabel(teamRow, { intl });
 
   const storedCoachCount = parseInt(String(publicData?.teamCoachCount || '').trim(), 10);
+  const profileMemberCount = getPeakupTeamMemberIds(publicData).length;
   const coachCountDisplay =
     members.length > 0
       ? members.length
+      : profileMemberCount > 0
+      ? profileMemberCount
       : Number.isFinite(storedCoachCount) && storedCoachCount > 0
       ? storedCoachCount
       : null;
@@ -102,20 +105,38 @@ const TeamProfileLayout = props => {
     fetchTeamMembers(profileUserUuid)
       .then(res => {
         if (cancelled) return;
+        const activeCoachIds = Array.isArray(res?.activeCoachIds) ? res.activeCoachIds : [];
         const raw = Array.isArray(res?.members) ? res.members : [];
-        setMembers(
-          raw.map(m => ({
-            id: { uuid: m.id },
-            type: 'user',
-            attributes: m.attributes,
-            profileImage: m.profileImage,
-          }))
-        );
+        const mapped = raw.map(m => ({
+          id: { uuid: m.id },
+          type: 'user',
+          attributes: m.attributes,
+          profileImage: m.profileImage,
+        }));
+        setMembers(mapped);
+        if (typeof console !== 'undefined') {
+          // eslint-disable-next-line no-console
+          console.log('[PeakUp TEAM PUBLIC COACHES]', {
+            teamId: profileUserUuid,
+            activeCoachIds,
+            fetchedCoachCount: mapped.length,
+            fetchError: null,
+          });
+        }
       })
-      .catch(() => {
+      .catch(err => {
         if (!cancelled) {
           setMembersError(true);
           setMembers([]);
+          if (typeof console !== 'undefined') {
+            // eslint-disable-next-line no-console
+            console.log('[PeakUp TEAM PUBLIC COACHES]', {
+              teamId: profileUserUuid,
+              activeCoachIds: getPeakupTeamMemberIds(publicData),
+              fetchedCoachCount: 0,
+              fetchError: err?.message || 'Failed to load team coaches.',
+            });
+          }
         }
       })
       .finally(() => {
@@ -286,11 +307,12 @@ const TeamProfileLayout = props => {
                 <FormattedMessage id="TeamProfilePage.rosterError" />
               </p>
             ) : null}
-            {!membersLoading && members.length === 0 ? (
+            {!membersLoading && !membersError && members.length === 0 ? (
               <p className={css.status}>
                 <FormattedMessage id="TeamProfilePage.rosterEmpty" />
               </p>
-            ) : (
+            ) : null}
+            {!membersLoading && members.length > 0 ? (
               <ul className={css.rosterGrid}>
                 {members.map(member => {
                   const memberPd = member?.attributes?.profile?.publicData || {};
@@ -307,7 +329,7 @@ const TeamProfileLayout = props => {
                   );
                 })}
               </ul>
-            )}
+            ) : null}
           </section>
         </div>
       </main>

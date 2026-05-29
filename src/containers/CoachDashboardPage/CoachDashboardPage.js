@@ -13,7 +13,7 @@ import {
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
 import { NamedLink, Page } from '../../components';
-import PeakUpBookingDashboardPanel from '../../components/PeakUpBookingDashboardPanel/PeakUpBookingDashboardPanel';
+import BookingsSummaryCard from '../../components/BookingsSummaryCard/BookingsSummaryCard';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
 
@@ -21,6 +21,7 @@ import sportTheme from '../SportPagesTheme.module.css';
 import css from './CoachDashboardPage.module.css';
 import useInboxNotificationRefresh from '../../util/useInboxNotificationRefresh';
 import PeakUpGlobalBookingRequestNotifier from './PeakUpGlobalBookingRequestNotifier';
+import CoachTeamInvitationsSection from './CoachTeamInvitationsSection';
 
 const formatCountStatValue = value => {
   if (value == null) {
@@ -122,7 +123,6 @@ const CoachDashboardPage = () => {
   const statsFetchInProgress = useSelector(
     state => state.CoachDashboardPage?.statsFetchInProgress
   );
-  const statsError = useSelector(state => state.CoachDashboardPage?.statsError);
 
   useInboxNotificationRefresh({
     enabled: isAuthenticated && !!currentUser?.id,
@@ -318,15 +318,16 @@ const CoachDashboardPage = () => {
                 alertCount={card.key === 'inbox' ? newRequestsCount : 0}
               />
             ))}
+            <BookingsSummaryCard
+              segments={bookingSegments}
+              loading={statsFetchInProgress}
+              linkName="CoachDashboardBookingsPage"
+              titleId="CoachDashboardPage.cardBookingsTitle"
+              hintId="CoachDashboardPage.cardBookingsHint"
+            />
           </div>
 
-          <PeakUpBookingDashboardPanel
-            role="provider"
-            inboxTab="sales"
-            segments={bookingSegments}
-            loading={statsFetchInProgress}
-            error={statsError}
-          />
+          <CoachTeamInvitationsSection />
         </div>
       </main>
 

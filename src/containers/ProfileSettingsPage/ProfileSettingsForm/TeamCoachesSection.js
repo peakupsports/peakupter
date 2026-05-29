@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import {
@@ -16,7 +17,8 @@ import css from './TeamCoachesSection.module.css';
  * Team Profile Settings — connect independent PeakUp coaches to the organization.
  * Coaches keep their own accounts, reviews, bookings, and payouts.
  */
-const TeamCoachesSection = () => {
+const TeamCoachesSection = props => {
+  const { onRosterChange, className } = props;
   const intl = useIntl();
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +43,23 @@ const TeamCoachesSection = () => {
   useEffect(() => {
     loadRoster();
   }, [loadRoster]);
+
+  useEffect(() => {
+    const refreshRoster = () => {
+      if (document.visibilityState !== 'visible') {
+        return;
+      }
+      loadRoster();
+      onRosterChange?.();
+    };
+
+    window.addEventListener('focus', refreshRoster);
+    document.addEventListener('visibilitychange', refreshRoster);
+    return () => {
+      window.removeEventListener('focus', refreshRoster);
+      document.removeEventListener('visibilitychange', refreshRoster);
+    };
+  }, [loadRoster, onRosterChange]);
 
   const handleRemove = async coach => {
     const coachId = coach?.id?.uuid || coach?.id;
@@ -78,7 +97,7 @@ const TeamCoachesSection = () => {
   };
 
   return (
-    <div className={css.root}>
+    <div className={classNames(css.root, className)}>
       <div className={css.header}>
         <div>
           <H4 as="h2" className={css.title}>
@@ -113,7 +132,20 @@ const TeamCoachesSection = () => {
       ) : null}
 
       {!loading && coaches.length > 0 ? (
-        <ul className={css.grid}>
+        <ul className={classNames(css.grid, coaches.length > 5 && css.rosterTable)}>
+          {coaches.length > 5 ? (
+            <li className={css.tableHeader} aria-hidden="true">
+              <span className={css.tableHeaderCoach}>
+                <FormattedMessage id="TeamCoachRosterCard.tableCoach" />
+              </span>
+              <span className={css.tableHeaderStatus}>
+                <FormattedMessage id="TeamCoachRosterCard.tableStatus" />
+              </span>
+              <span className={css.tableHeaderActions}>
+                <FormattedMessage id="TeamCoachRosterCard.tableActions" />
+              </span>
+            </li>
+          ) : null}
           {coaches.map(coach => {
             const coachId = coach?.id?.uuid || coach?.id;
             const status = coach?.rosterStatus || 'active';
@@ -122,6 +154,7 @@ const TeamCoachesSection = () => {
                 <TeamCoachRosterCard
                   coach={coach}
                   rosterStatus={status}
+                  dense={coaches.length > 5}
                   onRemove={status === 'active' ? handleRemove : undefined}
                   onCancelInvite={status === 'pending' ? handleCancelInvite : undefined}
                 />
@@ -139,7 +172,10 @@ const TeamCoachesSection = () => {
       <AddTeamCoachModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        onInvited={loadRoster}
+        onInvited={() => {
+          loadRoster();
+          onRosterChange?.();
+        }}
       />
     </div>
   );

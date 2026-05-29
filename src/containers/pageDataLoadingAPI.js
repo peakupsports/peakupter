@@ -6,8 +6,11 @@ import { loadData as CoachApplicationPageLoader } from './CoachApplicationPage/C
 import { loadData as TeamApplicationPageLoader } from './TeamApplicationPage/TeamApplicationPage.duck';
 import { loadData as AdminTeamApplicationsPageLoader } from './AdminTeamApplicationsPage/AdminTeamApplicationsPage.duck';
 import { loadData as CoachDashboardPageLoader } from './CoachDashboardPage/CoachDashboardPage.duck';
+import { loadData as CoachDashboardBookingsPageLoader } from './CoachDashboardPage/CoachDashboardBookingsPage.duck';
 import { loadData as CustomerDashboardPageLoader } from './CustomerDashboardPage/CustomerDashboardPage.duck';
+import { loadData as CustomerDashboardBookingsPageLoader } from './CustomerDashboardPage/CustomerDashboardBookingsPage.duck';
 import { loadData as TeamDashboardPageLoader } from './TeamDashboardPage/TeamDashboardPage.duck';
+import { loadData as TeamDashboardBookingsPageLoader } from './TeamDashboardPage/TeamDashboardBookingsPage.duck';
 import { loadData as AdminCoachApplicationsPageLoader } from './AdminCoachApplicationsPage/AdminCoachApplicationsPage.duck';
 import { loadData as PeakUpHqDashboardPageLoader } from './PeakUpHq/PeakUpHqDashboardPage/PeakUpHqDashboardPage.duck';
 import { loadData as PeakUpHqPlaceholderPageLoader } from './PeakUpHq/PeakUpHqPlaceholderPage/PeakUpHqPlaceholderPage.duck';
@@ -31,6 +34,7 @@ import { loadData as ContactDetailsPageLoader } from './ContactDetailsPage/Conta
 import { loadData as EditListingPageLoader } from './EditListingPage/EditListingPage.duck';
 import { loadData as EmailVerificationPageLoader } from './EmailVerificationPage/EmailVerificationPage.duck';
 import { loadData as InboxPageLoader } from './InboxPage/InboxPage.duck';
+import { loadData as TeamInvitationInboxPageLoader } from './TeamInvitationInboxPage/TeamInvitationInboxPage.duck';
 import { loadData as ListingPageLoader } from './ListingPage/ListingPage.duck';
 import { loadData as MakeOfferPageLoader } from './MakeOfferPage/MakeOfferPage.duck';
 import { loadData as ManageListingsPageLoader } from './ManageListingsPage/ManageListingsPage.duck';
@@ -60,11 +64,20 @@ const getPageDataLoadingAPI = () => {
     CoachDashboardPage: {
       loadData: CoachDashboardPageLoader,
     },
+    CoachDashboardBookingsPage: {
+      loadData: CoachDashboardBookingsPageLoader,
+    },
     CustomerDashboardPage: {
       loadData: CustomerDashboardPageLoader,
     },
+    CustomerDashboardBookingsPage: {
+      loadData: CustomerDashboardBookingsPageLoader,
+    },
     TeamDashboardPage: {
       loadData: TeamDashboardPageLoader,
+    },
+    TeamDashboardBookingsPage: {
+      loadData: TeamDashboardBookingsPageLoader,
     },
     AdminCoachApplicationsPage: {
       loadData: AdminCoachApplicationsPageLoader,
@@ -146,6 +159,9 @@ const getPageDataLoadingAPI = () => {
     },
     InboxPage: {
       loadData: InboxPageLoader,
+    },
+    TeamInvitationInboxPage: {
+      loadData: TeamInvitationInboxPageLoader,
     },
     ListingPage: {
       loadData: ListingPageLoader,

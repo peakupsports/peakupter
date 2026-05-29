@@ -31,9 +31,24 @@ const CustomerDashboardPage = loadable(() =>
     /* webpackChunkName: "CustomerDashboardPage" */ '../containers/CustomerDashboardPage/CustomerDashboardPage'
   )
 );
+const CoachDashboardBookingsPage = loadable(() =>
+  import(
+    /* webpackChunkName: "CoachDashboardBookingsPage" */ '../containers/CoachDashboardPage/CoachDashboardBookingsPage'
+  )
+);
+const CustomerDashboardBookingsPage = loadable(() =>
+  import(
+    /* webpackChunkName: "CustomerDashboardBookingsPage" */ '../containers/CustomerDashboardPage/CustomerDashboardBookingsPage'
+  )
+);
 const TeamDashboardPage = loadable(() =>
   import(
     /* webpackChunkName: "TeamDashboardPage" */ '../containers/TeamDashboardPage/TeamDashboardPage'
+  )
+);
+const TeamDashboardBookingsPage = loadable(() =>
+  import(
+    /* webpackChunkName: "TeamDashboardBookingsPage" */ '../containers/TeamDashboardPage/TeamDashboardBookingsPage'
   )
 );
 const PartnerDashboardPage = loadable(() =>
@@ -131,6 +146,11 @@ const ContactDetailsPage = loadable(() => import(/* webpackChunkName: "ContactDe
 const EditListingPage = loadable(() => import(/* webpackChunkName: "EditListingPage" */ '../containers/EditListingPage/EditListingPage'));
 const EmailVerificationPage = loadable(() => import(/* webpackChunkName: "EmailVerificationPage" */ '../containers/EmailVerificationPage/EmailVerificationPage'));
 const InboxPage = loadable(() => import(/* webpackChunkName: "InboxPage" */ '../containers/InboxPage/InboxPage'));
+const TeamInvitationInboxPage = loadable(() =>
+  import(
+    /* webpackChunkName: "TeamInvitationInboxPage" */ '../containers/TeamInvitationInboxPage/TeamInvitationInboxPage'
+  )
+);
 const MakeOfferPage = loadable(() => import(/* webpackChunkName: "MakeOfferPage" */ '../containers/MakeOfferPage/MakeOfferPage'));
 const ListingPageCoverPhoto = loadable(() => import(/* webpackChunkName: "ListingPageCoverPhoto" */ /* webpackPrefetch: true */ '../containers/ListingPage/ListingPageCoverPhoto'));
 const ListingPageCarousel = loadable(() => import(/* webpackChunkName: "ListingPageCarousel" */ /* webpackPrefetch: true */ '../containers/ListingPage/ListingPageCarousel'));
@@ -243,6 +263,14 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       loadData: pageDataLoadingAPI.CoachDashboardPage.loadData,
     },
     {
+      path: '/coach-dashboard/bookings',
+      name: 'CoachDashboardBookingsPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: CoachDashboardBookingsPage,
+      loadData: pageDataLoadingAPI.CoachDashboardBookingsPage.loadData,
+    },
+    {
       path: '/customer-dashboard',
       name: 'CustomerDashboardPage',
       auth: true,
@@ -251,12 +279,28 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       loadData: pageDataLoadingAPI.CustomerDashboardPage.loadData,
     },
     {
+      path: '/customer-dashboard/bookings',
+      name: 'CustomerDashboardBookingsPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: CustomerDashboardBookingsPage,
+      loadData: pageDataLoadingAPI.CustomerDashboardBookingsPage.loadData,
+    },
+    {
       path: '/team-dashboard',
       name: 'TeamDashboardPage',
       auth: true,
       authPage: 'LoginPage',
       component: TeamDashboardPage,
       loadData: pageDataLoadingAPI.TeamDashboardPage.loadData,
+    },
+    {
+      path: '/team-dashboard/bookings',
+      name: 'TeamDashboardBookingsPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: TeamDashboardBookingsPage,
+      loadData: pageDataLoadingAPI.TeamDashboardBookingsPage.loadData,
     },
     {
       path: '/partner-dashboard',
@@ -621,6 +665,14 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       auth: true,
       authPage: 'LoginPage',
       component: () => <NamedRedirect name="InboxPage" params={{ tab: 'sales' }} />,
+    },
+    {
+      path: '/inbox/team-invitation/:teamId',
+      name: 'TeamInvitationInboxPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: TeamInvitationInboxPage,
+      loadData: pageDataLoadingAPI.TeamInvitationInboxPage.loadData,
     },
     {
       path: '/inbox/:tab',

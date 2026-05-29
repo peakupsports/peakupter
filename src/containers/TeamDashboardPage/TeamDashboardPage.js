@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import classNames from 'classnames';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { ensureCurrentUser } from '../../util/data';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
+import { fetchCurrentUser } from '../../ducks/user.duck';
 import {
   getPeakupTeamMemberIds,
   isTeamProfileComplete,
@@ -15,9 +16,10 @@ import {
 import useInboxNotificationRefresh from '../../util/useInboxNotificationRefresh';
 
 import { Page, NamedLink } from '../../components';
-import PeakUpBookingDashboardPanel from '../../components/PeakUpBookingDashboardPanel/PeakUpBookingDashboardPanel';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
+import TeamCoachesSection from '../ProfileSettingsPage/ProfileSettingsForm/TeamCoachesSection';
+import BookingsSummaryCard from '../../components/BookingsSummaryCard/BookingsSummaryCard';
 
 import sportTheme from '../SportPagesTheme.module.css';
 import css from '../CoachDashboardPage/CoachDashboardPage.module.css';
@@ -37,18 +39,36 @@ const QuickStat = ({ labelId, value }) => (
  */
 const TeamDashboardPage = () => {
   const intl = useIntl();
+  const dispatch = useDispatch();
   const config = useConfiguration();
   const scrollingDisabled = useSelector(isScrollingDisabled);
   const isAuthenticated = useSelector(state => state.auth?.isAuthenticated);
   const currentUser = useSelector(state => state.user?.currentUser);
   const segments = useSelector(state => state.TeamDashboardPage?.segments);
   const fetchInProgress = useSelector(state => state.TeamDashboardPage?.fetchInProgress);
-  const fetchError = useSelector(state => state.TeamDashboardPage?.fetchError);
 
   useInboxNotificationRefresh({
     enabled: isAuthenticated && !!currentUser?.id,
     debugLabel: 'TeamDashboard',
   });
+
+  const refreshTeamStats = useCallback(() => {
+    dispatch(fetchCurrentUser({ enforce: true }));
+  }, [dispatch]);
+
+  useEffect(() => {
+    const refreshOnFocus = () => {
+      if (document.visibilityState === 'visible') {
+        refreshTeamStats();
+      }
+    };
+    window.addEventListener('focus', refreshOnFocus);
+    document.addEventListener('visibilitychange', refreshOnFocus);
+    return () => {
+      window.removeEventListener('focus', refreshOnFocus);
+      document.removeEventListener('visibilitychange', refreshOnFocus);
+    };
+  }, [refreshTeamStats]);
 
   const user = ensureCurrentUser(currentUser);
 
@@ -160,6 +180,14 @@ const TeamDashboardPage = () => {
                 <FormattedMessage id="TeamDashboardPage.cardOpen" />
               </span>
             </NamedLink>
+            <BookingsSummaryCard
+              segments={segments}
+              loading={fetchInProgress}
+              linkName="TeamDashboardBookingsPage"
+              titleId="TeamDashboardPage.cardBookingsTitle"
+              hintId="TeamDashboardPage.cardBookingsHint"
+              ctaId="TeamDashboardPage.cardOpen"
+            />
           </div>
 
           {!profileComplete ? (
@@ -168,13 +196,12 @@ const TeamDashboardPage = () => {
             </p>
           ) : null}
 
-          <PeakUpBookingDashboardPanel
-            role="provider"
-            inboxTab="sales"
-            segments={segments}
-            loading={fetchInProgress}
-            error={fetchError}
-          />
+          <section className={teamCss.coachesSection}>
+            <TeamCoachesSection
+              className={teamCss.coachesPanel}
+              onRosterChange={refreshTeamStats}
+            />
+          </section>
         </div>
       </main>
 

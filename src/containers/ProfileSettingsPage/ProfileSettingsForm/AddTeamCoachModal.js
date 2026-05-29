@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
@@ -22,20 +22,54 @@ const INVITE_CTA = {
   SUCCESS: 'success',
   CONNECTED: 'connected',
   PENDING: 'pending',
+  DECLINED: 'declined',
   NOT_VERIFIED: 'not_verified',
 };
 
-const buildRosterIndex = coaches => {
+const buildRosterIndex = (coaches, declinedInviteIds = []) => {
   const index = {};
+  (Array.isArray(declinedInviteIds) ? declinedInviteIds : []).forEach(coachId => {
+    if (coachId) {
+      index[coachId] = 'declined';
+    }
+  });
   (Array.isArray(coaches) ? coaches : []).forEach(coach => {
     const coachId = extractCoachUserUuid(coach);
     if (!coachId) {
       return;
     }
     const status = String(coach?.rosterStatus || 'active').toLowerCase();
-    index[coachId] = status === 'pending' ? 'pending' : 'active';
+    if (status === 'pending') {
+      index[coachId] = 'pending';
+    } else if (status === 'declined') {
+      index[coachId] = 'declined';
+    } else if (status === 'active') {
+      index[coachId] = 'active';
+    }
   });
   return index;
+};
+
+const resolveCoachAffiliationStatus = (coach, teamId) => {
+  if (!teamId) {
+    return null;
+  }
+  const pd = coach?.publicData || coach?.attributes?.profile?.publicData || {};
+  const affiliatedTeamId = String(pd.peakupAffiliatedTeamId || '').trim();
+  if (affiliatedTeamId !== teamId) {
+    return null;
+  }
+  const status = String(pd.peakupAffiliationStatus || '').toLowerCase();
+  if (status === 'pending') {
+    return 'pending';
+  }
+  if (status === 'active') {
+    return 'active';
+  }
+  if (status === 'removed') {
+    return 'declined';
+  }
+  return null;
 };
 
 const resolveInviteCtaState = ({
@@ -57,6 +91,9 @@ const resolveInviteCtaState = ({
   if (rosterIndex[coachId] === 'pending') {
     return INVITE_CTA.PENDING;
   }
+  if (rosterIndex[coachId] === 'declined') {
+    return INVITE_CTA.DECLINED;
+  }
   if (!isEligible) {
     return INVITE_CTA.NOT_VERIFIED;
   }
@@ -73,10 +110,12 @@ const inviteCtaMessageId = state => {
       return 'AddTeamCoachModal.alreadyInTeam';
     case INVITE_CTA.PENDING:
       return 'AddTeamCoachModal.invitationPending';
+    case INVITE_CTA.DECLINED:
+      return 'AddTeamCoachModal.inviteAgain';
     case INVITE_CTA.NOT_VERIFIED:
       return 'AddTeamCoachModal.notVerifiedHint';
     default:
-      return 'AddTeamCoachModal.addCoach';
+      return 'AddTeamCoachModal.inviteCoach';
   }
 };
 
@@ -84,18 +123,20 @@ const inviteCtaMessageId = state => {
  * Primary invite CTA for a search result row.
  */
 const CoachResultInviteCta = props => {
-  const { state, onInvite, inviteDisabled } = props;
-  const isActionable = state === INVITE_CTA.ADD;
+  const { state, onInvite, inviteDisabled, compact = false } = props;
+  const isActionable = state === INVITE_CTA.ADD || state === INVITE_CTA.DECLINED;
 
   return (
     <button
       type="button"
       className={classNames(
         css.inviteBtn,
+        compact && css.inviteBtnCompact,
         state === INVITE_CTA.LOADING && css.inviteBtnLoading,
         state === INVITE_CTA.SUCCESS && css.inviteBtnSuccess,
         state === INVITE_CTA.PENDING && css.inviteBtnPending,
         state === INVITE_CTA.CONNECTED && css.inviteBtnConnected,
+        state === INVITE_CTA.DECLINED && css.inviteBtnDeclined,
         state === INVITE_CTA.NOT_VERIFIED && css.inviteBtnNotVerified
       )}
       onClick={isActionable ? onInvite : undefined}
@@ -129,12 +170,16 @@ const AddTeamCoachModal = props => {
   const [error, setError] = useState(null);
   const [rosterIndex, setRosterIndex] = useState({});
   const [inviteOutcomes, setInviteOutcomes] = useState({});
+  const [teamId, setTeamId] = useState(null);
+  const resultsBlockRef = useRef(null);
 
   const loadRosterIndex = useCallback(async () => {
     try {
       const res = await fetchTeamRosterManage();
-      setRosterIndex(buildRosterIndex(res?.coaches));
+      setTeamId(res?.teamId || null);
+      setRosterIndex(buildRosterIndex(res?.coaches, res?.declinedInviteIds));
     } catch (e) {
+      setTeamId(null);
       setRosterIndex({});
     }
   }, []);
@@ -151,6 +196,13 @@ const AddTeamCoachModal = props => {
     }
     loadRosterIndex();
   }, [isOpen, loadRosterIndex]);
+
+  useEffect(() => {
+    if (!isOpen || results.length === 0 || !resultsBlockRef.current) {
+      return;
+    }
+    resultsBlockRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [isOpen, results.length]);
 
   const runSearch = useCallback(async () => {
     const q = String(query || '').trim();
@@ -192,14 +244,30 @@ const AddTeamCoachModal = props => {
       setResults(coaches);
       if (coaches.length === 0) {
         setError(intl.formatMessage({ id: 'AddTeamCoachModal.noResults' }));
+        return;
       }
+
+      setRosterIndex(prev => {
+        const next = { ...prev };
+        coaches.forEach(coach => {
+          const coachId = extractCoachUserUuid(coach);
+          if (!coachId || next[coachId]) {
+            return;
+          }
+          const affiliationStatus = resolveCoachAffiliationStatus(coach, teamId);
+          if (affiliationStatus) {
+            next[coachId] = affiliationStatus;
+          }
+        });
+        return next;
+      });
     } catch (e) {
       setResults([]);
       setError(e?.message || intl.formatMessage({ id: 'AddTeamCoachModal.searchFailed' }));
     } finally {
       setSearching(false);
     }
-  }, [intl, query]);
+  }, [intl, query, teamId]);
 
   const handleInvite = async coach => {
     const coachId = extractCoachUserUuid(coach);
@@ -207,23 +275,46 @@ const AddTeamCoachModal = props => {
       return;
     }
 
+    const isEligible =
+      isVerifiedCoachForTeamRoster(coach) || coach?.rosterStatus === 'eligible';
     const ctaState = resolveInviteCtaState({
       coachId,
       rosterIndex,
       inviteOutcomes,
       invitingId,
-      isEligible: isVerifiedCoachForTeamRoster(coach) || coach?.rosterStatus === 'eligible',
+      isEligible,
     });
-    if (ctaState !== INVITE_CTA.ADD) {
+    if (ctaState !== INVITE_CTA.ADD && ctaState !== INVITE_CTA.DECLINED) {
       return;
     }
+
+    const coachEmail = coach?.email || coach?.attributes?.email || null;
+    const previousStatus = rosterIndex[coachId] || 'none';
 
     setInvitingId(coachId);
     setError(null);
     try {
       await inviteTeamCoach({ coachId });
+      // eslint-disable-next-line no-console
+      console.log('[PeakUp TEAM COACH INVITE]', {
+        teamId,
+        coachUserId: coachId,
+        coachEmail,
+        previousStatus,
+        nextStatus: 'pending',
+      });
       setRosterIndex(prev => ({ ...prev, [coachId]: 'pending' }));
       setInviteOutcomes(prev => ({ ...prev, [coachId]: INVITE_CTA.SUCCESS }));
+      window.setTimeout(() => {
+        setInviteOutcomes(prev => {
+          if (prev[coachId] !== INVITE_CTA.SUCCESS) {
+            return prev;
+          }
+          const next = { ...prev };
+          delete next[coachId];
+          return next;
+        });
+      }, 2500);
       onInvited?.();
       loadRosterIndex();
     } catch (e) {
@@ -240,7 +331,6 @@ const AddTeamCoachModal = props => {
       setInvitingId(null);
     }
   };
-
   const emailPlaceholder = intl.formatMessage({ id: 'AddTeamCoachModal.emailPlaceholder' });
   const profilePlaceholder = intl.formatMessage({
     id: 'AddTeamCoachModal.profilePlaceholder',
@@ -273,7 +363,8 @@ const AddTeamCoachModal = props => {
           </p>
         </header>
 
-        <div className={css.body}>
+        <div className={css.scrollBody}>
+          <div className={css.body}>
           <div className={css.tabsBlock}>
             <p className={css.tabsLabel}>
               <FormattedMessage id="AddTeamCoachModal.tabsLabel" />
@@ -346,7 +437,7 @@ const AddTeamCoachModal = props => {
         {error ? <p className={css.error}>{error}</p> : null}
 
         {results.length > 0 ? (
-          <div className={css.resultsBlock}>
+          <div className={css.resultsBlock} ref={resultsBlockRef}>
             <p className={css.resultsLabel}>
               <FormattedMessage id="AddTeamCoachModal.resultsLabel" />
             </p>
@@ -363,6 +454,8 @@ const AddTeamCoachModal = props => {
                   ? 'pending'
                   : rosterIndex[coachId] === 'active'
                   ? 'active'
+                  : rosterIndex[coachId] === 'declined'
+                  ? 'declined'
                   : coach?.rosterStatus || (isEligible ? 'eligible' : 'not_verified');
               const ctaState = resolveInviteCtaState({
                 coachId,
@@ -374,22 +467,27 @@ const AddTeamCoachModal = props => {
 
               return (
                 <li key={coachId} className={css.resultItem}>
-                  <div className={css.resultCard}>
-                    <TeamCoachRosterCard coach={coach} rosterStatus={cardStatus} />
-                    <div className={css.resultCtaRow}>
+                  <TeamCoachRosterCard
+                    coach={coach}
+                    rosterStatus={cardStatus}
+                    variant="search"
+                    className={css.searchResultCard}
+                    footerAction={
                       <CoachResultInviteCta
+                        compact
                         state={ctaState}
                         onInvite={() => handleInvite(coach)}
                         inviteDisabled={Boolean(invitingId)}
                       />
-                    </div>
-                  </div>
+                    }
+                  />
                 </li>
               );
             })}
             </ul>
           </div>
         ) : null}
+          </div>
         </div>
 
         <div className={css.footer}>

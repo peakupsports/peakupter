@@ -33,9 +33,10 @@ import {
   isNegotiationProcess,
 } from '../../transactions/transaction';
 
+import { respondToTeamInvite } from '../../util/api';
 import { archiveConversation } from '../../ducks/archivedConversations.duck';
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
-import { onInboxListLoaded } from '../../ducks/user.duck';
+import { onInboxListLoaded, fetchCurrentUserNotifications } from '../../ducks/user.duck';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { filterTransactionsExcludingArchived } from '../../util/archivedConversations';
 import { isDevelopmentMode } from '../../util/isDevelopmentMode';
@@ -53,6 +54,7 @@ import {
   TimeRange,
   UserDisplayName,
   LayoutSideNavigation,
+  TeamInvitationInboxItem,
 } from '../../components';
 
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
@@ -274,10 +276,13 @@ export const InboxPageComponent = props => {
     customerNotificationCount = 0,
     unreadSaleTransactionIds = [],
     unreadOrderTransactionIds = [],
+    unreadTeamInvitationIds = [],
+    pendingTeamInvitations = [],
     scrollingDisabled,
     transactions,
     onArchiveConversation,
     onInboxListLoaded: onInboxListLoadedProp,
+    onRefreshInboxNotifications,
   } = props;
   const { tab } = params;
   const validTab = tab === 'orders' || tab === 'sales';
@@ -293,6 +298,13 @@ export const InboxPageComponent = props => {
   const isOrders = tab === 'orders';
   const inboxTransactions = filterTransactionsExcludingArchived(transactions, currentUser);
   const lastInboxResetKeyRef = useRef(null);
+
+  const handleTeamInvitationRespond = async (teamId, action) => {
+    await respondToTeamInvite({ teamId, action });
+    if (onRefreshInboxNotifications) {
+      onRefreshInboxNotifications();
+    }
+  };
 
   const customerCount = customerNotificationCount;
   const providerCount = providerNotificationCount;
@@ -320,6 +332,13 @@ export const InboxPageComponent = props => {
   }, [customerCount, unreadOrderTransactionIds]);
 
   useEffect(() => {
+    if (!validTab || isOrders) {
+      return;
+    }
+    onRefreshInboxNotifications?.();
+  }, [isOrders, onRefreshInboxNotifications, validTab]);
+
+  useEffect(() => {
     if (fetchInProgress || fetchOrdersOrSalesError || !currentUser?.id?.uuid) {
       return;
     }
@@ -339,7 +358,10 @@ export const InboxPageComponent = props => {
   ]);
 
   const hasNoResults =
-    !fetchInProgress && inboxTransactions.length === 0 && !fetchOrdersOrSalesError;
+    !fetchInProgress &&
+    inboxTransactions.length === 0 &&
+    (!isOrders ? pendingTeamInvitations.length === 0 : true) &&
+    !fetchOrdersOrSalesError;
   const ordersTitle = intl.formatMessage({ id: 'InboxPage.ordersTitle' });
   const salesTitle = intl.formatMessage({ id: 'InboxPage.salesTitle' });
   const title = isOrders ? ordersTitle : salesTitle;
@@ -482,6 +504,17 @@ export const InboxPageComponent = props => {
           </p>
         ) : null}
         <ul className={css.itemList}>
+          {!fetchInProgress && !isOrders
+            ? pendingTeamInvitations.map(invite => (
+                <li key={`team-invitation-${invite.teamId}`} className={css.listItem}>
+                  <TeamInvitationInboxItem
+                    invite={invite}
+                    isUnread={unreadTeamInvitationIds.includes(invite.teamId)}
+                    onRespond={handleTeamInvitationRespond}
+                  />
+                </li>
+              ))
+            : null}
           {!fetchInProgress ? (
             inboxTransactions.map(toTxItem)
           ) : (
@@ -519,6 +552,8 @@ const mapStateToProps = state => {
     currentUserOrderNotificationCount,
     unreadSaleTransactionIds = [],
     unreadOrderTransactionIds = [],
+    unreadTeamInvitationIds = [],
+    pendingTeamInvitations = [],
   } = state.user;
   return {
     currentUser,
@@ -529,6 +564,8 @@ const mapStateToProps = state => {
     customerNotificationCount: currentUserOrderNotificationCount,
     unreadSaleTransactionIds,
     unreadOrderTransactionIds,
+    unreadTeamInvitationIds,
+    pendingTeamInvitations,
     scrollingDisabled: isScrollingDisabled(state),
     transactions: getMarketplaceEntities(state, transactionRefs),
   };
@@ -536,8 +573,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   onArchiveConversation: transactionId => dispatch(archiveConversation(transactionId)),
-    onInboxListLoaded: (visibleTransactions, options) =>
+  onInboxListLoaded: (visibleTransactions, options) =>
     dispatch(onInboxListLoaded(visibleTransactions, options)),
+  onRefreshInboxNotifications: () => dispatch(fetchCurrentUserNotifications()),
 });
 
 const InboxPage = compose(connect(mapStateToProps, mapDispatchToProps))(InboxPageComponent);

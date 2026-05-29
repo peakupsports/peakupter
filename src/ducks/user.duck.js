@@ -23,6 +23,10 @@ import {
   logInboxNotificationFinalWrite,
   recountInboxNotificationCounts,
 } from '../util/transactionNotificationCount';
+import { fetchMyTeamInvites } from '../util/api';
+import {
+  getUnreadTeamInvitationIds,
+} from '../util/teamInvitationInbox';
 
 import { authInfo } from './auth.duck';
 import { updateStripeConnectAccount } from './stripeConnectAccount.duck';
@@ -150,6 +154,8 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
       orderNotificationsCount: 0,
       unreadSaleTransactionIds: [],
       unreadOrderTransactionIds: [],
+      unreadTeamInvitationIds: [],
+      pendingTeamInvitations: [],
       fetchSeq: inboxNotificationsFetchSeq,
     });
   }
@@ -220,6 +226,25 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
 
       const finalSaleIds = [...saleValidatedIds];
       const finalOrderIds = [...orderValidatedIds];
+
+      let pendingTeamInvitations = [];
+      let unreadTeamInvitationIds = [];
+      if (typeof window !== 'undefined') {
+        try {
+          const inviteResponse = await fetchMyTeamInvites();
+          pendingTeamInvitations = Array.isArray(inviteResponse?.invites)
+            ? inviteResponse.invites
+            : [];
+          unreadTeamInvitationIds = getUnreadTeamInvitationIds(
+            currentUserId,
+            pendingTeamInvitations
+          );
+        } catch (inviteError) {
+          pendingTeamInvitations = [];
+          unreadTeamInvitationIds = [];
+        }
+      }
+
       const previousUnreadSaleIds = dedupeTransactionIds(state.user?.unreadSaleTransactionIds || []);
       const previousUnreadOrderIds = dedupeTransactionIds(state.user?.unreadOrderTransactionIds || []);
 
@@ -232,7 +257,7 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
         finalOrderIds,
       });
 
-      const saleNotificationsCount = finalSaleIds.length;
+      const saleNotificationsCount = finalSaleIds.length + unreadTeamInvitationIds.length;
       const orderNotificationsCount = finalOrderIds.length;
 
       if (typeof window !== 'undefined') {
@@ -245,6 +270,7 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
             totalCount: saleNotificationsCount + orderNotificationsCount,
             unreadSaleTransactionIds: finalSaleIds,
             unreadOrderTransactionIds: finalOrderIds,
+            unreadTeamInvitationIds,
             ghostOrderIdsRemoved: recount.ghostOrderIds,
             ghostSaleIdsRemoved: recount.ghostSaleIds,
           });
@@ -256,6 +282,8 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
         orderNotificationsCount,
         unreadSaleTransactionIds: finalSaleIds,
         unreadOrderTransactionIds: finalOrderIds,
+        unreadTeamInvitationIds,
+        pendingTeamInvitations,
         fetchSeq,
       };
     })
@@ -625,6 +653,8 @@ const userSlice = createSlice({
     currentUserOrderNotificationCount: 0,
     unreadSaleTransactionIds: [],
     unreadOrderTransactionIds: [],
+    unreadTeamInvitationIds: [],
+    pendingTeamInvitations: [],
     lastAppliedInboxNotificationsFetchSeq: 0,
     inboxNotificationsFetchInProgress: false,
     inboxNotificationsLoaded: false,
@@ -644,6 +674,8 @@ const userSlice = createSlice({
       state.currentUserOrderNotificationCount = 0;
       state.unreadSaleTransactionIds = [];
       state.unreadOrderTransactionIds = [];
+      state.unreadTeamInvitationIds = [];
+      state.pendingTeamInvitations = [];
       state.inboxNotificationsFetchInProgress = false;
       state.inboxNotificationsLoaded = false;
 
@@ -810,8 +842,12 @@ const userSlice = createSlice({
           return;
         }
         const {
+          saleNotificationsCount = 0,
+          orderNotificationsCount = 0,
           unreadSaleTransactionIds = [],
           unreadOrderTransactionIds = [],
+          unreadTeamInvitationIds = [],
+          pendingTeamInvitations = [],
           fetchSeq = 0,
         } = action.payload;
         if (fetchSeq < state.lastAppliedInboxNotificationsFetchSeq) {
@@ -821,11 +857,16 @@ const userSlice = createSlice({
 
         const finalSaleIds = dedupeTransactionIds(unreadSaleTransactionIds);
         const finalOrderIds = dedupeTransactionIds(unreadOrderTransactionIds);
+        const finalTeamInviteIds = [...new Set((unreadTeamInvitationIds || []).filter(Boolean))];
 
         state.unreadSaleTransactionIds = finalSaleIds;
         state.unreadOrderTransactionIds = finalOrderIds;
-        state.currentUserSaleNotificationCount = finalSaleIds.length;
-        state.currentUserOrderNotificationCount = finalOrderIds.length;
+        state.unreadTeamInvitationIds = finalTeamInviteIds;
+        state.pendingTeamInvitations = Array.isArray(pendingTeamInvitations)
+          ? pendingTeamInvitations
+          : [];
+        state.currentUserSaleNotificationCount = saleNotificationsCount;
+        state.currentUserOrderNotificationCount = orderNotificationsCount;
         state.inboxNotificationsFetchInProgress = false;
         state.inboxNotificationsLoaded = true;
       })
@@ -850,6 +891,8 @@ const userSlice = createSlice({
         state.currentUserOrderNotificationCount = 0;
         state.unreadSaleTransactionIds = [];
         state.unreadOrderTransactionIds = [];
+        state.unreadTeamInvitationIds = [];
+        state.pendingTeamInvitations = [];
       })
       // fetchCurrentUserHasOrders
       .addCase(fetchCurrentUserHasOrdersThunk.pending, state => {

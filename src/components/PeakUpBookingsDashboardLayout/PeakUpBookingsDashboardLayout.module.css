@@ -1,0 +1,66 @@
+@import '../../styles/customMediaQueries.css';
+
+.backLink {
+  display: inline-flex;
+  margin: 0 0 20px;
+  font-size: 14px;
+  font-weight: var(--fontWeightSemiBold);
+  color: rgba(155, 231, 255, 0.88);
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.backLink:hover {
+  color: #19dff2;
+}
+
+.header {
+  margin-bottom: 24px;
+  padding: 22px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 210, 255, 0.18);
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(0, 210, 255, 0.08) 0%, transparent 52%),
+    linear-gradient(155deg, rgba(20, 32, 52, 0.92) 0%, rgba(10, 16, 28, 0.82) 55%, rgba(8, 14, 26, 0.88) 100%);
+  box-shadow:
+    0 14px 40px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+@media (--viewportMedium) {
+  .header {
+    margin-bottom: 28px;
+    padding: 28px 32px;
+    border-radius: 22px;
+  }
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: var(--fontWeightBold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(155, 231, 255, 0.88);
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: clamp(1.45rem, 3.2vw, 1.85rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #ffffff;
+}
+
+.lead {
+  margin: 0;
+  max-width: 48ch;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(196, 210, 228, 0.82);
+}
+
+.bookingPanel {
+  margin-top: 0;
+}

@@ -9,14 +9,22 @@ import UserDisplayName from '../UserDisplayName/UserDisplayName';
 import css from './PeakUpBookingDashboardPanel.module.css';
 
 const SECTION_CONFIG = [
-  { key: 'upcoming', titleId: 'PeakUpBookingDashboard.sectionUpcoming' },
-  { key: 'pending', titleId: 'PeakUpBookingDashboard.sectionPending' },
-  { key: 'pendingReview', titleId: 'PeakUpBookingDashboard.sectionReview' },
-  { key: 'past', titleId: 'PeakUpBookingDashboard.sectionPast' },
-  { key: 'canceled', titleId: 'PeakUpBookingDashboard.sectionCanceled' },
+  { key: 'upcoming', titleId: 'PeakUpBookingDashboard.sectionUpcoming', accent: 'cyan' },
+  { key: 'pending', titleId: 'PeakUpBookingDashboard.sectionPending', accent: 'amber' },
+  { key: 'pendingReview', titleId: 'PeakUpBookingDashboard.sectionReview', accent: 'violet' },
+  { key: 'past', titleId: 'PeakUpBookingDashboard.sectionPast', accent: 'neutral' },
+  { key: 'canceled', titleId: 'PeakUpBookingDashboard.sectionCanceled', accent: 'danger' },
 ];
 
-const BookingRow = ({ entry, intl, inboxTab }) => {
+const STATUS_BADGE_CLASS = {
+  upcoming: css.statusUpcoming,
+  pending: css.statusPending,
+  pendingReview: css.statusReview,
+  past: css.statusPast,
+  canceled: css.statusCanceled,
+};
+
+const BookingRow = ({ entry, intl, inboxTab, sectionKey }) => {
   const { transaction, role } = entry;
   const info = getBookingProcessStateInfo(transaction);
   const processName = info?.processName || 'default-booking';
@@ -55,16 +63,22 @@ const BookingRow = ({ entry, intl, inboxTab }) => {
           ) : null}
         </p>
       </div>
-      <span className={css.itemStatus}>{statusLabel}</span>
+      <span className={classNames(css.itemStatus, STATUS_BADGE_CLASS[sectionKey])}>
+        {statusLabel}
+      </span>
       <div className={css.itemActions}>
         {txId ? (
-          <NamedLink className={css.actionLink} name={detailRoute} params={{ id: txId }}>
+          <NamedLink
+            className={classNames(css.actionBtn, css.actionPrimary)}
+            name={detailRoute}
+            params={{ id: txId }}
+          >
             <FormattedMessage id="PeakUpBookingDashboard.openBooking" />
           </NamedLink>
         ) : null}
         {txId ? (
           <NamedLink
-            className={css.actionLink}
+            className={classNames(css.actionBtn, css.actionSecondary)}
             name="InboxPage"
             params={{ tab: inboxTab }}
           >
@@ -76,11 +90,15 @@ const BookingRow = ({ entry, intl, inboxTab }) => {
   );
 };
 
-const DashboardSection = ({ sectionKey, titleId, items, intl, inboxTab, limit = 5 }) => {
+const DashboardSection = ({ sectionKey, titleId, accent, items, intl, inboxTab, limit = 5 }) => {
   const visible = (items || []).slice(0, limit);
+  const accentClass = css[`sectionAccent${accent.charAt(0).toUpperCase()}${accent.slice(1)}`];
 
   return (
-    <section className={css.section} aria-labelledby={`dashboard-section-${sectionKey}`}>
+    <section
+      className={classNames(css.section, accentClass)}
+      aria-labelledby={`dashboard-section-${sectionKey}`}
+    >
       <header className={css.sectionHeader}>
         <h2 id={`dashboard-section-${sectionKey}`} className={css.sectionTitle}>
           <FormattedMessage id={titleId} />
@@ -99,6 +117,7 @@ const DashboardSection = ({ sectionKey, titleId, items, intl, inboxTab, limit = 
               entry={entry}
               intl={intl}
               inboxTab={inboxTab}
+              sectionKey={sectionKey}
             />
           ))}
         </ul>
@@ -117,10 +136,11 @@ const DashboardSection = ({ sectionKey, titleId, items, intl, inboxTab, limit = 
  * @param {boolean} [props.loading]
  * @param {Object} [props.error]
  * @param {string} [props.rootClassName]
+ * @param {boolean} [props.showIntro]
  */
 const PeakUpBookingDashboardPanel = props => {
   const intl = useIntl();
-  const { role, inboxTab, segments, loading, error, rootClassName } = props;
+  const { inboxTab, segments, loading, error, rootClassName, showIntro = true } = props;
 
   if (loading) {
     return (
@@ -140,19 +160,24 @@ const PeakUpBookingDashboardPanel = props => {
 
   return (
     <div className={classNames(css.root, rootClassName)}>
-      <p className={css.intro}>
-        <FormattedMessage id="PeakUpBookingDashboard.intro" />
-      </p>
-      {SECTION_CONFIG.map(section => (
-        <DashboardSection
-          key={section.key}
-          sectionKey={section.key}
-          titleId={section.titleId}
-          items={segments?.[section.key]}
-          intl={intl}
-          inboxTab={inboxTab}
-        />
-      ))}
+      {showIntro ? (
+        <p className={css.intro}>
+          <FormattedMessage id="PeakUpBookingDashboard.intro" />
+        </p>
+      ) : null}
+      <div className={css.sections}>
+        {SECTION_CONFIG.map(section => (
+          <DashboardSection
+            key={section.key}
+            sectionKey={section.key}
+            titleId={section.titleId}
+            accent={section.accent}
+            items={segments?.[section.key]}
+            intl={intl}
+            inboxTab={inboxTab}
+          />
+        ))}
+      </div>
     </div>
   );
 };

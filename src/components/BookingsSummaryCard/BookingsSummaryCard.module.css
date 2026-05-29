@@ -1,0 +1,65 @@
+.card {
+  min-height: 168px;
+}
+
+.bookingsCardIcon {
+  overflow: hidden;
+}
+
+.iconGlyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 1.2rem;
+  line-height: 1;
+  /* Mute default emoji colors — container carries PeakUp cyan glow */
+  filter: grayscale(1) brightness(1.28) contrast(0.88);
+  opacity: 0.9;
+  transition:
+    filter 200ms ease,
+    opacity 200ms ease;
+}
+
+@media (--viewportMedium) {
+  .iconGlyph {
+    font-size: 1.35rem;
+  }
+}
+
+.card:hover .iconGlyph,
+.card:focus-visible .iconGlyph {
+  opacity: 0.98;
+  filter: grayscale(0.55) brightness(1.32) sepia(0.12) hue-rotate(158deg) saturate(0.85);
+}
+
+.stats {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.statLabel {
+  color: rgba(196, 210, 228, 0.78);
+  font-weight: var(--fontWeightMedium);
+}
+
+.statValue {
+  font-size: 13px;
+  font-weight: var(--fontWeightBold);
+  color: rgba(220, 248, 255, 0.96);
+  font-variant-numeric: tabular-nums;
+}

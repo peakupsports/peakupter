@@ -12,7 +12,7 @@ import { isOnlyCustomerProfile } from '../../util/coachOnboarding';
 import useInboxNotificationRefresh from '../../util/useInboxNotificationRefresh';
 
 import { Page, NamedLink } from '../../components';
-import PeakUpBookingDashboardPanel from '../../components/PeakUpBookingDashboardPanel/PeakUpBookingDashboardPanel';
+import BookingsSummaryCard from '../../components/BookingsSummaryCard/BookingsSummaryCard';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
 
@@ -30,7 +30,6 @@ const CustomerDashboardPage = () => {
   const currentUser = useSelector(state => state.user?.currentUser);
   const segments = useSelector(state => state.CustomerDashboardPage?.segments);
   const fetchInProgress = useSelector(state => state.CustomerDashboardPage?.fetchInProgress);
-  const fetchError = useSelector(state => state.CustomerDashboardPage?.fetchError);
 
   useInboxNotificationRefresh({
     enabled: isAuthenticated && !!currentUser?.id,
@@ -115,15 +114,15 @@ const CustomerDashboardPage = () => {
                 <FormattedMessage id="CustomerDashboardPage.cardOpen" />
               </span>
             </NamedLink>
+            <BookingsSummaryCard
+              segments={segments}
+              loading={fetchInProgress}
+              linkName="CustomerDashboardBookingsPage"
+              titleId="CustomerDashboardPage.cardBookingsTitle"
+              hintId="CustomerDashboardPage.cardBookingsHint"
+              ctaId="CustomerDashboardPage.cardOpen"
+            />
           </div>
-
-          <PeakUpBookingDashboardPanel
-            role="customer"
-            inboxTab="orders"
-            segments={segments}
-            loading={fetchInProgress}
-            error={fetchError}
-          />
         </div>
       </main>
 

@@ -78,18 +78,57 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-  @media (--viewportMedium) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-  }
+.rosterTable {
+  gap: 4px;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(25, 223, 242, 0.14);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(23, 217, 255, 0.05) 0%, transparent 42%),
+    linear-gradient(180deg, rgba(10, 18, 32, 0.72) 0%, rgba(8, 14, 26, 0.82) 100%);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
 
-  @media (--viewportLarge) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+.tableHeader {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0 12px 4px;
+}
+
+@media (--viewportMedium) {
+  .rosterTable .tableHeader {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 88px minmax(220px, auto);
+    gap: 12px;
+    align-items: center;
+    font-size: 10px;
+    font-weight: var(--fontWeightSemiBold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(176, 196, 220, 0.62);
   }
+}
+
+.tableHeaderCoach {
+  grid-column: 1;
+}
+
+.tableHeaderStatus {
+  grid-column: 2;
+  text-align: center;
+}
+
+.tableHeaderActions {
+  grid-column: 3;
+  text-align: right;
 }
 
 .gridItem {

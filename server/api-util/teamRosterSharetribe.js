@@ -619,14 +619,89 @@ const mapCoachSearchCandidate = (user, rosterStatus, source) => {
   };
 };
 
+const normalizeRosterUserId = id =>
+  String(id || '')
+    .trim();
+
+const rosterIdsEqual = (a, b) =>
+  normalizeRosterUserId(a).toLowerCase() === normalizeRosterUserId(b).toLowerCase();
+
+const rosterIncludes = (ids, id) => ids.some(existing => rosterIdsEqual(existing, id));
+
+const rosterWithoutId = (ids, id) => ids.filter(existing => !rosterIdsEqual(existing, id));
+
+const rosterWithId = (ids, id) => {
+  const normalizedId = normalizeRosterUserId(id);
+  if (!normalizedId || rosterIncludes(ids, normalizedId)) {
+    return ids;
+  }
+  return [...ids, normalizedId];
+};
+
 const getTeamPendingInviteIds = teamPd =>
   Array.isArray(teamPd?.peakupTeamPendingInviteIds)
-    ? teamPd.peakupTeamPendingInviteIds.map(String).filter(Boolean)
+    ? teamPd.peakupTeamPendingInviteIds.map(normalizeRosterUserId).filter(Boolean)
+    : [];
+
+const getTeamActiveMemberIds = teamPd =>
+  Array.isArray(teamPd?.peakupTeamMemberIds)
+    ? teamPd.peakupTeamMemberIds.map(normalizeRosterUserId).filter(Boolean)
+    : [];
+
+const fetchTeamPublicData = async (integrationSdk, teamUserId) => {
+  const teamShow = await integrationSdk.users.show({
+    id: new integrationTypes.UUID(normalizeRosterUserId(teamUserId)),
+  });
+  const teamUser = teamShow?.data?.data;
+  if (!teamUser) {
+    throw Object.assign(new Error('Team user not found.'), { status: 404 });
+  }
+  return {
+    teamUser,
+    teamPd: teamUser.attributes?.profile?.publicData || {},
+    teamDisplayName: teamUser.attributes?.profile?.displayName || null,
+  };
+};
+
+const buildTeamRosterPublicDataPatch = (teamPd, { memberIds, pendingInviteIds }) => {
+  const uniqueMemberIds = [...new Set((memberIds || []).map(normalizeRosterUserId).filter(Boolean))];
+  const uniquePendingIds = [
+    ...new Set((pendingInviteIds || []).map(normalizeRosterUserId).filter(Boolean)),
+  ];
+  return {
+    ...teamPd,
+    peakupTeamMemberIds: uniqueMemberIds,
+    peakupTeamPendingInviteIds: uniquePendingIds,
+    teamCoachCount: String(uniqueMemberIds.length),
+  };
+};
+
+const getTeamDeclinedInviteIds = teamPd =>
+  Array.isArray(teamPd?.peakupTeamDeclinedInviteIds)
+    ? teamPd.peakupTeamDeclinedInviteIds.map(String).filter(Boolean)
     : [];
 
 const updateTeamPendingInviteIds = async (integrationSdk, teamUserId, teamPd, pendingIds) => {
+  const teamUuid = new integrationTypes.UUID(normalizeRosterUserId(teamUserId));
+  const uniquePending = [...new Set(pendingIds.map(normalizeRosterUserId).filter(Boolean))];
+  await runSharetribeApprovalStep(
+    'users.updateProfile',
+    () =>
+      integrationSdk.users.updateProfile({
+        id: teamUuid,
+        publicData: buildTeamRosterPublicDataPatch(teamPd, {
+          memberIds: getTeamActiveMemberIds(teamPd),
+          pendingInviteIds: uniquePending,
+        }),
+      }),
+    { teamUserId, pendingCount: uniquePending.length }
+  );
+  return uniquePending;
+};
+
+const updateTeamDeclinedInviteIds = async (integrationSdk, teamUserId, teamPd, declinedIds) => {
   const teamUuid = new integrationTypes.UUID(teamUserId);
-  const uniquePending = [...new Set(pendingIds.map(String).filter(Boolean))];
+  const uniqueDeclined = [...new Set(declinedIds.map(String).filter(Boolean))];
   await runSharetribeApprovalStep(
     'users.updateProfile',
     () =>
@@ -634,12 +709,45 @@ const updateTeamPendingInviteIds = async (integrationSdk, teamUserId, teamPd, pe
         id: teamUuid,
         publicData: {
           ...teamPd,
-          peakupTeamPendingInviteIds: uniquePending,
+          peakupTeamDeclinedInviteIds: uniqueDeclined,
         },
       }),
-    { teamUserId, pendingCount: uniquePending.length }
+    { teamUserId, declinedCount: uniqueDeclined.length }
   );
-  return uniquePending;
+  return uniqueDeclined;
+};
+
+const resolveCoachInvitePreviousStatus = ({
+  teamUserId,
+  coachId,
+  teamPd,
+  coachPd,
+  existingTeamId,
+  existingStatus,
+}) => {
+  const activeIds = getTeamActiveMemberIds(teamPd);
+  if (rosterIncludes(activeIds, coachId)) {
+    return 'active';
+  }
+  if (rosterIncludes(getTeamPendingInviteIds(teamPd), coachId)) {
+    return 'pending';
+  }
+  if (rosterIncludes(getTeamDeclinedInviteIds(teamPd), coachId)) {
+    return 'declined';
+  }
+  if (rosterIdsEqual(existingTeamId, teamUserId) && existingStatus === AFFILIATION_PENDING) {
+    return 'pending';
+  }
+  if (rosterIdsEqual(existingTeamId, teamUserId) && existingStatus === AFFILIATION_ACTIVE) {
+    return 'active';
+  }
+  if (rosterIdsEqual(existingTeamId, teamUserId) && existingStatus === AFFILIATION_REMOVED) {
+    return 'declined';
+  }
+  if (String(coachPd?.peakupAffiliationStatus || '').toLowerCase() === AFFILIATION_REMOVED) {
+    return 'declined';
+  }
+  return 'none';
 };
 
 /**
@@ -688,20 +796,18 @@ const syncTeamRoster = async (teamUserId, memberIds, teamDisplayName = '') => {
   }
 
   const teamPd = teamUser.attributes?.profile?.publicData || {};
-  const previousIds = Array.isArray(teamPd.peakupTeamMemberIds)
-    ? teamPd.peakupTeamMemberIds.map(String)
-    : [];
-  const removedIds = previousIds.filter(id => !uniqueIds.includes(id));
+  const previousIds = getTeamActiveMemberIds(teamPd);
+  const removedIds = previousIds.filter(id => !rosterIncludes(uniqueIds, id));
 
   await runSharetribeApprovalStep(
     'users.updateProfile',
     () =>
       integrationSdk.users.updateProfile({
         id: teamUuid,
-        publicData: {
-          ...teamPd,
-          peakupTeamMemberIds: uniqueIds,
-        },
+        publicData: buildTeamRosterPublicDataPatch(teamPd, {
+          memberIds: uniqueIds,
+          pendingInviteIds: getTeamPendingInviteIds(teamPd),
+        }),
       }),
     { teamUserId, memberCount: uniqueIds.length }
   );
@@ -770,49 +876,76 @@ const syncTeamRoster = async (teamUserId, memberIds, teamDisplayName = '') => {
 
 /**
  * Fetch public roster member users (Integration API).
+ * Only returns coaches who are on peakupTeamMemberIds with active affiliation.
  *
  * @param {string} teamUserId
- * @returns {Promise<object[]>}
+ * @returns {Promise<{ teamUser: object, members: object[], activeCoachIds: string[] }>}
  */
 const fetchTeamRosterMembers = async teamUserId => {
   const integrationSdk = getIntegrationSdk();
-  const teamUuid = new integrationTypes.UUID(teamUserId);
-  const teamShow = await integrationSdk.users.show({
-    id: teamUuid,
-    include: ['profileImage'],
-    'fields.image': ['variants.square-small', 'variants.square-small2x'],
-  });
-  const teamUser = teamShow?.data?.data;
-  const teamPd = teamUser?.attributes?.profile?.publicData || {};
-  const memberIds = Array.isArray(teamPd.peakupTeamMemberIds)
-    ? teamPd.peakupTeamMemberIds.map(String).filter(Boolean)
-    : [];
+  const normalizedTeamId = normalizeRosterUserId(teamUserId);
+  let fetchError = null;
 
+  let teamUser;
+  let teamPd = {};
+  try {
+    const teamShow = await integrationSdk.users.show({
+      id: new integrationTypes.UUID(normalizedTeamId),
+      include: ['profileImage'],
+      'fields.image': ['variants.square-small', 'variants.square-small2x'],
+      'fields.user': ['profile.displayName', 'profile.publicData'],
+    });
+    teamUser = teamShow?.data?.data;
+    teamPd = teamUser?.attributes?.profile?.publicData || {};
+  } catch (e) {
+    fetchError = e?.message || 'Failed to load team user.';
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp TEAM PUBLIC COACHES]', {
+      teamId: normalizedTeamId,
+      activeCoachIds: [],
+      fetchedCoachCount: 0,
+      fetchError,
+    });
+    throw Object.assign(new Error(fetchError), { status: e?.status || 502 });
+  }
+
+  const activeCoachIds = getTeamActiveMemberIds(teamPd);
   const members = [];
-  for (const coachId of memberIds) {
+
+  for (const coachId of activeCoachIds) {
     try {
-      const coachUuid = new integrationTypes.UUID(coachId);
-      const res = await integrationSdk.users.show({
-        id: coachUuid,
-        include: ['profileImage'],
-        'fields.image': ['variants.square-small', 'variants.square-small2x'],
-        'fields.user': ['profile.displayName', 'profile.publicData'],
-      });
-      const coach = res?.data?.data;
-      if (!coach) continue;
+      const coach = await showCoachUser(integrationSdk, coachId);
+      if (!coach) {
+        continue;
+      }
       const pd = coach.attributes?.profile?.publicData || {};
-      if (!isVerifiedCoachPublicData(pd)) continue;
-      if (String(pd.peakupAffiliatedTeamId || '').trim() !== teamUserId) continue;
-      if (String(pd.peakupAffiliationStatus || 'active').toLowerCase() !== AFFILIATION_ACTIVE) {
+      if (!isVerifiedCoachPublicData(pd)) {
+        continue;
+      }
+      const status = String(pd.peakupAffiliationStatus || '').toLowerCase();
+      if (status === AFFILIATION_PENDING || status === AFFILIATION_REMOVED) {
+        continue;
+      }
+      const affiliatedTeamId = normalizeRosterUserId(pd.peakupAffiliatedTeamId);
+      if (affiliatedTeamId && !rosterIdsEqual(affiliatedTeamId, normalizedTeamId)) {
         continue;
       }
       members.push(coach);
     } catch (e) {
-      console.warn('[team-roster] failed to load member', coachId, e?.message);
+      fetchError = fetchError || e?.message || null;
+      console.warn('[team-roster] public member load failed', coachId, e?.message);
     }
   }
 
-  return { teamUser, members };
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp TEAM PUBLIC COACHES]', {
+    teamId: normalizedTeamId,
+    activeCoachIds,
+    fetchedCoachCount: members.length,
+    fetchError,
+  });
+
+  return { teamUser, members, activeCoachIds };
 };
 
 /**
@@ -829,10 +962,9 @@ const fetchTeamRosterManage = async teamUserId => {
     throw Object.assign(new Error('Team user not found.'), { status: 404 });
   }
   const teamPd = teamUser.attributes?.profile?.publicData || {};
-  const activeIds = Array.isArray(teamPd.peakupTeamMemberIds)
-    ? teamPd.peakupTeamMemberIds.map(String).filter(Boolean)
-    : [];
+  const activeIds = getTeamActiveMemberIds(teamPd);
   const pendingIds = getTeamPendingInviteIds(teamPd);
+  const declinedIds = getTeamDeclinedInviteIds(teamPd);
 
   const coaches = [];
   for (const coachId of activeIds) {
@@ -849,7 +981,7 @@ const fetchTeamRosterManage = async teamUserId => {
   }
 
   for (const coachId of pendingIds) {
-    if (activeIds.includes(coachId)) {
+    if (rosterIncludes(activeIds, coachId)) {
       continue;
     }
     try {
@@ -872,10 +1004,27 @@ const fetchTeamRosterManage = async teamUserId => {
     }
   }
 
+  for (const coachId of declinedIds) {
+    if (rosterIncludes(activeIds, coachId) || rosterIncludes(pendingIds, coachId)) {
+      continue;
+    }
+    try {
+      const coach = await showCoachUser(integrationSdk, coachId);
+      if (!coach) continue;
+      const mapped = mapCoachEntity(coach, 'declined');
+      if (mapped) {
+        coaches.push(mapped);
+      }
+    } catch (e) {
+      console.warn('[team-roster] manage declined member load failed', coachId, e?.message);
+    }
+  }
+
   return {
     teamId: teamUserId,
     teamDisplayName: teamUser.attributes?.profile?.displayName || null,
     coaches,
+    declinedInviteIds: declinedIds,
   };
 };
 
@@ -1035,34 +1184,66 @@ const inviteCoachToTeam = async (teamUserId, coachId) => {
     );
   }
 
-  const existingTeamId = String(pd.peakupAffiliatedTeamId || '').trim();
-  const existingStatus = String(pd.peakupAffiliationStatus || '').toLowerCase();
-  if (existingTeamId && existingTeamId !== teamUserId) {
-    throw Object.assign(new Error('This coach is already linked to another organization.'), {
-      status: 409,
-    });
-  }
-  if (existingTeamId === teamUserId && existingStatus === AFFILIATION_ACTIVE) {
-    throw Object.assign(new Error('This coach is already on your roster.'), { status: 409 });
-  }
-  if (existingTeamId === teamUserId && existingStatus === AFFILIATION_PENDING) {
-    throw Object.assign(new Error('An invitation is already pending for this coach.'), {
-      status: 409,
-    });
-  }
-
   const teamShow = await integrationSdk.users.show({ id: new integrationTypes.UUID(teamUserId) });
   const teamUser = teamShow?.data?.data;
   if (!teamUser) {
     throw Object.assign(new Error('Team user not found.'), { status: 404 });
   }
   const teamPd = teamUser.attributes?.profile?.publicData || {};
+  const activeIds = getTeamActiveMemberIds(teamPd);
+  const pendingIds = getTeamPendingInviteIds(teamPd);
+  const declinedIds = getTeamDeclinedInviteIds(teamPd);
+
+  const existingTeamId = normalizeRosterUserId(pd.peakupAffiliatedTeamId);
+  const existingStatus = String(pd.peakupAffiliationStatus || '').toLowerCase();
+  const previousStatus = resolveCoachInvitePreviousStatus({
+    teamUserId,
+    coachId,
+    teamPd,
+    coachPd: pd,
+    existingTeamId,
+    existingStatus,
+  });
+
+  if (existingTeamId && !rosterIdsEqual(existingTeamId, teamUserId)) {
+    throw Object.assign(new Error('This coach is already linked to another organization.'), {
+      status: 409,
+    });
+  }
+  if (rosterIncludes(activeIds, coachId) || previousStatus === 'active') {
+    throw Object.assign(new Error('This coach is already on your roster.'), { status: 409 });
+  }
+  if (
+    rosterIncludes(pendingIds, coachId) ||
+    (rosterIdsEqual(existingTeamId, teamUserId) && existingStatus === AFFILIATION_PENDING)
+  ) {
+    throw Object.assign(new Error('An invitation is already pending for this coach.'), {
+      status: 409,
+    });
+  }
+
+  const coachEmail = coach.attributes?.email || null;
+  const invitedAt = new Date().toISOString();
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp TEAM COACH INVITE]', {
+    teamId: teamUserId,
+    coachUserId: coachId,
+    coachEmail,
+    previousStatus,
+    nextStatus: AFFILIATION_PENDING,
+  });
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp TEAM INVITATION INBOX]', {
+    threadType: 'team_invitation',
+    teamId: teamUserId,
+    coachUserId: coachId,
+    invitedAt,
+  });
+
   const teamName =
     teamUser.attributes?.profile?.displayName || teamPd.teamTagline || 'Team';
-  const pendingIds = getTeamPendingInviteIds(teamPd);
-  if (!pendingIds.includes(coachId)) {
-    pendingIds.push(coachId);
-  }
+  const nextPendingIds = rosterIncludes(pendingIds, coachId) ? pendingIds : [...pendingIds, normalizeRosterUserId(coachId)];
+  const nextDeclinedIds = declinedIds.filter(id => !rosterIdsEqual(id, coachId));
 
   await runSharetribeApprovalStep(
     'users.updateProfile',
@@ -1074,14 +1255,18 @@ const inviteCoachToTeam = async (teamUserId, coachId) => {
           peakupAffiliatedTeamId: teamUserId,
           peakupAffiliationStatus: AFFILIATION_PENDING,
           peakupAffiliatedTeamName: teamName,
+          peakupTeamInvitationInboxAt: invitedAt,
         },
       }),
     { teamUserId, coachId }
   );
 
-  await updateTeamPendingInviteIds(integrationSdk, teamUserId, teamPd, pendingIds);
+  await updateTeamPendingInviteIds(integrationSdk, teamUserId, teamPd, nextPendingIds);
+  if (nextDeclinedIds.length !== declinedIds.length) {
+    await updateTeamDeclinedInviteIds(integrationSdk, teamUserId, teamPd, nextDeclinedIds);
+  }
 
-  return { teamUserId, coachId, status: AFFILIATION_PENDING };
+  return { teamUserId, coachId, status: AFFILIATION_PENDING, previousStatus };
 };
 
 /**
@@ -1144,15 +1329,17 @@ const respondToTeamInvite = async (coachUserId, teamUserId, action) => {
   }
 
   const integrationSdk = getIntegrationSdk();
-  const coach = await showCoachUser(integrationSdk, coachUserId);
+  const normalizedCoachId = normalizeRosterUserId(coachUserId);
+  const normalizedTeamId = normalizeRosterUserId(teamUserId);
+  const coach = await showCoachUser(integrationSdk, normalizedCoachId);
   if (!coach) {
     throw Object.assign(new Error('Coach not found.'), { status: 404 });
   }
   const pd = coach.attributes?.profile?.publicData || {};
-  const affiliatedTeamId = String(pd.peakupAffiliatedTeamId || '').trim();
+  const affiliatedTeamId = normalizeRosterUserId(pd.peakupAffiliatedTeamId);
   const status = String(pd.peakupAffiliationStatus || '').toLowerCase();
 
-  if (affiliatedTeamId !== teamUserId || status !== AFFILIATION_PENDING) {
+  if (!rosterIdsEqual(affiliatedTeamId, normalizedTeamId) || status !== AFFILIATION_PENDING) {
     throw Object.assign(new Error('No pending invitation from this team.'), { status: 404 });
   }
 
@@ -1161,7 +1348,7 @@ const respondToTeamInvite = async (coachUserId, teamUserId, action) => {
       'users.updateProfile',
       () =>
         integrationSdk.users.updateProfile({
-          id: new integrationTypes.UUID(coachUserId),
+          id: new integrationTypes.UUID(normalizedCoachId),
           publicData: {
             ...pd,
             peakupAffiliatedTeamId: null,
@@ -1169,32 +1356,102 @@ const respondToTeamInvite = async (coachUserId, teamUserId, action) => {
             peakupAffiliatedTeamName: null,
           },
         }),
-      { teamUserId, coachUserId }
+      { teamUserId: normalizedTeamId, coachUserId: normalizedCoachId }
     );
 
-    const teamShow = await integrationSdk.users.show({ id: new integrationTypes.UUID(teamUserId) });
-    const teamPd = teamShow?.data?.data?.attributes?.profile?.publicData || {};
-    const pendingIds = getTeamPendingInviteIds(teamPd).filter(id => id !== coachUserId);
-    await updateTeamPendingInviteIds(integrationSdk, teamUserId, teamPd, pendingIds);
+    const { teamPd } = await fetchTeamPublicData(integrationSdk, normalizedTeamId);
+    const beforePendingIds = getTeamPendingInviteIds(teamPd);
+    const afterPendingIds = rosterWithoutId(beforePendingIds, normalizedCoachId);
+    await runSharetribeApprovalStep(
+      'users.updateProfile',
+      () =>
+        integrationSdk.users.updateProfile({
+          id: new integrationTypes.UUID(normalizedTeamId),
+          publicData: buildTeamRosterPublicDataPatch(teamPd, {
+            memberIds: getTeamActiveMemberIds(teamPd),
+            pendingInviteIds: afterPendingIds,
+          }),
+        }),
+      { teamUserId: normalizedTeamId, coachUserId: normalizedCoachId }
+    );
 
-    return { teamUserId, coachUserId, status: AFFILIATION_REMOVED };
+    const { teamPd: teamPdAfterPending } = await fetchTeamPublicData(integrationSdk, normalizedTeamId);
+    const declinedIds = getTeamDeclinedInviteIds(teamPdAfterPending);
+    if (!rosterIncludes(declinedIds, normalizedCoachId)) {
+      await updateTeamDeclinedInviteIds(integrationSdk, normalizedTeamId, teamPdAfterPending, [
+        ...declinedIds,
+        normalizedCoachId,
+      ]);
+    }
+
+    return { teamUserId: normalizedTeamId, coachUserId: normalizedCoachId, status: AFFILIATION_REMOVED };
   }
 
-  const teamShow = await integrationSdk.users.show({ id: new integrationTypes.UUID(teamUserId) });
-  const teamPd = teamShow?.data?.data?.attributes?.profile?.publicData || {};
-  const teamName = teamShow?.data?.data?.attributes?.profile?.displayName || 'Team';
-  const activeIds = Array.isArray(teamPd.peakupTeamMemberIds)
-    ? teamPd.peakupTeamMemberIds.map(String).filter(Boolean)
-    : [];
-  if (!activeIds.includes(coachUserId)) {
-    activeIds.push(coachUserId);
+  if (!isVerifiedCoachPublicData(pd)) {
+    throw Object.assign(
+      new Error('This coach is not verified yet. They must complete PeakUp verification first.'),
+      { status: 422, code: 'coach_not_verified' }
+    );
   }
 
-  const pendingIds = getTeamPendingInviteIds(teamPd).filter(id => id !== coachUserId);
-  await updateTeamPendingInviteIds(integrationSdk, teamUserId, teamPd, pendingIds);
+  const { teamPd, teamDisplayName } = await fetchTeamPublicData(integrationSdk, normalizedTeamId);
+  const beforePendingIds = getTeamPendingInviteIds(teamPd);
+  const beforeCoachIds = getTeamActiveMemberIds(teamPd);
+  const afterPendingIds = rosterWithoutId(beforePendingIds, normalizedCoachId);
+  const afterCoachIds = rosterWithId(beforeCoachIds, normalizedCoachId);
+  const teamName = teamDisplayName || teamPd.teamTagline || 'Team';
 
-  const result = await syncTeamRoster(teamUserId, activeIds, teamName);
-  return { ...result, coachUserId, status: AFFILIATION_ACTIVE };
+  await runSharetribeApprovalStep(
+    'users.updateProfile',
+    () =>
+      integrationSdk.users.updateProfile({
+        id: new integrationTypes.UUID(normalizedTeamId),
+        publicData: buildTeamRosterPublicDataPatch(teamPd, {
+          memberIds: afterCoachIds,
+          pendingInviteIds: afterPendingIds,
+        }),
+      }),
+    { teamUserId: normalizedTeamId, coachUserId: normalizedCoachId, memberCount: afterCoachIds.length }
+  );
+
+  await runSharetribeApprovalStep(
+    'users.updateProfile',
+    () =>
+      integrationSdk.users.updateProfile({
+        id: new integrationTypes.UUID(normalizedCoachId),
+        publicData: {
+          ...pd,
+          peakupAffiliatedTeamId: normalizedTeamId,
+          peakupAffiliationStatus: AFFILIATION_ACTIVE,
+          peakupAffiliatedTeamName: teamName,
+        },
+      }),
+    { teamUserId: normalizedTeamId, coachUserId: normalizedCoachId }
+  );
+
+  const coachAfter = await showCoachUser(integrationSdk, normalizedCoachId);
+  const coachAffiliationStatus =
+    coachAfter?.attributes?.profile?.publicData?.peakupAffiliationStatus || null;
+
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp TEAM INVITE ACCEPT]', {
+    teamId: normalizedTeamId,
+    coachUserId: normalizedCoachId,
+    beforePendingIds,
+    afterPendingIds,
+    beforeCoachIds,
+    afterCoachIds,
+    coachAffiliationStatus,
+  });
+
+  return {
+    teamUserId: normalizedTeamId,
+    coachUserId: normalizedCoachId,
+    status: AFFILIATION_ACTIVE,
+    memberIds: afterCoachIds,
+    pendingInviteIds: afterPendingIds,
+    coachAffiliationStatus,
+  };
 };
 
 /**
@@ -1213,19 +1470,44 @@ const fetchCoachPendingTeamInvites = async coachUserId => {
     return [];
   }
 
-  const teamShow = await integrationSdk.users.show({ id: new integrationTypes.UUID(teamId) });
-  const teamUser = teamShow?.data?.data;
+  const teamShow = await integrationSdk.users.show({
+    id: new integrationTypes.UUID(teamId),
+    include: ['profileImage'],
+    'fields.image': ['variants.square-small', 'variants.square-small2x'],
+    'fields.user': ['profile.displayName', 'profile.publicData'],
+  });
+  const teamUser = attachProfileImage(teamShow?.data?.data, teamShow?.data?.included || []);
   if (!teamUser) {
     return [];
   }
   const teamPd = teamUser.attributes?.profile?.publicData || {};
+  const teamCityText =
+    teamPd.teamCityText != null ? String(teamPd.teamCityText).trim() || null : null;
+  const teamSports = Array.isArray(teamPd.teamSports) ? teamPd.teamSports : [];
+  const teamMainSport = teamSports[0] != null ? String(teamSports[0]).trim() || null : null;
+  const memberIds = Array.isArray(teamPd.peakupTeamMemberIds)
+    ? teamPd.peakupTeamMemberIds.map(String).filter(Boolean)
+    : [];
+  const storedCoachCount = parseInt(String(teamPd.teamCoachCount || '').trim(), 10);
+  const teamCoachCount =
+    memberIds.length > 0
+      ? memberIds.length
+      : Number.isFinite(storedCoachCount) && storedCoachCount > 0
+      ? storedCoachCount
+      : null;
 
   return [
     {
       teamId,
       teamDisplayName: teamUser.attributes?.profile?.displayName || pd.peakupAffiliatedTeamName,
       teamTagline: teamPd.teamTagline || null,
+      teamCityText,
+      teamMainSport,
+      teamCoachCount,
+      teamProfileImage: teamUser.profileImage || null,
       status: AFFILIATION_PENDING,
+      threadType: 'team_invitation',
+      invitedAt: pd.peakupTeamInvitationInboxAt || null,
     },
   ];
 };

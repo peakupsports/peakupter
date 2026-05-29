@@ -139,6 +139,7 @@ export { default as PeakUpCoachFigurineCard } from './PeakUpCoachFigurineCard/Pe
 export { default as PeakUpCustomerCard } from './PeakUpCustomerCard/PeakUpCustomerCard';
 export { default as TeamMemberCard } from './TeamMemberCard/TeamMemberCard';
 export { default as TeamCoachRosterCard } from './TeamCoachRosterCard/TeamCoachRosterCard';
+export { default as TeamInvitationInboxItem } from './TeamInvitationInboxItem/TeamInvitationInboxItem';
 export { default as TeamCard } from './TeamCard/TeamCard';
 export { default as Map } from './Map/Map';
 export { default as Page } from './Page/Page';

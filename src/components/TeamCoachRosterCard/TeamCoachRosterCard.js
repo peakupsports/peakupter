@@ -23,25 +23,39 @@ import ResponsiveImage from '../ResponsiveImage/ResponsiveImage';
 import css from './TeamCoachRosterCard.module.css';
 
 const PROFILE_IMAGE_VARIANTS = ['square-small', 'square-small2x'];
+const PROFILE_COACH_CONTACT_HASH = 'profileCoachInquiryContactButton';
 
 const STATUS_CLASS = {
   active: css.statusActive,
   pending: css.statusPending,
+  declined: css.statusDeclined,
+  eligible: css.statusEligible,
   not_verified: css.statusNotVerified,
 };
 
 const STATUS_MESSAGE_ID = {
   active: 'TeamCoachRosterCard.statusActive',
   pending: 'TeamCoachRosterCard.statusPending',
+  declined: 'TeamCoachRosterCard.statusDeclined',
+  eligible: 'TeamCoachRosterCard.statusEligible',
   not_verified: 'TeamCoachRosterCard.statusNotVerified',
 };
 
 /**
- * Compact coach card for Team Profile Settings roster grid.
- * Coaches remain independent — profile area links to their public profile.
+ * Team roster coach row — compact horizontal layout for settings / dashboard.
+ * Search modal uses `variant="search"` with optional `footerAction`.
  */
 const TeamCoachRosterCard = props => {
-  const { coach, rosterStatus = 'active', onRemove, onCancelInvite, className } = props;
+  const {
+    coach,
+    rosterStatus = 'active',
+    onRemove,
+    onCancelInvite,
+    className,
+    variant = 'roster',
+    dense = false,
+    footerAction = null,
+  } = props;
   const intl = useIntl();
 
   const profileId = extractCoachUserUuid(coach);
@@ -71,7 +85,11 @@ const TeamCoachRosterCard = props => {
   const statusKey =
     rosterStatus === 'pending'
       ? 'pending'
-      : verified || rosterStatus === 'active' || rosterStatus === 'eligible'
+      : rosterStatus === 'declined'
+      ? 'declined'
+      : rosterStatus === 'eligible'
+      ? 'eligible'
+      : verified || rosterStatus === 'active'
       ? 'active'
       : 'not_verified';
 
@@ -90,7 +108,7 @@ const TeamCoachRosterCard = props => {
         alt={displayName}
       />
     ) : (
-      <Avatar className={css.avatar} user={coach} disableProfileLink />
+      <Avatar className={css.avatar} user={coach} disableProfileLink renderSizes="48px" />
     );
 
   const tierLabel = topBadgeId
@@ -100,52 +118,96 @@ const TeamCoachRosterCard = props => {
       )
     : null;
 
-  const profileBlock = (
-    <>
-      <div className={css.photoWrap}>{photo}</div>
-      <div className={css.body}>
-        <div className={css.nameRow}>
-          <h3 className={css.name}>{displayName}</h3>
-          <span className={classNames(css.status, STATUS_CLASS[statusKey])}>
-            <FormattedMessage id={STATUS_MESSAGE_ID[statusKey] || STATUS_MESSAGE_ID.active} />
-          </span>
-        </div>
-        {tierLabel ? <p className={css.tier}>{tierLabel}</p> : null}
-        {sportsLabel ? <p className={css.sports}>{sportsLabel}</p> : null}
-        {locationLabel ? (
-          <div className={css.locationRow}>
-            <PeakUpLocationPin size="sm" rootClassName={css.locationPin} />
-            <span className={css.locationText}>{locationLabel}</span>
-          </div>
-        ) : null}
-      </div>
-    </>
+  const statusBadge = (
+    <span className={classNames(css.status, STATUS_CLASS[statusKey])}>
+      <FormattedMessage id={STATUS_MESSAGE_ID[statusKey] || STATUS_MESSAGE_ID.active} />
+    </span>
   );
+
+  const isSearchVariant = variant === 'search';
+  const showRosterActions =
+    !isSearchVariant && (statusKey === 'active' || statusKey === 'pending');
 
   return (
     <article
-      className={classNames(css.card, className)}
+      className={classNames(
+        css.row,
+        isSearchVariant && css.rowSearch,
+        dense && css.rowDense,
+        className
+      )}
       style={tierStyle || undefined}
       data-tier={tierId || undefined}
     >
-      {profileId ? (
-        <NamedLink className={css.profileLink} name="ProfilePage" params={{ id: profileId }}>
-          {profileBlock}
-        </NamedLink>
-      ) : (
-        <div className={css.profileLink}>{profileBlock}</div>
-      )}
-      <div className={css.actions}>
-        {statusKey === 'active' && onRemove ? (
-          <button type="button" className={css.actionBtn} onClick={() => onRemove(coach)}>
-            <FormattedMessage id="TeamCoachRosterCard.remove" />
-          </button>
-        ) : null}
-        {statusKey === 'pending' && onCancelInvite ? (
-          <button type="button" className={css.actionBtn} onClick={() => onCancelInvite(coach)}>
-            <FormattedMessage id="TeamCoachRosterCard.cancelInvite" />
-          </button>
-        ) : null}
+      <div className={css.rowMain}>
+        <div className={css.photoWrap}>{photo}</div>
+        <div className={css.info}>
+          <h3 className={css.name}>{displayName}</h3>
+          {tierLabel || sportsLabel || locationLabel ? (
+            <p className={css.metaLine}>
+              {tierLabel ? <span className={css.metaTier}>{tierLabel}</span> : null}
+              {tierLabel && (sportsLabel || locationLabel) ? (
+                <span className={css.metaSep} aria-hidden="true">
+                  {' · '}
+                </span>
+              ) : null}
+              {sportsLabel ? <span className={css.metaSports}>{sportsLabel}</span> : null}
+              {sportsLabel && locationLabel ? (
+                <span className={css.metaSep} aria-hidden="true">
+                  {' · '}
+                </span>
+              ) : null}
+              {locationLabel ? (
+                <span className={css.metaLocation}>
+                  <PeakUpLocationPin size="sm" rootClassName={css.locationPin} />
+                  <span>{locationLabel}</span>
+                </span>
+              ) : null}
+            </p>
+          ) : null}
+        </div>
+      </div>
+
+      <div className={css.rowAside}>
+        <div className={css.asideCluster}>
+          {statusBadge}
+          {footerAction ? <div className={css.searchFooterAction}>{footerAction}</div> : null}
+          {showRosterActions ? (
+            <div className={css.actions}>
+            <NamedLink
+              className={classNames(css.actionBtn, css.actionPrimary)}
+              name="ProfilePage"
+              params={{ id: profileId }}
+            >
+              <FormattedMessage id="TeamCoachRosterCard.viewProfile" />
+            </NamedLink>
+            {statusKey === 'active' ? (
+              <NamedLink
+                className={classNames(css.actionBtn, css.actionSecondary)}
+                name="ProfilePage"
+                params={{ id: profileId }}
+                to={{ hash: PROFILE_COACH_CONTACT_HASH }}
+              >
+                <FormattedMessage id="TeamCoachRosterCard.message" />
+              </NamedLink>
+            ) : null}
+            {statusKey === 'active' && onRemove ? (
+              <button type="button" className={classNames(css.actionBtn, css.actionDanger)} onClick={() => onRemove(coach)}>
+                <FormattedMessage id="TeamCoachRosterCard.remove" />
+              </button>
+            ) : null}
+            {statusKey === 'pending' && onCancelInvite ? (
+              <button
+                type="button"
+                className={classNames(css.actionBtn, css.actionDanger)}
+                onClick={() => onCancelInvite(coach)}
+              >
+                <FormattedMessage id="TeamCoachRosterCard.cancelInvite" />
+              </button>
+            ) : null}
+            </div>
+          ) : null}
+        </div>
       </div>
     </article>
   );
