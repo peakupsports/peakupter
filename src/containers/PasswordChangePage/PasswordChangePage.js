@@ -6,7 +6,7 @@ import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
-import { showCreateListingLinkForUser, showPaymentDetailsForUser } from '../../util/userHelpers';
+import { getPeakUpAccountSettingsShellProps } from '../../util/peakupUserRoles';
 
 import { Page, UserNav, H3, LayoutSideNavigation } from '../../components';
 
@@ -68,15 +68,8 @@ export const PasswordChangePageComponent = props => {
 
   const title = intl.formatMessage({ id: 'PasswordChangePage.title' });
 
-  const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
-  const { provider: isProvider } = getCurrentUserTypeRoles(config, currentUser);
-  const showCoachCalendarLink = Boolean(isProvider);
-  const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
-  const accountSettingsNavProps = {
-    currentPage: 'PasswordChangePage',
-    showPaymentMethods,
-    showPayoutDetails,
-  };
+  const { showManageListingsLink, showCoachCalendarLink, accountSettingsNavProps } =
+    getPeakUpAccountSettingsShellProps(config, currentUser, 'PasswordChangePage');
 
   return (
     <Page className={accountShellCss.pageShell} title={title} scrollingDisabled={scrollingDisabled}>

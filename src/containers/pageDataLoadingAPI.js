@@ -6,6 +6,8 @@ import { loadData as CoachApplicationPageLoader } from './CoachApplicationPage/C
 import { loadData as TeamApplicationPageLoader } from './TeamApplicationPage/TeamApplicationPage.duck';
 import { loadData as AdminTeamApplicationsPageLoader } from './AdminTeamApplicationsPage/AdminTeamApplicationsPage.duck';
 import { loadData as CoachDashboardPageLoader } from './CoachDashboardPage/CoachDashboardPage.duck';
+import { loadData as CustomerDashboardPageLoader } from './CustomerDashboardPage/CustomerDashboardPage.duck';
+import { loadData as TeamDashboardPageLoader } from './TeamDashboardPage/TeamDashboardPage.duck';
 import { loadData as AdminCoachApplicationsPageLoader } from './AdminCoachApplicationsPage/AdminCoachApplicationsPage.duck';
 import { loadData as PeakUpHqDashboardPageLoader } from './PeakUpHq/PeakUpHqDashboardPage/PeakUpHqDashboardPage.duck';
 import { loadData as PeakUpHqPlaceholderPageLoader } from './PeakUpHq/PeakUpHqPlaceholderPage/PeakUpHqPlaceholderPage.duck';
@@ -57,6 +59,12 @@ const getPageDataLoadingAPI = () => {
     },
     CoachDashboardPage: {
       loadData: CoachDashboardPageLoader,
+    },
+    CustomerDashboardPage: {
+      loadData: CustomerDashboardPageLoader,
+    },
+    TeamDashboardPage: {
+      loadData: TeamDashboardPageLoader,
     },
     AdminCoachApplicationsPage: {
       loadData: AdminCoachApplicationsPageLoader,

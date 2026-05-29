@@ -1,0 +1,128 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+  margin-top: 32px;
+}
+
+.intro {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(244, 246, 250, 0.62);
+}
+
+.section {
+  margin-bottom: 24px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(8, 14, 24, 0.62);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 250, 0.92);
+}
+
+.sectionCount {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(25, 223, 242, 0.88);
+}
+
+.empty {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(244, 246, 250, 0.48);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 12px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.item:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.itemMain {
+  min-width: 0;
+}
+
+.itemTitle {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(244, 246, 250, 0.94);
+}
+
+.itemMeta {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(244, 246, 250, 0.56);
+}
+
+.itemStatus {
+  align-self: start;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 250, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+
+.itemActions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actionLink {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(157, 255, 79, 0.92);
+  text-decoration: none;
+}
+
+.actionLink:hover {
+  text-decoration: underline;
+}
+
+.loading,
+.error {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(244, 246, 250, 0.68);
+}
+
+.error {
+  color: rgba(255, 140, 140, 0.92);
+}

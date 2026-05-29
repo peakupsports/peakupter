@@ -110,14 +110,34 @@ const ProfileMenu = ({
           css.menuLink,
           css.menuLinkWithIcon,
           css.menuLinkDashboard,
-          currentPageClass('ProfileSettingsPage')
+          currentPageClass('TeamDashboardPage')
         )}
-        name="ProfileSettingsPage"
+        name="TeamDashboardPage"
       >
         <span className={css.menuItemBorder} />
         <PeakUpHqIcon name="dashboard" className={css.menuLinkIconDashboard} />
         <span className={css.menuLinkText}>
           <FormattedMessage id="TopbarDesktop.teamDashboardLink" />
+        </span>
+      </NamedLink>
+    </MenuItem>
+  );
+
+  const customerDashboardLink = (
+    <MenuItem key="CustomerDashboard">
+      <NamedLink
+        className={classNames(
+          css.menuLink,
+          css.menuLinkWithIcon,
+          css.menuLinkDashboard,
+          currentPageClass('CustomerDashboardPage')
+        )}
+        name="CustomerDashboardPage"
+      >
+        <span className={css.menuItemBorder} />
+        <PeakUpHqIcon name="dashboard" className={css.menuLinkIconDashboard} />
+        <span className={css.menuLinkText}>
+          <FormattedMessage id="TopbarDesktop.customerDashboardLink" />
         </span>
       </NamedLink>
     </MenuItem>
@@ -363,7 +383,7 @@ const ProfileMenu = ({
       logoutItem,
     ];
   } else {
-    menuItems = [profileSettingsLink, accountSettingsLink, peakUpHqLink, logoutItem];
+    menuItems = [customerDashboardLink, profileSettingsLink, accountSettingsLink, peakUpHqLink, logoutItem];
   }
 
   menuItems = menuItems.filter(Boolean);

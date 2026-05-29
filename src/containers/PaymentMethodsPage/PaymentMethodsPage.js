@@ -6,11 +6,7 @@ import { useConfiguration } from '../../context/configurationContext.js';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { ensureCurrentUser, ensureStripeCustomer, ensurePaymentMethodCard } from '../../util/data';
 import { propTypes } from '../../util/types';
-import {
-  getCurrentUserTypeRoles,
-  showCreateListingLinkForUser,
-  showPaymentDetailsForUser,
-} from '../../util/userHelpers.js';
+import { getPeakUpAccountSettingsShellProps } from '../../util/peakupUserRoles';
 import { savePaymentMethod, deletePaymentMethod } from '../../ducks/paymentMethods.duck';
 import { handleCardSetup } from '../../ducks/stripe.duck';
 import { manageDisableScrolling, isScrollingDisabled } from '../../ducks/ui.duck';
@@ -167,15 +163,8 @@ const PaymentMethodsPageComponent = props => {
   const showForm = cardState === 'replaceCard' || !hasDefaultPaymentMethod;
   const showCardDetails = !!hasDefaultPaymentMethod;
 
-  const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
-  const { provider: isProvider } = getCurrentUserTypeRoles(config, currentUser);
-  const showCoachCalendarLink = Boolean(isProvider);
-  const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
-  const accountSettingsNavProps = {
-    currentPage: 'PaymentMethodsPage',
-    showPaymentMethods,
-    showPayoutDetails,
-  };
+  const { showManageListingsLink, showCoachCalendarLink, accountSettingsNavProps } =
+    getPeakUpAccountSettingsShellProps(config, currentUser, 'PaymentMethodsPage');
 
   return (
     <Page className={accountShellCss.pageShell} title={title} scrollingDisabled={scrollingDisabled}>

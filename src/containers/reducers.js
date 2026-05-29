@@ -5,6 +5,8 @@
  */
 import CoachesExplorePage from './CoachesExplorePage/CoachesExplorePage.duck';
 import CoachDashboardPage from './CoachDashboardPage/CoachDashboardPage.duck';
+import CustomerDashboardPage from './CustomerDashboardPage/CustomerDashboardPage.duck';
+import TeamDashboardPage from './TeamDashboardPage/TeamDashboardPage.duck';
 import CheckoutPage from './CheckoutPage/CheckoutPage.duck';
 import ContactDetailsPage from './ContactDetailsPage/ContactDetailsPage.duck';
 import EditListingPage from './EditListingPage/EditListingPage.duck';
@@ -27,6 +29,8 @@ import TransactionPage from './TransactionPage/TransactionPage.duck';
 export {
   CoachesExplorePage,
   CoachDashboardPage,
+  CustomerDashboardPage,
+  TeamDashboardPage,
   CheckoutPage,
   ContactDetailsPage,
   EditListingPage,

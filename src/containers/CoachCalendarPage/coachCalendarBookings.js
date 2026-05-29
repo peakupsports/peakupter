@@ -258,7 +258,7 @@ const fetchSalesPage = (sdk, page) =>
       'transitions',
       'lineItems',
     ],
-    'fields.listing': ['title', 'availabilityPlan', 'publicData.listingType'],
+    'fields.listing': ['title', 'availabilityPlan', 'publicData'],
     'fields.user': ['profile.displayName', 'profile.abbreviatedName', 'deleted', 'banned'],
     page,
     perPage: BOOKINGS_PAGE_SIZE,

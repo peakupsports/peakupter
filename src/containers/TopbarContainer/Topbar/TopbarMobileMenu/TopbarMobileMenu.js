@@ -182,11 +182,22 @@ const TopbarMobileMenu = props => {
   );
 
   const teamDashboardLink = (
-    <li className={classNames(css.navigationLink, currentPageClass('ProfileSettingsPage'))}>
-      <NamedLink name="ProfileSettingsPage">
+    <li className={classNames(css.navigationLink, currentPageClass('TeamDashboardPage'))}>
+      <NamedLink name="TeamDashboardPage">
         <span className={css.dashboardNavInner}>
           <PeakUpHqIcon name="dashboard" className={css.dashboardNavIcon} />
           <FormattedMessage id="TopbarMobileMenu.teamDashboardLink" />
+        </span>
+      </NamedLink>
+    </li>
+  );
+
+  const customerDashboardLink = (
+    <li className={classNames(css.navigationLink, currentPageClass('CustomerDashboardPage'))}>
+      <NamedLink name="CustomerDashboardPage">
+        <span className={css.dashboardNavInner}>
+          <PeakUpHqIcon name="dashboard" className={css.dashboardNavIcon} />
+          <FormattedMessage id="TopbarMobileMenu.customerDashboardLink" />
         </span>
       </NamedLink>
     </li>
@@ -386,6 +397,7 @@ const TopbarMobileMenu = props => {
   } else {
     accountLinks = (
       <>
+        {customerDashboardLink}
         {inboxLink}
         {profileLink}
         {accountLink}

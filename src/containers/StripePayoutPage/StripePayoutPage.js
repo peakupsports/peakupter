@@ -8,11 +8,7 @@ import { createResourceLocatorString } from '../../util/routes';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { ensureCurrentUser } from '../../util/data';
 import { propTypes } from '../../util/types';
-import {
-  getCurrentUserTypeRoles,
-  showCreateListingLinkForUser,
-  showPaymentDetailsForUser,
-} from '../../util/userHelpers';
+import { getPeakUpAccountSettingsShellProps } from '../../util/peakupUserRoles';
 import { getDisplayAccountType } from '../../util/stripeConnect';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import {
@@ -181,15 +177,8 @@ export const StripePayoutPageComponent = props => {
     handleGetStripeConnectAccountLink('custom_account_verification')();
   }
 
-  const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
-  const { provider: isProvider } = getCurrentUserTypeRoles(config, currentUser);
-  const showCoachCalendarLink = Boolean(isProvider);
-  const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
-  const accountSettingsNavProps = {
-    currentPage: 'StripePayoutPage',
-    showPaymentMethods,
-    showPayoutDetails,
-  };
+  const { showManageListingsLink, showCoachCalendarLink, accountSettingsNavProps } =
+    getPeakUpAccountSettingsShellProps(config, currentUser, 'StripePayoutPage');
 
   return (
     <Page className={accountShellCss.pageShell} title={title} scrollingDisabled={scrollingDisabled}>

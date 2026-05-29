@@ -6,6 +6,15 @@ import {
   countUpcomingCoachSessions,
   fetchAllCoachSalesBookings,
 } from '../CoachCalendarPage/coachCalendarBookings';
+import { segmentBookingDashboardTransactions } from '../../util/peakupBookingDashboard';
+
+const emptySegments = () => ({
+  upcoming: [],
+  past: [],
+  pendingReview: [],
+  pending: [],
+  canceled: [],
+});
 
 const fetchDashboardStatsPayloadCreator = async (_, { extra: sdk, dispatch, rejectWithValue }) => {
   try {
@@ -14,12 +23,17 @@ const fetchDashboardStatsPayloadCreator = async (_, { extra: sdk, dispatch, reje
       fetchAllCoachSalesBookings(sdk, dispatch),
     ]);
 
-    const upcomingSessionsCount = countUpcomingCoachSessions(salesTransactions);
+    const segments = segmentBookingDashboardTransactions(salesTransactions, 'provider');
+    const operationalSales = Object.values(segments).flatMap(section =>
+      section.map(entry => entry.transaction)
+    );
+    const upcomingSessionsCount = countUpcomingCoachSessions(operationalSales);
 
     return {
       activeListingsCount: listingsResponse?.data?.meta?.totalItems ?? 0,
       upcomingSessionsCount,
-      salesTransactionsCount: salesTransactions.length,
+      salesTransactionsCount: operationalSales.length,
+      segments,
     };
   } catch (e) {
     return rejectWithValue(storableError(e));
@@ -37,6 +51,7 @@ const coachDashboardSlice = createSlice({
     activeListingsCount: null,
     upcomingSessionsCount: null,
     salesTransactionsCount: null,
+    segments: emptySegments(),
     statsFetchInProgress: false,
     statsError: null,
   },
@@ -52,6 +67,7 @@ const coachDashboardSlice = createSlice({
         state.activeListingsCount = action.payload.activeListingsCount;
         state.upcomingSessionsCount = action.payload.upcomingSessionsCount;
         state.salesTransactionsCount = action.payload.salesTransactionsCount;
+        state.segments = action.payload.segments;
       })
       .addCase(fetchDashboardStatsThunk.rejected, (state, action) => {
         state.statsFetchInProgress = false;

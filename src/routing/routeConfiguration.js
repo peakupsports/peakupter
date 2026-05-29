@@ -26,6 +26,21 @@ const CoachDashboardPage = loadable(() =>
     /* webpackChunkName: "CoachDashboardPage" */ '../containers/CoachDashboardPage/CoachDashboardPage'
   )
 );
+const CustomerDashboardPage = loadable(() =>
+  import(
+    /* webpackChunkName: "CustomerDashboardPage" */ '../containers/CustomerDashboardPage/CustomerDashboardPage'
+  )
+);
+const TeamDashboardPage = loadable(() =>
+  import(
+    /* webpackChunkName: "TeamDashboardPage" */ '../containers/TeamDashboardPage/TeamDashboardPage'
+  )
+);
+const PartnerDashboardPage = loadable(() =>
+  import(
+    /* webpackChunkName: "PartnerDashboardPage" */ '../containers/PartnerDashboardPage/PartnerDashboardPage'
+  )
+);
 const JoinPage = loadable(() =>
   import(/* webpackChunkName: "JoinPage" */ '../containers/JoinPage/JoinPage')
 );
@@ -226,6 +241,29 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       authPage: 'LoginPage',
       component: CoachDashboardPage,
       loadData: pageDataLoadingAPI.CoachDashboardPage.loadData,
+    },
+    {
+      path: '/customer-dashboard',
+      name: 'CustomerDashboardPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: CustomerDashboardPage,
+      loadData: pageDataLoadingAPI.CustomerDashboardPage.loadData,
+    },
+    {
+      path: '/team-dashboard',
+      name: 'TeamDashboardPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: TeamDashboardPage,
+      loadData: pageDataLoadingAPI.TeamDashboardPage.loadData,
+    },
+    {
+      path: '/partner-dashboard',
+      name: 'PartnerDashboardPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: PartnerDashboardPage,
     },
     {
       path: '/coach-earnings',

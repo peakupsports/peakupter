@@ -4,6 +4,7 @@
  */
 
 import { resolveTeamPostLoginRedirectTarget } from './peakupTeam';
+import { CUSTOMER_DASHBOARD_PATH } from './peakupBookingDashboard';
 
 export const COACH_PROVIDER_SIGNUP_USER_TYPES = new Set([
   'coach',
@@ -775,6 +776,9 @@ export function resolvePostLoginRedirectTarget(currentUser) {
   }
   if (coachProviderProfile) {
     return COACH_DASHBOARD_PATH;
+  }
+  if (isOnlyCustomerProfile(currentUser)) {
+    return CUSTOMER_DASHBOARD_PATH;
   }
   return '/';
 }

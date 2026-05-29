@@ -100,7 +100,7 @@ const CustomerProfileMain = props => {
           />
         </p>
         {showBookingsLink ? (
-          <NamedLink name="InboxPage" params={{ tab: 'orders' }} className={css.bookingsLink}>
+          <NamedLink name="CustomerDashboardPage" className={css.bookingsLink}>
             <FormattedMessage id="ProfilePage.memberRecentBookingsCta" />
           </NamedLink>
         ) : null}

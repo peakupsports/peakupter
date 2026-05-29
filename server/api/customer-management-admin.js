@@ -5,11 +5,15 @@ const { listCustomersForAdmin } = require('../api-util/customerManagementAdminSh
 const listCustomers = async (req, res) => {
   try {
     const q = String(req.query?.q || '').trim();
-    const maxPages = Number(req.query?.maxPages || 25);
+    const maxPages = Number(req.query?.maxPages || 50);
+    const debugUserId = String(req.query?.debugUserId || '').trim();
+    const debugEmail = String(req.query?.debugEmail || '').trim();
 
     const result = await listCustomersForAdmin({
       q,
-      maxPages: Number.isFinite(maxPages) ? maxPages : 25,
+      maxPages: Number.isFinite(maxPages) ? maxPages : 50,
+      debugUserId: debugUserId || undefined,
+      debugEmail: debugEmail || undefined,
     });
 
     res.status(200).json(result);

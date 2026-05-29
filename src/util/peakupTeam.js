@@ -384,8 +384,9 @@ export const teamRowMatchesSportKeys = (teamRow, filterKeys) => {
 
 export const TEAM_PROFILE_SETTINGS_PATH = '/profile-settings';
 
-/** V1 Team dashboard shell — swap to `TeamDashboardPage` when the full crew hub ships. */
-export const TEAM_DASHBOARD_ROUTE_NAME = 'ProfileSettingsPage';
+/** Team operational hub route. */
+export const TEAM_DASHBOARD_ROUTE_NAME = 'TeamDashboardPage';
+export const TEAM_DASHBOARD_PATH = '/team-dashboard';
 
 /**
  * NamedLink target for Team dashboard home (logo, menu, post-login).
@@ -457,7 +458,7 @@ export const resolveTeamPostLoginRedirectTarget = currentUser => {
   if (!isTeamProviderProfileUserType(currentUser)) {
     return null;
   }
-  return TEAM_PROFILE_SETTINGS_PATH;
+  return TEAM_DASHBOARD_PATH;
 };
 
 /**

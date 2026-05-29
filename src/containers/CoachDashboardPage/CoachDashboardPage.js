@@ -13,6 +13,7 @@ import {
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
 import { NamedLink, Page } from '../../components';
+import PeakUpBookingDashboardPanel from '../../components/PeakUpBookingDashboardPanel/PeakUpBookingDashboardPanel';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
 
@@ -117,6 +118,11 @@ const CoachDashboardPage = () => {
   const newRequestsCount = useSelector(
     state => state.user?.currentUserSaleNotificationCount ?? 0
   );
+  const bookingSegments = useSelector(state => state.CoachDashboardPage?.segments);
+  const statsFetchInProgress = useSelector(
+    state => state.CoachDashboardPage?.statsFetchInProgress
+  );
+  const statsError = useSelector(state => state.CoachDashboardPage?.statsError);
 
   useInboxNotificationRefresh({
     enabled: isAuthenticated && !!currentUser?.id,
@@ -313,6 +319,14 @@ const CoachDashboardPage = () => {
               />
             ))}
           </div>
+
+          <PeakUpBookingDashboardPanel
+            role="provider"
+            inboxTab="sales"
+            segments={bookingSegments}
+            loading={statsFetchInProgress}
+            error={statsError}
+          />
         </div>
       </main>
 

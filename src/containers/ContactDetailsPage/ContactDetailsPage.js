@@ -7,11 +7,7 @@ import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { ensureCurrentUser } from '../../util/data';
-import {
-  getCurrentUserTypeRoles,
-  showCreateListingLinkForUser,
-  showPaymentDetailsForUser,
-} from '../../util/userHelpers';
+import { getPeakUpAccountSettingsShellProps } from '../../util/peakupUserRoles';
 
 import { sendVerificationEmail } from '../../ducks/user.duck';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
@@ -110,15 +106,8 @@ export const ContactDetailsPageComponent = props => {
 
   const title = intl.formatMessage({ id: 'ContactDetailsPage.title' });
 
-  const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
-  const { provider: isProvider } = getCurrentUserTypeRoles(config, currentUser);
-  const showCoachCalendarLink = Boolean(isProvider);
-  const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
-  const accountSettingsNavProps = {
-    currentPage: 'ContactDetailsPage',
-    showPaymentMethods,
-    showPayoutDetails,
-  };
+  const { showManageListingsLink, showCoachCalendarLink, accountSettingsNavProps } =
+    getPeakUpAccountSettingsShellProps(config, currentUser, 'ContactDetailsPage');
 
   return (
     <Page className={accountShellCss.pageShell} title={title} scrollingDisabled={scrollingDisabled}>
