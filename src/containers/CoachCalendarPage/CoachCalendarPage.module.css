@@ -14,6 +14,32 @@
   min-height: 100vh;
 }
 
+/*
+ * Mobile: calendar cards use backdrop-filter/transforms that can steal touches from
+ * the sticky topbar unless main content stays in a lower stacking context.
+ */
+@media (max-width: 767px) {
+  .peakUpPage {
+    isolation: isolate;
+  }
+
+  .mainColumn,
+  .content,
+  .board {
+    position: relative;
+    z-index: 0;
+  }
+
+  .card {
+    position: relative;
+    z-index: 0;
+  }
+
+  .listingWizardSaveBar {
+    z-index: var(--zIndexTopbar);
+  }
+}
+
 .mainColumn {
   background: transparent;
   flex: 1;

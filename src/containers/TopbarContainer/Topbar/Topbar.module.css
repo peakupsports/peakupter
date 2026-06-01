@@ -38,6 +38,13 @@
   fill: var(--colorWhite);
 }
 
+.menu,
+.searchMenu {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
 .container {
   /* Size */
   width: 100%;
@@ -48,6 +55,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  pointer-events: auto;
 
   /* PeakUp dark cinematic glass header (mobile baseline). */
   background:

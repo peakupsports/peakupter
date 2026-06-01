@@ -203,6 +203,20 @@
   --carouselWidth: 100vw;
 }
 
+/*
+ * Portal host for modals (mobile menu, etc.). Sits after #root in the DOM;
+ * needs an explicit stacking context so portaled UI stays above page content.
+ */
+#portal-root {
+  position: relative;
+  z-index: var(--zIndexModal);
+  pointer-events: none;
+}
+
+#portal-root > * {
+  pointer-events: auto;
+}
+
 /* Phone + tablet: keep horizontal layout stable when the vertical scrollbar appears
  * (e.g. after footer / long content paints). Avoids `100vw` blocks growing ~15px wider. */
 @media (max-width: 1023px) {
@@ -1573,4 +1587,10 @@ textarea {
   @media (--viewportMedium) {
     margin-top: 32px;
   }
+}
+
+/* Brief paint hold during client-side route changes (incl. browser back). */
+html.peakupRoutePaint,
+html.peakupRoutePaint body {
+  background-color: #0a0d14;
 }

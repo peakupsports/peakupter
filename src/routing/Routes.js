@@ -52,6 +52,35 @@ const callLoadData = props => {
   }
 };
 
+const ROUTE_PAINT_CLASS = 'peakupRoutePaint';
+const ROUTE_PAINT_HOLD_MS = 320;
+
+let routePaintEndTimer = null;
+
+const beginRoutePaint = () => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  window.clearTimeout(routePaintEndTimer);
+  document.documentElement.classList.add(ROUTE_PAINT_CLASS);
+};
+
+const endRoutePaint = () => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  window.clearTimeout(routePaintEndTimer);
+  routePaintEndTimer = window.setTimeout(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.classList.remove(ROUTE_PAINT_CLASS);
+      });
+    });
+  }, ROUTE_PAINT_HOLD_MS);
+};
+
 const setPageScrollPosition = (location, delayed) => {
   if (!location.hash) {
     // No hash, scroll to top
@@ -93,9 +122,11 @@ const setPageScrollPosition = (location, delayed) => {
 };
 
 const handleLocationChanged = (dispatch, location, routeConfiguration, delayed) => {
+  beginRoutePaint();
   setPageScrollPosition(location, delayed);
   const path = canonicalRoutePath(routeConfiguration, location);
   dispatch(locationChanged({ location, canonicalPath: path }));
+  endRoutePaint();
 };
 
 const handleFocusedElement = delayed => {

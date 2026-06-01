@@ -154,7 +154,6 @@ const LandingHeroSection = props => {
     appearance,
     callToAction,
     options,
-    allSections = [],
   } = props;
 
   const fieldComponents = options?.fieldComponents;
@@ -172,13 +171,6 @@ const LandingHeroSection = props => {
     });
     return merged;
   }, [location.search]);
-
-  const nextSectionId = useMemo(() => {
-    const currentIndex = allSections.findIndex(section => section.sectionId === sectionId);
-    if (currentIndex < 0) return null;
-    const nextSection = allSections.slice(currentIndex + 1).find(Boolean);
-    return nextSection?.sectionId || null;
-  }, [allSections, sectionId]);
 
   const hasDescription = !!validProps(description, fieldOptions);
   const heroSlides = Array.isArray(LANDING_HERO_MEDIA.slides) ? LANDING_HERO_MEDIA.slides : [];
@@ -338,14 +330,16 @@ const LandingHeroSection = props => {
               />
             </NamedLink>
 
-            {nextSectionId ? (
-              <a className={css.secondaryCta} href={`#${nextSectionId}`}>
-                <FormattedMessage
-                  id="LandingHeroSection.secondaryCta"
-                  defaultMessage="How it works"
-                />
-              </a>
-            ) : null}
+            <NamedLink
+              className={css.secondaryCta}
+              name="CMSPage"
+              params={{ pageId: 'howitworks' }}
+            >
+              <FormattedMessage
+                id="LandingHeroSection.secondaryCta"
+                defaultMessage="How it works"
+              />
+            </NamedLink>
           </div>
 
           {searchProps?.searchFields ? (

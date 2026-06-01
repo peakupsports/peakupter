@@ -2847,3 +2847,111 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/*
+ * =====================================================================
+ * PeakUp coach profile — mobile layout & responsiveness (max-width 767px)
+ * CSS-only: listings images, overflow containment, vertical stack.
+ * Desktop (--viewportLarge+) rules above are unchanged.
+ * =====================================================================
+ */
+@media (max-width: 767px) {
+  .peakUpProfileLayoutDesktop {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .asideProfilePeakUpCoach,
+  .mainPeakUpCoachContent {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: clip;
+  }
+
+  .asideContentStickerOverrides,
+  .stickerCard,
+  .stickerActions,
+  .stickerRight,
+  .coachProfileDetailGrid {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .stickerLocationMapThumb {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .listingsContainer,
+  .listings {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .listing {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .mainPeakUpCoachContent .listings :global([class*='ListingCard_root']),
+  .listings :global([class*='ListingCard_root']) {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .mainPeakUpCoachContent .listings :global([class*='ListingCard_aspectRatioWrapper']),
+  .listings :global([class*='ListingCard_aspectRatioWrapper']),
+  .mainPeakUpCoachContent .listings :global([class*='aspectRatioWrapper_root']),
+  .listings :global([class*='aspectRatioWrapper_root']) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .mainPeakUpCoachContent .listings :global([class*='aspectBox']),
+  .listings :global([class*='aspectBox']) {
+    width: 100%;
+    max-width: 100%;
+    left: 0;
+    right: 0;
+  }
+
+  .mainPeakUpCoachContent .listings :global([class*='ListingCard_rootForImage']),
+  .listings :global([class*='ListingCard_rootForImage']),
+  .mainPeakUpCoachContent .listings :global(img),
+  .listings :global(img) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    object-fit: cover;
+    box-sizing: border-box;
+  }
+
+  .mainPeakUpCoachContent .listings :global([class*='ListingCard_info']),
+  .listings :global([class*='ListingCard_info']) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}

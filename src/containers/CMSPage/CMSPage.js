@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import loadable from '@loadable/component';
 
@@ -10,9 +10,14 @@ import { withRouter } from 'react-router-dom';
 import { fetchFeaturedListings } from '../../ducks/featuredListings.duck';
 import { getListingsById } from '../../ducks/marketplaceData.duck';
 import { getFeaturedListingsProps } from '../../util/data';
-import { rewriteInstructorsPageCoachSignupLinks } from '../../util/coachOnboarding';
+import {
+  isGrowWithPeakUpCmsPage,
+  rewriteHowItWorksJoinNowLinks,
+  rewriteInstructorsPageCoachSignupLinks,
+} from '../../util/coachOnboarding';
 import sportTheme from '../SportPagesTheme.module.css';
 import css from './HowItWorksPage.module.css';
+import transitionCss from './CMSPage.module.css';
 
 import NotFoundPage from '../../containers/NotFoundPage/NotFoundPage';
 import InstructorsEarningsBanner from './InstructorsEarningsBanner';
@@ -40,6 +45,10 @@ const normalizeCmsPageSlug = pageId =>
 const isHowItWorksPage = pageId => HOW_IT_WORKS_PAGE_SLUGS.has(normalizeCmsPageSlug(pageId));
 const INSTRUCTORS_PAGE_IDS = new Set(['4_instructors']);
 const isInstructorsPage = pageId => INSTRUCTORS_PAGE_IDS.has(String(pageId || '').toLowerCase());
+
+const isPremiumCmsPageId = pageId => isHowItWorksPage(pageId) || isInstructorsPage(pageId);
+
+const PREMIUM_CMS_CROSSFADE_MS = 240;
 
 const getHowItWorksPageData = pageData => {
   if (!pageData?.sections?.length) {
@@ -88,18 +97,199 @@ const getHowItWorksPageData = pageData => {
   };
 };
 
+const applyHowItWorksPageTransforms = (pageData, pageId) => {
+  const themed = getHowItWorksPageData(pageData);
+  if (isGrowWithPeakUpCmsPage(pageId)) {
+    return themed;
+  }
+  return rewriteHowItWorksJoinNowLinks(themed, pageId);
+};
+
+const PREMIUM_TRANSITION_LOCK_CLASS = 'peakupPremiumCmsTransitionLock';
+
+const resetWindowScroll = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  } catch (e) {
+    window.scrollTo(0, 0);
+  }
+
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+};
+
+/** Run before paint and again after layout so scroll never inherits from the previous route. */
+const schedulePremiumScrollReset = () => {
+  resetWindowScroll();
+  requestAnimationFrame(() => {
+    resetWindowScroll();
+    requestAnimationFrame(resetWindowScroll);
+  });
+};
+
+const lockPremiumTransitionScroll = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  document.documentElement.classList.add(PREMIUM_TRANSITION_LOCK_CLASS);
+  document.body.classList.add(PREMIUM_TRANSITION_LOCK_CLASS);
+  resetWindowScroll();
+};
+
+const unlockPremiumTransitionScroll = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  document.documentElement.classList.remove(PREMIUM_TRANSITION_LOCK_CLASS);
+  document.body.classList.remove(PREMIUM_TRANSITION_LOCK_CLASS);
+  document.body.style.removeProperty('top');
+  document.body.style.removeProperty('position');
+  document.body.style.removeProperty('width');
+  document.body.style.removeProperty('left');
+  document.body.style.removeProperty('right');
+  schedulePremiumScrollReset();
+};
+
 export const CMSPageComponent = props => {
   const { params, pageAssetsData, inProgress, error } = props;
   const pageId = params.pageId || props.pageId;
   const isPremiumHowItWorks = isHowItWorksPage(pageId);
   const isPremiumInstructors = isInstructorsPage(pageId);
   const isPremiumCMSPage = isPremiumHowItWorks || isPremiumInstructors;
+  const previousPremiumPageIdRef = useRef(null);
+  const pageAssetsDataRef = useRef(pageAssetsData);
+  pageAssetsDataRef.current = pageAssetsData;
+  const [outgoingPremiumPage, setOutgoingPremiumPage] = useState(null);
+  const [isPremiumEntryActive, setIsPremiumEntryActive] = useState(false);
+
   const pageData = pageAssetsData?.[pageId]?.data;
   const themedPageData = isPremiumHowItWorks
-    ? getHowItWorksPageData(pageData)
+    ? applyHowItWorksPageTransforms(pageData, pageId)
     : isPremiumInstructors
     ? rewriteInstructorsPageCoachSignupLinks(pageData)
     : pageData;
+
+  useLayoutEffect(() => {
+    if (!isPremiumCMSPage) {
+      return undefined;
+    }
+
+    schedulePremiumScrollReset();
+    return undefined;
+  }, [pageId, isPremiumCMSPage]);
+
+  const buildPremiumPageSnapshot = targetPageId => {
+    const targetIsPremiumHowItWorks = isHowItWorksPage(targetPageId);
+    const targetIsPremiumInstructors = isInstructorsPage(targetPageId);
+    const targetPageData = pageAssetsDataRef.current?.[targetPageId]?.data;
+    const targetThemedPageData = targetIsPremiumHowItWorks
+      ? applyHowItWorksPageTransforms(targetPageData, targetPageId)
+      : targetIsPremiumInstructors
+      ? rewriteInstructorsPageCoachSignupLinks(targetPageData)
+      : targetPageData;
+
+    return {
+      pageId: targetPageId,
+      isPremiumHowItWorks: targetIsPremiumHowItWorks,
+      isPremiumInstructors: targetIsPremiumInstructors,
+      themedPageData: targetThemedPageData,
+    };
+  };
+
+  useLayoutEffect(() => {
+    return () => {
+      unlockPremiumTransitionScroll();
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!isPremiumCMSPage) {
+      previousPremiumPageIdRef.current = pageId;
+      setOutgoingPremiumPage(null);
+      setIsPremiumEntryActive(false);
+      unlockPremiumTransitionScroll();
+      return undefined;
+    }
+
+    const previousPageId = previousPremiumPageIdRef.current;
+    const wasPreviousPremium =
+      previousPageId != null && isPremiumCmsPageId(previousPageId);
+    const isPremiumCrossfade = wasPreviousPremium && previousPageId !== pageId;
+    const isPremiumColdEntry = !wasPreviousPremium;
+
+    previousPremiumPageIdRef.current = pageId;
+
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const clearTransitionState = () => {
+      setOutgoingPremiumPage(null);
+      setIsPremiumEntryActive(false);
+      unlockPremiumTransitionScroll();
+    };
+
+    if (isPremiumCrossfade) {
+      schedulePremiumScrollReset();
+
+      if (reduceMotion) {
+        return undefined;
+      }
+
+      lockPremiumTransitionScroll();
+      setOutgoingPremiumPage(buildPremiumPageSnapshot(previousPageId));
+      setIsPremiumEntryActive(false);
+
+      const timer = window.setTimeout(clearTransitionState, PREMIUM_CMS_CROSSFADE_MS);
+
+      return () => {
+        window.clearTimeout(timer);
+      };
+    }
+
+    if (isPremiumColdEntry) {
+      schedulePremiumScrollReset();
+
+      if (reduceMotion) {
+        return undefined;
+      }
+
+      lockPremiumTransitionScroll();
+      setOutgoingPremiumPage(null);
+      setIsPremiumEntryActive(true);
+
+      const timer = window.setTimeout(clearTransitionState, PREMIUM_CMS_CROSSFADE_MS);
+
+      return () => {
+        window.clearTimeout(timer);
+      };
+    }
+
+    return undefined;
+  }, [pageId, isPremiumCMSPage]);
+
+  const renderPremiumPageBuilder = snapshot => (
+    <PageBuilder
+      key={snapshot.pageId}
+      className={classNames(
+        sportTheme.sportPremium,
+        snapshot.isPremiumHowItWorks ? css.howItWorksPremium : null,
+        snapshot.isPremiumInstructors ? css.instructorsPremiumPage : null
+      )}
+      chromeTheme="sportPremium"
+      pageAssetsData={snapshot.themedPageData}
+      inProgress={inProgress}
+      schemaType="Article"
+      featuredListings={getFeaturedListingsProps(snapshot.pageId, props)}
+      beforeFooter={snapshot.isPremiumInstructors ? <InstructorsEarningsBanner /> : null}
+    />
+  );
 
   if (process.env.NODE_ENV === 'development') {
     console.info('[CMSPage] pageId:', pageId);
@@ -115,24 +305,47 @@ export const CMSPageComponent = props => {
     return <NotFoundPage staticContext={props.staticContext} />;
   }
 
-  return (
+  const currentPremiumSnapshot = {
+    pageId,
+    isPremiumHowItWorks,
+    isPremiumInstructors,
+    themedPageData,
+  };
+
+  const pageBuilder = isPremiumCMSPage ? (
+    renderPremiumPageBuilder(currentPremiumSnapshot)
+  ) : (
     <PageBuilder
-      className={
-        isPremiumCMSPage
-          ? classNames(
-              sportTheme.sportPremium,
-              isPremiumHowItWorks ? css.howItWorksPremium : null,
-              isPremiumInstructors ? css.instructorsPremiumPage : null
-            )
-          : null
-      }
-      chromeTheme={isPremiumCMSPage ? 'sportPremium' : null}
+      className={null}
+      chromeTheme={null}
       pageAssetsData={themedPageData}
       inProgress={inProgress}
       schemaType="Article"
       featuredListings={getFeaturedListingsProps(pageId, props)}
-      beforeFooter={isPremiumInstructors ? <InstructorsEarningsBanner /> : null}
+      beforeFooter={null}
     />
+  );
+
+  if (!isPremiumCMSPage) {
+    return pageBuilder;
+  }
+
+  const isPremiumTransitionActive = Boolean(outgoingPremiumPage) || isPremiumEntryActive;
+
+  return (
+    <div
+      className={classNames(
+        transitionCss.premiumCrossfadeRoot,
+        isPremiumTransitionActive ? transitionCss.premiumCrossfadeTransitioning : null
+      )}
+    >
+      <div className={transitionCss.premiumCrossfadeIncoming}>{pageBuilder}</div>
+      {outgoingPremiumPage ? (
+        <div className={transitionCss.premiumCrossfadeOutgoing}>
+          {renderPremiumPageBuilder(outgoingPremiumPage)}
+        </div>
+      ) : null}
+    </div>
   );
 };
 

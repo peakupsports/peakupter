@@ -1094,6 +1094,90 @@ export const rewriteCoachSignupHref = href => {
  * @param {object|null|undefined} pageData
  * @returns {object|null|undefined}
  */
+/** CMS path for the Grow with PeakUp marketing page (`4_instructors` in Console). */
+export const GROW_WITH_PEAKUP_CMS_PAGE_PATH = '/p/4_instructors';
+
+const GROW_WITH_PEAKUP_CMS_PAGE_IDS = new Set(['4_instructors']);
+const GROW_WITH_PEAKUP_CMS_SLUGS = new Set(['growwithpeakup', 'peakupgrow', '4instructors']);
+
+const normalizeCmsPageSlug = pageId =>
+  String(pageId || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+
+/**
+ * @param {string|null|undefined} pageId
+ * @returns {boolean}
+ */
+export const isGrowWithPeakUpCmsPage = pageId =>
+  GROW_WITH_PEAKUP_CMS_PAGE_IDS.has(String(pageId || '')) ||
+  GROW_WITH_PEAKUP_CMS_SLUGS.has(normalizeCmsPageSlug(pageId));
+
+const isJoinNowCtaContent = content => /^join\s+now$/i.test(String(content || '').trim());
+
+/**
+ * Deep-clone CMS page data and point the How it works "Join Now" CTA at Grow with PeakUp.
+ * Only rewrites fields whose button label is "Join Now"; other CTAs are untouched.
+ *
+ * @param {object|null|undefined} pageData
+ * @param {string|null|undefined} pageId
+ * @returns {object|null|undefined}
+ */
+export const rewriteHowItWorksJoinNowLinks = (pageData, pageId) => {
+  if (!pageData?.sections?.length || isGrowWithPeakUpCmsPage(pageId)) {
+    return pageData;
+  }
+
+  const rewriteField = field => {
+    if (!field || typeof field !== 'object' || typeof field.href !== 'string') {
+      return field;
+    }
+
+    if (!isJoinNowCtaContent(field.content)) {
+      return field;
+    }
+
+    return {
+      ...field,
+      href: GROW_WITH_PEAKUP_CMS_PAGE_PATH,
+    };
+  };
+
+  const rewriteBlock = block => {
+    if (!block || typeof block !== 'object') {
+      return block;
+    }
+
+    return {
+      ...block,
+      callToAction: rewriteField(block.callToAction),
+      title: rewriteField(block.title),
+      text: rewriteField(block.text),
+    };
+  };
+
+  const sections = pageData.sections.map(section => {
+    if (!section || typeof section !== 'object') {
+      return section;
+    }
+
+    const blocks = Array.isArray(section.blocks)
+      ? section.blocks.map(rewriteBlock)
+      : section.blocks;
+
+    return {
+      ...section,
+      callToAction: rewriteField(section.callToAction),
+      blocks,
+    };
+  });
+
+  return {
+    ...pageData,
+    sections,
+  };
+};
+
 export const rewriteInstructorsPageCoachSignupLinks = pageData => {
   if (!pageData?.sections?.length) {
     return pageData;

@@ -1,0 +1,94 @@
+@import '../../styles/customMediaQueries.css';
+
+/*
+ * Premium CMS crossfade (How it works ↔ Grow with PeakUp).
+ * Dark canvas matches sportPremium pages so no white flashes between layers.
+ */
+.premiumCrossfadeRoot {
+  position: relative;
+  min-height: 100vh;
+  background-color: #0a0d14;
+  background-image: linear-gradient(180deg, #0b101c 0%, #0a0d14 100%);
+}
+
+/* During crossfade: clip to viewport so tall page content cannot leak below fold */
+.premiumCrossfadeTransitioning {
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  overscroll-behavior: none;
+}
+
+.premiumCrossfadeIncoming {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+.premiumCrossfadeOutgoing {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  min-height: 100vh;
+  pointer-events: none;
+}
+
+.premiumCrossfadeTransitioning .premiumCrossfadeIncoming,
+.premiumCrossfadeTransitioning .premiumCrossfadeOutgoing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  contain: layout paint;
+}
+
+.premiumCrossfadeTransitioning .premiumCrossfadeIncoming {
+  z-index: 1;
+  animation: premiumCrossfadeIn 240ms ease both;
+}
+
+.premiumCrossfadeTransitioning .premiumCrossfadeOutgoing {
+  z-index: 2;
+  animation: premiumCrossfadeOut 240ms ease both;
+}
+
+@keyframes premiumCrossfadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes premiumCrossfadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premiumCrossfadeTransitioning .premiumCrossfadeIncoming,
+  .premiumCrossfadeTransitioning .premiumCrossfadeOutgoing {
+    animation: none;
+  }
+}
+
+/* Applied via JS for the duration of the premium CMS crossfade */
+:global(html.peakupPremiumCmsTransitionLock),
+:global(html.peakupPremiumCmsTransitionLock body) {
+  overflow: hidden !important;
+  height: 100%;
+  overscroll-behavior: none;
+}

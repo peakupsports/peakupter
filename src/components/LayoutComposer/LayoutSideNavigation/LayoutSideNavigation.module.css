@@ -908,6 +908,41 @@
   }
 }
 
+/* Coach Profile — mobile overflow (320px–767px); desktop layout unchanged */
+@media (max-width: 767px) {
+  .profilePeakUpPageShell {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .profilePeakUpPageShell .container {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .profilePeakUpPageShell .sideNav {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding-left: clamp(12px, 4vw, 24px);
+    padding-right: clamp(12px, 4vw, 24px);
+  }
+
+  .profilePeakUpPageShell .main {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding-left: clamp(12px, 4vw, 24px);
+    padding-right: clamp(12px, 4vw, 24px);
+    overflow-x: clip;
+  }
+}
+
 /* =============================================================================
  * PeakUp Inbox — dark canvas + layout panel reset (className from InboxPage.js)
  * ============================================================================= */

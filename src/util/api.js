@@ -8,9 +8,15 @@ import Decimal from 'decimal.js';
 
 export const apiBaseUrl = marketplaceRootURL => {
   // In development the API server runs on a separate port (default 3500).
+  // Use the page hostname (not hardcoded localhost) so mobile/LAN device testing
+  // hits the same machine as the webpack dev server.
   if (process.env.NODE_ENV === 'development') {
     const port = process.env.REACT_APP_DEV_API_SERVER_PORT || '3500';
-    return `http://localhost:${port}`;
+    const host =
+      typeof window !== 'undefined' && window.location?.hostname
+        ? window.location.hostname
+        : 'localhost';
+    return `http://${host}:${port}`;
   }
 
   // Otherwise, use the given marketplaceRootURL parameter or the same domain and port as the frontend
@@ -124,6 +130,19 @@ const getJsonFromLocalApi = path => {
       method: methods.GET,
       credentials: 'include',
     })
+    .catch(networkError => {
+      const isUnreachable =
+        networkError?.message === 'Load failed' || networkError?.message === 'Failed to fetch';
+      const err = new Error(
+        isUnreachable
+          ? 'Could not reach the PeakUp server. Please check your connection and try again.'
+          : networkError?.message || 'Network error'
+      );
+      err.network = true;
+      err.cause = networkError;
+      err.url = url;
+      throw err;
+    })
     .then(async res => {
       const contentTypeHeader = res.headers.get('Content-Type');
       const contentType = contentTypeHeader ? contentTypeHeader.split(';')[0] : null;
@@ -133,10 +152,46 @@ const getJsonFromLocalApi = path => {
         const err = new Error(parsed.message || res.statusText || 'Request failed');
         err.status = res.status;
         err.data = parsed;
+        err.url = url;
         throw err;
       }
       return parsed;
     });
+};
+
+const fetchJsonWithRetry = async (path, { retries = 0, logLabel } = {}) => {
+  let lastError;
+  const maxAttempts = retries + 1;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    try {
+      return await getJsonFromLocalApi(path);
+    } catch (error) {
+      lastError = error;
+      if (logLabel) {
+        const logPayload = {
+          attempt: attempt + 1,
+          maxAttempts,
+          message: error.message,
+          status: error.status,
+          network: Boolean(error.network),
+          url: error.url,
+        };
+        if (attempt < retries) {
+          // eslint-disable-next-line no-console
+          console.warn(`${logLabel} fetch failed, retrying`, logPayload);
+        } else {
+          // eslint-disable-next-line no-console
+          console.error(`${logLabel} fetch failed`, logPayload);
+        }
+      }
+      if (attempt < retries) {
+        await new Promise(resolve => window.setTimeout(resolve, 450));
+      }
+    }
+  }
+
+  throw lastError;
 };
 
 // Keep the previous parameter order for the post method.
@@ -253,7 +308,11 @@ export const activateAmbassadorProgram = body =>
   postJsonToLocalApi('/api/ambassador-activation', body);
 
 /** Live Referral Center dashboard for active ambassadors. */
-export const fetchReferralCenterDashboard = () => getJsonFromLocalApi('/api/referral-center');
+export const fetchReferralCenterDashboard = () =>
+  fetchJsonWithRetry('/api/referral-center', {
+    retries: 1,
+    logLabel: '[PeakUp ReferralCenter]',
+  });
 
 /** Public ambassadors for Ambassador Program “Meet our Ambassadors” section. */
 export const fetchAmbassadorsShowcase = () => getJsonFromLocalApi('/api/ambassadors-showcase');

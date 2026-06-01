@@ -565,8 +565,10 @@ const ReferralCenterPage = () => {
   const [dashboardError, setDashboardError] = useState(null);
   const [showUnlockBanner, setShowUnlockBanner] = useState(false);
 
+  const currentUserId = currentUser?.id?.uuid;
+
   useEffect(() => {
-    if (!isAuthenticated || !ambassadorActive) {
+    if (!isAuthenticated || !ambassadorActive || !currentUserId) {
       return undefined;
     }
 
@@ -579,15 +581,22 @@ const ReferralCenterPage = () => {
         if (cancelled) {
           return;
         }
-        setDashboard(response.dashboard || null);
-        if (response.dashboard?.rewardsJustUnlocked) {
+        setDashboard(response?.dashboard ?? null);
+        if (response?.dashboard?.rewardsJustUnlocked) {
           setShowUnlockBanner(true);
           window.setTimeout(() => setShowUnlockBanner(false), 6000);
         }
       })
       .catch(error => {
         if (!cancelled) {
-          setDashboardError(error.message || 'Failed to load referral dashboard');
+          // eslint-disable-next-line no-console
+          console.error('[PeakUp ReferralCenter] dashboard unavailable', {
+            message: error?.message,
+            status: error?.status,
+            network: error?.network,
+            url: error?.url,
+          });
+          setDashboardError(error?.message || 'Failed to load referral dashboard');
         }
       })
       .finally(() => {
@@ -599,7 +608,7 @@ const ReferralCenterPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [ambassadorActive, isAuthenticated, profileState.ambassadorReferralCode]);
+  }, [ambassadorActive, currentUserId, isAuthenticated]);
 
   const isFounderOverride =
     dashboard?.founderOverrideActive ?? profileState.founderOverrideActive ?? false;

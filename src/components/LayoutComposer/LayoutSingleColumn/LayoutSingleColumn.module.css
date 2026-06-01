@@ -7,11 +7,20 @@
 .topbar {
   position: sticky;
   top: 0;
-  z-index: var(--zIndexTopbar);
+  /* Above page content (e.g. maps, backdrop-filter cards) on small screens */
+  z-index: var(--zIndexPopup);
+  isolation: isolate;
+  pointer-events: auto;
+
+  @media (--viewportMedium) {
+    z-index: var(--zIndexTopbar);
+  }
 }
 
 .main {
   display: grid;
+  position: relative;
+  z-index: 0;
   scroll-margin-top: var(--topbarHeight);
 
   @media (--viewportMedium) {

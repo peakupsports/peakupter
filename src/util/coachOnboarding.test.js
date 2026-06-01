@@ -35,6 +35,8 @@ import {
   resolvePostVerifyRedirect,
   resolveSignupAmbassadorRef,
   rewriteCoachSignupHref,
+  rewriteHowItWorksJoinNowLinks,
+  GROW_WITH_PEAKUP_CMS_PAGE_PATH,
   shouldContinueCoachOnboarding,
   syncCoachOnboardingIntent,
 } from './coachOnboarding';
@@ -639,5 +641,69 @@ describe('coachOnboarding', () => {
     expect(localStorage.getItem('ambassadorRef')).toBe(null);
     expect(localStorage.getItem('ref')).toBe(null);
     expect(localStorage.getItem('peakupAmbassadorRef')).toBe(null);
+  });
+
+  it('rewrites How it works Join Now CTA to the Grow with PeakUp CMS page', () => {
+    const pageData = {
+      sections: [
+        {
+          callToAction: {
+            fieldType: 'internalButtonLink',
+            content: 'Join Now',
+            href: '/coach-signup',
+          },
+          blocks: [
+            {
+              callToAction: {
+                fieldType: 'internalButtonLink',
+                content: 'join now',
+                href: '/coach-application',
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const result = rewriteHowItWorksJoinNowLinks(pageData, 'how-it-works');
+
+    expect(result.sections[0].callToAction.href).toBe(GROW_WITH_PEAKUP_CMS_PAGE_PATH);
+    expect(result.sections[0].blocks[0].callToAction.href).toBe(GROW_WITH_PEAKUP_CMS_PAGE_PATH);
+  });
+
+  it('does not rewrite Join Now on the Grow with PeakUp CMS page itself', () => {
+    const pageData = {
+      sections: [
+        {
+          callToAction: {
+            fieldType: 'internalButtonLink',
+            content: 'Join Now',
+            href: '/coach-signup',
+          },
+        },
+      ],
+    };
+
+    const result = rewriteHowItWorksJoinNowLinks(pageData, '4_instructors');
+
+    expect(result.sections[0].callToAction.href).toBe('/coach-signup');
+  });
+
+  it('does not rewrite non–Join Now CTAs on How it works', () => {
+    const pageData = {
+      sections: [
+        {
+          callToAction: {
+            fieldType: 'internalButtonLink',
+            content: 'Find a coach',
+            href: '/s',
+          },
+        },
+      ],
+    };
+
+    const result = rewriteHowItWorksJoinNowLinks(pageData, 'howitworks');
+
+    expect(result.sections[0].callToAction.href).toBe('/s');
   });
 });

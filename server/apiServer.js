@@ -27,12 +27,42 @@ const devCorsOrigins = new Set([
   'http://127.0.0.1:3000',
 ]);
 
+const isPrivateLanHostname = hostname =>
+  /^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+  /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+  /^172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}$/.test(hostname);
+
+const isDevCorsOriginAllowed = origin => {
+  if (!origin) {
+    return true;
+  }
+  if (devCorsOrigins.has(origin)) {
+    return true;
+  }
+  try {
+    const { hostname, protocol } = new URL(origin);
+    if (protocol !== 'http:' && protocol !== 'https:') {
+      return false;
+    }
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return true;
+    }
+    if (isPrivateLanHostname(hostname)) {
+      return true;
+    }
+    const marketplaceHostname = new URL(marketplaceRootUrl).hostname;
+    return hostname === marketplaceHostname;
+  } catch (e) {
+    return false;
+  }
+};
+
 // NOTE: CORS is only needed in this dev API server because it's
 // running in a different port than the main app.
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || devCorsOrigins.has(origin)) {
+      if (isDevCorsOriginAllowed(origin)) {
         callback(null, origin || marketplaceRootUrl);
       } else {
         // eslint-disable-next-line no-console
@@ -63,9 +93,9 @@ app.get('/robots.txt', robotsTxtRoute);
 // Handle different sitemap-* resources. E.g. /sitemap-index.xml
 app.get('/sitemap-:resource', sitemapResourceRoute);
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   // eslint-disable-next-line no-console
-  console.log(`API server listening on ${PORT}`);
+  console.log(`API server listening on 0.0.0.0:${PORT}`);
 });
 
 server.on('error', err => {
