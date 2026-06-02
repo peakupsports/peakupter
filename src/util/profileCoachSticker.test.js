@@ -11,6 +11,7 @@ import {
   peakupCoachBadgePriorityFor,
   peakupCoachReviewScore,
   resolveDisplayBadgeIds,
+  resolveFigurinaHeaderBadgeIds,
   resolvePeakupCoachBadgeIds,
   shouldShowPeakUpProfileSticker,
   sportsForFigurinaOverlay,
@@ -197,6 +198,23 @@ describe('parseExperienceMinYears', () => {
   it('returns 0 for unrecognisable strings', () => {
     expect(parseExperienceMinYears('--')).toBe(0);
     expect(parseExperienceMinYears('abc')).toBe(0);
+  });
+});
+
+describe('resolveFigurinaHeaderBadgeIds', () => {
+  it('returns all configured badges sorted by priority', () => {
+    expect(
+      resolveFigurinaHeaderBadgeIds({ peakupCoachBadges: ['certified_coach', 'founder'] })
+    ).toEqual(['founder', 'certified_coach']);
+  });
+
+  it('returns manual top_coach from publicData flags', () => {
+    expect(resolveFigurinaHeaderBadgeIds({ peakupBadgeTopCoach: true })).toEqual(['top_coach']);
+  });
+
+  it('falls back to auto-derived tier when nothing configured', () => {
+    expect(resolveFigurinaHeaderBadgeIds({})).toEqual(['certified_coach']);
+    expect(resolveFigurinaHeaderBadgeIds({ experience: '12 years' })).toEqual(['top_coach']);
   });
 });
 

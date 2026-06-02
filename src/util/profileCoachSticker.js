@@ -815,6 +815,24 @@ export const resolveDisplayBadgeIds = (profilePd = {}) => {
 };
 
 /**
+ * Badge pills on figurina / coach cards: all badges explicitly configured in
+ * `publicData` (peakupCoachBadges, boolean flags, legacy coachLevel). When
+ * nothing is configured, falls back to {@link resolveDisplayBadgeIds}.
+ *
+ * @param {Object|null|undefined} profilePd
+ * @returns {string[]}
+ */
+export const resolveFigurinaHeaderBadgeIds = (profilePd = {}) => {
+  const configured = resolvePeakupCoachBadgeIds(profilePd);
+  if (configured.length > 0) {
+    return [...new Set(configured)].sort(
+      (a, b) => (PEAKUP_COACH_BADGE_PRIORITY[b] || 0) - (PEAKUP_COACH_BADGE_PRIORITY[a] || 0)
+    );
+  }
+  return resolveDisplayBadgeIds(profilePd);
+};
+
+/**
  * Restituisce la priorità più alta tra i badge passati. 0 se nessuno.
  *
  * @param {string[]} badgeIds output di {@link resolvePeakupCoachBadgeIds}

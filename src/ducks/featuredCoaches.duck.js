@@ -7,7 +7,7 @@ import { mergeListingsByAuthor } from '../util/coachExplore';
 import { batchedReviewStats, logPeakupFeaturedCoachReviews } from '../util/coachReviewStats';
 import {
   peakupCoachBadgePriorityFor,
-  resolveDisplayBadgeIds,
+  resolveFigurinaHeaderBadgeIds,
 } from '../util/profileCoachSticker';
 import { addMarketplaceEntities } from './marketplaceData.duck';
 
@@ -166,7 +166,7 @@ export const fetchFeaturedCoachesThunk = createAsyncThunk(
           didPublishPrelim = true;
           const coachesFast = mergeListingsByAuthor(aggregatedListings);
           const withBadgesFast = coachesFast.map(c => {
-            const badgeIds = resolveDisplayBadgeIds(c.author?.attributes?.profile?.publicData);
+            const badgeIds = resolveFigurinaHeaderBadgeIds(c.author?.attributes?.profile?.publicData);
             return {
               ...c,
               badgeIds,
@@ -204,7 +204,7 @@ export const fetchFeaturedCoachesThunk = createAsyncThunk(
       const coaches = mergeListingsByAuthor(aggregatedListings);
 
       const withBadges = coaches.map(c => {
-        const badgeIds = resolveDisplayBadgeIds(c.author?.attributes?.profile?.publicData);
+        const badgeIds = resolveFigurinaHeaderBadgeIds(c.author?.attributes?.profile?.publicData);
         return {
           ...c,
           badgeIds,

@@ -14,7 +14,7 @@
  */
 
 import {
-  resolveDisplayBadgeIds,
+  resolveFigurinaHeaderBadgeIds,
   PEAKUP_COACH_BADGE_PRIORITY,
 } from './profileCoachSticker';
 
@@ -91,21 +91,16 @@ export const TIER_COLORS = {
 /**
  * Resolve the highest-priority tier id for a coach profile.
  *
- * Uses `resolveDisplayBadgeIds` which already enforces the new badge rules:
- *  - Founder / Ambassador are admin-only manual flags.
- *  - Top coach is auto-derived for `experience` >= 10 years.
- *  - Certified coach is the default for all other coaches.
- * The result is therefore mutually exclusive (always a single tier).
+ * Uses {@link resolveFigurinaHeaderBadgeIds}: highest-priority configured badge,
+ * or auto-derived certified / top coach when none are set in publicData.
  *
  * @param {Object|null|undefined} profilePd `user.attributes.profile.publicData`
  * @returns {string|null} one of: founder | ambassador | top_coach | certified_coach
  */
 export const pickPrimaryTierId = profilePd => {
-  const ids = resolveDisplayBadgeIds(profilePd) || [];
+  const ids = resolveFigurinaHeaderBadgeIds(profilePd) || [];
   if (!ids.length) return null;
-  return [...ids].sort(
-    (a, b) => (PEAKUP_COACH_BADGE_PRIORITY[b] || 0) - (PEAKUP_COACH_BADGE_PRIORITY[a] || 0)
-  )[0];
+  return ids[0];
 };
 
 /**

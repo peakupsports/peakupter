@@ -177,6 +177,20 @@ app.use(
     },
   })
 );
+
+// Files copied from `public/` during `yarn build` (CoachPagePic, PDFs, etc.).
+// Without this, `/CoachPagePic/*` hits the SSR catch-all and badge/hero JPGs 404 in production.
+app.use(
+  express.static(buildPath, {
+    index: false,
+    setHeaders: (res, filePath) => {
+      if (!dev && /\.(jpe?g|png|gif|webp|svg|ico|pdf)$/i.test(filePath)) {
+        res.setHeader('Cache-Control', 'public, max-age=31557600');
+      }
+    },
+  })
+);
+
 app.use(cookieParser());
 
 // We don't serve favicon.ico from root. PNG images are used instead for icons through link elements.

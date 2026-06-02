@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { getCoachShortLocationLabel, extractSportKeysFromCoachProfile } from '../../util/coachExplore';
 import {
-  resolveDisplayBadgeIds,
+  resolveFigurinaHeaderBadgeIds,
   PROFILE_SPORT_DISPLAY_LABELS,
 } from '../../util/profileCoachSticker';
 import {
@@ -73,7 +73,7 @@ const TeamCoachRosterCard = props => {
   const profileImage = coach?.profileImage || null;
   const tierId = pickPrimaryTierId(publicData);
   const tierStyle = tierId ? getTierStyleVars(tierId) : null;
-  const badgeIds = resolveDisplayBadgeIds(publicData);
+  const badgeIds = resolveFigurinaHeaderBadgeIds(publicData);
   const topBadgeId = badgeIds[0] || null;
   const sportKeys = extractSportKeysFromCoachProfile(coach);
   const sportsLabel = sportKeys

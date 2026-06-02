@@ -15,9 +15,10 @@ import {
   logPeakupDataRegressionCheckFeaturedCoaches,
   logPeakupFeaturedReviewMerge,
 } from '../../../../util/coachReviewStats';
+import { FEATURED_COACH_SECTION_BADGE_SRC } from '../../../../config/configSportMedia';
 import {
   comparePeakupFeaturedCoaches,
-  resolveDisplayBadgeIds,
+  resolveFigurinaHeaderBadgeIds,
 } from '../../../../util/profileCoachSticker';
 
 // Shared components (relative path keeps src/components/index.js import order intact)
@@ -32,8 +33,6 @@ import Field, { hasDataInFields } from '../../Field';
 import SectionContainer from '../SectionContainer';
 
 import css from './SectionPeakupFeaturedCoaches.module.css';
-
-const FEATURED_COACH_BADGE_SRC = '/CoachPagePic/Featured_Coach.jpg';
 
 const selectFeaturedCoachRows = state => state.featuredCoaches?.coaches || [];
 
@@ -63,7 +62,7 @@ const selectFeaturedCoachCards = createSelector(
           ? listingsByUuid.get(row.listingId) || null
           : null;
         const authorPd = author?.attributes?.profile?.publicData || {};
-        const computedBadgeIds = resolveDisplayBadgeIds(authorPd);
+        const computedBadgeIds = resolveFigurinaHeaderBadgeIds(authorPd);
         return {
           authorUuid: row.authorUuid,
           author,
@@ -278,11 +277,13 @@ const SectionPeakupFeaturedCoaches = props => {
         <span className={css.showcaseTitleBadgeWrap} aria-hidden="true">
           <img
             className={css.showcaseTitleBadge}
-            src={FEATURED_COACH_BADGE_SRC}
+            src={FEATURED_COACH_SECTION_BADGE_SRC}
             alt=""
             width={84}
             height={84}
+            loading="eager"
             decoding="async"
+            fetchPriority="high"
           />
         </span>
 

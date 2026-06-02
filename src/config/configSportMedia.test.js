@@ -1,4 +1,5 @@
 import {
+  FEATURED_COACH_SECTION_BADGE_SRC,
   SPORT_MEDIA_FALLBACK,
   SPORT_MEDIA_KEYS,
   SPORT_MEDIA_LIBRARY,
@@ -6,6 +7,12 @@ import {
   getSportHeroImageForCoach,
   pickFirstMappedSportKey,
 } from './configSportMedia';
+
+describe('FEATURED_COACH_SECTION_BADGE_SRC', () => {
+  it('points at the public CoachPagePic asset with exact on-disk casing', () => {
+    expect(FEATURED_COACH_SECTION_BADGE_SRC).toBe('/CoachPagePic/Featured_Coach.jpg');
+  });
+});
 
 describe('SPORT_MEDIA_LIBRARY', () => {
   it('exposes the 15 top-level sports + 9 Snowboard/Ski variant keys we have artwork for', () => {

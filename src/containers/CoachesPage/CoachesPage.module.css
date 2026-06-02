@@ -293,14 +293,14 @@
   flex-wrap: nowrap;
   list-style: none;
   margin: 0;
-  padding: 6px 0 18px;
+  padding: 40px 0 24px;
   gap: 16px;
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
   min-width: 0;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 0;
   -webkit-overflow-scrolling: touch;
@@ -331,7 +331,9 @@
    * page itself to overflow horizontally. */
   width: clamp(240px, 78%, 300px);
   display: flex;
+  align-items: flex-start;
   min-width: 0;
+  overflow: visible;
 }
 
 @media (--viewportMedium) {
@@ -348,6 +350,15 @@
 
 .scrollerItem > * {
   width: 100%;
+  overflow: visible;
+}
+
+/* Podium shields float above the figurina — keep outer wrappers visible (card keeps overflow hidden). */
+.scrollerItem [class*='PeakUpCoachFigurineCard_root'],
+.scrollerItem [class*='PeakUpCoachFigurineCard_collectibleFrame'],
+.scrollerItem [class*='PeakUpCoachFigurineCard_collectibleFramePodium'],
+.scrollerItem [class*='PeakUpCoachFigurineCard_podiumMedal'] {
+  overflow: visible;
 }
 
 /* Desktop nav arrows — identical to Landing Page carousel. */

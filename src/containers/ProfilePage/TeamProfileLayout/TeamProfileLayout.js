@@ -4,7 +4,10 @@ import { FormattedMessage } from '../../../util/reactIntl';
 import { richText } from '../../../util/richText';
 import { extractSportKeysFromCoachProfile } from '../../../util/coachExplore';
 import { getPeakupTeamMemberIds, getPeakupTeamSports, getTeamShortLocationLabel, isPeakUpVerifiedTeam } from '../../../util/peakupTeam';
-import { formatProfileSportsForSticker, resolveDisplayBadgeIds } from '../../../util/profileCoachSticker';
+import {
+  formatProfileSportsForSticker,
+  resolveFigurinaHeaderBadgeIds,
+} from '../../../util/profileCoachSticker';
 import { fetchTeamMembers } from '../../../util/api';
 import { Button, PeakUpCoachFigurineCard, PeakUpLocationPin } from '../../../components';
 import NamedLink from '../../../components/NamedLink/NamedLink';
@@ -317,7 +320,7 @@ const TeamProfileLayout = props => {
                 {members.map(member => {
                   const memberPd = member?.attributes?.profile?.publicData || {};
                   const sportKeys = extractSportKeysFromCoachProfile(member);
-                  const badgeIds = resolveDisplayBadgeIds(memberPd);
+                  const badgeIds = resolveFigurinaHeaderBadgeIds(memberPd);
                   return (
                     <li key={member.id?.uuid || member.id} className={css.rosterItem}>
                       <PeakUpCoachFigurineCard

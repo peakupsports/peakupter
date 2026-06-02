@@ -57,7 +57,7 @@ import {
   formatProfileSportsForSticker,
   LANGUAGE_FLAGS,
   resolveCoachStickerDisplay,
-  resolveDisplayBadgeIds,
+  resolveFigurinaHeaderBadgeIds,
   shouldShowPeakUpProfileSticker,
   isPeakUpCustomerMemberProfile,
   isCoachProfileStickerEligible,
@@ -437,9 +437,7 @@ export const AsideContent = props => {
   const profileImage = avatarUser?.profileImage;
 
   const stickerDisplay = resolveCoachStickerDisplay(profilePd, listing);
-  // Display badges are auto-derived (Founder/Ambassador admin-only,
-  // Top coach for >=10y experience, Certified coach for everyone else).
-  const badgeIds = resolveDisplayBadgeIds(profilePd);
+  const badgeIds = resolveFigurinaHeaderBadgeIds(profilePd);
   const legacyCoachLevel =
     badgeIds.length === 0 && profilePd.coachLevel && String(profilePd.coachLevel).trim()
       ? String(profilePd.coachLevel).trim()

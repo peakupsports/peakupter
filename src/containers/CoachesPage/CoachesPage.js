@@ -20,7 +20,7 @@ import {
   parseCoachExploreSearch,
   sortCoachRowsByDistanceKm,
 } from '../../util/coachExplore';
-import { resolveDisplayBadgeIds } from '../../util/profileCoachSticker';
+import { resolveFigurinaHeaderBadgeIds } from '../../util/profileCoachSticker';
 import { getSportHeroImage } from '../../config/configSportMedia';
 import { fetchCoachesExploreThunk } from '../CoachesExplorePage/CoachesExplorePage.duck';
 
@@ -258,9 +258,7 @@ const CoachesPage = props => {
             >
               {filteredCoaches.map(coach => {
                 const authorPd = coach.author?.attributes?.profile?.publicData || {};
-                // Display badges are auto-derived: Founder/Ambassador admin-only,
-                // Top coach for >=10y experience, Certified coach as default.
-                const badgeIds = resolveDisplayBadgeIds(authorPd);
+                const badgeIds = resolveFigurinaHeaderBadgeIds(authorPd);
                 // No `rank` / `showPodiumBadge` here on purpose: the gold /
                 // silver / bronze podium medal is exclusive to the LandingPage
                 // "Featured Coaches" curated ranking.

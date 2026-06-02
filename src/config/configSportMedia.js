@@ -61,6 +61,12 @@ import {
 const ASSET_BASE = '/CoachPagePic';
 
 /**
+ * Landing Page "Featured Coaches" section header badge (crest above the title).
+ * File on disk: `public/CoachPagePic/Featured_Coach.jpg` (case-sensitive).
+ */
+export const FEATURED_COACH_SECTION_BADGE_SRC = `${ASSET_BASE}/Featured_Coach.jpg`;
+
+/**
  * Strict sport → media-asset map. Keys are stored in their normalized
  * form (lower-case, no separators) so callers can pass any free-form
  * label through `normalizeSportKey` before lookup.

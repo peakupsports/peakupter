@@ -40,13 +40,20 @@
 .showcaseHeader {
   position: relative;
   isolation: isolate;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
 /* Same node composes `defaultClasses.sectionDetails` — SectionBuilder uses
  * `justify-content: start` below `--viewportMedium`, which left-aligns this header. */
 .showcaseHeader[class*='sectionDetails'] {
+  /* Beat `.sectionDetails { display: grid }` so the badge img keeps a flex column layout. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   justify-items: center;
   text-align: center;
@@ -141,7 +148,7 @@
 
 .showcaseTitleBadgeWrap {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -149,6 +156,7 @@
   margin-bottom: 18px;
   width: clamp(55px, 14.5vw, 84px);
   height: clamp(55px, 14.5vw, 84px);
+  overflow: visible;
 }
 
 .showcaseTitleBadgeWrap::before {
@@ -285,7 +293,6 @@
   padding: 0 32px 24px;
   min-width: 0;
   overflow: visible;
-  contain: paint;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
 }
