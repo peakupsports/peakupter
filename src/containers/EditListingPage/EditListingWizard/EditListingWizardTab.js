@@ -18,6 +18,7 @@ import EditListingPhotosPanel from './EditListingPhotosPanel/EditListingPhotosPa
 import EditListingPricingPanel from './EditListingPricingPanel/EditListingPricingPanel';
 import EditListingPricingAndStockPanel from './EditListingPricingAndStockPanel/EditListingPricingAndStockPanel';
 import EditListingStylePanel from './EditListingStylePanel/EditListingStylePanel';
+import EditListingBookingPreferencesPanel from './EditListingBookingPreferencesPanel/EditListingBookingPreferencesPanel';
 
 import css from './EditListingWizardTab.module.css';
 
@@ -29,6 +30,7 @@ export const LOCATION = 'location';
 export const AVAILABILITY = 'availability';
 export const PHOTOS = 'photos';
 export const STYLE = 'style';
+export const BOOKING_PREFERENCES = 'booking-preferences';
 
 // EditListingWizardTab component supports these tabs
 export const SUPPORTED_TABS = [
@@ -37,6 +39,7 @@ export const SUPPORTED_TABS = [
   PRICING_AND_STOCK,
   DELIVERY,
   LOCATION,
+  BOOKING_PREFERENCES,
   AVAILABILITY,
   PHOTOS,
   STYLE,
@@ -226,6 +229,9 @@ const EditListingWizardTab = props => {
           currentUser={currentUser}
         />
       );
+    }
+    case BOOKING_PREFERENCES: {
+      return <EditListingBookingPreferencesPanel {...panelProps(BOOKING_PREFERENCES)} />;
     }
     case DELIVERY: {
       return (

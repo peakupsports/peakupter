@@ -1,0 +1,85 @@
+@import '../../../../styles/customMediaQueries.css';
+
+.root {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+.section {
+  margin-bottom: 24px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 32px;
+  }
+}
+
+.sectionHeading {
+  font-weight: var(--fontWeightSemiBold);
+  margin-bottom: 6px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 8px;
+  }
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  @media (--viewportMedium) {
+    gap: 16px;
+  }
+}
+
+.radioOption {
+  display: flex;
+  flex-direction: column;
+}
+
+.optionHelpText {
+  composes: marketplaceListingAttributeFontStyles from global;
+  color: var(--colorGrey700);
+  margin: 0 0 0 26px;
+  padding: 0;
+}
+
+.advanceNoticeSelect {
+  margin-bottom: 6px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 8px;
+  }
+}
+
+.warningText {
+  composes: marketplaceListingAttributeFontStyles from global;
+  color: var(--colorAttention);
+  margin: 0;
+  padding: 0;
+}
+
+.error {
+  margin-top: 24px;
+  color: var(--colorFail);
+
+  @media (--viewportMedium) {
+    margin-top: 32px;
+  }
+}
+
+.submitButton {
+  flex-shrink: 0;
+  margin-top: auto;
+  margin-bottom: 24px;
+
+  @media (--viewportLarge) {
+    display: inline-block;
+    width: 241px;
+    margin-top: 48px;
+  }
+}

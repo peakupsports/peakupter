@@ -54,10 +54,12 @@ import EditListingWizardTab, {
   PRICING_AND_STOCK,
   DELIVERY,
   LOCATION,
+  BOOKING_PREFERENCES,
   AVAILABILITY,
   PHOTOS,
   STYLE,
 } from './EditListingWizardTab';
+import { isPeakUpBookingPreferencesTabCompleted } from '../../../util/peakUpBookingPreferences';
 import css from './EditListingWizard.module.css';
 
 // This is the initial tab on editlisting wizard.
@@ -97,7 +99,14 @@ const tabsForListingType = (processName, listingTypeConfig) => {
   // Note 3: The first tab creates a draft listing and title is mandatory attribute for it.
   //         Details tab asks for "title" and is therefore the first tab in the wizard flow.
   const tabs = {
-    ['default-booking']: [DETAILS, ...locationMaybe, PRICING, AVAILABILITY, ...styleOrPhotosTab],
+    ['default-booking']: [
+      DETAILS,
+      ...locationMaybe,
+      PRICING,
+      BOOKING_PREFERENCES,
+      AVAILABILITY,
+      ...styleOrPhotosTab,
+    ],
     ['default-purchase']: [DETAILS, PRICING_AND_STOCK, ...deliveryMaybe, ...styleOrPhotosTab],
     ['default-negotiation']: [DETAILS, ...locationMaybe, ...pricingMaybe, ...styleOrPhotosTab],
     ['default-inquiry']: [DETAILS, ...locationMaybe, ...pricingMaybe, ...styleOrPhotosTab],
@@ -138,6 +147,9 @@ const tabLabelAndSubmit = (intl, tab, isNewListingFlow, isPriceDisabled, process
       isPriceDisabled && isNewListingFlow
         ? `EditListingWizard.${processNameString}${newOrEdit}.saveLocationNoPricingTab`
         : `EditListingWizard.${processNameString}${newOrEdit}.saveLocation`;
+  } else if (tab === BOOKING_PREFERENCES) {
+    labelKey = 'EditListingWizard.tabLabelBookingPreferences';
+    submitButtonKey = `EditListingWizard.${processNameString}${newOrEdit}.saveBookingPreferences`;
   } else if (tab === AVAILABILITY) {
     labelKey = 'EditListingWizard.tabLabelAvailability';
     submitButtonKey = `EditListingWizard.${processNameString}${newOrEdit}.saveAvailability`;
@@ -261,6 +273,8 @@ const tabCompleted = (tab, listing, config) => {
       return !!deliveryOptionPicked;
     case LOCATION:
       return !!(geolocation && publicData?.location?.address);
+    case BOOKING_PREFERENCES:
+      return isPeakUpBookingPreferencesTabCompleted(publicData);
     case AVAILABILITY:
       return !!availabilityPlan;
     case PHOTOS:
