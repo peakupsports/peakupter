@@ -463,3 +463,18 @@
     margin: 0;
   }
 }
+
+/* Mobile/tablet GPU: opaque gradient header, no backdrop blur (1024+ uses TopbarDesktop). */
+@media (max-width: 1023px) {
+  .container {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background:
+      linear-gradient(180deg, rgba(6, 12, 24, 0.98) 0%, rgba(8, 18, 32, 0.97) 100%);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+  }
+
+  .containerCoachMap {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+  }
+}

@@ -37,14 +37,16 @@
   .root::before {
     /* Stronger scale bleeds past the section and can widen the whole page on mobile. */
     transform: scale(1.01);
-    /* Light touch only: keep desktop atmosphere stack on `::after` unchanged below. */
-    opacity: 0.3;
-    filter: blur(5px) saturate(1.06) brightness(0.86);
+    /* Opaque atmosphere only — no filter: blur on mobile GPU. */
+    opacity: 0.32;
+    filter: saturate(1.04) brightness(0.88);
   }
 
   .titleGlow {
     /* Wide negative inset extends past the viewport and widens the page. */
     inset: -18px -18px;
+    filter: none;
+    opacity: 0.9;
   }
 }
 

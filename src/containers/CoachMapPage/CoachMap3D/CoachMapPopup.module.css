@@ -281,3 +281,20 @@
   outline: 2px solid rgba(157, 255, 46, 0.7);
   outline-offset: 2px;
 }
+
+@media (max-width: 1023px) {
+  .photoRing {
+    box-shadow: 0 0 0 2px var(--tier-border, transparent);
+  }
+
+  .contactBtn {
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+  }
+}
+
+@media (max-width: 1023px) and (hover: none) {
+  .contactBtn:hover {
+    transform: none;
+    filter: none;
+  }
+}

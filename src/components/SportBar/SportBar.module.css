@@ -878,3 +878,71 @@
   }
 }
 
+/* Mobile/tablet GPU: solid glass pills, no backdrop blur (desktop unchanged at 1024+). */
+@media (max-width: 1023px) {
+  .wrap {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: linear-gradient(180deg, rgba(10, 14, 22, 0.97) 0%, rgba(8, 11, 18, 0.99) 100%);
+  }
+
+  .subbar {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(12, 16, 24, 0.98);
+  }
+
+  .rootInTopbar .accordionPanel .chipSm {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: linear-gradient(180deg, rgba(12, 20, 32, 0.98) 0%, rgba(8, 13, 23, 0.99) 100%);
+    box-shadow:
+      0 6px 14px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .rootInTopbar .accordionPanel .chipSm:hover {
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .rootInTopbar .accordionPanel .chipSmActive {
+    box-shadow: 0 6px 14px rgba(12, 37, 71, 0.28);
+  }
+
+  .chip {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 6px 14px rgba(0, 0, 0, 0.22);
+  }
+
+  .chipActive {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 6px 14px rgba(0, 0, 0, 0.22),
+      0 0 0 1px rgba(120, 255, 120, 0.1);
+  }
+
+  .rootCoachMapMobileRail .wrapCoachMapMobileRail {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: linear-gradient(180deg, rgba(9, 16, 27, 0.98) 0%, rgba(7, 12, 20, 0.99) 100%);
+  }
+
+  .rootCoachMapMobileRail .accordionPanel .chipSm {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow:
+      0 6px 14px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .rootCoachMapMobileRail .accordionPanel .chipSmActive {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 0 0 1px rgba(157, 255, 46, 0.16),
+      0 8px 18px rgba(0, 0, 0, 0.28);
+  }
+}
+

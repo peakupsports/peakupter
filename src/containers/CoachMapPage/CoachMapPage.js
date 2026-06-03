@@ -366,6 +366,7 @@ const CoachMapPage = props => {
   const dispatch = useDispatch();
 
   const mapPanelRef = useRef(null);
+  const scrollResizeTimerRef = useRef(null);
 
   const scrollCoachMapPanelMobileIntoView = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -375,7 +376,13 @@ const CoachMapPage = props => {
     if (!el || typeof el.scrollIntoView !== 'function') return;
     el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
     requestAnimationFrame(() => {
-      window.dispatchEvent(new Event('resize'));
+      if (scrollResizeTimerRef.current) {
+        window.clearTimeout(scrollResizeTimerRef.current);
+      }
+      scrollResizeTimerRef.current = window.setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+        scrollResizeTimerRef.current = null;
+      }, 200);
     });
   }, []);
 

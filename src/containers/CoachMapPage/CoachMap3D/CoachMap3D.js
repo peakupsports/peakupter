@@ -39,12 +39,17 @@ const COACH_FLYTO_ZOOM = 14;
 
 const cinematicCameraEasing = t => 1 - Math.pow(1 - t, 2.35);
 
-// Match the desktop / mobile breakpoint used elsewhere (`--viewportMedium`,
-// 768px): slightly gentler DEM / sky on narrow viewports; fog stays on.
-const isMobileViewport = () =>
+/** Mobile/tablet perf budget — matches landing/topbar breakpoint (1024+ desktop). */
+const COACH_MAP_MOBILE_PERF_MQ = '(max-width: 1023px)';
+
+const isCoachMapMobilePerf = () =>
   typeof window !== 'undefined' &&
   typeof window.matchMedia === 'function' &&
-  window.matchMedia('(max-width: 767px)').matches;
+  window.matchMedia(COACH_MAP_MOBILE_PERF_MQ).matches;
+
+// Match the desktop / mobile breakpoint used elsewhere (`--viewportMedium`,
+// 768px): slightly gentler DEM / sky on narrow viewports; fog stays on.
+const isMobileViewport = () => isCoachMapMobilePerf();
 
 /**
  * Globe: atmosphere comes from fog. The style-spec `sky` layer is not reliably
@@ -99,21 +104,25 @@ const applyPeakUpSatelliteLabelPass = map => {
  */
 const installCoachMapPremiumVisuals = map => {
   if (!map) return;
-  const mobile = isMobileViewport();
+  const mobile = isCoachMapMobilePerf();
 
   if (typeof map.setTerrain === 'function') {
-    if (!map.getSource('mapbox-dem')) {
-      map.addSource('mapbox-dem', {
-        type: 'raster-dem',
-        url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-        tileSize: 512,
-        maxzoom: 14,
+    if (mobile) {
+      map.setTerrain(null);
+    } else {
+      if (!map.getSource('mapbox-dem')) {
+        map.addSource('mapbox-dem', {
+          type: 'raster-dem',
+          url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+          tileSize: 512,
+          maxzoom: 14,
+        });
+      }
+      map.setTerrain({
+        source: 'mapbox-dem',
+        exaggeration: 1.22,
       });
     }
-    map.setTerrain({
-      source: 'mapbox-dem',
-      exaggeration: mobile ? 1.08 : 1.22,
-    });
   }
 
   // No extra hillshade on satellite — it muddles imagery; DEM + fog carry depth.
@@ -140,26 +149,39 @@ const installCoachMapPremiumVisuals = map => {
   }
 
   if (typeof map.setFog === 'function') {
-    map.setFog({
-      range: mobile ? [0.5, 10.5] : [0.45, 12.5],
-      color: '#dce8f4',
-      'high-color': '#a8c8e8',
-      'horizon-blend': mobile ? 0.22 : 0.28,
-      'space-color': '#c5daf0',
-      'star-intensity': 0.0,
-    });
+    map.setFog(
+      mobile
+        ? {
+            range: [0.55, 8],
+            color: '#dce8f4',
+            'high-color': '#a8c8e8',
+            'horizon-blend': 0.16,
+            'space-color': '#c5daf0',
+            'star-intensity': 0.0,
+          }
+        : {
+            range: [0.45, 12.5],
+            color: '#dce8f4',
+            'high-color': '#a8c8e8',
+            'horizon-blend': 0.28,
+            'space-color': '#c5daf0',
+            'star-intensity': 0.0,
+          }
+    );
   }
 
   if (typeof map.setLight === 'function') {
     map.setLight({
       anchor: 'map',
       color: '#fff6eb',
-      intensity: mobile ? 0.38 : 0.48,
+      intensity: mobile ? 0.32 : 0.48,
       position: [1.15, 145, 48],
     });
   }
 
-  applyPeakUpSatelliteLabelPass(map);
+  if (!mobile) {
+    applyPeakUpSatelliteLabelPass(map);
+  }
 };
 
 // Anti-stacking ("spiderfy") config. When 2+ coaches share the same
@@ -368,6 +390,7 @@ const CoachMap3D = props => {
       }
       if (!containerRef.current) return;
 
+      const mobilePerf = isCoachMapMobilePerf();
       const initialCenter = center
         ? [center.lng, center.lat]
         : bounds
@@ -381,12 +404,16 @@ const CoachMap3D = props => {
         zoom: INITIAL_MAP_ZOOM,
         pitch: INITIAL_CAMERA_PITCH,
         bearing: INITIAL_CAMERA_BEARING,
-        antialias: true,
+        antialias: !mobilePerf,
+        fadeDuration: mobilePerf ? 0 : 300,
         projection: 'globe',
       });
 
       map.addControl(
-        new window.mapboxgl.NavigationControl({ visualizePitch: true, showCompass: true }),
+        new window.mapboxgl.NavigationControl({
+          visualizePitch: !mobilePerf,
+          showCompass: true,
+        }),
         'top-right'
       );
 
@@ -397,7 +424,7 @@ const CoachMap3D = props => {
         );
         const labelLayerId = labelLayer ? labelLayer.id : undefined;
 
-        if (!map.getLayer('peakup-3d-buildings') && map.getSource('composite')) {
+        if (!mobilePerf && !map.getLayer('peakup-3d-buildings') && map.getSource('composite')) {
           try {
             map.addLayer(
               {
@@ -462,7 +489,7 @@ const CoachMap3D = props => {
   // Fit the map to the requested bounds whenever they change.
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !isReady || !bounds) return;
+    if (!map || !isReady || !bounds) return undefined;
     const { swLat, swLng, neLat, neLng } = bounds;
     if (
       !Number.isFinite(swLat) ||
@@ -470,26 +497,39 @@ const CoachMap3D = props => {
       !Number.isFinite(neLat) ||
       !Number.isFinite(neLng)
     ) {
-      return;
+      return undefined;
     }
-    const duration = hasAnimatedInitialBoundsRef.current
-      ? STANDARD_BOUNDS_DURATION_MS
-      : INITIAL_CAMERA_DURATION_MS;
-    hasAnimatedInitialBoundsRef.current = true;
-    map.fitBounds(
-      [
-        [swLng, swLat],
-        [neLng, neLat],
-      ],
-      {
-        padding: 80,
-        duration,
-        pitch: BOUNDS_CAMERA_PITCH,
-        bearing: BOUNDS_CAMERA_BEARING,
-        maxZoom: 13,
-        easing: cinematicCameraEasing,
-      }
-    );
+
+    const mobilePerf = isCoachMapMobilePerf();
+    const debounceMs = mobilePerf ? 200 : 0;
+
+    const runFit = () => {
+      const duration = mobilePerf
+        ? hasAnimatedInitialBoundsRef.current
+          ? 350
+          : 550
+        : hasAnimatedInitialBoundsRef.current
+        ? STANDARD_BOUNDS_DURATION_MS
+        : INITIAL_CAMERA_DURATION_MS;
+      hasAnimatedInitialBoundsRef.current = true;
+      map.fitBounds(
+        [
+          [swLng, swLat],
+          [neLng, neLat],
+        ],
+        {
+          padding: mobilePerf ? 56 : 80,
+          duration,
+          pitch: mobilePerf ? 50 : BOUNDS_CAMERA_PITCH,
+          bearing: mobilePerf ? -20 : BOUNDS_CAMERA_BEARING,
+          maxZoom: mobilePerf ? 12 : 13,
+          easing: mobilePerf ? t => t : cinematicCameraEasing,
+        }
+      );
+    };
+
+    const handle = window.setTimeout(runFit, debounceMs);
+    return () => window.clearTimeout(handle);
   }, [bounds, isReady]);
 
   // Sync markers with the coaches list.
@@ -623,6 +663,7 @@ const CoachMap3D = props => {
           // (deps include `selectedSport`) and every existing marker swaps
           // its emoji to the active sport — no marker re-creation needed.
           existing.container.textContent = isTeam ? '◆' : dominantEmoji(coach, activeFilterKeys);
+          existing.container.dataset.listingUuid = coach?.representativeListing?.id?.uuid || '';
           existing.container.classList.toggle(css.markerPinTeam, isTeam);
           if (!isTeam) {
             applyTierVars(existing.container);
@@ -634,6 +675,7 @@ const CoachMap3D = props => {
         container.className = isTeam ? `${css.markerPin} ${css.markerPinTeam}` : css.markerPin;
         container.dataset.coachKey = key;
         container.dataset.entityType = isTeam ? 'team' : 'coach';
+        container.dataset.listingUuid = coach?.representativeListing?.id?.uuid || '';
         container.textContent = isTeam ? '◆' : dominantEmoji(coach, activeFilterKeys);
         if (!isTeam) {
           applyTierVars(container);
@@ -678,30 +720,16 @@ const CoachMap3D = props => {
   useEffect(() => {
     const activeUuid = activeListingId?.uuid;
     const selectedUuid = selectedListingId?.uuid;
-    const matchesListing = (uuid, key) =>
-      !!uuid &&
-      (coaches.some(
-        c => c.authorUuid === key && c.representativeListing?.id?.uuid === uuid
-      ) ||
-        teams.some(
-          t => t.authorUuid === key && t.representativeListing?.id?.uuid === uuid
-        ));
     markersRef.current.forEach((entry, key) => {
+      const listingUuid = entry.container.dataset.listingUuid || '';
       const isActive =
-        matchesListing(activeUuid, key) ||
-        matchesListing(selectedUuid, key) ||
+        (!!activeUuid && listingUuid === activeUuid) ||
+        (!!selectedUuid && listingUuid === selectedUuid) ||
         selectedAuthorUuid === key ||
         hoveredAuthorUuid === key;
       entry.container.classList.toggle(css.markerPinActive, !!isActive);
     });
-  }, [
-    activeListingId,
-    selectedListingId,
-    selectedAuthorUuid,
-    hoveredAuthorUuid,
-    coaches,
-    teams,
-  ]);
+  }, [activeListingId, selectedListingId, selectedAuthorUuid, hoveredAuthorUuid]);
 
   // Fly the camera to the requested target whenever it changes (the parent
   // bumps `ts` on each click so re-selecting the same coach also re-flies).
@@ -735,11 +763,15 @@ const CoachMap3D = props => {
       : targetIsUserLocation
       ? USER_LOCATION_FLYTO_BEARING
       : COACH_FLYTO_BEARING;
-    const durationFinal = Number.isFinite(duration)
+    const durationFinalRaw = Number.isFinite(duration)
       ? duration
       : targetIsUserLocation
       ? USER_LOCATION_FLYTO_DURATION_MS
       : COACH_FLYTO_DURATION_MS;
+    const mobilePerf = isCoachMapMobilePerf();
+    const durationFinal = mobilePerf
+      ? Math.min(durationFinalRaw, targetIsUserLocation ? 800 : 600)
+      : durationFinalRaw;
     logCoachMapLocateVerbose('flyTo user location (CoachMap3D executing map.flyTo)', {
       center: [lng, lat],
       zoom: zoomFinal,
@@ -753,7 +785,7 @@ const CoachMap3D = props => {
       pitch: pitchFinal,
       bearing: bearingFinal,
       duration: durationFinal,
-      easing: cinematicCameraEasing,
+      easing: mobilePerf ? t => t : cinematicCameraEasing,
       essential: true,
     });
     const onMoveEnd = () => {

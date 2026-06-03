@@ -1055,3 +1055,35 @@
   outline: 2px solid var(--tier-accent, var(--stickerGold));
   outline-offset: 2px;
 }
+
+/* Mobile/tablet GPU: lighter shadows, no podium blur (desktop unchanged at 1024+). */
+@media (max-width: 1023px) {
+  .podiumMedal::before {
+    filter: none;
+    opacity: 0.12;
+  }
+
+  .medal_gold,
+  .medal_silver,
+  .medal_bronze {
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.32));
+  }
+
+  .stickerCard {
+    box-shadow:
+      0 10px 24px rgba(3, 8, 16, 0.28),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+}
+
+@media (max-width: 1023px) and (hover: none) {
+  .root:hover .collectibleFrame,
+  .root:focus-within .collectibleFrame {
+    transform: none;
+  }
+
+  .cta:hover,
+  .cta:focus-visible {
+    transform: none;
+  }
+}

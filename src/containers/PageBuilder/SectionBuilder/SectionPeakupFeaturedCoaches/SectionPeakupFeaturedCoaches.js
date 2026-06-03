@@ -83,6 +83,7 @@ const selectFeaturedCoachCards = createSelector(
 
 /** Quanto scorrere a ogni click sulle frecce (≈ una card + gap). */
 const SCROLL_STEP_PX = 320;
+const MAX_REVIEWS_FETCH_ATTEMPTS = 2;
 
 /** Memoized carousel cell — avoids rerenders when nav scroll state updates. */
 const FeaturedCoachScrollerCard = memo(({ card, rank }) => (
@@ -129,25 +130,13 @@ const SectionPeakupFeaturedCoaches = props => {
   configRef.current = config;
   const didRequestFullFetchRef = useRef(false);
   const didRequestReviewsFetchRef = useRef(false);
+  const reviewsFetchAttemptsRef = useRef(0);
   const didLogRegressionCheckRef = useRef(false);
   const didLogReviewMergeRef = useRef(false);
 
   useEffect(() => {
     dispatch(featuredCoachesHealStaleReviewsLoaded());
   }, [dispatch]);
-
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('[PeakUp FEATURED SECTION STATE]', {
-      status: fetchStatus,
-      reviewsStatus,
-      coachCount: coachRows.length,
-      cardCount: cards.length,
-      reviewsLoaded,
-      didRequestFullFetch: didRequestFullFetchRef.current,
-      didRequestReviewsFetch: didRequestReviewsFetchRef.current,
-    });
-  }, [fetchStatus, reviewsStatus, coachRows.length, cards.length, reviewsLoaded]);
 
   useEffect(() => {
     if (fetchStatus === 'loading' || reviewsStatus === 'loading') return;
@@ -157,7 +146,9 @@ const SectionPeakupFeaturedCoaches = props => {
 
     if (needsReviews) {
       if (didRequestReviewsFetchRef.current) return;
+      if (reviewsFetchAttemptsRef.current >= MAX_REVIEWS_FETCH_ATTEMPTS) return;
       didRequestReviewsFetchRef.current = true;
+      reviewsFetchAttemptsRef.current += 1;
       dispatch(fetchFeaturedCoaches({ config: configRef.current, reviewsOnly: true, force: true }));
       return;
     }
@@ -173,7 +164,9 @@ const SectionPeakupFeaturedCoaches = props => {
 
   useEffect(() => {
     if (reviewsStatus === 'failed' && !reviewsLoaded) {
-      didRequestReviewsFetchRef.current = false;
+      if (reviewsFetchAttemptsRef.current < MAX_REVIEWS_FETCH_ATTEMPTS) {
+        didRequestReviewsFetchRef.current = false;
+      }
     }
   }, [reviewsStatus, reviewsLoaded]);
 

@@ -447,3 +447,26 @@
     display: inline-flex;
   }
 }
+
+/* Mobile/tablet GPU: gradient-only veils, no filter blur or infinite badge motion. */
+@media (max-width: 1023px) {
+  .showcaseHeader::before,
+  .showcaseTitle::before,
+  .showcaseTitleBadgeWrap::before {
+    filter: none;
+  }
+
+  .showcaseTitleBadge {
+    animation: none;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.32));
+  }
+
+  .headerBlock:hover .showcaseTitleBadge {
+    transform: translateY(-1px);
+  }
+
+  .scrollerItem {
+    content-visibility: auto;
+    contain-intrinsic-size: 420px 520px;
+  }
+}
