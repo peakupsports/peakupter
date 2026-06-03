@@ -4,6 +4,10 @@ import {
   CONDITIONAL_RESOLVER_WILDCARD,
   ConditionalResolver,
 } from '../../transactions/transaction';
+import { isPeakUpMultiDayPurchaseTransaction } from '../../util/peakUpMultiDayPurchase';
+
+const isMultiDayExperiencePurchase = transaction =>
+  isPeakUpMultiDayPurchaseTransaction(transaction);
 
 /**
  * Get state data against product process for TransactionPage's UI.
@@ -43,16 +47,32 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
       return { processName, processState, showDetailCardHeadings: true };
     })
     .cond([states.PURCHASED, CUSTOMER], () => {
-      return {
+      const base = {
         processName,
         processState,
         showDetailCardHeadings: true,
-        showActionButtons: true,
         showExtraInfo: true,
+      };
+
+      if (isMultiDayExperiencePurchase(transaction)) {
+        return base;
+      }
+
+      return {
+        ...base,
+        showActionButtons: true,
         primaryButtonProps: actionButtonProps(transitions.MARK_RECEIVED_FROM_PURCHASED, CUSTOMER),
       };
     })
     .cond([states.PURCHASED, PROVIDER], () => {
+      if (isMultiDayExperiencePurchase(transaction)) {
+        return {
+          processName,
+          processState,
+          showDetailCardHeadings: true,
+        };
+      }
+
       const actionButtonTranslationId = isShippable
         ? `TransactionPage.${copyProcessName}.${PROVIDER}.transition-mark-delivered.actionButtonShipped`
         : `TransactionPage.${copyProcessName}.${PROVIDER}.transition-mark-delivered.actionButton`;
@@ -68,6 +88,15 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
       };
     })
     .cond([states.DELIVERED, CUSTOMER], () => {
+      if (isMultiDayExperiencePurchase(transaction)) {
+        return {
+          processName,
+          processState,
+          showDetailCardHeadings: true,
+          showDispute: true,
+        };
+      }
+
       return {
         processName,
         processState,

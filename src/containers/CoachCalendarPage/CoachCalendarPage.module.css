@@ -835,6 +835,61 @@
   color: rgba(184, 236, 255, 0.92);
 }
 
+.bookingWarningEventBody {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.bookingWarningItem:has(.cancelEventButton) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cancelEventButton {
+  composes: marketplaceButtonStylesSecondary from global;
+  flex-shrink: 0;
+  min-height: 32px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #e8f0fc;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(157, 255, 79, 0.28);
+}
+
+.cancelEventButton:hover,
+.cancelEventButton:focus-visible {
+  border-color: rgba(157, 255, 79, 0.45);
+  background: rgba(157, 255, 79, 0.08);
+}
+
+.bookingWarningEventTitle {
+  display: block;
+  font-weight: 700;
+  color: #e8f8ff;
+}
+
+.bookingWarningEventMeta {
+  display: block;
+  color: rgba(184, 236, 255, 0.82);
+}
+
+.dayHasEvents .dayBookingMarker,
+.dayHasEvents .dayBookingCount {
+  background: #9dff4f;
+  box-shadow: 0 0 8px rgba(157, 255, 79, 0.55);
+}
+
+.dayHasEvents .dayStatusBar {
+  box-shadow: 0 0 6px rgba(157, 255, 79, 0.35);
+}
+
 .panelBlock {
   display: grid;
   gap: 7px;

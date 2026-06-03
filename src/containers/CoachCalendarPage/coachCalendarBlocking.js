@@ -119,13 +119,43 @@ export const buildCoachBlockCancelSessionsPayload = (conflicts, intl) =>
     dateKey: session.dateKey,
     timeLabel: session.timeLabel,
     statusLabel: session.statusLabel,
-    dateLabel: intl.formatDate(new Date(`${session.dateKey}T12:00:00`), {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }),
+    dateRangeLabel: session.dateRangeLabel || null,
+    isEvent: session.type === 'event',
+    dateLabel: session.dateRangeLabel
+      ? session.dateRangeLabel
+      : intl.formatDate(new Date(`${session.dateKey}T12:00:00`), {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }),
   }));
+
+/**
+ * Session metadata for cancelling a multi-day event from the coach calendar.
+ *
+ * @param {import('./coachCalendarBookingEvents').CoachCalendarBookingSession} session
+ * @param {import('../../util/reactIntl').IntlShape} intl
+ * @returns {Object}
+ */
+export const buildCoachEventCancelSessionPayload = (session, intl) => ({
+  transactionId: session.transactionId,
+  customerName: session.customerName,
+  sessionTitle: session.sessionTitle || '',
+  dateKey: session.dateKey,
+  timeLabel: session.timeLabel,
+  statusLabel: session.statusLabel,
+  dateRangeLabel: session.dateRangeLabel || null,
+  isEvent: true,
+  dateLabel: session.dateRangeLabel
+    ? session.dateRangeLabel
+    : intl.formatDate(new Date(`${session.dateKey}T12:00:00`), {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+});
 
 export const formatBlockBookingConflictMessage = (intl, conflicts) => {
   if (!conflicts.length) {

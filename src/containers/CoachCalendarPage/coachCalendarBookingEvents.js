@@ -16,7 +16,9 @@
  * @property {string} statusLabel Localised status (Requested / Accepted)
  * @property {string} processState Raw process state id
  * @property {boolean} isAllDay
- * @property {'booking'} type
+ * @property {'booking'|'event'} type
+ * @property {string|null} [eventTypeLabel] Camp / Clinic / Retreat / Event
+ * @property {string|null} [dateRangeLabel] Full experience date span for agenda
  */
 
 /**

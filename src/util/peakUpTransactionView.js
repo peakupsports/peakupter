@@ -4,6 +4,7 @@ import {
   resolveLatestProcessName,
 } from '../transactions/transaction';
 import { isPeakUpConversationView } from './peakUpConversationView';
+import { isPeakUpMultiDayPurchaseTransaction } from './peakUpMultiDayPurchase';
 
 /**
  * True when the transaction page should use PeakUp checkout-style theming
@@ -35,3 +36,34 @@ export const isPeakUpBookingTransactionView = (transaction, processName) => {
 
   return !isPeakUpConversationView(transaction);
 };
+
+/**
+ * True when the transaction page should use PeakUp checkout-style theming
+ * for Multi-Day Experience / default-purchase-day orders and sales.
+ *
+ * @param {Object} transaction
+ * @param {string} [processName]
+ * @returns {boolean}
+ */
+export const isPeakUpMultiDayPurchaseTransactionView = (transaction, processName) => {
+  if (!transaction) {
+    return false;
+  }
+
+  if (isPeakUpConversationView(transaction)) {
+    return false;
+  }
+
+  return isPeakUpMultiDayPurchaseTransaction(transaction, processName);
+};
+
+/**
+ * PeakUp dark transaction detail shell — standard coach bookings and multi-day events.
+ *
+ * @param {Object} transaction
+ * @param {string} [processName]
+ * @returns {boolean}
+ */
+export const isPeakUpTransactionDetailsDarkTheme = (transaction, processName) =>
+  isPeakUpBookingTransactionView(transaction, processName) ||
+  isPeakUpMultiDayPurchaseTransactionView(transaction, processName);

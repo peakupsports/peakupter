@@ -14,11 +14,16 @@ import {
 import { getBookingProcessStateInfo } from '../../util/peakupBookingRequestPopup';
 import {
   getPeakUpCoachBookingSessionStartMs,
+  getPeakUpMultiDayExperienceProtectedDates,
   isPeakUpCoachBookingTransaction,
   PEAKUP_COACH_DASHBOARD_SALES_PROCESS_NAMES,
   PEAKUP_MULTI_DAY_PURCHASE_UPCOMING_STATES,
 } from '../../util/peakUpCoachBookingTransaction';
-import { isPeakUpMultiDayPurchaseTransaction } from '../../util/peakUpMultiDayPurchase';
+import {
+  getTransactionCopyProcessName,
+  isPeakUpMultiDayPurchaseTransaction,
+} from '../../util/peakUpMultiDayPurchase';
+import { normalizeListingTypeKey } from '../../util/listingTypeCoachSelector';
 
 const BOOKINGS_PAGE_SIZE = 100;
 const BOOKING_PROCESS_NAMES = [BOOKING_PROCESS_NAME, `${BOOKING_PROCESS_NAME}/release-1`];
@@ -30,6 +35,17 @@ export const COACH_CALENDAR_ACTIVE_BOOKING_STATES = new Set([
   'preauthorized',
   'accepted',
   'delivered',
+  'reviewed-by-customer',
+  'reviewed-by-provider',
+]);
+
+/** Purchase states that occupy the coach calendar for multi-day experiences. */
+export const COACH_CALENDAR_ACTIVE_MULTI_DAY_EXPERIENCE_STATES = new Set([
+  'pending-payment',
+  'purchased',
+  'delivered',
+  'received',
+  'completed',
   'reviewed-by-customer',
   'reviewed-by-provider',
 ]);
@@ -102,18 +118,167 @@ const isCoachCalendarBookingTransaction = transaction => {
   return info ? COACH_CALENDAR_ACTIVE_BOOKING_STATES.has(info.processState) : false;
 };
 
+const isCoachCalendarMultiDayExperienceTransaction = transaction => {
+  if (!isPeakUpMultiDayPurchaseTransaction(transaction)) {
+    return false;
+  }
+
+  const dates = getPeakUpMultiDayExperienceProtectedDates(transaction);
+  if (!dates?.bookingStart) {
+    return false;
+  }
+
+  const info = getBookingProcessStateInfo(transaction);
+  return info ? COACH_CALENDAR_ACTIVE_MULTI_DAY_EXPERIENCE_STATES.has(info.processState) : false;
+};
+
+export const isCoachCalendarOccupyingTransaction = transaction =>
+  isCoachCalendarBookingTransaction(transaction) ||
+  isCoachCalendarMultiDayExperienceTransaction(transaction);
+
+const getCoachCalendarEventTypeLabel = (transaction, intl) => {
+  const listingType = normalizeListingTypeKey(
+    transaction?.listing?.attributes?.publicData?.listingType
+  );
+  const labelsByType = {
+    camp: 'Camp',
+    clinic: 'Clinic',
+    retreat: 'Retreat',
+    multi_day_experience: 'Event',
+    multi_day_experiences: 'Event',
+  };
+
+  const defaultMessage = labelsByType[listingType] || 'Event';
+  return intl.formatMessage(
+    {
+      id: `CoachCalendarPage.eventType.${listingType || 'event'}`,
+      defaultMessage,
+    },
+    { listingType }
+  );
+};
+
+const formatExperienceDateRangeLabel = (bookingStart, bookingEnd, intl) =>
+  intl.formatDateTimeRange(new Date(bookingStart), new Date(bookingEnd || bookingStart), {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+const buildCalendarSessionsForDateRange = ({
+  transactionId,
+  bookingStart,
+  bookingEnd,
+  timeZone = 'Etc/UTC',
+  intl,
+  customerName,
+  sessionTitle,
+  statusLabel,
+  processState,
+  isAllDay,
+  type,
+  eventTypeLabel,
+  dateRangeLabel,
+}) => {
+  const sessions = [];
+  const rangeStart = startOfCalendarDay(bookingStart);
+  const rangeEnd = startOfCalendarDay(bookingEnd);
+
+  for (
+    let cursor = new Date(rangeStart);
+    cursor.getTime() <= rangeEnd.getTime();
+    cursor.setDate(cursor.getDate() + 1)
+  ) {
+    const dateKey = coachCalendarToDateKey(cursor);
+    const dayStart = startOfCalendarDay(cursor);
+    const dayEnd = endOfCalendarDay(cursor);
+    const sessionStart = new Date(Math.max(dayStart.getTime(), new Date(bookingStart).getTime()));
+    const sessionEnd = new Date(Math.min(dayEnd.getTime(), new Date(bookingEnd).getTime()));
+    const startTime = isAllDay ? '00:00' : formatTimeInZone(sessionStart, timeZone);
+    const endTime = isAllDay ? '23:59' : formatTimeInZone(sessionEnd, timeZone);
+    const timeLabel = isAllDay
+      ? dateRangeLabel ||
+        intl.formatMessage({
+          id: 'CoachCalendarPage.bookingAllDay',
+          defaultMessage: 'All day',
+        })
+      : `${startTime}–${endTime}`;
+
+    sessions.push({
+      id: `${transactionId}-${dateKey}`,
+      transactionId,
+      dateKey,
+      startTime,
+      endTime,
+      timeLabel,
+      customerName,
+      sessionTitle,
+      statusLabel,
+      processState,
+      isAllDay,
+      type,
+      eventTypeLabel,
+      dateRangeLabel,
+    });
+  }
+
+  return sessions;
+};
+
 export const bookingOverlapsMonth = (bookingStart, bookingEnd, monthBounds) => {
   const startMs = new Date(bookingStart).getTime();
   const endMs = new Date(bookingEnd).getTime();
   return startMs <= monthBounds.end.getTime() && endMs >= monthBounds.start.getTime();
 };
 
-/**
- * @param {Object} transaction Denormalised Sharetribe transaction with booking + customer
- * @param {import('../../util/reactIntl').IntlShape} intl
- * @returns {import('./coachCalendarBookingEvents').CoachCalendarBookingSession[]}
- */
-export const mapTransactionToCoachCalendarSessions = (transaction, intl) => {
+const getCustomerDisplayName = (transaction, intl) =>
+  transaction.customer?.attributes?.profile?.displayName ||
+  transaction.customer?.attributes?.profile?.abbreviatedName ||
+  intl.formatMessage({
+    id: 'CoachCalendarPage.bookingCustomerFallback',
+    defaultMessage: 'Athlete',
+  });
+
+const mapMultiDayExperienceToCoachCalendarSessions = (transaction, intl) => {
+  if (!isCoachCalendarMultiDayExperienceTransaction(transaction)) {
+    return [];
+  }
+
+  const dates = getPeakUpMultiDayExperienceProtectedDates(transaction);
+  const bookingStart = dates.bookingStart;
+  const bookingEnd = dates.bookingEnd || dates.bookingStart;
+  const info = getBookingProcessStateInfo(transaction);
+  const processState = info?.processState || '';
+  const copyProcessName = getTransactionCopyProcessName(transaction);
+  const statusLabel = intl.formatMessage(
+    {
+      id: `InboxPage.${copyProcessName}.${processState}.status`,
+      defaultMessage: 'Booking confirmed',
+    },
+    { transactionRole: 'provider' }
+  );
+  const dateRangeLabel = formatExperienceDateRangeLabel(bookingStart, bookingEnd, intl);
+  const timeZone =
+    transaction?.listing?.attributes?.availabilityPlan?.timezone || 'Etc/UTC';
+
+  return buildCalendarSessionsForDateRange({
+    transactionId: transaction.id?.uuid || 'event',
+    bookingStart,
+    bookingEnd,
+    timeZone,
+    intl,
+    customerName: getCustomerDisplayName(transaction, intl),
+    sessionTitle: transaction.listing?.attributes?.title || '',
+    statusLabel,
+    processState,
+    isAllDay: true,
+    type: 'event',
+    eventTypeLabel: getCoachCalendarEventTypeLabel(transaction, intl),
+    dateRangeLabel,
+  });
+};
+
+const mapStandardBookingToCoachCalendarSessions = (transaction, intl) => {
   if (!isCoachCalendarBookingTransaction(transaction)) {
     return [];
   }
@@ -139,61 +304,38 @@ export const mapTransactionToCoachCalendarSessions = (transaction, intl) => {
     { transactionRole: 'provider' }
   );
 
-  const customerName =
-    transaction.customer?.attributes?.profile?.displayName ||
-    transaction.customer?.attributes?.profile?.abbreviatedName ||
-    intl.formatMessage({
-      id: 'CoachCalendarPage.bookingCustomerFallback',
-      defaultMessage: 'Athlete',
-    });
-
-  const sessionTitle = transaction.listing?.attributes?.title || '';
-
   const txId = transaction.id?.uuid || 'booking';
   const isHourly = [LINE_ITEM_HOUR, LINE_ITEM_FIXED].includes(lineItemUnitType);
-  const sessions = [];
+  const isAllDay = isDayBooking && !isHourly;
 
-  const rangeStart = startOfCalendarDay(bookingStart);
-  const rangeEnd = startOfCalendarDay(bookingEnd);
+  return buildCalendarSessionsForDateRange({
+    transactionId: txId,
+    bookingStart,
+    bookingEnd,
+    timeZone,
+    intl,
+    customerName: getCustomerDisplayName(transaction, intl),
+    sessionTitle: transaction.listing?.attributes?.title || '',
+    statusLabel,
+    processState,
+    isAllDay,
+    type: 'booking',
+    eventTypeLabel: null,
+    dateRangeLabel: null,
+  });
+};
 
-  for (
-    let cursor = new Date(rangeStart);
-    cursor.getTime() <= rangeEnd.getTime();
-    cursor.setDate(cursor.getDate() + 1)
-  ) {
-    const dateKey = coachCalendarToDateKey(cursor);
-    const dayStart = startOfCalendarDay(cursor);
-    const dayEnd = endOfCalendarDay(cursor);
-    const sessionStart = new Date(Math.max(dayStart.getTime(), new Date(bookingStart).getTime()));
-    const sessionEnd = new Date(Math.min(dayEnd.getTime(), new Date(bookingEnd).getTime()));
-
-    const isAllDay = isDayBooking && !isHourly;
-    const startTime = isAllDay ? '00:00' : formatTimeInZone(sessionStart, timeZone);
-    const endTime = isAllDay ? '23:59' : formatTimeInZone(sessionEnd, timeZone);
-    const timeLabel = isAllDay
-      ? intl.formatMessage({
-          id: 'CoachCalendarPage.bookingAllDay',
-          defaultMessage: 'All day',
-        })
-      : `${startTime}–${endTime}`;
-
-    sessions.push({
-      id: `${txId}-${dateKey}`,
-      transactionId: txId,
-      dateKey,
-      startTime,
-      endTime,
-      timeLabel,
-      customerName,
-      sessionTitle,
-      statusLabel,
-      processState,
-      isAllDay,
-      type: 'booking',
-    });
+/**
+ * @param {Object} transaction Denormalised Sharetribe transaction with booking + customer
+ * @param {import('../../util/reactIntl').IntlShape} intl
+ * @returns {import('./coachCalendarBookingEvents').CoachCalendarBookingSession[]}
+ */
+export const mapTransactionToCoachCalendarSessions = (transaction, intl) => {
+  if (isCoachCalendarMultiDayExperienceTransaction(transaction)) {
+    return mapMultiDayExperienceToCoachCalendarSessions(transaction, intl);
   }
 
-  return sessions;
+  return mapStandardBookingToCoachCalendarSessions(transaction, intl);
 };
 
 /**
@@ -284,7 +426,7 @@ const fetchAllSalesForMonth = async (sdk, monthBounds, dispatch) => {
 
   while (page <= totalPages) {
     // eslint-disable-next-line no-await-in-loop
-    const response = await fetchSalesPage(sdk, page);
+    const response = await fetchSalesPage(sdk, page, COACH_DASHBOARD_SALES_PROCESS_NAMES);
     dispatch(addMarketplaceEntities(response));
     const batch = denormalisedResponseEntities(response);
     transactions.push(...batch);
@@ -295,16 +437,22 @@ const fetchAllSalesForMonth = async (sdk, monthBounds, dispatch) => {
   }
 
   return transactions.filter(tx => {
+    if (isCoachCalendarMultiDayExperienceTransaction(tx)) {
+      const dates = getPeakUpMultiDayExperienceProtectedDates(tx);
+      return bookingOverlapsMonth(
+        dates.bookingStart,
+        dates.bookingEnd || dates.bookingStart,
+        monthBounds
+      );
+    }
+
     if (!isCoachCalendarBookingTransaction(tx)) {
       return false;
     }
+
     const unitLineItem = getUnitLineItem(tx);
     const timeZone = tx?.listing?.attributes?.availabilityPlan?.timezone || 'Etc/UTC';
-    const { bookingStart, bookingEnd } = getBookingWindow(
-      tx,
-      unitLineItem?.code,
-      timeZone
-    );
+    const { bookingStart, bookingEnd } = getBookingWindow(tx, unitLineItem?.code, timeZone);
     return bookingOverlapsMonth(bookingStart, bookingEnd, monthBounds);
   });
 };

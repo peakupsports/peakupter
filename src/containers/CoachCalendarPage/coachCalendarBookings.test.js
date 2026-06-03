@@ -2,7 +2,9 @@ import { getProcess } from '../../transactions/transaction';
 import { createTransaction } from '../../util/testData';
 import {
   countUpcomingCoachSessions,
+  isCoachCalendarOccupyingTransaction,
   isUpcomingCoachSessionTransaction,
+  mapTransactionToCoachCalendarSessions,
 } from './coachCalendarBookings';
 
 const providerId = 'provider-uuid';
@@ -88,5 +90,71 @@ describe('coachCalendarBookings upcoming sessions', () => {
 
     expect(isUpcomingCoachSessionTransaction(multiDay, now)).toBe(true);
     expect(countUpcomingCoachSessions([multiDay], now)).toBe(1);
+  });
+});
+
+describe('mapTransactionToCoachCalendarSessions', () => {
+  const intl = {
+    formatMessage: ({ defaultMessage }) => defaultMessage || '',
+    formatDateTimeRange: (start, end) =>
+      `${start.toISOString().slice(0, 10)} – ${end.toISOString().slice(0, 10)}`,
+  };
+
+  it('maps multi-day experience purchases to all-day event sessions across the date range', () => {
+    const purchaseProcess = getProcess('default-purchase');
+    const multiDay = createTransaction({
+      id: 'tx-multi-day',
+      processName: 'default-purchase/release-1',
+      lastTransition: purchaseProcess.transitions.CONFIRM_PAYMENT,
+      customer: {
+        attributes: { profile: { displayName: 'Simon' } },
+      },
+      provider: { id: { uuid: providerId } },
+      listing: {
+        attributes: {
+          title: 'Summer surf camp',
+          publicData: { listingType: 'camp', unitType: 'item' },
+        },
+      },
+    });
+    multiDay.attributes.protectedData = {
+      unitType: 'item',
+      bookingDates: {
+        bookingStart: '2026-07-06T00:00:00.000Z',
+        bookingEnd: '2026-07-10T00:00:00.000Z',
+      },
+    };
+
+    expect(isCoachCalendarOccupyingTransaction(multiDay)).toBe(true);
+
+    const sessions = mapTransactionToCoachCalendarSessions(multiDay, intl);
+
+    expect(sessions).toHaveLength(5);
+    expect(sessions.map(session => session.dateKey)).toEqual([
+      '2026-07-06',
+      '2026-07-07',
+      '2026-07-08',
+      '2026-07-09',
+      '2026-07-10',
+    ]);
+    expect(sessions[0]).toMatchObject({
+      type: 'event',
+      sessionTitle: 'Summer surf camp',
+      customerName: 'Simon',
+      statusLabel: 'Booking confirmed',
+      eventTypeLabel: 'Camp',
+      isAllDay: true,
+    });
+  });
+
+  it('keeps standard default-booking session mapping unchanged', () => {
+    const booking = createAcceptedBooking('tx-lesson', '2026-07-15T10:00:00.000Z');
+    const sessions = mapTransactionToCoachCalendarSessions(booking, intl);
+
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0]).toMatchObject({
+      type: 'booking',
+      dateKey: '2026-07-15',
+    });
   });
 });

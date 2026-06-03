@@ -65,6 +65,10 @@
   flex-grow: 1;
 }
 
+.peakUpBookingPage .loading {
+  color: var(--peakUpTextMuted, rgba(210, 222, 238, 0.88));
+}
+
 .error {
   composes: loading;
   color: var(--colorFail);

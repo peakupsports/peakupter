@@ -1,17 +1,36 @@
 const { sendTransactionalEmail } = require('./peakupTransactionalEmail');
 
 const SUBJECT = 'Your PeakUp session has been cancelled';
+const EVENT_SUBJECT = 'Your PeakUp event registration has been cancelled';
 
 /**
  * @param {Object} params
  * @param {string} [params.customerFirstName]
+ * @param {'session'|'event'} [params.cancelContext]
  * @returns {{ subject: string, text: string, html: string }}
  */
-const buildCoachCancellationNotificationEmailContent = ({ customerFirstName }) => {
+const buildCoachCancellationNotificationEmailContent = ({
+  customerFirstName,
+  cancelContext = 'session',
+}) => {
   const firstName = String(customerFirstName || '').trim();
   const greeting = firstName ? `Hi ${firstName},` : 'Hi,';
+  const isEvent = cancelContext === 'event';
 
-  const text = `${greeting}
+  const text = isEvent
+    ? `${greeting}
+
+Unfortunately, your coach had to cancel the upcoming event.
+
+We understand this can be frustrating and sincerely apologize for the inconvenience.
+
+If your registration was already paid, your refund will be processed according to PeakUp's cancellation policy.
+
+You can discover other experiences anytime on PeakUp Sports.
+
+Thank you for your understanding,
+PeakUp Sports Support`
+    : `${greeting}
 
 Unfortunately, your coach had to cancel the upcoming session due to a scheduling conflict.
 
@@ -33,17 +52,18 @@ PeakUp Sports Support`;
 
   const html = `<div style="font-family:system-ui,-apple-system,sans-serif;color:#0b1220;max-width:560px;">${paragraphs.join('')}</div>`;
 
-  return { subject: SUBJECT, text, html };
+  return { subject: isEvent ? EVENT_SUBJECT : SUBJECT, text, html };
 };
 
 /**
  * @param {Object} params
  * @param {string} params.to
  * @param {string} [params.customerFirstName]
+ * @param {'session'|'event'} [params.cancelContext]
  * @returns {Promise<{ success: boolean, sentAt?: string, error?: string }>}
  */
 const sendCoachCancellationNotificationEmail = async params => {
-  const { to, customerFirstName } = params;
+  const { to, customerFirstName, cancelContext = 'session' } = params;
 
   if (!to) {
     return { success: false, error: 'Missing customer email' };
@@ -51,6 +71,7 @@ const sendCoachCancellationNotificationEmail = async params => {
 
   const { subject, text, html } = buildCoachCancellationNotificationEmailContent({
     customerFirstName,
+    cancelContext,
   });
 
   try {
@@ -59,7 +80,10 @@ const sendCoachCancellationNotificationEmail = async params => {
       subject,
       text,
       html,
-      tags: ['coach-block-cancel', 'customer-cancellation'],
+      tags: [
+        cancelContext === 'event' ? 'coach-event-cancel' : 'coach-block-cancel',
+        'customer-cancellation',
+      ],
     });
     return { success: true, sentAt: new Date().toISOString() };
   } catch (e) {
@@ -69,6 +93,7 @@ const sendCoachCancellationNotificationEmail = async params => {
 
 module.exports = {
   SUBJECT,
+  EVENT_SUBJECT,
   buildCoachCancellationNotificationEmailContent,
   sendCoachCancellationNotificationEmail,
 };

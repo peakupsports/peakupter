@@ -1,8 +1,8 @@
 /**
- * Resolve default-booking process state on the server (no client ESM imports).
+ * Resolve Sharetribe cancel transitions on the server (no client ESM imports).
  */
 
-const LAST_TRANSITION_TO_STATE = {
+const LAST_TRANSITION_TO_BOOKING_STATE = {
   'transition/inquire': 'inquiry',
   'transition/request-payment': 'pending-payment',
   'transition/request-payment-after-inquiry': 'pending-payment',
@@ -18,16 +18,62 @@ const LAST_TRANSITION_TO_STATE = {
   'transition/operator-complete': 'delivered',
 };
 
+const LAST_TRANSITION_TO_PURCHASE_STATE = {
+  'transition/inquire': 'inquiry',
+  'transition/request-payment': 'pending-payment',
+  'transition/request-payment-after-inquiry': 'pending-payment',
+  'transition/confirm-payment': 'purchased',
+  'transition/expire-payment': 'payment-expired',
+  'transition/mark-delivered': 'delivered',
+  'transition/operator-mark-delivered': 'delivered',
+  'transition/mark-received-from-purchased': 'received',
+  'transition/mark-received': 'received',
+  'transition/dispute': 'disputed',
+  'transition/operator-dispute': 'disputed',
+  'transition/cancel': 'canceled',
+  'transition/auto-cancel': 'canceled',
+  'transition/cancel-from-disputed': 'canceled',
+  'transition/auto-cancel-from-disputed': 'canceled',
+};
+
 /**
- * Provider-side transitions for coach calendar block cancellation.
- * Keys must match transaction.attributes.lastTransition on the live booking.
+ * Provider-side transitions for coach calendar block cancellation (default-booking).
  */
-const CANCEL_TRANSITION_BY_LAST_TRANSITION = {
+const BOOKING_CANCEL_TRANSITION_BY_LAST_TRANSITION = {
   'transition/confirm-payment': 'transition/decline',
   'transition/accept': 'transition/provider-cancel',
   'transition/operator-accept': 'transition/provider-cancel',
   'transition/complete': 'transition/provider-cancel-from-delivered',
   'transition/operator-complete': 'transition/provider-cancel-from-delivered',
+};
+
+/**
+ * Operator-side transitions for multi-day event cancellation (default-purchase).
+ * Refunds are handled by Sharetribe process actions (calculate-full-refund).
+ */
+const PURCHASE_CANCEL_TRANSITION_BY_LAST_TRANSITION = {
+  'transition/confirm-payment': {
+    transition: 'transition/cancel',
+    actor: 'operator',
+  },
+  'transition/mark-delivered': {
+    transition: 'transition/operator-dispute',
+    actor: 'operator',
+    chainedTransition: 'transition/cancel-from-disputed',
+  },
+  'transition/operator-mark-delivered': {
+    transition: 'transition/operator-dispute',
+    actor: 'operator',
+    chainedTransition: 'transition/cancel-from-disputed',
+  },
+  'transition/dispute': {
+    transition: 'transition/cancel-from-disputed',
+    actor: 'operator',
+  },
+  'transition/operator-dispute': {
+    transition: 'transition/cancel-from-disputed',
+    actor: 'operator',
+  },
 };
 
 const PROVIDER_CANCEL_TRANSITION_NAMES = new Set([
@@ -38,11 +84,14 @@ const PROVIDER_CANCEL_TRANSITION_NAMES = new Set([
 const LEGACY_BOOKING_CANCEL_MESSAGE =
   'This booking was created before the latest cancellation process update. Please test with a new booking after checkout is fixed.';
 
-const isDefaultBookingProcess = transaction => {
+const getProcessBaseName = transaction => {
   const rawName = transaction?.attributes?.processName || '';
-  const baseName = rawName.includes('/') ? rawName.split('/')[0] : rawName;
-  return baseName === 'default-booking';
+  return rawName.includes('/') ? rawName.split('/')[0] : rawName;
 };
+
+const isDefaultBookingProcess = transaction => getProcessBaseName(transaction) === 'default-booking';
+
+const isDefaultPurchaseProcess = transaction => getProcessBaseName(transaction) === 'default-purchase';
 
 /**
  * @param {Object} transaction API transaction entity
@@ -54,7 +103,7 @@ const getBookingProcessStateInfo = transaction => {
   }
 
   const lastTransition = transaction?.attributes?.lastTransition;
-  const processState = LAST_TRANSITION_TO_STATE[lastTransition] || null;
+  const processState = LAST_TRANSITION_TO_BOOKING_STATE[lastTransition] || null;
   if (!processState) {
     return null;
   }
@@ -63,31 +112,43 @@ const getBookingProcessStateInfo = transaction => {
 };
 
 /**
- * Pick the provider transition to run for coach block cancellation.
- *
  * @param {Object} transaction API transaction entity
- * @returns {{ transition: string|null, actor: string|null, processState: string|null, error: string|null }}
+ * @returns {{ processState: string, processName: string }|null}
  */
-const resolveCoachBlockCancelTransition = transaction => {
-  const lastTransition = transaction?.attributes?.lastTransition || null;
-
-  if (!isDefaultBookingProcess(transaction)) {
-    return {
-      transition: null,
-      actor: null,
-      processState: null,
-      error: 'Unsupported transaction process for coach block cancellation',
-    };
+const getPurchaseProcessStateInfo = transaction => {
+  if (!isDefaultPurchaseProcess(transaction)) {
+    return null;
   }
 
+  const lastTransition = transaction?.attributes?.lastTransition;
+  const processState = LAST_TRANSITION_TO_PURCHASE_STATE[lastTransition] || null;
+  if (!processState) {
+    return null;
+  }
+
+  return { processState, processName: 'default-purchase' };
+};
+
+const getProcessStateInfo = transaction =>
+  getBookingProcessStateInfo(transaction) || getPurchaseProcessStateInfo(transaction);
+
+/**
+ * Pick the provider transition to run for coach block cancellation (default-booking).
+ *
+ * @param {Object} transaction API transaction entity
+ * @returns {{ transition: string|null, actor: string|null, chainedTransition: string|null, processState: string|null, error: string|null }}
+ */
+const resolveBookingCancelTransition = transaction => {
+  const lastTransition = transaction?.attributes?.lastTransition || null;
   const info = getBookingProcessStateInfo(transaction);
   const processState = info?.processState || null;
-  const transition = CANCEL_TRANSITION_BY_LAST_TRANSITION[lastTransition] || null;
+  const transition = BOOKING_CANCEL_TRANSITION_BY_LAST_TRANSITION[lastTransition] || null;
 
   if (!transition) {
     return {
       transition: null,
       actor: null,
+      chainedTransition: null,
       processState,
       error: `No provider cancel transition for lastTransition=${lastTransition || 'unknown'}`,
     };
@@ -96,8 +157,64 @@ const resolveCoachBlockCancelTransition = transaction => {
   return {
     transition,
     actor: 'provider',
+    chainedTransition: null,
     processState,
     error: null,
+  };
+};
+
+/**
+ * Pick operator transition(s) for multi-day event cancellation (default-purchase).
+ *
+ * @param {Object} transaction API transaction entity
+ * @returns {{ transition: string|null, actor: string|null, chainedTransition: string|null, processState: string|null, error: string|null }}
+ */
+const resolvePurchaseCancelTransition = transaction => {
+  const lastTransition = transaction?.attributes?.lastTransition || null;
+  const info = getPurchaseProcessStateInfo(transaction);
+  const processState = info?.processState || null;
+  const mapping = PURCHASE_CANCEL_TRANSITION_BY_LAST_TRANSITION[lastTransition] || null;
+
+  if (!mapping) {
+    return {
+      transition: null,
+      actor: null,
+      chainedTransition: null,
+      processState,
+      error: `No operator cancel transition for lastTransition=${lastTransition || 'unknown'}`,
+    };
+  }
+
+  return {
+    transition: mapping.transition,
+    actor: mapping.actor,
+    chainedTransition: mapping.chainedTransition || null,
+    processState,
+    error: null,
+  };
+};
+
+/**
+ * Pick the transition to run for coach-initiated cancellation.
+ *
+ * @param {Object} transaction API transaction entity
+ * @returns {{ transition: string|null, actor: string|null, chainedTransition: string|null, processState: string|null, error: string|null }}
+ */
+const resolveCoachBlockCancelTransition = transaction => {
+  if (isDefaultBookingProcess(transaction)) {
+    return resolveBookingCancelTransition(transaction);
+  }
+
+  if (isDefaultPurchaseProcess(transaction)) {
+    return resolvePurchaseCancelTransition(transaction);
+  }
+
+  return {
+    transition: null,
+    actor: null,
+    chainedTransition: null,
+    processState: null,
+    error: 'Unsupported transaction process for coach cancellation',
   };
 };
 
@@ -117,7 +234,7 @@ const findIncludedListing = (showResponse, transaction) => {
  */
 const getTransactionProcessDetails = (showResponse, transaction) => {
   const listing = findIncludedListing(showResponse, transaction);
-  const info = getBookingProcessStateInfo(transaction);
+  const info = getProcessStateInfo(transaction);
 
   return {
     processName: transaction?.attributes?.processName || null,
@@ -146,12 +263,32 @@ const isLegacyProcessWithoutProviderCancel = (transition, availableTransitions) 
   return !availableTransitions.includes(transition);
 };
 
+/**
+ * True when the resolved transition is not available on this transaction's process version.
+ *
+ * @param {string|null} transition
+ * @param {string[]} availableTransitions
+ * @returns {boolean}
+ */
+const isTransitionUnavailable = (transition, availableTransitions) => {
+  if (!transition || !availableTransitions.length) {
+    return false;
+  }
+  return !availableTransitions.includes(transition);
+};
+
 module.exports = {
   getBookingProcessStateInfo,
+  getPurchaseProcessStateInfo,
+  getProcessStateInfo,
   resolveCoachBlockCancelTransition,
+  resolveBookingCancelTransition,
+  resolvePurchaseCancelTransition,
   getTransactionProcessDetails,
   isLegacyProcessWithoutProviderCancel,
-  CANCEL_TRANSITION_BY_LAST_TRANSITION,
+  isTransitionUnavailable,
+  BOOKING_CANCEL_TRANSITION_BY_LAST_TRANSITION,
+  PURCHASE_CANCEL_TRANSITION_BY_LAST_TRANSITION,
   PROVIDER_CANCEL_TRANSITION_NAMES,
   LEGACY_BOOKING_CANCEL_MESSAGE,
 };

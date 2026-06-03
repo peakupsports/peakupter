@@ -22,6 +22,14 @@ If a payment was already completed, the refund process has been initiated automa
 
 You can book a new session anytime on PeakUp Sports with one of our certified coaches.`;
 
+const CUSTOMER_EVENT_CANCEL_INBOX_MESSAGE = `Your event registration has been cancelled by the coach.
+
+We sincerely apologize for the inconvenience.
+
+If your payment was already completed, your refund will be processed according to PeakUp's cancellation policy.
+
+You can discover other experiences anytime on PeakUp Sports.`;
+
 let operatorMessageSdkPromise = null;
 
 const memoryStore = token => {
@@ -82,9 +90,14 @@ const getOperatorMessageSdk = () => {
  * @param {Object} params
  * @param {import('sharetribe-flex-sdk').Instance} params.coachSdk
  * @param {string} params.transactionId
+ * @param {'session'|'event'} [params.cancelContext]
  * @returns {Promise<{ success: boolean, senderMode?: string, error?: string }>}
  */
-const sendCustomerCancellationInboxMessage = async ({ coachSdk, transactionId }) => {
+const sendCustomerCancellationInboxMessage = async ({
+  coachSdk,
+  transactionId,
+  cancelContext = 'session',
+}) => {
   // eslint-disable-next-line no-console
   console.log('[PeakUp CUSTOMER CANCEL MESSAGE]', {
     transactionId,
@@ -95,10 +108,14 @@ const sendCustomerCancellationInboxMessage = async ({ coachSdk, transactionId })
     const operatorSdk = await getOperatorMessageSdk();
     const messageSdk = operatorSdk || coachSdk;
     const senderMode = operatorSdk ? 'operator' : 'coach';
+    const content =
+      cancelContext === 'event'
+        ? CUSTOMER_EVENT_CANCEL_INBOX_MESSAGE
+        : CUSTOMER_CANCEL_INBOX_MESSAGE;
 
     await messageSdk.messages.send({
       transactionId,
-      content: CUSTOMER_CANCEL_INBOX_MESSAGE,
+      content,
     });
 
     // eslint-disable-next-line no-console
@@ -126,6 +143,7 @@ const sendCustomerCancellationInboxMessage = async ({ coachSdk, transactionId })
  * @param {string} params.transactionId
  * @param {string} params.customerEmail
  * @param {string} [params.customerFirstName]
+ * @param {'session'|'event'} [params.cancelContext]
  * @returns {Promise<{ messageSent: boolean, emailSent: boolean, emailError?: string|null, senderMode?: string }>}
  */
 const notifyCustomerOfCoachCancellation = async ({
@@ -133,10 +151,12 @@ const notifyCustomerOfCoachCancellation = async ({
   transactionId,
   customerEmail,
   customerFirstName,
+  cancelContext = 'session',
 }) => {
   const messageResult = await sendCustomerCancellationInboxMessage({
     coachSdk,
     transactionId,
+    cancelContext,
   });
 
   // eslint-disable-next-line no-console
@@ -149,6 +169,7 @@ const notifyCustomerOfCoachCancellation = async ({
   const emailResult = await sendCoachCancellationNotificationEmail({
     to: customerEmail,
     customerFirstName,
+    cancelContext,
   });
 
   if (emailResult.success) {
@@ -177,6 +198,7 @@ const notifyCustomerOfCoachCancellation = async ({
 
 module.exports = {
   CUSTOMER_CANCEL_INBOX_MESSAGE,
+  CUSTOMER_EVENT_CANCEL_INBOX_MESSAGE,
   getOperatorMessageSdk,
   sendCustomerCancellationInboxMessage,
   notifyCustomerOfCoachCancellation,

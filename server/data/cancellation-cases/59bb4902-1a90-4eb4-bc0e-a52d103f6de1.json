@@ -1,0 +1,32 @@
+{
+  "id": "59bb4902-1a90-4eb4-bc0e-a52d103f6de1",
+  "status": "open",
+  "urgency": "normal",
+  "reason": "coach_calendar_block",
+  "coachUserId": "69f5035f-bc5c-4a5d-b89a-1e0684dd0b78",
+  "coachName": "Niko",
+  "customerUserId": "69f61e22-a3b8-428e-9403-6d47d07c2fab",
+  "customerName": "Simon",
+  "customerEmail": "",
+  "transactionId": "6a207ba8-c7b8-476d-b0b3-81201ae62429",
+  "sessionTitle": "5 days Kid's Tennis Camp from July 6th to July 10th",
+  "bookingAt": "6 – 10 Jul 2026",
+  "bookingStatus": "Upcoming booking",
+  "blockSummary": {
+    "kind": "cancel-event",
+    "eventTitle": "5 days Kid's Tennis Camp from July 6th to July 10th",
+    "dateRangeLabel": "6 – 10 Jul 2026"
+  },
+  "cancellationOutcome": "cancellation_pending",
+  "refundStatus": "pending_review",
+  "reassignmentStatus": "not_started",
+  "customerNotified": false,
+  "emailSent": false,
+  "messageSent": false,
+  "createdAt": "2026-06-03T22:38:40.176Z",
+  "updatedAt": "2026-06-03T22:38:40.176Z",
+  "resolvedAt": null,
+  "dismissedAt": null,
+  "reopenedAt": null,
+  "adminNotes": ""
+}

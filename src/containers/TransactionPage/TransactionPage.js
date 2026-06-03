@@ -36,7 +36,7 @@ import {
 import { getTransactionForTransactionPage } from '../../util/transactionPageEntities';
 import { userDisplayNameAsString } from '../../util/data';
 import { isPeakUpConversationView } from '../../util/peakUpConversationView';
-import { isPeakUpBookingTransactionView } from '../../util/peakUpTransactionView';
+import { isPeakUpTransactionDetailsDarkTheme } from '../../util/peakUpTransactionView';
 import {
   BOOKING_LOAD_ERROR_FALLBACK,
   getReadableErrorMessage,
@@ -614,7 +614,7 @@ export const TransactionPageComponent = props => {
   );
 
   const isPeakUpBookingTheme = Boolean(
-    isDataAvailable && isPeakUpBookingTransactionView(transaction, processName)
+    isDataAvailable && isPeakUpTransactionDetailsDarkTheme(transaction, processName)
   );
 
   const detailsClassName = classNames(css.tabContent, css.tabContentVisible);

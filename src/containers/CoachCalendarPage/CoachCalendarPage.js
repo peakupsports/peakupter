@@ -67,11 +67,13 @@ import {
 import { getCoachCalendarBookingCountForDate } from './coachCalendarBookingEvents';
 import {
   buildCoachBlockCancelSessionsPayload,
+  buildCoachEventCancelSessionPayload,
   getBlockBookingConflicts,
   getUniqueConflictSessions,
 } from './coachCalendarBlocking';
 import { postCoachBlockCancel } from '../../util/coachCalendarBlockCancel';
 import CoachCalendarBlockConflictModal from './CoachCalendarBlockConflictModal/CoachCalendarBlockConflictModal';
+import CoachCalendarCancelEventModal from './CoachCalendarCancelEventModal/CoachCalendarCancelEventModal';
 import {
   getInclusiveDateRange,
   isDateInRangeBounds,
@@ -433,6 +435,9 @@ const CoachCalendarPageComponent = props => {
   const [pendingBlockAction, setPendingBlockAction] = useState(null);
   const [blockCancelInProgress, setBlockCancelInProgress] = useState(false);
   const [blockCancelError, setBlockCancelError] = useState(null);
+  const [pendingEventCancel, setPendingEventCancel] = useState(null);
+  const [eventCancelInProgress, setEventCancelInProgress] = useState(false);
+  const [eventCancelError, setEventCancelError] = useState(null);
   const pendingBlockActionRef = useRef(null);
 
   useEffect(() => {
@@ -549,14 +554,25 @@ const CoachCalendarPageComponent = props => {
     selectedRangeDates.forEach(date => {
       const dateKey = toDateKey(date);
       (bookingsByDateKey[dateKey] || []).forEach(session => {
-        if (!seen.has(session.id)) {
-          seen.add(session.id);
+        const dedupeKey = session.type === 'event' ? session.transactionId : session.id;
+        if (!seen.has(dedupeKey)) {
+          seen.add(dedupeKey);
           bookings.push(session);
         }
       });
     });
     return bookings.sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [bookingsByDateKey, selectedRangeDates]);
+
+  const selectedDayEvents = useMemo(
+    () => selectedDayBookings.filter(session => session.type === 'event'),
+    [selectedDayBookings]
+  );
+
+  const selectedDaySessions = useMemo(
+    () => selectedDayBookings.filter(session => session.type !== 'event'),
+    [selectedDayBookings]
+  );
 
   const refreshCoachCalendarBookings = () =>
     dispatch(requestFetchCoachCalendarBookings({ year: viewYear, month: viewMonth }))
@@ -705,6 +721,75 @@ const CoachCalendarPageComponent = props => {
       );
     } finally {
       setBlockCancelInProgress(false);
+    }
+  };
+
+  const openCancelEventModal = session => {
+    setEventCancelError(null);
+    setEventCancelInProgress(false);
+    setPendingEventCancel(session);
+  };
+
+  const closeCancelEventModal = () => {
+    if (eventCancelInProgress) {
+      return;
+    }
+    setPendingEventCancel(null);
+    setEventCancelError(null);
+  };
+
+  const handleConfirmCancelEvent = async () => {
+    const session = pendingEventCancel;
+    if (!session?.transactionId) {
+      return;
+    }
+
+    setEventCancelInProgress(true);
+    setEventCancelError(null);
+
+    try {
+      const payload = {
+        transactionIds: [session.transactionId],
+        sessions: [buildCoachEventCancelSessionPayload(session, intl)],
+        cancelSource: 'event',
+        blockSummary: {
+          kind: 'cancel-event',
+          eventTitle: session.sessionTitle || '',
+          dateRangeLabel: session.dateRangeLabel || null,
+        },
+      };
+
+      const result = await postCoachBlockCancel(payload);
+
+      if (result?.cancelledCount === 0 && result?.pendingCount > 0) {
+        const apiMessage = result?.results?.find(r => r.transitionError)?.transitionError;
+        setEventCancelError(
+          apiMessage ||
+            intl.formatMessage({
+              id: 'CoachCalendarPage.cancelEventError',
+              defaultMessage:
+                'Could not cancel this event. Please try again or contact PeakUp support.',
+            })
+        );
+        return;
+      }
+
+      setPendingEventCancel(null);
+      setEventCancelError(null);
+      await refreshCoachCalendarBookings();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[PeakUp EVENT CANCEL SUBMIT FATAL]', e);
+      setEventCancelError(
+        e.message ||
+          intl.formatMessage({
+            id: 'CoachCalendarPage.cancelEventError',
+            defaultMessage:
+              'Could not cancel this event. Please try again or contact PeakUp support.',
+          })
+      );
+    } finally {
+      setEventCancelInProgress(false);
     }
   };
 
@@ -1405,6 +1490,9 @@ const CoachCalendarPageComponent = props => {
                     bookingsByDateKey,
                     dateKey
                   );
+                  const dayHasEvents = (bookingsByDateKey[dateKey] || []).some(
+                    session => session.type === 'event'
+                  );
 
                   return (
                     <button
@@ -1413,6 +1501,7 @@ const CoachCalendarPageComponent = props => {
                       role="gridcell"
                       className={classNames(css.dayCell, statusClass, {
                         [css.dayHasBookings]: dayBookingCount > 0,
+                        [css.dayHasEvents]: dayHasEvents,
                         [css.dayToday]: isToday,
                         [css.daySelected]:
                           isSelectedFocus ||
@@ -1631,16 +1720,54 @@ const CoachCalendarPageComponent = props => {
                 </p>
               </div>
 
-              {selectedDayBookings.length > 0 ? (
+              {selectedDayEvents.length > 0 ? (
+                <div className={css.bookingWarning} role="status">
+                  <p className={css.bookingWarningTitle}>
+                    <FormattedMessage
+                      id="CoachCalendarPage.eventsOnDayTitle"
+                      defaultMessage="Active events on this day"
+                    />
+                  </p>
+                  <ul className={css.bookingWarningList}>
+                    {selectedDayEvents.map(session => (
+                      <li key={session.transactionId} className={css.bookingWarningItem}>
+                        <div className={css.bookingWarningEventBody}>
+                          <span className={css.bookingWarningEventTitle}>{session.sessionTitle}</span>
+                          <span className={css.bookingWarningEventMeta}>
+                            {session.customerName}
+                            {session.dateRangeLabel ? ` · ${session.dateRangeLabel}` : null}
+                          </span>
+                          <span className={css.bookingWarningEventMeta}>
+                            {session.statusLabel}
+                            {session.eventTypeLabel ? ` · ${session.eventTypeLabel}` : null}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className={css.cancelEventButton}
+                          onClick={() => openCancelEventModal(session)}
+                        >
+                          <FormattedMessage
+                            id="CoachCalendarPage.cancelEventButton"
+                            defaultMessage="Cancel event"
+                          />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {selectedDaySessions.length > 0 ? (
                 <div className={css.bookingWarning} role="status">
                   <p className={css.bookingWarningTitle}>
                     <FormattedMessage
                       id="CoachCalendarPage.bookingWarningTitle"
-                      defaultMessage="You already have active sessions on this day."
+                      defaultMessage="You already have active sessions or events on this day."
                     />
                   </p>
                   <ul className={css.bookingWarningList}>
-                    {selectedDayBookings.map(session => (
+                    {selectedDaySessions.map(session => (
                       <li key={session.id} className={css.bookingWarningItem}>
                         <FormattedMessage
                           id="CoachCalendarPage.bookingWarningSession"
@@ -1848,6 +1975,17 @@ const CoachCalendarPageComponent = props => {
         conflicts={pendingBlockAction?.conflicts || []}
         confirmInProgress={blockCancelInProgress}
         errorMessage={blockCancelError}
+        intl={intl}
+        onManageDisableScrolling={onManageDisableScrolling}
+      />
+
+      <CoachCalendarCancelEventModal
+        isOpen={Boolean(pendingEventCancel)}
+        onClose={closeCancelEventModal}
+        onConfirm={handleConfirmCancelEvent}
+        session={pendingEventCancel}
+        confirmInProgress={eventCancelInProgress}
+        errorMessage={eventCancelError}
         intl={intl}
         onManageDisableScrolling={onManageDisableScrolling}
       />
