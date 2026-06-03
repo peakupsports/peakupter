@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
@@ -12,6 +12,7 @@ import useInboxNotificationRefresh from '../../util/useInboxNotificationRefresh'
 
 import { Page } from '../../components';
 import PeakUpBookingsDashboardLayout from '../../components/PeakUpBookingsDashboardLayout/PeakUpBookingsDashboardLayout';
+import { PEAKUP_DASHBOARD_MULTI_DAY_SECTION_ID } from '../../util/peakupBookingDashboard';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
 
@@ -35,6 +36,27 @@ const CoachDashboardBookingsPage = () => {
     enabled: isAuthenticated && !!currentUser?.id,
     debugLabel: 'CoachDashboardBookings',
   });
+
+  useEffect(() => {
+    if (fetchInProgress || typeof window === 'undefined') {
+      return undefined;
+    }
+
+    if (window.location.hash !== `#${PEAKUP_DASHBOARD_MULTI_DAY_SECTION_ID}`) {
+      return undefined;
+    }
+
+    const scrollToSection = () => {
+      document
+        .getElementById(PEAKUP_DASHBOARD_MULTI_DAY_SECTION_ID)
+        ?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    };
+
+    scrollToSection();
+    const retryTimer = window.setTimeout(scrollToSection, 300);
+
+    return () => window.clearTimeout(retryTimer);
+  }, [fetchInProgress]);
 
   const user = ensureCurrentUser(currentUser);
 

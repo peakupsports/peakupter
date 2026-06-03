@@ -247,6 +247,7 @@
 .editListingPeakUp :global([class*='FieldNumber_root']) > label,
 .editListingPeakUp :global([class*='FieldRadioButton_root']) > label,
 .editListingPeakUp :global([class*='FieldDateRangeInput_root']) > label,
+.editListingPeakUp :global([class*='FieldSingleDatePicker']) > label,
 .editListingPeakUp :global([class*='FieldDateInput_root']) > label {
   color: rgba(228, 235, 243, 0.9) !important;
   font-weight: 600;
@@ -681,9 +682,125 @@
   border-radius: 10px !important;
 }
 
-/* Date pickers in exception modal (when portaled, modalContainer rules apply; this covers inline) */
-.editListingPeakUp :global([class*='DatePicker']) {
+/* PeakUp dark theme — SingleDatePicker / DateRangePicker in listing edit & create */
+.editListingPeakUp :global([class*='SingleDatepicker_inputWrapper']) {
+  background: rgba(8, 14, 24, 0.78);
+  border: 1px solid rgba(120, 225, 255, 0.2);
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.editListingPeakUp :global([class*='SingleDatepicker_inputWrapper']):hover,
+.editListingPeakUp :global([class*='SingleDatepicker_inputWrapper']):focus-within {
+  border-color: rgba(23, 217, 255, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(23, 217, 255, 0.2),
+    0 0 18px rgba(23, 217, 255, 0.12);
+}
+
+.editListingPeakUp :global([class*='DateRangePicker_input']) {
+  background: rgba(8, 14, 24, 0.78);
+  border: 1px solid rgba(120, 225, 255, 0.2) !important;
+  border-radius: 10px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.editListingPeakUp :global([class*='DateRangePicker_input']):hover,
+.editListingPeakUp :global([class*='DateRangePicker_input']):focus {
+  border-color: rgba(23, 217, 255, 0.55) !important;
+  box-shadow:
+    0 0 0 1px rgba(23, 217, 255, 0.2),
+    0 0 18px rgba(23, 217, 255, 0.12);
+}
+
+.editListingPeakUp :global([class*='DateRangePicker_open']) :global([class*='DateRangePicker_input']) {
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.editListingPeakUp :global([class*='SingleDatepicker_open']) {
+  border-radius: 10px 10px 0 0;
+  border-bottom-color: rgba(0, 213, 255, 0.12);
+}
+
+.editListingPeakUp :global([class*='SingleDatepicker_input']),
+.editListingPeakUp :global([class*='DateRangePicker_input']) {
+  color: rgba(247, 250, 255, 0.96) !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  font-weight: 600;
+  background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g stroke="%2319dff2" transform="translate(1 1)"><rect stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" x=".292" y="1.459" width="13.417" height="12.25" rx="1"/><path d="M3.208.292V3.21M10.792.292V3.21M.292 4.376h13.416" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="6.5" width="1" height="1" rx=".5"/><rect x="6.5" y="6.5" width="1" height="1" rx=".5"/><rect x="9.5" y="6.5" width="1" height="1" rx=".5"/><rect x="3.5" y="9.5" width="1" height="1" rx=".5"/><rect x="6.5" y="9.5" width="1" height="1" rx=".5"/><rect x="9.5" y="9.5" width="1" height="1" rx=".5"/></g></g></svg>') !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
+}
+
+.editListingPeakUp :global([class*='SingleDatepicker_inputPlaceholder']),
+.editListingPeakUp :global([class*='DateRangePicker_inputPlaceholder']) {
+  background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g stroke="%239db0c6" transform="translate(1 1)"><rect stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" x=".292" y="1.459" width="13.417" height="12.25" rx="1"/><path d="M3.208.292V3.21M10.792.292V3.21M.292 4.376h13.416" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="6.5" width="1" height="1" rx=".5"/><rect x="6.5" y="6.5" width="1" height="1" rx=".5"/><rect x="9.5" y="6.5" width="1" height="1" rx=".5"/><rect x="3.5" y="9.5" width="1" height="1" rx=".5"/><rect x="6.5" y="9.5" width="1" height="1" rx=".5"/><rect x="9.5" y="9.5" width="1" height="1" rx=".5"/></g></g></svg>') !important;
+}
+
+.editListingPeakUp :global([class*='SingleDatepicker_popup']),
+.editListingPeakUp :global([class*='DateRangePicker_popup']),
+.editListingPeakUp :global([class*='DatePicker_root']) {
+  --datepickerFgColor: rgba(244, 247, 251, 0.92);
+  --datepickerBgColor: rgba(6, 17, 31, 0.98);
+  --datepickerBorderColor: rgba(25, 223, 242, 0.22);
+  --datepickerDisabledFgColor: rgba(255, 255, 255, 0.28);
+  --datepickerDisabledTextDeco: none;
+  --datepickerHoveredFgColor: rgba(244, 247, 251, 0.96);
+  --datepickerHoveredBgColor: rgba(25, 223, 242, 0.16);
+  --datepickerHeaderFgColor: rgba(244, 247, 251, 0.92);
+  --datepickerHeaderFgColorDisabled: rgba(255, 255, 255, 0.35);
+  --datepickerHeaderArrowColor: rgba(25, 223, 242, 0.9);
+  --datepickerDateOutline: none;
+  --datepickerButtonOutlineColor: rgba(25, 223, 242, 0.75);
+  --datepickerSelectedFgColor: #03101a;
+  --datepickerSelectedBgColor: #19dff2;
+  --datepickerSelectedHoveredFgColor: #03101a;
+  --datepickerSelectedHoveredBgColor: #9dff4f;
+  --datepickerSelectedBg: linear-gradient(135deg, #19dff2 0%, #9dff4f 100%);
+}
+
+.editListingPeakUp :global([class*='SingleDatepicker_popup']),
+.editListingPeakUp :global([class*='DateRangePicker_popup']) {
+  border-radius: 0 0 14px 14px;
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.45),
+    0 0 26px rgba(25, 223, 242, 0.14);
+  overflow: hidden;
+}
+
+.editListingPeakUp :global([class*='DatePicker_root']) {
+  background-color: rgba(6, 17, 31, 0.98) !important;
+  border: 1px solid rgba(25, 223, 242, 0.22);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
   color: rgba(228, 235, 243, 0.9);
+}
+
+.editListingPeakUp :global([class*='DatePicker_dateSelected']) :global([class*='DatePicker_renderedDay']),
+.editListingPeakUp :global([class*='DatePicker_dateStart']) :global([class*='DatePicker_renderedDay']),
+.editListingPeakUp :global([class*='DatePicker_dateEnd']) :global([class*='DatePicker_renderedDay']) {
+  color: #03101a !important;
+  font-weight: 700;
+}
+
+.editListingPeakUp :global([class*='DatePicker_clearButton']),
+.editListingPeakUp :global([class*='DatePicker_todayButton']) {
+  color: rgba(244, 247, 251, 0.88);
+  border-radius: 8px;
+}
+
+.editListingPeakUp :global([class*='DatePicker_clearButton']):hover,
+.editListingPeakUp :global([class*='DatePicker_todayButton']):hover {
+  background: rgba(25, 223, 242, 0.12);
+  color: #9dff4f;
 }
 
 .editListingPeakUp :global([class*='EditListingPricingForm_coachCurrencyHint']) {

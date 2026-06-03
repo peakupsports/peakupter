@@ -33,6 +33,7 @@ import {
 import { H3, H4, NamedLink, OrderBreakdown, Page, TopbarSimplified } from '../../components';
 
 import { peakupBookingDatesMaybeForCheckout } from '../../util/peakupMultiSlotCheckout';
+import { buildPeakUpMultiDayExperienceTransactionBookingDates } from '../../util/peakUpMultiDayExperienceListing';
 import { logPeakupMeetingPointCheckout } from '../../util/peakupMeetingPoint';
 import {
   getBillingDetails,
@@ -174,6 +175,12 @@ const getOrderParams = (
     logPeakupMeetingPointCheckout(peakupMeetingPointStored);
   }
 
+  const multiDayExperienceBookingDates =
+    buildPeakUpMultiDayExperienceTransactionBookingDates(listingPublicData || {});
+  const multiDayExperienceBookingDatesMaybe = multiDayExperienceBookingDates
+    ? { bookingDates: multiDayExperienceBookingDates }
+    : {};
+
   const customerDefaultMessageMaybe = customerDefaultMessage ? { customerDefaultMessage } : {};
 
   const protectedDataMaybe = {
@@ -187,6 +194,7 @@ const getOrderParams = (
       ...peakupPreBookingProtectedMaybe,
       ...peakupMeetingPointProtectedMaybe,
       ...peakupSlotsProtectedMaybe,
+      ...multiDayExperienceBookingDatesMaybe,
     },
   };
 

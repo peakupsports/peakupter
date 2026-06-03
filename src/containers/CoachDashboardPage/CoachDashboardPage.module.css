@@ -132,9 +132,15 @@
 
 @media (--viewportMedium) {
   .statsRow {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
     margin-bottom: 36px;
+  }
+}
+
+@media (--viewportLarge) {
+  .statsRow {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
@@ -235,17 +241,54 @@
   gap: 14px;
 }
 
+.operationsSection {
+  margin-bottom: 28px;
+}
+
 @media (--viewportMedium) {
-  .grid {
+  .operationsSection {
+    margin-bottom: 36px;
+  }
+}
+
+.operationsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (--viewportMedium) {
+  .operationsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+.toolsSection {
+  margin: 0;
+}
+
+.toolsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (--viewportMedium) {
+  .toolsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
   }
 }
 
 @media (--viewportLarge) {
-  .grid {
+  .toolsGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+.cardBookings {
+  border-color: rgba(0, 210, 255, 0.24);
 }
 
 .card {
@@ -435,4 +478,30 @@
 
 .cardAmbassador .cardCta {
   color: var(--dashLime);
+}
+
+.cardMultiDay {
+  border-color: rgba(52, 211, 153, 0.24);
+}
+
+.cardMultiDay .cardIcon {
+  color: rgba(196, 255, 230, 0.95);
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.22);
+  box-shadow:
+    0 0 18px rgba(52, 211, 153, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.cardMultiDay:hover .cardIcon,
+.cardMultiDay:focus-visible .cardIcon {
+  border-color: rgba(52, 211, 153, 0.36);
+  background: rgba(52, 211, 153, 0.14);
+  box-shadow:
+    0 0 22px rgba(52, 211, 153, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.cardMultiDay .cardCta {
+  color: rgba(196, 255, 230, 0.92);
 }

@@ -1,0 +1,36 @@
+@import '../../styles/customMediaQueries.css';
+
+.card {
+  min-height: 168px;
+}
+
+.cardIcon {
+  overflow: hidden;
+}
+
+.iconGlyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 1.2rem;
+  line-height: 1;
+  filter: grayscale(1) brightness(1.28) contrast(0.88);
+  opacity: 0.9;
+  transition:
+    filter 200ms ease,
+    opacity 200ms ease;
+}
+
+@media (--viewportMedium) {
+  .iconGlyph {
+    font-size: 1.35rem;
+  }
+}
+
+.card:hover .iconGlyph,
+.card:focus-visible .iconGlyph {
+  opacity: 0.98;
+  filter: grayscale(0.35) brightness(1.28) sepia(0.18) hue-rotate(108deg) saturate(0.95);
+}

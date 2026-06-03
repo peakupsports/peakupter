@@ -3,11 +3,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { storableError } from './errors';
 import {
   fetchAllDashboardTransactions,
+  normalizeBookingDashboardSegmentsForDisplay,
   segmentBookingDashboardTransactions,
 } from './peakupBookingDashboard';
 
 const emptySegments = () => ({
   upcoming: [],
+  multiDayExperiences: [],
   past: [],
   pendingReview: [],
   pending: [],
@@ -18,13 +20,18 @@ const emptySegments = () => ({
  * @param {string} sliceName
  * @param {'order'|'sale'} only
  * @param {'customer'|'provider'} role
+ * @param {{ fetchTransactions?: Function }} [options]
  */
-export const createRoleDashboardSlice = (sliceName, only, role) => {
+export const createRoleDashboardSlice = (sliceName, only, role, options = {}) => {
+  const fetchTransactions =
+    options.fetchTransactions ||
+    ((sdk, dispatch) => fetchAllDashboardTransactions(sdk, dispatch, { only }));
+
   const fetchSegmentsThunk = createAsyncThunk(
     `${sliceName}/fetchSegments`,
     async (_, { extra: sdk, dispatch, rejectWithValue }) => {
       try {
-        const transactions = await fetchAllDashboardTransactions(sdk, dispatch, { only });
+        const transactions = await fetchTransactions(sdk, dispatch);
         return segmentBookingDashboardTransactions(transactions, role);
       } catch (e) {
         return rejectWithValue(storableError(e));
@@ -48,7 +55,7 @@ export const createRoleDashboardSlice = (sliceName, only, role) => {
         })
         .addCase(fetchSegmentsThunk.fulfilled, (state, action) => {
           state.fetchInProgress = false;
-          state.segments = action.payload;
+          state.segments = normalizeBookingDashboardSegmentsForDisplay(action.payload);
         })
         .addCase(fetchSegmentsThunk.rejected, (state, action) => {
           state.fetchInProgress = false;

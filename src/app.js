@@ -15,6 +15,7 @@ import { RouteConfigurationProvider } from './context/routeConfigurationContext'
 import { ConfigurationProvider } from './context/configurationContext';
 import { difference } from './util/common';
 import { mergeConfig } from './util/configHelpers';
+import { mergeIntlMessages } from './util/mergeIntlMessages';
 import { IntlProvider } from './util/reactIntl';
 import { includeCSSProperties } from './util/style';
 import { IncludeScripts } from './util/includeScripts';
@@ -97,6 +98,9 @@ const isTestEnv = process.env.NODE_ENV === 'test';
 const localeMessages = isTestEnv
   ? Object.fromEntries(Object.entries(defaultMessages).map(([key]) => [key, key]))
   : addMissingTranslations(defaultMessages, messagesInLocale);
+
+const intlMessages = (hostedTranslations = {}) =>
+  mergeIntlMessages(localeMessages, hostedTranslations);
 
 // For customized apps, this dynamic loading of locale files is not necessary.
 // It helps locale change from configDefault.js file or hosted configs, but customizers should probably
@@ -231,7 +235,7 @@ export const ClientApp = props => {
     return (
       <MaintenanceModeError
         locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
+        messages={intlMessages(hostedTranslations)}
       />
     );
   }
@@ -250,7 +254,7 @@ export const ClientApp = props => {
     <Configurations appConfig={appConfig}>
       <IntlProvider
         locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
+        messages={intlMessages(hostedTranslations)}
         textComponent="span"
       >
         <Provider store={store}>
@@ -287,7 +291,7 @@ export const ServerApp = props => {
     return (
       <MaintenanceModeError
         locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
+        messages={intlMessages(hostedTranslations)}
         helmetContext={helmetContext}
       />
     );
@@ -297,7 +301,7 @@ export const ServerApp = props => {
     <Configurations appConfig={appConfig}>
       <IntlProvider
         locale={appConfig.localization.locale}
-        messages={{ ...localeMessages, ...hostedTranslations }}
+        messages={intlMessages(hostedTranslations)}
         textComponent="span"
       >
         <Provider store={store}>

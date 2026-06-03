@@ -6,10 +6,11 @@ import {
   countUpcomingCoachSessions,
   fetchAllCoachSalesBookings,
 } from '../CoachCalendarPage/coachCalendarBookings';
-import { segmentBookingDashboardTransactions } from '../../util/peakupBookingDashboard';
+import { segmentBookingDashboardTransactions, normalizeBookingDashboardSegmentsForDisplay } from '../../util/peakupBookingDashboard';
 
 const emptySegments = () => ({
   upcoming: [],
+  multiDayExperiences: [],
   past: [],
   pendingReview: [],
   pending: [],
@@ -23,7 +24,9 @@ const fetchDashboardStatsPayloadCreator = async (_, { extra: sdk, dispatch, reje
       fetchAllCoachSalesBookings(sdk, dispatch),
     ]);
 
-    const segments = segmentBookingDashboardTransactions(salesTransactions, 'provider');
+    const segments = normalizeBookingDashboardSegmentsForDisplay(
+      segmentBookingDashboardTransactions(salesTransactions, 'provider')
+    );
     const operationalSales = Object.values(segments).flatMap(section =>
       section.map(entry => entry.transaction)
     );

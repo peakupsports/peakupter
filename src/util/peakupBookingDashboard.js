@@ -12,18 +12,19 @@ import { addMarketplaceEntities } from '../ducks/marketplaceData.duck';
 import { getBookingProcessStateInfo } from './peakupBookingRequestPopup';
 import {
   getPeakUpCoachBookingSessionStartMs,
+  getPeakUpMultiDayExperiencePhase,
   hasPeakUpCoachBookingSessionSchedule,
   isPeakUpCoachBookingTransaction,
-  PEAKUP_MULTI_DAY_PURCHASE_PENDING_STATES,
-  PEAKUP_MULTI_DAY_PURCHASE_UPCOMING_STATES,
 } from './peakUpCoachBookingTransaction';
 import { isPeakUpMultiDayPurchaseTransaction } from './peakUpMultiDayPurchase';
+import { debugInspectMultiDayExperienceDateBatch } from './peakUpMultiDayExperienceDateDebug';
 
 const DASHBOARD_TX_PAGE_SIZE = 100;
 const DASHBOARD_TX_MAX_PAGES = 50;
 
 const EMPTY_SEGMENTS = () => ({
   upcoming: [],
+  multiDayExperiences: [],
   past: [],
   pendingReview: [],
   pending: [],
@@ -58,6 +59,44 @@ const isReviewProcessState = (transaction, state) => {
 };
 
 const getBookingStartMs = transaction => getPeakUpCoachBookingSessionStartMs(transaction);
+
+const isStandardCoachBookingTransaction = transaction =>
+  isPeakUpCoachBookingTransaction(transaction) &&
+  !isPeakUpMultiDayPurchaseTransaction(transaction);
+
+/**
+ * Route multi-day purchases into events/past/review buckets — never standard upcoming.
+ *
+ * @param {Object} params
+ * @returns {boolean} true when the transaction was fully handled
+ */
+const segmentMultiDayPurchaseTransaction = (params, segments) => {
+  const { transaction, role, state, isFinal, now } = params;
+
+  if (isReviewProcessState(transaction, state)) {
+    segments.pendingReview.push({ transaction, role, state });
+    return true;
+  }
+
+  if (isPendingProcessState(state) && !isFinal) {
+    segments.multiDayExperiences.push({ transaction, role, state });
+    return true;
+  }
+
+  if (isFinal) {
+    segments.past.push({ transaction, role, state });
+    return true;
+  }
+
+  const phase = getPeakUpMultiDayExperiencePhase(transaction, now);
+  if (phase === 'past') {
+    segments.past.push({ transaction, role, state });
+    return true;
+  }
+
+  segments.multiDayExperiences.push({ transaction, role, state });
+  return true;
+};
 
 const PROFILE_INQUIRY_LISTING_TYPE_KEYS = new Set(['profile_coach', 'profilecoach']);
 
@@ -220,6 +259,11 @@ export const segmentBookingDashboardTransactions = (transactions, role, now = ne
   const nowMs = now.getTime();
   const operationalTransactions = filterDashboardOperationalTransactions(transactions);
 
+  debugInspectMultiDayExperienceDateBatch(
+    operationalTransactions,
+    'segmentBookingDashboardTransactions'
+  );
+
   operationalTransactions.forEach(transaction => {
     const state = getProcessState(transaction);
     const startMs = getBookingStartMs(transaction);
@@ -232,19 +276,11 @@ export const segmentBookingDashboardTransactions = (transactions, role, now = ne
       return;
     }
 
-    if (
-      isMultiDayPurchase &&
-      startMs != null &&
-      startMs > nowMs &&
-      !isFinal &&
-      PEAKUP_MULTI_DAY_PURCHASE_UPCOMING_STATES.has(state)
-    ) {
-      segments.upcoming.push({ transaction, role, state });
-      return;
-    }
-
-    if (isMultiDayPurchase && !isFinal && PEAKUP_MULTI_DAY_PURCHASE_PENDING_STATES.has(state)) {
-      segments.pending.push({ transaction, role, state });
+    if (isMultiDayPurchase) {
+      segmentMultiDayPurchaseTransaction(
+        { transaction, role, state, isFinal, now },
+        segments
+      );
       return;
     }
 
@@ -258,7 +294,7 @@ export const segmentBookingDashboardTransactions = (transactions, role, now = ne
       return;
     }
 
-    if (startMs != null && startMs > nowMs && !isFinal) {
+    if (startMs != null && startMs > nowMs && !isFinal && isStandardCoachBookingTransaction(transaction)) {
       segments.upcoming.push({ transaction, role, state });
       return;
     }
@@ -284,9 +320,38 @@ export const segmentBookingDashboardTransactions = (transactions, role, now = ne
     segments[key].sort(byRecency);
   });
 
+  segments.upcoming = segments.upcoming.filter(
+    entry => !isPeakUpMultiDayPurchaseTransaction(entry.transaction)
+  );
+  segments.multiDayExperiences = segments.multiDayExperiences.filter(entry =>
+    isPeakUpMultiDayPurchaseTransaction(entry.transaction)
+  );
+
   return segments;
 };
 
 export const CUSTOMER_DASHBOARD_PATH = '/customer-dashboard';
 export const TEAM_DASHBOARD_PATH = '/team-dashboard';
 export const PARTNER_DASHBOARD_PATH = '/partner-dashboard';
+
+/** Hash target for the multi-day experiences section on booking dashboard pages. */
+export const PEAKUP_DASHBOARD_MULTI_DAY_SECTION_ID = 'dashboard-section-multiDayExperiences';
+
+/**
+ * Enforce display-only separation between lesson bookings and multi-day events.
+ *
+ * @param {Object} [segments]
+ * @returns {Object}
+ */
+export const normalizeBookingDashboardSegmentsForDisplay = (segments = {}) => {
+  const upcoming = segments.upcoming || [];
+  const multiDayExperiences = segments.multiDayExperiences || [];
+
+  return {
+    ...segments,
+    upcoming: upcoming.filter(entry => !isPeakUpMultiDayPurchaseTransaction(entry.transaction)),
+    multiDayExperiences: multiDayExperiences.filter(entry =>
+      isPeakUpMultiDayPurchaseTransaction(entry.transaction)
+    ),
+  };
+};

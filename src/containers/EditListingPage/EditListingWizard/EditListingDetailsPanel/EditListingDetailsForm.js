@@ -23,13 +23,61 @@ import {
   Button,
   FieldSelect,
   FieldTextInput,
+  FieldSingleDatePicker,
   Heading,
   CustomExtendedDataField,
 } from '../../../../components';
+import { isPeakUpMultiDayExperienceListing, isPeakUpMultiDayExperienceListingTypeConfig } from '../../../../util/peakUpMultiDayExperienceListing';
 // Import modules from this directory
 import css from './EditListingDetailsForm.module.css';
 
 const TITLE_MAX_LENGTH = 60;
+
+const experienceEndDateValidator = intl => (value, allValues) => {
+  const start = allValues?.experienceStartDate?.date;
+  const end = value?.date;
+  if (!start || !end) {
+    return undefined;
+  }
+  if (end.getTime() < start.getTime()) {
+    return intl.formatMessage({ id: 'EditListingDetailsForm.experienceEndDateBeforeStart' });
+  }
+  return undefined;
+};
+
+const MultiDayExperienceDateFields = ({ formId, intl, show }) => {
+  if (!show) {
+    return null;
+  }
+
+  const requiredMessage = intl.formatMessage({
+    id: 'EditListingDetailsForm.experienceStartDateRequired',
+  });
+
+  return (
+    <div className={css.experienceDates}>
+      <FieldSingleDatePicker
+        id={`${formId}.experienceStartDate`}
+        name="experienceStartDate"
+        className={css.experienceDateField}
+        label={intl.formatMessage({ id: 'EditListingDetailsForm.experienceStartDateLabel' })}
+        validate={required(requiredMessage)}
+      />
+      <FieldSingleDatePicker
+        id={`${formId}.experienceEndDate`}
+        name="experienceEndDate"
+        className={css.experienceDateField}
+        label={intl.formatMessage({ id: 'EditListingDetailsForm.experienceEndDateLabel' })}
+        validate={composeValidators(
+          required(
+            intl.formatMessage({ id: 'EditListingDetailsForm.experienceEndDateRequired' })
+          ),
+          experienceEndDateValidator(intl)
+        )}
+      />
+    </div>
+  );
+};
 
 // Show various error messages
 const ErrorMessage = props => {
@@ -385,6 +433,14 @@ const EditListingDetailsForm = props => (
         : showDescriptionMaybe;
 
       const showListingFields = hasCategories ? allCategoriesChosen : listingType;
+      const isMultiDayExperienceListing =
+        isPeakUpMultiDayExperienceListing({ listingType, transactionProcessAlias, unitType }) ||
+        isPeakUpMultiDayExperienceListingTypeConfig(listingTypeConfig);
+      const showMultiDayExperienceDates =
+        isCompatibleCurrency &&
+        !!listingType &&
+        isMultiDayExperienceListing &&
+        (showTitle || hasPredefinedListingType);
 
       const classes = classNames(css.root, className);
       const submitReady = (updated && pristine) || ready;
@@ -456,6 +512,12 @@ const EditListingDetailsForm = props => (
               )}
             />
           )}
+
+          <MultiDayExperienceDateFields
+            formId={formId}
+            intl={intl}
+            show={showMultiDayExperienceDates}
+          />
 
           {showListingFields && isCompatibleCurrency && (
             <AddListingFields

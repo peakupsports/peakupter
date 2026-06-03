@@ -2,6 +2,7 @@ import {
   filterDashboardOperationalTransactions,
   getDashboardListingSkipReason,
   isDashboardOperationalTransaction,
+  normalizeBookingDashboardSegmentsForDisplay,
   segmentBookingDashboardTransactions,
 } from './peakupBookingDashboard';
 
@@ -171,24 +172,60 @@ describe('peakupBookingDashboard operational filter', () => {
         lastTransitionedAt: '2026-01-01T12:00:00.000Z',
         protectedData: {
           unitType: 'item',
-          bookingDates: { bookingStart, bookingEnd },
+          bookingDates:
+            bookingStart || bookingEnd
+              ? { bookingStart, bookingEnd }
+              : undefined,
         },
       },
       listing: multiDayListing(),
       booking: null,
     });
 
-    it('segments future multi-day purchases as upcoming', () => {
+    it('segments future multi-day purchases into camps only (not upcoming)', () => {
       const segments = segmentBookingDashboardTransactions(
         [multiDayPurchase()],
         'provider',
         now
       );
-      expect(segments.upcoming).toHaveLength(1);
+      expect(segments.multiDayExperiences).toHaveLength(1);
+      expect(segments.upcoming).toHaveLength(0);
       expect(segments.pending).toHaveLength(0);
     });
 
-    it('segments active multi-day purchases without future dates as pending', () => {
+    it('keeps calendar coach bookings in upcoming without duplicating multi-day purchases', () => {
+      const segments = segmentBookingDashboardTransactions(
+        [
+          bookingTransaction({ start: '2030-09-01T10:00:00.000Z' }),
+          multiDayPurchase(),
+        ],
+        'provider',
+        now
+      );
+
+      expect(segments.upcoming).toHaveLength(1);
+      expect(segments.multiDayExperiences).toHaveLength(1);
+      expect(segments.upcoming[0].transaction.id.uuid).toBe('tx-booking-1');
+      expect(segments.multiDayExperiences[0].transaction.id.uuid).toBe('tx-multi-day');
+    });
+
+    it('segments in-progress multi-day purchases into camps only', () => {
+      const segments = segmentBookingDashboardTransactions(
+        [
+          multiDayPurchase({
+            bookingStart: '2026-05-28T00:00:00.000Z',
+            bookingEnd: '2026-06-10T00:00:00.000Z',
+          }),
+        ],
+        'provider',
+        now
+      );
+      expect(segments.multiDayExperiences).toHaveLength(1);
+      expect(segments.upcoming).toHaveLength(0);
+      expect(segments.pending).toHaveLength(0);
+    });
+
+    it('segments past multi-day purchases into past only', () => {
       const segments = segmentBookingDashboardTransactions(
         [
           multiDayPurchase({
@@ -199,8 +236,27 @@ describe('peakupBookingDashboard operational filter', () => {
         'provider',
         now
       );
-      expect(segments.pending).toHaveLength(1);
+      expect(segments.past).toHaveLength(1);
+      expect(segments.multiDayExperiences).toHaveLength(0);
+      expect(segments.pending).toHaveLength(0);
       expect(segments.upcoming).toHaveLength(0);
+    });
+
+    it('keeps dateless multi-day purchases in camps only', () => {
+      const segments = segmentBookingDashboardTransactions(
+        [
+          multiDayPurchase({
+            bookingStart: null,
+            bookingEnd: null,
+          }),
+        ],
+        'provider',
+        now
+      );
+
+      expect(segments.multiDayExperiences).toHaveLength(1);
+      expect(segments.upcoming).toHaveLength(0);
+      expect(segments.past).toHaveLength(0);
     });
 
     it('segments completed multi-day purchases as past', () => {
@@ -216,6 +272,62 @@ describe('peakupBookingDashboard operational filter', () => {
         now
       );
       expect(segments.past).toHaveLength(1);
+      expect(segments.multiDayExperiences).toHaveLength(0);
+    });
+
+    it('routes pending multi-day purchases to upcoming events only', () => {
+      const segments = segmentBookingDashboardTransactions(
+        [
+          multiDayPurchase({
+            lastTransition: 'transition/initiate-payment',
+            bookingStart: '2030-08-01T00:00:00.000Z',
+            bookingEnd: '2030-08-05T00:00:00.000Z',
+          }),
+        ],
+        'provider',
+        now
+      );
+
+      expect(segments.multiDayExperiences).toHaveLength(1);
+      expect(segments.pending).toHaveLength(0);
+      expect(segments.upcoming).toHaveLength(0);
+    });
+
+    it('never places standard bookings in upcoming events', () => {
+      const segments = segmentBookingDashboardTransactions(
+        [bookingTransaction({ start: '2030-09-01T10:00:00.000Z' })],
+        'provider',
+        now
+      );
+
+      expect(segments.upcoming).toHaveLength(1);
+      expect(segments.multiDayExperiences).toHaveLength(0);
+    });
+
+    it('normalizes display segments to keep upcoming buckets exclusive', () => {
+      const booking = bookingTransaction({ start: '2030-09-01T10:00:00.000Z' });
+      const event = multiDayPurchase();
+      const mixed = {
+        upcoming: [
+          { transaction: booking, role: 'provider', state: 'accepted' },
+          { transaction: event, role: 'provider', state: 'purchased' },
+        ],
+        multiDayExperiences: [
+          { transaction: event, role: 'provider', state: 'purchased' },
+          { transaction: booking, role: 'provider', state: 'accepted' },
+        ],
+        past: [],
+        pendingReview: [],
+        pending: [],
+        canceled: [],
+      };
+
+      const normalized = normalizeBookingDashboardSegmentsForDisplay(mixed);
+
+      expect(normalized.upcoming).toHaveLength(1);
+      expect(normalized.upcoming[0].transaction.id.uuid).toBe('tx-booking-1');
+      expect(normalized.multiDayExperiences).toHaveLength(1);
+      expect(normalized.multiDayExperiences[0].transaction.id.uuid).toBe('tx-multi-day');
     });
   });
 });

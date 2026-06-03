@@ -2,22 +2,63 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
+import { getTransactionCopyProcessName, isPeakUpMultiDayPurchaseTransaction } from '../../util/peakUpMultiDayPurchase';
+import {
+  getPeakUpCoachBookingSessionDates,
+  getPeakUpMultiDayExperienceProtectedDates,
+} from '../../util/peakUpCoachBookingTransaction';
 import { getBookingProcessStateInfo } from '../../util/peakupBookingRequestPopup';
+import {
+  normalizeBookingDashboardSegmentsForDisplay,
+  PEAKUP_DASHBOARD_MULTI_DAY_SECTION_ID,
+} from '../../util/peakupBookingDashboard';
 import { NamedLink } from '../NamedLink/NamedLink';
 import UserDisplayName from '../UserDisplayName/UserDisplayName';
 
 import css from './PeakUpBookingDashboardPanel.module.css';
 
 const SECTION_CONFIG = [
-  { key: 'upcoming', titleId: 'PeakUpBookingDashboard.sectionUpcoming', accent: 'cyan' },
-  { key: 'pending', titleId: 'PeakUpBookingDashboard.sectionPending', accent: 'amber' },
-  { key: 'pendingReview', titleId: 'PeakUpBookingDashboard.sectionReview', accent: 'violet' },
-  { key: 'past', titleId: 'PeakUpBookingDashboard.sectionPast', accent: 'neutral' },
-  { key: 'canceled', titleId: 'PeakUpBookingDashboard.sectionCanceled', accent: 'danger' },
+  {
+    key: 'upcoming',
+    titleId: 'PeakUpBookingDashboard.sectionLessonsUpcoming',
+    defaultTitle: 'Upcoming lessons & sessions',
+    accent: 'cyan',
+  },
+  {
+    key: 'multiDayExperiences',
+    titleId: 'PeakUpBookingDashboard.sectionUpcomingEvents',
+    defaultTitle: 'Upcoming events',
+    accent: 'emerald',
+  },
+  {
+    key: 'pending',
+    titleId: 'PeakUpBookingDashboard.sectionPending',
+    defaultTitle: 'Open requests & pending',
+    accent: 'amber',
+  },
+  {
+    key: 'pendingReview',
+    titleId: 'PeakUpBookingDashboard.sectionReview',
+    defaultTitle: 'Waiting for review',
+    accent: 'violet',
+  },
+  {
+    key: 'past',
+    titleId: 'PeakUpBookingDashboard.sectionPast',
+    defaultTitle: 'Past bookings',
+    accent: 'neutral',
+  },
+  {
+    key: 'canceled',
+    titleId: 'PeakUpBookingDashboard.sectionCanceled',
+    defaultTitle: 'Canceled bookings',
+    accent: 'danger',
+  },
 ];
 
 const STATUS_BADGE_CLASS = {
   upcoming: css.statusUpcoming,
+  multiDayExperiences: css.statusMultiDay,
   pending: css.statusPending,
   pendingReview: css.statusReview,
   past: css.statusPast,
@@ -28,16 +69,31 @@ const BookingRow = ({ entry, intl, inboxTab, sectionKey }) => {
   const { transaction, role } = entry;
   const info = getBookingProcessStateInfo(transaction);
   const processName = info?.processName || 'default-booking';
+  const copyProcessName = getTransactionCopyProcessName(transaction, processName);
   const processState = info?.processState || entry.state || '';
   const transactionRole = role === 'customer' ? 'customer' : 'provider';
   const counterparty = role === 'customer' ? transaction.provider : transaction.customer;
   const txId = transaction?.id?.uuid;
   const detailRoute = role === 'customer' ? 'OrderDetailsPage' : 'SaleDetailsPage';
-  const bookingStart = transaction?.booking?.attributes?.start;
+  const isMultiDay = isPeakUpMultiDayPurchaseTransaction(transaction);
+  const protectedDates = isMultiDay ? getPeakUpMultiDayExperienceProtectedDates(transaction) : null;
+  const sessionDates = isMultiDay ? protectedDates : getPeakUpCoachBookingSessionDates(transaction);
+  const displayStart = isMultiDay
+    ? protectedDates?.bookingStart
+    : transaction?.booking?.attributes?.start || sessionDates?.bookingStart;
+  const displayEnd = sessionDates?.bookingEnd;
+
+  const formattedExperienceDates =
+    displayStart &&
+    intl.formatDateTimeRange(new Date(displayStart), new Date(displayEnd || displayStart), {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
 
   const statusLabel = intl.formatMessage(
     {
-      id: `InboxPage.${processName}.${processState}.status`,
+      id: `InboxPage.${copyProcessName}.${processState}.status`,
       defaultMessage: processState || '—',
     },
     { transactionRole }
@@ -49,19 +105,31 @@ const BookingRow = ({ entry, intl, inboxTab, sectionKey }) => {
         <p className={css.itemTitle}>{transaction?.listing?.attributes?.title || '—'}</p>
         <p className={css.itemMeta}>
           <UserDisplayName user={counterparty} intl={intl} />
-          {bookingStart ? (
+          {!isMultiDay && displayStart ? (
             <>
               {' · '}
-              {intl.formatDate(new Date(bookingStart), {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-              })}
+              {displayEnd && displayEnd !== displayStart
+                ? intl.formatDateTimeRange(new Date(displayStart), new Date(displayEnd), {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })
+                : intl.formatDate(new Date(displayStart), {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
             </>
           ) : null}
         </p>
+        {isMultiDay && formattedExperienceDates ? (
+          <p className={css.itemDates}>
+            <span className={css.itemDatesIcon} aria-hidden="true">
+              📅
+            </span>
+            <span>{formattedExperienceDates}</span>
+          </p>
+        ) : null}
       </div>
       <span className={classNames(css.itemStatus, STATUS_BADGE_CLASS[sectionKey])}>
         {statusLabel}
@@ -90,20 +158,38 @@ const BookingRow = ({ entry, intl, inboxTab, sectionKey }) => {
   );
 };
 
-const DashboardSection = ({ sectionKey, titleId, accent, items, intl, inboxTab, limit = 5 }) => {
-  const visible = (items || []).slice(0, limit);
+const filterSectionItems = (sectionKey, items = []) => {
+  if (sectionKey === 'upcoming') {
+    return items.filter(entry => !isPeakUpMultiDayPurchaseTransaction(entry.transaction));
+  }
+
+  if (sectionKey === 'multiDayExperiences') {
+    return items.filter(entry => isPeakUpMultiDayPurchaseTransaction(entry.transaction));
+  }
+
+  return items;
+};
+
+const DashboardSection = ({ sectionKey, titleId, defaultTitle, accent, items, intl, inboxTab, limit = 5 }) => {
+  const filteredItems = filterSectionItems(sectionKey, items);
+  const visible = filteredItems.slice(0, limit);
   const accentClass = css[`sectionAccent${accent.charAt(0).toUpperCase()}${accent.slice(1)}`];
+  const sectionDomId =
+    sectionKey === 'multiDayExperiences'
+      ? PEAKUP_DASHBOARD_MULTI_DAY_SECTION_ID
+      : `dashboard-section-${sectionKey}`;
 
   return (
     <section
+      id={sectionDomId}
       className={classNames(css.section, accentClass)}
-      aria-labelledby={`dashboard-section-${sectionKey}`}
+      aria-labelledby={`${sectionDomId}-title`}
     >
       <header className={css.sectionHeader}>
-        <h2 id={`dashboard-section-${sectionKey}`} className={css.sectionTitle}>
-          <FormattedMessage id={titleId} />
+        <h2 id={`${sectionDomId}-title`} className={css.sectionTitle}>
+          <FormattedMessage id={titleId} defaultMessage={defaultTitle} />
         </h2>
-        <span className={css.sectionCount}>{items?.length || 0}</span>
+        <span className={css.sectionCount}>{filteredItems.length}</span>
       </header>
       {visible.length === 0 ? (
         <p className={css.empty}>
@@ -141,6 +227,7 @@ const DashboardSection = ({ sectionKey, titleId, accent, items, intl, inboxTab, 
 const PeakUpBookingDashboardPanel = props => {
   const intl = useIntl();
   const { inboxTab, segments, loading, error, rootClassName, showIntro = true } = props;
+  const displaySegments = normalizeBookingDashboardSegmentsForDisplay(segments);
 
   if (loading) {
     return (
@@ -171,8 +258,9 @@ const PeakUpBookingDashboardPanel = props => {
             key={section.key}
             sectionKey={section.key}
             titleId={section.titleId}
+            defaultTitle={section.defaultTitle}
             accent={section.accent}
-            items={segments?.[section.key]}
+            items={displaySegments?.[section.key]}
             intl={intl}
             inboxTab={inboxTab}
           />

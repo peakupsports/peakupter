@@ -26,6 +26,11 @@ import { listingTypesForCoachDetailsSelector } from '../../../../util/listingTyp
 
 import EditListingDetailsForm from './EditListingDetailsForm';
 import css from './EditListingDetailsPanel.module.css';
+import {
+  isPeakUpMultiDayExperienceListing,
+  parsePeakUpMultiDayExperienceListingDateFields,
+  serializePeakUpMultiDayExperienceListingDateFields,
+} from '../../../../util/peakUpMultiDayExperienceListing';
 
 /**
  * Get listing configuration. For existing listings, it is stored to publicData.
@@ -271,6 +276,7 @@ const getInitialValues = (
       nestedCategories,
       listingFields
     ),
+    ...parsePeakUpMultiDayExperienceListingDateFields(publicData),
   };
 };
 
@@ -411,6 +417,8 @@ const EditListingDetailsPanel = props => {
               listingType,
               transactionProcessAlias,
               unitType,
+              experienceStartDate,
+              experienceEndDate,
               ...rest
             } = values;
 
@@ -434,6 +442,15 @@ const EditListingDetailsPanel = props => {
               nestedCategories,
               listingFields
             );
+            const experienceDatesMaybe = isPeakUpMultiDayExperienceListing({ listingType })
+              ? serializePeakUpMultiDayExperienceListingDateFields({
+                  experienceStartDate,
+                  experienceEndDate,
+                })
+              : {
+                  experienceStartDate: null,
+                  experienceEndDate: null,
+                };
             // New values for listing attributes
             const updateValues = {
               title: title.trim(),
@@ -444,6 +461,7 @@ const EditListingDetailsPanel = props => {
                 unitType,
                 ...cleanedNestedCategories,
                 ...publicListingFields,
+                ...experienceDatesMaybe,
               },
               privateData: privateListingFields,
               ...setNoAvailabilityForUnbookableListings(transactionProcessAlias),
