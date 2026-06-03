@@ -21,6 +21,21 @@
  * @property {string|null} [dateRangeLabel] Full experience date span for agenda
  */
 
+/** Process states where coach-side Cancel Event is available (default-purchase). */
+export const COACH_CALENDAR_CANCELABLE_EVENT_PROCESS_STATES = new Set([
+  'purchased',
+  'delivered',
+  'disputed',
+]);
+
+/**
+ * @param {CoachCalendarBookingSession} session
+ * @returns {boolean}
+ */
+export const isCoachCalendarEventCancelable = session =>
+  session?.type === 'event' &&
+  COACH_CALENDAR_CANCELABLE_EVENT_PROCESS_STATES.has(session?.processState);
+
 /**
  * @param {Record<string, CoachCalendarBookingSession[]>} bookingsByDateKey
  * @param {string} dateKey

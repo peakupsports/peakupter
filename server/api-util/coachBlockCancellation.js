@@ -1,9 +1,8 @@
-const { getSdk, getUserToken, getTrustedSdk } = require('./sdk');
+const { getSdk, getUserToken } = require('./sdk');
 const {
   resolveCoachBlockCancelTransition,
   getTransactionProcessDetails,
   isLegacyProcessWithoutProviderCancel,
-  isTransitionUnavailable,
   LEGACY_BOOKING_CANCEL_MESSAGE,
 } = require('./coachBlockCancellationProcess');
 const {
@@ -31,53 +30,12 @@ const verifyCoachOwnsTransaction = (transaction, coachUserId) =>
   transaction?.relationships?.provider?.data?.id?.uuid === coachUserId;
 
 const formatBookingAtLabel = (transaction, sessionMeta, bookingEntity) => {
-  if (sessionMeta?.dateRangeLabel) {
-    return sessionMeta.dateRangeLabel;
-  }
   if (sessionMeta?.timeLabel) {
     return `${sessionMeta.dateKey || ''} ${sessionMeta.timeLabel}`.trim();
   }
   const start =
     bookingEntity?.attributes?.displayStart || bookingEntity?.attributes?.start;
   return start ? new Date(start).toISOString() : '';
-};
-
-/**
- * Run operator transition(s) via trusted SDK (default-purchase cancel).
- *
- * @param {Object} req
- * @param {string} transactionId
- * @param {string} transition
- * @param {string|null} chainedTransition
- */
-const runOperatorCancelTransitions = async (req, transactionId, transition, chainedTransition) => {
-  const trustedSdk = await getTrustedSdk(req);
-
-  logCancelStep(`operator transition transactionId=${transactionId}`, {
-    transition,
-    actor: 'operator',
-  });
-  await trustedSdk.transactions.transition({
-    id: transactionId,
-    transition,
-    params: {},
-  });
-  logCancelStep(`operator transition success transactionId=${transactionId}`, { transition });
-
-  if (chainedTransition) {
-    logCancelStep(`operator chained transition transactionId=${transactionId}`, {
-      transition: chainedTransition,
-      actor: 'operator',
-    });
-    await trustedSdk.transactions.transition({
-      id: transactionId,
-      transition: chainedTransition,
-      params: {},
-    });
-    logCancelStep(`operator chained transition success transactionId=${transactionId}`, {
-      transition: chainedTransition,
-    });
-  }
 };
 
 const findBookingEntity = (showResponse, transaction) => {
@@ -117,7 +75,6 @@ const queryAvailableTransitionNames = async (sdk, transactionId) => {
  * @param {string} params.transactionId
  * @param {Object|null} params.sessionMeta
  * @param {Object|null} params.blockSummary
- * @param {string|null} [params.cancelSource]
  * @returns {Promise<Object>}
  */
 const cancelTransactionForCoachBlock = async ({
@@ -129,7 +86,6 @@ const cancelTransactionForCoachBlock = async ({
   transactionId,
   sessionMeta,
   blockSummary,
-  cancelSource = null,
 }) => {
   logCancelStep(`transaction.show transactionId=${transactionId}`);
 
@@ -164,7 +120,6 @@ const cancelTransactionForCoachBlock = async ({
   const {
     transition,
     actor,
-    chainedTransition,
     processState,
     error: resolveError,
   } = resolveCoachBlockCancelTransition(transaction);
@@ -187,7 +142,6 @@ const cancelTransactionForCoachBlock = async ({
     processVersion,
     transactionState,
     actor,
-    chainedTransition,
     availableTransitions,
     legacyProcess,
     nextTransitionAllowed,
@@ -197,15 +151,12 @@ const cancelTransactionForCoachBlock = async ({
     ...processDetails,
     transitionName: transition,
     actor,
-    chainedTransition,
     availableTransitions,
     legacyProcess,
     nextTransitionAllowed,
   });
 
   let transitionError = null;
-  const operatorUnavailable =
-    actor === 'operator' && isTransitionUnavailable(transition, availableTransitions);
 
   if (!transition) {
     transitionError = new Error(resolveError || 'Invalid transition');
@@ -217,37 +168,23 @@ const cancelTransactionForCoachBlock = async ({
       nextTransition: transition,
       availableTransitions,
     });
-  } else if (operatorUnavailable) {
-    transitionError = new Error(
-      `Operator cancel transition unavailable for lastTransition=${lastTransition || 'unknown'}`
-    );
-    logCancelStep(`operator transition unavailable transactionId=${transactionId}`, {
-      transition,
-      availableTransitions,
-    });
   } else {
     try {
-      if (actor === 'operator') {
-        await runOperatorCancelTransitions(req, transactionId, transition, chainedTransition);
-      } else {
-        logCancelStep(`transition transactionId=${transactionId}`, {
-          transition,
-          actor: 'provider',
-        });
-        await sdk.transactions.transition({
-          id: transactionId,
-          transition,
-          params: {},
-        });
-        logCancelStep(`transition success transactionId=${transactionId}`, { transition });
-      }
+      logCancelStep(`transition transactionId=${transactionId}`, {
+        transition,
+        actor: 'provider',
+      });
+      await sdk.transactions.transition({
+        id: transactionId,
+        transition,
+        params: {},
+      });
+      logCancelStep(`transition success transactionId=${transactionId}`, { transition });
     } catch (error) {
       logCancelStepError(`transition transactionId=${transactionId}`, error, {
         transition,
-        chainedTransition,
         lastTransition,
         processState,
-        actor,
       });
       transitionError = error;
     }
@@ -288,7 +225,6 @@ const cancelTransactionForCoachBlock = async ({
       transactionId,
       customerEmail,
       customerFirstName,
-      cancelContext: cancelSource === 'event' || sessionMeta?.isEvent ? 'event' : 'session',
     });
     messageSent = notifyResult.messageSent;
     emailSent = notifyResult.emailSent;
@@ -375,8 +311,7 @@ const processCoachBlockCancellations = async (req, res, body) => {
     currentUser?.attributes?.profile?.firstName ||
     'Coach';
 
-  const { transactionIds = [], sessions = [], blockSummary = null, cancelSource = null } =
-    body || {};
+  const { transactionIds = [], sessions = [], blockSummary = null } = body || {};
   const uniqueIds = [...new Set(transactionIds.filter(Boolean))];
 
   if (!uniqueIds.length) {
@@ -411,7 +346,6 @@ const processCoachBlockCancellations = async (req, res, body) => {
         transactionId,
         sessionMeta: sessionByTxId[transactionId] || null,
         blockSummary,
-        cancelSource,
       });
       results.push(result);
     } catch (error) {

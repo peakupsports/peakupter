@@ -1,5 +1,4 @@
 const {
-  SUBJECT,
   EVENT_SUBJECT,
   buildCoachCancellationNotificationEmailContent,
 } = require('./coachCancellationNotificationEmail');
@@ -10,12 +9,10 @@ describe('buildCoachCancellationNotificationEmailContent', () => {
       customerFirstName: 'Alex',
     });
 
-    expect(subject).toBe(SUBJECT);
     expect(subject).toBe('Your PeakUp session has been cancelled');
     expect(text).toContain('Hi Alex,');
     expect(text).toContain('scheduling conflict');
     expect(text).toContain('refund process has already been initiated automatically');
-    expect(text).toContain('PeakUp Sports Support');
   });
 
   it('uses event copy when cancelContext is event', () => {

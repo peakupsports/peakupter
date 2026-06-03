@@ -2,6 +2,7 @@ import { buildBookingSessionsIndex } from './coachCalendarBookings';
 import {
   getCoachCalendarBookingCountForDate,
   getCoachCalendarBookingSessionsForDate,
+  isCoachCalendarEventCancelable,
 } from './coachCalendarBookingEvents';
 
 describe('coachCalendarBookingEvents', () => {
@@ -27,5 +28,26 @@ describe('coachCalendarBookingEvents', () => {
     expect(getCoachCalendarBookingSessionsForDate(index, '2026-05-28')[0].customerName).toBe(
       'Simon'
     );
+  });
+
+  it('allows cancel only for active multi-day event states', () => {
+    expect(
+      isCoachCalendarEventCancelable({
+        type: 'event',
+        processState: 'purchased',
+      })
+    ).toBe(true);
+    expect(
+      isCoachCalendarEventCancelable({
+        type: 'event',
+        processState: 'canceled',
+      })
+    ).toBe(false);
+    expect(
+      isCoachCalendarEventCancelable({
+        type: 'booking',
+        processState: 'purchased',
+      })
+    ).toBe(false);
   });
 });

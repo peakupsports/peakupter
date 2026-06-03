@@ -10,7 +10,7 @@ import css from './CoachCalendarCancelEventModal.module.css';
 const MODAL_CONTENT_ID = 'CoachCalendarCancelEventModal.content';
 
 /**
- * Confirmation before a coach cancels a multi-day event registration.
+ * Confirmation before a coach cancels a Multi-Day Experience event registration.
  */
 const CoachCalendarCancelEventModal = props => {
   const {

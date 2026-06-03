@@ -37,6 +37,7 @@ const coachManagementAdmin = require('./api/coach-management-admin');
 const customerManagementAdmin = require('./api/customer-management-admin');
 const teamManagementAdmin = require('./api/team-management-admin');
 const peakupCoachBlockCancel = require('./api/peakup-coach-block-cancel');
+const peakupCoachEventCancel = require('./api/peakup-coach-event-cancel');
 const cancellationCasesAdmin = require('./api/cancellation-cases-admin');
 
 const createUserWithIdp = require('./api/auth/createUserWithIdp');
@@ -75,8 +76,14 @@ router.get('/peakup/coach-block-cancel', (req, res) => {
   res.status(405).json({ message: 'Method not allowed. Use POST with JSON body.' });
 });
 router.post('/peakup/coach-block-cancel', express.json({ limit: '256kb' }), peakupCoachBlockCancel);
+router.get('/peakup/coach-event-cancel', (req, res) => {
+  res.status(405).json({ message: 'Method not allowed. Use POST with JSON body.' });
+});
+router.post('/peakup/coach-event-cancel', express.json({ limit: '256kb' }), peakupCoachEventCancel);
 // eslint-disable-next-line no-console
 console.log('[PeakUp API ROUTE REGISTERED] /api/peakup/coach-block-cancel');
+// eslint-disable-next-line no-console
+console.log('[PeakUp API ROUTE REGISTERED] /api/peakup/coach-event-cancel');
 
 // Live Referral Center dashboard for active ambassadors.
 router.get('/referral-center', referralCenter);

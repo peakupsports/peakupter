@@ -1184,7 +1184,6 @@
   "CoachCalendarPage.blockConflictColStatus": "Status",
   "CoachCalendarPage.blockConflictCancelInProgress": "Cancelling sessions…",
   "CoachCalendarPage.blockConflictError": "Could not cancel sessions. Please try again or contact PeakUp support.",
-  "CoachCalendarPage.eventsOnDayTitle": "Active events on this day",
   "CoachCalendarPage.cancelEventButton": "Cancel event",
   "CoachCalendarPage.cancelEventTitle": "Cancel this event?",
   "CoachCalendarPage.cancelEventDescription": "This will cancel the participant's registration, process any applicable refund according to PeakUp's cancellation policy, and notify them by message and email. The transaction history and inbox thread will be kept.",
