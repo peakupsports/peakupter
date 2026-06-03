@@ -20,6 +20,7 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
 
   const {
     processName,
+    copyProcessName = processName,
     processState,
     states,
     transitions,
@@ -53,8 +54,8 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
     })
     .cond([states.PURCHASED, PROVIDER], () => {
       const actionButtonTranslationId = isShippable
-        ? `TransactionPage.${processName}.${PROVIDER}.transition-mark-delivered.actionButtonShipped`
-        : `TransactionPage.${processName}.${PROVIDER}.transition-mark-delivered.actionButton`;
+        ? `TransactionPage.${copyProcessName}.${PROVIDER}.transition-mark-delivered.actionButtonShipped`
+        : `TransactionPage.${copyProcessName}.${PROVIDER}.transition-mark-delivered.actionButton`;
 
       return {
         processName,

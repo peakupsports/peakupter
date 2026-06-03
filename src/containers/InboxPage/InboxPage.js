@@ -65,6 +65,7 @@ import accountShellCss from '../accountSettingsPeakUpShell.module.css';
 import InboxSearchForm from './InboxSearchForm/InboxSearchForm';
 
 import { stateDataShape, getStateData } from './InboxPage.stateData';
+import { getTransactionCopyProcessName } from '../../util/peakUpMultiDayPurchase';
 import css from './InboxPage.module.css';
 
 // Check if the transaction line-items use booking-related units
@@ -176,6 +177,7 @@ export const InboxItem = props => {
   } = props;
   const { customer, provider, listing } = tx;
   const { processName, processState, actionNeeded, isFinal } = stateData;
+  const copyProcessName = getTransactionCopyProcessName(tx, processName);
   const isCustomer = transactionRole === TX_TRANSITION_ACTOR_CUSTOMER;
 
   const lineItems = tx.attributes?.lineItems;
@@ -226,7 +228,7 @@ export const InboxItem = props => {
         <div className={css.itemState}>
           <div className={stateClasses}>
             <FormattedMessage
-              id={`InboxPage.${processName}.${processState}.status`}
+              id={`InboxPage.${copyProcessName}.${processState}.status`}
               values={{ transactionRole }}
             />
           </div>

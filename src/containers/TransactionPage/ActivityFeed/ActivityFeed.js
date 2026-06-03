@@ -135,7 +135,7 @@ const TransitionMessage = props => {
     onOpenReviewModal,
     intl,
   } = props;
-  const { processName, processState, showReviewAsFirstLink, showReviewAsSecondLink } = stateData;
+  const { processName, copyProcessName = processName, processState, showReviewAsFirstLink, showReviewAsSecondLink } = stateData;
   const stateStatus = nextState === processState ? 'current' : 'past';
   const transitionName = transition.transition;
 
@@ -180,7 +180,7 @@ const TransitionMessage = props => {
   // ActivityFeed messages are tied to transaction process and transitions.
   // However, in practice, transitions leading to same state have had the same message.
   const defaultMessage = intl.formatMessage(
-    { id: `TransactionPage.ActivityFeed.${processName}.${nextState}` },
+    { id: `TransactionPage.ActivityFeed.${copyProcessName}.${nextState}` },
     {
       actor,
       otherUsersName,

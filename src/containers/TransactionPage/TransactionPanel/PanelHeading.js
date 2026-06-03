@@ -30,6 +30,7 @@ const PanelHeading = props => {
     className,
     rootClassName,
     processName,
+    copyProcessName,
     processState,
     showExtraInfo,
     showPriceOnMobile,
@@ -49,6 +50,7 @@ const PanelHeading = props => {
 
   const isProvider = transactionRole === 'provider';
   const isCustomer = !isProvider;
+  const displayProcessName = copyProcessName || processName;
 
   const defaultRootClassName = isCustomer ? css.headingOrder : css.headingSale;
   const titleClasses = classNames(rootClassName || defaultRootClassName, className, {
@@ -72,7 +74,7 @@ const PanelHeading = props => {
           })}
         >
           <FormattedMessage
-            id={`TransactionPage.${processName}.${transactionRole}.${processState}.title`}
+            id={`TransactionPage.${displayProcessName}.${transactionRole}.${processState}.title`}
             values={{ customerName, providerName, breakline }}
           />
         </span>
@@ -108,7 +110,7 @@ const PanelHeading = props => {
           })}
         >
           <FormattedMessage
-            id={`TransactionPage.${processName}.${transactionRole}.${processState}.extraInfo`}
+            id={`TransactionPage.${displayProcessName}.${transactionRole}.${processState}.extraInfo`}
             values={{ customerName, providerName, deliveryMethod, breakline }}
           />
         </p>

@@ -12,9 +12,17 @@ import {
   resolveLatestProcessName,
 } from '../../transactions/transaction';
 import { getBookingProcessStateInfo } from '../../util/peakupBookingRequestPopup';
+import {
+  getPeakUpCoachBookingSessionStartMs,
+  isPeakUpCoachBookingTransaction,
+  PEAKUP_COACH_DASHBOARD_SALES_PROCESS_NAMES,
+  PEAKUP_MULTI_DAY_PURCHASE_UPCOMING_STATES,
+} from '../../util/peakUpCoachBookingTransaction';
+import { isPeakUpMultiDayPurchaseTransaction } from '../../util/peakUpMultiDayPurchase';
 
 const BOOKINGS_PAGE_SIZE = 100;
 const BOOKING_PROCESS_NAMES = [BOOKING_PROCESS_NAME, `${BOOKING_PROCESS_NAME}/release-1`];
+const COACH_DASHBOARD_SALES_PROCESS_NAMES = PEAKUP_COACH_DASHBOARD_SALES_PROCESS_NAMES;
 
 /** States that occupy the coach calendar and must not be silently blocked over. */
 export const COACH_CALENDAR_ACTIVE_BOOKING_STATES = new Set([
@@ -217,25 +225,29 @@ export const COACH_UPCOMING_SESSION_STATES = new Set(['accepted']);
  * @returns {boolean}
  */
 export const isUpcomingCoachSessionTransaction = (transaction, now = new Date()) => {
-  const rawName = transaction?.attributes?.processName;
-  const isBooking = rawName?.includes('/')
-    ? isBookingProcessAlias(rawName)
-    : isBookingProcess(resolveLatestProcessName(rawName));
+  if (!isPeakUpCoachBookingTransaction(transaction)) {
+    return false;
+  }
 
-  if (!isBooking || !transaction?.booking?.attributes?.start) {
+  const startMs = getPeakUpCoachBookingSessionStartMs(transaction);
+  if (startMs == null) {
     return false;
   }
 
   const info = getBookingProcessStateInfo(transaction);
-  if (!info || !COACH_UPCOMING_SESSION_STATES.has(info.processState)) {
+  if (!info) {
     return false;
   }
 
-  const unitLineItem = getUnitLineItem(transaction);
-  const timeZone = transaction?.listing?.attributes?.availabilityPlan?.timezone || 'Etc/UTC';
-  const { bookingStart } = getBookingWindow(transaction, unitLineItem?.code, timeZone);
+  if (isPeakUpMultiDayPurchaseTransaction(transaction)) {
+    if (!PEAKUP_MULTI_DAY_PURCHASE_UPCOMING_STATES.has(info.processState)) {
+      return false;
+    }
+  } else if (!COACH_UPCOMING_SESSION_STATES.has(info.processState)) {
+    return false;
+  }
 
-  return new Date(bookingStart).getTime() > now.getTime();
+  return startMs > now.getTime();
 };
 
 /**
@@ -246,10 +258,10 @@ export const isUpcomingCoachSessionTransaction = (transaction, now = new Date())
 export const countUpcomingCoachSessions = (transactions, now = new Date()) =>
   (transactions || []).filter(tx => isUpcomingCoachSessionTransaction(tx, now)).length;
 
-const fetchSalesPage = (sdk, page) =>
+const fetchSalesPage = (sdk, page, processNames = BOOKING_PROCESS_NAMES) =>
   sdk.transactions.query({
     only: 'sale',
-    processNames: BOOKING_PROCESS_NAMES.join(','),
+    processNames: processNames.join(','),
     include: ['listing', 'customer', 'booking'],
     'fields.transaction': [
       'processName',
@@ -257,6 +269,7 @@ const fetchSalesPage = (sdk, page) =>
       'lastTransitionedAt',
       'transitions',
       'lineItems',
+      'protectedData',
     ],
     'fields.listing': ['title', 'availabilityPlan', 'publicData'],
     'fields.user': ['profile.displayName', 'profile.abbreviatedName', 'deleted', 'banned'],
@@ -310,7 +323,7 @@ export const fetchAllCoachSalesBookings = async (sdk, dispatch) => {
 
   while (page <= totalPages) {
     // eslint-disable-next-line no-await-in-loop
-    const response = await fetchSalesPage(sdk, page);
+    const response = await fetchSalesPage(sdk, page, COACH_DASHBOARD_SALES_PROCESS_NAMES);
     if (dispatch) {
       dispatch(addMarketplaceEntities(response));
     }

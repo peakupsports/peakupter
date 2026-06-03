@@ -35,6 +35,25 @@ describe('peakupBookingRequestPopup', () => {
     expect(isProviderNewBookingRequest(tx, customerId)).toBe(false);
   });
 
+  it('detects provider multi-day purchase in purchased state as new request', () => {
+    const purchaseProcess = getProcess('default-purchase');
+    const tx = createTransaction({
+      id: 'tx-multi-day',
+      processName: 'default-purchase/release-1',
+      lastTransition: purchaseProcess.transitions.CONFIRM_PAYMENT,
+      customer: { id: { uuid: customerId } },
+      provider: { id: { uuid: providerId } },
+      listing: {
+        attributes: {
+          title: '5-day camp',
+          publicData: { unitType: 'item', transactionProcessAlias: 'default-purchase/release-1' },
+        },
+      },
+    });
+
+    expect(isProviderNewBookingRequest(tx, providerId)).toBe(true);
+  });
+
   it('picks newest unseen booking request', () => {
     const process = getProcess('default-booking');
     const older = createBookingSale('tx-old', process.transitions.CONFIRM_PAYMENT);

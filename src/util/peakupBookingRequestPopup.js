@@ -4,6 +4,7 @@ import {
   isBookingProcessAlias,
   resolveLatestProcessName,
 } from '../transactions/transaction';
+import { isPeakUpMultiDayPurchaseTransaction } from './peakUpMultiDayPurchase';
 
 const POPUP_SEEN_STORAGE_PREFIX = 'peakupBookingRequestPopupSeen';
 
@@ -120,7 +121,12 @@ export const isProviderNewBookingRequest = (transaction, currentUserId) => {
     : isBookingProcess(resolveLatestProcessName(rawName));
 
   if (!isBooking) {
-    return false;
+    if (!isPeakUpMultiDayPurchaseTransaction(transaction)) {
+      return false;
+    }
+
+    const info = getBookingProcessStateInfo(transaction);
+    return info?.processState === info?.states?.PURCHASED;
   }
 
   const info = getBookingProcessStateInfo(transaction);

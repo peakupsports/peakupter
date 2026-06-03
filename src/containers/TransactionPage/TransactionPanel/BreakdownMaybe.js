@@ -8,8 +8,9 @@ import css from './TransactionPanel.module.css';
 
 // Functional component as a helper to build OrderBreakdown
 const BreakdownMaybe = props => {
-  const { className, rootClassName, orderBreakdown, processName, priceVariantName, isPeakUpBookingTheme } =
+  const { className, rootClassName, orderBreakdown, processName, copyProcessName, priceVariantName, isPeakUpBookingTheme } =
     props;
+  const displayProcessName = copyProcessName || processName;
   const classes = classNames(rootClassName || css.breakdownMaybe, className);
 
   return orderBreakdown ? (
@@ -30,7 +31,7 @@ const BreakdownMaybe = props => {
           [css.peakUpBookingBreakdownTitle]: isPeakUpBookingTheme,
         })}
       >
-        <FormattedMessage id={`TransactionPanel.${processName}.orderBreakdownTitle`} />
+        <FormattedMessage id={`TransactionPanel.${displayProcessName}.orderBreakdownTitle`} />
       </H6>
       <hr
         className={classNames(css.totalDivider, {

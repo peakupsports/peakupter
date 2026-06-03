@@ -394,6 +394,7 @@ export class TransactionPanelComponent extends Component {
 
             <PanelHeading
               processName={stateData.processName}
+              copyProcessName={stateData.copyProcessName}
               processState={stateData.processState}
               showExtraInfo={allowShowingExtraInfo(stateData.showExtraInfo, transactionPartyInfo)}
               showPriceOnMobile={showPrice}
@@ -429,6 +430,7 @@ export class TransactionPanelComponent extends Component {
                     <BreakdownMaybe
                       orderBreakdown={orderBreakdown}
                       processName={stateData.processName}
+                      copyProcessName={stateData.copyProcessName}
                       priceVariantName={priceVariantName}
                       isPeakUpBookingTheme={isPeakUpBookingTheme}
                     />
@@ -593,6 +595,7 @@ export class TransactionPanelComponent extends Component {
                     className={css.breakdownContainer}
                     orderBreakdown={orderBreakdown}
                     processName={stateData.processName}
+                    copyProcessName={stateData.copyProcessName}
                     priceVariantName={priceVariantName}
                     isPeakUpBookingTheme={isPeakUpBookingTheme}
                   />

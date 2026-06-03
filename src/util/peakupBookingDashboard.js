@@ -4,14 +4,20 @@ import { normalizeListingTypeKey } from './listingTypeCoachSelector';
 import {
   getSupportedProcessesInfo,
   INQUIRY,
-  isBookingProcess,
-  isBookingProcessAlias,
   isInquiryProcess,
   isInquiryProcessAlias,
   resolveLatestProcessName,
 } from '../transactions/transaction';
 import { addMarketplaceEntities } from '../ducks/marketplaceData.duck';
 import { getBookingProcessStateInfo } from './peakupBookingRequestPopup';
+import {
+  getPeakUpCoachBookingSessionStartMs,
+  hasPeakUpCoachBookingSessionSchedule,
+  isPeakUpCoachBookingTransaction,
+  PEAKUP_MULTI_DAY_PURCHASE_PENDING_STATES,
+  PEAKUP_MULTI_DAY_PURCHASE_UPCOMING_STATES,
+} from './peakUpCoachBookingTransaction';
+import { isPeakUpMultiDayPurchaseTransaction } from './peakUpMultiDayPurchase';
 
 const DASHBOARD_TX_PAGE_SIZE = 100;
 const DASHBOARD_TX_MAX_PAGES = 50;
@@ -51,10 +57,7 @@ const isReviewProcessState = (transaction, state) => {
   return state === 'delivered' || /review/i.test(state);
 };
 
-const getBookingStartMs = transaction => {
-  const start = transaction?.booking?.attributes?.start;
-  return start ? new Date(start).getTime() : null;
-};
+const getBookingStartMs = transaction => getPeakUpCoachBookingSessionStartMs(transaction);
 
 const PROFILE_INQUIRY_LISTING_TYPE_KEYS = new Set(['profile_coach', 'profilecoach']);
 
@@ -76,12 +79,7 @@ const isTruthyPublicDataFlag = value => {
   return false;
 };
 
-const isTransactionBookingProcess = transaction => {
-  const rawProcessName = transaction?.attributes?.processName || '';
-  return rawProcessName.includes('/')
-    ? isBookingProcessAlias(rawProcessName)
-    : isBookingProcess(resolveLatestProcessName(rawProcessName));
-};
+const isTransactionBookingProcess = transaction => isPeakUpCoachBookingTransaction(transaction);
 
 const isTransactionInquiryProcess = transaction =>
   isInquiryProcess(resolveLatestProcessName(transaction?.attributes?.processName || ''));
@@ -133,28 +131,19 @@ export const getDashboardListingSkipReason = listing => {
  */
 export const isDashboardOperationalTransaction = transaction => {
   const listing = transaction?.listing || null;
-  const transactionId = transaction?.id?.uuid || null;
-  const listingId = listing?.id?.uuid || null;
-  const listingTitle = listing?.attributes?.title || null;
-  const isGhostListing = listingHasPeakupBookingFlag(listing);
   const isTechnicalListing = Boolean(getDashboardListingSkipReason(listing));
-  const hasBookingDates = Boolean(transaction?.booking?.attributes?.start);
-  const includedInDashboard =
+  const isCoachBooking = isTransactionBookingProcess(transaction);
+  const isMultiDayPurchase = isPeakUpMultiDayPurchaseTransaction(transaction);
+  const hasBookingDates =
+    hasPeakUpCoachBookingSessionSchedule(transaction) ||
+    Boolean(transaction?.booking?.attributes?.start);
+
+  return (
     !isTechnicalListing &&
     !isTransactionInquiryProcess(transaction) &&
-    isTransactionBookingProcess(transaction) &&
-    hasBookingDates;
-
-  console.log('[PeakUp DASHBOARD FILTER]', {
-    transactionId,
-    listingId,
-    listingTitle,
-    isGhostListing,
-    isTechnicalListing,
-    includedInDashboard,
-  });
-
-  return includedInDashboard;
+    isCoachBooking &&
+    (hasBookingDates || isMultiDayPurchase)
+  );
 };
 
 /**
@@ -198,6 +187,7 @@ export const fetchAllDashboardTransactions = async (sdk, dispatch, { only }) => 
         'lastTransitionedAt',
         'transitions',
         'lineItems',
+        'protectedData',
       ],
       'fields.listing': ['title', 'availabilityPlan', 'publicData'],
       'fields.user': ['profile.displayName', 'profile.abbreviatedName', 'deleted', 'banned'],
@@ -235,9 +225,26 @@ export const segmentBookingDashboardTransactions = (transactions, role, now = ne
     const startMs = getBookingStartMs(transaction);
     const info = getBookingProcessStateInfo(transaction);
     const isFinal = info?.process?.isCompleted?.(transaction) || info?.process?.isCanceled?.(transaction);
+    const isMultiDayPurchase = isPeakUpMultiDayPurchaseTransaction(transaction);
 
     if (isCanceledProcessState(state)) {
       segments.canceled.push({ transaction, role, state });
+      return;
+    }
+
+    if (
+      isMultiDayPurchase &&
+      startMs != null &&
+      startMs > nowMs &&
+      !isFinal &&
+      PEAKUP_MULTI_DAY_PURCHASE_UPCOMING_STATES.has(state)
+    ) {
+      segments.upcoming.push({ transaction, role, state });
+      return;
+    }
+
+    if (isMultiDayPurchase && !isFinal && PEAKUP_MULTI_DAY_PURCHASE_PENDING_STATES.has(state)) {
+      segments.pending.push({ transaction, role, state });
       return;
     }
 

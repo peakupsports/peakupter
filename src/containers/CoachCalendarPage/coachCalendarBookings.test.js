@@ -62,4 +62,31 @@ describe('coachCalendarBookings upcoming sessions', () => {
     expect(isUpcomingCoachSessionTransaction(pending, now)).toBe(false);
     expect(countUpcomingCoachSessions([pending], now)).toBe(0);
   });
+
+  it('counts future multi-day purchases in purchased state as upcoming sessions', () => {
+    const purchaseProcess = getProcess('default-purchase');
+    const multiDay = createTransaction({
+      id: 'tx-multi-day',
+      processName: 'default-purchase/release-1',
+      lastTransition: purchaseProcess.transitions.CONFIRM_PAYMENT,
+      customer: { id: { uuid: customerId } },
+      provider: { id: { uuid: providerId } },
+      listing: {
+        attributes: {
+          title: '5-day camp',
+          publicData: { unitType: 'item', transactionProcessAlias: 'default-purchase/release-1' },
+        },
+      },
+    });
+    multiDay.attributes.protectedData = {
+      unitType: 'item',
+      bookingDates: {
+        bookingStart: '2026-07-15T00:00:00.000Z',
+        bookingEnd: '2026-07-20T00:00:00.000Z',
+      },
+    };
+
+    expect(isUpcomingCoachSessionTransaction(multiDay, now)).toBe(true);
+    expect(countUpcomingCoachSessions([multiDay], now)).toBe(1);
+  });
 });

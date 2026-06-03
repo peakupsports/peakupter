@@ -10,6 +10,7 @@ import { getStateDataForBookingProcess } from './TransactionPage.stateDataBookin
 import { getStateDataForInquiryProcess } from './TransactionPage.stateDataInquiry.js';
 import { getStateDataForPurchaseProcess } from './TransactionPage.stateDataPurchase.js';
 import { getStateDataForNegotiationProcess } from './TransactionPage.stateDataNegotiation.js';
+import { getTransactionCopyProcessName } from '../../util/peakUpMultiDayPurchase';
 
 const errorShape = shape({
   type: oneOf(['error']).isRequired,
@@ -104,13 +105,14 @@ export const getStateData = (params, process) => {
   } = params;
   const isCustomer = transactionRole === 'customer';
   const processName = resolveLatestProcessName(transaction?.attributes?.processName);
+  const copyProcessName = getTransactionCopyProcessName(transaction, processName);
 
   const getActionButtonProps = (transitionName, forRole, extra = {}) => {
     const { orderData, ...rest } = extra;
     const params = orderData ? { orderData } : {};
     return getActionButtonPropsMaybe(
       {
-        processName,
+        processName: copyProcessName,
         transitionName,
         transactionRole,
         intl,
@@ -140,6 +142,7 @@ export const getStateData = (params, process) => {
     const processState = getState(transaction);
     return {
       processName,
+      copyProcessName,
       processState,
       states,
       transitions,
@@ -149,15 +152,16 @@ export const getStateData = (params, process) => {
     };
   };
 
+  let stateData = {};
   if (processName === PURCHASE_PROCESS_NAME) {
-    return getStateDataForPurchaseProcess(params, processInfo());
+    stateData = getStateDataForPurchaseProcess(params, processInfo());
   } else if (processName === BOOKING_PROCESS_NAME) {
-    return getStateDataForBookingProcess(params, processInfo());
+    stateData = getStateDataForBookingProcess(params, processInfo());
   } else if (processName === INQUIRY_PROCESS_NAME) {
-    return getStateDataForInquiryProcess(params, processInfo());
+    stateData = getStateDataForInquiryProcess(params, processInfo());
   } else if (processName === NEGOTIATION_PROCESS_NAME) {
-    return getStateDataForNegotiationProcess(params, processInfo());
-  } else {
-    return {};
+    stateData = getStateDataForNegotiationProcess(params, processInfo());
   }
+
+  return { ...stateData, copyProcessName };
 };
