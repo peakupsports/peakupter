@@ -697,7 +697,9 @@
   .root > [class*='sectionContent'] {
     min-width: 0;
     max-width: 100%;
-    overflow-x: clip;
+    /* Do not clip hero search autocomplete — `overflow-x: clip` forces overflow-y
+     * to `auto` and hides the location predictions panel on mobile WebKit. */
+    overflow: visible;
     align-self: stretch;
   }
 
@@ -744,7 +746,49 @@
     min-width: 0;
     margin-top: 18px;
     box-sizing: border-box;
+    overflow: visible;
+  }
+
+  /* Location/category/date dropdowns must escape the stacked mobile grid. */
+  .searchRow [class*='SearchCTA_searchBarContainer'],
+  .searchRow [class*='SearchCTA_gridContainer'],
+  .searchRow [class*='SearchCTA_filterField'],
+  .searchRow [class*='FilterLocation_root'],
+  .searchRow [class*='FilterCategories_root'],
+  .searchRow [class*='FilterCategories_dropdownContainer'],
+  .searchRow [class*='LocationAutocompleteInput_root'],
+  .searchRow [class*='FilterLocation_customField'] {
+    position: relative;
+    overflow: visible;
+  }
+
+  .searchRow [class*='FilterLocation_predictions'],
+  .searchRow [class*='LocationAutocompleteInput_predictionsRoot'] {
+    z-index: calc(var(--zIndexPopup) + 24);
+    max-height: none;
+    overflow: visible;
+  }
+
+  .searchRow
+    [class*='FilterLocation_predictions']
+    [class*='LocationAutocompleteInput_predictions'] {
+    max-height: min(320px, 52vh);
     overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .searchRow [class*='LocationAutocompleteInput_predictions'] li {
+    position: relative;
+    z-index: 1;
+  }
+
+  .searchRow [class*='FilterLocation_selectHint'] {
+    margin-top: 4px;
+    padding: 0 6px 2px;
+    color: rgba(255, 210, 120, 0.92);
+    font-size: 12px;
+    line-height: 1.35;
   }
 
   .searchRow [class*='SearchCTA_searchBarContainer'] {

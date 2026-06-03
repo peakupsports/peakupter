@@ -1,0 +1,26 @@
+.root {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px dashed rgba(255, 210, 120, 0.55);
+  color: rgba(245, 247, 250, 0.92);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.45;
+  position: relative;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.title {
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: rgba(255, 210, 120, 0.95);
+}
+
+.error {
+  margin-top: 4px;
+  color: rgba(255, 140, 140, 0.95);
+}

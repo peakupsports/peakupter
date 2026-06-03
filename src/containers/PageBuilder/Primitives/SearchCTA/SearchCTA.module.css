@@ -102,6 +102,23 @@
   grid-template-columns: 1fr;
 }
 
+@media (max-width: 1023px) {
+  .searchBarContainer,
+  .gridContainer,
+  .filterField {
+    overflow: visible;
+  }
+
+  .mobileSubmitButton {
+    position: relative;
+    z-index: 12;
+    width: 100%;
+    pointer-events: auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 .submitButton {
   min-height: 40px;
   min-width: 86px;

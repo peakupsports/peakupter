@@ -2,8 +2,10 @@ import {
   buildPeakUpCoachBookingListingSearch,
   hasPeakUpCoachBookingSearchFlag,
   hasPeakUpOpenPreBookingSearchFlag,
+  isPeakupCustomerPriceVariationBookingListing,
   pickPeakupBookingListing,
   pickPeakupCustomerHourlyBookingListing,
+  pickPeakupCustomerPriceVariationBookingListing,
   pickPeakupCoachBookingDestinationListing,
   shouldRedirectGhostBookingShellToProfile,
   shouldRedirectGhostListingToCoachProfile,
@@ -46,6 +48,21 @@ describe('coachBookingNavigation', () => {
       state: 'published',
     },
   };
+  const priceVariationListing = {
+    id: { uuid: 'pv-day-1' },
+    author: { id: { uuid: 'coach-1' } },
+    attributes: {
+      publicData: {
+        listingType: 'Price-variations',
+        unitType: 'day',
+        priceVariationsEnabled: true,
+        priceVariants: [{ name: 'Full day', priceInSubunits: 50000 }],
+        transactionProcessAlias: 'default-booking/release-1',
+      },
+      title: 'Day coaching',
+      state: 'published',
+    },
+  };
 
   it('pickPeakupBookingListing returns the technical ghost listing', () => {
     expect(pickPeakupBookingListing([publicListing, ghostListing, hourlyListing])?.id?.uuid).toBe(
@@ -64,6 +81,41 @@ describe('coachBookingNavigation', () => {
     expect(
       pickPeakupCoachBookingDestinationListing([ghostListing, hourlyListing])?.id?.uuid
     ).toBe('hourly-1');
+  });
+
+  it('pickPeakupCustomerPriceVariationBookingListing accepts day price-variation listings', () => {
+    expect(isPeakupCustomerPriceVariationBookingListing(priceVariationListing)).toBe(true);
+    expect(
+      pickPeakupCustomerPriceVariationBookingListing([publicListing, priceVariationListing])?.id
+        ?.uuid
+    ).toBe('pv-day-1');
+  });
+
+  it('pickPeakupCoachBookingDestinationListing falls back to price-variation listing', () => {
+    expect(
+      pickPeakupCoachBookingDestinationListing([ghostListing, priceVariationListing])?.id?.uuid
+    ).toBe('pv-day-1');
+  });
+
+  it('pickPeakupCoachBookingDestinationListing prefers hourly over price-variation', () => {
+    expect(
+      pickPeakupCoachBookingDestinationListing([hourlyListing, priceVariationListing])?.id?.uuid
+    ).toBe('hourly-1');
+  });
+
+  it('rejects price-variation listing without variants', () => {
+    const invalid = {
+      ...priceVariationListing,
+      id: { uuid: 'pv-invalid' },
+      attributes: {
+        ...priceVariationListing.attributes,
+        publicData: {
+          ...priceVariationListing.attributes.publicData,
+          priceVariants: [],
+        },
+      },
+    };
+    expect(isPeakupCustomerPriceVariationBookingListing(invalid)).toBe(false);
   });
 
   it('hasPeakUpCoachBookingSearchFlag reads peakupCoachBooking=1', () => {

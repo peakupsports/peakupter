@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { Form as FinalForm } from 'react-final-form';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -8,7 +8,6 @@ import { useRouteConfiguration } from '../../../../context/routeConfigurationCon
 import { useConfiguration } from '../../../../context/configurationContext';
 
 // Utility
-import { FormattedMessage } from '../../../../util/reactIntl';
 import { getPeakUpTopLevelSportOptions } from '../../../../util/peakupSportTaxonomy';
 import {
   buildCoachMapSearchWithManualLocation,
@@ -29,6 +28,12 @@ import FilterCategories from './FilterCategories/FilterCategories';
 import FilterDateRange from './FilterDateRange/FilterDateRange';
 import FilterLocation from './FilterLocation/FilterLocation';
 import FilterKeyword from './FilterKeyword/FilterKeyword';
+import {
+  isMobileLandingCTAReady,
+  isMobileLandingSearchViewport,
+  MOBILE_LANDING_SEARCH_MAX_WIDTH_PX,
+  submitMobileLandingSearch,
+} from './landingMobileSearchSubmit';
 
 import css from './SearchCTA.module.css';
 
@@ -53,13 +58,31 @@ export const SearchCTA = React.forwardRef((props, ref) => {
   const config = useConfiguration();
 
   const { categories, dateRange, keywordSearch, locationSearch } = props.searchFields;
+  const landingMobileHints = props.landingMobileHints === true;
 
   const [submitDisabled, setSubmitDisabled] = useState(false);
+  const [locationSearchErrorCode, setLocationSearchErrorCode] = useState(null);
+  const [isMobileSubmitting, setIsMobileSubmitting] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(() =>
+    landingMobileHints ? isMobileLandingSearchViewport() : false
+  );
+  const [mobileLocationContext, setMobileLocationContext] = useState({
+    isCurrentLocationSelected: false,
+  });
 
-  // Landing hero "Your sport" must mirror the SportBar taxonomy/navigation
-  // exactly, even if hosted category data is incomplete or still contains
-  // legacy categories. Therefore the dropdown reads directly from the shared
-  // PeakUp taxonomy source of truth instead of the hosted category list.
+  const isMobileLanding = landingMobileHints && isMobileViewport;
+
+  useEffect(() => {
+    if (!landingMobileHints || typeof window === 'undefined' || !window.matchMedia) {
+      return undefined;
+    }
+    const mq = window.matchMedia(`(max-width: ${MOBILE_LANDING_SEARCH_MAX_WIDTH_PX}px)`);
+    const sync = () => setIsMobileViewport(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, [landingMobileHints]);
+
   const peakupHeroCategories = useMemo(
     () => getPeakUpTopLevelSportOptions(),
     []
@@ -89,11 +112,18 @@ export const SearchCTA = React.forwardRef((props, ref) => {
       isValid: () => locationSearch,
       render: alignLeft => (
         <div className={css.filterField} key="locationSearch">
-          <FilterLocation setSubmitDisabled={setSubmitDisabled} alignLeft={alignLeft} />
+          <FilterLocation
+            setSubmitDisabled={setSubmitDisabled}
+            alignLeft={alignLeft}
+            landingMobileHints={landingMobileHints}
+            isMobileLanding={isMobileLanding}
+            locationSearchErrorCode={locationSearchErrorCode}
+            onClearGeocodeError={() => setLocationSearchErrorCode(null)}
+            onMobileLocationContextChange={setMobileLocationContext}
+          />
         </div>
       ),
     },
-
     dateRange: {
       enabled: dateRange,
       isValid: () => dateRange,
@@ -121,59 +151,41 @@ export const SearchCTA = React.forwardRef((props, ref) => {
     });
   };
 
-  // Count the number search fields that are enabled
   const fieldCountForGrid = Object.values(filters).filter(field => field.enabled && field.isValid())
     .length;
 
-  //  If no search fields are enabled, we return null (Console won't allow you to enable 0 search fields)
   if (!fieldCountForGrid) {
     return null;
   }
 
-  // PeakUp Landing Page hero CTA — the green "Find your coach" button must
-  // route straight to the Coach Map page (the marketplace's primary coach
-  // discovery surface). The legacy SearchPage query-param builder that used
-  // to convert the hero's sport/location/date/keyword fields into a
-  // `/s?...` URL has been intentionally removed: SearchPage is not the
-  // destination for this CTA anymore, and CoachMapPage exposes its own
-  // (different) URL param schema. `pathByRouteName('CoachMapPage', …)`
-  // keeps the path relative ("/coach-map"), so it works identically on
-  // localhost, staging, and production.
-  //
-  // Submit builds the query from Final Form values — **not** from
-  // `location.search` alone:
-  //  – Manual geocoder place → `?sport=&lat=&lng=&location=` (no `locate=1`).
-  //  – Current location or bare submit → `coachMapSearchForFreshGeolocationIntent`
-  //    (`locate=1`, `_locatenonce`, primed `getCurrentPosition` gesture).
-  // Sport: hero dropdown wins, else existing landing `?sport=` (Topbar).
-  const onSubmit = values => {
+  const onDesktopSubmit = async values => {
+    setLocationSearchErrorCode(null);
+
     const sportKey = resolveCoachMapSportKeyFromLandingForm(
       values?.pub_categoryLevel1,
       location.search
     );
     const path = pathByRouteName('CoachMapPage', routeConfiguration, {});
     const loc = values?.location;
+    const selectedPlace = loc?.selectedPlace;
+    const hasManualPlace = selectedPlace && String(selectedPlace.address || '').trim() !== '';
 
-    const hasManualPlace =
-      loc?.selectedPlace && String(loc.selectedPlace.address || '').trim() !== '';
-    if (hasManualPlace) {
-      const ll = normalizeGeocoderOriginLatLng(loc.selectedPlace.origin);
-      if (ll) {
-        const label = String(loc.selectedPlace.address || loc.search || '').trim();
-        const search = buildCoachMapSearchWithManualLocation({
-          sportKey,
-          lat: ll.lat,
-          lng: ll.lng,
-          locationLabel: label,
-        });
-        debugCoachMapLocate('SearchCTA submit → CoachMapPage (manual place)', {
-          path,
-          search,
-          sportKey,
-        });
-        history.push(`${path}${search}`);
-        return;
-      }
+    const ll = hasManualPlace ? normalizeGeocoderOriginLatLng(selectedPlace.origin) : null;
+    if (ll) {
+      const label = String(selectedPlace.address || loc?.search || '').trim();
+      const search = buildCoachMapSearchWithManualLocation({
+        sportKey,
+        lat: ll.lat,
+        lng: ll.lng,
+        locationLabel: label,
+      });
+      debugCoachMapLocate('SearchCTA submit → CoachMapPage (manual place)', {
+        path,
+        search,
+        sportKey,
+      });
+      history.push(`${path}${search}`);
+      return;
     }
 
     startCoachMapLandingGeolocationPrimed();
@@ -188,23 +200,78 @@ export const SearchCTA = React.forwardRef((props, ref) => {
     history.push(`${path}${search}`);
   };
 
+  const handleMobileCTAClick = async (values, ctaDisabled) => {
+    if (ctaDisabled || isMobileSubmitting) {
+      return;
+    }
+
+    setLocationSearchErrorCode(null);
+    setIsMobileSubmitting(true);
+
+    try {
+      const result = await submitMobileLandingSearch({
+        values,
+        config,
+        history,
+        routeConfiguration,
+        pageSearch: location.search,
+        mobileLocationContext,
+      });
+
+      if (!result.ok) {
+        setLocationSearchErrorCode(result.errorCode || 'geocode-failed');
+      }
+    } finally {
+      setIsMobileSubmitting(false);
+    }
+  };
+
   return (
     <div className={classNames(css.searchBarContainer, getGridCount(fieldCountForGrid))}>
       <FinalForm
-        onSubmit={onSubmit}
+        onSubmit={onDesktopSubmit}
         {...props}
-        render={({ fieldRenderProps, handleSubmit }) => {
+        render={({ handleSubmit, values }) => {
+          const ctaDisabled = isMobileLanding
+            ? !isMobileLandingCTAReady(values, mobileLocationContext)
+            : submitDisabled;
+
           return (
             <Form
               role="search"
-              onSubmit={handleSubmit}
+              onSubmit={
+                isMobileLanding
+                  ? event => {
+                      event.preventDefault();
+                    }
+                  : handleSubmit
+              }
               className={classNames(css.gridContainer, getGridCount(fieldCountForGrid))}
             >
               {addFilters(['categories', 'keywordSearch', 'locationSearch', 'dateRange'])}
 
-              <PrimaryButton disabled={submitDisabled} className={css.submitButton} type="submit">
-                {PEAKUP_SEARCH_BUTTON_LABEL}
-              </PrimaryButton>
+              {isMobileLanding ? (
+                <PrimaryButton
+                  type="button"
+                  disabled={ctaDisabled || isMobileSubmitting}
+                  className={classNames(css.submitButton, css.mobileSubmitButton)}
+                  onClick={event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    handleMobileCTAClick(values, ctaDisabled);
+                  }}
+                >
+                  {PEAKUP_SEARCH_BUTTON_LABEL}
+                </PrimaryButton>
+              ) : (
+                <PrimaryButton
+                  disabled={submitDisabled}
+                  className={css.submitButton}
+                  type="submit"
+                >
+                  {PEAKUP_SEARCH_BUTTON_LABEL}
+                </PrimaryButton>
+              )}
             </Form>
           );
         }}

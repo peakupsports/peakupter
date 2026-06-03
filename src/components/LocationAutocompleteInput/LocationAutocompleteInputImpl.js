@@ -37,6 +37,55 @@ const getGeocoderVariant = mapProvider => {
   return isGoogleMapsInUse ? geocoderGoogleMaps : geocoderMapbox;
 };
 
+/**
+ * Resolve a stable prediction id without assuming geocoder module exports instance methods.
+ *
+ * @param {object} prediction
+ * @param {ReturnType<typeof getGeocoderVariant>} geocoderVariant
+ * @returns {string}
+ */
+const getPredictionIdSafe = (prediction, geocoderOrVariant) => {
+  if (typeof geocoderOrVariant?.getPredictionId === 'function') {
+    return geocoderOrVariant.getPredictionId(prediction);
+  }
+  if (prediction?.id != null && prediction.id !== '') {
+    return String(prediction.id);
+  }
+  if (prediction?.place_id != null && prediction.place_id !== '') {
+    return String(prediction.place_id);
+  }
+  if (prediction?.mapbox_id != null && prediction.mapbox_id !== '') {
+    return String(prediction.mapbox_id);
+  }
+  if (prediction?.place_name != null && prediction.place_name !== '') {
+    return String(prediction.place_name);
+  }
+  if (prediction?.text != null && prediction.text !== '') {
+    return String(prediction.text);
+  }
+  try {
+    return JSON.stringify(prediction);
+  } catch (e) {
+    return String(prediction);
+  }
+};
+
+const getPredictionAddressSafe = (prediction, geocoderOrVariant) => {
+  if (typeof geocoderOrVariant?.getPredictionAddress === 'function') {
+    return geocoderOrVariant.getPredictionAddress(prediction);
+  }
+  if (prediction?.predictionPlace?.address) {
+    return prediction.predictionPlace.address;
+  }
+  if (prediction?.place_name) {
+    return prediction.place_name;
+  }
+  if (prediction?.text) {
+    return prediction.text;
+  }
+  return '';
+};
+
 // Renders the autocompletion prediction results in a list
 const LocationPredictionsList = props => {
   const {
@@ -60,7 +109,7 @@ const LocationPredictionsList = props => {
 
   const item = (prediction, index) => {
     const isHighlighted = index === highlightedIndex;
-    const predictionId = geocoder.getPredictionId(prediction);
+    const predictionId = getPredictionIdSafe(prediction, geocoder);
 
     return (
       <li
@@ -98,7 +147,7 @@ const LocationPredictionsList = props => {
             <FormattedMessage id="LocationAutocompleteInput.currentLocation" />
           </span>
         ) : (
-          geocoder.getPredictionAddress(prediction)
+          getPredictionAddressSafe(prediction, geocoder)
         )}
       </li>
     );
@@ -190,10 +239,16 @@ class LocationAutocompleteInputImplementation extends Component {
 
   currentPredictions() {
     const { search, predictions: fetchedPredictions } = currentValue(this.props);
-    const { useDefaultPredictions = true, config } = this.props;
+    const { useDefaultPredictions = true, config, suppressCurrentLocationWhileSearching } =
+      this.props;
     const hasFetchedPredictions = fetchedPredictions && fetchedPredictions.length > 0;
     const showDefaultPredictions = !search && !hasFetchedPredictions && useDefaultPredictions;
     const geocoderVariant = getGeocoderVariant(config.maps.mapProvider);
+
+    const filterCurrentLocation = predictions =>
+      (predictions || []).filter(
+        p => getPredictionIdSafe(p, geocoderVariant) !== geocoderVariant.CURRENT_LOCATION_ID
+      );
 
     // A list of default predictions that can be shown when the user
     // focuses on the autocomplete input without typing a search. This can
@@ -204,7 +259,15 @@ class LocationAutocompleteInputImplementation extends Component {
       : []
     ).concat(config.maps.search.defaults);
 
-    return showDefaultPredictions ? defaultPredictions : fetchedPredictions;
+    if (showDefaultPredictions) {
+      return defaultPredictions;
+    }
+
+    if (suppressCurrentLocationWhileSearching && search) {
+      return filterCurrentLocation(fetchedPredictions);
+    }
+
+    return fetchedPredictions;
   }
 
   // Interpret input key event
@@ -239,15 +302,23 @@ class LocationAutocompleteInputImplementation extends Component {
   // Handle input text change, fetch predictions if the value isn't empty
   onChange(e) {
     const onChange = this.props.input.onChange;
-    const predictions = this.currentPredictions();
     const newValue = e.target.value;
+    const { suppressCurrentLocationWhileSearching } = this.props;
 
-    // Clear the current values since the input content is changed
-    onChange({
-      search: newValue,
-      predictions: newValue ? predictions : [],
-      selectedPlace: null,
-    });
+    if (suppressCurrentLocationWhileSearching) {
+      onChange({
+        search: newValue,
+        predictions: [],
+        selectedPlace: null,
+      });
+    } else {
+      const predictions = this.currentPredictions();
+      onChange({
+        search: newValue,
+        predictions: newValue ? predictions : [],
+        selectedPlace: null,
+      });
+    }
 
     // Clear highlighted prediction since the input value changed and
     // results will change as well
@@ -300,10 +371,24 @@ class LocationAutocompleteInputImplementation extends Component {
   // Select the prediction in the given item. This will fetch/read the
   // place details and set it as the selected place.
   selectPrediction(prediction) {
+    const geocoderVariant = getGeocoderVariant(this.props.config.maps.mapProvider);
+    const isCurrentLocationPrediction =
+      getPredictionIdSafe(prediction, geocoderVariant) === geocoderVariant.CURRENT_LOCATION_ID;
+
+    if (isCurrentLocationPrediction && this.props.deferCurrentLocationGeolocation) {
+      this.props.input.onChange({
+        search: '',
+        predictions: [],
+        selectedPlace: { address: '', origin: null },
+      });
+      this.setState({ fetchingPlaceDetails: false, highlightedIndex: -1 });
+      return;
+    }
+
     const currentLocationBoundsDistance = this.props.config.maps?.search
       ?.currentLocationBoundsDistance;
     this.props.input.onChange({
-      ...this.props.input,
+      ...currentValue(this.props),
       selectedPlace: null,
     });
 
@@ -364,10 +449,15 @@ class LocationAutocompleteInputImplementation extends Component {
     this.setState({ fetchingPredictions: true });
 
     return this.getGeocoder()
-      .getPlacePredictions(search, config.maps.search.countryLimit, config.localization.locale)
+      .getPlacePredictions(
+        search,
+        config.maps.search.countryLimit,
+        config.localization.locale,
+        config.maps.mapboxAccessToken,
+        config.marketplaceRootURL
+      )
       .then(results => {
         const { search: currentSearch } = currentValue(this.props);
-        this.setState({ fetchingPredictions: false });
 
         // If the earlier predictions arrive when the user has already
         // changed the search term, ignore and wait until the latest
@@ -386,13 +476,17 @@ class LocationAutocompleteInputImplementation extends Component {
         }
       })
       .catch(e => {
-        this.setState({ fetchingPredictions: false });
         console.error(e);
         const value = currentValue(this.props);
         onChange({
           ...value,
           selectedPlace: null,
         });
+      })
+      .finally(() => {
+        if (this._isMounted) {
+          this.setState({ fetchingPredictions: false });
+        }
       });
   }
 
@@ -467,6 +561,7 @@ class LocationAutocompleteInputImplementation extends Component {
       id,
       submitButton: SubmitButton,
       ariaLabel,
+      showPredictionsPanelWhileSearching,
     } = this.props;
     const { name, onFocus } = input;
     const { search } = currentValue(this.props);
@@ -490,7 +585,9 @@ class LocationAutocompleteInputImplementation extends Component {
     // development and easier workflow with the browser devtools, you
     // might want to hardcode this to `true`. Otherwise the dropdown
     // list will disappear.
-    const renderPredictions = this.state.inputHasFocus;
+    const renderPredictions =
+      this.state.inputHasFocus ||
+      (showPredictionsPanelWhileSearching && Boolean(search));
     const geocoderVariant = getGeocoderVariant(config.maps.mapProvider);
     const GeocoderAttribution = geocoderVariant.GeocoderAttribution;
     // The first ref option in this optional chain is about callback ref,
@@ -628,6 +725,9 @@ class LocationAutocompleteInputImplementation extends Component {
  * @param {boolean} props.meta.touched
  * @param {Function | RefHook} props.inputRef
  * @param {ReactNode} props.CustomIcon override the default icon
+ * @param {boolean} props.showPredictionsPanelWhileSearching keep panel open while typing (Safari focus)
+ * @param {boolean} props.suppressCurrentLocationWhileSearching hide current-location row while typing
+ * @param {boolean} props.deferCurrentLocationGeolocation skip geolocation on current-location tap (submit later)
  * @returns {JSX.Element} LocationAutocompleteInputImpl component
  */
 const LocationAutocompleteInputImpl = props => {

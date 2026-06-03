@@ -3,8 +3,15 @@ import { Helmet } from 'react-helmet-async';
 
 import { useRouteConfiguration } from '../context/routeConfigurationContext';
 import { matchPathname } from '../util/routes';
+import {
+  applyMapboxAccessTokenIfReady,
+  MAPBOX_GL_CSS_URL,
+  MAPBOX_GL_JS_URL,
+  MAPBOX_SDK_RELATIVE_PATH,
+  MAPBOX_SCRIPT_ID,
+  MAPBOX_SDK_SCRIPT_ID,
+} from './mapboxGeocoderScripts';
 
-const MAPBOX_SCRIPT_ID = 'mapbox_GL_JS';
 const GOOGLE_MAPS_SCRIPT_ID = 'GoogleMapsApi';
 
 /**
@@ -62,32 +69,29 @@ export const IncludeScripts = props => {
   if (isMapboxInUse) {
     // NOTE: remember to update mapbox-sdk.min.js to a new version regularly.
     // mapbox-sdk.min.js is included from static folder for CSP purposes.
-    mapLibraries.push(
-      <script
-        key="mapboxSDK"
-        src={`${rootURL}/static/scripts/mapbox/mapbox-sdk@0.16.2/mapbox-sdk.min.js`}
-        async
-      ></script>
-    );
-    // License information for v3.7.0 of the mapbox-gl-js library:
-    // https://github.com/mapbox/mapbox-gl-js/blob/v3.7.0/LICENSE.txt
-
-    // Add CSS for Mapbox map
+    // Load mapbox-gl-js before mapbox-sdk so `window.mapboxgl` exists for the token.
     mapLibraries.push(
       <link
         key="mapbox_GL_CSS"
-        href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css"
+        href={MAPBOX_GL_CSS_URL}
         rel="stylesheet"
         crossOrigin="anonymous"
       />
     );
-    // Add Mapbox library
     mapLibraries.push(
       <script
         id={MAPBOX_SCRIPT_ID}
         key="mapbox_GL_JS"
-        src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"
+        src={MAPBOX_GL_JS_URL}
         crossOrigin="anonymous"
+        {...deferMapLibrary}
+      ></script>
+    );
+    mapLibraries.push(
+      <script
+        id={MAPBOX_SDK_SCRIPT_ID}
+        key="mapboxSDK"
+        src={MAPBOX_SDK_RELATIVE_PATH}
         {...deferMapLibrary}
       ></script>
     );
@@ -145,24 +149,19 @@ export const IncludeScripts = props => {
   }
 
   const isBrowser = typeof window !== 'undefined';
-  const isMapboxLoaded = isBrowser && window.mapboxgl;
 
-  // If Mapbox is loaded, we can set the accessToken already here.
-  // This is the execution flow with the production build,
-  // since SSR includes those map libraries to <head> of the app.
-  if (isMapboxInUse && isMapboxLoaded && !window.mapboxgl.accessToken) {
-    // Add access token for Mapbox library
-    window.mapboxgl.accessToken = mapboxAccessToken;
+  // If Mapbox GL is already on window (SSR head tags or prior navigation), apply token safely.
+  if (isMapboxInUse && isBrowser) {
+    applyMapboxAccessTokenIfReady(mapboxAccessToken);
   }
 
-  // If the script is added on client side as a reaction to page navigation or
-  // the app is rendered on client side entirely (e.g. HMR/WebpackDevServer),
-  // we need to listen when the script is loaded.
-  const onMapLibLoaded = () => {
-    // At this point we know that map library is loaded after it's dynamically included
-    if (isMapboxInUse && !window.mapboxgl.accessToken) {
-      // Add access token for Mapbox sdk.
-      window.mapboxgl.accessToken = mapboxAccessToken;
+  // Client-side script load: mapbox-gl-js defines `window.mapboxgl`; mapbox-sdk defines `window.mapboxSdk`.
+  const onMapLibLoaded = scriptId => {
+    if (!isMapboxInUse) {
+      return;
+    }
+    if (scriptId === MAPBOX_SCRIPT_ID || scriptId === MAPBOX_SDK_SCRIPT_ID) {
+      applyMapboxAccessTokenIfReady(mapboxAccessToken);
     }
   };
 
@@ -170,13 +169,13 @@ export const IncludeScripts = props => {
   // However, it does have onChangeClientState functionality.
   // We can use that to start listen 'load' events when the library is added on client-side.
   const onChangeClientState = (newState, addedTags) => {
-    if (addedTags && addedTags.scriptTags) {
-      const foundScript = addedTags.scriptTags.find(s =>
-        [MAPBOX_SCRIPT_ID, GOOGLE_MAPS_SCRIPT_ID].includes(s.id)
-      );
-      if (foundScript) {
-        foundScript.addEventListener('load', onMapLibLoaded, { once: true });
-      }
+    if (addedTags?.scriptTags) {
+      addedTags.scriptTags.forEach(scriptTag => {
+        if (![MAPBOX_SCRIPT_ID, MAPBOX_SDK_SCRIPT_ID, GOOGLE_MAPS_SCRIPT_ID].includes(scriptTag.id)) {
+          return;
+        }
+        scriptTag.addEventListener('load', () => onMapLibLoaded(scriptTag.id), { once: true });
+      });
     }
   };
 

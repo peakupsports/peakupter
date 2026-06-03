@@ -1,5 +1,15 @@
 import { types as sdkTypes } from '../../util/sdkLoader';
 import { userLocation } from '../../util/maps';
+import {
+  tryApplyMapboxAccessToken,
+  waitForMapboxGeocoderLibraries,
+} from '../../util/mapboxGeocoderScripts';
+
+export {
+  ensureMapboxGeocoderLibraries,
+  getMapboxGeocoderLibraryStatus,
+  waitForMapboxGeocoderLibraries,
+} from '../../util/mapboxGeocoderScripts';
 
 const { LatLng: SDKLatLng, LatLngBounds: SDKLatLngBounds } = sdkTypes;
 
@@ -18,61 +28,6 @@ const PLACE_TYPE_BOUNDS_DISTANCES = {
   neighborhood: 2000,
   poi: 2000,
   'poi.landmark': 2000,
-};
-
-const MAPBOX_SCRIPT_ID = 'mapbox_GL_JS';
-const MAPBOX_GEOCODER_LIB_TIMEOUT_MS = 20000;
-
-const mapboxGeocoderLibsReady = () =>
-  typeof window !== 'undefined' &&
-  !!window.mapboxgl &&
-  !!window.mapboxSdk &&
-  !!window.mapboxgl.accessToken;
-
-/**
- * Waits for mapbox-gl-js + static mapbox-sdk (and access token) after deferred script load
- * (e.g. first paint on Landing). Without this, `getPlacePredictions` throws while the user
- * types or before "Current location" details finish.
- *
- * @returns {Promise<void>}
- */
-const waitForMapboxGeocoderLibraries = () => {
-  if (typeof window === 'undefined') {
-    return Promise.reject(new Error('Mapbox libraries are required for GeocoderMapbox'));
-  }
-  if (mapboxGeocoderLibsReady()) {
-    return Promise.resolve();
-  }
-  return new Promise((resolve, reject) => {
-    let finished = false;
-    const finishOk = () => {
-      if (finished || !mapboxGeocoderLibsReady()) {
-        return;
-      }
-      finished = true;
-      window.clearInterval(iv);
-      window.clearTimeout(to);
-      script?.removeEventListener('load', onScriptLoad);
-      resolve();
-    };
-    const finishErr = () => {
-      if (finished) {
-        return;
-      }
-      finished = true;
-      window.clearInterval(iv);
-      script?.removeEventListener('load', onScriptLoad);
-      reject(new Error('Mapbox libraries are required for GeocoderMapbox'));
-    };
-    const onScriptLoad = () => finishOk();
-    const script = document.getElementById(MAPBOX_SCRIPT_ID);
-    if (script) {
-      script.addEventListener('load', onScriptLoad, { once: true });
-    }
-    const iv = window.setInterval(finishOk, 50);
-    const to = window.setTimeout(finishErr, MAPBOX_GEOCODER_LIB_TIMEOUT_MS);
-    finishOk();
-  });
 };
 
 /**
@@ -140,11 +95,13 @@ export const GeocoderAttribution = () => null;
  */
 class GeocoderMapbox {
   getClient() {
-    const libLoaded = typeof window !== 'undefined' && window.mapboxgl && window.mapboxSdk;
-    if (!libLoaded) {
+    if (typeof window === 'undefined' || !window.mapboxgl || !window.mapboxSdk) {
       throw new Error('Mapbox libraries are required for GeocoderMapbox');
     }
-    if (!this._client && window?.mapboxgl?.accessToken) {
+    if (!window.mapboxgl.accessToken) {
+      throw new Error('Mapbox access token is required for GeocoderMapbox');
+    }
+    if (!this._client) {
       this._client = window.mapboxSdk({
         accessToken: window.mapboxgl.accessToken,
       });
@@ -159,28 +116,34 @@ class GeocoderMapbox {
    * Search places with the given name.
    *
    * @param {String} search query for place names
+   * @param {String} [countryLimit]
+   * @param {String} [locale]
+   * @param {String} [accessTokenMaybe]
+   * @param {String} [rootURLMaybe]
    *
    * @return {Promise<{ search: String, predictions: Array<Object>}>}
    * results of the geocoding, should have the original search query
    * and an array of predictions. The format of the predictions is
    * only relevant for the `getPlaceDetails` function below.
    */
-  getPlacePredictions(search, countryLimit, locale) {
+  getPlacePredictions(search, countryLimit, locale, accessTokenMaybe, rootURLMaybe) {
     const limitCountriesMaybe = countryLimit ? { countries: countryLimit } : {};
+    const language = locale ? [locale] : ['en'];
 
-    return waitForMapboxGeocoderLibraries().then(() => {
+    return waitForMapboxGeocoderLibraries(accessTokenMaybe, rootURLMaybe).then(() => {
+      tryApplyMapboxAccessToken(accessTokenMaybe);
       return this.getClient()
         .geocoding.forwardGeocode({
           query: search,
           limit: 5,
           ...limitCountriesMaybe,
-          language: [locale],
+          language,
         })
         .send()
         .then(response => {
           return {
             search,
-            predictions: response.body.features,
+            predictions: response?.body?.features || [],
           };
         });
     });

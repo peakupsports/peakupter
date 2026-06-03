@@ -1614,9 +1614,67 @@
     overflow-x: hidden;
   }
 
+  /* Hero search autocomplete must paint outside the hero column on mobile. */
+  .landingPremium :global(main) > :global(section):first-of-type {
+    overflow: visible;
+  }
+
+  .landingPremium
+    :global(main)
+    > :global(section):first-of-type
+    :is(
+      [class*='LandingHeroSection_searchRow'],
+      [class*='SearchCTA_searchBarContainer'],
+      [class*='SearchCTA_gridContainer'],
+      [class*='SearchCTA_filterField'],
+      [class*='FilterLocation_root'],
+      [class*='FilterCategories_root'],
+      [class*='FilterCategories_dropdownContainer'],
+      [class*='LocationAutocompleteInput_root']
+    ) {
+    overflow: visible;
+  }
+
+  .landingPremium
+    :global(main)
+    > :global(section):first-of-type
+    :is(
+      [class*='FilterLocation_predictions'],
+      [class*='FilterCategories_dropdownContent'],
+      [class*='FilterDateRange_datePicker'],
+      [class*='LocationAutocompleteInput_predictionsRoot']
+    ) {
+    z-index: calc(var(--zIndexPopup) + 24);
+  }
+
   /* Default `section + section { overflow: visible }` lets wide pseudo-veils spill sideways on narrow viewports. */
-  .landingPremium :global(main) :global(section) + :global(section) {
+  .landingPremium
+    :global(main)
+    :global(section)
+    + :global(section):not(:has([class*='SectionPeakupFeaturedCoaches_scrollViewport'])) {
     overflow-x: clip;
+  }
+
+  .landingPremium
+    :global(main)
+    :global(section):has([class*='SectionPeakupFeaturedCoaches_scrollViewport'])
+    [class*='sectionContent'] {
+    overflow: visible;
+  }
+
+  .landingPremium
+    :global(main)
+    [class*='SectionPeakupFeaturedCoaches_carouselArea'] {
+    position: relative;
+    z-index: 2;
+    overflow: visible;
+  }
+
+  .landingPremium
+    :global(main)
+    [class*='SectionPeakupFeaturedCoaches_scrollViewport'] {
+    contain: none;
+    overflow: visible;
   }
 
   .landingPremium

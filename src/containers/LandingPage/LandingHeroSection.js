@@ -344,7 +344,7 @@ const LandingHeroSection = props => {
 
           {searchProps?.searchFields ? (
             <div className={css.searchRow}>
-              <SearchCTA searchFields={searchProps.searchFields} />
+              <SearchCTA searchFields={searchProps.searchFields} landingMobileHints />
             </div>
           ) : null}
 

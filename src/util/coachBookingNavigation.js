@@ -3,9 +3,49 @@ import {
   extractSportKeysFromCoachProfile,
   extractSportKeysFromListing,
 } from './coachExplore';
+import { normalizeListingTypeKey } from './listingTypeCoachSelector';
 import { createSlug, parse, stringify } from './urlHelpers';
 import { createResourceLocatorString } from './routes';
 import { isBookingProcessAlias } from '../transactions/transaction';
+
+/** Hosted listing type id for day-based price-variation bookable listings. */
+export const PEAKUP_PRICE_VARIATIONS_LISTING_TYPE = 'Price-variations';
+
+const isTruthyPublicDataFlag = value => {
+  if (value === true) {
+    return true;
+  }
+  if (typeof value === 'string') {
+    return value.toLowerCase() === 'true';
+  }
+  return false;
+};
+
+const isPriceVariationsListingType = listingType => {
+  if (listingType === PEAKUP_PRICE_VARIATIONS_LISTING_TYPE) {
+    return true;
+  }
+  return (
+    normalizeListingTypeKey(listingType) ===
+    normalizeListingTypeKey(PEAKUP_PRICE_VARIATIONS_LISTING_TYPE)
+  );
+};
+
+const rankCustomerBookingListing = listing => {
+  const pd = listing?.attributes?.publicData || {};
+  const hidden =
+    pd.hiddenFromPublic === true ||
+    (typeof pd.hiddenFromPublic === 'string' && pd.hiddenFromPublic.toLowerCase() === 'true');
+  const published = listing?.attributes?.state === 'published';
+  return (hidden ? 0 : 100) + (published ? 0 : 10);
+};
+
+const pickBestCustomerBookingListing = candidates => {
+  if (!Array.isArray(candidates) || candidates.length === 0) {
+    return null;
+  }
+  return [...candidates].sort((a, b) => rankCustomerBookingListing(a) - rankCustomerBookingListing(b))[0];
+};
 
 /** Query flag: ListingPage renders PeakUp coach booking shell (not public listing browse). */
 export const PEAKUP_COACH_BOOKING_SEARCH_FLAG = 'peakupCoachBooking';
@@ -52,20 +92,48 @@ export const pickPeakupCustomerHourlyBookingListing = listings => {
     return isBookingProcessAlias(pd.transactionProcessAlias);
   });
 
-  if (candidates.length === 0) {
+  return pickBestCustomerBookingListing(candidates);
+};
+
+/**
+ * Customer-facing day-based price-variation booking listing.
+ *
+ * @param {Object|null|undefined} listing
+ * @returns {boolean}
+ */
+export const isPeakupCustomerPriceVariationBookingListing = listing => {
+  if (!listing || listingHasPeakupBookingFlag(listing)) {
+    return false;
+  }
+  const pd = listing?.attributes?.publicData || {};
+  if (pd.unitType !== 'day') {
+    return false;
+  }
+  if (!isPriceVariationsListingType(pd.listingType)) {
+    return false;
+  }
+  if (!isTruthyPublicDataFlag(pd.priceVariationsEnabled)) {
+    return false;
+  }
+  if (!Array.isArray(pd.priceVariants) || pd.priceVariants.length === 0) {
+    return false;
+  }
+  return isBookingProcessAlias(pd.transactionProcessAlias);
+};
+
+/**
+ * Customer-facing price-variation booking listing (day unit, configured variants).
+ *
+ * @param {Object[]} listings
+ * @returns {Object|null}
+ */
+export const pickPeakupCustomerPriceVariationBookingListing = listings => {
+  if (!Array.isArray(listings) || listings.length === 0) {
     return null;
   }
 
-  const rank = listing => {
-    const pd = listing?.attributes?.publicData || {};
-    const hidden =
-      pd.hiddenFromPublic === true ||
-      (typeof pd.hiddenFromPublic === 'string' && pd.hiddenFromPublic.toLowerCase() === 'true');
-    const published = listing?.attributes?.state === 'published';
-    return (hidden ? 0 : 100) + (published ? 0 : 10);
-  };
-
-  return [...candidates].sort((a, b) => rank(a) - rank(b))[0];
+  const candidates = listings.filter(isPeakupCustomerPriceVariationBookingListing);
+  return pickBestCustomerBookingListing(candidates);
 };
 
 /**
@@ -75,7 +143,9 @@ export const pickPeakupCustomerHourlyBookingListing = listings => {
  * @returns {Object|null}
  */
 export const pickPeakupCoachBookingDestinationListing = listings =>
-  pickPeakupCustomerHourlyBookingListing(listings) || pickPeakupBookingListing(listings);
+  pickPeakupCustomerHourlyBookingListing(listings) ||
+  pickPeakupCustomerPriceVariationBookingListing(listings) ||
+  pickPeakupBookingListing(listings);
 
 /**
  * @param {Object|null|undefined} listing

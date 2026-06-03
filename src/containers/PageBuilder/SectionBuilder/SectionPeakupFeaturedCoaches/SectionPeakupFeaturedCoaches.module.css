@@ -285,9 +285,14 @@
   padding: 0 32px 24px;
   min-width: 0;
   overflow: visible;
-  contain: paint;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
+}
+
+@media (--viewportLarge) {
+  .scrollViewport {
+    contain: paint;
+  }
 }
 
 .scroller {
@@ -371,7 +376,7 @@
 
   .scroller {
     gap: 14px;
-    padding-top: 36px;
+    padding-top: 48px;
     padding-bottom: 24px;
     scroll-padding-inline: 14px;
     scroll-snap-type: x mandatory;
@@ -383,7 +388,7 @@
   }
 
   .navButton {
-    top: calc(36px + 50%);
+    top: calc(48px + 50%);
   }
 }
 
@@ -448,7 +453,9 @@
   }
 }
 
-/* Mobile/tablet GPU: gradient-only veils, no filter blur or infinite badge motion. */
+/* Mobile/tablet GPU: gradient-only veils, no filter blur or infinite badge motion.
+ * Do not use content-visibility on `.scrollerItem` — paint containment clips
+ * podium shields (`top: -28px`) against the section/header above. */
 @media (max-width: 1023px) {
   .showcaseHeader::before,
   .showcaseTitle::before,
@@ -465,8 +472,15 @@
     transform: translateY(-1px);
   }
 
-  .scrollerItem {
-    content-visibility: auto;
-    contain-intrinsic-size: 420px 520px;
+  .scrollViewport {
+    contain: none;
+  }
+
+  .scroller {
+    padding-top: 48px;
+  }
+
+  .navButton {
+    top: calc(48px + 50%);
   }
 }
