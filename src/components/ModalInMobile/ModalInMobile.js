@@ -29,6 +29,9 @@ import css from './ModalInMobile.module.css';
  * @param {Function} props.onManageDisableScrolling
  * @param {number?} props.showAsModalMaxWidth
  * @param {ReactNode?} props.closeButtonMessage
+ * @param {string?} props.scrollLayerClassName
+ * @param {boolean?} props.lightCloseButton
+ * @param {boolean?} props.usePortal
  * @param {Object} props.viewport
  * @param {number} props.viewport.width
  * @param {number} props.viewport.height
@@ -89,6 +92,8 @@ class ModalInMobileComponent extends Component {
       id,
       showAsModalMaxWidth = 0,
       closeButtonMessage,
+      scrollLayerClassName,
+      lightCloseButton,
       onManageDisableScrolling,
       viewport,
       usePortal,
@@ -116,6 +121,8 @@ class ModalInMobileComponent extends Component {
         isClosedClassName={closedClassName}
         onClose={this.handleClose}
         closeButtonMessage={closeButtonMessage}
+        scrollLayerClassName={scrollLayerClassName}
+        lightCloseButton={lightCloseButton}
         onManageDisableScrolling={onManageDisableScrolling}
         usePortal={usePortal && isOpen}
       >
