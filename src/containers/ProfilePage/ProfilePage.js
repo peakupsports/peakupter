@@ -33,6 +33,7 @@ import { useRouteConfiguration } from '../../context/routeConfigurationContext';
 import { richText } from '../../util/richText';
 import { ensureUser } from '../../util/data';
 import { createSlug, parse } from '../../util/urlHelpers';
+import { createResourceLocatorString } from '../../util/routes';
 import { unitDivisor } from '../../util/currency';
 import {
   filterListingsForPublicBrowsing,
@@ -43,12 +44,13 @@ import {
   getCoachFullLocationLabel,
 } from '../../util/coachExplore';
 import {
-  buildPeakUpCoachBookingPath,
   hasPeakUpCoachBookingSearchFlag,
   hasPeakUpOpenPreBookingSearchFlag,
-  pickPeakupCoachBookingDestinationListing,
-  peakUpCoachBookingLinkSearch,
+  buildPeakUpProfileServiceListingPath,
+  listPeakupCustomerServiceListings,
+  peakUpProfileServiceListingLinkSearch,
 } from '../../util/coachBookingNavigation';
+import { buildCoachBookingServiceCards } from '../../util/coachBookingServiceSelection';
 import { getLowestCoachHourlyBookingPrice } from '../../util/coachHourlyPrice';
 import { getMapProviderApiAccess, staticPinMapImageUrl } from '../../util/maps';
 import {
@@ -97,6 +99,7 @@ import TeamProfileLayout from './TeamProfileLayout/TeamProfileLayout';
 import { isPeakUpTeamProfile, isPeakUpTeamUser } from '../../util/peakupTeam';
 import { resolveCoachTeamAffiliation } from '../../util/peakupTeam';
 import PeakupCoachBadgesHierarchyModal from '../../components/PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal';
+import CoachBookingServiceSelectionModal from '../../components/CoachBookingServiceSelectionModal/CoachBookingServiceSelectionModal';
 import ContactCoachModal from './ContactCoachModal/ContactCoachModal';
 import { sendInquiry, setInitialValues as setListingPageInitialValues } from '../ListingPage/ListingPage.duck';
 import peakUpFounderLogo from '../../assets/peakup-founder-logo.png';
@@ -375,6 +378,7 @@ export const AsideContent = props => {
   } = props;
   const [isBadgeHierarchyOpen, setBadgeHierarchyOpen] = useState(false);
   const [isInquiryModalOpen, setInquiryModalOpen] = useState(false);
+  const [isServiceSelectionOpen, setServiceSelectionOpen] = useState(false);
 
   const config = useConfiguration();
   const profilePd = user?.attributes?.profile?.publicData || {};
@@ -487,11 +491,78 @@ export const AsideContent = props => {
     filledStars = Math.max(1, Math.min(5, Math.round(sum / reviewCountProv)));
   }
 
-  const bookingListing = pickPeakupCoachBookingDestinationListing(listings);
-  const bookingListingId = bookingListing?.id?.uuid;
-  const bookingListingSlug = bookingListing
-    ? createSlug(String(bookingListing.attributes?.title || displayName || 'coaching-session'))
+  const customerServiceListings = listPeakupCustomerServiceListings(listings);
+  const singleServiceListing =
+    customerServiceListings.length === 1 ? customerServiceListings[0] : null;
+  const hasMultipleServiceListings = customerServiceListings.length >= 2;
+  const singleServiceListingId = singleServiceListing?.id?.uuid;
+  const singleServiceListingSlug = singleServiceListing
+    ? createSlug(String(singleServiceListing.attributes?.title || displayName || 'listing'))
     : '';
+  const serviceSelectionCards = buildCoachBookingServiceCards({
+    listings: customerServiceListings,
+    intl,
+    marketplaceCurrency: config.currency,
+  });
+  const profileId = user?.id?.uuid;
+
+  const navigateToProfileServiceListing = (serviceListing, { openPreBooking = true } = {}) => {
+    const servicePath = buildPeakUpProfileServiceListingPath({
+      routes,
+      listing: serviceListing,
+      openPreBooking,
+    });
+    if (servicePath) {
+      history.push(servicePath);
+    }
+  };
+
+  useEffect(() => {
+    if (!profileId || !location?.search || typeof history?.replace !== 'function') {
+      return;
+    }
+    if (!hasPeakUpCoachBookingSearchFlag(location.search)) {
+      return;
+    }
+
+    const openPreBooking = hasPeakUpOpenPreBookingSearchFlag(location.search);
+    const cleanProfilePath = createResourceLocatorString('ProfilePage', routes, { id: profileId }, {});
+
+    if (hasMultipleServiceListings) {
+      setServiceSelectionOpen(true);
+      const currentPath = `${location.pathname || ''}${location.search || ''}`;
+      if (currentPath !== cleanProfilePath) {
+        history.replace(cleanProfilePath);
+      }
+      return;
+    }
+
+    const serviceListing = singleServiceListing;
+    if (!serviceListing?.id) {
+      return;
+    }
+    const servicePath = buildPeakUpProfileServiceListingPath({
+      routes,
+      listing: serviceListing,
+      orderOpen: !!parse(location.search).orderOpen,
+      openPreBooking,
+    });
+    if (!servicePath) {
+      return;
+    }
+    const currentPath = `${location.pathname || ''}${location.search || ''}`;
+    if (currentPath !== servicePath) {
+      history.replace(servicePath);
+    }
+  }, [
+    profileId,
+    location,
+    history,
+    routes,
+    hasMultipleServiceListings,
+    singleServiceListing,
+    customerServiceListings.length,
+  ]);
   const listingTitle = listing?.attributes?.title || displayName || 'listing';
   const listingSlug = listing ? createSlug(String(listingTitle)) : '';
   const listingId = listing?.id?.uuid;
@@ -726,15 +797,26 @@ export const AsideContent = props => {
             )}
           </button>
 
-          {bookingListingId ? (
+          {singleServiceListingId ? (
             <NamedLink
               name="ListingPage"
-              params={{ slug: bookingListingSlug || 'coaching-session', id: bookingListingId }}
-              to={{ search: peakUpCoachBookingLinkSearch() }}
+              params={{
+                slug: singleServiceListingSlug || 'listing',
+                id: singleServiceListingId,
+              }}
+              to={{ search: peakUpProfileServiceListingLinkSearch(singleServiceListing) }}
               className={classNames(css.primaryBtn, css.stickerActionPrimary)}
             >
               <FormattedMessage id="ProfilePage.stickerBookMe" />
             </NamedLink>
+          ) : hasMultipleServiceListings ? (
+            <button
+              type="button"
+              className={classNames(css.primaryBtn, css.stickerActionPrimary)}
+              onClick={() => setServiceSelectionOpen(true)}
+            >
+              <FormattedMessage id="ProfilePage.stickerBookMe" />
+            </button>
           ) : (
             <button type="button" className={css.primaryBtn} disabled>
               <FormattedMessage id="ProfilePage.stickerBookMe" />
@@ -780,6 +862,21 @@ export const AsideContent = props => {
         id={badgeHierarchyModalId}
         isOpen={isBadgeHierarchyOpen}
         onClose={() => setBadgeHierarchyOpen(false)}
+      />
+
+      <CoachBookingServiceSelectionModal
+        id="ProfilePage.coachBookingServiceSelection"
+        isOpen={isServiceSelectionOpen}
+        onClose={() => setServiceSelectionOpen(false)}
+        coachDisplayName={coachNameForInquiry || displayName || ''}
+        coachUser={user}
+        coachCountryFlag={locationFlag}
+        profilePublicData={profilePd}
+        cards={serviceSelectionCards}
+        onSelectListing={listing => {
+          setServiceSelectionOpen(false);
+          navigateToProfileServiceListing(listing);
+        }}
       />
     </div>
   );
@@ -1570,35 +1667,6 @@ export const ProfilePageComponent = props => {
     publicData || {},
     userTypeRoles
   );
-
-  useEffect(() => {
-    if (!mounted || !peakUpCoachLayout || !location?.search) {
-      return;
-    }
-    if (!hasPeakUpCoachBookingSearchFlag(location.search)) {
-      return;
-    }
-    if (typeof history?.replace !== 'function') {
-      return;
-    }
-    const bookingListing = pickPeakupCoachBookingDestinationListing(listings);
-    if (!bookingListing?.id) {
-      return;
-    }
-    const bookingPath = buildPeakUpCoachBookingPath({
-      routes: routeConfiguration,
-      bookingListing,
-      orderOpen: !!parse(location.search).orderOpen,
-      openPreBooking: hasPeakUpOpenPreBookingSearchFlag(location.search),
-    });
-    if (!bookingPath) {
-      return;
-    }
-    const currentPath = `${location.pathname || ''}${location.search || ''}`;
-    if (currentPath !== bookingPath) {
-      history.replace(bookingPath);
-    }
-  }, [mounted, peakUpCoachLayout, listings, location, history, routeConfiguration]);
 
   // Tier theme: PeakUp coaches get their tier color injected as CSS custom
   // properties on a wrapper around the layout. Only the curated accents

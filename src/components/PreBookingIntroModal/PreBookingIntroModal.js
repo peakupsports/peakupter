@@ -66,6 +66,7 @@ const PreBookingIntroModal = ({
     hasMeetingPoints && preferredMeetingPoints.length > 1 ? required : undefined;
   const hasLanguageOptions = languageOptions.length > 0;
   const sessionLanguageRequired = hasLanguageOptions ? required : undefined;
+  const showSportField = sportOptions.length > 1;
 
   const initialValues = {
     sport: sportOptions.length === 1 ? sportOptions[0].value : '',
@@ -136,28 +137,30 @@ const PreBookingIntroModal = ({
             </p>
 
             <div className={css.fields}>
-              <FieldSelect
-                id={`${id}.sport`}
-                name="sport"
-                className={css.field}
-                label={intl.formatMessage({
-                  id: 'PreBookingIntroModal.sportLabel',
-                  defaultMessage: 'Sport',
-                })}
-                validate={required}
-              >
-                <option value="">
-                  {intl.formatMessage({
-                    id: 'PreBookingIntroModal.sportPlaceholder',
-                    defaultMessage: 'Select a sport',
+              {showSportField ? (
+                <FieldSelect
+                  id={`${id}.sport`}
+                  name="sport"
+                  className={css.field}
+                  label={intl.formatMessage({
+                    id: 'PreBookingIntroModal.sportLabel',
+                    defaultMessage: 'Sport',
                   })}
-                </option>
-                {sportOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
+                  validate={required}
+                >
+                  <option value="">
+                    {intl.formatMessage({
+                      id: 'PreBookingIntroModal.sportPlaceholder',
+                      defaultMessage: 'Select a sport',
+                    })}
                   </option>
-                ))}
-              </FieldSelect>
+                  {sportOptions.map(opt => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </FieldSelect>
+              ) : null}
 
               <FieldSelect
                 id={`${id}.participantType`}

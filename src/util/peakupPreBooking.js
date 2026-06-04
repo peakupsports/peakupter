@@ -1,6 +1,7 @@
 import { PEAKUP_COACH_PROFILE_LANGUAGE_KEY } from '../config/configPeakUpCoachUserFields';
 
 import {
+  canonicalizeSportKey,
   extractSportKeysFromCoachProfile,
   extractSportKeysFromListing,
   normalizeSportKey,
@@ -41,6 +42,15 @@ const SKILL_MESSAGE_IDS = {
  * @param {Object|null|undefined} author
  * @returns {Array<{ value: string, label: string }>}
  */
+const sportOptionsFromKeys = (intl, sportKeys) => {
+  if (!sportKeys.length) {
+    return [];
+  }
+  return formatProfileSportsForSticker(intl, sportKeys)
+    .map(entry => ({ value: entry.key, label: entry.label }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+};
+
 export const resolvePreBookingSportOptions = (intl, listing, author) => {
   const keys = new Set();
   extractSportKeysFromListing(listing).forEach(k => {
@@ -56,14 +66,26 @@ export const resolvePreBookingSportOptions = (intl, listing, author) => {
     }
   });
 
-  const sportKeys = Array.from(keys);
-  if (sportKeys.length === 0) {
-    return [];
-  }
+  return sportOptionsFromKeys(intl, Array.from(keys));
+};
 
-  return formatProfileSportsForSticker(intl, sportKeys)
-    .map(entry => ({ value: entry.key, label: entry.label }))
-    .sort((a, b) => a.label.localeCompare(b.label));
+/**
+ * Sport options for pre-booking: listing sports when present, otherwise coach profile.
+ *
+ * @param {import('./reactIntl').intlShape} intl
+ * @param {Object|null|undefined} listing
+ * @param {Object|null|undefined} author
+ * @returns {Array<{ value: string, label: string }>}
+ */
+export const resolvePreBookingSportOptionsForListing = (intl, listing, author) => {
+  const listingKeys = extractSportKeysFromListing(listing)
+    .map(k => canonicalizeSportKey(k))
+    .filter(Boolean);
+  const uniqueListingKeys = [...new Set(listingKeys)];
+  if (uniqueListingKeys.length > 0) {
+    return sportOptionsFromKeys(intl, uniqueListingKeys);
+  }
+  return resolvePreBookingSportOptions(intl, listing, author);
 };
 
 /**

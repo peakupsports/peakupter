@@ -5,6 +5,7 @@ import {
   normalizePeakupPreBookingDetails,
   resolvePreBookingLanguageOptions,
   resolvePreBookingSportOptions,
+  resolvePreBookingSportOptionsForListing,
 } from './peakupPreBooking';
 
 const intl = {
@@ -12,6 +13,36 @@ const intl = {
 };
 
 describe('peakupPreBooking', () => {
+  it('resolvePreBookingSportOptionsForListing canonicalizes listing sport aliases', () => {
+    const listing = {
+      attributes: {
+        publicData: { sports: ['skydiving'] },
+      },
+    };
+    const options = resolvePreBookingSportOptionsForListing(intl, listing, null);
+    expect(options.map(o => o.value)).toEqual(['skydive']);
+    expect(options[0].label).toBe('Skydive');
+  });
+
+  it('resolvePreBookingSportOptionsForListing uses listing sports only when present', () => {
+    const listing = {
+      attributes: {
+        publicData: { sports: ['ski'] },
+      },
+    };
+    const author = {
+      attributes: {
+        profile: {
+          publicData: {
+            sports: ['snowboard', 'ski'],
+          },
+        },
+      },
+    };
+    const options = resolvePreBookingSportOptionsForListing(intl, listing, author);
+    expect(options.map(o => o.value)).toEqual(['ski']);
+  });
+
   it('resolvePreBookingSportOptions includes main sports and variants', () => {
     const author = {
       attributes: {

@@ -48,6 +48,20 @@ export const normalizeSportKey = sport =>
     .trim()
     .replace(/[^a-z0-9]+/g, '');
 
+/**
+ * Map hosted / legacy sport slugs to canonical PeakUp platform keys.
+ *
+ * @param {string} sport
+ * @returns {string}
+ */
+export const canonicalizeSportKey = sport => {
+  const normalized = normalizeSportKey(sport);
+  if (!normalized) {
+    return '';
+  }
+  return SEARCH_SPORT_KEY_ALIASES[normalized] || normalized;
+};
+
 /** @param {string} value sport bar value (e.g. snowboard, freeridesnowboard) */
 export const selectedSportToFilterHyphen = value =>
   String(value || '')
@@ -904,7 +918,7 @@ export const sportKeysFromPublicData = pd => {
   if (Array.isArray(data.activities)) raw.push(...data.activities);
   if (typeof data.activity === 'string') raw.push(data.activity);
   if (typeof data.category === 'string') raw.push(data.category);
-  return [...new Set(raw.map(normalizeSportKey).filter(Boolean))];
+  return [...new Set(raw.map(canonicalizeSportKey).filter(Boolean))];
 };
 
 /**

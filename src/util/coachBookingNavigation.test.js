@@ -1,16 +1,27 @@
 import {
   buildPeakUpCoachBookingListingSearch,
+  buildPeakUpProfileServiceListingPath,
   hasPeakUpCoachBookingSearchFlag,
   hasPeakUpOpenPreBookingSearchFlag,
   isPeakupCustomerPriceVariationBookingListing,
+  isPeakupCustomerPurchaseListing,
   pickPeakupBookingListing,
   pickPeakupCustomerHourlyBookingListing,
   pickPeakupCustomerPriceVariationBookingListing,
   pickPeakupCoachBookingDestinationListing,
+  listPeakupCustomerBookingListings,
+  listPeakupCustomerServiceListings,
+  peakUpProfileServiceListingLinkSearch,
+  requiresPeakUpPreBookingForServiceListing,
   shouldRedirectGhostBookingShellToProfile,
   shouldRedirectGhostListingToCoachProfile,
 } from './coachBookingNavigation';
 import { listingHasPeakupBookingFlag } from './coachExplore';
+
+const routes = [
+  { name: 'ListingPage', path: '/l/:slug/:id' },
+  { name: 'ProfilePage', path: '/u/:id' },
+];
 
 describe('coachBookingNavigation', () => {
   const publicListing = {
@@ -63,6 +74,32 @@ describe('coachBookingNavigation', () => {
       state: 'published',
     },
   };
+  const purchaseListing = {
+    id: { uuid: 'purchase-1' },
+    author: { id: { uuid: 'coach-1' } },
+    attributes: {
+      title: 'Summer camp',
+      state: 'published',
+      price: { amount: 15000, currency: 'CHF' },
+      publicData: {
+        unitType: 'item',
+        listingType: 'multi_day_experience',
+        transactionProcessAlias: 'default-purchase/release-1',
+      },
+    },
+  };
+  const inquiryListing = {
+    id: { uuid: 'inquiry-1' },
+    attributes: {
+      title: 'Contact',
+      state: 'published',
+      publicData: {
+        unitType: 'inquiry',
+        listingType: 'profile_coach',
+        transactionProcessAlias: 'default-inquiry/release-1',
+      },
+    },
+  };
 
   it('pickPeakupBookingListing returns the technical ghost listing', () => {
     expect(pickPeakupBookingListing([publicListing, ghostListing, hourlyListing])?.id?.uuid).toBe(
@@ -101,6 +138,88 @@ describe('coachBookingNavigation', () => {
     expect(
       pickPeakupCoachBookingDestinationListing([hourlyListing, priceVariationListing])?.id?.uuid
     ).toBe('hourly-1');
+  });
+
+  it('pickPeakupCoachBookingDestinationListing includes purchase when no booking listings', () => {
+    expect(pickPeakupCoachBookingDestinationListing([purchaseListing, ghostListing])?.id?.uuid).toBe(
+      'purchase-1'
+    );
+  });
+
+  it('isPeakupCustomerPurchaseListing accepts default-purchase item listings', () => {
+    expect(isPeakupCustomerPurchaseListing(purchaseListing)).toBe(true);
+    expect(isPeakupCustomerPurchaseListing(inquiryListing)).toBe(false);
+    expect(isPeakupCustomerPurchaseListing(hourlyListing)).toBe(false);
+  });
+
+  it('listPeakupCustomerServiceListings returns booking and purchase listings sorted by price', () => {
+    const hourlyListingA = {
+      ...hourlyListing,
+      id: { uuid: 'hourly-1' },
+      attributes: {
+        ...hourlyListing.attributes,
+        price: { amount: 10000, currency: 'CHF' },
+      },
+    };
+    const hourlyListingB = {
+      ...hourlyListing,
+      id: { uuid: 'hourly-2' },
+      attributes: {
+        ...hourlyListing.attributes,
+        title: 'Premium hourly',
+        price: { amount: 20000, currency: 'CHF' },
+      },
+    };
+    const ids = listPeakupCustomerServiceListings([
+      priceVariationListing,
+      purchaseListing,
+      hourlyListingB,
+      hourlyListingA,
+      ghostListing,
+      inquiryListing,
+    ]).map(l => l.id.uuid);
+    expect(ids).toEqual(['hourly-1', 'purchase-1', 'hourly-2', 'pv-day-1']);
+  });
+
+  it('listPeakupCustomerBookingListings is an alias for listPeakupCustomerServiceListings', () => {
+    expect(listPeakupCustomerBookingListings([hourlyListing, purchaseListing]).map(l => l.id.uuid)).toEqual(
+      listPeakupCustomerServiceListings([hourlyListing, purchaseListing]).map(l => l.id.uuid)
+    );
+  });
+
+  it('requiresPeakUpPreBookingForServiceListing only for booking services', () => {
+    expect(requiresPeakUpPreBookingForServiceListing(hourlyListing)).toBe(true);
+    expect(requiresPeakUpPreBookingForServiceListing(priceVariationListing)).toBe(true);
+    expect(requiresPeakUpPreBookingForServiceListing(purchaseListing)).toBe(false);
+  });
+
+  it('buildPeakUpProfileServiceListingPath uses pre-booking flags for booking listings', () => {
+    const path = buildPeakUpProfileServiceListingPath({
+      routes,
+      listing: hourlyListing,
+      openPreBooking: true,
+    });
+    expect(path).toContain('peakupPreBooking');
+    expect(path).toContain('peakupCoachBooking');
+    expect(path).toContain('hourly-1');
+  });
+
+  it('buildPeakUpProfileServiceListingPath opens purchase order panel without pre-booking', () => {
+    const path = buildPeakUpProfileServiceListingPath({
+      routes,
+      listing: purchaseListing,
+      openPreBooking: true,
+    });
+    expect(path).toContain('purchase-1');
+    expect(path).toContain('orderOpen');
+    expect(path).not.toContain('peakupPreBooking');
+    expect(path).not.toContain('peakupCoachBooking');
+  });
+
+  it('peakUpProfileServiceListingLinkSearch differs by listing process', () => {
+    expect(peakUpProfileServiceListingLinkSearch(hourlyListing)).toContain('peakupPreBooking');
+    expect(peakUpProfileServiceListingLinkSearch(purchaseListing)).toContain('orderOpen');
+    expect(peakUpProfileServiceListingLinkSearch(purchaseListing)).not.toContain('peakupPreBooking');
   });
 
   it('rejects price-variation listing without variants', () => {

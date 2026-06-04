@@ -94,6 +94,7 @@ export { default as Menu } from './Menu/Menu';
 export { default as Modal } from './Modal/Modal';
 export { default as PeakupCoachBadgesHierarchyModal } from './PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal';
 export { default as PreBookingIntroModal } from './PreBookingIntroModal/PreBookingIntroModal';
+export { default as CoachBookingServiceSelectionModal } from './CoachBookingServiceSelectionModal/CoachBookingServiceSelectionModal';
 export { default as ModalInMobile } from './ModalInMobile/ModalInMobile';
 
 // Fields (for Final Form)

@@ -3,6 +3,7 @@ import { createTransaction } from './testData';
 import {
   COACH_DASHBOARD_ROUTE_NAME,
   canShowBookingRequestPopup,
+  isProviderInstantConfirmedBooking,
   isProviderNewBookingRequest,
   markBookingRequestPopupSeen,
   pickNewBookingRequestForPopup,
@@ -39,6 +40,27 @@ describe('peakupBookingRequestPopup', () => {
     const process = getProcess('default-booking');
     const tx = createBookingSale('tx-instant', process.transitions.CONFIRM_PAYMENT_INSTANT);
     expect(isProviderNewBookingRequest(tx, providerId)).toBe(false);
+    expect(isProviderInstantConfirmedBooking(tx, providerId)).toBe(true);
+    expect(isProviderInstantConfirmedBooking(tx, customerId)).toBe(false);
+  });
+
+  it('detects instant confirmed bookings when provider is relationship-only', () => {
+    const process = getProcess('default-booking');
+    const tx = createBookingSale('tx-instant-rel', process.transitions.CONFIRM_PAYMENT_INSTANT);
+    delete tx.provider;
+    tx.relationships = {
+      provider: { data: { id: { uuid: providerId }, type: 'user' } },
+      customer: { data: { id: { uuid: customerId }, type: 'user' } },
+    };
+
+    expect(isProviderInstantConfirmedBooking(tx, providerId)).toBe(true);
+    expect(isProviderNewBookingRequest(tx, providerId)).toBe(false);
+  });
+
+  it('does not treat manually accepted bookings as instant confirmed', () => {
+    const process = getProcess('default-booking');
+    const tx = createBookingSale('tx-accepted', process.transitions.ACCEPT);
+    expect(isProviderInstantConfirmedBooking(tx, providerId)).toBe(false);
   });
 
   it('detects provider multi-day purchase in purchased state as new request', () => {

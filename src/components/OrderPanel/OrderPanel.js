@@ -44,7 +44,7 @@ import { PEAKUP_OPEN_PREBOOKING_SEARCH_FLAG } from '../../util/coachBookingNavig
 import {
   createBookingSubmitHandler,
   resolvePreBookingLanguageOptions,
-  resolvePreBookingSportOptions,
+  resolvePreBookingSportOptionsForListing,
 } from '../../util/peakupPreBooking';
 import { coachPreferredMeetingPointsList } from '../../util/peakupMeetingPoint';
 
@@ -435,7 +435,7 @@ const OrderPanel = props => {
   const isOrderOpen = !!searchParams.orderOpen;
   const preselectedPriceVariantSlug = searchParams.bookableOption;
   const sportOptions = useMemo(
-    () => resolvePreBookingSportOptions(intl, listing, author),
+    () => resolvePreBookingSportOptionsForListing(intl, listing, author),
     [intl, listing, author]
   );
   const languageOptions = useMemo(

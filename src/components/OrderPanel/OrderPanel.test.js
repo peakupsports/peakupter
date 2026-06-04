@@ -15,13 +15,16 @@ import OrderPanel from './OrderPanel';
 
 const { screen, waitFor, fireEvent } = testingLibrary;
 
-const openBookingThroughIntro = async ({ getByText, getByLabelText, getAllByText }) => {
+const openBookingThroughIntro = async ({ getByText, getByLabelText, queryByLabelText, getAllByText }) => {
   const bookButtons = getAllByText('OrderPanel.ctaButtonMessageBooking');
   fireEvent.click(bookButtons[0]);
   await waitFor(() => {
-    expect(getByLabelText('PreBookingIntroModal.sportLabel')).toBeInTheDocument();
+    expect(getByLabelText('PreBookingIntroModal.participantTypeLabel')).toBeInTheDocument();
   });
-  fireEvent.change(getByLabelText('PreBookingIntroModal.sportLabel'), { target: { value: 'ski' } });
+  const sportField = queryByLabelText('PreBookingIntroModal.sportLabel');
+  if (sportField) {
+    fireEvent.change(sportField, { target: { value: 'ski' } });
+  }
   fireEvent.change(getByLabelText('PreBookingIntroModal.participantTypeLabel'), {
     target: { value: 'self' },
   });
@@ -284,7 +287,7 @@ describe('OrderPanel', () => {
     });
 
     const props = { ...commonProps, listing, isOwnListing: false, validListingTypes };
-    const { getByText, getAllByText, getByLabelText, queryAllByText, queryByText } = render(
+    const { getByText, getAllByText, getByLabelText, queryByLabelText, queryAllByText, queryByText } = render(
       <OrderPanel {...props} />,
       { config, routeConfiguration }
     );
@@ -292,7 +295,7 @@ describe('OrderPanel', () => {
       expect(getAllByText('OrderPanel.ctaButtonMessageBooking').length).toBeGreaterThan(0);
       expect(queryByText('BookingDatesForm.bookingStartTitle')).not.toBeInTheDocument();
     });
-    await openBookingThroughIntro({ getByText, getByLabelText, getAllByText });
+    await openBookingThroughIntro({ getByText, getByLabelText, queryByLabelText, getAllByText });
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
       expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
@@ -338,14 +341,14 @@ describe('OrderPanel', () => {
     });
 
     const props = { ...commonProps, listing, isOwnListing: false, validListingTypes };
-    const { getByText, getAllByText, getByLabelText, queryAllByText } = render(<OrderPanel {...props} />, {
+    const { getByText, getAllByText, getByLabelText, queryByLabelText, queryAllByText } = render(<OrderPanel {...props} />, {
       config,
       routeConfiguration,
     });
     await waitFor(() => {
       expect(getAllByText('OrderPanel.ctaButtonMessageBooking').length).toBeGreaterThan(0);
     });
-    await openBookingThroughIntro({ getByText, getByLabelText, getAllByText });
+    await openBookingThroughIntro({ getByText, getByLabelText, queryByLabelText, getAllByText });
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
       expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
@@ -397,7 +400,7 @@ describe('OrderPanel', () => {
       isOwnListing: false,
       validListingTypes,
     };
-    const { getByText, getAllByText, getByLabelText, queryAllByText } = render(<OrderPanel {...props} />, {
+    const { getByText, getAllByText, getByLabelText, queryByLabelText, queryAllByText } = render(<OrderPanel {...props} />, {
       config,
       routeConfiguration,
     });
@@ -405,7 +408,7 @@ describe('OrderPanel', () => {
     await waitFor(() => {
       expect(getAllByText('OrderPanel.ctaButtonMessageBooking').length).toBeGreaterThan(0);
     });
-    await openBookingThroughIntro({ getByText, getByLabelText, getAllByText });
+    await openBookingThroughIntro({ getByText, getByLabelText, queryByLabelText, getAllByText });
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
       expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
@@ -465,7 +468,7 @@ describe('OrderPanel', () => {
       isOwnListing: false,
       validListingTypes,
     };
-    const { getByText, getAllByText, getByLabelText, queryAllByText, queryByText } = render(
+    const { getByText, getAllByText, getByLabelText, queryByLabelText, queryAllByText, queryByText } = render(
       <OrderPanel {...props} />,
       { config, routeConfiguration }
     );
@@ -473,7 +476,7 @@ describe('OrderPanel', () => {
     await waitFor(() => {
       expect(getAllByText('OrderPanel.ctaButtonMessageBooking').length).toBeGreaterThan(0);
     });
-    await openBookingThroughIntro({ getByText, getByLabelText, getAllByText });
+    await openBookingThroughIntro({ getByText, getByLabelText, queryByLabelText, getAllByText });
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
       expect(queryAllByText('OrderPanel.price')).toHaveLength(1);

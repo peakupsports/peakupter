@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import classNames from 'classnames';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
 import { useConfiguration } from '../../context/configurationContext';
@@ -13,6 +13,8 @@ import {
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { isPeakUpMultiDayPurchaseTransaction } from '../../util/peakUpMultiDayPurchase';
 import { getPeakUpMultiDayExperiencePhase } from '../../util/peakUpCoachBookingTransaction';
+import { isProviderInstantConfirmedBooking } from '../../util/peakupBookingRequestPopup';
+import { isTransactionActivityUnread } from '../../util/transactionNotificationCount';
 
 import { NamedLink, Page } from '../../components';
 import BookingsSummaryCard from '../../components/BookingsSummaryCard/BookingsSummaryCard';
@@ -22,9 +24,12 @@ import FooterContainer from '../FooterContainer/FooterContainer';
 
 import sportTheme from '../SportPagesTheme.module.css';
 import css from './CoachDashboardPage.module.css';
-import useInboxNotificationRefresh from '../../util/useInboxNotificationRefresh';
+import useInboxNotificationRefresh, {
+  INBOX_NOTIFICATION_POLL_INTERVAL_MS,
+} from '../../util/useInboxNotificationRefresh';
 import PeakUpGlobalBookingRequestNotifier from './PeakUpGlobalBookingRequestNotifier';
 import CoachTeamInvitationsSection from './CoachTeamInvitationsSection';
+import { fetchDashboardStatsThunk } from './CoachDashboardPage.duck';
 
 const formatCountStatValue = value => {
   if (value == null) {
@@ -113,6 +118,7 @@ const QuickStat = ({
  */
 const CoachDashboardPage = () => {
   const intl = useIntl();
+  const dispatch = useDispatch();
   const config = useConfiguration();
   const scrollingDisabled = useSelector(isScrollingDisabled);
   const isAuthenticated = useSelector(state => state.auth?.isAuthenticated);
@@ -125,7 +131,8 @@ const CoachDashboardPage = () => {
     state => state.CoachDashboardPage?.statsFetchInProgress
   );
 
-  const { upcomingSessionsStatCount, upcomingEventsStatCount } = useMemo(() => {
+  const { upcomingSessionsStatCount, upcomingEventsStatCount, pendingRequestsCount, newConfirmedBookingsCount } =
+    useMemo(() => {
     const upcomingLessons = (bookingSegments?.upcoming || []).filter(
       entry => !isPeakUpMultiDayPurchaseTransaction(entry?.transaction)
     );
@@ -135,13 +142,29 @@ const CoachDashboardPage = () => {
       }
       return getPeakUpMultiDayExperiencePhase(entry.transaction) === 'upcoming';
     });
+    const pendingLessons = (bookingSegments?.pending || []).filter(
+      entry => !isPeakUpMultiDayPurchaseTransaction(entry?.transaction)
+    );
+    const providerId = currentUser?.id?.uuid;
+    const unreadInstantConfirmed = providerId
+      ? upcomingLessons.filter(entry =>
+          isProviderInstantConfirmedBooking(entry.transaction, providerId) &&
+          isTransactionActivityUnread(
+            providerId,
+            entry.transaction?.id?.uuid,
+            entry.transaction?.attributes?.lastTransitionedAt
+          )
+        ).length
+      : 0;
 
     return {
       upcomingSessionsStatCount: upcomingLessons.length,
       upcomingEventsStatCount: upcomingEvents.length,
+      pendingRequestsCount: pendingLessons.length,
+      newConfirmedBookingsCount: unreadInstantConfirmed,
     };
-  }, [bookingSegments]);
-  const newRequestsCount = useSelector(
+  }, [bookingSegments, currentUser]);
+  const inboxNotificationCount = useSelector(
     state => state.user?.currentUserSaleNotificationCount ?? 0
   );
 
@@ -149,6 +172,25 @@ const CoachDashboardPage = () => {
     enabled: isAuthenticated && !!currentUser?.id,
     debugLabel: 'CoachDashboard',
   });
+
+  useEffect(() => {
+    if (!isAuthenticated || !currentUser?.id?.uuid) {
+      return undefined;
+    }
+
+    const refreshStats = () => {
+      dispatch(fetchDashboardStatsThunk());
+    };
+
+    const intervalId = window.setInterval(refreshStats, INBOX_NOTIFICATION_POLL_INTERVAL_MS);
+    const onFocus = () => refreshStats();
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [dispatch, isAuthenticated, currentUser?.id?.uuid]);
 
   const user = ensureCurrentUser(currentUser);
   const marketplaceName = config.marketplaceName || 'PeakUp';
@@ -244,9 +286,10 @@ const CoachDashboardPage = () => {
   );
   const description = intl.formatMessage({ id: 'CoachDashboardPage.schemaDescription' });
 
-  const hasNewRequests = newRequestsCount > 0;
+  const hasNewRequests = pendingRequestsCount > 0;
   const hasUpcomingSessions = !statsFetchInProgress && upcomingSessionsStatCount > 0;
   const hasUpcomingEvents = !statsFetchInProgress && upcomingEventsStatCount > 0;
+  const hasNewConfirmedBookings = !statsFetchInProgress && newConfirmedBookingsCount > 0;
 
   const stats = [
     {
@@ -261,6 +304,7 @@ const CoachDashboardPage = () => {
       labelDefaultMessage: 'Upcoming sessions',
       value: statsFetchInProgress ? '—' : formatCountStatValue(upcomingSessionsStatCount),
       highlight: hasUpcomingSessions,
+      alert: hasNewConfirmedBookings,
     },
     {
       key: 'events',
@@ -273,7 +317,7 @@ const CoachDashboardPage = () => {
       key: 'requests',
       labelId: 'CoachDashboardPage.statNewRequests',
       labelDefaultMessage: 'New requests',
-      value: formatCountStatValue(newRequestsCount),
+      value: statsFetchInProgress ? '—' : formatCountStatValue(pendingRequestsCount),
       alert: hasNewRequests,
     },
     {
@@ -361,7 +405,7 @@ const CoachDashboardPage = () => {
                   linkName={card.linkName}
                   linkParams={card.linkParams}
                   className={card.className}
-                  alertCount={card.key === 'inbox' ? newRequestsCount : 0}
+                  alertCount={card.key === 'inbox' ? inboxNotificationCount : 0}
                 />
               ))}
             </div>

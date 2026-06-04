@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../util/reactIntl';
-import { isDevelopmentMode } from '../../../util/isDevelopmentMode';
 import { NamedLink, NotificationBadge } from '../../../components';
 
 import css from './TopbarInboxLink.module.css';
@@ -41,22 +40,6 @@ const TopbarInboxLink = props => {
   const hasNotifications = notificationCount > 0;
   const isInboxCurrent = currentPage?.indexOf('InboxPage') === 0;
   const badgeCount = notificationCount > 99 ? '99+' : notificationCount;
-  const renderedBadgeCount = hasNotifications ? badgeCount : 0;
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || !isDevelopmentMode()) {
-      return;
-    }
-    // eslint-disable-next-line no-console
-    console.log('[PeakUp TOPBAR DOT STATE]', {
-      source: 'TopbarInboxLink',
-      coachNavMode,
-      saleCount,
-      orderCount,
-      totalCount,
-      renderedBadgeCount,
-    });
-  }, [coachNavMode, saleCount, orderCount, totalCount, renderedBadgeCount]);
 
   const isDesktop = variant === 'desktop';
   const modeLinkClass = isDesktop

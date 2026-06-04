@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
 import { sendVerificationEmail, hasCurrentUserErrors } from '../../ducks/user.duck';
-import { isDevelopmentMode } from '../../util/isDevelopmentMode';
 import { logCustomerDotRendered } from '../../util/transactionNotificationCount';
 import { logout, authenticationInProgress } from '../../ducks/auth.duck';
 import { manageDisableScrolling } from '../../ducks/ui.duck';
@@ -38,27 +37,9 @@ export const TopbarContainerComponent = props => {
     ...rest
   } = props;
 
-  const saleCount = currentUserSaleNotificationCount;
-  const orderCount = currentUserOrderNotificationCount;
-  const totalCount = notificationCount;
-  const renderedBadgeCount = totalCount > 99 ? '99+' : totalCount;
-
   useEffect(() => {
-    if (typeof window === 'undefined' || !isDevelopmentMode()) {
-      return;
-    }
-    // eslint-disable-next-line no-console
-    console.log('[PeakUp TOPBAR DOT STATE]', {
-      saleCount,
-      orderCount,
-      totalCount,
-      renderedBadgeCount: totalCount > 0 ? renderedBadgeCount : 0,
-    });
-  }, [saleCount, orderCount, totalCount, renderedBadgeCount]);
-
-  useEffect(() => {
-    logCustomerDotRendered(orderCount, unreadOrderTransactionIds);
-  }, [orderCount, unreadOrderTransactionIds]);
+    logCustomerDotRendered(currentUserOrderNotificationCount, unreadOrderTransactionIds);
+  }, [currentUserOrderNotificationCount, unreadOrderTransactionIds]);
 
   return (
     <Topbar

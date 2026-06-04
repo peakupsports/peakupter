@@ -65,6 +65,27 @@ describe('coachCalendarBookings upcoming sessions', () => {
     expect(countUpcomingCoachSessions([pending], now)).toBe(0);
   });
 
+  it('counts instant confirmed bookings as upcoming sessions', () => {
+    const process = getProcess('default-booking');
+    const instant = createTransaction({
+      id: 'tx-instant',
+      processName: 'default-booking/release-1',
+      lastTransition: process.transitions.CONFIRM_PAYMENT_INSTANT,
+      customer: { id: { uuid: customerId } },
+      provider: { id: { uuid: providerId } },
+      booking: {
+        attributes: {
+          start: '2026-07-15T10:00:00.000Z',
+          end: '2026-07-15T11:00:00.000Z',
+        },
+      },
+    });
+
+    expect(isUpcomingCoachSessionTransaction(instant, now)).toBe(true);
+    expect(isCoachCalendarOccupyingTransaction(instant)).toBe(true);
+    expect(countUpcomingCoachSessions([instant], now)).toBe(1);
+  });
+
   it('counts future multi-day purchases in purchased state as upcoming sessions', () => {
     const purchaseProcess = getProcess('default-purchase');
     const multiDay = createTransaction({

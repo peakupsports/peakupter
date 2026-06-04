@@ -4,7 +4,9 @@ import {
   isBookingProcessAlias,
   resolveLatestProcessName,
 } from '../transactions/transaction';
+import { transitions as bookingTransitions } from '../transactions/transactionProcessBooking';
 import { isPeakUpMultiDayPurchaseTransaction } from './peakUpMultiDayPurchase';
+import { isTransactionProviderUser } from './transactionParties';
 
 const POPUP_SEEN_STORAGE_PREFIX = 'peakupBookingRequestPopupSeen';
 
@@ -111,7 +113,7 @@ export const isProviderNewBookingRequest = (transaction, currentUserId) => {
     return false;
   }
 
-  if (transaction.provider?.id?.uuid !== currentUserId) {
+  if (!isTransactionProviderUser(transaction, currentUserId)) {
     return false;
   }
 
@@ -131,6 +133,40 @@ export const isProviderNewBookingRequest = (transaction, currentUserId) => {
 
   const info = getBookingProcessStateInfo(transaction);
   return info?.processState === info?.states?.PREAUTHORIZED;
+};
+
+/**
+ * Provider-side default-booking confirmed instantly (confirm-payment-instant → accepted).
+ * Excludes request-to-book flows that reach accepted only after manual accept.
+ *
+ * @param {Object} transaction
+ * @param {string} currentUserId
+ * @returns {boolean}
+ */
+export const isProviderInstantConfirmedBooking = (transaction, currentUserId) => {
+  if (!transaction || !currentUserId) {
+    return false;
+  }
+
+  if (!isTransactionProviderUser(transaction, currentUserId)) {
+    return false;
+  }
+
+  const rawName = transaction?.attributes?.processName;
+  const isBooking = rawName?.includes('/')
+    ? isBookingProcessAlias(rawName)
+    : isBookingProcess(resolveLatestProcessName(rawName));
+
+  if (!isBooking) {
+    return false;
+  }
+
+  const info = getBookingProcessStateInfo(transaction);
+  if (info?.processState !== info?.states?.ACCEPTED) {
+    return false;
+  }
+
+  return transaction?.attributes?.lastTransition === bookingTransitions.CONFIRM_PAYMENT_INSTANT;
 };
 
 /**
