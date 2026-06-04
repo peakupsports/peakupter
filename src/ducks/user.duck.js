@@ -6,7 +6,6 @@ import { LISTING_STATE_DRAFT } from '../util/types';
 import { storableError } from '../util/errors';
 import { isUserAuthorized } from '../util/userHelpers';
 import {
-  getStatesNeedingProviderAttention,
   getStatesNeedingCustomerAttention,
 } from '../transactions/transaction';
 import { filterTransactionsExcludingArchived } from '../util/archivedConversations';
@@ -22,6 +21,7 @@ import {
   logInboxListOpenNoAck,
   logInboxNotificationFinalWrite,
   recountInboxNotificationCounts,
+  getProviderInboxNotificationSaleQueryStates,
 } from '../util/transactionNotificationCount';
 import { fetchMyTeamInvites } from '../util/api';
 import {
@@ -161,12 +161,12 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
   }
 
   const fetchSeq = ++inboxNotificationsFetchSeq;
-  const statesNeedingProviderAttention = getStatesNeedingProviderAttention() || [];
+  const providerSaleNotificationQueryStates = getProviderInboxNotificationSaleQueryStates();
   const statesNeedingCustomerAttention = getStatesNeedingCustomerAttention() || [];
 
   const paramsForSales = {
     only: 'sale',
-    states: statesNeedingProviderAttention.map(state => `state/${state}`).join(','),
+    states: providerSaleNotificationQueryStates.map(state => `state/${state}`).join(','),
     page: 1,
     perPage: NOTIFICATION_PAGE_SIZE,
     include: ['customer', 'provider'],
@@ -182,7 +182,7 @@ const fetchCurrentUserNotificationsPayloadCreator = (_, { extra: sdk, getState, 
   };
 
   const salesQuery =
-    statesNeedingProviderAttention.length > 0
+    providerSaleNotificationQueryStates.length > 0
       ? sdk.transactions.query(paramsForSales)
       : Promise.resolve({ data: { data: [] } });
   const ordersQuery =
@@ -340,10 +340,6 @@ export const fetchCurrentUserNotifications =
     .catch(error => {
       if (error?.status === 429) {
         inboxRefreshRateLimitedUntil = Date.now() + INBOX_REFRESH_RATE_LIMIT_BACKOFF_MS;
-      }
-      if (typeof window !== 'undefined') {
-        // eslint-disable-next-line no-console
-        console.warn('[PeakUp INBOX NOTIFICATIONS FETCH ERROR]', error);
       }
       return null;
     });
@@ -874,8 +870,6 @@ const userSlice = createSlice({
         const previousTotal =
           state.currentUserSaleNotificationCount + state.currentUserOrderNotificationCount;
         if (typeof window !== 'undefined' && isDevelopmentMode()) {
-          // eslint-disable-next-line no-console
-          console.warn('[PeakUp INBOX NOTIFICATIONS FETCH ERROR]', action.payload);
           if (previousTotal > 0) {
             // eslint-disable-next-line no-console
             console.log('[PeakUp INBOX DOT STALE CLEARED]', {

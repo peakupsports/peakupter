@@ -1,8 +1,15 @@
 import { denormalisedResponseEntities } from './data';
-import { getProcess } from '../transactions/transaction';
-import { transitions as bookingTransitions } from '../transactions/transactionProcessBooking';
+import { getProcess, getStatesNeedingProviderAttention } from '../transactions/transaction';
+import {
+  states as bookingStates,
+  transitions as bookingTransitions,
+} from '../transactions/transactionProcessBooking';
 import { transitions as inquiryTransitions } from '../transactions/transactionProcessInquiry';
-import { isProviderNewBookingRequest } from './peakupBookingRequestPopup';
+import {
+  getBookingProcessStateInfo,
+  isProviderInstantConfirmedBooking,
+  isProviderNewBookingRequest,
+} from './peakupBookingRequestPopup';
 import {
   getMessageSenderUuid,
   getProviderSaleThreadReadAt,
@@ -21,13 +28,46 @@ import {
 import { isDevelopmentMode } from './isDevelopmentMode';
 import {
   filterTransactionIdsExcludingThreadSuppress,
-  getInboxThreadAckSuppressEntry,
   isInboxThreadAckSuppressed,
   suppressInboxThreadAfterOpen,
 } from './inboxThreadAckSuppress';
+import { getTransactionPartyUuid } from './transactionParties';
 
 // Transaction states where inbox attention depends on messaging, not only process state.
 export const MESSAGE_ATTENTION_STATES = new Set(['inquiry', 'free-inquiry']);
+
+/** Provider sale states added to inbox notification fetch (instant confirmed bookings). */
+export const PROVIDER_INBOX_NOTIFICATION_SALE_QUERY_EXTRA_STATES = [bookingStates.ACCEPTED];
+
+/**
+ * Provider sale states queried for inbox notification recount.
+ * Includes `accepted` so instant confirmed bookings enter the recount pool.
+ *
+ * @returns {string[]}
+ */
+export const getProviderInboxNotificationSaleQueryStates = () =>
+  [
+    ...new Set([
+      ...(getStatesNeedingProviderAttention() || []),
+      ...PROVIDER_INBOX_NOTIFICATION_SALE_QUERY_EXTRA_STATES,
+    ]),
+  ];
+
+/**
+ * Accepted sales that are not instant confirmations are excluded from provider recount.
+ *
+ * @param {Object} tx
+ * @param {string} currentUserId
+ * @returns {boolean}
+ */
+export const shouldExcludeAcceptedNonInstantFromProviderRecount = (tx, currentUserId) => {
+  const processState = getBookingProcessStateInfo(tx)?.processState;
+  if (processState !== bookingStates.ACCEPTED) {
+    return false;
+  }
+
+  return !isProviderInstantConfirmedBooking(tx, currentUserId);
+};
 
 const ACK_STORAGE_PREFIX = 'peakupInboxMessageAck';
 const CUSTOMER_LAST_SENT_PREFIX = 'peakupCustomerLastSentAt';
@@ -403,34 +443,7 @@ export const logCustomerDotRendered = (orderCount, unreadOrderTransactionIds = [
 /**
  * Log Redux inbox badge write — validated IDs only, never merged cache.
  */
-export const logInboxNotificationFinalWrite = ({
-  saleValidatedIds = [],
-  orderValidatedIds = [],
-  previousUnreadSaleIds = [],
-  previousUnreadOrderIds = [],
-  finalSaleIds = [],
-  finalOrderIds = [],
-}) => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  const saleCount = finalSaleIds.length;
-  const orderCount = finalOrderIds.length;
-  // eslint-disable-next-line no-console
-  console.warn('[PeakUp NOTIFICATION FINAL WRITE]', {
-    saleValidatedIds,
-    orderValidatedIds,
-    previousUnreadSaleIds,
-    previousUnreadOrderIds,
-    finalSaleIds,
-    finalOrderIds,
-    saleCount,
-    orderCount,
-    totalCount: saleCount + orderCount,
-    droppedFromCacheSale: previousUnreadSaleIds.filter(id => !finalSaleIds.includes(id)),
-    droppedFromCacheOrder: previousUnreadOrderIds.filter(id => !finalOrderIds.includes(id)),
-  });
-};
+export const logInboxNotificationFinalWrite = () => {};
 
 const logCustomerDotSource = (tx, currentUserId, messages, reasonCounted) => {
   if (typeof window === 'undefined' || !isDevelopmentMode()) {
@@ -1084,21 +1097,6 @@ export { logInboxListOpenNoAck, logThreadAckResult };
  * @param {string} currentUserId
  * @returns {'sale'|'order'|null}
  */
-const getTransactionPartyUuid = (tx, party) => {
-  const entity = tx?.[party];
-  if (entity?.id?.uuid) {
-    return entity.id.uuid;
-  }
-  const relId = tx?.relationships?.[party]?.data?.id;
-  if (relId?.uuid) {
-    return relId.uuid;
-  }
-  if (typeof relId === 'string') {
-    return relId;
-  }
-  return null;
-};
-
 export const getInboxRoleForTransaction = (tx, currentUserId) => {
   if (!tx || !currentUserId) {
     return null;
@@ -1188,26 +1186,48 @@ const isActivityAcknowledged = (currentUserId, transactionId, activityAt) => {
   return isMessageAcknowledged(currentUserId, transactionId, activityAt);
 };
 
-const hasUnreadStateAttention = (tx, currentUserId) => {
-  const txUuid = tx?.id?.uuid;
+/**
+ * Whether a booking transition timestamp is still unread for inbox/dashboard attention.
+ *
+ * @param {string} currentUserId
+ * @param {string|Object} transactionId
+ * @param {string|null|undefined} activityAt ISO timestamp
+ * @returns {boolean}
+ */
+export const isTransactionActivityUnread = (currentUserId, transactionId, activityAt) => {
+  const txUuid = normalizeTransactionId(transactionId);
   if (!txUuid || !currentUserId) {
     return false;
   }
 
-  if (isProviderNewBookingRequest(tx, currentUserId)) {
-    const activityAt = tx?.attributes?.lastTransitionedAt;
-    if (!activityAt) {
-      return true;
-    }
-    if (isMessageAcknowledged(currentUserId, txUuid, activityAt)) {
-      return false;
-    }
-    const readAt = getTransactionReadAt(currentUserId, txUuid);
-    return !readAt || new Date(readAt).getTime() < new Date(activityAt).getTime();
+  if (!activityAt) {
+    return true;
   }
 
-  return false;
+  if (isMessageAcknowledged(currentUserId, txUuid, activityAt)) {
+    return false;
+  }
+
+  const readAt = getTransactionReadAt(currentUserId, txUuid);
+  return !readAt || new Date(readAt).getTime() < new Date(activityAt).getTime();
 };
+
+const hasUnreadProviderBookingAttention = (tx, currentUserId) => {
+  if (
+    !isProviderNewBookingRequest(tx, currentUserId) &&
+    !isProviderInstantConfirmedBooking(tx, currentUserId)
+  ) {
+    return false;
+  }
+
+  return isTransactionActivityUnread(
+    currentUserId,
+    tx?.id?.uuid,
+    tx?.attributes?.lastTransitionedAt
+  );
+};
+
+const hasUnreadStateAttention = (tx, currentUserId) => hasUnreadProviderBookingAttention(tx, currentUserId);
 
 const logUnreadCancellationMessage = (tx, currentUserId, latestMessage, isUnread) => {
   if (!isUnread || typeof window === 'undefined') {
@@ -1379,6 +1399,14 @@ export const acknowledgeVisibleInboxTransactions = async (transactions, currentU
       continue;
     }
 
+    if (isProviderInstantConfirmedBooking(tx, currentUserId)) {
+      const at = tx?.attributes?.lastTransitionedAt || new Date().toISOString();
+      markTransactionReadOnOpen(currentUserId, txUuid, at);
+      setMessageAckAt(currentUserId, txUuid, at);
+      acknowledged += 1;
+      continue;
+    }
+
     acknowledgeTransactionInquiry(currentUserId, txUuid, tx);
 
     const processState = getTransactionProcessState(tx);
@@ -1462,86 +1490,6 @@ export const logDashboardRequestRegression = ({
 };
 
 /**
- * Log when provider/sale recount adds a transaction to the badge.
- */
-const logProviderPollingSource = (
-  tx,
-  currentUserId,
-  messages,
-  reasonCounted,
-  isUnread,
-  { saleValidatedIds = [], finalSaleIds = [] } = {}
-) => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  const txUuid = tx?.id?.uuid;
-  const suppressEntry = getInboxThreadAckSuppressEntry(currentUserId, txUuid, 'sale');
-  const latestMessage = messages?.length ? getLatestMessage(messages) : null;
-  // eslint-disable-next-line no-console
-  console.warn('[PeakUp PROVIDER POLLING SOURCE]', {
-    transactionId: txUuid,
-    state: getTransactionProcessState(tx),
-    lastTransition: tx?.attributes?.lastTransition ?? null,
-    listingId: getListingIdFromTx(tx),
-    latestMessageAuthorId: latestMessage ? getMessageSenderUuid(latestMessage) : null,
-    currentUserId,
-    latestMessageCreatedAt: latestMessage?.attributes?.createdAt ?? null,
-    isUnread,
-    isSuppressed: isInboxThreadAckSuppressed(currentUserId, txUuid, 'sale', messages),
-    suppressKey: suppressEntry?.suppressKey ?? null,
-    suppressedAt: suppressEntry?.suppressedAt ?? null,
-    openedAt: suppressEntry?.openedAt ?? null,
-    reasonCounted,
-    saleValidatedIds,
-    finalSaleIds: finalSaleIds.length ? finalSaleIds : saleValidatedIds,
-  });
-};
-
-/**
- * Log when polling/recount adds a transaction to the badge (diagnose ghost re-counts).
- */
-const logPollingBadgeSource = (
-  tx,
-  currentUserId,
-  messages,
-  role,
-  reasonCounted,
-  { orderValidatedIds = [], saleValidatedIds = [] } = {}
-) => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  const txUuid = tx?.id?.uuid;
-  const suppressRole = role === 'order' ? 'order' : 'sale';
-  const suppressEntry = getInboxThreadAckSuppressEntry(currentUserId, txUuid, suppressRole);
-  // eslint-disable-next-line no-console
-  console.warn('[PeakUp POLLING BADGE SOURCE]', {
-    role,
-    transactionId: txUuid,
-    listingId: getListingIdFromTx(tx),
-    state: getTransactionProcessState(tx),
-    lastTransition: tx?.attributes?.lastTransition ?? null,
-    latestMessageAuthorId: messages?.length
-      ? getMessageSenderUuid(getLatestMessage(messages))
-      : null,
-    currentUserId,
-    latestMessageCreatedAt: messages?.length
-      ? getLatestMessage(messages)?.attributes?.createdAt ?? null
-      : null,
-    suppressedAt: suppressEntry?.suppressedAt ?? null,
-    openedAt: suppressEntry?.openedAt ?? null,
-    suppressKey: suppressEntry?.suppressKey ?? null,
-    reasonCounted,
-    isSuppressed: isInboxThreadAckSuppressed(currentUserId, txUuid, suppressRole, messages),
-    unreadOrderTransactionIds: orderValidatedIds,
-    unreadSaleTransactionIds: saleValidatedIds,
-    orderValidatedIds,
-    saleValidatedIds,
-  });
-};
-
-/**
  * Single-pass recount validation — builds the unread list only from transactions
  * that pass inbox API + message checks. Never reuses a pre-filter raw unread array.
  *
@@ -1572,6 +1520,14 @@ const collectValidatedUnreadForRecount = async ({
       if (isOrderRecount) {
         logCustomerDotIgnored(txUuid, 'not_in_inbox_api');
       }
+      continue;
+    }
+
+    if (
+      !isOrderRecount &&
+      shouldExcludeAcceptedNonInstantFromProviderRecount(tx, currentUserId)
+    ) {
+      removed.push({ id: txUuid, reason: 'accepted_non_instant_excluded' });
       continue;
     }
 
@@ -1665,12 +1621,6 @@ const collectValidatedUnreadForRecount = async ({
           isUnread: true,
         });
         logCustomerDotSource(tx, currentUserId, messages, 'incoming_message_unread');
-        logPollingBadgeSource(tx, currentUserId, messages, 'order', 'incoming_message_unread', {
-          orderValidatedIds: dedupeTransactionIds([
-            ...validatedUnread.map(entry => entry.id),
-          ]),
-          saleValidatedIds: [],
-        });
       } else {
         const reasonIgnored = getCustomerOrderNotCountedReason(
           tx,
@@ -1704,14 +1654,6 @@ const collectValidatedUnreadForRecount = async ({
         lastMessageAuthorId: incomingMessage ? getMessageSenderUuid(incomingMessage) : null,
         isUnread: true,
       });
-      logProviderPollingSource(
-        tx,
-        currentUserId,
-        messages,
-        'canceled_unread_message',
-        true,
-        { saleValidatedIds: dedupeTransactionIds(validatedUnread.map(entry => entry.id)) }
-      );
       continue;
     }
 
@@ -1727,14 +1669,6 @@ const collectValidatedUnreadForRecount = async ({
         lastMessageAuthorId: incomingMessage ? getMessageSenderUuid(incomingMessage) : null,
         isUnread: true,
       });
-      logProviderPollingSource(
-        tx,
-        currentUserId,
-        messages,
-        'incoming_message_unread',
-        true,
-        { saleValidatedIds: dedupeTransactionIds(validatedUnread.map(entry => entry.id)) }
-      );
       if (isProviderNewBookingRequest(tx, currentUserId)) {
         logDashboardRequestRegression({
           currentSource: 'isProviderSaleIncomingMessageUnread',

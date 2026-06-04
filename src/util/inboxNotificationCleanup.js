@@ -5,12 +5,11 @@ import {
   getReadAtStorageKey,
   getTransactionReadAtMap,
 } from './unreadNotifications';
-import { purgeTransactionInboxNotificationStorage } from './transactionNotificationCount';
+import { purgeTransactionInboxNotificationStorage, getProviderInboxNotificationSaleQueryStates } from './transactionNotificationCount';
 import { getBookingRequestPopupSeenKey } from './peakupBookingRequestPopup';
 import { getSupportedProcessesInfo } from '../transactions/transaction';
 import {
   getStatesNeedingCustomerAttention,
-  getStatesNeedingProviderAttention,
 } from '../transactions/transaction';
 
 const INBOX_TAB_QUERY_PAGE_SIZE = 100;
@@ -102,12 +101,12 @@ export const fetchNotificationPoolTransactionIds = async (sdk, currentUser, curr
     return new Set();
   }
 
-  const statesNeedingProviderAttention = getStatesNeedingProviderAttention() || [];
+  const providerSaleNotificationQueryStates = getProviderInboxNotificationSaleQueryStates();
   const statesNeedingCustomerAttention = getStatesNeedingCustomerAttention() || [];
 
   const paramsForSales = {
     only: 'sale',
-    states: statesNeedingProviderAttention.map(state => `state/${state}`).join(','),
+    states: providerSaleNotificationQueryStates.map(state => `state/${state}`).join(','),
     page: 1,
     perPage: NOTIFICATION_PAGE_SIZE,
     include: ['customer', 'provider'],
@@ -123,7 +122,7 @@ export const fetchNotificationPoolTransactionIds = async (sdk, currentUser, curr
   };
 
   const salesQuery =
-    statesNeedingProviderAttention.length > 0
+    providerSaleNotificationQueryStates.length > 0
       ? sdk.transactions.query(paramsForSales)
       : Promise.resolve({ data: { data: [] } });
   const ordersQuery =

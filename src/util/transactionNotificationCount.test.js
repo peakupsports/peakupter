@@ -13,10 +13,12 @@ import {
   getInboxRoleForTransaction,
   getMessageAckAt,
   getMessageAckStorageKey,
+  getProviderInboxNotificationSaleQueryStates,
   logInboxListOpenNoAck,
   persistProviderSaleThreadReadAck,
   recountInboxNotificationCounts,
   setMessageAckAt,
+  shouldExcludeAcceptedNonInstantFromProviderRecount,
 } from './transactionNotificationCount';
 import { getProviderSaleThreadReadAt } from './unreadNotifications';
 import { suppressInboxThreadAfterOpen } from './inboxThreadAckSuppress';
@@ -25,7 +27,7 @@ import { markTransactionReadOnOpen } from './unreadNotifications';
 import { getProcess, getStatesNeedingCustomerAttention } from '../transactions/transaction';
 import { transitions as bookingTransitions } from '../transactions/transactionProcessBooking';
 import { createTransaction } from './testData';
-import { isProviderNewBookingRequest } from './peakupBookingRequestPopup';
+import { isProviderInstantConfirmedBooking, isProviderNewBookingRequest } from './peakupBookingRequestPopup';
 
 const customerId = 'customer-uuid';
 const providerId = 'provider-uuid';
@@ -325,6 +327,173 @@ describe('transactionNotificationCount', () => {
 
     const count = await countTransactionNotifications([tx], providerId, sdk);
     expect(count).toBe(0);
+  });
+
+  it('recount counts instant confirmed bookings without customer messages', async () => {
+    const bookingAt = '2026-05-19T10:00:00.000Z';
+    const process = getProcess('default-booking');
+    const tx = createTransaction({
+      id: txId,
+      processName: 'default-booking/release-1',
+      lastTransition: process.transitions.CONFIRM_PAYMENT_INSTANT,
+      customer: { id: { uuid: customerId } },
+      provider: { id: { uuid: providerId } },
+    });
+    tx.attributes.lastTransitionedAt = bookingAt;
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'sale' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({ data: { data: [] } }),
+      },
+    };
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [tx],
+      orderTransactions: [],
+      currentUserId: providerId,
+      currentUser: { id: { uuid: providerId } },
+      sdk,
+    });
+
+    expect(isProviderInstantConfirmedBooking(tx, providerId)).toBe(true);
+    expect(recount.saleUnreadIds).toEqual([txId]);
+    jest.restoreAllMocks();
+  });
+
+  it('recount counts instant confirmed bookings with relationship-only provider', async () => {
+    const bookingAt = '2026-05-19T10:00:00.000Z';
+    const process = getProcess('default-booking');
+    const tx = createTransaction({
+      id: txId,
+      processName: 'default-booking/release-1',
+      lastTransition: process.transitions.CONFIRM_PAYMENT_INSTANT,
+      customer: null,
+      provider: null,
+    });
+    tx.attributes.lastTransitionedAt = bookingAt;
+    tx.relationships = {
+      provider: { data: { id: { uuid: providerId }, type: 'user' } },
+      customer: { data: { id: { uuid: customerId }, type: 'user' } },
+    };
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'sale' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({ data: { data: [] } }),
+      },
+    };
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [tx],
+      orderTransactions: [],
+      currentUserId: providerId,
+      currentUser: { id: { uuid: providerId } },
+      sdk,
+    });
+
+    expect(isProviderInstantConfirmedBooking(tx, providerId)).toBe(true);
+    expect(recount.saleUnreadIds).toEqual([txId]);
+    jest.restoreAllMocks();
+  });
+
+  it('includes accepted in provider inbox notification sale query states', () => {
+    const states = getProviderInboxNotificationSaleQueryStates();
+    expect(states).toContain('accepted');
+    expect(states).toContain('preauthorized');
+  });
+
+  it('recount excludes accepted non-instant sales even with unread customer messages', async () => {
+    const acceptedAt = '2026-05-19T10:00:00.000Z';
+    const process = getProcess('default-booking');
+    const tx = createTransaction({
+      id: txId,
+      processName: 'default-booking/release-1',
+      lastTransition: process.transitions.ACCEPT,
+      customer: { id: { uuid: customerId } },
+      provider: { id: { uuid: providerId } },
+    });
+    tx.attributes.lastTransitionedAt = acceptedAt;
+    tx.attributes.transitions = [
+      { transition: process.transitions.CONFIRM_PAYMENT, by: 'customer' },
+      { transition: process.transitions.ACCEPT, by: 'provider' },
+    ];
+
+    expect(shouldExcludeAcceptedNonInstantFromProviderRecount(tx, providerId)).toBe(true);
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'sale' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({
+          data: {
+            data: [
+              {
+                id: { uuid: 'message-customer' },
+                type: 'message',
+                attributes: { createdAt: '2026-05-19T11:00:00.000Z', content: 'Thanks' },
+                relationships: { sender: { data: { id: { uuid: customerId }, type: 'user' } } },
+              },
+            ],
+            included: [{ id: { uuid: customerId }, type: 'user' }],
+          },
+        }),
+      },
+    };
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [tx],
+      orderTransactions: [],
+      currentUserId: providerId,
+      currentUser: { id: { uuid: providerId } },
+      sdk,
+    });
+
+    expect(recount.saleUnreadIds).toHaveLength(0);
+    jest.restoreAllMocks();
+  });
+
+  it('recount excludes instant confirmed sales after they have been read', async () => {
+    const bookingAt = '2026-05-19T10:00:00.000Z';
+    markTransactionReadOnOpen(providerId, txId, bookingAt);
+    const process = getProcess('default-booking');
+    const tx = createTransaction({
+      id: txId,
+      processName: 'default-booking/release-1',
+      lastTransition: process.transitions.CONFIRM_PAYMENT_INSTANT,
+      customer: { id: { uuid: customerId } },
+      provider: { id: { uuid: providerId } },
+    });
+    tx.attributes.lastTransitionedAt = bookingAt;
+
+    jest.spyOn(inboxNotificationCleanup, 'fetchInboxTabTransactionIds').mockImplementation(
+      async (_sdk, _user, only) => new Set(only === 'sale' ? [txId] : [])
+    );
+
+    const sdk = {
+      messages: {
+        query: jest.fn().mockResolvedValue({ data: { data: [] } }),
+      },
+    };
+
+    const recount = await recountInboxNotificationCounts({
+      saleTransactions: [tx],
+      orderTransactions: [],
+      currentUserId: providerId,
+      currentUser: { id: { uuid: providerId } },
+      sdk,
+    });
+
+    expect(recount.saleUnreadIds).toHaveLength(0);
+    jest.restoreAllMocks();
   });
 
   it('recount excludes provider sale when thread-ack suppress is active', async () => {
