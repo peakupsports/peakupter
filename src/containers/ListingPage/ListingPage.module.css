@@ -1507,3 +1507,189 @@
   border: 1px solid rgba(25, 223, 242, 0.18);
   border-radius: 16px;
 }
+
+/* PeakUp dark theme — booking DatePicker / DateRangePicker (replaces default marketplace blue) */
+.listingPeakUp :global([class*='DatePicker_root']),
+.listingPeakUp :global([class*='DateRangePicker_popup']),
+.listingPeakUp :global([class*='SingleDatepicker_popup']) {
+  --datepickerFgColor: rgba(244, 247, 251, 0.92);
+  --datepickerBgColor: rgba(6, 14, 28, 0.98);
+  --datepickerBorderColor: rgba(25, 223, 242, 0.22);
+  --datepickerDisabledFgColor: rgba(157, 176, 198, 0.38);
+  --datepickerDisabledTextDeco: none;
+  --datepickerHoveredFgColor: rgba(244, 247, 251, 0.96);
+  --datepickerHoveredBgColor: rgba(25, 223, 242, 0.14);
+  --datepickerHeaderFgColor: #f8fafc;
+  --datepickerHeaderFgColorDisabled: rgba(157, 176, 198, 0.4);
+  --datepickerHeaderArrowColor: rgba(25, 223, 242, 0.92);
+  --datepickerDateOutline: 2px solid rgba(25, 223, 242, 0.55);
+  --datepickerButtonOutlineColor: rgba(25, 223, 242, 0.75);
+  --datepickerSelectedFgColor: #041018;
+  --datepickerSelectedBgColor: rgba(25, 223, 242, 0.35);
+  --datepickerSelectedHoveredFgColor: #041018;
+  --datepickerSelectedHoveredBgColor: rgba(157, 255, 79, 0.45);
+  --datepickerSelectedBg: linear-gradient(135deg, #19dff2 0%, #9dff2e 100%);
+}
+
+.listingPeakUp :global([class*='DateRangePicker_popup']),
+.listingPeakUp :global([class*='SingleDatepicker_popup']) {
+  border-radius: 0 0 14px 14px;
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.45),
+    0 0 26px rgba(25, 223, 242, 0.12);
+  overflow: hidden;
+}
+
+.listingPeakUp :global([class*='DatePicker_root']) {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(25, 223, 242, 0.08) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(12, 20, 36, 0.98) 0%, rgba(6, 14, 28, 0.98) 100%) !important;
+  border: 1px solid rgba(25, 223, 242, 0.22);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  color: rgba(228, 235, 243, 0.9);
+}
+
+.listingPeakUp :global([class*='DatePicker_header']) {
+  background: linear-gradient(
+    180deg,
+    rgba(14, 24, 42, 0.95) 0%,
+    rgba(8, 14, 26, 0.72) 100%
+  );
+}
+
+.listingPeakUp :global([class*='DatePicker_monthName']) {
+  color: #f8fafc !important;
+}
+
+.listingPeakUp :global([class*='DatePicker_weekday']) > :global(span) {
+  color: rgba(157, 176, 198, 0.72) !important;
+  font-weight: 600;
+}
+
+.listingPeakUp :global([class*='DatePicker_arrowIcon']) {
+  stroke: rgba(25, 223, 242, 0.92) !important;
+  fill: rgba(25, 223, 242, 0.92) !important;
+}
+
+.listingPeakUp
+  :global([class*='DatePicker_date']:not([class*='DatePicker_dateDisabled']):not([class*='DatePicker_dateSelected']):not(
+      [class*='DatePicker_dateStart']
+    ):not([class*='DatePicker_dateEnd']):hover)
+  > :global([class*='DatePicker_renderedDay']) {
+  background-color: rgba(25, 223, 242, 0.16) !important;
+  color: rgba(244, 247, 251, 0.96) !important;
+  box-shadow: 0 0 14px rgba(25, 223, 242, 0.2);
+  border-radius: 50%;
+}
+
+.listingPeakUp
+  :global([class*='DatePicker_dateToday']:not([class*='DatePicker_dateSelected']):not([class*='DatePicker_dateStart']):not(
+      [class*='DatePicker_dateEnd']
+    ))
+  :global([class*='DatePicker_renderedDay']) {
+  box-shadow: 0 0 0 1.5px rgba(25, 223, 242, 0.8);
+  border-radius: 50%;
+}
+
+.listingPeakUp :global([class*='DatePicker_dateToday']) :global([class*='DatePicker_renderedDay']:after) {
+  display: none;
+}
+
+.listingPeakUp :global([class*='DatePicker_dateDisabled']) :global([class*='DatePicker_renderedDay']) {
+  color: rgba(157, 176, 198, 0.38) !important;
+  background-color: transparent !important;
+  text-decoration: none !important;
+}
+
+.listingPeakUp
+  :global([class*='DatePicker_dateInRange']:not([class*='DatePicker_dateStart']):not([class*='DatePicker_dateEnd']))
+  :global([class*='DatePicker_renderedDay']) {
+  background: rgba(25, 223, 242, 0.12) !important;
+  color: rgba(244, 247, 251, 0.9) !important;
+  border-radius: 0;
+}
+
+.listingPeakUp :global([class*='DatePicker_dateSelected']) :global([class*='DatePicker_renderedDay']),
+.listingPeakUp :global([class*='DatePicker_dateStart']) :global([class*='DatePicker_renderedDay']),
+.listingPeakUp :global([class*='DatePicker_dateEnd']) :global([class*='DatePicker_renderedDay']) {
+  background: linear-gradient(135deg, #19dff2 0%, #9dff2e 100%) !important;
+  color: #041018 !important;
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.listingPeakUp :global([class*='DatePicker_dateStart']) :global([class*='DatePicker_renderedDay']) {
+  border-top-left-radius: 50% !important;
+  border-bottom-left-radius: 50% !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.listingPeakUp :global([class*='DatePicker_dateEnd']) :global([class*='DatePicker_renderedDay']) {
+  border-top-right-radius: 50% !important;
+  border-bottom-right-radius: 50% !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.listingPeakUp :global([class*='DatePicker_dateStart'][class*='DatePicker_dateEnd']) :global([class*='DatePicker_renderedDay']) {
+  border-radius: 50% !important;
+}
+
+.listingPeakUp :global([class*='DatePicker_clearButton']),
+.listingPeakUp :global([class*='DatePicker_todayButton']) {
+  color: rgba(210, 222, 238, 0.82) !important;
+  border-radius: 8px;
+}
+
+.listingPeakUp :global([class*='DatePicker_clearButton']):hover,
+.listingPeakUp :global([class*='DatePicker_todayButton']):hover {
+  background: rgba(25, 223, 242, 0.12) !important;
+  color: #9dff2e !important;
+}
+
+.listingPeakUp :global([class*='DateRangePicker_inputWrapper']) {
+  background: rgba(8, 14, 24, 0.78);
+  border: 1px solid rgba(120, 225, 255, 0.2);
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.listingPeakUp :global([class*='DateRangePicker_open']) :global([class*='DateRangePicker_inputWrapper']) {
+  border-radius: 10px 10px 0 0;
+  border-bottom-color: rgba(25, 223, 242, 0.12);
+}
+
+.listingPeakUp :global([class*='DateRangePicker_input']) {
+  color: rgba(247, 250, 255, 0.96) !important;
+  background-color: transparent !important;
+  border: none !important;
+  font-weight: 600;
+  background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g stroke="%2319dff2" transform="translate(1 1)"><rect stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" x=".292" y="1.459" width="13.417" height="12.25" rx="1"/><path d="M3.208.292V3.21M10.792.292V3.21M.292 4.376h13.416" stroke-linecap="round" stroke-linejoin="round"/></g></g></svg>') !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
+}
+
+.listingPeakUp :global([class*='DateRangePicker_inputPlaceholder']) {
+  background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g stroke="%239db0c6" transform="translate(1 1)"><rect stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" x=".292" y="1.459" width="13.417" height="12.25" rx="1"/><path d="M3.208.292V3.21M10.792.292V3.21M.292 4.376h13.416" stroke-linecap="round" stroke-linejoin="round"/></g></g></svg>') !important;
+}
+
+.listingPeakUp :global([class*='SingleDatepicker_inputWrapper']) {
+  background: rgba(8, 14, 24, 0.78);
+  border: 1px solid rgba(120, 225, 255, 0.2);
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.listingPeakUp :global([class*='SingleDatepicker_open']) {
+  border-radius: 10px 10px 0 0;
+  border-bottom-color: rgba(25, 223, 242, 0.12);
+}
+
+.listingPeakUp :global([class*='SingleDatepicker_input']) {
+  color: rgba(247, 250, 255, 0.96) !important;
+  background-color: transparent !important;
+  border: none !important;
+  font-weight: 600;
+}

@@ -123,31 +123,91 @@
   }
 }
 
-/* PeakUp dark/glass overrides for the custom DatePicker popup (CSS vars driven). */
+/* PeakUp dark theme — DatePicker popup (CSS vars + overrides; matches listing booking flow) */
 .fieldDatePopup {
   --datepickerFgColor: rgba(244, 247, 251, 0.92);
-  --datepickerBgColor: rgba(6, 17, 31, 0.98);
-  --datepickerBorderColor: rgba(0, 213, 255, 0.22);
-  --datepickerDisabledFgColor: rgba(255, 255, 255, 0.28);
+  --datepickerBgColor: rgba(6, 14, 28, 0.98);
+  --datepickerBorderColor: rgba(25, 223, 242, 0.22);
+  --datepickerDisabledFgColor: rgba(157, 176, 198, 0.38);
   --datepickerDisabledTextDeco: none;
   --datepickerHoveredFgColor: rgba(244, 247, 251, 0.96);
-  --datepickerHoveredBgColor: rgba(0, 213, 255, 0.18);
-  --datepickerHeaderFgColor: rgba(244, 247, 251, 0.92);
-  --datepickerHeaderFgColorDisabled: rgba(255, 255, 255, 0.35);
-  --datepickerHeaderArrowColor: rgba(0, 213, 255, 0.9);
-  --datepickerDateOutline: none;
-  --datepickerButtonOutlineColor: rgba(0, 213, 255, 0.75);
-  --datepickerSelectedFgColor: #03101a;
-  --datepickerSelectedBgColor: #00d5ff;
-  --datepickerSelectedHoveredFgColor: #03101a;
-  --datepickerSelectedHoveredBgColor: #35ff8a;
-  --datepickerSelectedBg: linear-gradient(135deg, #00d5ff 0%, #35ff8a 100%);
+  --datepickerHoveredBgColor: rgba(25, 223, 242, 0.14);
+  --datepickerHeaderFgColor: #f8fafc;
+  --datepickerHeaderFgColorDisabled: rgba(157, 176, 198, 0.4);
+  --datepickerHeaderArrowColor: rgba(25, 223, 242, 0.92);
+  --datepickerDateOutline: 2px solid rgba(25, 223, 242, 0.55);
+  --datepickerButtonOutlineColor: rgba(25, 223, 242, 0.75);
+  --datepickerSelectedFgColor: #041018;
+  --datepickerSelectedBgColor: rgba(25, 223, 242, 0.35);
+  --datepickerSelectedHoveredFgColor: #041018;
+  --datepickerSelectedHoveredBgColor: rgba(157, 255, 79, 0.45);
+  --datepickerSelectedBg: linear-gradient(135deg, #19dff2 0%, #9dff2e 100%);
 
   border-radius: 14px;
   box-shadow:
     0 22px 48px rgba(0, 0, 0, 0.45),
-    0 0 26px rgba(0, 213, 255, 0.14);
+    0 0 26px rgba(25, 223, 242, 0.12);
   overflow: hidden;
+}
+
+.fieldDatePopup :global([class*='DatePicker_root']) {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(25, 223, 242, 0.08) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(12, 20, 36, 0.98) 0%, rgba(6, 14, 28, 0.98) 100%) !important;
+  border: 1px solid rgba(25, 223, 242, 0.22);
+  border-radius: 14px;
+}
+
+.fieldDatePopup :global([class*='DatePicker_header']) {
+  background: linear-gradient(180deg, rgba(14, 24, 42, 0.95) 0%, rgba(8, 14, 26, 0.72) 100%);
+}
+
+.fieldDatePopup :global([class*='DatePicker_monthName']) {
+  color: #f8fafc !important;
+}
+
+.fieldDatePopup :global([class*='DatePicker_weekday']) > :global(span) {
+  color: rgba(157, 176, 198, 0.72) !important;
+}
+
+.fieldDatePopup :global([class*='DatePicker_arrowIcon']) {
+  stroke: rgba(25, 223, 242, 0.92) !important;
+  fill: rgba(25, 223, 242, 0.92) !important;
+}
+
+.fieldDatePopup
+  :global([class*='DatePicker_date']:not([class*='DatePicker_dateDisabled']):not([class*='DatePicker_dateSelected']):hover)
+  > :global([class*='DatePicker_renderedDay']) {
+  background-color: rgba(25, 223, 242, 0.16) !important;
+  box-shadow: 0 0 14px rgba(25, 223, 242, 0.2);
+  border-radius: 50%;
+}
+
+.fieldDatePopup :global([class*='DatePicker_dateToday']:not([class*='DatePicker_dateSelected'])) :global([class*='DatePicker_renderedDay']) {
+  box-shadow: 0 0 0 1.5px rgba(25, 223, 242, 0.8);
+  border-radius: 50%;
+}
+
+.fieldDatePopup :global([class*='DatePicker_dateToday']) :global([class*='DatePicker_renderedDay']:after) {
+  display: none;
+}
+
+.fieldDatePopup :global([class*='DatePicker_dateDisabled']) :global([class*='DatePicker_renderedDay']) {
+  color: rgba(157, 176, 198, 0.38) !important;
+  background-color: transparent !important;
+  text-decoration: none !important;
+}
+
+.fieldDatePopup :global([class*='DatePicker_dateSelected']) :global([class*='DatePicker_renderedDay']) {
+  background: linear-gradient(135deg, #19dff2 0%, #9dff2e 100%) !important;
+  color: #041018 !important;
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.fieldDatePopup :global([class*='DatePicker_clearButton']),
+.fieldDatePopup :global([class*='DatePicker_todayButton']) {
+  color: rgba(210, 222, 238, 0.82) !important;
 }
 
 .fieldSelect {

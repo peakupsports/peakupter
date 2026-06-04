@@ -9,7 +9,7 @@ import { ensureCurrentUser } from '../../util/data';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { isCoachProviderProfileUserType } from '../../util/coachOnboarding';
 import useInboxNotificationRefresh from '../../util/useInboxNotificationRefresh';
-import { PEAKUP_DASHBOARD_VIEW_LESSONS } from '../../components/PeakUpBookingDashboardPanel/PeakUpBookingDashboardPanel';
+import { PEAKUP_DASHBOARD_VIEW_EVENTS } from '../../components/PeakUpBookingDashboardPanel/PeakUpBookingDashboardPanel';
 
 import { Page } from '../../components';
 import PeakUpBookingsDashboardLayout from '../../components/PeakUpBookingsDashboardLayout/PeakUpBookingsDashboardLayout';
@@ -20,9 +20,9 @@ import sportTheme from '../SportPagesTheme.module.css';
 import css from './CoachDashboardPage.module.css';
 
 /**
- * Coach lesson bookings — upcoming sessions, requests, past and canceled lessons.
+ * Coach purchase events — camps, clinics, retreats, and multi-day experiences.
  */
-const CoachDashboardBookingsPage = () => {
+const CoachDashboardEventsPage = () => {
   const intl = useIntl();
   const config = useConfiguration();
   const scrollingDisabled = useSelector(isScrollingDisabled);
@@ -34,7 +34,7 @@ const CoachDashboardBookingsPage = () => {
 
   useInboxNotificationRefresh({
     enabled: isAuthenticated && !!currentUser?.id,
-    debugLabel: 'CoachDashboardBookings',
+    debugLabel: 'CoachDashboardEvents',
   });
 
   const user = ensureCurrentUser(currentUser);
@@ -48,7 +48,7 @@ const CoachDashboardBookingsPage = () => {
   }
 
   const title = intl.formatMessage(
-    { id: 'CoachDashboardBookingsPage.schemaTitle' },
+    { id: 'CoachDashboardEventsPage.schemaTitle' },
     { marketplaceName: config.marketplaceName || 'PeakUp' }
   );
 
@@ -65,16 +65,16 @@ const CoachDashboardBookingsPage = () => {
         <div className={css.shell}>
           <PeakUpBookingsDashboardLayout
             backLinkName="CoachDashboardPage"
-            backMessageId="CoachDashboardBookingsPage.backToDashboard"
-            eyebrowId="CoachDashboardBookingsPage.eyebrow"
-            titleId="CoachDashboardBookingsPage.title"
-            leadId="CoachDashboardBookingsPage.lead"
+            backMessageId="CoachDashboardEventsPage.backToDashboard"
+            eyebrowId="CoachDashboardEventsPage.eyebrow"
+            titleId="CoachDashboardEventsPage.title"
+            leadId="CoachDashboardEventsPage.lead"
             role="provider"
             inboxTab="sales"
             segments={segments}
             loading={fetchInProgress}
             error={fetchError}
-            dashboardView={PEAKUP_DASHBOARD_VIEW_LESSONS}
+            dashboardView={PEAKUP_DASHBOARD_VIEW_EVENTS}
           />
         </div>
       </main>
@@ -84,4 +84,4 @@ const CoachDashboardBookingsPage = () => {
   );
 };
 
-export default CoachDashboardBookingsPage;
+export default CoachDashboardEventsPage;

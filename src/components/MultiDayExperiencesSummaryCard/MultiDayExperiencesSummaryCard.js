@@ -4,8 +4,6 @@ import classNames from 'classnames';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { isPeakUpMultiDayPurchaseTransaction } from '../../util/peakUpMultiDayPurchase';
 import { getPeakUpMultiDayExperiencePhase } from '../../util/peakUpCoachBookingTransaction';
-import { PEAKUP_DASHBOARD_MULTI_DAY_SECTION_ID } from '../../util/peakupBookingDashboard';
-
 import { NamedLink } from '../NamedLink/NamedLink';
 
 import dashboardCss from '../../containers/CoachDashboardPage/CoachDashboardPage.module.css';
@@ -54,7 +52,7 @@ const countMultiDayExperienceSegments = (segments = {}) => {
  */
 const MultiDayExperiencesSummaryCard = props => {
   const intl = useIntl();
-  const { segments, loading = false, className, linkName } = props;
+  const { segments, loading = false, className, linkName = 'CoachDashboardEventsPage' } = props;
 
   const { upcomingCount, activeCount, pastCount } = useMemo(
     () => countMultiDayExperienceSegments(segments),
@@ -67,11 +65,7 @@ const MultiDayExperiencesSummaryCard = props => {
   });
 
   return (
-    <NamedLink
-      className={classNames(dashboardCss.card, css.card, className)}
-      name={linkName}
-      to={{ hash: PEAKUP_DASHBOARD_MULTI_DAY_SECTION_ID }}
-    >
+    <NamedLink className={classNames(dashboardCss.card, css.card, className)} name={linkName}>
       <span className={classNames(dashboardCss.cardIcon, css.cardIcon)} aria-hidden="true">
         <span className={css.iconGlyph}>⛺</span>
       </span>

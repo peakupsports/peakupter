@@ -347,7 +347,7 @@ const CoachDashboardPage = () => {
               <MultiDayExperiencesSummaryCard
                 segments={bookingSegments}
                 loading={statsFetchInProgress}
-                linkName="CoachDashboardBookingsPage"
+                linkName="CoachDashboardEventsPage"
                 className={css.cardMultiDay}
               />
               {operationNavCards.map(card => (

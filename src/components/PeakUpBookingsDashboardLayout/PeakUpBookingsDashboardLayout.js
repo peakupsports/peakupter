@@ -22,6 +22,7 @@ import css from './PeakUpBookingsDashboardLayout.module.css';
  * @param {Object} [props.segments]
  * @param {boolean} [props.loading]
  * @param {Object} [props.error]
+ * @param {'lessons'|'events'|'all'} [props.dashboardView]
  */
 const PeakUpBookingsDashboardLayout = props => {
   const {
@@ -35,6 +36,7 @@ const PeakUpBookingsDashboardLayout = props => {
     segments,
     loading,
     error,
+    dashboardView,
   } = props;
 
   return (
@@ -62,6 +64,7 @@ const PeakUpBookingsDashboardLayout = props => {
         loading={loading}
         error={error}
         showIntro={false}
+        dashboardView={dashboardView}
         rootClassName={classNames(css.bookingPanel)}
       />
     </>
