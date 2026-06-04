@@ -355,9 +355,7 @@ export const groupCoachBookingServiceCards = cards => {
  * @returns {string|null}
  */
 export const pickCoachBookingServiceSportKey = listing => {
-  const keys = extractSportKeysFromListing(listing)
-    .map(k => normalizeSportKey(k))
-    .filter(Boolean);
+  const keys = extractSportKeysFromListing(listing);
   return keys[0] || null;
 };
 

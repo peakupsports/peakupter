@@ -4,8 +4,9 @@ import {
   canonicalizeSportKey,
   extractSportKeysFromCoachProfile,
   extractSportKeysFromListing,
-  normalizeSportKey,
+  sportKeysFromPublicData,
 } from './coachExplore';
+import { isDevelopmentMode } from './isDevelopmentMode';
 import { getFieldValue } from './fieldHelpers';
 import {
   formatProfileLanguagesForSticker,
@@ -43,10 +44,11 @@ const SKILL_MESSAGE_IDS = {
  * @returns {Array<{ value: string, label: string }>}
  */
 const sportOptionsFromKeys = (intl, sportKeys) => {
-  if (!sportKeys.length) {
+  const canonical = [...new Set(sportKeys.map(k => canonicalizeSportKey(k)).filter(Boolean))];
+  if (!canonical.length) {
     return [];
   }
-  return formatProfileSportsForSticker(intl, sportKeys)
+  return formatProfileSportsForSticker(intl, canonical)
     .map(entry => ({ value: entry.key, label: entry.label }))
     .sort((a, b) => a.label.localeCompare(b.label));
 };
@@ -54,15 +56,15 @@ const sportOptionsFromKeys = (intl, sportKeys) => {
 export const resolvePreBookingSportOptions = (intl, listing, author) => {
   const keys = new Set();
   extractSportKeysFromListing(listing).forEach(k => {
-    const normalized = normalizeSportKey(k);
-    if (normalized) {
-      keys.add(normalized);
+    const canonical = canonicalizeSportKey(k);
+    if (canonical) {
+      keys.add(canonical);
     }
   });
   extractSportKeysFromCoachProfile(author).forEach(k => {
-    const normalized = normalizeSportKey(k);
-    if (normalized) {
-      keys.add(normalized);
+    const canonical = canonicalizeSportKey(k);
+    if (canonical) {
+      keys.add(canonical);
     }
   });
 
@@ -86,6 +88,68 @@ export const resolvePreBookingSportOptionsForListing = (intl, listing, author) =
     return sportOptionsFromKeys(intl, uniqueListingKeys);
   }
   return resolvePreBookingSportOptions(intl, listing, author);
+};
+
+/**
+ * Default sport field value for pre-booking intake (single listing sport only).
+ *
+ * @param {Array<{ value: string, label: string }>} sportOptions
+ * @returns {string}
+ */
+export const resolvePreBookingInitialSport = (sportOptions = []) => {
+  if (sportOptions.length === 1) {
+    return sportOptions[0].value;
+  }
+  return '';
+};
+
+/**
+ * Raw + resolved sport fields for pre-booking debugging (dev console).
+ *
+ * @param {Object|null|undefined} listing
+ * @param {Object|null|undefined} author
+ * @returns {Object}
+ */
+export const inspectPreBookingSportSources = (listing, author) => {
+  const pd = listing?.attributes?.publicData || {};
+  const profilePd = author?.attributes?.profile?.publicData || {};
+  const listingSports = extractSportKeysFromListing(listing);
+  const profileSports = extractSportKeysFromCoachProfile(author);
+
+  return {
+    listingId: listing?.id?.uuid ?? null,
+    listingTitle: listing?.attributes?.title ?? null,
+    listingPublicData: pd,
+    listingSportFields: {
+      sports: pd.sports,
+      sport: pd.sport,
+      category: pd.category,
+      coachSports: pd.coachSports,
+      activities: pd.activities,
+      activity: pd.activity,
+      categoryLevel1: pd.categoryLevel1,
+      categoryLevel2: pd.categoryLevel2,
+      categoryLevel3: pd.categoryLevel3,
+    },
+    listingSportsExtracted: listingSports,
+    listingSportsFromPublicData: sportKeysFromPublicData(pd),
+    profileSportsExtracted: profileSports,
+    profileSportFields: {
+      sports: profilePd.sports,
+    },
+  };
+};
+
+/**
+ * @param {string} phase
+ * @param {Object} payload
+ */
+export const logPreBookingSportDebug = (phase, payload) => {
+  if (!isDevelopmentMode()) {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log(`[PeakUp PREBOOKING SPORT] ${phase}`, payload);
 };
 
 /**

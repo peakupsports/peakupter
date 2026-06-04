@@ -3,6 +3,7 @@ import { PEAKUP_COACH_PROFILE_LANGUAGE_KEY } from '../config/configPeakUpCoachUs
 import {
   coachLanguagesFromProfilePublicData,
   normalizePeakupPreBookingDetails,
+  resolvePreBookingInitialSport,
   resolvePreBookingLanguageOptions,
   resolvePreBookingSportOptions,
   resolvePreBookingSportOptionsForListing,
@@ -13,6 +14,26 @@ const intl = {
 };
 
 describe('peakupPreBooking', () => {
+  it('resolvePreBookingSportOptionsForListing reads categoryLevel1 as listing sport', () => {
+    const listing = {
+      id: { uuid: 'listing-skydive' },
+      attributes: {
+        title: 'Tandem Sky Diving',
+        publicData: { categoryLevel1: 'skydiving' },
+      },
+    };
+    const author = {
+      attributes: {
+        profile: {
+          publicData: { sports: ['surf', 'tennis', 'ski'] },
+        },
+      },
+    };
+    const options = resolvePreBookingSportOptionsForListing(intl, listing, author);
+    expect(options.map(o => o.value)).toEqual(['skydive']);
+    expect(resolvePreBookingInitialSport(options)).toBe('skydive');
+  });
+
   it('resolvePreBookingSportOptionsForListing canonicalizes listing sport aliases', () => {
     const listing = {
       attributes: {
@@ -22,6 +43,59 @@ describe('peakupPreBooking', () => {
     const options = resolvePreBookingSportOptionsForListing(intl, listing, null);
     expect(options.map(o => o.value)).toEqual(['skydive']);
     expect(options[0].label).toBe('Skydive');
+  });
+
+  it('resolvePreBookingInitialSport preselects when listing has one sport', () => {
+    expect(
+      resolvePreBookingInitialSport([{ value: 'skydive', label: 'Skydive' }])
+    ).toBe('skydive');
+    expect(
+      resolvePreBookingInitialSport([{ value: 'tennis', label: 'Tennis' }])
+    ).toBe('tennis');
+    expect(resolvePreBookingInitialSport([])).toBe('');
+    expect(
+      resolvePreBookingInitialSport([
+        { value: 'ski', label: 'Ski' },
+        { value: 'snowboard', label: 'Snowboard' },
+      ])
+    ).toBe('');
+  });
+
+  it('resolvePreBookingSportOptionsForListing with multiple listing sports only', () => {
+    const listing = {
+      attributes: {
+        publicData: { sports: ['ski', 'snowboard'] },
+      },
+    };
+    const author = {
+      attributes: {
+        profile: { publicData: { sports: ['tennis', 'golf'] } },
+      },
+    };
+    const options = resolvePreBookingSportOptionsForListing(intl, listing, author);
+    expect(options.map(o => o.value).sort()).toEqual(['ski', 'snowboard']);
+  });
+
+  it('resolvePreBookingSportOptionsForListing falls back to coach profile when listing has no sports', () => {
+    const listing = { attributes: { publicData: {} } };
+    const author = {
+      attributes: {
+        profile: { publicData: { sports: ['tennis', 'golf'] } },
+      },
+    };
+    const options = resolvePreBookingSportOptionsForListing(intl, listing, author);
+    expect(options.map(o => o.value).sort()).toEqual(['golf', 'tennis']);
+  });
+
+  it('resolvePreBookingSportOptionsForListing canonicalizes mountain biking to mtb', () => {
+    const listing = {
+      attributes: {
+        publicData: { sports: ['mountain-biking'] },
+      },
+    };
+    const options = resolvePreBookingSportOptionsForListing(intl, listing, null);
+    expect(options.map(o => o.value)).toEqual(['mtb']);
+    expect(resolvePreBookingInitialSport(options)).toBe('mtb');
   });
 
   it('resolvePreBookingSportOptionsForListing uses listing sports only when present', () => {

@@ -43,6 +43,9 @@ import {
 import { PEAKUP_OPEN_PREBOOKING_SEARCH_FLAG } from '../../util/coachBookingNavigation';
 import {
   createBookingSubmitHandler,
+  inspectPreBookingSportSources,
+  logPreBookingSportDebug,
+  resolvePreBookingInitialSport,
   resolvePreBookingLanguageOptions,
   resolvePreBookingSportOptionsForListing,
 } from '../../util/peakupPreBooking';
@@ -438,6 +441,11 @@ const OrderPanel = props => {
     () => resolvePreBookingSportOptionsForListing(intl, listing, author),
     [intl, listing, author]
   );
+  const preBookingInitialSport = useMemo(
+    () => resolvePreBookingInitialSport(sportOptions),
+    [sportOptions]
+  );
+
   const languageOptions = useMemo(
     () => resolvePreBookingLanguageOptions(intl, author),
     [intl, author]
@@ -446,6 +454,27 @@ const OrderPanel = props => {
     !isBooking || isOwnListing || !!preBookingSession?.peakupPreBooking;
   const needsPreBookingStep =
     isBooking && !isOwnListing && !isClosed && !preBookingSession?.peakupPreBooking;
+
+  useEffect(() => {
+    if (!needsPreBookingStep) {
+      return;
+    }
+    const sources = inspectPreBookingSportSources(listing, author);
+    logPreBookingSportDebug('OrderPanel before PreBookingIntroModal', {
+      sportOptions,
+      preBookingInitialSport,
+      listingSports: sources.listingSportsExtracted,
+      profileSportsFallback:
+        sources.listingSportsExtracted.length === 0 ? sources.profileSportsExtracted : [],
+      ...sources,
+    });
+  }, [
+    needsPreBookingStep,
+    listing,
+    author,
+    sportOptions,
+    preBookingInitialSport,
+  ]);
 
   useEffect(() => {
     if (!mounted || !needsPreBookingStep) {
@@ -567,6 +596,7 @@ const OrderPanel = props => {
           onClose={closePreBookingIntro}
           onContinue={continueToBookingCalendar}
           sportOptions={sportOptions}
+          initialSport={preBookingInitialSport}
           languageOptions={languageOptions}
           preferredMeetingPoints={preferredMeetingPoints}
         />

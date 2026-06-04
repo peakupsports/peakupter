@@ -158,6 +158,8 @@ const SEARCH_SPORT_KEY_ALIASES = {
   surfing: 'surf',
   kitesurfing: 'kitesurf',
   skydiving: 'skydive',
+  mountainbiking: 'mtb',
+  mountainbike: 'mtb',
 };
 
 /**
@@ -908,16 +910,30 @@ export const getCoachMapLocationLabel = (coach, opts = {}) => {
  * @param {Object|null|undefined} pd a publicData-like object
  * @returns {string[]} deduped, normalised sport keys
  */
+const pushSportRawValues = (raw, value) => {
+  if (Array.isArray(value)) {
+    value.forEach(item => raw.push(item));
+    return;
+  }
+  if (typeof value === 'string' && value.trim()) {
+    raw.push(value);
+  }
+};
+
 export const sportKeysFromPublicData = pd => {
   const data = pd || {};
   const raw = [];
-  if (Array.isArray(data.sports)) raw.push(...data.sports);
-  if (Array.isArray(data.teamSports)) raw.push(...data.teamSports);
+  pushSportRawValues(raw, data.sports);
+  pushSportRawValues(raw, data.teamSports);
+  pushSportRawValues(raw, data.coachSports);
+  pushSportRawValues(raw, data.activities);
   if (typeof data.sport === 'string') raw.push(data.sport);
-  if (Array.isArray(data.coachSports)) raw.push(...data.coachSports);
-  if (Array.isArray(data.activities)) raw.push(...data.activities);
   if (typeof data.activity === 'string') raw.push(data.activity);
   if (typeof data.category === 'string') raw.push(data.category);
+  // PeakUp listings often store sport as Sharetribe category levels (not `sports[]`).
+  if (typeof data.categoryLevel1 === 'string') raw.push(data.categoryLevel1);
+  if (typeof data.categoryLevel2 === 'string') raw.push(data.categoryLevel2);
+  if (typeof data.categoryLevel3 === 'string') raw.push(data.categoryLevel3);
   return [...new Set(raw.map(canonicalizeSportKey).filter(Boolean))];
 };
 

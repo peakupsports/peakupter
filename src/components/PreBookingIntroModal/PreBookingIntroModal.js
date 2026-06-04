@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Form as FinalForm } from 'react-final-form';
 import { useDispatch } from 'react-redux';
 
@@ -8,6 +8,7 @@ import {
   getPreBookingParticipantCountOptions,
   getPreBookingParticipantTypeOptions,
   getPreBookingSkillLevelOptions,
+  logPreBookingSportDebug,
   normalizePeakupPreBookingDetails,
 } from '../../util/peakupPreBooking';
 import {
@@ -36,6 +37,7 @@ const required = value => (value ? undefined : 'required');
  * @param {Function} props.onClose Called for dismiss / “Maybe later”
  * @param {Function} props.onContinue Receives `{ peakupPreBooking, peakupMeetingPoint? }`
  * @param {Array<{ value: string, label: string }>} props.sportOptions
+ * @param {string} [props.initialSport] Pre-selected sport when listing has one sport
  * @param {Array<{ value: string, label: string }>} [props.languageOptions]
  * @param {Array<Object>} [props.preferredMeetingPoints] Coach saved meeting points
  */
@@ -45,6 +47,7 @@ const PreBookingIntroModal = ({
   onClose,
   onContinue,
   sportOptions = [],
+  initialSport = '',
   languageOptions = [],
   preferredMeetingPoints = [],
 }) => {
@@ -68,14 +71,52 @@ const PreBookingIntroModal = ({
   const sessionLanguageRequired = hasLanguageOptions ? required : undefined;
   const showSportField = sportOptions.length > 1;
 
-  const initialValues = {
-    sport: sportOptions.length === 1 ? sportOptions[0].value : '',
-    participantType: '',
-    skillLevel: '',
-    sessionLanguage: languageOptions.length === 1 ? languageOptions[0].value : '',
-    participantCount: '1',
-    ...peakupMeetingPointInitialValues(preferredMeetingPoints),
-  };
+  const resolvedInitialSport = useMemo(() => {
+    if (initialSport && sportOptions.some(o => o.value === initialSport)) {
+      return initialSport;
+    }
+    if (sportOptions.length === 1) {
+      return sportOptions[0].value;
+    }
+    return '';
+  }, [initialSport, sportOptions]);
+
+  const formKey = useMemo(
+    () => `${id}-${sportOptions.map(o => o.value).join(',')}`,
+    [id, sportOptions]
+  );
+
+  const initialValues = useMemo(
+    () => ({
+      sport: resolvedInitialSport,
+      participantType: '',
+      skillLevel: '',
+      sessionLanguage: languageOptions.length === 1 ? languageOptions[0].value : '',
+      participantCount: '1',
+      ...peakupMeetingPointInitialValues(preferredMeetingPoints),
+    }),
+    [resolvedInitialSport, languageOptions, preferredMeetingPoints]
+  );
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    logPreBookingSportDebug('PreBookingIntroModal', {
+      receivedSportOptions: sportOptions,
+      receivedInitialSport: initialSport,
+      resolvedInitialSport,
+      showSportField,
+      finalInitialValuesSport: initialValues.sport,
+    });
+  }, [
+    isOpen,
+    sportOptions,
+    initialSport,
+    resolvedInitialSport,
+    showSportField,
+    initialValues.sport,
+  ]);
 
   return (
     <Modal
@@ -92,6 +133,7 @@ const PreBookingIntroModal = ({
       closeOnOutsideClick
     >
       <FinalForm
+        key={formKey}
         initialValues={initialValues}
         onSubmit={values => {
           const normalized = normalizePeakupPreBookingDetails(
