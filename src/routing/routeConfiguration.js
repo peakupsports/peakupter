@@ -36,6 +36,11 @@ const CoachDashboardBookingsPage = loadable(() =>
     /* webpackChunkName: "CoachDashboardBookingsPage" */ '../containers/CoachDashboardPage/CoachDashboardBookingsPage'
   )
 );
+const CoachDashboardEventsPage = loadable(() =>
+  import(
+    /* webpackChunkName: "CoachDashboardEventsPage" */ '../containers/CoachDashboardPage/CoachDashboardEventsPage'
+  )
+);
 const CustomerDashboardBookingsPage = loadable(() =>
   import(
     /* webpackChunkName: "CustomerDashboardBookingsPage" */ '../containers/CustomerDashboardPage/CustomerDashboardBookingsPage'
@@ -268,6 +273,14 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       auth: true,
       authPage: 'LoginPage',
       component: CoachDashboardBookingsPage,
+      loadData: pageDataLoadingAPI.CoachDashboardBookingsPage.loadData,
+    },
+    {
+      path: '/coach-dashboard/events',
+      name: 'CoachDashboardEventsPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: CoachDashboardEventsPage,
       loadData: pageDataLoadingAPI.CoachDashboardBookingsPage.loadData,
     },
     {

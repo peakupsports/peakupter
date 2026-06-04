@@ -2,7 +2,10 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
-import { getTransactionCopyProcessName, isPeakUpMultiDayPurchaseTransaction } from '../../util/peakUpMultiDayPurchase';
+import {
+  getTransactionCopyProcessName,
+  isPeakUpMultiDayPurchaseTransaction,
+} from '../../util/peakUpMultiDayPurchase';
 import {
   getPeakUpCoachBookingSessionDates,
   getPeakUpMultiDayExperienceProtectedDates,
@@ -17,42 +20,130 @@ import UserDisplayName from '../UserDisplayName/UserDisplayName';
 
 import css from './PeakUpBookingDashboardPanel.module.css';
 
-const SECTION_CONFIG = [
+/** Coach/customer bookings page — lessons and session requests only. */
+export const PEAKUP_DASHBOARD_VIEW_LESSONS = 'lessons';
+
+/** Coach events page — camps, clinics, retreats, purchase listings only. */
+export const PEAKUP_DASHBOARD_VIEW_EVENTS = 'events';
+
+/** Legacy combined layout (e.g. customer booking overview). */
+export const PEAKUP_DASHBOARD_VIEW_ALL = 'all';
+
+const isLessonTransaction = transaction =>
+  !isPeakUpMultiDayPurchaseTransaction(transaction);
+
+const isEventTransaction = transaction => isPeakUpMultiDayPurchaseTransaction(transaction);
+
+const LESSONS_SECTION_CONFIG = [
   {
     key: 'upcoming',
+    sourceKeys: ['upcoming'],
     titleId: 'PeakUpBookingDashboard.sectionLessonsUpcoming',
     defaultTitle: 'Upcoming lessons & sessions',
     accent: 'cyan',
-  },
-  {
-    key: 'multiDayExperiences',
-    titleId: 'PeakUpBookingDashboard.sectionUpcomingEvents',
-    defaultTitle: 'Upcoming events',
-    accent: 'emerald',
+    match: isLessonTransaction,
   },
   {
     key: 'pending',
+    sourceKeys: ['pending'],
     titleId: 'PeakUpBookingDashboard.sectionPending',
     defaultTitle: 'Open requests & pending',
     accent: 'amber',
-  },
-  {
-    key: 'pendingReview',
-    titleId: 'PeakUpBookingDashboard.sectionReview',
-    defaultTitle: 'Waiting for review',
-    accent: 'violet',
+    match: isLessonTransaction,
   },
   {
     key: 'past',
+    sourceKeys: ['past'],
     titleId: 'PeakUpBookingDashboard.sectionPast',
-    defaultTitle: 'Past bookings',
+    defaultTitle: 'Past lessons',
     accent: 'neutral',
+    match: isLessonTransaction,
   },
   {
     key: 'canceled',
+    sourceKeys: ['canceled'],
+    titleId: 'PeakUpBookingDashboard.sectionCanceled',
+    defaultTitle: 'Canceled lessons',
+    accent: 'danger',
+    match: isLessonTransaction,
+  },
+];
+
+const EVENTS_SECTION_CONFIG = [
+  {
+    key: 'multiDayExperiences',
+    sourceKeys: ['multiDayExperiences'],
+    titleId: 'PeakUpBookingDashboard.sectionUpcomingEvents',
+    defaultTitle: 'Upcoming & active events',
+    accent: 'emerald',
+    match: isEventTransaction,
+  },
+  {
+    key: 'pastEvents',
+    sourceKeys: ['past'],
+    titleId: 'PeakUpBookingDashboard.sectionPastEvents',
+    defaultTitle: 'Past events',
+    accent: 'neutral',
+    match: isEventTransaction,
+  },
+  {
+    key: 'canceledEvents',
+    sourceKeys: ['canceled'],
+    titleId: 'PeakUpBookingDashboard.sectionCanceledEvents',
+    defaultTitle: 'Canceled events',
+    accent: 'danger',
+    match: isEventTransaction,
+  },
+];
+
+const ALL_SECTION_CONFIG = [
+  {
+    key: 'upcoming',
+    sourceKeys: ['upcoming'],
+    titleId: 'PeakUpBookingDashboard.sectionLessonsUpcoming',
+    defaultTitle: 'Upcoming lessons & sessions',
+    accent: 'cyan',
+    match: isLessonTransaction,
+  },
+  {
+    key: 'multiDayExperiences',
+    sourceKeys: ['multiDayExperiences'],
+    titleId: 'PeakUpBookingDashboard.sectionUpcomingEvents',
+    defaultTitle: 'Upcoming events',
+    accent: 'emerald',
+    match: isEventTransaction,
+  },
+  {
+    key: 'pending',
+    sourceKeys: ['pending'],
+    titleId: 'PeakUpBookingDashboard.sectionPending',
+    defaultTitle: 'Open requests & pending',
+    accent: 'amber',
+    match: null,
+  },
+  {
+    key: 'pendingReview',
+    sourceKeys: ['pendingReview'],
+    titleId: 'PeakUpBookingDashboard.sectionReview',
+    defaultTitle: 'Waiting for review',
+    accent: 'violet',
+    match: null,
+  },
+  {
+    key: 'past',
+    sourceKeys: ['past'],
+    titleId: 'PeakUpBookingDashboard.sectionPast',
+    defaultTitle: 'Past bookings',
+    accent: 'neutral',
+    match: null,
+  },
+  {
+    key: 'canceled',
+    sourceKeys: ['canceled'],
     titleId: 'PeakUpBookingDashboard.sectionCanceled',
     defaultTitle: 'Canceled bookings',
     accent: 'danger',
+    match: null,
   },
 ];
 
@@ -62,7 +153,27 @@ const STATUS_BADGE_CLASS = {
   pending: css.statusPending,
   pendingReview: css.statusReview,
   past: css.statusPast,
+  pastEvents: css.statusPast,
   canceled: css.statusCanceled,
+  canceledEvents: css.statusCanceled,
+};
+
+const getSectionsForView = dashboardView => {
+  if (dashboardView === PEAKUP_DASHBOARD_VIEW_LESSONS) {
+    return LESSONS_SECTION_CONFIG;
+  }
+  if (dashboardView === PEAKUP_DASHBOARD_VIEW_EVENTS) {
+    return EVENTS_SECTION_CONFIG;
+  }
+  return ALL_SECTION_CONFIG;
+};
+
+const resolveSectionItems = (section, segments) => {
+  const items = (section.sourceKeys || []).flatMap(key => segments?.[key] || []);
+  if (!section.match) {
+    return items;
+  }
+  return items.filter(entry => section.match(entry.transaction));
 };
 
 const BookingRow = ({ entry, intl, inboxTab, sectionKey }) => {
@@ -158,26 +269,13 @@ const BookingRow = ({ entry, intl, inboxTab, sectionKey }) => {
   );
 };
 
-const filterSectionItems = (sectionKey, items = []) => {
-  if (sectionKey === 'upcoming') {
-    return items.filter(entry => !isPeakUpMultiDayPurchaseTransaction(entry.transaction));
-  }
-
-  if (sectionKey === 'multiDayExperiences') {
-    return items.filter(entry => isPeakUpMultiDayPurchaseTransaction(entry.transaction));
-  }
-
-  return items;
-};
-
-const DashboardSection = ({ sectionKey, titleId, defaultTitle, accent, items, intl, inboxTab, limit = 5 }) => {
-  const filteredItems = filterSectionItems(sectionKey, items);
-  const visible = filteredItems.slice(0, limit);
-  const accentClass = css[`sectionAccent${accent.charAt(0).toUpperCase()}${accent.slice(1)}`];
+const DashboardSection = ({ section, items, intl, inboxTab, limit = 5 }) => {
+  const visible = items.slice(0, limit);
+  const accentClass = css[`sectionAccent${section.accent.charAt(0).toUpperCase()}${section.accent.slice(1)}`];
   const sectionDomId =
-    sectionKey === 'multiDayExperiences'
+    section.key === 'multiDayExperiences'
       ? PEAKUP_DASHBOARD_MULTI_DAY_SECTION_ID
-      : `dashboard-section-${sectionKey}`;
+      : `dashboard-section-${section.key}`;
 
   return (
     <section
@@ -187,9 +285,9 @@ const DashboardSection = ({ sectionKey, titleId, defaultTitle, accent, items, in
     >
       <header className={css.sectionHeader}>
         <h2 id={`${sectionDomId}-title`} className={css.sectionTitle}>
-          <FormattedMessage id={titleId} defaultMessage={defaultTitle} />
+          <FormattedMessage id={section.titleId} defaultMessage={section.defaultTitle} />
         </h2>
-        <span className={css.sectionCount}>{filteredItems.length}</span>
+        <span className={css.sectionCount}>{items.length}</span>
       </header>
       {visible.length === 0 ? (
         <p className={css.empty}>
@@ -203,7 +301,7 @@ const DashboardSection = ({ sectionKey, titleId, defaultTitle, accent, items, in
               entry={entry}
               intl={intl}
               inboxTab={inboxTab}
-              sectionKey={sectionKey}
+              sectionKey={section.key}
             />
           ))}
         </ul>
@@ -223,11 +321,21 @@ const DashboardSection = ({ sectionKey, titleId, defaultTitle, accent, items, in
  * @param {Object} [props.error]
  * @param {string} [props.rootClassName]
  * @param {boolean} [props.showIntro]
+ * @param {'lessons'|'events'|'all'} [props.dashboardView] Which section boxes to render.
  */
 const PeakUpBookingDashboardPanel = props => {
   const intl = useIntl();
-  const { inboxTab, segments, loading, error, rootClassName, showIntro = true } = props;
+  const {
+    inboxTab,
+    segments,
+    loading,
+    error,
+    rootClassName,
+    showIntro = true,
+    dashboardView = PEAKUP_DASHBOARD_VIEW_ALL,
+  } = props;
   const displaySegments = normalizeBookingDashboardSegmentsForDisplay(segments);
+  const sectionConfig = getSectionsForView(dashboardView);
 
   if (loading) {
     return (
@@ -253,14 +361,11 @@ const PeakUpBookingDashboardPanel = props => {
         </p>
       ) : null}
       <div className={css.sections}>
-        {SECTION_CONFIG.map(section => (
+        {sectionConfig.map(section => (
           <DashboardSection
             key={section.key}
-            sectionKey={section.key}
-            titleId={section.titleId}
-            defaultTitle={section.defaultTitle}
-            accent={section.accent}
-            items={displaySegments?.[section.key]}
+            section={section}
+            items={resolveSectionItems(section, displaySegments)}
             intl={intl}
             inboxTab={inboxTab}
           />

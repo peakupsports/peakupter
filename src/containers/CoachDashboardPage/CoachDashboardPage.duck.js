@@ -6,7 +6,10 @@ import {
   countUpcomingCoachSessions,
   fetchAllCoachSalesBookings,
 } from '../CoachCalendarPage/coachCalendarBookings';
-import { segmentBookingDashboardTransactions, normalizeBookingDashboardSegmentsForDisplay } from '../../util/peakupBookingDashboard';
+import {
+  segmentBookingDashboardTransactions,
+  normalizeBookingDashboardSegmentsForDisplay,
+} from '../../util/peakupBookingDashboard';
 
 const emptySegments = () => ({
   upcoming: [],
