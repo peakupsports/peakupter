@@ -396,6 +396,7 @@ export class TransactionPanelComponent extends Component {
               processName={stateData.processName}
               copyProcessName={stateData.copyProcessName}
               processState={stateData.processState}
+              lastTransition={transaction?.attributes?.lastTransition}
               showExtraInfo={allowShowingExtraInfo(stateData.showExtraInfo, transactionPartyInfo)}
               showPriceOnMobile={showPrice}
               price={listing?.attributes?.price}

@@ -42,11 +42,16 @@ const inquiryListing = () => ({
   },
 });
 
-const bookingTransaction = ({ listing, processName = 'default-booking/release-1', start = '2030-06-01T10:00:00.000Z' } = {}) => ({
+const bookingTransaction = ({
+  listing,
+  processName = 'default-booking/release-1',
+  start = '2030-06-01T10:00:00.000Z',
+  lastTransition = 'transition/accept',
+} = {}) => ({
   id: { uuid: 'tx-booking-1' },
   attributes: {
     processName,
-    lastTransition: 'transition/accept',
+    lastTransition,
     lastTransitionedAt: '2026-01-01T12:00:00.000Z',
   },
   listing: listing || realHourlyBookingListing(),
@@ -302,6 +307,38 @@ describe('peakupBookingDashboard operational filter', () => {
 
       expect(segments.upcoming).toHaveLength(1);
       expect(segments.multiDayExperiences).toHaveLength(0);
+    });
+
+    it('segments request-mode preauthorized bookings as pending', () => {
+      const segments = segmentBookingDashboardTransactions(
+        [
+          bookingTransaction({
+            start: '2030-09-01T10:00:00.000Z',
+            lastTransition: 'transition/confirm-payment',
+          }),
+        ],
+        'provider',
+        now
+      );
+
+      expect(segments.pending).toHaveLength(1);
+      expect(segments.upcoming).toHaveLength(0);
+    });
+
+    it('segments instant confirmed bookings as upcoming', () => {
+      const segments = segmentBookingDashboardTransactions(
+        [
+          bookingTransaction({
+            start: '2030-09-01T10:00:00.000Z',
+            lastTransition: 'transition/confirm-payment-instant',
+          }),
+        ],
+        'provider',
+        now
+      );
+
+      expect(segments.pending).toHaveLength(0);
+      expect(segments.upcoming).toHaveLength(1);
     });
 
     it('normalizes display segments to keep upcoming buckets exclusive', () => {

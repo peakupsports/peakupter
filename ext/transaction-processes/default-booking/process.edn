@@ -39,6 +39,14 @@
    :actions [{:name :action/stripe-confirm-payment-intent}],
    :from :state/pending-payment,
    :to :state/preauthorized}
+  {:name :transition/confirm-payment-instant,
+   :actor :actor.role/customer,
+   :actions
+   [{:name :action/accept-booking}
+    {:name :action/stripe-confirm-payment-intent}
+    {:name :action/stripe-capture-payment-intent}],
+   :from :state/pending-payment,
+   :to :state/accepted}
   {:name :transition/accept,
    :actor :actor.role/provider,
    :actions
@@ -166,10 +174,18 @@
    :from :state/reviewed-by-provider,
    :to :state/reviewed}],
  :notifications
- [{:name :notification/booking-new-request,
+ [ {:name :notification/booking-new-request,
    :on :transition/confirm-payment,
    :to :actor.role/provider,
    :template :booking-new-request}
+  {:name :notification/booking-confirmed-customer,
+   :on :transition/confirm-payment-instant,
+   :to :actor.role/customer,
+   :template :booking-confirmed-customer}
+  {:name :notification/booking-confirmed-provider,
+   :on :transition/confirm-payment-instant,
+   :to :actor.role/provider,
+   :template :booking-confirmed-provider}
   {:name :notification/booking-accepted-request,
    :on :transition/accept,
    :to :actor.role/customer,

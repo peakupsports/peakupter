@@ -5,6 +5,8 @@ import {
   ConditionalResolver,
 } from '../../transactions/transaction';
 
+import { transitions } from '../../transactions/transactionProcessBooking';
+
 /**
  * Get state data against booking process for TransactionPage's UI.
  * I.e. info about showing action buttons, current state etc.
@@ -22,11 +24,18 @@ export const getStateDataForBookingProcess = (txInfo, processInfo) => {
     processName,
     processState,
     states,
-    transitions,
+    transitions: processTransitions,
     isCustomer,
     actionButtonProps,
     leaveReviewProps,
   } = processInfo;
+
+  const transitionMessages = [
+    {
+      transition: processTransitions.CONFIRM_PAYMENT_INSTANT,
+      translationId: 'TransactionPage.ActivityFeed.default-booking.confirm-payment-instant',
+    },
+  ];
 
   return new ConditionalResolver([processState, transactionRole])
     .cond([states.INQUIRY, CUSTOMER], () => {
@@ -42,11 +51,17 @@ export const getStateDataForBookingProcess = (txInfo, processInfo) => {
       return { processName, processState, showDetailCardHeadings: true };
     })
     .cond([states.PREAUTHORIZED, CUSTOMER], () => {
-      return { processName, processState, showDetailCardHeadings: true, showExtraInfo: true };
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showExtraInfo: true,
+        transitionMessages,
+      };
     })
     .cond([states.PREAUTHORIZED, PROVIDER], () => {
-      const primary = isCustomerBanned ? null : actionButtonProps(transitions.ACCEPT, PROVIDER);
-      const secondary = isCustomerBanned ? null : actionButtonProps(transitions.DECLINE, PROVIDER);
+      const primary = isCustomerBanned ? null : actionButtonProps(processTransitions.ACCEPT, PROVIDER);
+      const secondary = isCustomerBanned ? null : actionButtonProps(processTransitions.DECLINE, PROVIDER);
       return {
         processName,
         processState,
@@ -54,7 +69,11 @@ export const getStateDataForBookingProcess = (txInfo, processInfo) => {
         showActionButtons: true,
         primaryButtonProps: primary,
         secondaryButtonProps: secondary,
+        transitionMessages,
       };
+    })
+    .cond([states.ACCEPTED, _], () => {
+      return { processName, processState, showDetailCardHeadings: true, transitionMessages };
     })
     .cond([states.DELIVERED, _], () => {
       return {

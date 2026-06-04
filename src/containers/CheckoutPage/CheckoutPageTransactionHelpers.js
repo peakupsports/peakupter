@@ -1,9 +1,13 @@
-// Import contexts and util modules
+// Import configs and util modules
 import { findRouteByRouteName } from '../../util/routes';
 import { ensureStripeCustomer, ensureTransaction } from '../../util/data';
 import { minutesBetween } from '../../util/dates';
 import { formatMoney } from '../../util/currency';
 import { NEGOTIATION_PROCESS_NAME, resolveLatestProcessName } from '../../transactions/transaction';
+import {
+  getPeakUpBookingConfirmPaymentTransition,
+  resolvePeakUpCheckoutBookingConfirmationMode,
+} from '../../util/peakUpBookingPreferences';
 import { storeData } from './CheckoutPageSessionHelpers';
 
 /**
@@ -287,8 +291,16 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
     // Remember the created PaymentIntent for step 5
     createdPaymentIntent = fnParams.paymentIntent;
     const transactionId = fnParams.transactionId;
-    const transitionName = process.transitions.CONFIRM_PAYMENT;
-    const isTransitionedAlready = storedTx?.attributes?.lastTransition === transitionName;
+    const listingPublicData = pageData?.listing?.attributes?.publicData;
+    const bookingConfirmationMode = resolvePeakUpCheckoutBookingConfirmationMode(listingPublicData);
+    const transitionName = getPeakUpBookingConfirmPaymentTransition(process, bookingConfirmationMode);
+    const instantTransition = process.transitions.CONFIRM_PAYMENT_INSTANT;
+    const requestTransition = process.transitions.CONFIRM_PAYMENT;
+    const lastTransition = storedTx?.attributes?.lastTransition;
+    const isTransitionedAlready =
+      lastTransition === transitionName ||
+      lastTransition === instantTransition ||
+      lastTransition === requestTransition;
     const orderPromise = isTransitionedAlready
       ? Promise.resolve(storedTx)
       : onConfirmPayment(transactionId, transitionName, {});

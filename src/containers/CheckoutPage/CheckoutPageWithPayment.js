@@ -36,6 +36,11 @@ import { peakupBookingDatesMaybeForCheckout } from '../../util/peakupMultiSlotCh
 import { buildPeakUpMultiDayExperienceTransactionBookingDates } from '../../util/peakUpMultiDayExperienceListing';
 import { logPeakupMeetingPointCheckout } from '../../util/peakupMeetingPoint';
 import {
+  getPeakUpBookingConfirmationModeProtectedData,
+  isPeakUpInstantBookingConfirmationMode,
+  resolvePeakUpCheckoutBookingConfirmationMode,
+} from '../../util/peakUpBookingPreferences';
+import {
   getBillingDetails,
   getFormattedTotalPrice,
   getShippingDetailsMaybe,
@@ -165,6 +170,10 @@ const getOrderParams = (
       ? { peakupPreBooking: peakupPreBookingStored }
       : {};
 
+  const bookingConfirmationMode = resolvePeakUpCheckoutBookingConfirmationMode(listingPublicData);
+  const bookingConfirmationModeProtectedMaybe =
+    getPeakUpBookingConfirmationModeProtectedData(bookingConfirmationMode);
+
   const peakupMeetingPointStored = pageData.orderData?.peakupMeetingPoint;
   const peakupMeetingPointProtectedMaybe =
     peakupMeetingPointStored && typeof peakupMeetingPointStored === 'object'
@@ -195,6 +204,7 @@ const getOrderParams = (
       ...peakupMeetingPointProtectedMaybe,
       ...peakupSlotsProtectedMaybe,
       ...multiDayExperienceBookingDatesMaybe,
+      ...bookingConfirmationModeProtectedMaybe,
     },
   };
 
@@ -630,6 +640,11 @@ export const CheckoutPageWithPayment = props => {
   );
 
   const isBooking = processName === BOOKING_PROCESS_NAME;
+  const checkoutBookingConfirmationMode = resolvePeakUpCheckoutBookingConfirmationMode(
+    listing?.attributes?.publicData
+  );
+  const isInstantBooking =
+    isBooking && isPeakUpInstantBookingConfirmationMode(checkoutBookingConfirmationMode);
   const isPurchase = processName === PURCHASE_PROCESS_NAME;
   const isNegotiation = processName === NEGOTIATION_PROCESS_NAME;
 
@@ -780,6 +795,7 @@ export const CheckoutPageWithPayment = props => {
                 stripePublishableKey={config.stripe.publishableKey}
                 marketplaceName={config.marketplaceName}
                 isBooking={isBookingProcessAlias(transactionProcessAlias)}
+                isInstantBooking={isInstantBooking}
                 isFuzzyLocation={config.maps.fuzzy.enabled}
                 transactionFieldConfigs={transactionFieldConfigs}
                 showTransactionFields={showTransactionFields}

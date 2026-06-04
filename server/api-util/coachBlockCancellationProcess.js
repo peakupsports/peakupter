@@ -8,6 +8,7 @@ const LAST_TRANSITION_TO_STATE = {
   'transition/request-payment': 'pending-payment',
   'transition/request-payment-after-inquiry': 'pending-payment',
   'transition/confirm-payment': 'preauthorized',
+  'transition/confirm-payment-instant': 'accepted',
   'transition/expire-payment': 'payment-expired',
   'transition/decline': 'declined',
   'transition/expire': 'expired',
@@ -25,6 +26,7 @@ const LAST_TRANSITION_TO_STATE = {
  */
 const CANCEL_TRANSITION_BY_LAST_TRANSITION = {
   'transition/confirm-payment': 'transition/decline',
+  'transition/confirm-payment-instant': 'transition/provider-cancel',
   'transition/accept': 'transition/provider-cancel',
   'transition/operator-accept': 'transition/provider-cancel',
   'transition/complete': 'transition/provider-cancel-from-delivered',

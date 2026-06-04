@@ -35,6 +35,12 @@ describe('peakupBookingRequestPopup', () => {
     expect(isProviderNewBookingRequest(tx, customerId)).toBe(false);
   });
 
+  it('does not treat instant confirmed bookings as new requests', () => {
+    const process = getProcess('default-booking');
+    const tx = createBookingSale('tx-instant', process.transitions.CONFIRM_PAYMENT_INSTANT);
+    expect(isProviderNewBookingRequest(tx, providerId)).toBe(false);
+  });
+
   it('detects provider multi-day purchase in purchased state as new request', () => {
     const purchaseProcess = getProcess('default-purchase');
     const tx = createTransaction({

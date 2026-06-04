@@ -293,6 +293,7 @@ const initialState = {
  * @param {Object} props.listingLocation.building - The building
  * @param {Object} props.listingLocation.address - The address
  * @param {boolean} props.isBooking - Whether the booking is in progress
+ * @param {boolean} [props.isInstantBooking] - Instant booking (charge immediately)
  * @param {boolean} props.isFuzzyLocation - Whether the location is fuzzy
  * @param {Object} props.intl - The intl object
  */
@@ -481,6 +482,7 @@ class StripePaymentForm extends Component {
       stripePublishableKey,
       marketplaceName,
       isBooking,
+      isInstantBooking,
       isFuzzyLocation,
       transactionFieldConfigs = [],
       showTransactionFields,
@@ -573,7 +575,7 @@ class StripePaymentForm extends Component {
       const checked = event.target.checked;
       this.updateBillingDetailsToMatchShippingAddress(checked);
     };
-    const isBookingYesNo = isBooking ? 'yes' : 'no';
+    const isBookingYesNo = isInstantBooking ? 'instant' : isBooking ? 'yes' : 'no';
 
     const showAdditionalInfoHeading =
       showInitialMessageInput || (hasTransactionFieldConfigs && showTransactionFields);

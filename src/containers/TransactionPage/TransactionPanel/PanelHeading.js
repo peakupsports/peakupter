@@ -1,6 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
 
+import {
+  getPeakUpBookingPanelHeadingMessageIds,
+  isPeakUpInstantBookingLastTransition,
+} from '../../../util/peakUpBookingPreferences';
 import { FormattedMessage } from '../../../util/reactIntl';
 import { createSlug, stringify } from '../../../util/urlHelpers';
 
@@ -46,6 +50,7 @@ const PanelHeading = props => {
     listingDeleted,
     isCustomerBanned,
     isPeakUpBookingTheme,
+    lastTransition,
   } = props;
 
   const isProvider = transactionRole === 'provider';
@@ -65,6 +70,18 @@ const PanelHeading = props => {
   );
   const breakline = <br />;
 
+  const headingMessageIds = getPeakUpBookingPanelHeadingMessageIds({
+    processName: displayProcessName,
+    transactionRole,
+    processState,
+    lastTransition,
+  });
+  const showInstantExtraInfo =
+    isPeakUpInstantBookingLastTransition({ attributes: { lastTransition } }) &&
+    isCustomer &&
+    processState === 'accepted';
+  const shouldShowExtraInfo = showExtraInfo || showInstantExtraInfo;
+
   return (
     <>
       <H1 className={titleClasses}>
@@ -74,7 +91,7 @@ const PanelHeading = props => {
           })}
         >
           <FormattedMessage
-            id={`TransactionPage.${displayProcessName}.${transactionRole}.${processState}.title`}
+            id={headingMessageIds.titleId}
             values={{ customerName, providerName, breakline }}
           />
         </span>
@@ -102,7 +119,7 @@ const PanelHeading = props => {
           <FormattedMessage id="TransactionPanel.messageDeletedListing" />
         </p>
       ) : null}
-      {!listingDeleted && showExtraInfo ? (
+      {!listingDeleted && shouldShowExtraInfo && headingMessageIds.extraInfoId ? (
         <p
           className={classNames(css.transactionInfoMessage, {
             [css.peakUpBookingInfoMessage]: isPeakUpBookingTheme,
@@ -110,7 +127,7 @@ const PanelHeading = props => {
           })}
         >
           <FormattedMessage
-            id={`TransactionPage.${displayProcessName}.${transactionRole}.${processState}.extraInfo`}
+            id={headingMessageIds.extraInfoId}
             values={{ customerName, providerName, deliveryMethod, breakline }}
           />
         </p>

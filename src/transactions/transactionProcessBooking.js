@@ -28,6 +28,7 @@ export const transitions = {
   // Therefore we need to make another transition to Marketplace API,
   // to tell that the payment is confirmed.
   CONFIRM_PAYMENT: 'transition/confirm-payment',
+  CONFIRM_PAYMENT_INSTANT: 'transition/confirm-payment-instant',
 
   // If the payment is not confirmed in the time limit set in transaction process (by default 15min)
   // the transaction will expire automatically.
@@ -128,6 +129,7 @@ export const graph = {
       on: {
         [transitions.EXPIRE_PAYMENT]: states.PAYMENT_EXPIRED,
         [transitions.CONFIRM_PAYMENT]: states.PREAUTHORIZED,
+        [transitions.CONFIRM_PAYMENT_INSTANT]: states.ACCEPTED,
       },
     },
 
@@ -190,6 +192,7 @@ export const isRelevantPastTransition = transition => {
     transitions.COMPLETE,
     transitions.OPERATOR_COMPLETE,
     transitions.CONFIRM_PAYMENT,
+    transitions.CONFIRM_PAYMENT_INSTANT,
     transitions.DECLINE,
     transitions.OPERATOR_DECLINE,
     transitions.EXPIRE,
