@@ -390,6 +390,7 @@ export const ListingPageComponent = props => {
               dayCountAvailableForBooking={config.stripe.dayCountAvailableForBooking}
               marketplaceName={config.marketplaceName}
               showListingImage={showListingImage}
+              peakUpOrderModalTheme
             />
           </div>
         </div>

@@ -60,6 +60,7 @@ import PriceVariantPicker from './PriceVariantPicker/PriceVariantPicker';
 import SubmitFinePrint from './SubmitFinePrint/SubmitFinePrint';
 
 import css from './OrderPanel.module.css';
+import peakupOrderModalThemeCss from '../../styles/peakupOrderModalTheme.module.css';
 
 const BookingTimeForm = loadable(() =>
   import(/* webpackChunkName: "BookingTimeForm" */ './BookingTimeForm/BookingTimeForm')
@@ -296,6 +297,7 @@ const hasValidPriceVariants = priceVariants => {
  * @param {string} props.marketplaceCurrency - The currency used in the marketplace
  * @param {number} props.dayCountAvailableForBooking - Number of days available for booking
  * @param {string} props.marketplaceName - Name of the marketplace
+ * @param {boolean} [props.peakUpOrderModalTheme] Apply PeakUp dark theme to mobile portal modal
  *
  * @returns {JSX.Element} Component that displays the order panel with appropriate form
  */
@@ -338,6 +340,7 @@ const OrderPanel = props => {
     fetchLineItemsError,
     payoutDetailsWarning,
     showListingImage,
+    peakUpOrderModalTheme = false,
   } = props;
 
   const authorProfilePublicData = author?.attributes?.profile?.publicData || {};
@@ -572,7 +575,14 @@ const OrderPanel = props => {
         />
       ) : null}
       <ModalInMobile
-        containerClassName={css.modalContainer}
+        containerClassName={classNames(
+          css.modalContainer,
+          peakUpOrderModalTheme && 'peakupOrderModalTheme'
+        )}
+        scrollLayerClassName={
+          peakUpOrderModalTheme ? peakupOrderModalThemeCss.scrollLayer : undefined
+        }
+        lightCloseButton={peakUpOrderModalTheme}
         id="OrderFormInModal"
         isModalOpenOnMobile={isOrderOpen}
         onClose={() => {

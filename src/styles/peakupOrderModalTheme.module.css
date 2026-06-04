@@ -1,0 +1,259 @@
+@import './customMediaQueries.css';
+
+/**
+ * PeakUp order/booking modal — portal-safe theme (#portal-root).
+ * Applied on OrderPanel ModalInMobile container; active below desktop order column only.
+ */
+@media (max-width: 1023px) {
+  .scrollLayer {
+    flex-grow: 1;
+    display: flex;
+    min-height: 100vh;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    background-color: rgba(4, 8, 16, 0.9);
+
+    @media (--viewportMedium) {
+      justify-content: center;
+      align-items: flex-start;
+      background-color: rgba(0, 0, 0, 0.55);
+    }
+  }
+
+  :global(.peakupOrderModalTheme) {
+    --peakUpTextPrimary: #f4f7fb;
+    --peakUpTextMuted: rgba(196, 210, 228, 0.78);
+    --peakUpCyan: #19dff2;
+
+    flex-grow: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    height: unset;
+    padding: 0;
+    color: var(--peakUpTextMuted);
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(23, 217, 255, 0.08) 0%, transparent 55%),
+      rgba(8, 14, 26, 0.98) !important;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+
+    @media (--viewportMedium) {
+      flex-basis: 576px;
+      flex-grow: 0;
+      min-height: unset;
+      margin-top: 12.5vh;
+      margin-bottom: 12.5vh;
+      border: 1px solid rgba(25, 223, 242, 0.18);
+      border-radius: 16px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+    }
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='marketplaceModalCloseNav']) {
+    background: transparent;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='marketplaceModalCloseStyles']) {
+    color: rgba(228, 235, 243, 0.92);
+    background: rgba(8, 14, 26, 0.65);
+    border: 1px solid rgba(25, 223, 242, 0.22);
+    border-radius: 10px;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='marketplaceModalCloseStyles']):enabled:hover,
+  :global(.peakupOrderModalTheme) :global([class*='marketplaceModalCloseStyles']):enabled:active {
+    color: #f8fafc;
+    border-color: rgba(25, 223, 242, 0.45);
+    background: rgba(14, 24, 42, 0.9);
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='marketplaceModalCloseIcon']) {
+    stroke: rgba(25, 223, 242, 0.92);
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='OrderPanel_heading']) {
+    color: var(--peakUpTextPrimary) !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='OrderPanel_orderTitle']),
+  :global(.peakupOrderModalTheme) :global([class*='OrderPanel_orderHelp']),
+  :global(.peakupOrderModalTheme) :global([class*='OrderPanel_author']) {
+    color: var(--peakUpTextMuted);
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='OrderPanel_priceValue']),
+  :global(.peakupOrderModalTheme) :global([class*='OrderPanel_perUnit']) {
+    color: var(--peakUpCyan);
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='OrderPanel_preBookingPromptText']) {
+    color: var(--peakUpTextMuted);
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='FieldTextInput_root']) > label,
+  :global(.peakupOrderModalTheme) :global([class*='FieldSelect_root']) > label,
+  :global(.peakupOrderModalTheme) :global([class*='FieldDateInput_root']) > label,
+  :global(.peakupOrderModalTheme) :global([class*='FieldDateRangeInput_root']) > label,
+  :global(.peakupOrderModalTheme) :global([class*='FieldNumber_root']) > label {
+    color: rgba(228, 235, 243, 0.9) !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='FieldTextInput_root']) input,
+  :global(.peakupOrderModalTheme) :global([class*='FieldTextInput_root']) textarea,
+  :global(.peakupOrderModalTheme) :global([class*='FieldSelect_root']) select,
+  :global(.peakupOrderModalTheme) :global([class*='FieldNumber_root']) input,
+  :global(.peakupOrderModalTheme) :global(.marketplaceInputStyles),
+  :global(.peakupOrderModalTheme) :global([class*='FieldDateInput_input']),
+  :global(.peakupOrderModalTheme) :global([class*='FieldDateRangeInput_input']) input {
+    color: rgba(247, 250, 255, 0.96) !important;
+    background-color: rgba(8, 14, 24, 0.78) !important;
+    border: 1px solid rgba(120, 225, 255, 0.2) !important;
+    border-radius: 10px !important;
+    box-sizing: border-box;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='FieldDateInput_input']) input[type='date'],
+  :global(.peakupOrderModalTheme) :global([class*='FieldDateInput_input']) input[type='time'],
+  :global(.peakupOrderModalTheme) :global([class*='FieldDateAndTimeInput_fieldDateInput']) input {
+    color-scheme: dark;
+    min-height: 44px;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='HelpText_root']) {
+    color: rgba(157, 196, 220, 0.68) !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='ValidationError_root']) {
+    color: #ff9a9a !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='Button_root'])[type='submit'],
+  :global(.peakupOrderModalTheme) button[type='submit'],
+  :global(.peakupOrderModalTheme) :global([class*='Button_primaryButtonRoot']) {
+    border: 1px solid rgba(120, 225, 255, 0.35) !important;
+    border-radius: 12px !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    background: linear-gradient(135deg, #0f172a 0%, #12314d 42%, #1fb8ff 100%) !important;
+    box-shadow: 0 0 22px rgba(31, 184, 255, 0.22) !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='PriceVariantPicker_option']) {
+    background: rgba(8, 14, 24, 0.65) !important;
+    border-color: rgba(25, 223, 242, 0.2) !important;
+    color: var(--peakUpTextPrimary) !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='BookingDatesForm_bookingBreakdownTitle']),
+  :global(.peakupOrderModalTheme) :global([class*='OrderBreakdown_root']),
+  :global(.peakupOrderModalTheme) :global([class*='SubmitFinePrint_finePrint']) {
+    color: var(--peakUpTextMuted);
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='BookingDatesForm_totalDivider']),
+  :global(.peakupOrderModalTheme) :global([class*='BookingTimeForm_totalDivider']),
+  :global(.peakupOrderModalTheme) :global([class*='BookingFixedDurationForm_totalDivider']) {
+    background-color: rgba(25, 223, 242, 0.14) !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='WeeklyCalendar_grid']) {
+    border-color: rgba(120, 225, 255, 0.16) !important;
+    background: rgba(8, 14, 24, 0.5) !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='WeeklyCalendar_dateLabel']),
+  :global(.peakupOrderModalTheme) :global([class*='WeeklyCalendar_weekPicker']),
+  :global(.peakupOrderModalTheme) :global([class*='WeeklyCalendar_sectionTitle']),
+  :global(.peakupOrderModalTheme) :global([class*='WeeklyCalendar_timeRange']),
+  :global(.peakupOrderModalTheme) :global([class*='WeeklyCalendar_dateAndMonth']) {
+    color: rgba(196, 210, 228, 0.82) !important;
+  }
+
+  /* DatePicker / DateRangePicker */
+  :global(.peakupOrderModalTheme) :global([class*='DatePicker_root']),
+  :global(.peakupOrderModalTheme) :global([class*='DateRangePicker_popup']),
+  :global(.peakupOrderModalTheme) :global([class*='SingleDatepicker_popup']) {
+    --datepickerFgColor: rgba(244, 247, 251, 0.92);
+    --datepickerBgColor: rgba(6, 14, 28, 0.98);
+    --datepickerBorderColor: rgba(25, 223, 242, 0.22);
+    --datepickerDisabledFgColor: rgba(157, 176, 198, 0.38);
+    --datepickerDisabledTextDeco: none;
+    --datepickerHoveredFgColor: rgba(244, 247, 251, 0.96);
+    --datepickerHoveredBgColor: rgba(25, 223, 242, 0.14);
+    --datepickerHeaderFgColor: #f8fafc;
+    --datepickerHeaderFgColorDisabled: rgba(157, 176, 198, 0.4);
+    --datepickerHeaderArrowColor: rgba(25, 223, 242, 0.92);
+    --datepickerDateOutline: 2px solid rgba(25, 223, 242, 0.55);
+    --datepickerButtonOutlineColor: rgba(25, 223, 242, 0.75);
+    --datepickerSelectedFgColor: #041018;
+    --datepickerSelectedBgColor: rgba(25, 223, 242, 0.35);
+    --datepickerSelectedHoveredFgColor: #041018;
+    --datepickerSelectedHoveredBgColor: rgba(157, 255, 79, 0.45);
+    --datepickerSelectedBg: linear-gradient(135deg, #19dff2 0%, #9dff2e 100%);
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='DatePicker_root']) {
+    background:
+      radial-gradient(ellipse 90% 60% at 50% 0%, rgba(25, 223, 242, 0.08) 0%, transparent 55%),
+      linear-gradient(180deg, rgba(12, 20, 36, 0.98) 0%, rgba(6, 14, 28, 0.98) 100%) !important;
+    border: 1px solid rgba(25, 223, 242, 0.22);
+    color: rgba(228, 235, 243, 0.9);
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='DatePicker_monthName']) {
+    color: #f8fafc !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='DatePicker_weekday']) > :global(span) {
+    color: rgba(157, 176, 198, 0.72) !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='DatePicker_arrowIcon']) {
+    stroke: rgba(25, 223, 242, 0.92) !important;
+    fill: rgba(25, 223, 242, 0.92) !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='DatePicker_dateSelected']) :global([class*='DatePicker_renderedDay']),
+  :global(.peakupOrderModalTheme) :global([class*='DatePicker_dateStart']) :global([class*='DatePicker_renderedDay']),
+  :global(.peakupOrderModalTheme) :global([class*='DatePicker_dateEnd']) :global([class*='DatePicker_renderedDay']) {
+    background: linear-gradient(135deg, #19dff2 0%, #9dff2e 100%) !important;
+    color: #041018 !important;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='DateRangePicker_inputWrapper']),
+  :global(.peakupOrderModalTheme) :global([class*='SingleDatepicker_inputWrapper']) {
+    background: rgba(8, 14, 24, 0.78);
+    border: 1px solid rgba(120, 225, 255, 0.2);
+    border-radius: 10px;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='DateRangePicker_input']),
+  :global(.peakupOrderModalTheme) :global([class*='SingleDatepicker_input']) {
+    color: rgba(247, 250, 255, 0.96) !important;
+    background-color: transparent !important;
+    border: none !important;
+    font-weight: 600;
+  }
+
+  :global(.peakupOrderModalTheme) :global([class*='FieldDateAndTimeInput_fieldDateInput']),
+  :global(.peakupOrderModalTheme) :global([class*='FieldDateAndTimeInput_startTime']),
+  :global(.peakupOrderModalTheme) :global([class*='FieldDateAndTimeInput_fieldSelect']) {
+    background: rgba(8, 14, 24, 0.78);
+    border: 1px solid rgba(120, 225, 255, 0.2);
+    border-radius: 10px;
+  }
+}
+
+/* Desktop: order panel is in-page, not a full-screen portal modal */
+@media (--viewportLarge) {
+  :global(.peakupOrderModalTheme) {
+    min-height: unset;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: inherit;
+  }
+}
