@@ -6,13 +6,19 @@ const {
 } = require('../../server/api-util/referralRewardBackfill');
 
 describe('referralRewardBackfill', () => {
-  it('only treats complete and operator-complete as backfill scan transitions', () => {
-    expect(BACKFILL_LAST_TRANSITIONS).toEqual([
-      'transition/complete',
-      'transition/operator-complete',
-    ]);
+  it('treats payout-complete and post-review last transitions as backfill scan targets', () => {
+    expect(BACKFILL_LAST_TRANSITIONS).toEqual(
+      expect.arrayContaining([
+        'transition/complete',
+        'transition/operator-complete',
+        'transition/expire-provider-review-period',
+      ])
+    );
     expect(isBackfillEligibleLastTransition('transition/complete')).toBe(true);
     expect(isBackfillEligibleLastTransition('transition/operator-complete')).toBe(true);
+    expect(isBackfillEligibleLastTransition('transition/expire-provider-review-period')).toBe(
+      true
+    );
     expect(isBackfillEligibleLastTransition('transition/mark-delivered')).toBe(false);
   });
 

@@ -5,6 +5,7 @@ const { repairAllReferralLedgerEntries } = require('./referralLedgerRepair');
 const { findRewardByTransactionId } = require('./referralRewardsStore');
 const {
   extractTransactionEconomics,
+  isRewardAccrualEligible,
   processReferralRewardAccrual,
 } = require('./referralRewardAccrual');
 
@@ -17,8 +18,18 @@ const COMPLETED_BOOKING_STATES = [
   'completed',
 ].join(',');
 
-/** Backfill scans only Console-style completion transitions (see requirements). */
-const BACKFILL_LAST_TRANSITIONS = ['transition/complete', 'transition/operator-complete'];
+/** Completed booking last transitions scanned for backfill (includes post-payout review expiry). */
+const BACKFILL_LAST_TRANSITIONS = [
+  'transition/complete',
+  'transition/operator-complete',
+  'transition/expire-review-period',
+  'transition/expire-provider-review-period',
+  'transition/expire-customer-review-period',
+  'transition/review-1-by-provider',
+  'transition/review-2-by-provider',
+  'transition/review-1-by-customer',
+  'transition/review-2-by-customer',
+];
 
 const BACKFILL_LAST_TRANSITIONS_QUERY = BACKFILL_LAST_TRANSITIONS.join(',');
 
@@ -30,6 +41,14 @@ const getLastTransition = transaction => transaction?.attributes?.lastTransition
 
 const isBackfillEligibleLastTransition = lastTransition =>
   BACKFILL_LAST_TRANSITIONS.includes(lastTransition);
+
+const isBackfillEligibleTransaction = transaction => {
+  const lastTransition = getLastTransition(transaction);
+  if (!lastTransition || !isBackfillEligibleLastTransition(lastTransition)) {
+    return false;
+  }
+  return isRewardAccrualEligible({ transitionName: lastTransition, transaction });
+};
 
 const buildEconomicsFields = transaction => {
   const economics = extractTransactionEconomics(transaction);
@@ -108,8 +127,8 @@ const evaluateBackfillTransaction = (transaction, referredCoachIds) => {
     ...buildEconomicsFields(transaction),
   };
 
-  if (!isBackfillEligibleLastTransition(lastTransition)) {
-    check.reason = 'last_transition_not_eligible';
+  if (!isBackfillEligibleTransaction(transaction)) {
+    check.reason = lastTransition ? 'transaction_not_payout_complete' : 'last_transition_not_eligible';
     return check;
   }
 
@@ -159,6 +178,7 @@ const fetchCompletedTransactionsForBackfill = async (sdk, options = {}) => {
         'processName',
         'lastTransition',
         'lastTransitionedAt',
+        'transitions',
         'lineItems',
         'payinTotal',
         'payoutTotal',
@@ -185,6 +205,7 @@ const fetchCompletedTransactionsForBackfill = async (sdk, options = {}) => {
         'processName',
         'lastTransition',
         'lastTransitionedAt',
+        'transitions',
         'lineItems',
         'payinTotal',
         'payoutTotal',

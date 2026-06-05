@@ -62,6 +62,7 @@ describe('ambassador referral engine', () => {
 
   it('includes booking completion transitions for accrual', () => {
     expect(REWARD_ACCRUAL_TRANSITIONS.has('transition/complete')).toBe(true);
+    expect(REWARD_ACCRUAL_TRANSITIONS.has('transition/expire-provider-review-period')).toBe(true);
   });
 
   it('extracts transaction economics from payin and payout totals', () => {

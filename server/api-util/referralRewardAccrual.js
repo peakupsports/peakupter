@@ -12,8 +12,8 @@ const {
 } = require('./referralRewardsStore');
 const { sendAmbassadorRewardEarnedEmail } = require('./ambassadorRewardEarnedEmail');
 
-/** Transitions that mark a paid booking/session as completed. */
-const REWARD_ACCRUAL_TRANSITIONS = new Set([
+/** Transitions that create provider payout (booking truly completed). */
+const PAYOUT_EARNED_TRANSITIONS = new Set([
   'transition/complete',
   'transition/operator-complete',
   'transition/mark-delivered',
@@ -24,9 +24,85 @@ const REWARD_ACCRUAL_TRANSITIONS = new Set([
   'transition/operator-accept-deliverable',
 ]);
 
-const truthy = value => value === true || value === 'true' || value === 1 || value === '1';
+/**
+ * Later automatic transitions (review period expiry, reviews) that can arrive as the
+ * only webhook after Sharetribe scheduler runs transition/complete.
+ */
+const LATE_REWARD_ACCRUAL_TRIGGER_TRANSITIONS = new Set([
+  'transition/expire-review-period',
+  'transition/expire-provider-review-period',
+  'transition/expire-customer-review-period',
+  'transition/review-1-by-provider',
+  'transition/review-2-by-provider',
+  'transition/review-1-by-customer',
+  'transition/review-2-by-customer',
+]);
+
+/** All transitions that may invoke reward accrual (direct payout or late wake-up). */
+const REWARD_ACCRUAL_TRANSITIONS = new Set([
+  ...PAYOUT_EARNED_TRANSITIONS,
+  ...LATE_REWARD_ACCRUAL_TRIGGER_TRANSITIONS,
+]);
 
 const getMoneyAmountMinor = money => Math.abs(Number(money?.amount) || 0);
+
+const getTransactionTransitionNames = transaction => {
+  const transitions = transaction?.attributes?.transitions || [];
+  return transitions
+    .map(entry => (typeof entry === 'string' ? entry : entry?.transition))
+    .filter(name => typeof name === 'string' && name.trim());
+};
+
+/**
+ * True when the booking has reached payout (automatic complete or manual operator-complete).
+ *
+ * @param {object} transaction
+ * @returns {boolean}
+ */
+const transactionHasPayoutEarned = transaction => {
+  const transitionNames = getTransactionTransitionNames(transaction);
+  if (transitionNames.some(name => PAYOUT_EARNED_TRANSITIONS.has(name))) {
+    return true;
+  }
+
+  const payoutMinor = getMoneyAmountMinor(transaction?.attributes?.payoutTotal);
+  if (payoutMinor <= 0) {
+    return false;
+  }
+
+  const lastTransition = transaction?.attributes?.lastTransition;
+  if (lastTransition && PAYOUT_EARNED_TRANSITIONS.has(lastTransition)) {
+    return true;
+  }
+
+  return Boolean(
+    lastTransition && LATE_REWARD_ACCRUAL_TRIGGER_TRANSITIONS.has(lastTransition)
+  );
+};
+
+/**
+ * @param {object} params
+ * @param {string} params.transitionName
+ * @param {object} params.transaction
+ * @returns {boolean}
+ */
+const isRewardAccrualEligible = ({ transitionName, transaction }) => {
+  if (!transitionName || !transaction) {
+    return false;
+  }
+
+  if (PAYOUT_EARNED_TRANSITIONS.has(transitionName)) {
+    return true;
+  }
+
+  if (LATE_REWARD_ACCRUAL_TRIGGER_TRANSITIONS.has(transitionName)) {
+    return transactionHasPayoutEarned(transaction);
+  }
+
+  return false;
+};
+
+const truthy = value => value === true || value === 'true' || value === 1 || value === '1';
 
 const estimateStripeFeeMinor = bookingAmountMinor => {
   const percent = Number(process.env.PEAKUP_STRIPE_FEE_PERCENT || 2.9);
@@ -154,7 +230,7 @@ const flowLogBase = (transaction, transitionName) => ({
 const processReferralRewardAccrual = async ({ trustedSdk, transitionName, transaction }) => {
   const base = flowLogBase(transaction, transitionName);
 
-  if (!REWARD_ACCRUAL_TRANSITIONS.has(transitionName)) {
+  if (!isRewardAccrualEligible({ transitionName, transaction })) {
     logReferralFlowCheck({
       ...base,
       reason: 'transition_not_eligible',
@@ -395,8 +471,12 @@ const updateReferralEntrySafe = (id, patch) => {
 };
 
 module.exports = {
+  LATE_REWARD_ACCRUAL_TRIGGER_TRANSITIONS,
+  PAYOUT_EARNED_TRANSITIONS,
   REWARD_ACCRUAL_TRANSITIONS,
   extractTransactionEconomics,
+  isRewardAccrualEligible,
   logReferralFlowCheck,
   processReferralRewardAccrual,
+  transactionHasPayoutEarned,
 };
