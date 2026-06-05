@@ -522,4 +522,43 @@ describe('ProfileSettingsForm', () => {
       screen.getByText('ProfileSettingsForm.preferredMeetingPointsHeading')
     ).toBeInTheDocument();
   });
+
+  it('shows country field for instructor coaches when PeakUp config merges country', () => {
+    const u1 = createCurrentUser('userId');
+    const { firstName, lastName } = u1.attributes.profile;
+    const hostedCountryProviderOnly = {
+      key: 'country',
+      scope: 'public',
+      schemaType: 'enum',
+      enumOptions: [{ option: 'CH', label: 'Switzerland' }],
+      saveConfig: {
+        label: 'Country',
+        displayInSignUp: false,
+      },
+      userTypeConfig: {
+        limitToUserTypeIds: true,
+        userTypeIds: ['provider'],
+      },
+    };
+    const mergedFields = [...userFieldConfig, hostedCountryProviderOnly, ...peakUpCoachUserFields];
+    const byKey = new Map();
+    mergedFields.forEach(field => byKey.set(field.key, field));
+
+    render(
+      <ProfileSettingsForm
+        intl={fakeIntl}
+        onSubmit={noop}
+        uploadInProgress={false}
+        updateInProgress={false}
+        currentUser={u1}
+        profileImage={{}}
+        userFields={[...byKey.values()]}
+        userTypeConfig={{ userType: 'instructor', label: 'Instructor' }}
+        isCoachUser={true}
+        initialValues={{ firstName, lastName }}
+      />
+    );
+
+    expect(screen.getByText('Country')).toBeInTheDocument();
+  });
 });
