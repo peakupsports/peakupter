@@ -188,10 +188,16 @@ module.exports = (req, res) => {
       const transitionName = bodyParams?.transition;
 
       if (!isSpeculative && transaction) {
-        const { processReferralRewardAccrual, REWARD_ACCRUAL_TRANSITIONS } = require('../api-util/referralRewardAccrual');
+        const {
+          isRewardAccrualEligible,
+          processReferralRewardAccrual,
+        } = require('../api-util/referralRewardAccrual');
         const transactionId = transaction?.id?.uuid || null;
         const providerId = transaction?.relationships?.provider?.data?.id?.uuid || null;
-        const eligible = Boolean(transitionName && REWARD_ACCRUAL_TRANSITIONS.has(transitionName));
+        const eligible = Boolean(
+          transitionName &&
+            isRewardAccrualEligible({ transitionName, transaction })
+        );
 
         // eslint-disable-next-line no-console
         console.info('[PeakUp REFERRAL ACCRUAL TRIGGER]', {

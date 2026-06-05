@@ -1,5 +1,8 @@
 const { getIntegrationSdk } = require('../api-util/integrationSdk');
-const { REWARD_ACCRUAL_TRANSITIONS, processReferralRewardAccrual } = require('../api-util/referralRewardAccrual');
+const {
+  isRewardAccrualEligible,
+  processReferralRewardAccrual,
+} = require('../api-util/referralRewardAccrual');
 
 const truthy = v => v === true || v === 'true' || v === 1 || v === '1';
 
@@ -125,7 +128,7 @@ module.exports = async (req, res) => {
   const providerId = tx?.relationships?.provider?.data?.id?.uuid || null;
   const effectiveTransition = transitionName || tx?.attributes?.lastTransition || null;
 
-  if (!effectiveTransition || !REWARD_ACCRUAL_TRANSITIONS.has(effectiveTransition)) {
+  if (!effectiveTransition || !isRewardAccrualEligible({ transitionName: effectiveTransition, transaction: tx })) {
     console.info('[PeakUp REFERRAL ACCRUAL TRIGGER]', {
       transitionName: effectiveTransition,
       transactionId,
