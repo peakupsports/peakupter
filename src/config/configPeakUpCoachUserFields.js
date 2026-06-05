@@ -10,7 +10,12 @@
  * con lat/lng globali; non usiamo più il menu elenco città SV.
  */
 
+import getCountryCodes from '../translations/countryCodes';
+
 // NOTE: Coach hourly price is derived from the hourly booking listing only.
+
+/** ISO-2 country codes for coach nationality (`publicData.country`). */
+export const PEAKUP_COACH_PROFILE_COUNTRY_KEY = 'country';
 
 /** Chiavi `publicData` scritte dal blocco “Coach & sessions” (e lette sulla Profile page).
  *
@@ -113,7 +118,41 @@ const languageEnumOptions = [
   { option: 'pt', label: 'Português' },
 ];
 
+/** ISO-3166-1 alpha-2 options for coach nationality (figurina flag + search). */
+const countryEnumOptions = () => {
+  const seen = new Set();
+  return getCountryCodes('en')
+    .filter(({ code }) => {
+      if (!code || seen.has(code)) {
+        return false;
+      }
+      seen.add(code);
+      return true;
+    })
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(({ code, name }) => ({ option: code, label: name }));
+};
+
 export const peakUpCoachUserFields = [
+  {
+    key: PEAKUP_COACH_PROFILE_COUNTRY_KEY,
+    scope: 'public',
+    schemaType: 'enum',
+    enumOptions: countryEnumOptions(),
+    showConfig: {
+      label: 'Country',
+    },
+    saveConfig: {
+      label: 'Country',
+      displayInSignUp: false,
+      isRequired: false,
+      placeholderMessage: 'Select your country',
+    },
+    userTypeConfig: {
+      limitToUserTypeIds: false,
+      userTypeIds: [],
+    },
+  },
   {
     key: 'sports',
     scope: 'public',
