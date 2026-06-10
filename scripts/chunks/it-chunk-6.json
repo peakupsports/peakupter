@@ -1,0 +1,22 @@
+[
+  {
+    "k": "UserCard.heading",
+    "en": "Hello, I'm {name}."
+  },
+  {
+    "k": "UserCard.showFullBioLink",
+    "en": "more"
+  },
+  {
+    "k": "UserCard.viewProfileLink",
+    "en": "View profile"
+  },
+  {
+    "k": "UserDisplayName.banned",
+    "en": "Banned user"
+  },
+  {
+    "k": "UserDisplayName.deleted",
+    "en": "Deleted user"
+  }
+]

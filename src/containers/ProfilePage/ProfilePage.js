@@ -93,7 +93,6 @@ import NotFoundPage from '../../containers/NotFoundPage/NotFoundPage';
 
 import layoutSideNavCss from '../../components/LayoutComposer/LayoutSideNavigation/LayoutSideNavigation.module.css';
 
-import PeakUpProfileTrustTopbar from './PeakUpProfileTrustTopbar';
 import CustomerProfileLayout from './CustomerProfileLayout/CustomerProfileLayout';
 import TeamProfileLayout from './TeamProfileLayout/TeamProfileLayout';
 import { isPeakUpTeamProfile, isPeakUpTeamUser } from '../../util/peakupTeam';
@@ -1675,15 +1674,6 @@ export const ProfilePageComponent = props => {
   // of truth: `src/util/coachTier.js`.
   const peakUpCoachTierId = peakUpCoachLayout ? pickPrimaryTierId(publicData || {}) : null;
   const peakUpCoachTierStyle = peakUpCoachTierId ? getTierStyleVars(peakUpCoachTierId) : null;
-  const coachTrustTopbarSlots =
-    peakUpCoachLayout && profileUser ? (
-      <PeakUpProfileTrustTopbar
-        intl={intl}
-        publicData={publicData || {}}
-        reviews={reviews}
-        variant="topbar"
-      />
-    ) : null;
   const { userFields } = config.user;
   const isPrivateMarketplace = config.accessControl.marketplace.private === true;
   const isUnauthorizedUser = currentUser && !isUserAuthorized(currentUser);
@@ -1802,7 +1792,7 @@ export const ProfilePageComponent = props => {
     );
   }
 
-  // Coach + legacy profile (figurina, tier, trust topbar).
+  // Coach + legacy profile (figurina, tier).
   const layoutNode = (
     <LayoutSideNavigation
       className={peakUpCoachLayout ? layoutSideNavCss.profilePeakUpPageShell : undefined}
@@ -1817,7 +1807,7 @@ export const ProfilePageComponent = props => {
         peakUpCoachLayout && css.sideNavCoachPeakUpWide
       )}
       mainColumnClassName={peakUpCoachLayout ? css.mainPeakUpCoachContent : undefined}
-      topbar={<TopbarContainer topbarCenterContent={coachTrustTopbarSlots} />}
+      topbar={<TopbarContainer />}
       sideNav={
         <AsideContent
           user={profileUser}
@@ -1839,14 +1829,6 @@ export const ProfilePageComponent = props => {
       footer={<FooterContainer />}
     >
       <>
-        {peakUpCoachLayout && profileUser ? (
-          <PeakUpProfileTrustTopbar
-            intl={intl}
-            publicData={publicData || {}}
-            reviews={reviews}
-            variant="rail"
-          />
-        ) : null}
         <MainContent
           bio={bio}
           displayName={displayName}

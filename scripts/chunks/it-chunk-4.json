@@ -1,0 +1,1802 @@
+[
+  {
+    "k": "ManageListingsPage.createListing",
+    "en": "Post a new listing"
+  },
+  {
+    "k": "ManageListingsPage.createServiceCTA",
+    "en": "+ Create new service"
+  },
+  {
+    "k": "ManageListingsPage.createServiceCTASubtext",
+    "en": "Add a new coach offer"
+  },
+  {
+    "k": "ManageListingsPage.loadingOwnListings",
+    "en": "Loading listings…"
+  },
+  {
+    "k": "ManageListingsPage.noResults",
+    "en": "You haven't listed any listings."
+  },
+  {
+    "k": "ManageListingsPage.queryError",
+    "en": "Query failed. Please try again."
+  },
+  {
+    "k": "ManageListingsPage.title",
+    "en": "Manage your listings"
+  },
+  {
+    "k": "Modal.close",
+    "en": "CLOSE"
+  },
+  {
+    "k": "Modal.closeModal",
+    "en": "Close modal"
+  },
+  {
+    "k": "ModalMissingInformation.checkInbox",
+    "en": "Please check your inbox and verify your email address {email}."
+  },
+  {
+    "k": "ModalMissingInformation.closeVerifyEmailReminder",
+    "en": "Later"
+  },
+  {
+    "k": "ModalMissingInformation.fixEmail",
+    "en": "Oops, a typo in your email? {fixEmailLink}"
+  },
+  {
+    "k": "ModalMissingInformation.fixEmailLinkText",
+    "en": "Fix it."
+  },
+  {
+    "k": "ModalMissingInformation.resendEmail",
+    "en": "Didn't get the email? {resendEmailLink}"
+  },
+  {
+    "k": "ModalMissingInformation.resendEmailLinkText",
+    "en": "Resend it."
+  },
+  {
+    "k": "ModalMissingInformation.resendFailed",
+    "en": "Resending verification email failed. Please try again."
+  },
+  {
+    "k": "ModalMissingInformation.resendFailedTooManyRequests",
+    "en": "Resending verification email failed. Too many verification emails sent."
+  },
+  {
+    "k": "ModalMissingInformation.sendingEmail",
+    "en": "Sending verification email…"
+  },
+  {
+    "k": "ModalMissingInformation.verifyEmailText",
+    "en": "Please verify your email address so we can send you your receipt and information on your order status. We are unable to send you emails before your email has been verified."
+  },
+  {
+    "k": "NegotiationForm.ctaButton",
+    "en": "Submit an offer"
+  },
+  {
+    "k": "NegotiationRequestQuoteForm.ctaButton",
+    "en": "Request a quote"
+  },
+  {
+    "k": "NoAccessPage.initiateTransactions.content",
+    "en": "To start a transaction, you need to receive transaction rights from the {marketplaceName} team."
+  },
+  {
+    "k": "NoAccessPage.initiateTransactions.heading",
+    "en": "You don't have transaction rights"
+  },
+  {
+    "k": "NoAccessPage.postListings.content",
+    "en": "To post listings, you need to receive posting rights from the {marketplaceName} team."
+  },
+  {
+    "k": "NoAccessPage.userPendingApproval.content",
+    "en": "You need approval from the {marketplaceName} team to get access to the marketplace."
+  },
+  {
+    "k": "NoAccessPage.userPendingApproval.heading",
+    "en": "Your account is waiting for approval"
+  },
+  {
+    "k": "NoAccessPage.userPendingApproval.schemaTitle",
+    "en": "No user approval"
+  },
+  {
+    "k": "NoAccessPage.viewListings.content",
+    "en": "To view this content, you need to receive viewing rights from the {marketplaceName} team."
+  },
+  {
+    "k": "NotFoundPage.SearchForm.placeholder",
+    "en": "Search listings…"
+  },
+  {
+    "k": "NotFoundPage.description",
+    "en": "We can't find the page you're looking for. Make sure you've typed in the URL correctly or try searching {marketplaceName}."
+  },
+  {
+    "k": "NotFoundPage.heading",
+    "en": "Sorry, we couldn't find that page."
+  },
+  {
+    "k": "NotFoundPage.screenreader.search",
+    "en": "Search listings"
+  },
+  {
+    "k": "NotFoundPage.title",
+    "en": "Page not found"
+  },
+  {
+    "k": "NumberInput.decrementButton",
+    "en": "Decrement the value by one"
+  },
+  {
+    "k": "NumberInput.incrementButton",
+    "en": "Increment the value by one"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitDay",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {day} other {days}}"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitDaySeats",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {day} other {days}} x { seats, number } { seats, plural, one {seat} other {seats} }"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitFixedBooking",
+    "en": "{unitPrice}"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitFixedBookingSeats",
+    "en": "{unitPrice} x {seats, number} {seats, plural, one {seat} other {seats}}"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitHour",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {hour} other {hours}}"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitHourSeats",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {hour} other {hours}} x { seats, number } { seats, plural, one {seat} other {seats} }"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitNight",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {night} other {nights}}"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitNightSeats",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {night} other {nights}} x { seats, number } { seats, plural, one {seat} other {seats} }"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitRequest",
+    "en": "Price"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitOffer",
+    "en": "Price"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitQuantity",
+    "en": "{quantity, plural, one {Unit price} other {{unitPrice} x #}}"
+  },
+  {
+    "k": "OrderBreakdown.bookingEnd",
+    "en": "Booking end"
+  },
+  {
+    "k": "OrderBreakdown.bookingStart",
+    "en": "Booking start"
+  },
+  {
+    "k": "OrderBreakdown.peakupSessionsTitle",
+    "en": "Sessions in this booking"
+  },
+  {
+    "k": "OrderBreakdown.peakupSessionsThrough",
+    "en": "through"
+  },
+  {
+    "k": "OrderBreakdown.bookingWithDSTInEffect",
+    "en": "Daylight saving time"
+  },
+  {
+    "k": "OrderBreakdown.commission",
+    "en": "{role, select, customer {{marketplaceName} fee *} provider {{marketplaceName} fee *} other {}}"
+  },
+  {
+    "k": "OrderBreakdown.commissionFeeNote",
+    "en": "* The fee helps us run this platform and provide the best possible service to you!"
+  },
+  {
+    "k": "OrderBreakdown.pickupFee",
+    "en": "Pickup"
+  },
+  {
+    "k": "OrderBreakdown.providerTotalReceived",
+    "en": "You earned"
+  },
+  {
+    "k": "OrderBreakdown.providerTotalRefunded",
+    "en": "Total price"
+  },
+  {
+    "k": "OrderBreakdown.refund",
+    "en": "Refund"
+  },
+  {
+    "k": "OrderBreakdown.refundCustomerFee",
+    "en": "Refund {marketplaceName} fee"
+  },
+  {
+    "k": "OrderBreakdown.refundProviderFee",
+    "en": "Refund {marketplaceName} fee"
+  },
+  {
+    "k": "OrderBreakdown.shippingFee",
+    "en": "Shipping"
+  },
+  {
+    "k": "OrderBreakdown.subTotal",
+    "en": "Subtotal"
+  },
+  {
+    "k": "OrderBreakdown.total",
+    "en": "Total price"
+  },
+  {
+    "k": "OrderPanel.author",
+    "en": "{name}"
+  },
+  {
+    "k": "OrderPanel.closedListingButtonText",
+    "en": "Sorry, this listing has been closed."
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessageBooking",
+    "en": "Book now"
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessageInquiry",
+    "en": "Send an inquiry"
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessageMakeOffer",
+    "en": "Submit an offer"
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessageRequestAQuote",
+    "en": "Request a quote"
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessageNoStock",
+    "en": "Out of stock"
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessagePurchase",
+    "en": "Buy now"
+  },
+  {
+    "k": "OrderPanel.listingCurrencyInvalid",
+    "en": "This listing's currency ({currency}) is not supported here. Allowed currencies: {supportedCurrencies}."
+  },
+  {
+    "k": "OrderPanel.listingPriceVariantsAreInvalid",
+    "en": "Oops, the pricing of this listing is not set properly. Please contact support."
+  },
+  {
+    "k": "OrderPanel.youWontBeChargedInfo",
+    "en": "You won't be charged yet"
+  },
+  {
+    "k": "OrderPanel.perUnit",
+    "en": "{unitType, select, day {per day} night {per night} hour {per hour} other {}}"
+  },
+  {
+    "k": "OrderPanel.price",
+    "en": "{priceValue} {pricePerUnit}"
+  },
+  {
+    "k": "OrderPanel.priceInMobileCTA",
+    "en": "{priceValue}"
+  },
+  {
+    "k": "OrderPanel.subTitleClosedListing",
+    "en": "Sorry, this listing has been closed."
+  },
+  {
+    "k": "OrderPanel.unknownTransactionProcess",
+    "en": "Oops, it looks like the marketplace processes aren't up to date. Please contact the marketplace operator."
+  },
+  {
+    "k": "PreBookingIntroModal.eyebrow",
+    "en": "PeakUp Sports"
+  },
+  {
+    "k": "PreBookingIntroModal.title",
+    "en": "Tell your coach about your session"
+  },
+  {
+    "k": "PreBookingIntroModal.subtitle",
+    "en": "A few details help your coach prepare. You'll pick dates and times on the next step."
+  },
+  {
+    "k": "PreBookingIntroModal.sportLabel",
+    "en": "Sport"
+  },
+  {
+    "k": "PreBookingIntroModal.sportPlaceholder",
+    "en": "Select a sport"
+  },
+  {
+    "k": "PreBookingIntroModal.participantTypeLabel",
+    "en": "Participant type"
+  },
+  {
+    "k": "PreBookingIntroModal.participantTypePlaceholder",
+    "en": "Who is this session for?"
+  },
+  {
+    "k": "PreBookingIntroModal.participantType.self",
+    "en": "Myself (adult)"
+  },
+  {
+    "k": "PreBookingIntroModal.participantType.child",
+    "en": "Child / youth"
+  },
+  {
+    "k": "PreBookingIntroModal.participantType.group",
+    "en": "Group / family"
+  },
+  {
+    "k": "PreBookingIntroModal.skillLevelLabel",
+    "en": "Skill level"
+  },
+  {
+    "k": "PreBookingIntroModal.skillLevelPlaceholder",
+    "en": "Select skill level"
+  },
+  {
+    "k": "PreBookingIntroModal.sessionLanguageLabel",
+    "en": "Preferred session language"
+  },
+  {
+    "k": "PreBookingIntroModal.sessionLanguagePlaceholder",
+    "en": "Select a language"
+  },
+  {
+    "k": "PreBookingIntroModal.participantCountLabel",
+    "en": "Number of participants"
+  },
+  {
+    "k": "PreBookingIntroModal.meetingPointLabel",
+    "en": "Meeting point"
+  },
+  {
+    "k": "PreBookingIntroModal.meetingPointPlaceholder",
+    "en": "Select meeting point"
+  },
+  {
+    "k": "PreBookingIntroModal.footerNote",
+    "en": "Most coaches reply within a few hours."
+  },
+  {
+    "k": "PreBookingIntroModal.continue",
+    "en": "Continue to availability"
+  },
+  {
+    "k": "PreBookingIntroModal.later",
+    "en": "Maybe later"
+  },
+  {
+    "k": "OrderBreakdown.peakupPreBookingTitle",
+    "en": "Session details"
+  },
+  {
+    "k": "OrderBreakdown.peakupPreBookingSport",
+    "en": "Sport"
+  },
+  {
+    "k": "OrderBreakdown.peakupPreBookingParticipantType",
+    "en": "Participant type"
+  },
+  {
+    "k": "OrderBreakdown.peakupPreBookingSkillLevel",
+    "en": "Skill level"
+  },
+  {
+    "k": "OrderBreakdown.peakupPreBookingSessionLanguage",
+    "en": "Preferred session language"
+  },
+  {
+    "k": "OrderBreakdown.peakupPreBookingParticipantCount",
+    "en": "Participants"
+  },
+  {
+    "k": "MeetingPointSelectMaybe.heading",
+    "en": "Meeting point"
+  },
+  {
+    "k": "MeetingPointSelectMaybe.label",
+    "en": "Where to meet"
+  },
+  {
+    "k": "MeetingPointSelectMaybe.placeholder",
+    "en": "Choose a meeting point"
+  },
+  {
+    "k": "MeetingPointSelectMaybe.required",
+    "en": "Please choose a meeting point"
+  },
+  {
+    "k": "OrderBreakdown.peakupMeetingPointTitle",
+    "en": "Meeting point"
+  },
+  {
+    "k": "OrderBreakdown.peakupMeetingPointLabel",
+    "en": "Place"
+  },
+  {
+    "k": "OrderBreakdown.peakupMeetingPointAddress",
+    "en": "Address"
+  },
+  {
+    "k": "OrderBreakdown.peakupMeetingPointNotes",
+    "en": "Notes"
+  },
+  {
+    "k": "CheckoutPage.meetingPointHeading",
+    "en": "Meeting point"
+  },
+  {
+    "k": "TransactionPanel.meetingPointHeading",
+    "en": "Meeting point"
+  },
+  {
+    "k": "Page.schemaDescription",
+    "en": "An online marketplace."
+  },
+  {
+    "k": "Page.schemaTitle",
+    "en": "{marketplaceName}"
+  },
+  {
+    "k": "PageBuilder.SearchCTA.CategoryFilter.selectAll",
+    "en": "All categories"
+  },
+  {
+    "k": "LandingHeroSection.primaryCta",
+    "en": "Find a Coach"
+  },
+  {
+    "k": "LandingWhyPeakupSection.titleWhy",
+    "en": "Why"
+  },
+  {
+    "k": "LandingWhyPeakupSection.titlePeakUp",
+    "en": "PeakUp"
+  },
+  {
+    "k": "LandingWhyPeakupSection.cardAthleteText",
+    "en": "Choose your sport, location, and preferred time slot in just a few clicks."
+  },
+  {
+    "k": "LandingWhyPeakupSection.cardCoachText",
+    "en": "Build your visibility, grow your bookings, and stay fully independent."
+  },
+  {
+    "k": "PageBuilder.SearchCTA.locationPlaceholder",
+    "en": "Location"
+  },
+  {
+    "k": "PaginationLinks.next",
+    "en": "Next page"
+  },
+  {
+    "k": "PaginationLinks.previous",
+    "en": "Previous page"
+  },
+  {
+    "k": "PaginationLinks.toPage",
+    "en": "Go to page {page}"
+  },
+  {
+    "k": "PeakUpHq.accessLabel",
+    "en": "ADMIN ACCESS"
+  },
+  {
+    "k": "PeakUpHq.backToOverview",
+    "en": "Back to PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHq.brandSubtitle",
+    "en": "Operations center"
+  },
+  {
+    "k": "PeakUpHq.brandTitle",
+    "en": "PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHq.cardOpen",
+    "en": "Open module"
+  },
+  {
+    "k": "PeakUpHq.heroSubtitle",
+    "en": "Internal operations & platform management"
+  },
+  {
+    "k": "PeakUpHq.heroTitle",
+    "en": "PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHq.nav.overview",
+    "en": "Overview"
+  },
+  {
+    "k": "PeakUpHq.placeholderBody",
+    "en": "This module is part of the PeakUp HQ roadmap. Check back soon for operational tools and analytics."
+  },
+  {
+    "k": "PeakUpHq.schemaTitle",
+    "en": "PeakUp HQ | {marketplaceName}"
+  },
+  {
+    "k": "PeakUpHq.section.activity.description",
+    "en": "Monitor bookings, sign-ups, and platform signals in one place."
+  },
+  {
+    "k": "PeakUpHq.section.activity.title",
+    "en": "Platform Activity"
+  },
+  {
+    "k": "PeakUpHq.section.ambassadors.description",
+    "en": "Manage ambassador referrals, codes, and program performance."
+  },
+  {
+    "k": "PeakUpHq.section.ambassadors.title",
+    "en": "Ambassador Program"
+  },
+  {
+    "k": "PeakUpHq.section.coachApplications.description",
+    "en": "Review, approve, and manage incoming coach applications."
+  },
+  {
+    "k": "PeakUpHq.section.coachApplications.title",
+    "en": "Coach Applications"
+  },
+  {
+    "k": "PeakUpHq.section.cancellations.description",
+    "en": "Track coach-initiated cancellations, refunds, and customer follow-up."
+  },
+  {
+    "k": "PeakUpHq.section.cancellations.title",
+    "en": "Cancellation Center"
+  },
+  {
+    "k": "PeakUpHq.section.coachManagement.description",
+    "en": "Verified and pending coaches, partner priority, ambassadors, and verification."
+  },
+  {
+    "k": "PeakUpHq.section.coachManagement.title",
+    "en": "Coach Management"
+  },
+  {
+    "k": "PeakUpHq.section.featuredCoaches.description",
+    "en": "Central directory for verified coaches, filters, and commercial partner priority."
+  },
+  {
+    "k": "PeakUpHq.section.featuredCoaches.title",
+    "en": "Coach Management"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.schemaTitle",
+    "en": "Featured Coaches | PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.eyebrow",
+    "en": "Curation"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.title",
+    "en": "Featured Coaches"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.subtitle",
+    "en": "Feature verified coaches on homepage, sport pages, coach map, and the coaches directory. Does not change listings, bookings, or payouts."
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.gateHint",
+    "en": "This page is not publicly linked. Enter the admin token (COACH_APPLICATION_ADMIN_TOKEN) or sign in as an HQ admin."
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.gateLabel",
+    "en": "Admin access token"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.gatePlaceholder",
+    "en": "Paste admin token"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.gateSubmit",
+    "en": "Unlock dashboard"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.gateInvalid",
+    "en": "Invalid admin token."
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.gateNotConfigured",
+    "en": "Admin access is not configured on the server."
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.loadError",
+    "en": "Could not load coaches."
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.refresh",
+    "en": "Refresh"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.count",
+    "en": "{count, plural, one {# coach} other {# coaches}} · {featured, plural, one {# featured} other {# featured}}"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.searchPlaceholder",
+    "en": "Name, email, or sport…"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.filterAll",
+    "en": "All placements"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.filterViewLabel",
+    "en": "View"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.featuredOnly",
+    "en": "Featured only"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.colName",
+    "en": "Coach"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.colEmail",
+    "en": "Email"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.colSport",
+    "en": "Sports"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.colTier",
+    "en": "Tier"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.colStatus",
+    "en": "Featured status"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.colActions",
+    "en": "Actions"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.tierNone",
+    "en": "Standard"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.statusFeatured",
+    "en": "Featured"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.statusNotFeatured",
+    "en": "Not featured"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.featureCoach",
+    "en": "Feature coach"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.removeFeatured",
+    "en": "Remove from featured"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.placementsRequired",
+    "en": "Select at least one placement."
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.featureError",
+    "en": "Could not feature coach."
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.placement.homepage",
+    "en": "Homepage"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.placement.sportPage",
+    "en": "Sport page"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.placement.map",
+    "en": "Map"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.count",
+    "en": "{count, plural, one {# verified} other {# verified}} · {future, plural, one {# pending} other {# pending}} · {partners, plural, one {# partner} other {# partners}}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureSubtitle",
+    "en": "{count, plural, =0 {No pending coach profiles} one {# coach awaiting verification} other {# coaches awaiting verification}}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureStatus.onboarding",
+    "en": "Onboarding"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.filterSport",
+    "en": "Sport"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerSectionSubtitle",
+    "en": "{count, plural, =0 {No active partner priorities} one {# active partner priority} other {# active partner priorities}}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerAssignCoach",
+    "en": "Coach"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.colCoach",
+    "en": "Coach"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.tierNone",
+    "en": "Standard"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerLevel.standard",
+    "en": "Standard"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerLevel.partner",
+    "en": "Partner"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerLevel.sponsor",
+    "en": "Sponsor"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.count",
+    "en": "{count, plural, one {# customer} other {# customers}} · {active, plural, one {# active} other {# active}} · {withBookings, plural, one {# with bookings} other {# with bookings}}"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.count",
+    "en": "{teams, plural, one {# team} other {# teams}} · {pending, plural, one {# pending} other {# pending}} · {coaches, plural, one {# roster coach} other {# roster coaches}} · {partners, plural, one {# partner} other {# partners}}"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.sortSport",
+    "en": "Sport"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.colSport",
+    "en": "Sport"
+  },
+  {
+    "k": "PeakUpHq.section.payments.description",
+    "en": "Track payouts, commissions, and payment health across the marketplace."
+  },
+  {
+    "k": "PeakUpHq.section.payments.title",
+    "en": "Payments Overview"
+  },
+  {
+    "k": "PeakUpHq.section.reports.description",
+    "en": "Platform analytics, growth metrics, and operational reporting."
+  },
+  {
+    "k": "PeakUpHq.section.reports.title",
+    "en": "Reports & Analytics"
+  },
+  {
+    "k": "PeakUpHq.section.verification.description",
+    "en": "Coach verification workflow, documents, and compliance review."
+  },
+  {
+    "k": "PeakUpHq.section.verification.title",
+    "en": "Verification Center"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.schemaTitle",
+    "en": "Cancellation Center | PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.eyebrow",
+    "en": "Session issues"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.title",
+    "en": "Cancellation Center"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.subtitle",
+    "en": "Track and manage coach-initiated session cancellations, refunds, and customer follow-up."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gateHint",
+    "en": "This page is not publicly linked. Enter the admin token (COACH_APPLICATION_ADMIN_TOKEN)."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gateLabel",
+    "en": "Admin access token"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gatePlaceholder",
+    "en": "Paste admin token"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gateSubmit",
+    "en": "Open dashboard"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gateInvalid",
+    "en": "Invalid admin token."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gateNotConfigured",
+    "en": "Admin access is not configured on the server."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.loadError",
+    "en": "Could not load cancellation cases."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.saveError",
+    "en": "Could not save changes."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.empty",
+    "en": "No cancellation cases yet."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.caseCount",
+    "en": "{count, plural, one {# case} other {# cases}}"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.refresh",
+    "en": "Refresh"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.summaryTotal",
+    "en": "Total cases"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.summaryOpen",
+    "en": "Open cases"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.summaryHighUrgency",
+    "en": "High urgency"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colCoach",
+    "en": "Coach"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colCustomer",
+    "en": "Customer"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colSession",
+    "en": "Session"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colStatus",
+    "en": "Case status"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colUrgency",
+    "en": "Urgency"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colCreated",
+    "en": "Created"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colOutcome",
+    "en": "Outcome"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colTransaction",
+    "en": "Transaction ID"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.detailTitle",
+    "en": "Case details"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.fieldStatus",
+    "en": "Case status"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.fieldRefund",
+    "en": "Refund status"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.fieldReassignment",
+    "en": "Reassignment status"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.fieldNotes",
+    "en": "Admin notes"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.markResolved",
+    "en": "Mark resolved"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.dismissCase",
+    "en": "Dismiss case"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.reopenCase",
+    "en": "Reopen case"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.deleteCase",
+    "en": "Delete permanently"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.confirmDismiss",
+    "en": "Are you sure? This will remove the case from active follow-up."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.confirmDelete",
+    "en": "Are you sure? This will permanently delete this cancellation case."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.statusInactiveHint",
+    "en": "Closed — use Reopen to return to active follow-up"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.resolvedAt",
+    "en": "Resolved {date}"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.dismissedAt",
+    "en": "Dismissed {date}"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.reopenedAt",
+    "en": "Reopened {date}"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.resolveError",
+    "en": "Could not resolve this case."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.dismissError",
+    "en": "Could not dismiss this case."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.reopenError",
+    "en": "Could not reopen this case."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.deleteError",
+    "en": "Could not delete this case."
+  },
+  {
+    "k": "PasswordRecoveryForm.emailInvalid",
+    "en": "A valid email address is required."
+  },
+  {
+    "k": "PasswordRecoveryForm.emailLabel",
+    "en": "Email"
+  },
+  {
+    "k": "PasswordRecoveryForm.emailNotFound",
+    "en": "Hmm. We didn't find an account with that email address. Please double-check the email and try again."
+  },
+  {
+    "k": "PasswordRecoveryForm.emailPlaceholder",
+    "en": "jane.doe@example.com"
+  },
+  {
+    "k": "PasswordRecoveryForm.emailRequired",
+    "en": "This field is required."
+  },
+  {
+    "k": "PasswordRecoveryForm.loginLinkText",
+    "en": "Log in."
+  },
+  {
+    "k": "PasswordRecoveryForm.sendInstructions",
+    "en": "Send instructions"
+  },
+  {
+    "k": "PasswordRecoveryPage.actionFailedMessage",
+    "en": "Something went wrong. Please refresh the page and try again."
+  },
+  {
+    "k": "PasswordRecoveryPage.actionFailedTitle",
+    "en": "Oops!"
+  },
+  {
+    "k": "PasswordRecoveryPage.emailSubmittedMessage",
+    "en": "Instructions to reset your password have been sent to {submittedEmailText}."
+  },
+  {
+    "k": "PasswordRecoveryPage.emailSubmittedTitle",
+    "en": "Check your email inbox"
+  },
+  {
+    "k": "PasswordRecoveryPage.fixEmailInfo",
+    "en": "Oops, a typo in your email? {fixEmailLink}"
+  },
+  {
+    "k": "PasswordRecoveryPage.fixEmailLinkText",
+    "en": "Fix it."
+  },
+  {
+    "k": "PasswordRecoveryPage.forgotPasswordMessage",
+    "en": "No worries! Please enter the email address you used to sign up and we'll send you instructions to set a new password."
+  },
+  {
+    "k": "PasswordRecoveryPage.forgotPasswordTitle",
+    "en": "Forgot your password?"
+  },
+  {
+    "k": "PasswordRecoveryPage.resendEmailInfo",
+    "en": "Didn't get the email? {resendEmailLink}"
+  },
+  {
+    "k": "PasswordRecoveryPage.resendEmailLinkText",
+    "en": "Send another email."
+  },
+  {
+    "k": "PasswordRecoveryPage.resendingEmailInfo",
+    "en": "Resending instructions…"
+  },
+  {
+    "k": "PasswordRecoveryPage.title",
+    "en": "Request a new password"
+  },
+  {
+    "k": "PasswordResetForm.passwordRequired",
+    "en": "This field is required."
+  },
+  {
+    "k": "PasswordResetForm.passwordTooLong",
+    "en": "The password can't be longer than {maxLength} characters."
+  },
+  {
+    "k": "PasswordResetForm.passwordTooShort",
+    "en": "The password should be at least {minLength} characters."
+  },
+  {
+    "k": "PasswordResetForm.submitButtonText",
+    "en": "Reset password"
+  },
+  {
+    "k": "PasswordResetPage.helpText",
+    "en": "Please provide a new password."
+  },
+  {
+    "k": "PasswordResetPage.invalidUrlParams",
+    "en": "Oops, looks like the password reset link is broken. Try again by clicking the email link, or request a new link on the {recoveryLink}."
+  },
+  {
+    "k": "PasswordResetPage.loginButtonText",
+    "en": "Log in"
+  },
+  {
+    "k": "PasswordResetPage.mainHeading",
+    "en": "Reset your password"
+  },
+  {
+    "k": "PasswordResetPage.passwordChangedHeading",
+    "en": "Password changed"
+  },
+  {
+    "k": "PasswordResetPage.passwordChangedHelpText",
+    "en": "Your password has been changed successfully."
+  },
+  {
+    "k": "PasswordResetPage.recoveryLinkText",
+    "en": "password recovery page"
+  },
+  {
+    "k": "PasswordResetPage.resetFailed",
+    "en": "Reset failed. Please try again."
+  },
+  {
+    "k": "PasswordResetPage.title",
+    "en": "Reset password"
+  },
+  {
+    "k": "PaymentMethodsForm.billingDetailsNameLabel",
+    "en": "Card holder's name"
+  },
+  {
+    "k": "PaymentMethodsForm.genericError",
+    "en": "Could not handle payment data. Please try again."
+  },
+  {
+    "k": "PaymentMethodsForm.infoText",
+    "en": "I authorise {marketplaceName} to send instructions to the financial institution that issued my card to take payments from my card account in accordance with the terms of my agreement with you."
+  },
+  {
+    "k": "PaymentMethodsForm.paymentCardDetails",
+    "en": "Payment card details"
+  },
+  {
+    "k": "PaymentMethodsForm.submitPaymentInfo",
+    "en": "Save payment card"
+  },
+  {
+    "k": "PaymentMethodsPage.heading",
+    "en": "Payment methods"
+  },
+  {
+    "k": "PaymentMethodsPage.title",
+    "en": "Payment methods"
+  },
+  {
+    "k": "PriceFilter.labelSelectedButton",
+    "en": "{minPrice} - {maxPrice}"
+  },
+  {
+    "k": "PriceFilter.screenreader.rangeHandle",
+    "en": "{handle, select, min {{formattedPrice} {currency} minimum price} other {{formattedPrice} {currency} maximum price}}"
+  },
+  {
+    "k": "PriceVariantPicker.onePriceVariantOnly",
+    "en": "{priceVariantName}"
+  },
+  {
+    "k": "PriceVariantPicker.priceVariantLabel",
+    "en": "Pick an option"
+  },
+  {
+    "k": "PriceVariantPicker.priceVariantUnselected",
+    "en": "Choose…"
+  },
+  {
+    "k": "ProductOrderForm.breakdownTitle",
+    "en": "Order breakdown"
+  },
+  {
+    "k": "ProductOrderForm.ctaButton",
+    "en": "Buy now"
+  },
+  {
+    "k": "ProductOrderForm.ctaButtonNoStock",
+    "en": "Out of stock"
+  },
+  {
+    "k": "ProductOrderForm.deliveryMethodLabel",
+    "en": "Delivery method"
+  },
+  {
+    "k": "ProductOrderForm.deliveryMethodRequired",
+    "en": "Delivery method is required."
+  },
+  {
+    "k": "ProductOrderForm.finePrint",
+    "en": "You won't be charged yet"
+  },
+  {
+    "k": "ProductOrderForm.noDeliveryMethodSet",
+    "en": "Provider hasn't enabled any delivery method."
+  },
+  {
+    "k": "ProductOrderForm.pickupOption",
+    "en": "Pickup"
+  },
+  {
+    "k": "ProductOrderForm.quantityLabel",
+    "en": "Number of items"
+  },
+  {
+    "k": "ProductOrderForm.quantityOption",
+    "en": "{quantity, number} {quantity, plural, one {item} other {items}}"
+  },
+  {
+    "k": "ProductOrderForm.quantityRequired",
+    "en": "Please select the number of items you want to buy."
+  },
+  {
+    "k": "ProductOrderForm.selectDeliveryMethodOption",
+    "en": "Select delivery method"
+  },
+  {
+    "k": "ProductOrderForm.selectQuantityOption",
+    "en": "Select…"
+  },
+  {
+    "k": "ProductOrderForm.shippingOption",
+    "en": "Shipping"
+  },
+  {
+    "k": "PrivateDetailsForm.updateProfileFailed",
+    "en": "Oops, something went wrong. Please try again."
+  },
+  {
+    "k": "CoachBookingServiceSelection.eyebrow",
+    "en": "PeakUp Sports"
+  },
+  {
+    "k": "CoachBookingServiceSelection.title",
+    "en": "Choose your experience with {coachName}"
+  },
+  {
+    "k": "CoachBookingServiceSelection.subtitle",
+    "en": "Pick the session that fits you. You'll share a few details next, then choose dates and times."
+  },
+  {
+    "k": "CoachBookingServiceSelection.badgeMostAffordable",
+    "en": "Most affordable"
+  },
+  {
+    "k": "CoachBookingServiceSelection.badgeBestPrice",
+    "en": "Best price"
+  },
+  {
+    "k": "CoachBookingServiceSelection.badgeCamp",
+    "en": "Camp"
+  },
+  {
+    "k": "CoachBookingServiceSelection.badgePrivateLesson",
+    "en": "Private lesson"
+  },
+  {
+    "k": "CoachBookingServiceSelection.badgeKidsFriendly",
+    "en": "Kids friendly"
+  },
+  {
+    "k": "CoachBookingServiceSelection.sectionPrivateLessons",
+    "en": "Private lessons"
+  },
+  {
+    "k": "CoachBookingServiceSelection.campDurationDays",
+    "en": "{count} days"
+  },
+  {
+    "k": "CoachBookingServiceSelection.trustFooter",
+    "en": "🔒 Secure booking • 🛡 PeakUp Protection"
+  },
+  {
+    "k": "CoachBookingServiceSelection.pricePrefixFrom",
+    "en": "From"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceSuffixHour",
+    "en": "/ hour"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceSuffixDay",
+    "en": "/ day"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceSuffixNight",
+    "en": "/ night"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceSuffixTotal",
+    "en": "total"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceFrom",
+    "en": "From {price} {pricePerUnit}"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceStartingFrom",
+    "en": "From {price} {pricePerUnit}"
+  },
+  {
+    "k": "FieldCoachMapLocation.label",
+    "en": "Where do you coach?"
+  },
+  {
+    "k": "FieldCoachMapLocation.advancedTag",
+    "en": "Advanced"
+  },
+  {
+    "k": "FieldCoachMapLocation.helpText",
+    "en": "Choose a suggestion so we can show your location on the map. Your coach card will display a short version, like Laax or St. Moritz."
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.labelName",
+    "en": "Name"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.placeholderLabel",
+    "en": "e.g. Laax Murschetg cable car"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.labelAddress",
+    "en": "Address"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.placeholderAddress",
+    "en": "Search address or place…"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.labelNotes",
+    "en": "Notes (optional)"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.placeholderNotes",
+    "en": "e.g. Meet at the lift, parking side B"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.addButton",
+    "en": "Add meeting point"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.mapLocationLinked",
+    "en": "Map location linked"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.selectSuggestionForMap",
+    "en": "Select a suggestion to enable map and directions"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.exactPinRequired",
+    "en": "Please set the exact pin for this meeting point"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.setExactPin",
+    "en": "Set exact pin"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.editExactPin",
+    "en": "Edit exact pin"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.setExactPinHint",
+    "en": "Set an exact pin for trailheads, lifts, and parking."
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.exactPinSaved",
+    "en": "Exact pin set ✓"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.pinModalIntro",
+    "en": "Place the pin where clients should meet you. Click the map or drag the pin, then zoom in for precision."
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.pinModalSave",
+    "en": "Save pin"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.pinMapHint",
+    "en": "Click anywhere on the map or drag the pin. Use + / − to zoom."
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.pinMapUnavailable",
+    "en": "Map is unavailable. Check your Mapbox configuration."
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.emptyHint",
+    "en": "Add named meetup spots and place each one on the map with an exact pin — cable car, parking, trailhead, and so on."
+  },
+  {
+    "k": "PeakUpCoachUserFields.coachCityTextHelp",
+    "en": "Short label shown on your profile and coach figurine — keep it visual and readable (e.g. Laax, Zermatt, Chamonix). The map pin below stays separate."
+  },
+  {
+    "k": "AddTeamCoachModal.emailPlaceholder",
+    "en": "coach@example.com"
+  },
+  {
+    "k": "TeamCoachRosterCard.tableCoach",
+    "en": "Coach"
+  },
+  {
+    "k": "TeamInvitationInboxItem.subtitle",
+    "en": "You've been invited to join this PeakUp Team."
+  },
+  {
+    "k": "TeamInvitationInboxItem.viewInvitation",
+    "en": "View full invitation"
+  },
+  {
+    "k": "TeamInvitationInboxPage.title",
+    "en": "Team invitation"
+  },
+  {
+    "k": "TeamInvitationInboxPage.backToInbox",
+    "en": "Back to inbox"
+  },
+  {
+    "k": "TeamInvitationInboxPage.eyebrow",
+    "en": "Team invitation"
+  },
+  {
+    "k": "TeamInvitationInboxPage.threadTitle",
+    "en": "Join {teamName}"
+  },
+  {
+    "k": "TeamInvitationInboxPage.threadSubheading",
+    "en": "You've been invited to join this PeakUp Team."
+  },
+  {
+    "k": "TeamInvitationInboxPage.benefitsHeading",
+    "en": "What happens if you join?"
+  },
+  {
+    "k": "TeamInvitationInboxPage.benefitIndependent",
+    "en": "You remain fully independent"
+  },
+  {
+    "k": "TeamInvitationInboxPage.benefitTeamPage",
+    "en": "Appear on the Team page"
+  },
+  {
+    "k": "TeamInvitationInboxPage.respondFailed",
+    "en": "Could not respond to this invitation."
+  },
+  {
+    "k": "TeamInvitationInboxPage.dashboardCta",
+    "en": "Open Coach Dashboard"
+  },
+  {
+    "k": "TeamInvitationBranding.coachCount",
+    "en": "{count, plural, one {# coach} other {# coaches}}"
+  },
+  {
+    "k": "CoachDashboardPage.teamInvitationsHeading",
+    "en": "Team invitations"
+  },
+  {
+    "k": "CoachDashboardPage.teamInvitationsLead",
+    "en": "Organizations can invite you to appear on their crew page. Accept only if you want to be listed — you keep your own PeakUp profile and payouts."
+  },
+  {
+    "k": "CoachDashboardPage.teamInvitationsLoading",
+    "en": "Loading invitations…"
+  },
+  {
+    "k": "CoachDashboardPage.teamInvitationsEmpty",
+    "en": "No pending team invitations."
+  },
+  {
+    "k": "CoachDashboardPage.teamInvitationCardTitle",
+    "en": "{teamName} invited you to join their organization"
+  },
+  {
+    "k": "CoachDashboardPage.teamInvitationInvitedOn",
+    "en": "Invited {date}"
+  },
+  {
+    "k": "CoachDashboardPage.teamInvitationOpenInbox",
+    "en": "Open inbox thread"
+  },
+  {
+    "k": "FieldTeamMapLocation.label",
+    "en": "Where is your crew based?"
+  },
+  {
+    "k": "FieldTeamMapLocation.helpText",
+    "en": "Pick a place from the list (e.g. Laax, St. Moritz, Finale Ligure). We save map coordinates for your crew pin."
+  },
+  {
+    "k": "FieldTeamMapLocation.required",
+    "en": "Choose a location from the suggestions so your crew appears on the map."
+  },
+  {
+    "k": "TeamMapPopup.crewBadge",
+    "en": "Crew"
+  },
+  {
+    "k": "TeamMapPopup.coachCount",
+    "en": "{count, plural, one {# coach} other {# coaches}}"
+  },
+  {
+    "k": "TeamMapPopup.viewCrew",
+    "en": "View crew"
+  },
+  {
+    "k": "TeamCard.viewCrew",
+    "en": "View crew →"
+  },
+  {
+    "k": "RequestChangesForm.messagePlaceholder",
+    "en": "Describe what should be fixed…"
+  },
+  {
+    "k": "RequestChangesForm.messageRequired",
+    "en": "You need to describe the changes you'd like to be made."
+  },
+  {
+    "k": "RequestChangesForm.submit",
+    "en": "Send the request"
+  },
+  {
+    "k": "RequestChangesForm.submitFailed",
+    "en": "Oops, something went wrong. Please refresh the page and try again."
+  },
+  {
+    "k": "RequestChangesModal.description",
+    "en": "Did the delivered order match what was agreed upon? If not, you can request changes before accepting it."
+  },
+  {
+    "k": "RequestChangesModal.title",
+    "en": "Request changes"
+  },
+  {
+    "k": "RequestQuotePage.defaultMessageLabel",
+    "en": "Describe your requirements"
+  },
+  {
+    "k": "RequestQuotePage.defaultMessageRequired",
+    "en": "You need to describe your requirements"
+  },
+  {
+    "k": "RequestQuotePage.finePrint",
+    "en": "You’ll be notified when {providerName} reacts to your request."
+  },
+  {
+    "k": "RequestQuotePage.heading",
+    "en": "Request a quote"
+  },
+  {
+    "k": "RequestQuotePage.listingTitle",
+    "en": "{listingTitle}"
+  },
+  {
+    "k": "RequestQuotePage.submitButtonText",
+    "en": "Request a quote"
+  },
+  {
+    "k": "ResponsiveBackgroundImageContainer.backgroundImageAlt",
+    "en": "Background image"
+  },
+  {
+    "k": "ReviewForm.reviewContentLabel",
+    "en": "Describe your experience"
+  },
+  {
+    "k": "ReviewForm.reviewContentPlaceholder",
+    "en": "How did it go…"
+  },
+  {
+    "k": "ReviewForm.reviewContentRequired",
+    "en": "You need to add a message to leave a review."
+  },
+  {
+    "k": "ReviewForm.reviewRatingLabel",
+    "en": "Rate your experience"
+  },
+  {
+    "k": "ReviewForm.reviewRatingRequired",
+    "en": "Rating is required."
+  },
+  {
+    "k": "ReviewForm.reviewSubmit",
+    "en": "Publish review"
+  },
+  {
+    "k": "ReviewForm.reviewSubmitAlreadySent",
+    "en": "Review already sent. Please refresh the page."
+  },
+  {
+    "k": "ReviewForm.reviewSubmitFailed",
+    "en": "Failed to send a review. Please try again."
+  },
+  {
+    "k": "ReviewModal.description",
+    "en": "Please share what went well and what could be improved."
+  },
+  {
+    "k": "ReviewModal.later",
+    "en": "Later"
+  },
+  {
+    "k": "ReviewModal.title",
+    "en": "Leave a review for {revieweeName}"
+  },
+  {
+    "k": "SavedCardDetails.deletePaymentMethod",
+    "en": "Remove payment card"
+  },
+  {
+    "k": "SavedCardDetails.expiredCardText",
+    "en": "This payment card has expired."
+  },
+  {
+    "k": "SavedCardDetails.removeCard",
+    "en": "Remove card"
+  },
+  {
+    "k": "SavedCardDetails.removeCardModalContent",
+    "en": "The payment card •••• •••• •••• {last4Digits} will be removed from your account."
+  },
+  {
+    "k": "SavedCardDetails.replaceCardText",
+    "en": "Credit or debit card"
+  },
+  {
+    "k": "SavedCardDetails.replaceCardTitle",
+    "en": "Use another payment card"
+  },
+  {
+    "k": "SavedCardDetails.savedPaymentMethodPlaceholderDesktop",
+    "en": "•••• •••• •••• {last4Digits}"
+  },
+  {
+    "k": "SavedCardDetails.savedPaymentMethodPlaceholderMobile",
+    "en": "…{last4Digits}"
+  },
+  {
+    "k": "SearchMapInfoCard.noImage",
+    "en": "No photo"
+  },
+  {
+    "k": "SearchMapInfoCard.perUnit",
+    "en": "{unitType, select, day {per day} night {per night} hour {per hour} other {}}"
+  },
+  {
+    "k": "SearchMapInfoCard.price",
+    "en": "{priceValue}"
+  },
+  {
+    "k": "SearchMapInfoCard.priceStartingFrom",
+    "en": "From {priceValue}"
+  },
+  {
+    "k": "SearchMapPriceLabel.price",
+    "en": "{priceValue}"
+  },
+  {
+    "k": "SearchMapPriceLabel.priceStartingFrom",
+    "en": "From {priceValue}"
+  },
+  {
+    "k": "SearchResultsPanel.screenreader.pagination",
+    "en": "Pagination"
+  },
+  {
+    "k": "SeatsFilter.labelSelected",
+    "en": "Seats: {seatCount}"
+  },
+  {
+    "k": "SectionListings.genericErrorTitle",
+    "en": "Content temporarily unavailable"
+  },
+  {
+    "k": "SectionListings.noListingsFoundCTA",
+    "en": "Search all listings"
+  },
+  {
+    "k": "SectionListings.noListingsFoundInfo",
+    "en": "We couldn't find any listings for this section."
+  },
+  {
+    "k": "SectionListings.carouselPrev",
+    "en": "Previous listings"
+  },
+  {
+    "k": "SectionListings.carouselGoToSlide",
+    "en": "Go to slide {page} of {pageCount}"
+  },
+  {
+    "k": "SectionListings.carouselNavAria",
+    "en": "Featured listings carousel"
+  },
+  {
+    "k": "SelectMultipleFilter.labelSelected",
+    "en": "{labelText} • {count}"
+  },
+  {
+    "k": "SelectMultipleFilterPlainForm.labelSelected",
+    "en": "• {count}"
+  },
+  {
+    "k": "SendMessageForm.sendFailed",
+    "en": "Failed to send. Please try again."
+  },
+  {
+    "k": "SendMessageForm.contactSharingBlocked",
+    "en": "For safety and to protect the PeakUp community, contact details can only be shared after a booking request has been made through PeakUp."
+  },
+  {
+    "k": "ShippingDetails.addressLine1Label",
+    "en": "Street address"
+  },
+  {
+    "k": "ShippingDetails.addressLine1Placeholder",
+    "en": "123 Example Street"
+  },
+  {
+    "k": "ShippingDetails.addressLine1Required",
+    "en": "Street address is required."
+  },
+  {
+    "k": "ShippingDetails.addressLine2Label",
+    "en": "Apt # {optionalText}"
+  },
+  {
+    "k": "ShippingDetails.addressLine2Placeholder",
+    "en": "A 42"
+  },
+  {
+    "k": "ShippingDetails.cityLabel",
+    "en": "City"
+  },
+  {
+    "k": "ShippingDetails.cityPlaceholder",
+    "en": "Helsinki"
+  },
+  {
+    "k": "ShippingDetails.cityRequired",
+    "en": "City is required."
+  },
+  {
+    "k": "ShippingDetails.countryLabel",
+    "en": "Country"
+  },
+  {
+    "k": "ShippingDetails.countryPlaceholder",
+    "en": "Select a country…"
+  },
+  {
+    "k": "ShippingDetails.countryRequired",
+    "en": "Country is required."
+  },
+  {
+    "k": "ShippingDetails.optionalText",
+    "en": "• optional"
+  },
+  {
+    "k": "ShippingDetails.postalCodeLabel",
+    "en": "Postal code"
+  },
+  {
+    "k": "ShippingDetails.postalCodePlaceholder",
+    "en": "00100"
+  },
+  {
+    "k": "ShippingDetails.postalCodeRequired",
+    "en": "Postal code is required."
+  },
+  {
+    "k": "ShippingDetails.recipientNameLabel",
+    "en": "Name"
+  },
+  {
+    "k": "ShippingDetails.recipientNamePlaceholder",
+    "en": "Jane Doe"
+  },
+  {
+    "k": "ShippingDetails.recipientNameRequired",
+    "en": "Recipient name is required."
+  },
+  {
+    "k": "ShippingDetails.recipientPhoneNumberLabel",
+    "en": "Phone number {optionalText}"
+  },
+  {
+    "k": "ShippingDetails.recipientPhoneNumberPlaceholder",
+    "en": "+358 123456789"
+  },
+  {
+    "k": "ShippingDetails.stateLabel",
+    "en": "State {optionalText}"
+  },
+  {
+    "k": "ShippingDetails.statePlaceholder",
+    "en": "Enter your state"
+  },
+  {
+    "k": "ShippingDetails.title",
+    "en": "Shipping address"
+  },
+  {
+    "k": "SignupForm.displayNameLabel",
+    "en": "Display name"
+  }
+]

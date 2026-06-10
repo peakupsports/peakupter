@@ -1,0 +1,2490 @@
+[
+  {
+    "k": "AddTeamCoachModal.addCoach",
+    "v": "Add coach"
+  },
+  {
+    "k": "AddTeamCoachModal.alreadyInTeam",
+    "v": "Already in team"
+  },
+  {
+    "k": "AddTeamCoachModal.close",
+    "v": "Close"
+  },
+  {
+    "k": "AddTeamCoachModal.emailLabel",
+    "v": "Coach email address"
+  },
+  {
+    "k": "AddTeamCoachModal.emailPlaceholder",
+    "v": "coach@example.com"
+  },
+  {
+    "k": "AddTeamCoachModal.eyebrow",
+    "v": "Team coaches"
+  },
+  {
+    "k": "AddTeamCoachModal.invitationPending",
+    "v": "Invitation pending"
+  },
+  {
+    "k": "AddTeamCoachModal.invitationSent",
+    "v": "Invitation sent ✓"
+  },
+  {
+    "k": "AddTeamCoachModal.invite",
+    "v": "Send invitation"
+  },
+  {
+    "k": "AddTeamCoachModal.inviteAgain",
+    "v": "Invite again"
+  },
+  {
+    "k": "AddTeamCoachModal.inviteCoach",
+    "v": "Invite coach"
+  },
+  {
+    "k": "AddTeamCoachModal.inviteFailed",
+    "v": "Could not send invitation."
+  },
+  {
+    "k": "AddTeamCoachModal.lead",
+    "v": "Search for an independent PeakUp coach. They'll receive an invitation and can accept or decline — no nested accounts, no HR admin panel."
+  },
+  {
+    "k": "AddTeamCoachModal.noResults",
+    "v": "No matching PeakUp coach found. Make sure the coach already has a PeakUp coach profile."
+  },
+  {
+    "k": "AddTeamCoachModal.notVerifiedHint",
+    "v": "This coach must complete PeakUp verification before joining a crew."
+  },
+  {
+    "k": "AddTeamCoachModal.profileLabel",
+    "v": "Profile URL, username, or name"
+  },
+  {
+    "k": "AddTeamCoachModal.profilePlaceholder",
+    "v": "e.g. /u/coach-id or Marco Rossi"
+  },
+  {
+    "k": "AddTeamCoachModal.resultsLabel",
+    "v": "Matching coaches"
+  },
+  {
+    "k": "AddTeamCoachModal.search",
+    "v": "Search"
+  },
+  {
+    "k": "AddTeamCoachModal.searchFailed",
+    "v": "Search failed. Try again."
+  },
+  {
+    "k": "AddTeamCoachModal.searchRequired",
+    "v": "Enter an email or profile to search."
+  },
+  {
+    "k": "AddTeamCoachModal.sendingInvitation",
+    "v": "Sending invitation…"
+  },
+  {
+    "k": "AddTeamCoachModal.tabEmail",
+    "v": "Coach email"
+  },
+  {
+    "k": "AddTeamCoachModal.tabProfile",
+    "v": "Username / profile"
+  },
+  {
+    "k": "AddTeamCoachModal.tabsLabel",
+    "v": "Find coach by"
+  },
+  {
+    "k": "AddTeamCoachModal.title",
+    "v": "Add a coach"
+  },
+  {
+    "k": "AdminAmbassadorsPage.colActiveReferrals",
+    "v": "Active referrals"
+  },
+  {
+    "k": "AdminAmbassadorsPage.colTotalRewards",
+    "v": "Lifetime rewards"
+  },
+  {
+    "k": "AdminAmbassadorsPage.summaryAmbassadors",
+    "v": "Ambassadors"
+  },
+  {
+    "k": "AdminAmbassadorsPage.summaryPayouts",
+    "v": "Total ambassador payouts"
+  },
+  {
+    "k": "AdminAmbassadorsPage.summaryPending",
+    "v": "Pending verifications"
+  },
+  {
+    "k": "AdminAmbassadorsPage.summaryReferrals",
+    "v": "Total referrals"
+  },
+  {
+    "k": "AdminAmbassadorsPage.summarySuspicious",
+    "v": "Flagged applications"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.actionApprove",
+    "v": "Approve"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.actionReject",
+    "v": "Reject"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.colActions",
+    "v": "Actions"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.colEmail",
+    "v": "Email"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.colLocation",
+    "v": "Location"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.colSport",
+    "v": "Sport"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.colStatus",
+    "v": "Status"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.colSubmitted",
+    "v": "Submitted"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.colTeam",
+    "v": "Team"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.count",
+    "v": "{count, plural, =0 {No applications} one {# application} other {# applications}}"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.empty",
+    "v": "No team applications yet. Submissions appear here after coaches apply at /team-application."
+  },
+  {
+    "k": "AdminTeamApplicationsPage.eyebrow",
+    "v": "PeakUp HQ"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.gateHint",
+    "v": "Enter the server admin token (COACH_APPLICATION_ADMIN_TOKEN) or sign in as an HQ admin."
+  },
+  {
+    "k": "AdminTeamApplicationsPage.gateInvalid",
+    "v": "Invalid admin token."
+  },
+  {
+    "k": "AdminTeamApplicationsPage.gateLabel",
+    "v": "Admin access token"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.gateNotConfigured",
+    "v": "Admin access is not configured on the server."
+  },
+  {
+    "k": "AdminTeamApplicationsPage.gatePlaceholder",
+    "v": "Paste admin token"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.gateSubmit",
+    "v": "Unlock dashboard"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.loadError",
+    "v": "Could not load team applications."
+  },
+  {
+    "k": "AdminTeamApplicationsPage.loading",
+    "v": "Loading team applications…"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.refresh",
+    "v": "Refresh"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.schemaTitle",
+    "v": "Team applications | {marketplaceName}"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.subtitle",
+    "v": "Review team and club applications before verification."
+  },
+  {
+    "k": "AdminTeamApplicationsPage.title",
+    "v": "Team applications"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.updateError",
+    "v": "Could not update application status."
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventButton",
+    "v": "Cancel event"
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventColDates",
+    "v": "Dates"
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventColEvent",
+    "v": "Event"
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventColParticipant",
+    "v": "Participant"
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventColStatus",
+    "v": "Status"
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventConfirmAction",
+    "v": "Cancel event"
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventDescription",
+    "v": "This will cancel the participant's registration, process any applicable refund according to PeakUp's cancellation policy, and notify them by message and email. The transaction history and inbox thread will be kept."
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventError",
+    "v": "Could not cancel this event. Please try again or contact PeakUp support."
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventGoBack",
+    "v": "Go back"
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventInProgress",
+    "v": "Cancelling event…"
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventReliabilityWarning",
+    "v": "Frequent cancellations may impact your coach reliability status."
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventTitle",
+    "v": "Cancel this event?"
+  },
+  {
+    "k": "CoachDashboardBookingsPage.backToDashboard",
+    "v": "← Back to coach dashboard"
+  },
+  {
+    "k": "CoachDashboardBookingsPage.eyebrow",
+    "v": "My bookings"
+  },
+  {
+    "k": "CoachDashboardBookingsPage.lead",
+    "v": "Upcoming sessions, open requests, reviews, and history for your coaching business."
+  },
+  {
+    "k": "CoachDashboardBookingsPage.schemaTitle",
+    "v": "My bookings | {marketplaceName}"
+  },
+  {
+    "k": "CoachDashboardBookingsPage.title",
+    "v": "Booking dashboard"
+  },
+  {
+    "k": "CoachDashboardEventsPage.backToDashboard",
+    "v": "← Back to coach dashboard"
+  },
+  {
+    "k": "CoachDashboardEventsPage.eyebrow",
+    "v": "Events"
+  },
+  {
+    "k": "CoachDashboardEventsPage.lead",
+    "v": "Camps, clinics, retreats, and multi-day purchase experiences."
+  },
+  {
+    "k": "CoachDashboardEventsPage.schemaTitle",
+    "v": "Events | {marketplaceName}"
+  },
+  {
+    "k": "CoachDashboardEventsPage.title",
+    "v": "Events dashboard"
+  },
+  {
+    "k": "CoachDashboardPage.cardBookingsHint",
+    "v": "Private lessons and coaching sessions — upcoming, pending, and past."
+  },
+  {
+    "k": "CoachDashboardPage.cardBookingsOpen",
+    "v": "Open bookings"
+  },
+  {
+    "k": "CoachDashboardPage.cardBookingsSummaryPast",
+    "v": "Past lessons"
+  },
+  {
+    "k": "CoachDashboardPage.cardBookingsSummaryPending",
+    "v": "Pending requests"
+  },
+  {
+    "k": "CoachDashboardPage.cardBookingsSummaryUpcoming",
+    "v": "Upcoming lessons"
+  },
+  {
+    "k": "CoachDashboardPage.cardBookingsTitle",
+    "v": "My bookings"
+  },
+  {
+    "k": "CoachDashboardPage.cardEventsHint",
+    "v": "Camps, clinics, retreats and multi-day experiences."
+  },
+  {
+    "k": "CoachDashboardPage.cardEventsOpen",
+    "v": "Open events"
+  },
+  {
+    "k": "CoachDashboardPage.cardEventsSummaryActive",
+    "v": "Active events"
+  },
+  {
+    "k": "CoachDashboardPage.cardEventsSummaryAria",
+    "v": "Events summary"
+  },
+  {
+    "k": "CoachDashboardPage.cardEventsSummaryPast",
+    "v": "Past events"
+  },
+  {
+    "k": "CoachDashboardPage.cardEventsSummaryUpcoming",
+    "v": "Upcoming events"
+  },
+  {
+    "k": "CoachDashboardPage.cardEventsTitle",
+    "v": "Events"
+  },
+  {
+    "k": "CoachDashboardPage.operationsAria",
+    "v": "Bookings and availability"
+  },
+  {
+    "k": "CoachDashboardPage.toolsAria",
+    "v": "Coach profile and listings"
+  },
+  {
+    "k": "CoachMapPage.coachesSection",
+    "v": "Certified coaches"
+  },
+  {
+    "k": "CoachMapPage.entity.all",
+    "v": "All"
+  },
+  {
+    "k": "CoachMapPage.entity.coaches",
+    "v": "Coaches"
+  },
+  {
+    "k": "CoachMapPage.entity.teams",
+    "v": "Teams"
+  },
+  {
+    "k": "CoachMapPage.teamsSection",
+    "v": "Verified teams"
+  },
+  {
+    "k": "CustomerDashboardBookingsPage.backToDashboard",
+    "v": "← Back to my dashboard"
+  },
+  {
+    "k": "CustomerDashboardBookingsPage.eyebrow",
+    "v": "Booking overview"
+  },
+  {
+    "k": "CustomerDashboardBookingsPage.lead",
+    "v": "Upcoming sessions, open requests, reviews, and your booking history."
+  },
+  {
+    "k": "CustomerDashboardBookingsPage.schemaTitle",
+    "v": "Booking overview | {marketplaceName}"
+  },
+  {
+    "k": "CustomerDashboardBookingsPage.title",
+    "v": "Booking dashboard"
+  },
+  {
+    "k": "CustomerDashboardPage.cardBookingsHint",
+    "v": "Overview of your coaching sessions and requests."
+  },
+  {
+    "k": "CustomerDashboardPage.cardBookingsTitle",
+    "v": "Booking overview"
+  },
+  {
+    "k": "CustomerDashboardPage.cardInboxHint",
+    "v": "Conversation threads with coaches."
+  },
+  {
+    "k": "CustomerDashboardPage.cardInboxTitle",
+    "v": "Messages"
+  },
+  {
+    "k": "CustomerDashboardPage.cardOpen",
+    "v": "Open"
+  },
+  {
+    "k": "CustomerDashboardPage.cardProfileHint",
+    "v": "Update your client profile."
+  },
+  {
+    "k": "CustomerDashboardPage.cardProfileTitle",
+    "v": "Profile settings"
+  },
+  {
+    "k": "CustomerDashboardPage.eyebrow",
+    "v": "Customer dashboard"
+  },
+  {
+    "k": "CustomerDashboardPage.heroLead",
+    "v": "Your bookings and activity — separate from Inbox messages."
+  },
+  {
+    "k": "CustomerDashboardPage.heroNameFallback",
+    "v": "Athlete"
+  },
+  {
+    "k": "CustomerDashboardPage.heroTitlePrefix",
+    "v": "Welcome back,"
+  },
+  {
+    "k": "CustomerDashboardPage.schemaTitle",
+    "v": "My dashboard | {marketplaceName}"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.bookingConfirmationMode.instant",
+    "v": "Instant booking"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.bookingConfirmationMode.instantHelp",
+    "v": "Customers can book and pay immediately without manual approval."
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.bookingConfirmationMode.request",
+    "v": "Request to book"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.bookingConfirmationMode.requestHelp",
+    "v": "Customers send a request first. You manually accept or decline before the booking is confirmed."
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.bookingConfirmationMode.title",
+    "v": "Booking confirmation mode"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.minimumAdvanceNotice.12h",
+    "v": "12 hours"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.minimumAdvanceNotice.24h",
+    "v": "24 hours"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.minimumAdvanceNotice.2h",
+    "v": "2 hours"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.minimumAdvanceNotice.30m",
+    "v": "30 minutes"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.minimumAdvanceNotice.48h",
+    "v": "48 hours"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.minimumAdvanceNotice.72h",
+    "v": "72 hours"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.minimumAdvanceNotice.7d",
+    "v": "7 days"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.minimumAdvanceNotice.help",
+    "v": "Choose how much notice you need before a customer can book this service."
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.minimumAdvanceNotice.title",
+    "v": "Minimum advance notice"
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.minimumAdvanceNotice.warning",
+    "v": "Longer notice periods may reduce the number of bookings."
+  },
+  {
+    "k": "EditListingBookingPreferencesForm.updateFailed",
+    "v": "Failed to update listing. Please try again."
+  },
+  {
+    "k": "EditListingBookingPreferencesPanel.createListingTitle",
+    "v": "Booking Preferences"
+  },
+  {
+    "k": "EditListingBookingPreferencesPanel.title",
+    "v": "Edit the booking preferences of {listingTitle}"
+  },
+  {
+    "k": "EditListingDetailsForm.experienceEndDateBeforeStart",
+    "v": "End date must be on or after the start date."
+  },
+  {
+    "k": "EditListingDetailsForm.experienceEndDateLabel",
+    "v": "Experience end date"
+  },
+  {
+    "k": "EditListingDetailsForm.experienceEndDateRequired",
+    "v": "Add the experience end date."
+  },
+  {
+    "k": "EditListingDetailsForm.experienceStartDateLabel",
+    "v": "Experience start date"
+  },
+  {
+    "k": "EditListingDetailsForm.experienceStartDateRequired",
+    "v": "Add the experience start date."
+  },
+  {
+    "k": "EditListingWizard.default-booking.new.saveBookingPreferences",
+    "v": "Next"
+  },
+  {
+    "k": "EditListingWizard.edit.saveBookingPreferences",
+    "v": "Save changes"
+  },
+  {
+    "k": "EditListingWizard.tabLabelBookingPreferences",
+    "v": "Booking Preferences"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.canceled.status",
+    "v": "Canceled"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.completed.status",
+    "v": "Completed – waiting for review"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.delivered.status",
+    "v": "{transactionRole, select, customer {Mark experience as completed} other {Upcoming booking}}"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.disputed.status",
+    "v": "Disputed"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.inquiry.status",
+    "v": "Inquiry"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.payment-expired.status",
+    "v": "Payment expired"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.pending-payment.status",
+    "v": "Pending payment"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.purchased.status",
+    "v": "Booking confirmed"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.received.status",
+    "v": "Completed – waiting for review"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.reviewed-by-customer.status",
+    "v": "{transactionRole, select, customer {Waiting for coach review} other {Waiting for your review}}"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.reviewed-by-provider.status",
+    "v": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}"
+  },
+  {
+    "k": "InboxPage.default-purchase-day.reviewed.status",
+    "v": "Completed"
+  },
+  {
+    "k": "LandingHeroSection.currentLocationDenied",
+    "v": "Location permission was denied. Allow location access or type your location."
+  },
+  {
+    "k": "LandingHeroSection.currentLocationHttpsRequired",
+    "v": "Current location is only available on HTTPS. Please type your location."
+  },
+  {
+    "k": "LandingHeroSection.currentLocationUnavailable",
+    "v": "Current location is unavailable right now. Please type your location."
+  },
+  {
+    "k": "LandingHeroSection.locationPredictionsUnavailable",
+    "v": "Location suggestions unavailable. Try again."
+  },
+  {
+    "k": "LandingHeroSection.locationSearchError",
+    "v": "Could not find that location. Try another spelling or use current location."
+  },
+  {
+    "k": "LandingHeroSection.locationSelectHint",
+    "v": "Please select a location from the list."
+  },
+  {
+    "k": "LanguageSelector.label",
+    "v": "Language"
+  },
+  {
+    "k": "LanguageSelector.option.de",
+    "v": "Deutsch"
+  },
+  {
+    "k": "LanguageSelector.option.en",
+    "v": "English"
+  },
+  {
+    "k": "LanguageSelector.option.es",
+    "v": "Español"
+  },
+  {
+    "k": "LanguageSelector.option.fr",
+    "v": "Français"
+  },
+  {
+    "k": "LanguageSelector.option.it",
+    "v": "Italiano"
+  },
+  {
+    "k": "LanguageSelector.option.pt",
+    "v": "Português"
+  },
+  {
+    "k": "ManageListingCard.previewListingLink",
+    "v": "Preview the listing"
+  },
+  {
+    "k": "ManageListingCard.screenreader.editListing",
+    "v": "Edit listing {title}"
+  },
+  {
+    "k": "ManageListingCard.screenreader.manageAvailability",
+    "v": "Manage availability of {title}"
+  },
+  {
+    "k": "ManageListingCard.screenreader.manageStock",
+    "v": "Manage stock of {title} (current stock: {currentStock})"
+  },
+  {
+    "k": "ManageListingCard.screenreader.previewListing",
+    "v": "Preview listing {title}"
+  },
+  {
+    "k": "ManageListingCard.screenreader.setPriceAndStock",
+    "v": "Add stock to {title}"
+  },
+  {
+    "k": "ManageListingCard.screenreader.viewListing",
+    "v": "View listing {title}"
+  },
+  {
+    "k": "PartnerDashboardPage.cardCoachHubHint",
+    "v": "Bookings, calendar, and listings."
+  },
+  {
+    "k": "PartnerDashboardPage.cardCoachHubTitle",
+    "v": "Coach hub"
+  },
+  {
+    "k": "PartnerDashboardPage.cardOpen",
+    "v": "Open"
+  },
+  {
+    "k": "PartnerDashboardPage.cardPerformanceHint",
+    "v": "Leads and ambassador stats."
+  },
+  {
+    "k": "PartnerDashboardPage.cardPerformanceTitle",
+    "v": "Referral performance"
+  },
+  {
+    "k": "PartnerDashboardPage.comingSoon",
+    "v": "Linked offers, lead routing, and detailed partner analytics are coming soon."
+  },
+  {
+    "k": "PartnerDashboardPage.eyebrow",
+    "v": "Partner dashboard"
+  },
+  {
+    "k": "PartnerDashboardPage.heroLead",
+    "v": "Partnership status, visibility, and performance overview."
+  },
+  {
+    "k": "PartnerDashboardPage.heroNameFallback",
+    "v": "Partner"
+  },
+  {
+    "k": "PartnerDashboardPage.heroTitlePrefix",
+    "v": "Welcome back,"
+  },
+  {
+    "k": "PartnerDashboardPage.levelLabel",
+    "v": "Level"
+  },
+  {
+    "k": "PartnerDashboardPage.schemaTitle",
+    "v": "Partner dashboard | {marketplaceName}"
+  },
+  {
+    "k": "PartnerDashboardPage.statusLabel",
+    "v": "Partnership"
+  },
+  {
+    "k": "PartnerDashboardPage.visibilityLabel",
+    "v": "Visibility"
+  },
+  {
+    "k": "PeakUpBookingDashboard.error",
+    "v": "Could not load bookings."
+  },
+  {
+    "k": "PeakUpBookingDashboard.intro",
+    "v": "Your operational booking overview. Open a booking for details or jump to Inbox for messages."
+  },
+  {
+    "k": "PeakUpBookingDashboard.loading",
+    "v": "Loading bookings…"
+  },
+  {
+    "k": "PeakUpBookingDashboard.openBooking",
+    "v": "Open booking"
+  },
+  {
+    "k": "PeakUpBookingDashboard.openInbox",
+    "v": "Open inbox thread"
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionCanceled",
+    "v": "Canceled lessons"
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionCanceledEvents",
+    "v": "Canceled events"
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionEmpty",
+    "v": "Nothing in this section right now."
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionEventReview",
+    "v": "Events waiting for review"
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionLessonsUpcoming",
+    "v": "Upcoming lessons & sessions"
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionMultiDayExperiences",
+    "v": "Upcoming & active events"
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionPast",
+    "v": "Past lessons"
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionPastEvents",
+    "v": "Past events"
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionPending",
+    "v": "Open lesson requests"
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionReview",
+    "v": "Lessons waiting for review"
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionUpcoming",
+    "v": "Upcoming lessons & sessions"
+  },
+  {
+    "k": "PeakUpBookingDashboard.sectionUpcomingEvents",
+    "v": "Upcoming & active events"
+  },
+  {
+    "k": "PeakUpBookingDashboard.summaryAria",
+    "v": "Booking summary"
+  },
+  {
+    "k": "PeakUpBookingDashboard.summaryPast",
+    "v": "Past"
+  },
+  {
+    "k": "PeakUpBookingDashboard.summaryPending",
+    "v": "Pending"
+  },
+  {
+    "k": "PeakUpBookingDashboard.summaryUpcoming",
+    "v": "Upcoming"
+  },
+  {
+    "k": "PeakUpHq.nav.group.core",
+    "v": "User management"
+  },
+  {
+    "k": "PeakUpHq.nav.group.platform",
+    "v": "Platform"
+  },
+  {
+    "k": "PeakUpHq.nav.group.workflows",
+    "v": "Applications & programs"
+  },
+  {
+    "k": "PeakUpHq.section.customerManagement.description",
+    "v": "Full customer directory — search, segments, bookings, and activity."
+  },
+  {
+    "k": "PeakUpHq.section.customerManagement.title",
+    "v": "Customer Management"
+  },
+  {
+    "k": "PeakUpHq.section.teamApplications.description",
+    "v": "Review and approve verified team / club applications."
+  },
+  {
+    "k": "PeakUpHq.section.teamApplications.title",
+    "v": "Team applications"
+  },
+  {
+    "k": "PeakUpHq.section.teamManagement.description",
+    "v": "Team directory — applications, rosters, invitations, and partner priority."
+  },
+  {
+    "k": "PeakUpHq.section.teamManagement.title",
+    "v": "Team Management"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.actionApprove",
+    "v": "Approve"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.actionRequestMoreInfo",
+    "v": "Request more info"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.actionViewApplication",
+    "v": "View application"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.actionViewApplicationsList",
+    "v": "Applications"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.assignPartner",
+    "v": "Save partner priority"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.clearPartner",
+    "v": "Clear partner priority"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.colActions",
+    "v": "Actions"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.colCoach",
+    "v": "Coach"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.colEmail",
+    "v": "Email"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.colLocation",
+    "v": "Location"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.colSport",
+    "v": "Sports"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.colStatus",
+    "v": "Status"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.colSubmitted",
+    "v": "Submitted"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.colVerification",
+    "v": "Verification"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.count",
+    "v": "{count, plural, one {# verified} other {# verified}} · {future, plural, one {# pending} other {# pending}} · {partners, plural, one {# partner} other {# partners}}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.directorySubtitle",
+    "v": "Browse verified coaches. Consumer ranking stays automatic on public pages."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.directoryTitle",
+    "v": "Verified coaches"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.empty",
+    "v": "No verified coaches match your filters."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.eyebrow",
+    "v": "Coach administration"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.filterAll",
+    "v": "All"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.filterCountry",
+    "v": "Country"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.filterSport",
+    "v": "Sport"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.filterTier",
+    "v": "Tier"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.filterViewLabel",
+    "v": "View"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureApproveError",
+    "v": "Could not approve coach."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureEmpty",
+    "v": "No pending applications or unverified coach profiles match your filters."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureNeedInfoError",
+    "v": "Could not update application status."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureStatus.applicationNeedMoreInfo",
+    "v": "Need more info"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureStatus.applicationPending",
+    "v": "Pending application"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureStatus.draftProfile",
+    "v": "Draft profile"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureStatus.invited",
+    "v": "Invited"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureStatus.legacyUnverified",
+    "v": "Legacy unverified"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureStatus.onboarding",
+    "v": "Onboarding"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureSubtitle",
+    "v": "{count, plural, =0 {No pending coach profiles} one {# coach awaiting verification} other {# coaches awaiting verification}}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureTitle",
+    "v": "Future coaches"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.gateHint",
+    "v": "This page is not publicly linked. Enter the admin token (COACH_APPLICATION_ADMIN_TOKEN) or sign in as an HQ admin."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.gateInvalid",
+    "v": "Invalid admin token."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.gateLabel",
+    "v": "Admin access token"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.gateNotConfigured",
+    "v": "Admin access is not configured on the server."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.gatePlaceholder",
+    "v": "Paste admin token"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.gateSubmit",
+    "v": "Unlock dashboard"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.linkAmbassadors",
+    "v": "Ambassador program"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.linkApplications",
+    "v": "Coach applications"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.linkTeamAffiliations",
+    "v": "Team affiliations"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.loadError",
+    "v": "Could not load coaches."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.loading",
+    "v": "Loading…"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.logout",
+    "v": "Lock"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerAssignCoach",
+    "v": "Coach"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerAssignCoachPlaceholder",
+    "v": "Select coach…"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerAssignError",
+    "v": "Could not save partner priority."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerAssignHint",
+    "v": "Assign partner priority to a coach from the directory."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerClearError",
+    "v": "Could not clear partner priority."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerEmpty",
+    "v": "No coaches have partner priority enabled. Use the form above to assign one."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerGroupLabel",
+    "v": "Partner priority"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerHint",
+    "v": "Commercial visibility for sponsors and partners. Does not override automatic ranking on public pages."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerLevel",
+    "v": "Level"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerLevel.partner",
+    "v": "Partner"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerLevel.sponsor",
+    "v": "Sponsor"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerLevel.standard",
+    "v": "Standard"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerLevel.strategic",
+    "v": "Strategic"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerOnly",
+    "v": "Partner priority only"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerPriorityTitle",
+    "v": "Partner priority coaches"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerReason",
+    "v": "Reason"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerReasonPlaceholder",
+    "v": "e.g. Tourism board Q1 campaign"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerSectionSubtitle",
+    "v": "{count, plural, =0 {No active partner priorities} one {# active partner priority} other {# active partner priorities}}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerSectionTitle",
+    "v": "Partner priority management"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerUntil",
+    "v": "Valid until (optional)"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.rankingNotice",
+    "v": "Landing Page, Coaches Page, Coach Map, and Sport Pages use automatic PeakUp ranking only — not manual curation."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.refresh",
+    "v": "Refresh"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.relatedTools",
+    "v": "Related HQ tools: {applicationsLink} · {ambassadorsLink}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.removePartner",
+    "v": "Remove priority"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.savePartner",
+    "v": "Save changes"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.schemaTitle",
+    "v": "Coach Management | PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.searchLabel",
+    "v": "Search"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.searchPlaceholder",
+    "v": "Name, email, or sport…"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.statusLevelLine",
+    "v": "Level: {level}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.statusMeritOnly",
+    "v": "Merit ranking only"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.statusPartnerActive",
+    "v": "Partner priority active"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.statusPartnerBadge",
+    "v": "PARTNER PRIORITY"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.statusPartnerExpired",
+    "v": "EXPIRED"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.statusUntilLine",
+    "v": "Until: {date}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.subtitle",
+    "v": "Directory of verified coaches. Consumer ranking stays automatic (Founder, Ambassador, reviews, experience, sales). Partner Priority is a separate commercial layer for sponsors and strategic partners."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.tierNone",
+    "v": "Standard"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.title",
+    "v": "Coach Management"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.untilLabel",
+    "v": "Until {date}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.verificationUnverified",
+    "v": "Unverified"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.verificationVerified",
+    "v": "Verified"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.verifiedSubtitle",
+    "v": "Approved coaches live on PeakUp. Consumer ranking stays automatic on public pages."
+  },
+  {
+    "k": "PeakUpHqCoachManagement.verifiedTitle",
+    "v": "Verified coaches"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.activeEmpty",
+    "v": "No active customers in the current filter set."
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.activeSubtitle",
+    "v": "Booked within the last 90 days · {count, plural, one {# customer} other {# customers}}"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.activeTitle",
+    "v": "Active customers"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.colBookings",
+    "v": "Bookings"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.colLastActivity",
+    "v": "Last activity"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.colLastBooking",
+    "v": "Last booking"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.colName",
+    "v": "Name"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.colSignup",
+    "v": "Signup"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.colSpent",
+    "v": "Total spent"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.count",
+    "v": "{count, plural, one {# customer} other {# customers}} · {active, plural, one {# active} other {# active}} · {withBookings, plural, one {# with bookings} other {# with bookings}}"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.directorySubtitle",
+    "v": "{count, plural, one {# customer} other {# customers}} matching your filters"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.directoryTitle",
+    "v": "Customer directory"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.empty",
+    "v": "No customers match your filters."
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.eyebrow",
+    "v": "Customer administration"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.filterActive",
+    "v": "Active (90 days)"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.filterAll",
+    "v": "All customers"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.filterLabel",
+    "v": "Filter"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.filterNew",
+    "v": "New (30 days)"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.filterVip",
+    "v": "VIP (coming soon)"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.filterWithBookings",
+    "v": "With bookings"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.loadError",
+    "v": "Could not load customers."
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.newEmpty",
+    "v": "No new customers in the current filter set."
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.newSubtitle",
+    "v": "Signed up within the last 30 days · {count, plural, one {# customer} other {# customers}}"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.newTitle",
+    "v": "New customers"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.notice",
+    "v": "Customers are marketplace users who are not verified coaches or teams. Use segments below for operational review — VIP tagging is coming soon."
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.schemaTitle",
+    "v": "Customer Management | PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.searchPlaceholder",
+    "v": "Name or email…"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.sortActivity",
+    "v": "Last activity"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.sortBookings",
+    "v": "Bookings"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.sortLabel",
+    "v": "Sort"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.sortName",
+    "v": "Name"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.sortSignup",
+    "v": "Signup date"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.statusActive",
+    "v": "Active"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.statusInactive",
+    "v": "Inactive"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.statusNew",
+    "v": "New"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.statusRegistered",
+    "v": "Registered"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.subtitle",
+    "v": "Marketplace customers separate from coaches and teams — search, filter, and review activity in one CRM view."
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.title",
+    "v": "Customer Management"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.vipEmpty",
+    "v": "VIP customer management is not available yet. This section will surface tagged high-value accounts."
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.vipSubtitle",
+    "v": "High-value customer tagging — coming soon"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.vipTitle",
+    "v": "VIP customers"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.withBookingsEmpty",
+    "v": "No customers with bookings match your filters."
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.withBookingsSubtitle",
+    "v": "At least one completed booking · {count, plural, one {# customer} other {# customers}}"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.withBookingsTitle",
+    "v": "Customers with bookings"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.actionViewApplication",
+    "v": "View application"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.actionViewTeam",
+    "v": "View team"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.activeEmpty",
+    "v": "No verified teams match your filters."
+  },
+  {
+    "k": "PeakUpHqTeamManagement.activeTitle",
+    "v": "Active teams"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.approvedEmpty",
+    "v": "No approved teams match your filters."
+  },
+  {
+    "k": "PeakUpHqTeamManagement.approvedSubtitle",
+    "v": "Verified organizations · {count, plural, one {# team} other {# teams}}"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.approvedTitle",
+    "v": "Approved teams"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.coachesEmpty",
+    "v": "No team coaches in the current filter set."
+  },
+  {
+    "k": "PeakUpHqTeamManagement.coachesSubtitle",
+    "v": "Active roster memberships · {count, plural, one {# coach} other {# coaches}}"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.coachesTitle",
+    "v": "Team coaches"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.colCoaches",
+    "v": "Coaches"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.colOwner",
+    "v": "Owner"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.colSport",
+    "v": "Sport"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.colTeam",
+    "v": "Team"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.count",
+    "v": "{teams, plural, one {# team} other {# teams}} · {pending, plural, one {# pending} other {# pending}} · {coaches, plural, one {# roster coach} other {# roster coaches}} · {partners, plural, one {# partner} other {# partners}}"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.directoryEmpty",
+    "v": "No teams match your filters."
+  },
+  {
+    "k": "PeakUpHqTeamManagement.directorySubtitle",
+    "v": "{count, plural, one {# team} other {# teams}} matching your filters"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.directoryTitle",
+    "v": "Team directory"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.eyebrow",
+    "v": "Team administration"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.invitationsEmpty",
+    "v": "No pending team invitations."
+  },
+  {
+    "k": "PeakUpHqTeamManagement.invitationsSubtitle",
+    "v": "Pending coach invites · {count, plural, one {# invitation} other {# invitations}}"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.invitationsTitle",
+    "v": "Team invitations"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.invitedShort",
+    "v": "invited"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.invitesHint",
+    "v": "Pending invitations — managed per team roster"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.loadError",
+    "v": "Could not load teams."
+  },
+  {
+    "k": "PeakUpHqTeamManagement.notice",
+    "v": "Teams are verified organizations on PeakUp. Review pending applications, approved teams, coach rosters, and invitations from this operations hub."
+  },
+  {
+    "k": "PeakUpHqTeamManagement.partnerEmpty",
+    "v": "No partner teams yet. Assign partner priority from team profiles or future partner tools."
+  },
+  {
+    "k": "PeakUpHqTeamManagement.partnerSubtitle",
+    "v": "Priority partner organizations · {count, plural, one {# team} other {# teams}}"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.partnerTitle",
+    "v": "Partner teams"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.pendingEmpty",
+    "v": "No pending team applications."
+  },
+  {
+    "k": "PeakUpHqTeamManagement.pendingSubtitle",
+    "v": "Applications awaiting review · {count, plural, one {# team} other {# teams}}"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.pendingTitle",
+    "v": "Pending teams"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.rosterHint",
+    "v": "Team coach roster — manage from team profile settings"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.rosterInvited",
+    "v": "Invited"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.rosterMember",
+    "v": "Member"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.schemaTitle",
+    "v": "Team Management | PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.searchPlaceholder",
+    "v": "Team name, owner, or sport…"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.sortCoaches",
+    "v": "Coaches"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.sortLabel",
+    "v": "Sort"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.sortName",
+    "v": "Team name"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.sortSignup",
+    "v": "Signup date"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.sortSport",
+    "v": "Sport"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.statusApplicationNeedMoreInfo",
+    "v": "Need more info"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.statusApplicationPending",
+    "v": "Pending application"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.statusUnverified",
+    "v": "Unverified"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.statusVerifiedDraft",
+    "v": "Verified · Draft"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.statusVerifiedPublic",
+    "v": "Verified · Public"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.subtitle",
+    "v": "Clubs, schools, academies and organizations — directory, applications, rosters, and invitations."
+  },
+  {
+    "k": "PeakUpHqTeamManagement.title",
+    "v": "Team Management"
+  },
+  {
+    "k": "ProfilePage.sportSticker.climbing",
+    "v": "Climbing"
+  },
+  {
+    "k": "ProfilePage.sportSticker.crosscountry",
+    "v": "Cross-country"
+  },
+  {
+    "k": "ProfilePage.sportSticker.fitness",
+    "v": "Fitness"
+  },
+  {
+    "k": "ProfilePage.sportSticker.freerideskiing",
+    "v": "Freeride skiing"
+  },
+  {
+    "k": "ProfilePage.sportSticker.freeridesnowboard",
+    "v": "Freeride snowboard"
+  },
+  {
+    "k": "ProfilePage.sportSticker.freestyleskiing",
+    "v": "Freeski"
+  },
+  {
+    "k": "ProfilePage.sportSticker.freestylesnowboard",
+    "v": "Freestyle snowboard"
+  },
+  {
+    "k": "ProfilePage.sportSticker.golf",
+    "v": "Golf"
+  },
+  {
+    "k": "ProfilePage.sportSticker.kitesurf",
+    "v": "Kitesurf"
+  },
+  {
+    "k": "ProfilePage.sportSticker.mtb",
+    "v": "MTB"
+  },
+  {
+    "k": "ProfilePage.sportSticker.skate",
+    "v": "Skateboard"
+  },
+  {
+    "k": "ProfilePage.sportSticker.skateboard",
+    "v": "Skateboard"
+  },
+  {
+    "k": "ProfilePage.sportSticker.ski",
+    "v": "Ski"
+  },
+  {
+    "k": "ProfilePage.sportSticker.skitouring",
+    "v": "Skitouring"
+  },
+  {
+    "k": "ProfilePage.sportSticker.skydive",
+    "v": "Skydive"
+  },
+  {
+    "k": "ProfilePage.sportSticker.snowboard",
+    "v": "Snowboard"
+  },
+  {
+    "k": "ProfilePage.sportSticker.splittouring",
+    "v": "Split touring"
+  },
+  {
+    "k": "ProfilePage.sportSticker.surf",
+    "v": "Surf"
+  },
+  {
+    "k": "ProfilePage.sportSticker.tennis",
+    "v": "Tennis"
+  },
+  {
+    "k": "ProfilePage.sportSticker.wakeboard",
+    "v": "Wakeboard"
+  },
+  {
+    "k": "ProfilePage.sportSticker.wakesurf",
+    "v": "Wakesurf"
+  },
+  {
+    "k": "ProfilePage.sportSticker.yoga",
+    "v": "Yoga"
+  },
+  {
+    "k": "ProfilePage.teamAffiliation",
+    "v": "Member of {teamName}"
+  },
+  {
+    "k": "ProfileSettingsForm.teamBioHeading",
+    "v": "About your crew"
+  },
+  {
+    "k": "ProfileSettingsForm.teamBioInfo",
+    "v": "Tell athletes what your crew, academy, or team is about. This appears on your public team page."
+  },
+  {
+    "k": "ProfileSettingsForm.teamBioLabel",
+    "v": "About your crew"
+  },
+  {
+    "k": "ProfileSettingsForm.teamBioPlaceholder",
+    "v": "Your vibe, main activities, location, and what makes your group special…"
+  },
+  {
+    "k": "ProfileSettingsForm.teamCoachCountLabel",
+    "v": "Number of coaches / guides (optional)"
+  },
+  {
+    "k": "ProfileSettingsForm.teamCoachesAdd",
+    "v": "+ Add coach"
+  },
+  {
+    "k": "ProfileSettingsForm.teamCoachesEmptyLead",
+    "v": "Invite verified PeakUp coaches by email or profile. They choose whether to join — you never manage their accounts."
+  },
+  {
+    "k": "ProfileSettingsForm.teamCoachesEmptyTitle",
+    "v": "No coaches connected yet"
+  },
+  {
+    "k": "ProfileSettingsForm.teamCoachesHeading",
+    "v": "Team coaches"
+  },
+  {
+    "k": "ProfileSettingsForm.teamCoachesInfo",
+    "v": "Connect independent PeakUp coaches to your organization. Each coach keeps their own profile, reviews, bookings, and payouts — your crew page simply showcases them together."
+  },
+  {
+    "k": "ProfileSettingsForm.teamCoachesLoading",
+    "v": "Loading coaches…"
+  },
+  {
+    "k": "ProfileSettingsForm.teamCoachesRemoveConfirm",
+    "v": "Remove this coach from your organization profile?"
+  },
+  {
+    "k": "ProfileSettingsForm.teamDetailsHeading",
+    "v": "Crew links"
+  },
+  {
+    "k": "ProfileSettingsForm.teamDetailsInfo",
+    "v": "Optional details shown on your public team page."
+  },
+  {
+    "k": "ProfileSettingsForm.teamDisplayNameLabel",
+    "v": "Team / crew name"
+  },
+  {
+    "k": "ProfileSettingsForm.teamDisplayNamePlaceholder",
+    "v": "e.g. Alpine Freeski Crew"
+  },
+  {
+    "k": "ProfileSettingsForm.teamFoundedYearHelp",
+    "v": "The year your crew, academy, or camp started (e.g. 2018)."
+  },
+  {
+    "k": "ProfileSettingsForm.teamFoundedYearLabel",
+    "v": "Founded in"
+  },
+  {
+    "k": "ProfileSettingsForm.teamInstagramLabel",
+    "v": "Instagram"
+  },
+  {
+    "k": "ProfileSettingsForm.teamLocationHelp",
+    "v": "Where your crew is based or where you usually operate."
+  },
+  {
+    "k": "ProfileSettingsForm.teamLocationLabel",
+    "v": "Location / region"
+  },
+  {
+    "k": "ProfileSettingsForm.teamMainSportEmptyOption",
+    "v": "Sport"
+  },
+  {
+    "k": "ProfileSettingsForm.teamMainSportLabel",
+    "v": "Main sport"
+  },
+  {
+    "k": "ProfileSettingsForm.teamPrimarySportEmptyOption",
+    "v": "Sport"
+  },
+  {
+    "k": "ProfileSettingsForm.teamPrimarySportLabel",
+    "v": "Primary sport"
+  },
+  {
+    "k": "ProfileSettingsForm.teamProfilePicture",
+    "v": "Team / crew picture"
+  },
+  {
+    "k": "ProfileSettingsForm.teamProfilePictureHelp",
+    "v": "Upload a logo, group photo, action shot, or visual that represents your crew. This image is used as the hero image on your public team page."
+  },
+  {
+    "k": "ProfileSettingsForm.teamSecondarySportDuplicate",
+    "v": "Choose a different sport than your primary."
+  },
+  {
+    "k": "ProfileSettingsForm.teamSecondarySportEmptyOption",
+    "v": "Optional"
+  },
+  {
+    "k": "ProfileSettingsForm.teamSecondarySportLabel",
+    "v": "Secondary sport"
+  },
+  {
+    "k": "ProfileSettingsForm.teamSinceYearEmptyOption",
+    "v": "Year"
+  },
+  {
+    "k": "ProfileSettingsForm.teamSinceYearHelp",
+    "v": "Year your crew started."
+  },
+  {
+    "k": "ProfileSettingsForm.teamSinceYearLabel",
+    "v": "Since"
+  },
+  {
+    "k": "ProfileSettingsForm.teamSinceYearPlaceholder",
+    "v": "2018"
+  },
+  {
+    "k": "ProfileSettingsForm.teamSportsAndLanguagesHeading",
+    "v": "Sports & languages"
+  },
+  {
+    "k": "ProfileSettingsForm.teamSportsAndLanguagesInfo",
+    "v": "Select the sports and languages your crew offers. Individual coaches keep their own profiles and certifications."
+  },
+  {
+    "k": "ProfileSettingsForm.teamSportsHeading",
+    "v": "Sports"
+  },
+  {
+    "k": "ProfileSettingsForm.teamSportsInfo",
+    "v": "Select the sports your crew offers. Individual coaches keep their own profiles and certifications."
+  },
+  {
+    "k": "ProfileSettingsForm.teamTaglineLabel",
+    "v": "Crew line"
+  },
+  {
+    "k": "ProfileSettingsForm.teamWebsiteLabel",
+    "v": "Website"
+  },
+  {
+    "k": "ReferralCenterPage.activityCoachActive",
+    "v": "Coach became active"
+  },
+  {
+    "k": "ReferralCenterPage.activityCoachApplied",
+    "v": "New coach application"
+  },
+  {
+    "k": "ReferralCenterPage.activityCoachVerified",
+    "v": "Coach verified"
+  },
+  {
+    "k": "ReferralCenterPage.activityDefault",
+    "v": "Ambassador activity"
+  },
+  {
+    "k": "ReferralCenterPage.activityEmpty",
+    "v": "Your referral timeline will appear here as coaches join and grow."
+  },
+  {
+    "k": "ReferralCenterPage.activityFirstBooking",
+    "v": "First booking completed"
+  },
+  {
+    "k": "ReferralCenterPage.activityRewardEarned",
+    "v": "Reward earned"
+  },
+  {
+    "k": "ReferralCenterPage.activityRewardsUnlocked",
+    "v": "Rewards unlocked"
+  },
+  {
+    "k": "ReferralCenterPage.activityTierUpgraded",
+    "v": "Tier upgraded"
+  },
+  {
+    "k": "ReferralCenterPage.activityTitle",
+    "v": "Referral timeline"
+  },
+  {
+    "k": "ReferralCenterPage.copyInviteMessage",
+    "v": "Copy invite message"
+  },
+  {
+    "k": "ReferralCenterPage.loadingDashboard",
+    "v": "Loading your live referral data…"
+  },
+  {
+    "k": "ReferralCenterPage.qrAlt",
+    "v": "QR code for your referral link"
+  },
+  {
+    "k": "ReferralCenterPage.qrCaption",
+    "v": "Scan to join PeakUp with your referral code"
+  },
+  {
+    "k": "ReferralCenterPage.rewardHistoryBooking",
+    "v": "Booking total"
+  },
+  {
+    "k": "ReferralCenterPage.rewardHistoryCoach",
+    "v": "Referred coach"
+  },
+  {
+    "k": "ReferralCenterPage.rewardHistoryCoachPayout",
+    "v": "Coach payout"
+  },
+  {
+    "k": "ReferralCenterPage.rewardHistoryDate",
+    "v": "Date"
+  },
+  {
+    "k": "ReferralCenterPage.rewardHistoryEmpty",
+    "v": "Reward entries appear here when referred coaches complete paid bookings."
+  },
+  {
+    "k": "ReferralCenterPage.rewardHistoryReward",
+    "v": "Your reward"
+  },
+  {
+    "k": "ReferralCenterPage.rewardHistoryStatus",
+    "v": "Status"
+  },
+  {
+    "k": "ReferralCenterPage.rewardHistoryTitle",
+    "v": "Reward history"
+  },
+  {
+    "k": "ReferralCenterPage.rewardStatusEarned",
+    "v": "Earned"
+  },
+  {
+    "k": "ReferralCenterPage.rewardStatusPending",
+    "v": "Pending"
+  },
+  {
+    "k": "ReferralCenterPage.rewardsBreakdownAria",
+    "v": "Ambassador reward breakdown"
+  },
+  {
+    "k": "ReferralCenterPage.rewardsBreakdownTitle",
+    "v": "Ambassador earnings"
+  },
+  {
+    "k": "ReferralCenterPage.rewardsFlowHint",
+    "v": "Client payment → Stripe → PeakUp fee → Coach payout → Ambassador %"
+  },
+  {
+    "k": "ReferralCenterPage.shareWhatsapp",
+    "v": "Share via WhatsApp"
+  },
+  {
+    "k": "ReferralCenterPage.statEarnedRewards",
+    "v": "Earned rewards"
+  },
+  {
+    "k": "ReferralCenterPage.statLifetimeRewards",
+    "v": "Lifetime rewards"
+  },
+  {
+    "k": "ReferralCenterPage.statMonthlyRewards",
+    "v": "This month"
+  },
+  {
+    "k": "ReferralCenterPage.statPendingRewards",
+    "v": "Pending rewards"
+  },
+  {
+    "k": "ReferralCenterPage.unlockBannerBody",
+    "v": "Your Bronze referral commission is now active."
+  },
+  {
+    "k": "ReferralCenterPage.unlockBannerTitle",
+    "v": "Bronze rewards unlocked"
+  },
+  {
+    "k": "TeamApplicationPage.alreadyTeam",
+    "v": "You are signed in as a team account."
+  },
+  {
+    "k": "TeamApplicationPage.cityArea",
+    "v": "City / region"
+  },
+  {
+    "k": "TeamApplicationPage.editProfile",
+    "v": "Team profile settings"
+  },
+  {
+    "k": "TeamApplicationPage.lead",
+    "v": "Apply to bring your academy, camp, or crew onto PeakUp — simple, visual, community-first."
+  },
+  {
+    "k": "TeamApplicationPage.leadNote",
+    "v": "Each coach on your crew keeps their own profile and gets verified individually. You do not upload coach certificates here."
+  },
+  {
+    "k": "TeamApplicationPage.mainSport",
+    "v": "Primary sport"
+  },
+  {
+    "k": "TeamApplicationPage.submit",
+    "v": "Submit application"
+  },
+  {
+    "k": "TeamApplicationPage.successBody",
+    "v": "Our team will review your application and contact you within a few business days."
+  },
+  {
+    "k": "TeamApplicationPage.successTitle",
+    "v": "Application received"
+  },
+  {
+    "k": "TeamApplicationPage.teamBio",
+    "v": "About your team"
+  },
+  {
+    "k": "TeamApplicationPage.teamInstagram",
+    "v": "Instagram (optional)"
+  },
+  {
+    "k": "TeamApplicationPage.teamName",
+    "v": "Team / club name"
+  },
+  {
+    "k": "TeamApplicationPage.teamWebsite",
+    "v": "Website (optional)"
+  },
+  {
+    "k": "TeamApplicationPage.title",
+    "v": "Apply as a verified team"
+  },
+  {
+    "k": "TeamCard.priceFrom",
+    "v": "From {price}"
+  },
+  {
+    "k": "TeamCard.verifiedTeam",
+    "v": "Verified team"
+  },
+  {
+    "k": "TeamCoachRosterCard.cancelInvite",
+    "v": "Cancel invite"
+  },
+  {
+    "k": "TeamCoachRosterCard.message",
+    "v": "Message"
+  },
+  {
+    "k": "TeamCoachRosterCard.remove",
+    "v": "Remove"
+  },
+  {
+    "k": "TeamCoachRosterCard.statusActive",
+    "v": "Active"
+  },
+  {
+    "k": "TeamCoachRosterCard.statusDeclined",
+    "v": "Declined"
+  },
+  {
+    "k": "TeamCoachRosterCard.statusEligible",
+    "v": "Available"
+  },
+  {
+    "k": "TeamCoachRosterCard.statusNotVerified",
+    "v": "Not verified"
+  },
+  {
+    "k": "TeamCoachRosterCard.statusPending",
+    "v": "Pending"
+  },
+  {
+    "k": "TeamCoachRosterCard.tableActions",
+    "v": "Actions"
+  },
+  {
+    "k": "TeamCoachRosterCard.tableCoach",
+    "v": "Coach"
+  },
+  {
+    "k": "TeamCoachRosterCard.tableStatus",
+    "v": "Status"
+  },
+  {
+    "k": "TeamCoachRosterCard.viewProfile",
+    "v": "View profile"
+  },
+  {
+    "k": "TeamDashboardBookingsPage.backToDashboard",
+    "v": "← Back to team dashboard"
+  },
+  {
+    "k": "TeamDashboardBookingsPage.eyebrow",
+    "v": "Team bookings"
+  },
+  {
+    "k": "TeamDashboardBookingsPage.lead",
+    "v": "Upcoming sessions, open requests, reviews, and history for your team."
+  },
+  {
+    "k": "TeamDashboardBookingsPage.schemaTitle",
+    "v": "Team bookings | {marketplaceName}"
+  },
+  {
+    "k": "TeamDashboardBookingsPage.title",
+    "v": "Booking dashboard"
+  },
+  {
+    "k": "TeamDashboardPage.cardBookingsHint",
+    "v": "Overview of your team booking activity."
+  },
+  {
+    "k": "TeamDashboardPage.cardBookingsPast",
+    "v": "Past"
+  },
+  {
+    "k": "TeamDashboardPage.cardBookingsPending",
+    "v": "Pending"
+  },
+  {
+    "k": "TeamDashboardPage.cardBookingsTitle",
+    "v": "Team bookings"
+  },
+  {
+    "k": "TeamDashboardPage.cardBookingsUpcoming",
+    "v": "Upcoming"
+  },
+  {
+    "k": "TeamDashboardPage.cardInboxHint",
+    "v": "Team booking conversations."
+  },
+  {
+    "k": "TeamDashboardPage.cardInboxTitle",
+    "v": "Messages"
+  },
+  {
+    "k": "TeamDashboardPage.cardOpen",
+    "v": "Open"
+  },
+  {
+    "k": "TeamDashboardPage.cardWorkspaceHint",
+    "v": "Roster, sports, and public profile."
+  },
+  {
+    "k": "TeamDashboardPage.cardWorkspaceTitle",
+    "v": "Team workspace"
+  },
+  {
+    "k": "TeamDashboardPage.coachesSectionTitle",
+    "v": "Team coaches"
+  },
+  {
+    "k": "TeamDashboardPage.eyebrow",
+    "v": "Team dashboard"
+  },
+  {
+    "k": "TeamDashboardPage.heroLead",
+    "v": "Roster, bookings, and team profile status in one place."
+  },
+  {
+    "k": "TeamDashboardPage.heroNameFallback",
+    "v": "Team"
+  },
+  {
+    "k": "TeamDashboardPage.heroTitlePrefix",
+    "v": "Welcome back,"
+  },
+  {
+    "k": "TeamDashboardPage.profileComplete",
+    "v": "Complete"
+  },
+  {
+    "k": "TeamDashboardPage.profileIncomplete",
+    "v": "Incomplete"
+  },
+  {
+    "k": "TeamDashboardPage.profileNotice",
+    "v": "Complete your team profile to improve visibility on PeakUp."
+  },
+  {
+    "k": "TeamDashboardPage.schemaTitle",
+    "v": "Team dashboard | {marketplaceName}"
+  },
+  {
+    "k": "TeamDashboardPage.statCoaches",
+    "v": "Connected coaches"
+  },
+  {
+    "k": "TeamDashboardPage.statInvites",
+    "v": "Pending invites"
+  },
+  {
+    "k": "TeamDashboardPage.statProfileStatus",
+    "v": "Profile status"
+  },
+  {
+    "k": "TeamInviteBanner.accept",
+    "v": "Accept"
+  },
+  {
+    "k": "TeamInviteBanner.decline",
+    "v": "Decline"
+  },
+  {
+    "k": "TeamInviteBanner.lead",
+    "v": "You'll stay fully independent — your reviews, bookings, certifications, and payouts remain on your own PeakUp profile."
+  },
+  {
+    "k": "TeamInviteBanner.title",
+    "v": "{teamName} invited you to join their crew"
+  },
+  {
+    "k": "TeamProfilePage.aboutHeading",
+    "v": "The crew"
+  },
+  {
+    "k": "TeamProfilePage.aboutLead",
+    "v": "A PeakUp sports collective — independent certified coaches, one community."
+  },
+  {
+    "k": "TeamProfilePage.coachCount",
+    "v": "{count, plural, one {# coach} other {# coaches}}"
+  },
+  {
+    "k": "TeamProfilePage.editProfile",
+    "v": "Edit crew profile"
+  },
+  {
+    "k": "TeamProfilePage.instagram",
+    "v": "Instagram"
+  },
+  {
+    "k": "TeamProfilePage.joinCta",
+    "v": "Join this crew"
+  },
+  {
+    "k": "TeamProfilePage.rosterEmpty",
+    "v": "Coaches will appear here as they join the crew."
+  },
+  {
+    "k": "TeamProfilePage.rosterError",
+    "v": "Could not load coaches right now."
+  },
+  {
+    "k": "TeamProfilePage.rosterHeading",
+    "v": "Meet our coaches"
+  },
+  {
+    "k": "TeamProfilePage.rosterLead",
+    "v": "Each coach has their own PeakUp profile, reviews, and pricing — this crew brings them together."
+  },
+  {
+    "k": "TeamProfilePage.rosterLoading",
+    "v": "Loading coaches…"
+  },
+  {
+    "k": "TeamProfilePage.verifiedCrew",
+    "v": "Verified crew"
+  },
+  {
+    "k": "TeamProfilePage.website",
+    "v": "Website"
+  },
+  {
+    "k": "TopbarDesktop.customerDashboardLink",
+    "v": "My dashboard"
+  },
+  {
+    "k": "TopbarMobileMenu.customerDashboardLink",
+    "v": "My dashboard"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-booking.confirm-payment-instant",
+    "v": "{actor, select, you {You booked {listingTitle}. Your session is confirmed.} other {{otherUsersName} booked {listingTitle}.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.canceled",
+    "v": "The booking was canceled."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.completed",
+    "v": "{stateStatus, select, current {The experience was completed. {reviewLink}} other {The experience was completed.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.delivered",
+    "v": "The booking is confirmed and upcoming."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.disputed",
+    "v": "The booking was disputed."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.purchased",
+    "v": "{actor, select, you {You booked {listingTitle}.} other {{otherUsersName} booked {listingTitle}.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.received",
+    "v": "The experience was completed."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.reviewed",
+    "v": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.reviewed-by-customer",
+    "v": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.reviewed-by-provider",
+    "v": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.default-booking.customer.accepted-instant.extraInfo",
+    "v": "Your session is confirmed."
+  },
+  {
+    "k": "TransactionPage.default-booking.customer.accepted-instant.title",
+    "v": "Your booking was successful!"
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.accepted-instant.title",
+    "v": "You have a new confirmed booking from {customerName}."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.canceled.title",
+    "v": "Your booking was canceled."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.completed.title",
+    "v": "Your experience was completed."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.delivered.title",
+    "v": "Your booking is confirmed."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.disputed.title",
+    "v": "You disputed the booking."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.initial.title",
+    "v": "Booking initiated."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.inquiry.title",
+    "v": "You inquired about a listing."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.payment-expired.title",
+    "v": "{customerName}, you did not confirm the payment in time."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.pending-payment.title",
+    "v": "{customerName}, you have not confirmed payment yet."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.purchased.extraInfo",
+    "v": "Your spot has been reserved. Use the chat below to coordinate any final details with your coach."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.purchased.title",
+    "v": "Your booking was successful!"
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.received.title",
+    "v": "Your experience was completed."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.reviewed-by-customer.title",
+    "v": "Your experience was completed."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.reviewed-by-provider.title",
+    "v": "Your experience was completed."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.reviewed.title",
+    "v": "Your experience was completed."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.transition-dispute.actionButton",
+    "v": "Dispute"
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.transition-dispute.actionError",
+    "v": "Oops, dispute action failed. Please refresh the page and try again."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.transition-mark-received-from-purchased.actionButton",
+    "v": "Mark experience as completed"
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.transition-mark-received-from-purchased.actionError",
+    "v": "Oops, failed to mark the experience as completed. Please refresh the page and try again."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.transition-mark-received.actionButton",
+    "v": "Mark experience as completed"
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.customer.transition-mark-received.actionError",
+    "v": "Oops, failed to mark the experience as completed. Please refresh the page and try again."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.canceled.title",
+    "v": "The booking from {customerName} was canceled."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.completed.title",
+    "v": "{customerName} completed the experience."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.delivered.title",
+    "v": "The booking from {customerName} is upcoming."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.disputed.title",
+    "v": "{customerName} disputed the booking."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.initial.title",
+    "v": "Booking initiated."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.inquiry.title",
+    "v": "{customerName} inquired about your listing."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.payment-expired.title",
+    "v": "Payment wasn't confirmed in time."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.pending-payment.title",
+    "v": "Payment hasn't been confirmed yet."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.purchased.title",
+    "v": "New booking received"
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.received.title",
+    "v": "{customerName} completed the experience."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.reviewed-by-customer.title",
+    "v": "{customerName} completed the experience."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.reviewed-by-provider.title",
+    "v": "{customerName} completed the experience."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.reviewed.title",
+    "v": "{customerName} completed the experience."
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.transition-mark-delivered.actionButton",
+    "v": "Mark experience as completed"
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.transition-mark-delivered.actionButtonShipped",
+    "v": "Mark experience as completed"
+  },
+  {
+    "k": "TransactionPage.default-purchase-day.provider.transition-mark-delivered.actionError",
+    "v": "Oops, failed to mark the experience as completed. Please refresh the page and try again."
+  },
+  {
+    "k": "TransactionPanel.default-purchase-day.orderBreakdownTitle",
+    "v": "Booking breakdown"
+  }
+]

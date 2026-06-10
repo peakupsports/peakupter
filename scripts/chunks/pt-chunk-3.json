@@ -1,0 +1,1802 @@
+[
+  {
+    "k": "DisputeModal.sentNextStep",
+    "en": "We will get in touch as soon as possible."
+  },
+  {
+    "k": "DisputeModal.sentTitle",
+    "en": "Dispute report sent"
+  },
+  {
+    "k": "DisputeModal.submit",
+    "en": "Dispute order"
+  },
+  {
+    "k": "DisputeModal.title",
+    "en": "Did something go wrong?"
+  },
+  {
+    "k": "EditListingAvailabilityExceptionForm.addException",
+    "en": "Save exception"
+  },
+  {
+    "k": "EditListingAvailabilityExceptionForm.available",
+    "en": "Available"
+  },
+  {
+    "k": "EditListingAvailabilityExceptionForm.exceptionEndDateLabel",
+    "en": "Ends"
+  },
+  {
+    "k": "EditListingAvailabilityExceptionForm.exceptionStartDateLabel",
+    "en": "Starts"
+  },
+  {
+    "k": "EditListingAvailabilityExceptionForm.notAvailable",
+    "en": "Not available"
+  },
+  {
+    "k": "EditListingAvailabilityExceptionForm.title",
+    "en": "Add an availability exception"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.WeeklyCalendar.available",
+    "en": "Available"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.WeeklyCalendar.exception",
+    "en": "Exception: {exception}"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.WeeklyCalendar.notAvailable",
+    "en": "Not available"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.WeeklyCalendar.scheduleTitle",
+    "en": "Schedule for"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.WeeklyCalendar.screenreader.weekNavigation",
+    "en": "{direction, select, next {Next week} other {Previous week}}"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.WeeklyCalendar.seats",
+    "en": "{seats, plural, one {{seats} seat} other {{seats} seats}}"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.addException",
+    "en": "Add an availability exception"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.availabilityPlanInfo",
+    "en": "When is this listing available for booking? Start by setting a default weekly schedule. After that you can adjust the availability for specific dates."
+  },
+  {
+    "k": "EditListingAvailabilityPanel.coachCalendarBridgeHelper",
+    "en": "Coach Calendar manages your day-to-day availability. A default schedule is created automatically when you return so you can continue this listing."
+  },
+  {
+    "k": "EditListingAvailabilityPanel.coachCalendarControlsHelper",
+    "en": "Your PeakUp calendar controls your bookable availability. Open Coach Calendar to block days or times, then return here to continue."
+  },
+  {
+    "k": "EditListingAvailabilityPanel.coachCalendarBootstrapInProgress",
+    "en": "Setting up your default schedule…"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.openCoachCalendar",
+    "en": "Open Coach Calendar"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.legacyScheduleHint",
+    "en": "Sharetribe still uses a weekly default schedule for this listing. Set a minimal plan below to continue this wizard step; day-to-day availability is managed in Coach Calendar."
+  },
+  {
+    "k": "EditListingAvailabilityPanel.createListingTitle",
+    "en": "Availability"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.editAvailabilityPlan",
+    "en": "Edit default schedule"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.exceptionAvailable",
+    "en": "Available"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.exceptionNotAvailable",
+    "en": "Not available"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.setAvailabilityPlan",
+    "en": "Set default schedule"
+  },
+  {
+    "k": "EditListingAvailabilityPanel.title",
+    "en": "Edit the availability of {listingTitle}"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.addAnother",
+    "en": "+ Add another"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.dayOfWeek.fri",
+    "en": "Friday"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.dayOfWeek.mon",
+    "en": "Monday"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.dayOfWeek.sat",
+    "en": "Saturday"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.dayOfWeek.sun",
+    "en": "Sunday"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.dayOfWeek.thu",
+    "en": "Thursday"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.dayOfWeek.tue",
+    "en": "Tuesday"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.dayOfWeek.wed",
+    "en": "Wednesday"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.delete",
+    "en": "Delete"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.endTimePlaceholder",
+    "en": "End"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.hoursOfOperationTitle",
+    "en": "Weekly default schedule"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.plus1Day",
+    "en": "+1 day"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.saveSchedule",
+    "en": "Save schedule"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.startTimePlaceholder",
+    "en": "Start"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.timezonePickerTitle",
+    "en": "Select a time zone"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.title",
+    "en": "Edit default schedule for {listingTitle}"
+  },
+  {
+    "k": "EditListingAvailabilityPlanForm.updateFailed",
+    "en": "Failed to update. Please try again."
+  },
+  {
+    "k": "EditListingDeliveryForm.address",
+    "en": "Pickup address"
+  },
+  {
+    "k": "EditListingDeliveryForm.addressNotRecognized",
+    "en": "We didn't recognize this location. Please try another location."
+  },
+  {
+    "k": "EditListingDeliveryForm.addressPlaceholder",
+    "en": "Start typing…"
+  },
+  {
+    "k": "EditListingDeliveryForm.building",
+    "en": "Apt, suite, building {optionalText}"
+  },
+  {
+    "k": "EditListingDeliveryForm.buildingPlaceholder",
+    "en": "A 42"
+  },
+  {
+    "k": "EditListingDeliveryForm.optionalText",
+    "en": "• optional"
+  },
+  {
+    "k": "EditListingDeliveryForm.pickupLabel",
+    "en": "Pickup"
+  },
+  {
+    "k": "EditListingDeliveryForm.shippingAdditionalItemsLabel",
+    "en": "Shipping fee for additional items"
+  },
+  {
+    "k": "EditListingDeliveryForm.shippingAdditionalItemsPlaceholder",
+    "en": "Set the fee for additional items"
+  },
+  {
+    "k": "EditListingDeliveryForm.shippingAdditionalItemsRequired",
+    "en": "Shipping fee for additional items required."
+  },
+  {
+    "k": "EditListingDeliveryForm.shippingLabel",
+    "en": "Shipping"
+  },
+  {
+    "k": "EditListingDeliveryForm.shippingOneItemLabel",
+    "en": "Shipping fee for one item"
+  },
+  {
+    "k": "EditListingDeliveryForm.shippingOneItemPlaceholder",
+    "en": "Set the fee for shipping one item"
+  },
+  {
+    "k": "EditListingDeliveryForm.shippingOneItemRequired",
+    "en": "Shipping fee for one item required."
+  },
+  {
+    "k": "EditListingDeliveryForm.updateFailed",
+    "en": "Failed to update listing. Please try again."
+  },
+  {
+    "k": "EditListingDeliveryPanel.createListingTitle",
+    "en": "Delivery options"
+  },
+  {
+    "k": "EditListingDeliveryPanel.title",
+    "en": "Edit the delivery options of {listingTitle}"
+  },
+  {
+    "k": "EditListingDetailsForm.categoryLabel",
+    "en": "{categoryLevel, select, categoryLevel1 {Category} other {Subcategory}}"
+  },
+  {
+    "k": "EditListingDetailsForm.categoryPlaceholder",
+    "en": "{categoryLevel, select, categoryLevel1 {Select category} other {Select subcategory}}"
+  },
+  {
+    "k": "EditListingDetailsForm.createListingDraftError",
+    "en": "Failed to create a draft listing. Please try again."
+  },
+  {
+    "k": "EditListingDetailsForm.defaultRequiredMessage",
+    "en": "Required"
+  },
+  {
+    "k": "EditListingDetailsForm.maxLength",
+    "en": "Must be {maxLength} characters or less"
+  },
+  {
+    "k": "EditListingDetailsForm.titlePlaceholder",
+    "en": "What kind of listing is it?"
+  },
+  {
+    "k": "EditListingDetailsForm.updateFailed",
+    "en": "Failed to update listing. Please try again."
+  },
+  {
+    "k": "EditListingDetailsPanel.noListingTypeSetDescription",
+    "en": "Configurations for possible transactions are missing some info. Please, contact support."
+  },
+  {
+    "k": "EditListingDetailsPanel.noListingTypeSetTitle",
+    "en": "Oops, something went wrong!"
+  },
+  {
+    "k": "EditListingLocationForm.address",
+    "en": "Address"
+  },
+  {
+    "k": "EditListingLocationForm.addressNotRecognized",
+    "en": "We didn't recognize this location. Please try another location."
+  },
+  {
+    "k": "EditListingLocationForm.addressPlaceholder",
+    "en": "123 Example Street"
+  },
+  {
+    "k": "EditListingLocationForm.building",
+    "en": "Apt, suite, building # {optionalText}"
+  },
+  {
+    "k": "EditListingLocationForm.buildingPlaceholder",
+    "en": "A 42"
+  },
+  {
+    "k": "EditListingLocationForm.optionalText",
+    "en": "• optional"
+  },
+  {
+    "k": "EditListingLocationForm.updateFailed",
+    "en": "Failed to update listing. Please try again."
+  },
+  {
+    "k": "EditListingPhotosForm.addImagesTip",
+    "en": "Tip: Upload 2-3 good-quality photos from different angles."
+  },
+  {
+    "k": "EditListingPhotosForm.chooseImage",
+    "en": "+ Add a photo…"
+  },
+  {
+    "k": "EditListingPhotosForm.imageRequired",
+    "en": "You need to add at least one photo."
+  },
+  {
+    "k": "EditListingPhotosForm.imageTypes",
+    "en": ".JPG or .PNG. Max. 20 MB"
+  },
+  {
+    "k": "EditListingPhotosForm.imageUploadFailed.uploadOverLimit",
+    "en": "The maximum file size is 20 MB. Please try again."
+  },
+  {
+    "k": "EditListingPhotosForm.updateFailed",
+    "en": "Failed to update listing. Please try again."
+  },
+  {
+    "k": "EditListingPhotosPanel.createListingTitle",
+    "en": "Photos"
+  },
+  {
+    "k": "EditListingPhotosPanel.title",
+    "en": "Edit the photos of {listingTitle}"
+  },
+  {
+    "k": "EditListingPricingAndStockForm.priceInputPlaceholder",
+    "en": "Add a price…"
+  },
+  {
+    "k": "EditListingPricingAndStockForm.pricePerProduct",
+    "en": "Price"
+  },
+  {
+    "k": "EditListingPricingAndStockForm.priceRequired",
+    "en": "You need to add a valid price."
+  },
+  {
+    "k": "EditListingPricingAndStockForm.priceTooLow",
+    "en": "Price should be at least {minPrice}."
+  },
+  {
+    "k": "EditListingPricingAndStockForm.stockIsRequired",
+    "en": "Stock is required."
+  },
+  {
+    "k": "EditListingPricingAndStockForm.stockLabel",
+    "en": "Stock"
+  },
+  {
+    "k": "EditListingPricingAndStockForm.stockPlaceholder",
+    "en": "How many items do you have for sale?"
+  },
+  {
+    "k": "EditListingPricingAndStockForm.updateFailed",
+    "en": "Failed to update listing. Please try again."
+  },
+  {
+    "k": "EditListingPricingAndStockPanel.createListingTitle",
+    "en": "Pricing & stock"
+  },
+  {
+    "k": "EditListingPricingAndStockPanel.listingPriceCurrencyInvalid",
+    "en": "The listing currency ({currency}) is not supported. Allowed currencies: {supportedCurrencies}. Update your coach profile currency to continue."
+  },
+  {
+    "k": "EditListingPricingAndStockPanel.title",
+    "en": "Pricing & stock of {listingTitle}"
+  },
+  {
+    "k": "EditListingPricingForm.priceInputPlaceholder",
+    "en": "Add a price…"
+  },
+  {
+    "k": "EditListingPricingForm.pricePerProduct",
+    "en": "Price {unitType, select, day {per day} night {per night} hour {per hour} other {}}"
+  },
+  {
+    "k": "EditListingPricingForm.priceRequired",
+    "en": "You need to add a valid price."
+  },
+  {
+    "k": "EditListingPricingForm.priceTooLow",
+    "en": "Price should be at least {minPrice}."
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.bookingLengthLabel",
+    "en": "Session length"
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.bookingLengthRequired",
+    "en": "The minimum session length is 15 minutes"
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.delete",
+    "en": "Delete variation"
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.hoursOption",
+    "en": "{hours} {hours, plural, one {hour} other {hours}}"
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.minutesOption",
+    "en": "{minutes} {minutes, plural, one {minute} other {minutes}}"
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.name",
+    "en": "Variation name"
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.nameInputPlaceholder",
+    "en": "Add a name…"
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.nameMustBeUnique",
+    "en": "The name must be unique."
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.priceInputPlaceholder",
+    "en": "Add a price…"
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.pricePerProduct",
+    "en": "Price {unitType, select, day {per day} night {per night} hour {per hour} fixed {per session} other {}}"
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.required",
+    "en": "You need to add a price."
+  },
+  {
+    "k": "EditListingPricingForm.priceVariant.variationNamesMustBeUnique",
+    "en": "Each variation must have a unique name."
+  },
+  {
+    "k": "EditListingPricingForm.updateFailed",
+    "en": "Failed to update listing. Please try again."
+  },
+  {
+    "k": "EditListingPricingPanel.createListingTitle",
+    "en": "Pricing"
+  },
+  {
+    "k": "EditListingPricingPanel.listingPriceCurrencyInvalid",
+    "en": "The listing currency ({currency}) is not supported. Allowed currencies: {supportedCurrencies}. Update your coach profile currency to continue."
+  },
+  {
+    "k": "EditListingPricingPanel.title",
+    "en": "Edit the pricing of {listingTitle}"
+  },
+  {
+    "k": "EditListingStyleForm.preview",
+    "en": "Preview"
+  },
+  {
+    "k": "EditListingStyleForm.screenreader.chooseCardStyle",
+    "en": "Choose a background color for the card: {option, select, white {white} grey {gray} black {black} brand {brand color} other {secondary brand color}}."
+  },
+  {
+    "k": "EditListingStyleForm.title",
+    "en": "Choose a style"
+  },
+  {
+    "k": "EditListingStyleForm.updateFailed",
+    "en": "Failed to update listing. Please try again."
+  },
+  {
+    "k": "EditListingStylePanel.createListingTitle",
+    "en": "Style"
+  },
+  {
+    "k": "EditListingStylePanel.title",
+    "en": "Edit the style of {listingTitle}"
+  },
+  {
+    "k": "EditListingWizard.default-booking.new.saveAvailability",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-booking.new.saveDetails",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-booking.new.saveLocation",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-booking.new.savePricing",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-inquiry.new.saveDetails",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-inquiry.new.saveLocation",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-inquiry.new.saveLocationNoPricingTab",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-inquiry.new.savePricing",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-negotiation.new.saveDetails",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-negotiation.new.saveLocation",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-negotiation.new.saveLocationNoPricingTab",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-negotiation.new.savePricing",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-purchase.new.saveDelivery",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-purchase.new.saveDetails",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.default-purchase.new.savePricingAndStock",
+    "en": "Next"
+  },
+  {
+    "k": "EditListingWizard.edit.saveAvailability",
+    "en": "Save changes"
+  },
+  {
+    "k": "EditListingWizard.edit.saveDelivery",
+    "en": "Save changes"
+  },
+  {
+    "k": "EditListingWizard.edit.saveDetails",
+    "en": "Save changes"
+  },
+  {
+    "k": "EditListingWizard.edit.saveLocation",
+    "en": "Save changes"
+  },
+  {
+    "k": "EditListingWizard.edit.savePhotos",
+    "en": "Save changes"
+  },
+  {
+    "k": "EditListingWizard.edit.savePricing",
+    "en": "Save changes"
+  },
+  {
+    "k": "EditListingWizard.edit.savePricingAndStock",
+    "en": "Save changes"
+  },
+  {
+    "k": "EditListingWizard.edit.saveStyle",
+    "en": "Save changes"
+  },
+  {
+    "k": "EditListingWizard.payoutModalInfo",
+    "en": "{marketplaceName} uses Stripe to process payments. Get verified with Stripe and add your payout details to receive money from transactions."
+  },
+  {
+    "k": "EditListingWizard.payoutModalInfoNew",
+    "en": "{marketplaceName} uses Stripe to process payments. Get verified with Stripe and add your payout details to receive money from transactions. Start by choosing your account type and country."
+  },
+  {
+    "k": "EditListingWizard.payoutModalTitleOneMoreThing",
+    "en": "One more thing:"
+  },
+  {
+    "k": "EditListingWizard.payoutModalTitlePayoutPreferences",
+    "en": "Payout preferences"
+  },
+  {
+    "k": "EditListingWizard.redirectingToStripe",
+    "en": "You returned early from Stripe. Redirecting you back to Stripe…"
+  },
+  {
+    "k": "EditListingWizard.tabLabelAvailability",
+    "en": "Availability"
+  },
+  {
+    "k": "EditListingWizard.tabLabelDelivery",
+    "en": "Delivery"
+  },
+  {
+    "k": "EditListingWizard.tabLabelFeatures",
+    "en": "Features"
+  },
+  {
+    "k": "EditListingWizard.tabLabelPhotos",
+    "en": "Photos"
+  },
+  {
+    "k": "EditListingWizard.tabLabelPricing",
+    "en": "Pricing"
+  },
+  {
+    "k": "EditListingWizard.tabLabelPricingAndStock",
+    "en": "Pricing & stock"
+  },
+  {
+    "k": "EditListingWizard.tabLabelStyle",
+    "en": "Style"
+  },
+  {
+    "k": "EmailVerificationForm.finishAccountSetup",
+    "en": "We will need to send you email notifications. To allow this, please verify your email address {email}."
+  },
+  {
+    "k": "EmailVerificationForm.noPendingText",
+    "en": "We're all set. Your current email address is {email}. {lineBreak} Have a great day!"
+  },
+  {
+    "k": "EmailVerificationForm.noPendingTitle",
+    "en": "You don't have any pending email address, {name}."
+  },
+  {
+    "k": "EmailVerificationForm.successButtonText",
+    "en": "Continue exploring"
+  },
+  {
+    "k": "EmailVerificationForm.coachOnboardingSuccessButtonText",
+    "en": "Continue coach application"
+  },
+  {
+    "k": "EmailVerificationForm.coachOnboardingSuccessText",
+    "en": "Your email is verified. Continue your PeakUp coach application."
+  },
+  {
+    "k": "EmailVerificationForm.successText",
+    "en": "We're all set. Have a great day!"
+  },
+  {
+    "k": "EmailVerificationForm.successTitle",
+    "en": "Thanks for verifying your email address, {name}."
+  },
+  {
+    "k": "EmailVerificationForm.verifying",
+    "en": "Verifying…"
+  },
+  {
+    "k": "ErrorMessage.noProcessAttachedToListing",
+    "en": "Oops, no transaction process attached to the listing. Please contact support"
+  },
+  {
+    "k": "ErrorMessage.noTransactionRightsError",
+    "en": "Oops, something went wrong. You don't have transaction rights. <NoAccessLink>Read more about transaction rights.</NoAccessLink>"
+  },
+  {
+    "k": "FetchLineItemsError.providerCommissionBiggerThanMinPrice",
+    "en": "This listing is currently unavailable. Please contact support."
+  },
+  {
+    "k": "FieldBoolean.no",
+    "en": "No"
+  },
+  {
+    "k": "FieldDateAndTimeInput.endTime",
+    "en": "End time"
+  },
+  {
+    "k": "FieldDateAndTimeInput.startTime",
+    "en": "Start time"
+  },
+  {
+    "k": "FieldDateAndTimeInput.noTimesAvailable",
+    "en": "No times available"
+  },
+  {
+    "k": "FieldDateInput.screenReaderInputMessage",
+    "en": "Date input"
+  },
+  {
+    "k": "FieldDateRangeInput.endDatePlaceholderText",
+    "en": "Add end date"
+  },
+  {
+    "k": "FieldDateRangeInput.invalidEndDate",
+    "en": "The end date is not valid"
+  },
+  {
+    "k": "FieldDateRangeInput.invalidStartDate",
+    "en": "The start date is not valid"
+  },
+  {
+    "k": "FieldDateRangeInput.screenReaderInputMessage",
+    "en": "Date input"
+  },
+  {
+    "k": "FieldDateRangeInput.startDatePlaceholderText",
+    "en": "Add start date"
+  },
+  {
+    "k": "FieldReviewRating.star2",
+    "en": "Not so nice - 2 stars"
+  },
+  {
+    "k": "FieldReviewRating.star3",
+    "en": "OK - 3 stars"
+  },
+  {
+    "k": "FieldReviewRating.star4",
+    "en": "Good - 4 stars"
+  },
+  {
+    "k": "FieldReviewRating.star5",
+    "en": "Awesome - 5 stars"
+  },
+  {
+    "k": "FieldSeatsInput.numberTooBig",
+    "en": "The number must be less than or equal to {max}"
+  },
+  {
+    "k": "FieldSeatsInput.numberTooSmall",
+    "en": "The number must be greater than or equal to {min}"
+  },
+  {
+    "k": "FieldSeatsInput.seatsError",
+    "en": "This field is required."
+  },
+  {
+    "k": "FieldSeatsInput.seatsLabel",
+    "en": "Seats"
+  },
+  {
+    "k": "FieldSeatsInput.seatsPlaceholder",
+    "en": "Seats"
+  },
+  {
+    "k": "FieldSelectTree.screenreader.optionSelected",
+    "en": "{pathMatch, select, exact {{optionName} is selected.} other {{optionName}. One of the nested options is selected.}}"
+  },
+  {
+    "k": "FieldSelectTree.screenreader.option",
+    "en": "Choose {optionName}."
+  },
+  {
+    "k": "FieldSelectUserType.label",
+    "en": "User type"
+  },
+  {
+    "k": "FieldSelectUserType.placeholder",
+    "en": "Choose a user type"
+  },
+  {
+    "k": "FilterComponent.categoryLabel",
+    "en": "Category"
+  },
+  {
+    "k": "FilterComponent.datesLabel",
+    "en": "Dates"
+  },
+  {
+    "k": "FilterComponent.keywordsLabel",
+    "en": "Keywords"
+  },
+  {
+    "k": "FilterComponent.priceLabel",
+    "en": "Price"
+  },
+  {
+    "k": "FilterComponent.seatsLabel",
+    "en": "Seats"
+  },
+  {
+    "k": "FilterPlain.clear",
+    "en": "Clear"
+  },
+  {
+    "k": "InboxPage.default-booking.accepted.status",
+    "en": "Accepted"
+  },
+  {
+    "k": "InboxPage.default-booking.canceled.status",
+    "en": "Canceled"
+  },
+  {
+    "k": "InboxPage.default-booking.declined.status",
+    "en": "Declined"
+  },
+  {
+    "k": "InboxPage.default-booking.delivered.status",
+    "en": "Waiting for review"
+  },
+  {
+    "k": "InboxPage.default-booking.expired.status",
+    "en": "Expired"
+  },
+  {
+    "k": "InboxPage.default-booking.inquiry.status",
+    "en": "Inquiry"
+  },
+  {
+    "k": "InboxPage.default-booking.payment-expired.status",
+    "en": "Payment expired"
+  },
+  {
+    "k": "InboxPage.default-booking.pending-payment.status",
+    "en": "Pending payment"
+  },
+  {
+    "k": "InboxPage.default-booking.preauthorized.status",
+    "en": "Requested"
+  },
+  {
+    "k": "InboxPage.default-booking.reviewed.status",
+    "en": "Completed"
+  },
+  {
+    "k": "InboxPage.default-inquiry.free-inquiry.status",
+    "en": "Free inquiry"
+  },
+  {
+    "k": "InboxPage.default-negotiation.canceled.status",
+    "en": "Canceled"
+  },
+  {
+    "k": "InboxPage.default-negotiation.changes-requested.status",
+    "en": "Changes requested"
+  },
+  {
+    "k": "InboxPage.default-negotiation.completed.status",
+    "en": "Waiting for review"
+  },
+  {
+    "k": "InboxPage.default-negotiation.customer-offer-pending.status",
+    "en": "Counter offer"
+  },
+  {
+    "k": "InboxPage.default-negotiation.delivered.status",
+    "en": "{transactionRole, select, customer {Accept order} other {Delivered}}"
+  },
+  {
+    "k": "InboxPage.default-negotiation.inquiry.status",
+    "en": "Inquiry"
+  },
+  {
+    "k": "InboxPage.default-negotiation.offer-accepted.status",
+    "en": "Waiting for delivery"
+  },
+  {
+    "k": "InboxPage.default-negotiation.offer-pending.status",
+    "en": "{transactionRole, select, customer {Offer pending} other {Offer received}}"
+  },
+  {
+    "k": "InboxPage.default-negotiation.offer-rejected.status",
+    "en": "Rejected"
+  },
+  {
+    "k": "InboxPage.default-negotiation.payment-expired.status",
+    "en": "Payment expired"
+  },
+  {
+    "k": "InboxPage.default-negotiation.pending-payment.status",
+    "en": "Pending payment"
+  },
+  {
+    "k": "InboxPage.default-negotiation.quote-requested.status",
+    "en": "Quote requested"
+  },
+  {
+    "k": "InboxPage.default-negotiation.request-rejected.status",
+    "en": "Request rejected"
+  },
+  {
+    "k": "InboxPage.default-negotiation.reviewed.status",
+    "en": "Completed"
+  },
+  {
+    "k": "InboxPage.default-negotiation.update-pending.status",
+    "en": "{transactionRole, select, customer {Offer update pending} other {Offer updated}}"
+  },
+  {
+    "k": "InboxPage.default-purchase.canceled.status",
+    "en": "Canceled"
+  },
+  {
+    "k": "InboxPage.default-purchase.completed.status",
+    "en": "Waiting for review"
+  },
+  {
+    "k": "InboxPage.default-purchase.delivered.status",
+    "en": "{transactionRole, select, customer {Mark as received} other {Delivered}}"
+  },
+  {
+    "k": "InboxPage.default-purchase.disputed.status",
+    "en": "Disputed"
+  },
+  {
+    "k": "InboxPage.default-purchase.inquiry.status",
+    "en": "Inquiry"
+  },
+  {
+    "k": "InboxPage.default-purchase.payment-expired.status",
+    "en": "Payment expired"
+  },
+  {
+    "k": "InboxPage.default-purchase.pending-payment.status",
+    "en": "Pending payment"
+  },
+  {
+    "k": "InboxPage.default-purchase.purchased.status",
+    "en": "Waiting for delivery"
+  },
+  {
+    "k": "InboxPage.default-purchase.received.status",
+    "en": "Waiting for review"
+  },
+  {
+    "k": "InboxPage.default-purchase.reviewed.status",
+    "en": "Completed"
+  },
+  {
+    "k": "InboxPage.noSalesFound",
+    "en": "Nobody has ordered anything from you yet."
+  },
+  {
+    "k": "InboxPage.ordersTabTitle",
+    "en": "As a customer"
+  },
+  {
+    "k": "InboxPage.ordersTitle",
+    "en": "Inbox: As a customer"
+  },
+  {
+    "k": "InboxPage.quantity",
+    "en": "Number of items: {quantity}"
+  },
+  {
+    "k": "InboxPage.salesTabTitle",
+    "en": "As a provider"
+  },
+  {
+    "k": "InboxPage.salesTitle",
+    "en": "Inbox: As a provider"
+  },
+  {
+    "k": "InboxPage.screenreader.sidenav",
+    "en": "Inbox navigation"
+  },
+  {
+    "k": "InboxPage.seats",
+    "en": "Number of seats: {seats}"
+  },
+  {
+    "k": "InboxPage.sortBy.createdAt",
+    "en": "Newest"
+  },
+  {
+    "k": "InboxPage.sortBy.lastTransitionedAt",
+    "en": "Latest status change"
+  },
+  {
+    "k": "InboxPage.title",
+    "en": "Inbox"
+  },
+  {
+    "k": "NewBookingRequestModal.title",
+    "en": "Hey! You have a new booking"
+  },
+  {
+    "k": "NewBookingRequestModal.goToInbox",
+    "en": "Go to inbox"
+  },
+  {
+    "k": "ConversationArchiveButton.deleteConversation",
+    "en": "Delete conversation"
+  },
+  {
+    "k": "InboxSearchForm.sortLabel",
+    "en": "Sort by:"
+  },
+  {
+    "k": "InquiryForm.heading",
+    "en": "Inquire about {listingTitle}"
+  },
+  {
+    "k": "InquiryForm.peakUpListingTitle",
+    "en": "Contact {coachName}"
+  },
+  {
+    "k": "InquiryForm.peakUpListingSubtitle",
+    "en": "Send a message before booking. Contact details can only be shared after a booking request."
+  },
+  {
+    "k": "InquiryForm.peakUpListingMessagePlaceholder",
+    "en": "Introduce yourself and what you are looking for…"
+  },
+  {
+    "k": "InquiryForm.messagePlaceholder",
+    "en": "Hello {authorDisplayName}! I'm looking forward to…"
+  },
+  {
+    "k": "InquiryForm.submitButtonText",
+    "en": "Send inquiry"
+  },
+  {
+    "k": "InquiryWithoutPaymentForm.ctaButton",
+    "en": "Send an inquiry"
+  },
+  {
+    "k": "IntegerRangeFilter.labelSelectedPlain",
+    "en": "{minValue} - {maxValue}"
+  },
+  {
+    "k": "IntegerRangeFilter.rangeInputsLabel",
+    "en": "Range:"
+  },
+  {
+    "k": "IntegerRangeFilter.screenreader.rangeHandle",
+    "en": "{handle, select, min {Range start {value}} max {Range end {value}} other {Selected value {value}}}"
+  },
+  {
+    "k": "KeywordFilter.filterText",
+    "en": "Filter results by"
+  },
+  {
+    "k": "KeywordFilter.labelSelected",
+    "en": "\"{labelText}\""
+  },
+  {
+    "k": "KeywordFilter.placeholder",
+    "en": "Enter a keyword…"
+  },
+  {
+    "k": "LandingPage.schemaDescription",
+    "en": "An online marketplace."
+  },
+  {
+    "k": "LandingPage.schemaTitle",
+    "en": "{marketplaceName}"
+  },
+  {
+    "k": "LimitedAccessBanner.fallbackMessage",
+    "en": "You're logged in as {firstName} {lastName}."
+  },
+  {
+    "k": "LimitedAccessBanner.fullRightsMessage",
+    "en": "You're logged in as {firstName} {lastName}. You have full access rights. In a Live environment, you will have limited rights."
+  },
+  {
+    "k": "LimitedAccessBanner.message",
+    "en": "You're logged in as {firstName} {lastName}. You have limited access rights. You can't add payout details, initiate transactions, move them forward, or send messages on the user's behalf."
+  },
+  {
+    "k": "ListingCard.author",
+    "en": "{authorName}"
+  },
+  {
+    "k": "ListingCard.perUnit",
+    "en": "{unitType, select, day {per day} night {per night} hour {per hour} other {}}"
+  },
+  {
+    "k": "ListingCard.price",
+    "en": "{priceValue} {pricePerUnit}"
+  },
+  {
+    "k": "ListingCard.priceStartingFrom",
+    "en": "From {priceValue} {pricePerUnit}"
+  },
+  {
+    "k": "ListingCard.unsupportedPrice",
+    "en": "({currency})"
+  },
+  {
+    "k": "ListingCard.unsupportedPriceTitle",
+    "en": "Unsupported currency ({currency})"
+  },
+  {
+    "k": "ListingCard.screenreader.label",
+    "en": "{listingTitle}, {formattedPrice}"
+  },
+  {
+    "k": "ListingImageGallery.closeModal",
+    "en": "CLOSE"
+  },
+  {
+    "k": "ListingImageGallery.viewImagesButton",
+    "en": "View large photos ({count})"
+  },
+  {
+    "k": "LoadableComponentErrorBoundaryPage.description",
+    "en": "It looks like the app needs to be updated! Please refresh the page or go back to {link}."
+  },
+  {
+    "k": "LoadableComponentErrorBoundaryPage.heading",
+    "en": "Oops, we couldn't fetch the page."
+  },
+  {
+    "k": "LoadableComponentErrorBoundaryPage.landingPageLink",
+    "en": "landing page"
+  },
+  {
+    "k": "LoginForm.emailLabel",
+    "en": "Email"
+  },
+  {
+    "k": "LoginForm.emailPlaceholder",
+    "en": "jane.doe@example.com"
+  },
+  {
+    "k": "LoginForm.emailRequired",
+    "en": "This field is required."
+  },
+  {
+    "k": "LoginForm.forgotPasswordInfo",
+    "en": "Forgot your password? {passwordRecoveryLink}"
+  },
+  {
+    "k": "LoginForm.passwordRequired",
+    "en": "This field is required."
+  },
+  {
+    "k": "MainPanelHeader.foundResults",
+    "en": "{count, number} {count, plural, one {result} other {results}}"
+  },
+  {
+    "k": "MainPanelHeader.sortBy",
+    "en": "Sort by:"
+  },
+  {
+    "k": "MakeCounterOfferForm.offerLabel",
+    "en": "Price"
+  },
+  {
+    "k": "MakeCounterOfferForm.offerPlaceholder",
+    "en": "{currentOffer}"
+  },
+  {
+    "k": "MakeCounterOfferForm.offerRequired",
+    "en": "You need to add a price."
+  },
+  {
+    "k": "MakeCounterOfferForm.submit",
+    "en": "Submit the offer"
+  },
+  {
+    "k": "MakeCounterOfferModal.description",
+    "en": "Suggest a different price."
+  },
+  {
+    "k": "MakeCounterOfferModal.title",
+    "en": "Make a counter offer"
+  },
+  {
+    "k": "MakeOfferPage.defaultMessagePlaceholder",
+    "en": "Is there something the customer should know?"
+  },
+  {
+    "k": "MakeOfferPage.listingTitle",
+    "en": "{listingTitle}"
+  },
+  {
+    "k": "MakeOfferPage.makeOfferTitle",
+    "en": "Submit an offer"
+  },
+  {
+    "k": "MakeOfferPage.payoutDetailsWarning",
+    "en": "To submit an offer, you need to {payoutDetailsWarningLink}."
+  },
+  {
+    "k": "MakeOfferPage.perUnit",
+    "en": "{unitType, select, day {per day} night {per night} hour {per hour} other {}}"
+  },
+  {
+    "k": "MakeOfferPage.quoteLabel",
+    "en": "Quote"
+  },
+  {
+    "k": "MakeOfferPage.quotePlaceholder",
+    "en": "Add a quote in {marketplaceCurrency}…"
+  },
+  {
+    "k": "MakeOfferPage.quoteRequired",
+    "en": "You need to add a quote"
+  },
+  {
+    "k": "MakeOfferPage.quoteTooLow",
+    "en": "The quote should be at least {minPrice}."
+  },
+  {
+    "k": "MakeOfferPage.submitButtonText",
+    "en": "Submit the offer"
+  },
+  {
+    "k": "ManageListingCard.closeListingTextOr",
+    "en": "{closeListingLink}"
+  },
+  {
+    "k": "ManageListingCard.discardDraftLinkText",
+    "en": "Discard draft"
+  },
+  {
+    "k": "ManageListingCard.discardDraftText",
+    "en": "{discardDraftLink}"
+  },
+  {
+    "k": "ManageListingCard.manageAvailability",
+    "en": "Manage availability"
+  },
+  {
+    "k": "ManageListingCard.manageStock",
+    "en": "Manage stock ({currentStock})"
+  },
+  {
+    "k": "ManageListingCard.outOfStockOverlayText",
+    "en": "{listingTitle} is out of stock."
+  },
+  {
+    "k": "ManageListingCard.pendingApproval",
+    "en": "{listingTitle} is pending admin approval. It's not visible on the marketplace yet."
+  },
+  {
+    "k": "ManageListingCard.perUnit",
+    "en": "{unitType, select, day {per day} night {per night} hour {per hour} other {}}"
+  },
+  {
+    "k": "ManageListingCard.price",
+    "en": "{priceValue} {pricePerUnit}"
+  },
+  {
+    "k": "ManageListingCard.priceNotSet",
+    "en": "Price not set"
+  },
+  {
+    "k": "ManageListingCard.priceStartingFrom",
+    "en": "From {priceValue} {pricePerUnit}"
+  },
+  {
+    "k": "ManageListingCard.unsupportedPrice",
+    "en": "({currency})"
+  },
+  {
+    "k": "ManageListingCard.unsupportedPriceTitle",
+    "en": "Unsupported currency ({currency})"
+  },
+  {
+    "k": "ManageListingsPage.createServiceCTA",
+    "en": "+ Create new service"
+  },
+  {
+    "k": "ManageListingsPage.noResults",
+    "en": "You haven't listed any listings."
+  },
+  {
+    "k": "Modal.close",
+    "en": "CLOSE"
+  },
+  {
+    "k": "ModalMissingInformation.checkInbox",
+    "en": "Please check your inbox and verify your email address {email}."
+  },
+  {
+    "k": "ModalMissingInformation.closeVerifyEmailReminder",
+    "en": "Later"
+  },
+  {
+    "k": "ModalMissingInformation.fixEmail",
+    "en": "Oops, a typo in your email? {fixEmailLink}"
+  },
+  {
+    "k": "ModalMissingInformation.fixEmailLinkText",
+    "en": "Fix it."
+  },
+  {
+    "k": "ModalMissingInformation.resendEmail",
+    "en": "Didn't get the email? {resendEmailLink}"
+  },
+  {
+    "k": "ModalMissingInformation.resendEmailLinkText",
+    "en": "Resend it."
+  },
+  {
+    "k": "ModalMissingInformation.resendFailed",
+    "en": "Resending verification email failed. Please try again."
+  },
+  {
+    "k": "ModalMissingInformation.sendingEmail",
+    "en": "Sending verification email…"
+  },
+  {
+    "k": "ModalMissingInformation.verifyEmailTitle",
+    "en": "Please verify your email address"
+  },
+  {
+    "k": "NegotiationForm.ctaButton",
+    "en": "Submit an offer"
+  },
+  {
+    "k": "NegotiationRequestQuoteForm.ctaButton",
+    "en": "Request a quote"
+  },
+  {
+    "k": "NoAccessPage.initiateTransactions.heading",
+    "en": "You don't have transaction rights"
+  },
+  {
+    "k": "NoAccessPage.initiateTransactions.schemaTitle",
+    "en": "No transaction rights"
+  },
+  {
+    "k": "NoAccessPage.postListings.heading",
+    "en": "You don't have posting rights"
+  },
+  {
+    "k": "NoAccessPage.postListings.schemaTitle",
+    "en": "No posting rights"
+  },
+  {
+    "k": "NoAccessPage.userPendingApproval.schemaTitle",
+    "en": "No user approval"
+  },
+  {
+    "k": "NoAccessPage.viewListings.heading",
+    "en": "You don't have viewing rights"
+  },
+  {
+    "k": "NoAccessPage.viewListings.schemaTitle",
+    "en": "No viewing rights"
+  },
+  {
+    "k": "NotFoundPage.heading",
+    "en": "Sorry, we couldn't find that page."
+  },
+  {
+    "k": "NotFoundPage.title",
+    "en": "Page not found"
+  },
+  {
+    "k": "NumberInput.decrementButton",
+    "en": "Decrement the value by one"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitDay",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {day} other {days}}"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitDaySeats",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {day} other {days}} x { seats, number } { seats, plural, one {seat} other {seats} }"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitFixedBooking",
+    "en": "{unitPrice}"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitFixedBookingSeats",
+    "en": "{unitPrice} x {seats, number} {seats, plural, one {seat} other {seats}}"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitHour",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {hour} other {hours}}"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitHourSeats",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {hour} other {hours}} x { seats, number } { seats, plural, one {seat} other {seats} }"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitNight",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {night} other {nights}}"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitNightSeats",
+    "en": "{unitPrice} x {quantity, number} {quantity, plural, one {night} other {nights}} x { seats, number } { seats, plural, one {seat} other {seats} }"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitRequest",
+    "en": "Price"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitOffer",
+    "en": "Price"
+  },
+  {
+    "k": "OrderBreakdown.baseUnitQuantity",
+    "en": "{quantity, plural, one {Unit price} other {{unitPrice} x #}}"
+  },
+  {
+    "k": "OrderBreakdown.bookingEnd",
+    "en": "Booking end"
+  },
+  {
+    "k": "OrderBreakdown.bookingStart",
+    "en": "Booking start"
+  },
+  {
+    "k": "OrderBreakdown.peakupSessionsTitle",
+    "en": "Sessions in this booking"
+  },
+  {
+    "k": "OrderBreakdown.peakupSessionsThrough",
+    "en": "through"
+  },
+  {
+    "k": "OrderBreakdown.bookingWithDSTInEffect",
+    "en": "Daylight saving time"
+  },
+  {
+    "k": "OrderBreakdown.commission",
+    "en": "{role, select, customer {{marketplaceName} fee *} provider {{marketplaceName} fee *} other {}}"
+  },
+  {
+    "k": "OrderBreakdown.peakUpCommission",
+    "en": "PeakUp Sports fee"
+  },
+  {
+    "k": "OrderBreakdown.commissionFeeNote",
+    "en": "* The fee helps us run this platform and provide the best possible service to you!"
+  },
+  {
+    "k": "OrderBreakdown.pickupFee",
+    "en": "Pickup"
+  },
+  {
+    "k": "OrderBreakdown.providerTotalDefault",
+    "en": "You'll earn"
+  },
+  {
+    "k": "OrderBreakdown.providerTotalReceived",
+    "en": "You earned"
+  },
+  {
+    "k": "OrderBreakdown.providerTotalRefunded",
+    "en": "Total price"
+  },
+  {
+    "k": "OrderBreakdown.refund",
+    "en": "Refund"
+  },
+  {
+    "k": "OrderBreakdown.refundCustomerFee",
+    "en": "Refund {marketplaceName} fee"
+  },
+  {
+    "k": "OrderBreakdown.refundProviderFee",
+    "en": "Refund {marketplaceName} fee"
+  },
+  {
+    "k": "OrderBreakdown.shippingFee",
+    "en": "Shipping"
+  },
+  {
+    "k": "OrderBreakdown.subTotal",
+    "en": "Subtotal"
+  },
+  {
+    "k": "OrderBreakdown.total",
+    "en": "Total price"
+  },
+  {
+    "k": "OrderPanel.author",
+    "en": "{name}"
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessageBooking",
+    "en": "Book now"
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessageInquiry",
+    "en": "Send an inquiry"
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessageMakeOffer",
+    "en": "Submit an offer"
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessageRequestAQuote",
+    "en": "Request a quote"
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessageNoStock",
+    "en": "Out of stock"
+  },
+  {
+    "k": "OrderPanel.ctaButtonMessagePurchase",
+    "en": "Buy now"
+  },
+  {
+    "k": "OrderPanel.youWontBeChargedInfo",
+    "en": "You won't be charged yet"
+  },
+  {
+    "k": "OrderPanel.perUnit",
+    "en": "{unitType, select, day {per day} night {per night} hour {per hour} other {}}"
+  },
+  {
+    "k": "OrderPanel.price",
+    "en": "{priceValue} {pricePerUnit}"
+  },
+  {
+    "k": "OrderPanel.priceInMobileCTA",
+    "en": "{priceValue}"
+  },
+  {
+    "k": "OrderPanel.unknownTransactionProcess",
+    "en": "Oops, it looks like the marketplace processes aren't up to date. Please contact the marketplace operator."
+  },
+  {
+    "k": "PreBookingIntroModal.eyebrow",
+    "en": "PeakUp Sports"
+  },
+  {
+    "k": "PreBookingIntroModal.participantTypeLabel",
+    "en": "Participant type"
+  },
+  {
+    "k": "PreBookingIntroModal.participantTypePlaceholder",
+    "en": "Who is this session for?"
+  },
+  {
+    "k": "PreBookingIntroModal.participantType.self",
+    "en": "Myself (adult)"
+  },
+  {
+    "k": "PreBookingIntroModal.participantType.child",
+    "en": "Child / youth"
+  },
+  {
+    "k": "PreBookingIntroModal.participantType.group",
+    "en": "Group / family"
+  },
+  {
+    "k": "PreBookingIntroModal.skillLevelLabel",
+    "en": "Skill level"
+  },
+  {
+    "k": "PreBookingIntroModal.skillLevelPlaceholder",
+    "en": "Select skill level"
+  },
+  {
+    "k": "PreBookingIntroModal.sessionLanguageLabel",
+    "en": "Preferred session language"
+  },
+  {
+    "k": "PreBookingIntroModal.sessionLanguagePlaceholder",
+    "en": "Select a language"
+  },
+  {
+    "k": "PreBookingIntroModal.participantCountLabel",
+    "en": "Number of participants"
+  },
+  {
+    "k": "PreBookingIntroModal.meetingPointLabel",
+    "en": "Meeting point"
+  },
+  {
+    "k": "PreBookingIntroModal.footerNote",
+    "en": "Most coaches reply within a few hours."
+  },
+  {
+    "k": "PreBookingIntroModal.continue",
+    "en": "Continue to availability"
+  },
+  {
+    "k": "PreBookingIntroModal.later",
+    "en": "Maybe later"
+  },
+  {
+    "k": "OrderBreakdown.peakupPreBookingParticipantType",
+    "en": "Participant type"
+  },
+  {
+    "k": "OrderBreakdown.peakupPreBookingSkillLevel",
+    "en": "Skill level"
+  },
+  {
+    "k": "OrderBreakdown.peakupPreBookingSessionLanguage",
+    "en": "Preferred session language"
+  },
+  {
+    "k": "OrderBreakdown.peakupPreBookingParticipantCount",
+    "en": "Participants"
+  },
+  {
+    "k": "MeetingPointSelectMaybe.heading",
+    "en": "Meeting point"
+  },
+  {
+    "k": "MeetingPointSelectMaybe.label",
+    "en": "Where to meet"
+  },
+  {
+    "k": "MeetingPointSelectMaybe.placeholder",
+    "en": "Choose a meeting point"
+  },
+  {
+    "k": "MeetingPointSelectMaybe.required",
+    "en": "Please choose a meeting point"
+  },
+  {
+    "k": "OrderBreakdown.peakupMeetingPointTitle",
+    "en": "Meeting point"
+  },
+  {
+    "k": "OrderBreakdown.peakupMeetingPointLabel",
+    "en": "Place"
+  },
+  {
+    "k": "OrderBreakdown.peakupMeetingPointAddress",
+    "en": "Address"
+  },
+  {
+    "k": "OrderBreakdown.peakupMeetingPointNotes",
+    "en": "Notes"
+  },
+  {
+    "k": "CheckoutPage.meetingPointHeading",
+    "en": "Meeting point"
+  },
+  {
+    "k": "TransactionPanel.meetingPointHeading",
+    "en": "Meeting point"
+  },
+  {
+    "k": "Page.schemaDescription",
+    "en": "An online marketplace."
+  },
+  {
+    "k": "Page.schemaTitle",
+    "en": "{marketplaceName}"
+  },
+  {
+    "k": "LandingHeroSection.featureVerified",
+    "en": "Verified Coaches"
+  },
+  {
+    "k": "LandingWhyPeakupSection.titlePeakUp",
+    "en": "PeakUp"
+  },
+  {
+    "k": "LandingWhyPeakupSection.trustVerified",
+    "en": "Verified Coaches"
+  },
+  {
+    "k": "LandingWhyPeakupSection.trustBooking",
+    "en": "Secure Booking"
+  },
+  {
+    "k": "PaginationLinks.next",
+    "en": "Next page"
+  },
+  {
+    "k": "PaginationLinks.previous",
+    "en": "Previous page"
+  },
+  {
+    "k": "PaginationLinks.toPage",
+    "en": "Go to page {page}"
+  },
+  {
+    "k": "PeakUpHq.accessLabel",
+    "en": "ADMIN ACCESS"
+  },
+  {
+    "k": "PeakUpHq.brandSubtitle",
+    "en": "Operations center"
+  },
+  {
+    "k": "PeakUpHq.brandTitle",
+    "en": "PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHq.cardOpen",
+    "en": "Open module"
+  },
+  {
+    "k": "PeakUpHq.comingSoon",
+    "en": "Soon"
+  },
+  {
+    "k": "PeakUpHq.heroSubtitle",
+    "en": "Internal operations & platform management"
+  },
+  {
+    "k": "PeakUpHq.heroTitle",
+    "en": "PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHq.nav.overview",
+    "en": "Overview"
+  },
+  {
+    "k": "PeakUpHq.placeholderBody",
+    "en": "This module is part of the PeakUp HQ roadmap. Check back soon for operational tools and analytics."
+  },
+  {
+    "k": "PeakUpHq.schemaTitle",
+    "en": "PeakUp HQ | {marketplaceName}"
+  },
+  {
+    "k": "PeakUpHq.section.activity.description",
+    "en": "Monitor bookings, sign-ups, and platform signals in one place."
+  },
+  {
+    "k": "PeakUpHq.section.activity.title",
+    "en": "Platform Activity"
+  },
+  {
+    "k": "PeakUpHq.section.ambassadors.description",
+    "en": "Manage ambassador referrals, codes, and program performance."
+  },
+  {
+    "k": "PeakUpHq.section.ambassadors.title",
+    "en": "Ambassador Program"
+  },
+  {
+    "k": "PeakUpHq.section.coachApplications.description",
+    "en": "Review, approve, and manage incoming coach applications."
+  },
+  {
+    "k": "PeakUpHq.section.coachApplications.title",
+    "en": "Coach Applications"
+  },
+  {
+    "k": "PeakUpHq.section.cancellations.description",
+    "en": "Track coach-initiated cancellations, refunds, and customer follow-up."
+  },
+  {
+    "k": "PeakUpHq.section.cancellations.title",
+    "en": "Cancellation Center"
+  },
+  {
+    "k": "PeakUpHq.section.coachManagement.description",
+    "en": "Verified and pending coaches, partner priority, ambassadors, and verification."
+  },
+  {
+    "k": "PeakUpHq.section.coachManagement.title",
+    "en": "Coach Management"
+  },
+  {
+    "k": "PeakUpHq.section.featuredCoaches.description",
+    "en": "Central directory for verified coaches, filters, and commercial partner priority."
+  },
+  {
+    "k": "PeakUpHq.section.featuredCoaches.title",
+    "en": "Coach Management"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.schemaTitle",
+    "en": "Featured Coaches | PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.eyebrow",
+    "en": "Curation"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.title",
+    "en": "Featured Coaches"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.gateHint",
+    "en": "This page is not publicly linked. Enter the admin token (COACH_APPLICATION_ADMIN_TOKEN) or sign in as an HQ admin."
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.gateLabel",
+    "en": "Admin access token"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.gatePlaceholder",
+    "en": "Paste admin token"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.gateSubmit",
+    "en": "Unlock dashboard"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.gateInvalid",
+    "en": "Invalid admin token."
+  }
+]

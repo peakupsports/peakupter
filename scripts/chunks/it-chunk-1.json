@@ -1,0 +1,1802 @@
+[
+  {
+    "k": "AboutPage.communityBody",
+    "en": "From trail sessions to après-ski meetups, PeakUp is where coaches and athletes find each other — in the places they already love to move."
+  },
+  {
+    "k": "AboutPage.communityLabel",
+    "en": "Community"
+  },
+  {
+    "k": "AboutPage.communityTitle",
+    "en": "Real people. Real sessions. Real destinations."
+  },
+  {
+    "k": "AboutPage.ctaBody",
+    "en": "Join a premium multisport network built for independent certified coaches, instructors, and guides."
+  },
+  {
+    "k": "AdminCoachApplicationsPage.actionApprove",
+    "en": "Approve"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.actionNeedMoreInfo",
+    "en": "Need more info"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.actionReject",
+    "en": "Reject"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.actionResetPending",
+    "en": "Reset to Pending"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.applicationId",
+    "en": "Application ID"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.backToList",
+    "en": "Back to applications"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.colActions",
+    "en": "Actions"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.colEmail",
+    "en": "Email"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.colLocation",
+    "en": "Country / city"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.colName",
+    "en": "Applicant"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.colReferral",
+    "en": "Referral code"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.colSport",
+    "en": "Sport"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.colStatus",
+    "en": "Status"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.colSubmitted",
+    "en": "Submitted"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.colType",
+    "en": "Type"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.colUpdated",
+    "en": "Last updated"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.count",
+    "en": "{count, plural, one {# application} other {# applications}}"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.dangerZoneHint",
+    "en": "Permanently removes this application, all uploaded documents, and review data. This cannot be undone."
+  },
+  {
+    "k": "AdminCoachApplicationsPage.dangerZoneTitle",
+    "en": "Danger zone"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.deleteApplication",
+    "en": "Delete application"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.deleteApplicationAria",
+    "en": "Delete application for {name}"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.deleteConfirmAction",
+    "en": "Delete permanently"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.deleteConfirmBody",
+    "en": "This will permanently delete the application for {name}, including all documents. This action cannot be undone."
+  },
+  {
+    "k": "AdminCoachApplicationsPage.deleteError",
+    "en": "Could not delete application."
+  },
+  {
+    "k": "AdminCoachApplicationsPage.exportExcel",
+    "en": "Export Excel"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.eyebrow",
+    "en": "Internal admin"
+  },
+  {
+    "k": "CancellationPolicyPage.accordionCoachBody",
+    "en": "Coaches should only cancel confirmed sessions when absolutely necessary. If a coach needs to cancel, they should inform the customer as soon as possible and try to offer a suitable rescheduling option. Repeated coach cancellations may negatively affect ranking, visibility, ambassador status, or continued access to the PeakUp platform."
+  },
+  {
+    "k": "CancellationPolicyPage.accordionCoachTitle",
+    "en": "Coach Cancellation Policy"
+  },
+  {
+    "k": "CancellationPolicyPage.accordionCustomerBody",
+    "en": "Customers may cancel a booking according to the timing of the cancellation. If a cancellation is made 7 or more days before the scheduled session, the customer may be eligible for a full refund. If the cancellation is made between 48 hours and 7 days before the session, the customer may be eligible for a partial refund. If the cancellation is made less than 48 hours before the session, the booking is generally non-refundable unless the coach or PeakUp approves an exception."
+  },
+  {
+    "k": "CancellationPolicyPage.accordionCustomerTitle",
+    "en": "Customer Cancellation Policy"
+  },
+  {
+    "k": "CancellationPolicyPage.accordionForceMajeureBody",
+    "en": "Exceptional events outside the control of the customer, coach or PeakUp may be reviewed individually. These may include serious illness, injury, natural events, travel disruption, resort closures, official restrictions, or other extraordinary circumstances."
+  },
+  {
+    "k": "CancellationPolicyPage.accordionForceMajeureTitle",
+    "en": "Force Majeure"
+  },
+  {
+    "k": "CancellationPolicyPage.accordionNoShowBody",
+    "en": "If a customer does not attend a confirmed session without prior notice, the booking is generally considered non-refundable. If a coach does not attend a confirmed session without valid reason or communication, PeakUp may review the case and take appropriate action."
+  },
+  {
+    "k": "CancellationPolicyPage.accordionNoShowTitle",
+    "en": "No-show Policy"
+  },
+  {
+    "k": "CancellationPolicyPage.accordionRefundsBody",
+    "en": "Refunds and payouts depend on the timing and reason for the cancellation. PeakUp may withhold, adjust or release payouts depending on the applicable cancellation rule, customer refund eligibility, and the specific circumstances of the case."
+  },
+  {
+    "k": "CancellationPolicyPage.accordionRefundsTitle",
+    "en": "Refunds and Payouts"
+  },
+  {
+    "k": "CancellationPolicyPage.accordionReschedulingBody",
+    "en": "PeakUp encourages rescheduling before cancellation whenever possible. If both the customer and coach agree on a new date or time, the booking may be moved without requiring a refund. Rescheduling is especially encouraged for weather-related or operational reasons."
+  },
+  {
+    "k": "CancellationPolicyPage.accordionReschedulingTitle",
+    "en": "Rescheduling"
+  },
+  {
+    "k": "CancellationPolicyPage.accordionReviewBody",
+    "en": "PeakUp reserves the right to review cancellation cases individually, especially when safety, fairness, repeated cancellations, disputes, or platform quality are involved."
+  },
+  {
+    "k": "CancellationPolicyPage.accordionReviewTitle",
+    "en": "PeakUp Review Rights"
+  },
+  {
+    "k": "CancellationPolicyPage.accordionWeatherBody",
+    "en": "Many PeakUp activities take place outdoors. If weather, snow, water, trail, lift, transport or safety conditions make the activity unsafe or impossible, the coach and customer should first try to reschedule. PeakUp may review cases involving severe weather, resort/lift closures, dangerous conditions, or other safety concerns."
+  },
+  {
+    "k": "CancellationPolicyPage.accordionWeatherTitle",
+    "en": "Weather and Safety"
+  },
+  {
+    "k": "CancellationPolicyPage.disclaimer",
+    "en": "This policy may be updated from time to time. The applicable policy is the version published on PeakUp at the time of booking, unless otherwise required by law."
+  },
+  {
+    "k": "CancellationPolicyPage.example1Result",
+    "en": "Full refund may apply."
+  },
+  {
+    "k": "CancellationPolicyPage.example1Title",
+    "en": "Customer cancels a snowboard lesson 10 days before the booking."
+  },
+  {
+    "k": "CancellationPolicyPage.example2Result",
+    "en": "Normally non-refundable unless approved by the coach or PeakUp."
+  },
+  {
+    "k": "CancellationPolicyPage.example2Title",
+    "en": "Customer cancels a MTB session 24 hours before the booking."
+  },
+  {
+    "k": "CancellationPolicyPage.example3Result",
+    "en": "Rescheduling should be prioritized."
+  },
+  {
+    "k": "CancellationPolicyPage.example3Title",
+    "en": "A storm closes lifts or makes the activity unsafe."
+  },
+  {
+    "k": "CancellationPolicyPage.example4Result",
+    "en": "Coach visibility, ranking or platform access may be reviewed."
+  },
+  {
+    "k": "CancellationPolicyPage.example4Title",
+    "en": "Coach repeatedly cancels confirmed bookings."
+  },
+  {
+    "k": "CancellationPolicyPage.exampleResultLabel",
+    "en": "Result"
+  },
+  {
+    "k": "CancellationPolicyPage.examplesTitle",
+    "en": "Real-world examples"
+  },
+  {
+    "k": "CancellationPolicyPage.heroSubheadline",
+    "en": "PeakUp cancellation policies are designed to protect both athletes and coaches while keeping outdoor sports flexible, safe and professional."
+  },
+  {
+    "k": "CancellationPolicyPage.heroTitle",
+    "en": "Flexible. Fair. Transparent."
+  },
+  {
+    "k": "CancellationPolicyPage.philosophyQuote",
+    "en": "Great outdoor experiences require flexibility, trust and mutual respect."
+  },
+  {
+    "k": "CancellationPolicyPage.philosophyText",
+    "en": "PeakUp believes great sport experiences require trust, flexibility and mutual respect between athletes and coaches. Our cancellation policy is designed to protect customers, support professional coaches and keep outdoor sports safe and fair."
+  },
+  {
+    "k": "CancellationPolicyPage.philosophyTitle",
+    "en": "Our philosophy"
+  },
+  {
+    "k": "CancellationPolicyPage.navExamples",
+    "en": "Examples"
+  },
+  {
+    "k": "CancellationPolicyPage.navJump",
+    "en": "On this page"
+  },
+  {
+    "k": "CancellationPolicyPage.navLabel",
+    "en": "Page sections"
+  },
+  {
+    "k": "CancellationPolicyPage.navPhilosophy",
+    "en": "Philosophy"
+  },
+  {
+    "k": "CancellationPolicyPage.navPillars",
+    "en": "Trust pillars"
+  },
+  {
+    "k": "CancellationPolicyPage.policyDetailsTitle",
+    "en": "Policy details"
+  },
+  {
+    "k": "CancellationPolicyPage.schemaDescription",
+    "en": "PeakUp cancellation rules for customers and coaches — flexible, fair and transparent."
+  },
+  {
+    "k": "CancellationPolicyPage.schemaTitle",
+    "en": "Cancellation Policy | {marketplaceName}"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryCoachBullet1",
+    "en": "Reschedule first whenever possible"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryCoachBullet2",
+    "en": "Repeated cancellations may affect visibility"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryCoachBullet3",
+    "en": "Serious or repeated issues may lead to account review"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryCoachText",
+    "en": "Coaches are expected to avoid cancellations and prioritize rescheduling whenever possible."
+  },
+  {
+    "k": "CancellationPolicyPage.summaryCoachTitle",
+    "en": "Coach cancellations"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryCustomerBullet1",
+    "en": "7+ days before session: full refund"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryCustomerBullet2",
+    "en": "48 hours to 7 days: partial refund"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryCustomerBullet3",
+    "en": "Less than 48 hours: no refund unless approved by the coach or PeakUp"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryCustomerText",
+    "en": "Clear refund windows help protect both athletes and coaches."
+  },
+  {
+    "k": "CancellationPolicyPage.summaryCustomerTitle",
+    "en": "Customer cancellations"
+  },
+  {
+    "k": "CancellationPolicyPage.summarySectionTitle",
+    "en": "Cancellation overview"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryWeatherBullet1",
+    "en": "Unsafe weather may allow rescheduling"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryWeatherBullet2",
+    "en": "Lift closures, storms or dangerous conditions are considered"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryWeatherBullet3",
+    "en": "Coach and PeakUp may review exceptional cases"
+  },
+  {
+    "k": "CancellationPolicyPage.summaryWeatherText",
+    "en": "For outdoor sports, safety always comes first."
+  },
+  {
+    "k": "CancellationPolicyPage.summaryWeatherTitle",
+    "en": "Weather & safety"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.filterAll",
+    "en": "All"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.filterCountry",
+    "en": "Country"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.filterReferral",
+    "en": "Referral code"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.filterReferralPlaceholder",
+    "en": "Filter by code…"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.filterSearchPlaceholder",
+    "en": "Name or email…"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.filterSport",
+    "en": "Sport"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.filterStatus",
+    "en": "Status"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.gateHint",
+    "en": "This page is not linked in public navigation. Enter the server admin token (COACH_APPLICATION_ADMIN_TOKEN)."
+  },
+  {
+    "k": "AdminCoachApplicationsPage.gateInvalid",
+    "en": "Invalid admin token."
+  },
+  {
+    "k": "AdminCoachApplicationsPage.gateLabel",
+    "en": "Admin access token"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.gateNotConfigured",
+    "en": "Admin access is not configured on the server."
+  },
+  {
+    "k": "AdminCoachApplicationsPage.gatePlaceholder",
+    "en": "Paste admin token"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.gateSubmit",
+    "en": "Unlock dashboard"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.loadError",
+    "en": "Could not load applications."
+  },
+  {
+    "k": "AdminCoachApplicationsPage.noDocuments",
+    "en": "No documents uploaded."
+  },
+  {
+    "k": "AdminCoachApplicationsPage.refresh",
+    "en": "Refresh"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.schemaTitle",
+    "en": "Coach applications admin | {marketplaceName}"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.sectionDocuments",
+    "en": "Documents"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.sectionMeta",
+    "en": "Review metadata"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.sectionPersonal",
+    "en": "Personal details"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.sectionReferral",
+    "en": "Referral / Ambassador"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.statusApproved",
+    "en": "Approved"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.statusNeedMoreInfo",
+    "en": "Need more info"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.statusPending",
+    "en": "Pending"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.statusRejected",
+    "en": "Rejected"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.subtitle",
+    "en": "Review coach applications submitted from /coach-application."
+  },
+  {
+    "k": "AdminCoachApplicationsPage.title",
+    "en": "Coach applications"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.typeAmbassadorInterest",
+    "en": "Ambassador interest"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.typeIndependent",
+    "en": "Independent"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.typeReferral",
+    "en": "Referral"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.typeStandard",
+    "en": "Standard"
+  },
+  {
+    "k": "AdminCoachApplicationsPage.updateError",
+    "en": "Could not update status."
+  },
+  {
+    "k": "AdminCoachApplicationsPage.no",
+    "en": "No"
+  },
+  {
+    "k": "AdminAmbassadorsPage.colActivated",
+    "en": "Activated"
+  },
+  {
+    "k": "AdminAmbassadorsPage.colCoach",
+    "en": "Coach"
+  },
+  {
+    "k": "AdminAmbassadorsPage.colEmail",
+    "en": "Email"
+  },
+  {
+    "k": "AdminAmbassadorsPage.colReferralCode",
+    "en": "Referral code"
+  },
+  {
+    "k": "AdminAmbassadorsPage.colRewards",
+    "en": "Rewards"
+  },
+  {
+    "k": "AdminAmbassadorsPage.colTier",
+    "en": "Tier"
+  },
+  {
+    "k": "AdminAmbassadorsPage.count",
+    "en": "{count, plural, one {# activation} other {# activations}}"
+  },
+  {
+    "k": "AdminAmbassadorsPage.empty",
+    "en": "No ambassador activations yet."
+  },
+  {
+    "k": "AdminAmbassadorsPage.eyebrow",
+    "en": "Internal admin"
+  },
+  {
+    "k": "AdminAmbassadorsPage.gateHint",
+    "en": "Admin access only. Ambassador activations are visible to authorized PeakUp HQ users."
+  },
+  {
+    "k": "AdminAmbassadorsPage.gateInvalid",
+    "en": "Invalid admin token."
+  },
+  {
+    "k": "AdminAmbassadorsPage.gateLabel",
+    "en": "Admin access token"
+  },
+  {
+    "k": "AdminAmbassadorsPage.gateNotConfigured",
+    "en": "Admin access is not configured on the server."
+  },
+  {
+    "k": "AdminAmbassadorsPage.gatePlaceholder",
+    "en": "Paste admin token"
+  },
+  {
+    "k": "AdminAmbassadorsPage.gateSubmit",
+    "en": "Open Ambassador dashboard"
+  },
+  {
+    "k": "AdminAmbassadorsPage.gateTokenHint",
+    "en": "Dev fallback: set COACH_APPLICATION_ADMIN_TOKEN in your .env file and enter it here if you are not signed in as an HQ admin."
+  },
+  {
+    "k": "AdminAmbassadorsPage.loadError",
+    "en": "Could not load ambassador activations."
+  },
+  {
+    "k": "AdminAmbassadorsPage.refresh",
+    "en": "Refresh"
+  },
+  {
+    "k": "AdminAmbassadorsPage.rewardsLocked",
+    "en": "Locked"
+  },
+  {
+    "k": "AdminAmbassadorsPage.rewardsUnlocked",
+    "en": "Unlocked"
+  },
+  {
+    "k": "AdminAmbassadorsPage.schemaTitle",
+    "en": "Ambassador activations admin | {marketplaceName}"
+  },
+  {
+    "k": "AdminAmbassadorsPage.searchPlaceholder",
+    "en": "Name, email, or referral code…"
+  },
+  {
+    "k": "AdminAmbassadorsPage.subtitle",
+    "en": "Track verified-coach Ambassador Program activations and referral codes."
+  },
+  {
+    "k": "AdminAmbassadorsPage.title",
+    "en": "Ambassador Program"
+  },
+  {
+    "k": "AboutPage.ctaEyebrow",
+    "en": "For certified professionals"
+  },
+  {
+    "k": "AboutPage.ctaTitle",
+    "en": "Grow your visibility, bookings, and business"
+  },
+  {
+    "k": "AboutPage.heroEyebrow",
+    "en": "ANY SPORT. ANYWHERE."
+  },
+  {
+    "k": "AboutPage.heroLead",
+    "en": "PeakUp connects athletes and travelers with trusted local coaches for authentic sports experiences worldwide."
+  },
+  {
+    "k": "AboutPage.heroTitleLine1",
+    "en": "More than coaching."
+  },
+  {
+    "k": "AboutPage.heroTitleLine2",
+    "en": "A way to experience the world."
+  },
+  {
+    "k": "AboutPage.missionBody",
+    "en": "We connect passionate athletes with world-class coaches through a trusted, cinematic experience — from discovery to booking to the moment you show up ready to perform."
+  },
+  {
+    "k": "AboutPage.missionVisualCaption",
+    "en": "Train where the world opens up"
+  },
+  {
+    "k": "AboutPage.missionVisualLabel",
+    "en": "Every session"
+  },
+  {
+    "k": "AboutPage.missionLabel",
+    "en": "Our mission"
+  },
+  {
+    "k": "AboutPage.missionTitle",
+    "en": "Sport deserves a platform as ambitious as the people who live it"
+  },
+  {
+    "k": "AboutPage.schemaDescription",
+    "en": "Discover PeakUp — the premium sports coaching marketplace built for athletes and coaches."
+  },
+  {
+    "k": "AboutPage.schemaTitle",
+    "en": "About | {marketplaceName}"
+  },
+  {
+    "k": "AboutPage.valueAccessDesc",
+    "en": "Book coaches across destinations — mountain, ocean, court, and city."
+  },
+  {
+    "k": "AboutPage.valueAccessTitle",
+    "en": "Access anywhere"
+  },
+  {
+    "k": "AboutPage.valueGrowthDesc",
+    "en": "Tools that help coaches build reputation, fill sessions, and scale."
+  },
+  {
+    "k": "AboutPage.valueGrowthTitle",
+    "en": "Built to grow"
+  },
+  {
+    "k": "AboutPage.valueQualityDesc",
+    "en": "Curated experiences with transparent profiles, reviews, and pricing."
+  },
+  {
+    "k": "AboutPage.valueQualityTitle",
+    "en": "Premium quality"
+  },
+  {
+    "k": "AboutPage.valueTrustDesc",
+    "en": "Every coach profile is reviewed so athletes book with confidence."
+  },
+  {
+    "k": "AboutPage.valueTrustTitle",
+    "en": "Trust first"
+  },
+  {
+    "k": "AboutPage.valuesLabel",
+    "en": "What we stand for"
+  },
+  {
+    "k": "AboutPage.valuesTitle",
+    "en": "Values behind every PeakUp experience"
+  },
+  {
+    "k": "AboutPage.whyLead",
+    "en": "Generic marketplaces weren’t built for sport. PeakUp was — for coaches who teach at the edge and athletes who chase progress."
+  },
+  {
+    "k": "AboutPage.whyPoint1",
+    "en": "Cinematic discovery designed for sport, not classified ads"
+  },
+  {
+    "k": "AboutPage.whyPoint2",
+    "en": "Coach profiles that feel like premium athlete cards"
+  },
+  {
+    "k": "AboutPage.whyPoint3",
+    "en": "Booking flows tuned for sessions, seasons, and destinations"
+  },
+  {
+    "k": "AboutPage.whyTitle",
+    "en": "Because performance needs a better stage"
+  },
+  {
+    "k": "AboutPage.wellnessBody",
+    "en": "Yoga at sunrise, recovery by the water, coaching woven into travel — PeakUp helps athletes book experiences that feel as intentional as the training itself."
+  },
+  {
+    "k": "AboutPage.wellnessLabel",
+    "en": "Wellness & travel"
+  },
+  {
+    "k": "AboutPage.wellnessTitle",
+    "en": "Recovery and retreat, built into the journey"
+  },
+  {
+    "k": "AmbassadorActivationModal.activateCta",
+    "en": "Activate Bronze Ambassador"
+  },
+  {
+    "k": "AmbassadorActivationModal.activateError",
+    "en": "Could not activate Ambassador Program. Please try again."
+  },
+  {
+    "k": "AmbassadorActivationModal.eyebrow",
+    "en": "PeakUp Ambassador Program"
+  },
+  {
+    "k": "AmbassadorActivationModal.lead",
+    "en": "A lightweight onboarding for verified PeakUp coaches — activate your Bronze tier, get your referral code, and start growing the community."
+  },
+  {
+    "k": "AmbassadorActivationModal.loginBody",
+    "en": "Sign in with your verified coach account to activate the Ambassador Program."
+  },
+  {
+    "k": "AmbassadorActivationModal.loginCta",
+    "en": "Log in"
+  },
+  {
+    "k": "AmbassadorActivationModal.notVerifiedBody",
+    "en": "Ambassador Program access is available only for verified PeakUp coaches."
+  },
+  {
+    "k": "AmbassadorActivationModal.referralCenterCta",
+    "en": "Open Referral Center"
+  },
+  {
+    "k": "AmbassadorActivationModal.sectionExpectationsBody",
+    "en": "Represent PeakUp with quality coaching, responsive communication, and coaches you would trust on your own roster."
+  },
+  {
+    "k": "AmbassadorActivationModal.sectionExpectationsTitle",
+    "en": "Ambassador expectations"
+  },
+  {
+    "k": "AmbassadorActivationModal.sectionReferralBody",
+    "en": "Share your personal referral code when inviting coaches. When they join and start earning, you unlock ambassador rewards tied to their activity."
+  },
+  {
+    "k": "AmbassadorActivationModal.sectionReferralTitle",
+    "en": "How referrals work"
+  },
+  {
+    "k": "AmbassadorActivationModal.sectionRewardsBody",
+    "en": "Earn recurring ambassador rewards from referred coach platform revenue, unlock tier perks, and access reduced platform fees as you progress."
+  },
+  {
+    "k": "AmbassadorActivationModal.sectionRewardsTitle",
+    "en": "Rewards overview"
+  },
+  {
+    "k": "AmbassadorActivationModal.sectionTiersBody",
+    "en": "You start at Bronze. Progress through Silver, Gold, Platinum, and Diamond by growing referrals, coaching quality, and community impact."
+  },
+  {
+    "k": "AmbassadorActivationModal.sectionTiersTitle",
+    "en": "Tier progression"
+  },
+  {
+    "k": "AmbassadorActivationModal.successBody",
+    "en": "Your Bronze Ambassador status is active. A welcome email with your referral code and link is on its way."
+  },
+  {
+    "k": "AmbassadorActivationModal.termsLabel",
+    "en": "I agree to the PeakUp Ambassador Program terms and commit to upholding program standards."
+  },
+  {
+    "k": "AmbassadorActivationModal.tiersAria",
+    "en": "Ambassador tiers"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador1Level",
+    "en": "Gold Ambassador"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador1Location",
+    "en": "Zürich, CH"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador1Name",
+    "en": "Marco R."
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador1Sport",
+    "en": "Ski coaching"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador2Level",
+    "en": "Platinum Ambassador"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador2Location",
+    "en": "Verbier, CH"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador2Name",
+    "en": "Sara L."
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador2Sport",
+    "en": "Snowboard"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador3Level",
+    "en": "Silver Ambassador"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador3Location",
+    "en": "Lugano, CH"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador3Name",
+    "en": "Jonas K."
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassador3Sport",
+    "en": "Tennis"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassadorsLabel",
+    "en": "07 · Community"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassadorsTitle",
+    "en": "Meet our Ambassadors"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassadorsLoading",
+    "en": "Loading ambassador profiles…"
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassadorsEmpty",
+    "en": "Ambassador profiles will appear here as coaches join the program."
+  },
+  {
+    "k": "AmbassadorProgramPage.ambassadorsOnlyFounderLead",
+    "en": "Be among the first PeakUp Ambassadors. Help grow the community and unlock exclusive rewards."
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaProfileLabel",
+    "en": "Profile quality"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaProfileValue",
+    "en": "85%"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaReferralsLabel",
+    "en": "Referrals"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaReferralsTarget",
+    "en": "Target: 5 active referred coaches"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaReferralsValue",
+    "en": "2 / 5"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaResponseLabel",
+    "en": "Response rate"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaResponseTarget",
+    "en": "Target: 90%+ within 24h"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaResponseValue",
+    "en": "91%"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaReviewsLabel",
+    "en": "Reviews"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaReviewsTarget",
+    "en": "Target: 4.8+ average from 20+ reviews"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaReviewsValue",
+    "en": "4.7 · 18 reviews"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaSessionsLabel",
+    "en": "Completed sessions"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaSessionsTarget",
+    "en": "Target: 50+ completed bookings"
+  },
+  {
+    "k": "AmbassadorProgramPage.criteriaSessionsValue",
+    "en": "29 / 50"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsBookingValue",
+    "en": "CHF 200"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsClarification",
+    "en": "Ambassador rewards are calculated from the coach's net payout after PeakUp platform fees — not from the full booking amount."
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsDisclaimer",
+    "en": "Final ambassador rewards may slightly vary depending on transaction processing fees and payout costs."
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsFeeLabel",
+    "en": "PeakUp platform fee (9%)"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsFeeValue",
+    "en": "CHF 18"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsLabel",
+    "en": "06 · Example"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsLead",
+    "en": "Follow the money on a CHF 200 booking — Diamond tier example."
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsPayoutLabel",
+    "en": "Coach net payout"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsPayoutValue",
+    "en": "CHF 182"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsRewardLabel",
+    "en": "Diamond ambassador reward (6%)"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsRewardMicro",
+    "en": "Recurring reward from referred coach activity."
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsRewardValue",
+    "en": "CHF 10.92"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsStepBookingCaption",
+    "en": "client payment"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsStepFeeCaption",
+    "en": "platform revenue"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsStepPayoutCaption",
+    "en": "coach earnings"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsStepRewardCaption",
+    "en": "your reward"
+  },
+  {
+    "k": "AmbassadorProgramPage.earningsTitle",
+    "en": "How ambassador earnings work"
+  },
+  {
+    "k": "AmbassadorProgramPage.faqAutomaticAnswer",
+    "en": "Not automatically. You qualify through consistent coaching performance, community impact, and referral activity. PeakUp reviews ambassadors periodically."
+  },
+  {
+    "k": "AmbassadorProgramPage.faqAutomaticQuestion",
+    "en": "Is Ambassador status automatic?"
+  },
+  {
+    "k": "AmbassadorProgramPage.faqFeesAnswer",
+    "en": "Reduced platform fees unlock as you progress through ambassador tiers. Top ambassadors may qualify for fees below the standard 9% — subject to program terms."
+  },
+  {
+    "k": "AmbassadorProgramPage.faqFeesQuestion",
+    "en": "How are platform fee reductions unlocked?"
+  },
+  {
+    "k": "AmbassadorProgramPage.faqLoseAnswer",
+    "en": "Yes. Ambassador status reflects ongoing contribution. Inactivity, poor response rates, or repeated cancellations can affect your tier or eligibility."
+  },
+  {
+    "k": "AmbassadorProgramPage.faqLoseQuestion",
+    "en": "Can I lose Ambassador status?"
+  },
+  {
+    "k": "AmbassadorProgramPage.faqPaidAnswer",
+    "en": "Ambassador earnings are settled on a regular payout cycle alongside your coach payouts, once referred bookings are completed."
+  },
+  {
+    "k": "AmbassadorProgramPage.faqPaidQuestion",
+    "en": "When do I get paid?"
+  },
+  {
+    "k": "AmbassadorProgramPage.faqReferralsAnswer",
+    "en": "Share your unique Ambassador Code when inviting coaches. When they join, complete onboarding, and start earning, you qualify for ambassador rewards tied to their activity."
+  },
+  {
+    "k": "AmbassadorProgramPage.faqReferralsQuestion",
+    "en": "How do referrals work?"
+  },
+  {
+    "k": "AmbassadorProgramPage.faqTitle",
+    "en": "Common questions"
+  },
+  {
+    "k": "AmbassadorProgramPage.feeCalloutText",
+    "en": "PeakUp’s standard platform fee is 9%. Top ambassadors may unlock reduced fees as they progress through the program."
+  },
+  {
+    "k": "AmbassadorProgramPage.feeCalloutTitle",
+    "en": "Platform fee"
+  },
+  {
+    "k": "AmbassadorProgramPage.finalLead",
+    "en": "Join the Ambassador Program and grow with PeakUp."
+  },
+  {
+    "k": "AmbassadorProgramPage.finalTitle",
+    "en": "Ready to make an impact?"
+  },
+  {
+    "k": "AmbassadorProgramPage.heroBadgeAlt",
+    "en": "PeakUp Ambassador badge"
+  },
+  {
+    "k": "AmbassadorProgramPage.heroEyebrow",
+    "en": "PeakUp Ambassador Program"
+  },
+  {
+    "k": "AmbassadorProgramPage.heroHighlightCommunityText",
+    "en": "Bring talented coaches into the PeakUp network."
+  },
+  {
+    "k": "AmbassadorProgramPage.heroHighlightCommunityTitle",
+    "en": "Grow the community"
+  },
+  {
+    "k": "AmbassadorProgramPage.heroHighlightRecognitionText",
+    "en": "Stand out with the elite Ambassador badge."
+  },
+  {
+    "k": "AmbassadorProgramPage.heroHighlightRecognitionTitle",
+    "en": "Gain recognition"
+  },
+  {
+    "k": "AmbassadorProgramPage.heroHighlightRewardsText",
+    "en": "Unlock commissions, perks, and reduced fees."
+  },
+  {
+    "k": "AmbassadorProgramPage.heroHighlightRewardsTitle",
+    "en": "Earn rewards"
+  },
+  {
+    "k": "AmbassadorProgramPage.heroSubtitle",
+    "en": "More than a badge. A recognition of your impact, leadership and contribution to the PeakUp community."
+  },
+  {
+    "k": "AmbassadorProgramPage.heroTitle",
+    "en": "Become a PeakUp Ambassador"
+  },
+  {
+    "k": "AmbassadorProgramPage.howLabel",
+    "en": "01 · Process"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelBronzeDesc",
+    "en": "Entry tier — start building your referral network."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelDiamondDesc",
+    "en": "Elite tier — maximum rewards & visibility."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelGoldDesc",
+    "en": "Strong community impact & referral volume."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPlatinumDesc",
+    "en": "Top performers with premium program perks."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelSilverDesc",
+    "en": "Growing influence with early ambassador perks."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelsLabel",
+    "en": "04 · Progression"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelsTitle",
+    "en": "Ambassador levels"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.benefitsTitle",
+    "en": "Benefits"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.secondaryBenefitsTitle",
+    "en": "Additional perks"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.benefits.commissionDesc",
+    "en": "Recurring rewards on referred coach platform revenue."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.reward.percent",
+    "en": "2%"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.reward.title",
+    "en": "Referral commission"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.reward.percent",
+    "en": "3%"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.reward.title",
+    "en": "Referral commission"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.reward.percent",
+    "en": "4%"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.reward.title",
+    "en": "Referral commission"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.reward.percent",
+    "en": "5%"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.reward.title",
+    "en": "Top referral rewards"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.reward.percent",
+    "en": "6%"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.reward.title",
+    "en": "Highest referral rewards"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.commissionNote",
+    "en": "Commission is calculated from PeakUp net platform revenue after platform and transaction fees — not from the coach's full lesson price."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.criteriaTitle",
+    "en": "Criteria"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.criteria.profile",
+    "en": "Profile quality"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.criteria.referrals",
+    "en": "Referrals (coach)"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.criteria.response",
+    "en": "Response rate"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.criteria.cancellations",
+    "en": "Coach cancellations"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.criteria.cancellationsHint",
+    "en": "Excluding approved force majeure / medical / weather exceptions"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.criteria.reviews",
+    "en": "Reviews"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.criteria.sessions",
+    "en": "Completed sessions"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.futureTitle",
+    "en": "Future ambassador benefits"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.future.subscription",
+    "en": "Reduced platform subscription costs"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.future.partners",
+    "en": "Exclusive partner discounts"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.future.features",
+    "en": "Priority access to future features"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.future.visibility",
+    "en": "Premium visibility opportunities"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.openHint",
+    "en": "View {tier} ambassador requirements and benefits"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.renewalTitle",
+    "en": "Ambassador status renewal"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.renewalBody",
+    "en": "Ambassador levels remain active for 365 days.\nTo maintain your status and rewards, criteria must continue to be met through ongoing activity and community contribution."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.benefits.1",
+    "en": "2% commission on referred coaches"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.benefits.2",
+    "en": "Early access features"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.benefits.3",
+    "en": "Community access"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.benefits.4",
+    "en": "Basic analytics"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.benefits.5",
+    "en": "Ambassador badge"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.criteria.profile",
+    "en": "100%"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.criteria.referrals",
+    "en": "MIN 5"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.criteria.response",
+    "en": "MAX 24H"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.criteria.cancellations",
+    "en": "MAX 0"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.criteria.reviews",
+    "en": "MIN 10"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.bronze.criteria.sessions",
+    "en": "MIN 20"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.benefits.1",
+    "en": "3% commission on referred coaches"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.benefits.2",
+    "en": "Reduced PeakUp platform fee"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.benefits.3",
+    "en": "Priority support"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.benefits.4",
+    "en": "Featured placement in coach directories"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.benefits.5",
+    "en": "Silver ambassador badge"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.criteria.profile",
+    "en": "100%"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.criteria.referrals",
+    "en": "MIN 10"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.criteria.response",
+    "en": "MAX 10H"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.criteria.cancellations",
+    "en": "MAX 1"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.criteria.reviews",
+    "en": "MIN 25"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.silver.criteria.sessions",
+    "en": "MIN 50"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.benefits.1",
+    "en": "4% commission on referred coaches"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.benefits.2",
+    "en": "Featured visibility boost"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.benefits.3",
+    "en": "Advanced analytics"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.benefits.4",
+    "en": "Priority featured placement"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.benefits.5",
+    "en": "Gold ambassador badge"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.criteria.profile",
+    "en": "100%"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.criteria.referrals",
+    "en": "MIN 15"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.criteria.response",
+    "en": "MAX 5H"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.criteria.cancellations",
+    "en": "MAX 2"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.criteria.reviews",
+    "en": "MIN 40"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.gold.criteria.sessions",
+    "en": "MIN 80"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.benefits.1",
+    "en": "5% top referral rewards on referred coaches"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.benefits.2",
+    "en": "Premium reduced platform fees"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.benefits.3",
+    "en": "Priority ecosystem access"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.benefits.4",
+    "en": "Elite visibility across PeakUp"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.benefits.5",
+    "en": "Platinum ambassador badge"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.criteria.profile",
+    "en": "100%"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.criteria.referrals",
+    "en": "MIN 25"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.criteria.response",
+    "en": "MAX 2H"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.criteria.cancellations",
+    "en": "MAX 3"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.criteria.reviews",
+    "en": "MIN 70"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.platinum.criteria.sessions",
+    "en": "MIN 140"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.benefits.1",
+    "en": "6% commission — highest ambassador referral rewards"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.benefits.1.desc",
+    "en": "Peak ambassador payout tier with maximum recurring referral rewards."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.benefits.2",
+    "en": "Elite partner conditions"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.benefits.2.desc",
+    "en": "Exclusive partner terms reserved for top ambassadors."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.benefits.3",
+    "en": "Elite visibility & premium featured exposure"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.benefits.3.desc",
+    "en": "Maximum featured exposure across PeakUp discovery."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.benefits.4",
+    "en": "Direct collaboration with PeakUp"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.benefits.4.desc",
+    "en": "Direct line to the PeakUp team for strategic initiatives."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.benefits.5",
+    "en": "Highest ambassador recognition"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.benefits.5.desc",
+    "en": "The highest tier of ambassador status and recognition."
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.criteria.profile",
+    "en": "100%"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.criteria.referrals",
+    "en": "MIN 50"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.criteria.response",
+    "en": "MAX 1H"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.criteria.cancellations",
+    "en": "MAX 5"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.criteria.reviews",
+    "en": "MIN 130"
+  },
+  {
+    "k": "AmbassadorProgramPage.levelPopup.diamond.criteria.sessions",
+    "en": "MIN 300"
+  },
+  {
+    "k": "AmbassadorProgramPage.qualificationLabel",
+    "en": "02 · Your path"
+  },
+  {
+    "k": "AmbassadorProgramPage.qualificationLead",
+    "en": "Track the criteria that matter for Ambassador eligibility. These are illustrative targets for the program launch."
+  },
+  {
+    "k": "AmbassadorProgramPage.qualificationTitle",
+    "en": "Qualification criteria"
+  },
+  {
+    "k": "AmbassadorProgramPage.reward1",
+    "en": "Earn commission on referred coaches’ bookings"
+  },
+  {
+    "k": "AmbassadorProgramPage.reward2",
+    "en": "Reduced PeakUp platform fee at higher tiers"
+  },
+  {
+    "k": "AmbassadorProgramPage.reward3",
+    "en": "Higher visibility across PeakUp discovery"
+  },
+  {
+    "k": "AmbassadorProgramPage.reward4",
+    "en": "Featured priority in coach directories"
+  },
+  {
+    "k": "AmbassadorProgramPage.reward6",
+    "en": "Exclusive tools, resources & early access"
+  },
+  {
+    "k": "AmbassadorProgramPage.rewardsLabel",
+    "en": "05 · Benefits"
+  },
+  {
+    "k": "AmbassadorProgramPage.rewardsTitle",
+    "en": "Rewards & benefits"
+  },
+  {
+    "k": "AmbassadorProgramPage.schemaDescription",
+    "en": "Join the PeakUp Ambassador Program — grow the coach community, earn rewards, and unlock recognition."
+  },
+  {
+    "k": "AmbassadorProgramPage.schemaTitle",
+    "en": "Ambassador Program | {marketplaceName}"
+  },
+  {
+    "k": "ReferralCenterPage.bronzeRewardsTitle",
+    "en": "Bronze reward status"
+  },
+  {
+    "k": "ReferralCenterPage.codeLabel",
+    "en": "Referral code"
+  },
+  {
+    "k": "ReferralCenterPage.copied",
+    "en": "Copied!"
+  },
+  {
+    "k": "ReferralCenterPage.copiedCheck",
+    "en": "Copied ✓"
+  },
+  {
+    "k": "ReferralCenterPage.copyCode",
+    "en": "Copy code"
+  },
+  {
+    "k": "ReferralCenterPage.copyLink",
+    "en": "Copy referral link"
+  },
+  {
+    "k": "ReferralCenterPage.criteriaCancellations",
+    "en": "Coach cancellations: MAX 0"
+  },
+  {
+    "k": "ReferralCenterPage.criteriaProfile",
+    "en": "Profile quality: 100%"
+  },
+  {
+    "k": "ReferralCenterPage.criteriaReferrals",
+    "en": "Referrals: MIN 5 coaches"
+  },
+  {
+    "k": "ReferralCenterPage.criteriaResponse",
+    "en": "Response rate: MAX 24H"
+  },
+  {
+    "k": "ReferralCenterPage.criteriaReviews",
+    "en": "Reviews: MIN 10"
+  },
+  {
+    "k": "ReferralCenterPage.criteriaSessions",
+    "en": "Completed sessions: MIN 20"
+  },
+  {
+    "k": "ReferralCenterPage.ctaLevels",
+    "en": "View Ambassador Levels"
+  },
+  {
+    "k": "ReferralCenterPage.ctaProgram",
+    "en": "Explore Ambassador Program"
+  },
+  {
+    "k": "ReferralCenterPage.ambassadorSince",
+    "en": "Since {date}"
+  },
+  {
+    "k": "ReferralCenterPage.currentTierLabel",
+    "en": "Current tier"
+  },
+  {
+    "k": "ReferralCenterPage.founderTierLabel",
+    "en": "Founder access"
+  },
+  {
+    "k": "ReferralCenterPage.founderTierName",
+    "en": "Founder"
+  },
+  {
+    "k": "ReferralCenterPage.founderAccessMessage",
+    "en": "Founder access — all ambassador rewards unlocked"
+  },
+  {
+    "k": "ReferralCenterPage.statusFounderAccess",
+    "en": "Founder · all rewards active"
+  },
+  {
+    "k": "ReferralCenterPage.founderRewardsUnlockedLead",
+    "en": "You earn {percent} on every referred coach booking — Founder tier (Diamond) commission is active."
+  },
+  {
+    "k": "ReferralCenterPage.founderLevelTitle",
+    "en": "Ambassador progression"
+  },
+  {
+    "k": "ReferralCenterPage.founderLevelComplete",
+    "en": "Founder accounts have all ambassador tiers unlocked. You already earn the maximum referral commission."
+  },
+  {
+    "k": "ReferralCenterPage.tierProgressAria",
+    "en": "Progress toward {tier}"
+  },
+  {
+    "k": "ReferralCenterPage.tierProgressUntilNext",
+    "en": "{count, plural, =0 {Ready to advance to {tier}} one {# referral until {tier}} other {# referrals until {tier}}}"
+  },
+  {
+    "k": "ReferralCenterPage.emptyBody",
+    "en": "Share your referral code to start growing your PeakUp network."
+  },
+  {
+    "k": "ReferralCenterPage.emptyCtaCopyLink",
+    "en": "Copy referral link"
+  },
+  {
+    "k": "ReferralCenterPage.emptyTitle",
+    "en": "No referred coaches yet."
+  },
+  {
+    "k": "ReferralCenterPage.eyebrow",
+    "en": "Ambassador network"
+  },
+  {
+    "k": "ReferralCenterPage.inactiveBody",
+    "en": "Activate your Ambassador status to unlock your referral code, track invited coaches, and monitor reward progression."
+  },
+  {
+    "k": "ReferralCenterPage.inactiveTitle",
+    "en": "Ambassador access required"
+  },
+  {
+    "k": "ReferralCenterPage.lead",
+    "en": "Track your referral code, invited coaches, onboarding status, active referrals, and ambassador rewards progression."
+  },
+  {
+    "k": "ReferralCenterPage.linkLabel",
+    "en": "Referral link"
+  },
+  {
+    "k": "ReferralCenterPage.loginBody",
+    "en": "Sign in to access your Ambassador Referral Center."
+  },
+  {
+    "k": "ReferralCenterPage.loginCta",
+    "en": "Log in"
+  },
+  {
+    "k": "ReferralCenterPage.nextLevelBody",
+    "en": "Progress through referrals, coaching quality, and community impact to unlock the next tier."
+  },
+  {
+    "k": "ReferralCenterPage.nextLevelCurrent",
+    "en": "Current"
+  },
+  {
+    "k": "ReferralCenterPage.nextLevelMaxBody",
+    "en": "You are at the highest Ambassador tier. Keep leading the community and maximizing your referral impact."
+  },
+  {
+    "k": "ReferralCenterPage.nextLevelNext",
+    "en": "Next"
+  },
+  {
+    "k": "ReferralCenterPage.nextLevelTitle",
+    "en": "Next level"
+  },
+  {
+    "k": "ReferralCenterPage.nextTierCommission",
+    "en": "Next tier commission: {percent} on {tier} referrals"
+  },
+  {
+    "k": "ReferralCenterPage.nextTierReq2",
+    "en": "Maintain 90%+ response rate and zero cancellations"
+  },
+  {
+    "k": "ReferralCenterPage.nextTierReq3",
+    "en": "Complete profile quality requirements"
+  },
+  {
+    "k": "ReferralCenterPage.referralCodeHint",
+    "en": "Share your code when inviting coaches to join PeakUp."
+  },
+  {
+    "k": "ReferralCenterPage.referralsCount",
+    "en": "{count, plural, one {# referral} other {# referrals}}"
+  },
+  {
+    "k": "ReferralCenterPage.referralsTitle",
+    "en": "Referred coaches"
+  },
+  {
+    "k": "ReferralCenterPage.progressCancellations",
+    "en": "Coach cancellations"
+  },
+  {
+    "k": "ReferralCenterPage.progressCancellationsTarget",
+    "en": "Max 0"
+  },
+  {
+    "k": "ReferralCenterPage.progressProfile",
+    "en": "Profile quality"
+  },
+  {
+    "k": "ReferralCenterPage.progressProfileTarget",
+    "en": "100% complete"
+  },
+  {
+    "k": "ReferralCenterPage.progressReferrals",
+    "en": "Referrals"
+  },
+  {
+    "k": "ReferralCenterPage.progressReferralsTarget",
+    "en": "Min. 5 coaches"
+  },
+  {
+    "k": "ReferralCenterPage.progressResponse",
+    "en": "Response rate"
+  },
+  {
+    "k": "ReferralCenterPage.progressResponseTarget",
+    "en": "Within 24 hours"
+  },
+  {
+    "k": "ReferralCenterPage.progressReviews",
+    "en": "Reviews"
+  },
+  {
+    "k": "ReferralCenterPage.progressReviewsTarget",
+    "en": "Min. 10 reviews"
+  },
+  {
+    "k": "ReferralCenterPage.progressSessions",
+    "en": "Completed sessions"
+  },
+  {
+    "k": "ReferralCenterPage.progressSessionsTarget",
+    "en": "Min. 20 sessions"
+  },
+  {
+    "k": "ReferralCenterPage.rewardsLockedChip",
+    "en": "Rewards locked"
+  },
+  {
+    "k": "ReferralCenterPage.rewardsLockedLead",
+    "en": "Bronze rewards are locked until you complete the Bronze criteria."
+  },
+  {
+    "k": "ReferralCenterPage.rewardsUnlockedChip",
+    "en": "Bronze rewards active"
+  },
+  {
+    "k": "ReferralCenterPage.rewardsUnlockedLead",
+    "en": "Bronze rewards active — 2% referral commission."
+  },
+  {
+    "k": "ReferralCenterPage.schemaDescription",
+    "en": "Track invited coaches, referral codes, onboarding progress, and ambassador rewards on PeakUp."
+  },
+  {
+    "k": "ReferralCenterPage.schemaTitle",
+    "en": "Referral Center | {marketplaceName}"
+  },
+  {
+    "k": "ReferralCenterPage.statActive",
+    "en": "Active referred coaches"
+  },
+  {
+    "k": "ReferralCenterPage.statEstimatedRewards",
+    "en": "Estimated rewards"
+  },
+  {
+    "k": "ReferralCenterPage.statRealEarnings",
+    "en": "Real earnings"
+  },
+  {
+    "k": "ReferralCenterPage.statLockedRewards",
+    "en": "Locked rewards"
+  },
+  {
+    "k": "ReferralCenterPage.lockedRewardsSubtitle",
+    "en": "Unlock Bronze to activate payouts"
+  },
+  {
+    "k": "ReferralCenterPage.lockedRewardsNote",
+    "en": "Completed referral bookings can accrue rewards before Bronze unlock. Locked amounts move to real earnings once Bronze rewards are active."
+  },
+  {
+    "k": "ReferralCenterPage.statInvited",
+    "en": "Invited coaches"
+  },
+  {
+    "k": "ReferralCenterPage.statPending",
+    "en": "Pending onboarding"
+  },
+  {
+    "k": "ReferralCenterPage.statsAria",
+    "en": "Referral statistics"
+  },
+  {
+    "k": "ReferralCenterPage.statusActive",
+    "en": "Active"
+  }
+]

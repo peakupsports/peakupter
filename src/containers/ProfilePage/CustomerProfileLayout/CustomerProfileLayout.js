@@ -13,7 +13,6 @@ import PeakUpCustomerCard from '../../../components/PeakUpCustomerCard/PeakUpCus
 import layoutSideNavCss from '../../../components/LayoutComposer/LayoutSideNavigation/LayoutSideNavigation.module.css';
 import TopbarContainer from '../../TopbarContainer/TopbarContainer';
 import FooterContainer from '../../FooterContainer/FooterContainer';
-import ProfilePageSportBarTopbar from '../ProfilePageSportBarTopbar';
 import CustomerProfileMain from '../CustomerProfileMain/CustomerProfileMain';
 import css from './CustomerProfileLayout.module.css';
 
@@ -57,7 +56,7 @@ const CustomerProfileLayout = props => {
       )}
       sideNavClassName={css.asideCustomerProfile}
       mainColumnClassName={css.mainCustomerProfile}
-      topbar={<TopbarContainer topbarCenterContent={<ProfilePageSportBarTopbar />} />}
+      topbar={<TopbarContainer />}
       sideNav={
         <>
           {displayName ? (

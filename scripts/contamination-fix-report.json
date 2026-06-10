@@ -1,0 +1,55 @@
+{
+  "summary": "Locale contamination fix complete. IT has zero strong French fragments; PT has zero strong Spanish-only fragments. Inbox product label preserved in all locales.",
+  "it": {
+    "stringsCorrectedFromFrDonor": 1352,
+    "stringsCorrectedLastRun": 20,
+    "equalsDonorRemaining": 121,
+    "equalsDonorTrivial": 115,
+    "remainingSuspectedFrench": 0,
+    "prioritySuspected": 10,
+    "fallbackEn": 991,
+    "totalKeys": 3486
+  },
+  "pt": {
+    "stringsCorrectedFromEsDonor": 1768,
+    "stringsCorrectedLastRun": 0,
+    "equalsDonorRemaining": 145,
+    "equalsDonorCognateWithEs": true,
+    "remainingSuspectedSpanish": 0,
+    "prioritySuspected": 34,
+    "fallbackEn": 449,
+    "totalKeys": 3486
+  },
+  "inbox": {
+    "de": "Inbox (11 keys updated in prior run)",
+    "fr": "Inbox (11 keys updated in prior run)",
+    "es": "Inbox (11 keys updated in prior run)",
+    "it": "Inbox",
+    "pt": "Inbox"
+  },
+  "filesChanged": [
+    "src/translations/it.json",
+    "src/translations/pt.json",
+    "src/translations/de.json",
+    "src/translations/fr.json",
+    "src/translations/es.json",
+    "scripts/fixLocaleContamination.js",
+    "scripts/lib/priorityItFixes.js",
+    "scripts/lib/priorityPtFixes.js",
+    "scripts/lib/inboxLabelOverrides.js",
+    "scripts/completeAllTranslations.js",
+    "scripts/fixSameAsEnglish.js",
+    "scripts/contamination-fix-report.json"
+  ],
+  "tests": {
+    "peakupLocale": "pass",
+    "mergeIntlMessages": "pass",
+    "total": "11/11"
+  },
+  "notes": [
+    "121 IT keys still identical to FR are mostly brands, ICU templates, or symbols (Coach, PeakUp, Inbox, {time} · {customer} · {status}).",
+    "145 PT keys identical to ES are mostly valid PT-PT cognates (Continuar, Cliente, Estado, Eventos) — not Spanish contamination.",
+    "991 IT and 449 PT keys fall back to English where no verified native translation exists; mergeIntlMessages still prefers local when present.",
+    "completeAllTranslations.js and fixSameAsEnglish.js are guarded — require ALLOW_CONTAMINATED_REBUILD=1."
+  ]
+}

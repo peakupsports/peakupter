@@ -1,0 +1,4356 @@
+{
+  "AddTeamCoachModal.addCoach": {
+    "de": "Ausbilder hinzufügen",
+    "fr": "coach.create.header.title",
+    "es": "Agregar Entrenador",
+    "it": "Add coach",
+    "pt": "Add coach"
+  },
+  "AddTeamCoachModal.alreadyInTeam": {
+    "de": "Bereits im Team",
+    "fr": "Déjà dans l'équipe",
+    "es": "Ya está en el equipo",
+    "it": "Already in team",
+    "pt": "Already in team"
+  },
+  "AddTeamCoachModal.close": {
+    "de": "Schließen",
+    "fr": "Fermer",
+    "es": "Cercano",
+    "it": "Close",
+    "pt": "Close"
+  },
+  "AddTeamCoachModal.emailLabel": {
+    "de": "E-Mail-Adresse anzeigen",
+    "fr": "Adresse e-mail du coach :",
+    "es": "Dirección de correo electrónico del coach",
+    "it": "Coach email address",
+    "pt": "Coach email address"
+  },
+  "AddTeamCoachModal.emailPlaceholder": {
+    "de": "coach@example.com",
+    "fr": "coach@example.com",
+    "es": "coach@example.com",
+    "it": "coach@example.com",
+    "pt": "coach@example.com"
+  },
+  "AddTeamCoachModal.eyebrow": {
+    "de": "Team-Coaches",
+    "fr": "Coaches d’équipe",
+    "es": "Entrenadores de equipo",
+    "it": "Team coaches",
+    "pt": "Team coaches"
+  },
+  "AddTeamCoachModal.invitationPending": {
+    "de": "Einladung ausstehend",
+    "fr": "Invitation en attente",
+    "es": "Invitación pendiente",
+    "it": "Invitation pending",
+    "pt": "Invitation pending"
+  },
+  "AddTeamCoachModal.invitationSent": {
+    "de": "Einladung versendet",
+    "fr": "L'invitation envoyée.",
+    "es": "Invitación enviada",
+    "it": "Invitation sent ✓",
+    "pt": "Invitation sent ✓"
+  },
+  "AddTeamCoachModal.invite": {
+    "de": "Einladung senden",
+    "fr": "Envoyer l'invitation",
+    "es": "Enviar invitación",
+    "it": "Send invitation",
+    "pt": "Send invitation"
+  },
+  "AddTeamCoachModal.inviteAgain": {
+    "de": "Wieder einladen",
+    "fr": "Inviter à nouveau",
+    "es": "Invitar otra vez",
+    "it": "Invite again",
+    "pt": "Invite again"
+  },
+  "AddTeamCoachModal.inviteCoach": {
+    "de": "Trainer einladen",
+    "fr": "Inviter un entraîneur",
+    "es": "Invitar al entrenador",
+    "it": "Invite coach",
+    "pt": "Invite coach"
+  },
+  "AddTeamCoachModal.inviteFailed": {
+    "de": "Einladung konnte nicht gesendet werden.",
+    "fr": "Impossible d'envoyer l'invitation.",
+    "es": "No se ha podido enviar la invitación.",
+    "it": "Could not send invitation.",
+    "pt": "Could not send invitation."
+  },
+  "AddTeamCoachModal.lead": {
+    "de": "Suche nach einem unabhängigen PeakUp Reisebus. Sie erhalten eine Einladung und können annehmen oder ablehnen — keine verschachtelten Konten, kein HR-Admin-Panel.",
+    "fr": "Recherchez un coach PeakUp indépendant. Ils recevront une invitation et peuvent accepter ou refuser — pas de comptes imbriqués, pas de panneau d'administration des RH.",
+    "es": "Busca un entrenador PeakUp independiente. Recibirán una invitación y podrán aceptarla o rechazarla: sin cuentas anidadas, sin panel de administración de RR. HH.",
+    "it": "Search for an independent PeakUp coach. They'll receive an invitation and can accept or decline — no nested accounts, no HR admin panel.",
+    "pt": "Search for an independent PeakUp coach. They'll receive an invitation and can accept or decline — no nested accounts, no HR admin panel."
+  },
+  "AddTeamCoachModal.noResults": {
+    "de": "Kein passender PeakUp -Bus gefunden. Stelle sicher, dass der Bus bereits ein PeakUp Busprofil hat.",
+    "fr": "Aucun coach PeakUp correspondant trouvé. Assurez-vous que le coach a déjà un profil de coach PeakUp.",
+    "es": "No se ha encontrado ningún entrenador__ BR0 __ que coincida. Asegúrate de que el entrenador ya tenga un perfil de entrenador __ BR0 __.",
+    "it": "No matching PeakUp coach found. Make sure the coach already has a PeakUp coach profile.",
+    "pt": "No matching PeakUp coach found. Make sure the coach already has a PeakUp coach profile."
+  },
+  "AddTeamCoachModal.notVerifiedHint": {
+    "de": "Dieser Coach muss die PeakUp Verifizierung abschließen, bevor er einer Crew beitritt.",
+    "fr": "Cet autocar doit effectuer la vérification PeakUp avant de rejoindre une équipe.",
+    "es": "Este entrenador debe completar la verificación PeakUp antes de unirse a un equipo.",
+    "it": "This coach must complete PeakUp verification before joining a crew.",
+    "pt": "This coach must complete PeakUp verification before joining a crew."
+  },
+  "AddTeamCoachModal.profileLabel": {
+    "de": "Profil-URL, Benutzername oder Name",
+    "fr": "URL, nom d'utilisateur ou nom du profil",
+    "es": "URL del perfil, nombre de usuario o nombre",
+    "it": "Profile URL, username, or name",
+    "pt": "Profile URL, username, or name"
+  },
+  "AddTeamCoachModal.profilePlaceholder": {
+    "de": "z.B. /u/coach-id oder Marco Rossi",
+    "fr": "par exemple /u/coach-id ou Marco Rossi",
+    "es": "p. ej., __BR0 __ o Marco Rossi",
+    "it": "e.g. /u/coach-id or Marco Rossi",
+    "pt": "e.g. /u/coach-id or Marco Rossi"
+  },
+  "AddTeamCoachModal.resultsLabel": {
+    "de": "Passende Coaches",
+    "fr": "Entraîneurs correspondants",
+    "es": "Entrenadores coincidentes",
+    "it": "Matching coaches",
+    "pt": "Matching coaches"
+  },
+  "AddTeamCoachModal.search": {
+    "de": "Suche",
+    "fr": "Recherche",
+    "es": "Buscar",
+    "it": "Search",
+    "pt": "Search"
+  },
+  "AddTeamCoachModal.searchFailed": {
+    "de": "Die Suche ist fehlgeschlagen. Versuchen Sie es erneut.",
+    "fr": "Échec de la recherche, veuillez réessayer.",
+    "es": "Error en la búsqueda. Inténtalo de nuevo.",
+    "it": "Search failed. Try again.",
+    "pt": "Search failed. Try again."
+  },
+  "AddTeamCoachModal.searchRequired": {
+    "de": "Geben Sie eine E-Mail-Adresse oder ein Profil ein, um zu suchen.",
+    "fr": "Saisissez une adresse e-mail ou un profil à rechercher.",
+    "es": "Introduzca un correo electrónico o perfil para buscar.",
+    "it": "Enter an email or profile to search.",
+    "pt": "Enter an email or profile to search."
+  },
+  "AddTeamCoachModal.sendingInvitation": {
+    "de": "Einladung senden",
+    "fr": "Envoi de l'invitation...",
+    "es": "Enviando invitación",
+    "it": "Sending invitation…",
+    "pt": "Sending invitation…"
+  },
+  "AddTeamCoachModal.tabEmail": {
+    "de": "Coach-E-Mail",
+    "fr": "Email du coach",
+    "es": "Correo electrónico del entrenador",
+    "it": "Coach email",
+    "pt": "Coach email"
+  },
+  "AddTeamCoachModal.tabProfile": {
+    "de": "Benutzername / Profil",
+    "fr": "Nom d'utilisateur / profil",
+    "es": "Nombre de usuario / perfil",
+    "it": "Username / profile",
+    "pt": "Username / profile"
+  },
+  "AddTeamCoachModal.tabsLabel": {
+    "de": "Reisebus finden mit",
+    "fr": "Trouver un coach par",
+    "es": "Encontrar entrenador por",
+    "it": "Find coach by",
+    "pt": "Find coach by"
+  },
+  "AddTeamCoachModal.title": {
+    "de": "Einen Coach hinzufügen",
+    "fr": "coach.button.create",
+    "es": "Añadir un entrenador",
+    "it": "Add a coach",
+    "pt": "Add a coach"
+  },
+  "AdminAmbassadorsPage.colActiveReferrals": {
+    "de": "Aktive Empfehlungen",
+    "fr": "Recommandations actives",
+    "es": "Recomendaciones activas",
+    "it": "Active referrals",
+    "pt": "Active referrals"
+  },
+  "AdminAmbassadorsPage.colTotalRewards": {
+    "de": "Lebenslange Belohnungen",
+    "fr": "Récompenses à vie",
+    "es": "Recompensas de por vida",
+    "it": "Lifetime rewards",
+    "pt": "Lifetime rewards"
+  },
+  "AdminAmbassadorsPage.summaryAmbassadors": {
+    "de": "Botschafter",
+    "fr": "Ambassadeurs",
+    "es": "Embajadores",
+    "it": "Ambassadors",
+    "pt": "Ambassadors"
+  },
+  "AdminAmbassadorsPage.summaryPayouts": {
+    "de": "Auszahlungen an Markenbotschafter: innen insgesamt",
+    "fr": "Total des versements ambassadeurs",
+    "es": "Pagos totales de los embajadores",
+    "it": "Total ambassador payouts",
+    "pt": "Total ambassador payouts"
+  },
+  "AdminAmbassadorsPage.summaryPending": {
+    "de": "Ausstehende Verifizierungen",
+    "fr": "Vérifications en attente",
+    "es": "Verificaciones pendientes",
+    "it": "Pending verifications",
+    "pt": "Pending verifications"
+  },
+  "AdminAmbassadorsPage.summaryReferrals": {
+    "de": "Gesamte Emfehlungen",
+    "fr": "Total des cas référés",
+    "es": "Comisiones totales",
+    "it": "Total referrals",
+    "pt": "Total referrals"
+  },
+  "AdminAmbassadorsPage.summarySuspicious": {
+    "de": "Markierte Anwendungen",
+    "fr": "Applications marquées",
+    "es": "Aplicaciones marcadas",
+    "it": "Flagged applications",
+    "pt": "Flagged applications"
+  },
+  "AdminTeamApplicationsPage.actionApprove": {
+    "de": "Genehmigen",
+    "fr": "Approuver",
+    "es": "Aprobado",
+    "it": "Approve",
+    "pt": "Approve"
+  },
+  "AdminTeamApplicationsPage.actionReject": {
+    "de": "Ablehnen",
+    "fr": "Rejeter",
+    "es": "Rechazar",
+    "it": "Reject",
+    "pt": "Reject"
+  },
+  "AdminTeamApplicationsPage.colActions": {
+    "de": "Aktionen",
+    "fr": "Actions",
+    "es": "Acciones",
+    "it": "Actions",
+    "pt": "Actions"
+  },
+  "AdminTeamApplicationsPage.colEmail": {
+    "de": "E-Mail",
+    "fr": "E-mail",
+    "es": "Correo electrónico",
+    "it": "Email",
+    "pt": "Email"
+  },
+  "AdminTeamApplicationsPage.colLocation": {
+    "de": "Standort",
+    "fr": "Lieudit",
+    "es": "Ubicación",
+    "it": "Location",
+    "pt": "Location"
+  },
+  "AdminTeamApplicationsPage.colSport": {
+    "de": "Sport",
+    "fr": "Sport",
+    "es": "Deporte",
+    "it": "Sport",
+    "pt": "Sport"
+  },
+  "AdminTeamApplicationsPage.colStatus": {
+    "de": "Status",
+    "fr": "Situation",
+    "es": "Prueba de traducción",
+    "it": "Status",
+    "pt": "Status"
+  },
+  "AdminTeamApplicationsPage.colSubmitted": {
+    "de": "Eingereicht",
+    "fr": "Partagées",
+    "es": "Enviado",
+    "it": "Submitted",
+    "pt": "Submitted"
+  },
+  "AdminTeamApplicationsPage.colTeam": {
+    "de": "Team",
+    "fr": "Équipe",
+    "es": "El equipo",
+    "it": "Team",
+    "pt": "Team"
+  },
+  "AdminTeamApplicationsPage.count": {
+    "de": "{count, plural, =0 {No applications} one {# application} other {# applications}}",
+    "fr": "{count, plural, =0 {No applications} one {# application} other {# applications}}",
+    "es": "{count, plural, =0 {No applications} one {# application} other {# applications}}",
+    "it": "{count, plural, =0 {No applications} one {# application} other {# applications}}",
+    "pt": "{count, plural, =0 {No applications} one {# application} other {# applications}}"
+  },
+  "AdminTeamApplicationsPage.empty": {
+    "de": "Noch keine Teambewerbungen. Die Einreichungen erscheinen hier, nachdem sich die Coaches bei /team-application beworben haben.",
+    "fr": "Aucune candidature d'équipe pour le moment. Les soumissions apparaissent ici après que les entraîneurs aient postulé à /team-application.",
+    "es": "Todavía no hay solicitudes de equipo. Las presentaciones aparecen aquí después de que los entrenadores se postulen en /team-application.",
+    "it": "No team applications yet. Submissions appear here after coaches apply at /team-application.",
+    "pt": "No team applications yet. Submissions appear here after coaches apply at /team-application."
+  },
+  "AdminTeamApplicationsPage.eyebrow": {
+    "de": "PeakUp HQ",
+    "fr": "PeakUp HQ",
+    "es": "PeakUp HQ",
+    "it": "PeakUp HQ",
+    "pt": "PeakUp HQ"
+  },
+  "AdminTeamApplicationsPage.gateHint": {
+    "de": "Geben Sie das Server-Admin-Token (COACH_APPLICATION_ADMIN_TOKEN) EIN oder melden Sie sich als HQ-Admin an.",
+    "fr": "Entrez le jeton d'administration du serveur (COACH_APPLICATION_ADMIN_TOKEN) ou connectez-vous en tant qu'administrateur HQ.",
+    "es": "Introduzca el token de administrador del servidor (COACH_APPLICATION_ADMIN_TOKEN) o inicie sesión como administrador de la sede.",
+    "it": "Enter the server admin token (COACH_APPLICATION_ADMIN_TOKEN) or sign in as an HQ admin.",
+    "pt": "Enter the server admin token (COACH_APPLICATION_ADMIN_TOKEN) or sign in as an HQ admin."
+  },
+  "AdminTeamApplicationsPage.gateInvalid": {
+    "de": "Ungültiges Admin-Token.",
+    "fr": "Jeton d'administrateur non valide.",
+    "es": "Token de administrador no válido.",
+    "it": "Invalid admin token.",
+    "pt": "Invalid admin token."
+  },
+  "AdminTeamApplicationsPage.gateLabel": {
+    "de": "Admin-Zugriffstoken",
+    "fr": "Jeton d'accès administrateur",
+    "es": "Token de acceso de administrador",
+    "it": "Admin access token",
+    "pt": "Admin access token"
+  },
+  "AdminTeamApplicationsPage.gateNotConfigured": {
+    "de": "Der Admin-Zugriff ist auf dem Server nicht konfiguriert.",
+    "fr": "L'accès administrateur n'est pas configuré sur le serveur.",
+    "es": "El acceso de administrador no está configurado en el servidor.",
+    "it": "Admin access is not configured on the server.",
+    "pt": "Admin access is not configured on the server."
+  },
+  "AdminTeamApplicationsPage.gatePlaceholder": {
+    "de": "Admin-Token einfügen",
+    "fr": "Coller le jeton d'administration",
+    "es": "Pegar token de administrador",
+    "it": "Paste admin token",
+    "pt": "Paste admin token"
+  },
+  "AdminTeamApplicationsPage.gateSubmit": {
+    "de": "Dashboard entsperren",
+    "fr": "Déverrouiller le tableau de bord",
+    "es": "Desbloquear tablero",
+    "it": "Unlock dashboard",
+    "pt": "Unlock dashboard"
+  },
+  "AdminTeamApplicationsPage.loadError": {
+    "de": "Teamanwendungen konnten nicht geladen werden.",
+    "fr": "Impossible de charger les applications d'équipe.",
+    "es": "No se han podido cargar las aplicaciones del equipo.",
+    "it": "Could not load team applications.",
+    "pt": "Could not load team applications."
+  },
+  "AdminTeamApplicationsPage.loading": {
+    "de": "Teamanwendungen werden geladen...",
+    "fr": "Chargement des applications de l'équipe…",
+    "es": "Cargando aplicaciones del equipo...",
+    "it": "Loading team applications…",
+    "pt": "Loading team applications…"
+  },
+  "AdminTeamApplicationsPage.refresh": {
+    "de": "Aktualisieren",
+    "fr": "Actualisez",
+    "es": "Actualizar",
+    "it": "Refresh",
+    "pt": "Refresh"
+  },
+  "AdminTeamApplicationsPage.schemaTitle": {
+    "de": "Teamanwendungen | {marketplaceName}",
+    "fr": "Applications d'équipe | {marketplaceName}",
+    "es": "Aplicaciones del equipo | {marketplaceName}",
+    "it": "Team applications | {marketplaceName}",
+    "pt": "Team applications | {marketplaceName}"
+  },
+  "AdminTeamApplicationsPage.subtitle": {
+    "de": "Überprüfen Sie die Bewerbungen von Teams und Vereinen vor der Verifizierung.",
+    "fr": "Examinez les demandes des équipes et des clubs avant la vérification.",
+    "es": "Revise las solicitudes del equipo y del club antes de la verificación.",
+    "it": "Review team and club applications before verification.",
+    "pt": "Review team and club applications before verification."
+  },
+  "AdminTeamApplicationsPage.title": {
+    "de": "Teamanwendungen",
+    "fr": "• Demandes des équipes",
+    "es": "Aplicaciones de equipo",
+    "it": "Team applications",
+    "pt": "Team applications"
+  },
+  "AdminTeamApplicationsPage.updateError": {
+    "de": "Status kann nicht aktualisiert werden",
+    "fr": "Impossible de mettre à jour le status",
+    "es": "No ha sido posible actualizar el estado del retiro",
+    "it": "Could not update application status.",
+    "pt": "Could not update application status."
+  },
+  "CoachCalendarPage.cancelEventButton": {
+    "de": "Termin absagen",
+    "fr": "Annuler l'événement",
+    "es": "Cancelar evento",
+    "it": "Cancel event",
+    "pt": "Cancel event"
+  },
+  "CoachCalendarPage.cancelEventColDates": {
+    "de": "Daten",
+    "fr": "Dates",
+    "es": "Fechas",
+    "it": "Dates",
+    "pt": "Dates"
+  },
+  "CoachCalendarPage.cancelEventColEvent": {
+    "de": "Ereignis",
+    "fr": "Evénement",
+    "es": "Evento",
+    "it": "Event",
+    "pt": "Event"
+  },
+  "CoachCalendarPage.cancelEventColParticipant": {
+    "de": "Teilnehmerin",
+    "fr": "Participant",
+    "es": "Participante",
+    "it": "Participant",
+    "pt": "Participant"
+  },
+  "CoachCalendarPage.cancelEventColStatus": {
+    "de": "Status",
+    "fr": "Situation",
+    "es": "Prueba de traducción",
+    "it": "Status",
+    "pt": "Status"
+  },
+  "CoachCalendarPage.cancelEventConfirmAction": {
+    "de": "Termin absagen",
+    "fr": "Annuler l'événement",
+    "es": "Cancelar evento",
+    "it": "Cancel event",
+    "pt": "Cancel event"
+  },
+  "CoachCalendarPage.cancelEventDescription": {
+    "de": "Dadurch wird die Registrierung des Teilnehmers storniert, alle anfallenden Rückerstattungen gemäß den Stornierungsbedingungen von PeakUp bearbeitet und der Teilnehmer per Nachricht und E-Mail benachrichtigt. Der Transaktionsverlauf und der Posteingangs-Thread werden beibehalten.",
+    "fr": "Cela annulera l'inscription du participant, traitera tout remboursement applicable conformément aux conditions d'annulation de PeakUp et l'en informera par message et par e-mail. L'historique des transactions et le fil de la boîte de réception seront conservés.",
+    "es": "Esto cancelará la inscripción del participante, procesará cualquier reembolso aplicable de acuerdo con la política de cancelación de __ BR0 __ y se lo notificará por mensaje y correo electrónico. Se mantendrá el historial de transacciones y el hilo de la bandeja de entrada.",
+    "it": "This will cancel the participant's registration, process any applicable refund according to PeakUp's cancellation policy, and notify them by message and email. The transaction history and inbox thread will be kept.",
+    "pt": "This will cancel the participant's registration, process any applicable refund according to PeakUp's cancellation policy, and notify them by message and email. The transaction history and inbox thread will be kept."
+  },
+  "CoachCalendarPage.cancelEventError": {
+    "de": "Diese Veranstaltung konnte nicht abgebrochen werden. Bitte versuche es erneut oder wende dich an den PeakUp -Support.",
+    "fr": "Impossible d'annuler cet événement. Veuillez réessayer ou contacter l'assistance PeakUp.",
+    "es": "No se ha podido cancelar este evento. Inténtalo de nuevo o ponte en contacto con el servicio de asistencia de __ BR0 __",
+    "it": "Could not cancel this event. Please try again or contact PeakUp support.",
+    "pt": "Could not cancel this event. Please try again or contact PeakUp support."
+  },
+  "CoachCalendarPage.cancelEventGoBack": {
+    "de": "gehe zurück",
+    "fr": "Retour",
+    "es": "Volver",
+    "it": "Go back",
+    "pt": "Go back"
+  },
+  "CoachCalendarPage.cancelEventInProgress": {
+    "de": "Event wird abgebrochen...",
+    "fr": "Annulation de l'événement...",
+    "es": "Cancelando evento...",
+    "it": "Cancelling event…",
+    "pt": "Cancelling event…"
+  },
+  "CoachCalendarPage.cancelEventReliabilityWarning": {
+    "de": "Häufige Stornierungen können sich auf den Zuverlässigkeitsstatus Ihres Trainers auswirken.",
+    "fr": "Les annulations fréquentes peuvent avoir une incidence sur le statut de fiabilité de votre autocar.",
+    "es": "Las cancelaciones frecuentes pueden afectar al estado de fiabilidad de tu autocar.",
+    "it": "Frequent cancellations may impact your coach reliability status.",
+    "pt": "Frequent cancellations may impact your coach reliability status."
+  },
+  "CoachCalendarPage.cancelEventTitle": {
+    "de": "Diesen Termin absagen",
+    "fr": "Annuler cet événement",
+    "es": "Cancelar este Evento",
+    "it": "Cancel this event?",
+    "pt": "Cancel this event?"
+  },
+  "CoachDashboardBookingsPage.backToDashboard": {
+    "de": "← Zurück zum Coach-Dashboard",
+    "fr": "<u>Retour à mon tableau de bord de Coach</u>",
+    "es": "← Volver al panel de control del entrenador",
+    "it": "← Back to coach dashboard",
+    "pt": "← Back to coach dashboard"
+  },
+  "CoachDashboardBookingsPage.eyebrow": {
+    "de": "Meine Buchungen",
+    "fr": "Mes réservations",
+    "es": "Mis reservas",
+    "it": "My bookings",
+    "pt": "My bookings"
+  },
+  "CoachDashboardBookingsPage.lead": {
+    "de": "Anstehende Sitzungen, offene Anfragen, Bewertungen und Verlauf für Ihr Coaching-Geschäft.",
+    "fr": "Sessions à venir, demandes ouvertes, commentaires et historique pour votre entreprise de coaching.",
+    "es": "Próximas sesiones, solicitudes abiertas, reseñas e historial para tu negocio de coaching.",
+    "it": "Upcoming sessions, open requests, reviews, and history for your coaching business.",
+    "pt": "Upcoming sessions, open requests, reviews, and history for your coaching business."
+  },
+  "CoachDashboardBookingsPage.schemaTitle": {
+    "de": "Meine Buchungen | {marketplaceName}",
+    "fr": "Mes réservations | {marketplaceName}",
+    "es": "Mis reservas | {marketplaceName}",
+    "it": "My bookings | {marketplaceName}",
+    "pt": "My bookings | {marketplaceName}"
+  },
+  "CoachDashboardBookingsPage.title": {
+    "de": "DASHBOARD",
+    "fr": "Tableau de bord réservation",
+    "es": "Bookinter  - Tablero de mandos",
+    "it": "Booking dashboard",
+    "pt": "Booking dashboard"
+  },
+  "CoachDashboardEventsPage.backToDashboard": {
+    "de": "← Zurück zum Coach-Dashboard",
+    "fr": "<u>Retour à mon tableau de bord de Coach</u>",
+    "es": "← Volver al panel de control del entrenador",
+    "it": "← Back to coach dashboard",
+    "pt": "← Back to coach dashboard"
+  },
+  "CoachDashboardEventsPage.eyebrow": {
+    "de": "Events",
+    "fr": "Événements",
+    "es": "Eventos",
+    "it": "Events",
+    "pt": "Events"
+  },
+  "CoachDashboardEventsPage.lead": {
+    "de": "Camps, Kliniken, Retreats und mehrtägige Einkaufserlebnisse.",
+    "fr": "Camps, cliniques, retraites et expériences d'achat de plusieurs jours.",
+    "es": "Campamentos, clínicas, retiros y experiencias de compra de varios días.",
+    "it": "Camps, clinics, retreats, and multi-day purchase experiences.",
+    "pt": "Camps, clinics, retreats, and multi-day purchase experiences."
+  },
+  "CoachDashboardEventsPage.schemaTitle": {
+    "de": "Events | {marketplaceName}",
+    "fr": "Événements | {marketplaceName}",
+    "es": "Eventos | {marketplaceName}",
+    "it": "Events | {marketplaceName}",
+    "pt": "Events | {marketplaceName}"
+  },
+  "CoachDashboardEventsPage.title": {
+    "de": "<bookmarkstart name=\"_Toc316384249\"/>Ereignis-Navigationsleiste<bookmarkend name=\"_Toc316384249\"/><cf fontcolour=\"0xa03070\"></cf>",
+    "fr": "Tableau de bord des Événements",
+    "es": "Panel de eventos",
+    "it": "Events dashboard",
+    "pt": "Events dashboard"
+  },
+  "CoachDashboardPage.cardBookingsHint": {
+    "de": "Einzelunterricht und Coaching-Sitzungen — bevorstehend, ausstehend und vergangen.",
+    "fr": "Cours particuliers et séances de coaching — à venir, en attente et passés.",
+    "es": "Clases privadas y sesiones de coaching: próximas, pendientes y pasadas.",
+    "it": "Private lessons and coaching sessions — upcoming, pending, and past.",
+    "pt": "Private lessons and coaching sessions — upcoming, pending, and past."
+  },
+  "CoachDashboardPage.cardBookingsOpen": {
+    "de": "open bookings",
+    "fr": "Réservations ouvertes",
+    "es": "Reservas abiertas",
+    "it": "Open bookings",
+    "pt": "Open bookings"
+  },
+  "CoachDashboardPage.cardBookingsSummaryPast": {
+    "de": "Vergangene Lektionen",
+    "fr": "Les leçons passées ",
+    "es": "Clases pasadas",
+    "it": "Past lessons",
+    "pt": "Past lessons"
+  },
+  "CoachDashboardPage.cardBookingsSummaryPending": {
+    "de": "Ausstehende Anfragen",
+    "fr": "Demande en attente",
+    "es": "Solicitudes pendientes",
+    "it": "Pending requests",
+    "pt": "Pending requests"
+  },
+  "CoachDashboardPage.cardBookingsSummaryUpcoming": {
+    "de": "Bevorstehende Unterrichtsstunden",
+    "fr": "Prochaines leçons",
+    "es": "Próximas clases",
+    "it": "Upcoming lessons",
+    "pt": "Upcoming lessons"
+  },
+  "CoachDashboardPage.cardBookingsTitle": {
+    "de": "Meine Buchungen",
+    "fr": "Mes réservations",
+    "es": "Mis reservas",
+    "it": "My bookings",
+    "pt": "My bookings"
+  },
+  "CoachDashboardPage.cardEventsHint": {
+    "de": "Camps, Kliniken, Retreats und mehrtägige Erlebnisse.",
+    "fr": "Camps, cliniques, retraites et expériences de plusieurs jours.",
+    "es": "Campamentos, clínicas, retiros y experiencias de varios días.",
+    "it": "Camps, clinics, retreats and multi-day experiences.",
+    "pt": "Camps, clinics, retreats and multi-day experiences."
+  },
+  "CoachDashboardPage.cardEventsOpen": {
+    "de": "Veranstaltungen",
+    "fr": " Evénements ouverts",
+    "es": "Ver siniestros",
+    "it": "Open events",
+    "pt": "Open events"
+  },
+  "CoachDashboardPage.cardEventsSummaryActive": {
+    "de": "Aktive Ereignisse",
+    "fr": "Événements actifs",
+    "es": "Eventos activos",
+    "it": "Active events",
+    "pt": "Active events"
+  },
+  "CoachDashboardPage.cardEventsSummaryAria": {
+    "de": "Ereigniszusammenfassung",
+    "fr": "Récapitulatif des événements",
+    "es": "Resumen de eventos",
+    "it": "Events summary",
+    "pt": "Events summary"
+  },
+  "CoachDashboardPage.cardEventsSummaryPast": {
+    "de": "Vergangene Veranstaltungen",
+    "fr": "Événements passés",
+    "es": "Acontecimientos pasados",
+    "it": "Past events",
+    "pt": "Past events"
+  },
+  "CoachDashboardPage.cardEventsSummaryUpcoming": {
+    "de": "Bevorstehende Events",
+    "fr": "Évènements à venir",
+    "es": "Próximos eventos",
+    "it": "Upcoming events",
+    "pt": "Upcoming events"
+  },
+  "CoachDashboardPage.cardEventsTitle": {
+    "de": "Events",
+    "fr": "Événements",
+    "es": "Eventos",
+    "it": "Events",
+    "pt": "Events"
+  },
+  "CoachDashboardPage.operationsAria": {
+    "de": "Buchungen und Verfügbarkeit",
+    "fr": "Réservation et disponibilité:",
+    "es": "Reservas y disponibilidad",
+    "it": "Bookings and availability",
+    "pt": "Bookings and availability"
+  },
+  "CoachDashboardPage.toolsAria": {
+    "de": "Coach-Profil und Inserate",
+    "fr": "Profil et annonces du coach",
+    "es": "Perfil y anuncios del entrenador",
+    "it": "Coach profile and listings",
+    "pt": "Coach profile and listings"
+  },
+  "CoachMapPage.coachesSection": {
+    "de": "Zertifizierte Coaches",
+    "fr": "COACHS CERTIFIÉS",
+    "es": "Entrenadores certificados.",
+    "it": "Coach certificati",
+    "pt": "Coaches certificados"
+  },
+  "CoachMapPage.entity.all": {
+    "de": "All",
+    "fr": "Tous",
+    "es": "Todos",
+    "it": "Tutti",
+    "pt": "Todos"
+  },
+  "CoachMapPage.entity.coaches": {
+    "de": "Coaches",
+    "fr": "Coaches",
+    "es": "Entrenadores",
+    "it": "Coach",
+    "pt": "Coaches"
+  },
+  "CoachMapPage.entity.teams": {
+    "de": "Teams",
+    "fr": "Teams",
+    "es": "Equipos",
+    "it": "Team",
+    "pt": "Equipas"
+  },
+  "CoachMapPage.teamsSection": {
+    "de": "Verifizierte Teams",
+    "fr": "Équipes vérifiées",
+    "es": "Equipos verificados",
+    "it": "Team verificati",
+    "pt": "Equipas verificadas"
+  },
+  "CustomerDashboardBookingsPage.backToDashboard": {
+    "de": "Zurück zu meiner Übersicht",
+    "fr": "Retour à Mon tableau de bord",
+    "es": "Volver a mi panel de control",
+    "it": "← Back to my dashboard",
+    "pt": "← Back to my dashboard"
+  },
+  "CustomerDashboardBookingsPage.eyebrow": {
+    "de": "Belegungslisten",
+    "fr": "Aperçu de la réservation",
+    "es": "Información general de la reserva",
+    "it": "Booking overview",
+    "pt": "Booking overview"
+  },
+  "CustomerDashboardBookingsPage.lead": {
+    "de": "Anstehende Sitzungen, offene Anfragen, Bewertungen und dein Buchungsverlauf.",
+    "fr": "Sessions à venir, demandes ouvertes, commentaires et historique de vos réservations.",
+    "es": "Próximas sesiones, solicitudes abiertas, evaluaciones y tu historial de reservas.",
+    "it": "Upcoming sessions, open requests, reviews, and your booking history.",
+    "pt": "Upcoming sessions, open requests, reviews, and your booking history."
+  },
+  "CustomerDashboardBookingsPage.schemaTitle": {
+    "de": "Buchungsübersicht | {marketplaceName}",
+    "fr": "Aperçu de la réservation | {marketplaceName}",
+    "es": "Resumen de la reserva | {marketplaceName}",
+    "it": "Booking overview | {marketplaceName}",
+    "pt": "Booking overview | {marketplaceName}"
+  },
+  "CustomerDashboardBookingsPage.title": {
+    "de": "DASHBOARD",
+    "fr": "Tableau de bord réservation",
+    "es": "Bookinter  - Tablero de mandos",
+    "it": "Booking dashboard",
+    "pt": "Booking dashboard"
+  },
+  "CustomerDashboardPage.cardBookingsHint": {
+    "de": "Überblick über Ihre Coaching-Sitzungen und Anfragen.",
+    "fr": "Aperçu de vos séances de coaching et de vos demandes.",
+    "es": "Descripción general de sus sesiones y solicitudes de coaching.",
+    "it": "Overview of your coaching sessions and requests.",
+    "pt": "Overview of your coaching sessions and requests."
+  },
+  "CustomerDashboardPage.cardBookingsTitle": {
+    "de": "Belegungslisten",
+    "fr": "Aperçu de la réservation",
+    "es": "Información general de la reserva",
+    "it": "Booking overview",
+    "pt": "Booking overview"
+  },
+  "CustomerDashboardPage.cardInboxHint": {
+    "de": "Gesprächsfäden mit Coaches.",
+    "fr": "Discussions avec les coachs.",
+    "es": "Hilos de conversación con coaches.",
+    "it": "Conversation threads with coaches.",
+    "pt": "Conversation threads with coaches."
+  },
+  "CustomerDashboardPage.cardInboxTitle": {
+    "de": "Nachrichten",
+    "fr": "Messages",
+    "es": "Mensajes",
+    "it": "Messages",
+    "pt": "Messages"
+  },
+  "CustomerDashboardPage.cardOpen": {
+    "de": "Öffnen",
+    "fr": "Ouvrir",
+    "es": "Abierto",
+    "it": "Open",
+    "pt": "Open"
+  },
+  "CustomerDashboardPage.cardProfileHint": {
+    "de": "Aktualisieren Sie Ihr Kundenprofil.",
+    "fr": "Mettez à jour votre profil client.",
+    "es": "Actualiza tu perfil de cliente.",
+    "it": "Update your client profile.",
+    "pt": "Update your client profile."
+  },
+  "CustomerDashboardPage.cardProfileTitle": {
+    "de": "Profileinstellungen",
+    "fr": "Paramètres de profil",
+    "es": "Ajustes del perfil",
+    "it": "Profile settings",
+    "pt": "Profile settings"
+  },
+  "CustomerDashboardPage.eyebrow": {
+    "de": "Debitoren Schnellauskunft",
+    "fr": "Tableau de bord client",
+    "es": "Panel de cliente",
+    "it": "Customer dashboard",
+    "pt": "Customer dashboard"
+  },
+  "CustomerDashboardPage.heroLead": {
+    "de": "Ihre Buchungen und Aktivitäten — getrennt von Inbox-Nachrichten.",
+    "fr": "Vos réservations et votre activité — séparées des messages de la boîte de réception.",
+    "es": "Tus reservas y actividad, aparte de los mensajes de la Bandeja de entrada.",
+    "it": "Your bookings and activity — separate from Inbox messages.",
+    "pt": "Your bookings and activity — separate from Inbox messages."
+  },
+  "CustomerDashboardPage.heroNameFallback": {
+    "de": "Sportler",
+    "fr": "Athlète",
+    "es": "Deportista",
+    "it": "Athlete",
+    "pt": "Athlete"
+  },
+  "CustomerDashboardPage.heroTitlePrefix": {
+    "de": "Willkommen zurück",
+    "fr": "Bienvenue,",
+    "es": "Bienvenido/a de nuevo,",
+    "it": "Welcome back,",
+    "pt": "Welcome back,"
+  },
+  "CustomerDashboardPage.schemaTitle": {
+    "de": "Mein Dashboard | {marketplaceName}",
+    "fr": "Mon tableau de bord | {marketplaceName}",
+    "es": "Mi panel de control | {marketplaceName}",
+    "it": "My dashboard | {marketplaceName}",
+    "pt": "My dashboard | {marketplaceName}"
+  },
+  "EditListingBookingPreferencesForm.bookingConfirmationMode.instant": {
+    "de": "Sofortbuchung",
+    "fr": "Réservation immédiate",
+    "es": "Reserva instantanea",
+    "it": "Instant booking",
+    "pt": "Instant booking"
+  },
+  "EditListingBookingPreferencesForm.bookingConfirmationMode.instantHelp": {
+    "de": "Kunden können ohne manuelle Genehmigung sofort buchen und bezahlen.",
+    "fr": "Les clients peuvent réserver et payer immédiatement sans approbation manuelle.",
+    "es": "Los clientes pueden reservar y pagar inmediatamente sin aprobación manual.",
+    "it": "Customers can book and pay immediately without manual approval.",
+    "pt": "Customers can book and pay immediately without manual approval."
+  },
+  "EditListingBookingPreferencesForm.bookingConfirmationMode.request": {
+    "de": "Bitte um Buchung",
+    "fr": "Demande de réservation",
+    "es": "Solicitar reserva",
+    "it": "Request to book",
+    "pt": "Request to book"
+  },
+  "EditListingBookingPreferencesForm.bookingConfirmationMode.requestHelp": {
+    "de": "Kunden senden zuerst eine Anfrage. Du bestätigst oder lehnst manuell ab, bevor die Buchung bestätigt wird.",
+    "fr": "Les clients envoient d'abord une demande. Vous acceptez ou refusez manuellement avant que la réservation ne soit confirmée.",
+    "es": "Los clientes envían una solicitud primero. Aceptas o rechazas la reserva manualmente antes de que se confirme.",
+    "it": "Customers send a request first. You manually accept or decline before the booking is confirmed.",
+    "pt": "Customers send a request first. You manually accept or decline before the booking is confirmed."
+  },
+  "EditListingBookingPreferencesForm.bookingConfirmationMode.title": {
+    "de": "Buchungsbestätigung",
+    "fr": "Confirmation de réservation",
+    "es": "Confirmación de reserva",
+    "it": "Booking confirmation mode",
+    "pt": "Booking confirmation mode"
+  },
+  "EditListingBookingPreferencesForm.minimumAdvanceNotice.12h": {
+    "de": "12 Std.",
+    "fr": "12 heures",
+    "es": "12 horas",
+    "it": "12 hours",
+    "pt": "12 hours"
+  },
+  "EditListingBookingPreferencesForm.minimumAdvanceNotice.24h": {
+    "de": "24 Stunden",
+    "fr": "24 hours",
+    "es": "24 horas",
+    "it": "24 hours",
+    "pt": "24 hours"
+  },
+  "EditListingBookingPreferencesForm.minimumAdvanceNotice.2h": {
+    "de": "2 Stunden",
+    "fr": "2 heures",
+    "es": "2 horas",
+    "it": "2 hours",
+    "pt": "2 hours"
+  },
+  "EditListingBookingPreferencesForm.minimumAdvanceNotice.30m": {
+    "de": "30 Minuten",
+    "fr": "30 minutes",
+    "es": "30 minutos",
+    "it": "30 minutes",
+    "pt": "30 minutes"
+  },
+  "EditListingBookingPreferencesForm.minimumAdvanceNotice.48h": {
+    "de": "48h",
+    "fr": "48&#160;heures",
+    "es": "48 horas",
+    "it": "48 hours",
+    "pt": "48 hours"
+  },
+  "EditListingBookingPreferencesForm.minimumAdvanceNotice.72h": {
+    "de": "72h",
+    "fr": "72 heures",
+    "es": "72 horas",
+    "it": "72 hours",
+    "pt": "72 hours"
+  },
+  "EditListingBookingPreferencesForm.minimumAdvanceNotice.7d": {
+    "de": "7 Tage",
+    "fr": "7&#160;jours",
+    "es": "7 días",
+    "it": "7 days",
+    "pt": "7 days"
+  },
+  "EditListingBookingPreferencesForm.minimumAdvanceNotice.help": {
+    "de": "Wählen Sie aus, wie viel Vorlauf Sie benötigen, bevor ein Kunde diesen Service buchen kann.",
+    "fr": "Choisissez le préavis dont vous avez besoin avant qu'un client puisse réserver ce service.",
+    "es": "Elige cuánto tiempo de antelación necesitas antes de que un cliente pueda reservar este servicio.",
+    "it": "Choose how much notice you need before a customer can book this service.",
+    "pt": "Choose how much notice you need before a customer can book this service."
+  },
+  "EditListingBookingPreferencesForm.minimumAdvanceNotice.title": {
+    "de": "MindestVorPau",
+    "fr": "Préavis minimum",
+    "es": "Aviso previo mínimo",
+    "it": "Minimum advance notice",
+    "pt": "Minimum advance notice"
+  },
+  "EditListingBookingPreferencesForm.minimumAdvanceNotice.warning": {
+    "de": "Längere Kündigungsfristen können die Anzahl der Buchungen verringern.",
+    "fr": "Des délais de préavis plus longs peuvent réduire le nombre de réservations.",
+    "es": "Los periodos de preaviso más largos pueden reducir el número de reservas.",
+    "it": "Longer notice periods may reduce the number of bookings.",
+    "pt": "Longer notice periods may reduce the number of bookings."
+  },
+  "EditListingBookingPreferencesForm.updateFailed": {
+    "de": "Inserat konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+    "fr": "Échec de la mise à jour, veuillez réessayer",
+    "es": "No se ha podido actualizar el anuncio. Inténtalo de nuevo.",
+    "it": "Failed to update listing. Please try again.",
+    "pt": "Failed to update listing. Please try again."
+  },
+  "EditListingBookingPreferencesPanel.createListingTitle": {
+    "de": "Buchungspräferenzen",
+    "fr": "Préférences de réservation",
+    "es": "Preferencias de reserva",
+    "it": "Booking Preferences",
+    "pt": "Booking Preferences"
+  },
+  "EditListingBookingPreferencesPanel.title": {
+    "de": "Bearbeite die Buchungseinstellungen von {listingTitle}",
+    "fr": "Modifier les préférences de réservation de {listingTitle}",
+    "es": "Edita las preferencias de reserva de {listingTitle}",
+    "it": "Edit the booking preferences of {listingTitle}",
+    "pt": "Edit the booking preferences of {listingTitle}"
+  },
+  "EditListingDetailsForm.experienceEndDateBeforeStart": {
+    "de": "Enddatum muss nach dem Startdatum liegen",
+    "fr": "La date de fin doit survenir en même temps ou après la date de début.",
+    "es": "La fecha de finalización debe ser posterior a la fecha de inicio",
+    "it": "End date must be on or after the start date.",
+    "pt": "End date must be on or after the start date."
+  },
+  "EditListingDetailsForm.experienceEndDateLabel": {
+    "de": "Enddatum der Entdeckung",
+    "fr": "Expérience : Date de fin",
+    "es": "Finalización de la experiencia",
+    "it": "Experience end date",
+    "pt": "Experience end date"
+  },
+  "EditListingDetailsForm.experienceEndDateRequired": {
+    "de": "Fügen Sie das Enddatum der Entdeckung hinzu.",
+    "fr": "Ajoutez la date de fin de l'expérience.",
+    "es": "Añade la fecha de finalización de la experiencia.",
+    "it": "Add the experience end date.",
+    "pt": "Add the experience end date."
+  },
+  "EditListingDetailsForm.experienceStartDateLabel": {
+    "de": "Startdatum der Entdeckung",
+    "fr": "Expérience : date de début",
+    "es": "Inicio de la experiencia",
+    "it": "Experience start date",
+    "pt": "Experience start date"
+  },
+  "EditListingDetailsForm.experienceStartDateRequired": {
+    "de": "Füge das Startdatum der Entdeckung hinzu.",
+    "fr": "Ajoutez la date de début de l'expérience.",
+    "es": "Añade la fecha de inicio de la experiencia.",
+    "it": "Add the experience start date.",
+    "pt": "Add the experience start date."
+  },
+  "EditListingWizard.default-booking.new.saveBookingPreferences": {
+    "de": "Weiter",
+    "fr": "Suivant",
+    "es": "Siguiente",
+    "it": "Next",
+    "pt": "Next"
+  },
+  "EditListingWizard.edit.saveBookingPreferences": {
+    "de": "Änderungen speichern",
+    "fr": "Sauvegarder les modifications",
+    "es": "Guardar cambios",
+    "it": "Save changes",
+    "pt": "Save changes"
+  },
+  "EditListingWizard.tabLabelBookingPreferences": {
+    "de": "Buchungspräferenzen",
+    "fr": "Préférences de réservation",
+    "es": "Preferencias de reserva",
+    "it": "Booking Preferences",
+    "pt": "Booking Preferences"
+  },
+  "InboxPage.default-purchase-day.canceled.status": {
+    "de": "Abgebrochen",
+    "fr": "Annulé",
+    "es": "Cancelado",
+    "it": "Canceled",
+    "pt": "Canceled"
+  },
+  "InboxPage.default-purchase-day.completed.status": {
+    "de": "Abgeschlossen – wartet auf Überprüfung",
+    "fr": "Terminé – en attente d'examen",
+    "es": "Completado – esperando revisión",
+    "it": "Completed – waiting for review",
+    "pt": "Completed – waiting for review"
+  },
+  "InboxPage.default-purchase-day.delivered.status": {
+    "de": "{transactionRole, select, customer {Mark experience as completed} other {Upcoming booking}}",
+    "fr": "{transactionRole, select, customer {Mark experience as completed} other {Upcoming booking}}",
+    "es": "{transactionRole, select, customer {Mark experience as completed} other {Upcoming booking}}",
+    "it": "{transactionRole, select, customer {Mark experience as completed} other {Upcoming booking}}",
+    "pt": "{transactionRole, select, customer {Mark experience as completed} other {Upcoming booking}}"
+  },
+  "InboxPage.default-purchase-day.disputed.status": {
+    "de": "Disputed",
+    "fr": "Contesté",
+    "es": "Debatido",
+    "it": "Disputed",
+    "pt": "Disputed"
+  },
+  "InboxPage.default-purchase-day.inquiry.status": {
+    "de": "Anfrage",
+    "fr": "Enquête",
+    "es": "Consultar",
+    "it": "Inquiry",
+    "pt": "Inquiry"
+  },
+  "InboxPage.default-purchase-day.payment-expired.status": {
+    "de": "Zahlung abgelaufen",
+    "fr": "Paiement expiré",
+    "es": "Pago expirado",
+    "it": "Payment expired",
+    "pt": "Payment expired"
+  },
+  "InboxPage.default-purchase-day.pending-payment.status": {
+    "de": "Ausstehende Zahlung",
+    "fr": "En attente de paiement",
+    "es": "Pendiente de pago",
+    "it": "Pending payment",
+    "pt": "Pending payment"
+  },
+  "InboxPage.default-purchase-day.purchased.status": {
+    "de": "Buchung bestätigt",
+    "fr": "Réservation confirmée",
+    "es": "Reservación confirmada",
+    "it": "Booking confirmed",
+    "pt": "Booking confirmed"
+  },
+  "InboxPage.default-purchase-day.received.status": {
+    "de": "Abgeschlossen – wartet auf Überprüfung",
+    "fr": "Terminé – en attente d'examen",
+    "es": "Completado – esperando revisión",
+    "it": "Completed – waiting for review",
+    "pt": "Completed – waiting for review"
+  },
+  "InboxPage.default-purchase-day.reviewed-by-customer.status": {
+    "de": "{transactionRole, select, customer {Waiting for coach review} other {Waiting for your review}}",
+    "fr": "{transactionRole, select, customer {Waiting for coach review} other {Waiting for your review}}",
+    "es": "{transactionRole, select, customer {Waiting for coach review} other {Waiting for your review}}",
+    "it": "{transactionRole, select, customer {Waiting for coach review} other {Waiting for your review}}",
+    "pt": "{transactionRole, select, customer {Waiting for coach review} other {Waiting for your review}}"
+  },
+  "InboxPage.default-purchase-day.reviewed-by-provider.status": {
+    "de": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}",
+    "fr": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}",
+    "es": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}",
+    "it": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}",
+    "pt": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}"
+  },
+  "InboxPage.default-purchase-day.reviewed.status": {
+    "de": "Abgeschlossen",
+    "fr": "Terminé",
+    "es": "Completado",
+    "it": "Completed",
+    "pt": "Completed"
+  },
+  "LandingHeroSection.currentLocationDenied": {
+    "de": "Standortberechtigung wurde verweigert. Erlaube den Standortzugriff oder gib deinen Standort ein.",
+    "fr": "L'autorisation de localisation a été refusée. Autorisez l'accès à l'emplacement ou tapez votre emplacement.",
+    "es": "Se ha denegado el permiso de ubicación. Permita el acceso a la ubicación o escriba su ubicación.",
+    "it": "Location permission was denied. Allow location access or type your location.",
+    "pt": "Location permission was denied. Allow location access or type your location."
+  },
+  "LandingHeroSection.currentLocationHttpsRequired": {
+    "de": "Der aktuelle Standort ist nur am HTTPS verfügbar. Bitte geben Sie Ihren Standort ein.",
+    "fr": "L'emplacement actuel n'est disponible que sur HTTPS. Veuillez saisir votre emplacement.",
+    "es": "La ubicación actual solo está disponible en HTTPS. Escribe tu ubicación.",
+    "it": "Current location is only available on HTTPS. Please type your location.",
+    "pt": "Current location is only available on HTTPS. Please type your location."
+  },
+  "LandingHeroSection.currentLocationUnavailable": {
+    "de": "Der aktuelle Standort ist derzeit nicht verfügbar. Bitte geben Sie Ihren Standort ein.",
+    "fr": "La position actuelle n'est pas disponible pour le moment. Veuillez saisir votre emplacement.",
+    "es": "La ubicación actual no está disponible en este momento. Escribe tu ubicación.",
+    "it": "Current location is unavailable right now. Please type your location.",
+    "pt": "Current location is unavailable right now. Please type your location."
+  },
+  "LandingHeroSection.locationPredictionsUnavailable": {
+    "de": "Standortvorschläge nicht verfügbar. Versuchen Sie es erneut.",
+    "fr": "Suggestions de localisation indisponibles. Réessayez.",
+    "es": "Sugerencias de ubicación no disponibles. Inténtalo de nuevo.",
+    "it": "Location suggestions unavailable. Try again.",
+    "pt": "Location suggestions unavailable. Try again."
+  },
+  "LandingHeroSection.locationSearchError": {
+    "de": "Dieser Ort konnte nicht gefunden werden. Versuche es mit einer anderen Schreibweise oder verwende den aktuellen Ort.",
+    "fr": "Impossible de trouver cet emplacement. Essayez une autre orthographe ou utilisez la position actuelle.",
+    "es": "No se ha podido encontrar esa ubicación. Pruebe con otra ortografía o use la ubicación actual.",
+    "it": "Could not find that location. Try another spelling or use current location.",
+    "pt": "Could not find that location. Try another spelling or use current location."
+  },
+  "LandingHeroSection.locationSelectHint": {
+    "de": "Bitte wählen Sie einen Standort aus der Dropdown-Liste.",
+    "fr": "Veuillez sélectionner un emplacement dans la liste déroulante.",
+    "es": "Selecciona una ubicación de la lista.",
+    "it": "Please select a location from the list.",
+    "pt": "Please select a location from the list."
+  },
+  "LanguageSelector.label": {
+    "de": "Sprache",
+    "fr": "Langue",
+    "es": "Idioma",
+    "it": "Language",
+    "pt": "Language"
+  },
+  "LanguageSelector.option.de": {
+    "de": "Deutsch",
+    "fr": "Allemand",
+    "es": "Deutsch",
+    "it": "Deutsch",
+    "pt": "Deutsch"
+  },
+  "LanguageSelector.option.en": {
+    "de": "Englisch",
+    "fr": "Anglais",
+    "es": "Inglés",
+    "it": "English",
+    "pt": "English"
+  },
+  "LanguageSelector.option.es": {
+    "de": "Español",
+    "fr": "İspanyolca",
+    "es": "Español",
+    "it": "Español",
+    "pt": "Español"
+  },
+  "LanguageSelector.option.fr": {
+    "de": "Français",
+    "fr": "Français",
+    "es": "Français",
+    "it": "Français",
+    "pt": "Français"
+  },
+  "LanguageSelector.option.it": {
+    "de": "Italiano",
+    "fr": "İtalyanca",
+    "es": "Italiano",
+    "it": "Italiano",
+    "pt": "Italiano"
+  },
+  "LanguageSelector.option.pt": {
+    "de": "Português",
+    "fr": "Portekizce",
+    "es": "Português",
+    "it": "Português",
+    "pt": "Português"
+  },
+  "ManageListingCard.previewListingLink": {
+    "de": "Vorschau des Inserats ansehen",
+    "fr": "Prévisualiser l'annonce",
+    "es": "Vista previa del anuncio",
+    "it": "Preview the listing",
+    "pt": "Preview the listing"
+  },
+  "ManageListingCard.screenreader.editListing": {
+    "de": "Inserat {title} bearbeiten",
+    "fr": "Modifier l'annonce {title}",
+    "es": "Editar anuncio {title}",
+    "it": "Edit listing {title}",
+    "pt": "Edit listing {title}"
+  },
+  "ManageListingCard.screenreader.manageAvailability": {
+    "de": "Verwalten der Verfügbarkeit von {title}",
+    "fr": "Gérer la disponibilité de {title}",
+    "es": "Gestiona la disponibilidad de {title}",
+    "it": "Manage availability of {title}",
+    "pt": "Manage availability of {title}"
+  },
+  "ManageListingCard.screenreader.manageStock": {
+    "de": "Lagerbestand von {title} verwalten (aktueller Lagerbestand: {currentStock})",
+    "fr": "Gérer le stock de {title} (stock actuel : {currentStock})",
+    "es": "Gestionar existencias de {title} (existencias actuales: {currentStock})",
+    "it": "Manage stock of {title} (current stock: {currentStock})",
+    "pt": "Manage stock of {title} (current stock: {currentStock})"
+  },
+  "ManageListingCard.screenreader.previewListing": {
+    "de": "Vorschau des Inserats {title}",
+    "fr": "Aperçu de l'annonce {title}",
+    "es": "Vista previa del anuncio {title}",
+    "it": "Preview listing {title}",
+    "pt": "Preview listing {title}"
+  },
+  "ManageListingCard.screenreader.setPriceAndStock": {
+    "de": "Lagerbestand zu {title} hinzufügen",
+    "fr": "Ajouter du stock à {title}",
+    "es": "Añadir existencias a {title}",
+    "it": "Add stock to {title}",
+    "pt": "Add stock to {title}"
+  },
+  "ManageListingCard.screenreader.viewListing": {
+    "de": "Inserat {title} ansehen",
+    "fr": "Voir l'annonce {title}",
+    "es": "Ver anuncio {title}",
+    "it": "View listing {title}",
+    "pt": "View listing {title}"
+  },
+  "PartnerDashboardPage.cardCoachHubHint": {
+    "de": "Buchungen, Kalender und Inserate.",
+    "fr": "Réservations, calendrier et annonces.",
+    "es": "Reservas, calendario y anuncios.",
+    "it": "Bookings, calendar, and listings.",
+    "pt": "Bookings, calendar, and listings."
+  },
+  "PartnerDashboardPage.cardCoachHubTitle": {
+    "de": "Bus-Hub",
+    "fr": "Pôle coach",
+    "es": "Coach Hub",
+    "it": "Coach hub",
+    "pt": "Coach hub"
+  },
+  "PartnerDashboardPage.cardOpen": {
+    "de": "Öffnen",
+    "fr": "Ouvrir",
+    "es": "Abierto",
+    "it": "Open",
+    "pt": "Open"
+  },
+  "PartnerDashboardPage.cardPerformanceHint": {
+    "de": "Statistiken zu Leads und Markenbotschaftern.",
+    "fr": "Statistiques des prospects et des ambassadeurs.",
+    "es": "Estadísticas de clientes potenciales y embajadores.",
+    "it": "Leads and ambassador stats.",
+    "pt": "Leads and ambassador stats."
+  },
+  "PartnerDashboardPage.cardPerformanceTitle": {
+    "de": "Empfehlungsleistung",
+    "fr": "Performance du parrainage",
+    "es": "Rendimiento de los referidos",
+    "it": "Referral performance",
+    "pt": "Referral performance"
+  },
+  "PartnerDashboardPage.comingSoon": {
+    "de": "Verknüpfte Angebote, Lead-Routing und detaillierte Partneranalysen folgen in Kürze.",
+    "fr": "Les offres liées, le routage des prospects et les analyses détaillées des partenaires arrivent bientôt.",
+    "es": "Las ofertas vinculadas, el enrutamiento de clientes potenciales y los análisis detallados de los socios llegarán pronto.",
+    "it": "Linked offers, lead routing, and detailed partner analytics are coming soon.",
+    "pt": "Linked offers, lead routing, and detailed partner analytics are coming soon."
+  },
+  "PartnerDashboardPage.eyebrow": {
+    "de": "Partner Dashboard",
+    "fr": "Tableau de bord des partenaires",
+    "es": "Tablero de asocios",
+    "it": "Partner dashboard",
+    "pt": "Partner dashboard"
+  },
+  "PartnerDashboardPage.heroLead": {
+    "de": "Partnerschaftsstatus, Sichtbarkeit und Leistungsübersicht.",
+    "fr": "Statut du partenariat, visibilité et aperçu des performances.",
+    "es": "Descripción general del estado, la visibilidad y el rendimiento de la asociación.",
+    "it": "Partnership status, visibility, and performance overview.",
+    "pt": "Partnership status, visibility, and performance overview."
+  },
+  "PartnerDashboardPage.heroNameFallback": {
+    "de": "Partner",
+    "fr": "Partenaire",
+    "es": "Socio",
+    "it": "Partner",
+    "pt": "Partner"
+  },
+  "PartnerDashboardPage.heroTitlePrefix": {
+    "de": "Willkommen zurück",
+    "fr": "Bienvenue,",
+    "es": "Bienvenido/a de nuevo,",
+    "it": "Welcome back,",
+    "pt": "Welcome back,"
+  },
+  "PartnerDashboardPage.levelLabel": {
+    "de": "Stufe",
+    "fr": "Niveau",
+    "es": "Nivel",
+    "it": "Level",
+    "pt": "Level"
+  },
+  "PartnerDashboardPage.schemaTitle": {
+    "de": "Partner-Dashboard | {marketplaceName}",
+    "fr": "Tableau de bord partenaire | {marketplaceName}",
+    "es": "Panel de control del socio | {marketplaceName}",
+    "it": "Partner dashboard | {marketplaceName}",
+    "pt": "Partner dashboard | {marketplaceName}"
+  },
+  "PartnerDashboardPage.statusLabel": {
+    "de": "Partnerschaft",
+    "fr": "Partenariat",
+    "es": "<bpt i=\"1\" x=\"0\" type=\"14\" />Asociación<ept i=\"1\" /><bpt i=\"2\" x=\"0\" type=\"15\" />.<ept i=\"2\" />",
+    "it": "Partnership",
+    "pt": "Partnership"
+  },
+  "PartnerDashboardPage.visibilityLabel": {
+    "de": "Sichtbarkeit",
+    "fr": "Visibilité",
+    "es": "Visibilidad",
+    "it": "Visibility",
+    "pt": "Visibility"
+  },
+  "PeakUpBookingDashboard.error": {
+    "de": "Ihre Buchungen konnten nicht geladen werden.",
+    "fr": "Impossible de charger vos réservations.",
+    "es": "No se pudieron cargar sus reservas.",
+    "it": "Could not load bookings.",
+    "pt": "Could not load bookings."
+  },
+  "PeakUpBookingDashboard.intro": {
+    "de": "Ihre operative Buchungsübersicht. Öffne eine Buchung, um Details zu erhalten, oder gehe zum Posteingang, um Nachrichten zu erhalten.",
+    "fr": "Aperçu de votre réservation opérationnelle. Ouvrez une réservation pour plus de détails ou accédez à la boîte de réception pour recevoir des messages.",
+    "es": "Tu resumen operativo de reservas. Abre una reserva para obtener más información o ve a la Bandeja de entrada para recibir mensajes.",
+    "it": "Your operational booking overview. Open a booking for details or jump to Inbox for messages.",
+    "pt": "Your operational booking overview. Open a booking for details or jump to Inbox for messages."
+  },
+  "PeakUpBookingDashboard.loading": {
+    "de": "Buchungen werden geladen",
+    "fr": "Chargement de vos réservations",
+    "es": "Cargando reservas...",
+    "it": "Loading bookings…",
+    "pt": "Loading bookings…"
+  },
+  "PeakUpBookingDashboard.openBooking": {
+    "de": "Offene Buchung",
+    "fr": "Nouvelle réservation",
+    "es": "Reserva abierta",
+    "it": "Open booking",
+    "pt": "Open booking"
+  },
+  "PeakUpBookingDashboard.openInbox": {
+    "de": "Posteingangs-Thread öffnen",
+    "fr": "Ouvrir le fil de la boîte de réception",
+    "es": "Abrir hilo de la bandeja de entrada",
+    "it": "Open inbox thread",
+    "pt": "Open inbox thread"
+  },
+  "PeakUpBookingDashboard.sectionCanceled": {
+    "de": "Abgesagte Unterrichtsstunden",
+    "fr": "Cours annulés",
+    "es": "Clases canceladas",
+    "it": "Canceled lessons",
+    "pt": "Canceled lessons"
+  },
+  "PeakUpBookingDashboard.sectionCanceledEvents": {
+    "de": "Stornierte Events Tag",
+    "fr": "Masquer les événements annulés",
+    "es": "Etiqueta Eventos Cancelados",
+    "it": "Canceled events",
+    "pt": "Canceled events"
+  },
+  "PeakUpBookingDashboard.sectionEmpty": {
+    "de": "Nichts in diesem Abschnitt im Moment.",
+    "fr": "Rien dans cette section pour le moment.",
+    "es": "Nada en esta sección en este momento.",
+    "it": "Nothing in this section right now.",
+    "pt": "Nothing in this section right now."
+  },
+  "PeakUpBookingDashboard.sectionEventReview": {
+    "de": "Ereignisse warten auf Überprüfung",
+    "fr": "Événements en attente d'examen",
+    "es": "Eventos en espera de revisión",
+    "it": "Events waiting for review",
+    "pt": "Events waiting for review"
+  },
+  "PeakUpBookingDashboard.sectionLessonsUpcoming": {
+    "de": "Anstehende Lektionen & Sitzungen",
+    "fr": "Cours et sessions à venir",
+    "es": "Próximas lecciones y sesiones",
+    "it": "Upcoming lessons & sessions",
+    "pt": "Upcoming lessons & sessions"
+  },
+  "PeakUpBookingDashboard.sectionMultiDayExperiences": {
+    "de": "Anstehende & aktive Veranstaltungen",
+    "fr": "Événements à venir et actifs",
+    "es": "Próximos y activos eventos",
+    "it": "Upcoming & active events",
+    "pt": "Upcoming & active events"
+  },
+  "PeakUpBookingDashboard.sectionPast": {
+    "de": "Vergangene Lektionen",
+    "fr": "Les leçons passées ",
+    "es": "Clases pasadas",
+    "it": "Past lessons",
+    "pt": "Past lessons"
+  },
+  "PeakUpBookingDashboard.sectionPastEvents": {
+    "de": "Vergangene Veranstaltungen",
+    "fr": "Événements passés",
+    "es": "Acontecimientos pasados",
+    "it": "Past events",
+    "pt": "Past events"
+  },
+  "PeakUpBookingDashboard.sectionPending": {
+    "de": "Offene Unterrichtsanfragen",
+    "fr": "Ouvrir les demandes de leçon",
+    "es": "Abrir solicitudes de lección",
+    "it": "Open lesson requests",
+    "pt": "Open lesson requests"
+  },
+  "PeakUpBookingDashboard.sectionReview": {
+    "de": "Lektionen warten auf Überprüfung",
+    "fr": "Leçons en attente d'examen",
+    "es": "Lecciones en espera de revisión",
+    "it": "Lessons waiting for review",
+    "pt": "Lessons waiting for review"
+  },
+  "PeakUpBookingDashboard.sectionUpcoming": {
+    "de": "Anstehende Lektionen & Sitzungen",
+    "fr": "Cours et sessions à venir",
+    "es": "Próximas lecciones y sesiones",
+    "it": "Upcoming lessons & sessions",
+    "pt": "Upcoming lessons & sessions"
+  },
+  "PeakUpBookingDashboard.sectionUpcomingEvents": {
+    "de": "Anstehende & aktive Veranstaltungen",
+    "fr": "Événements à venir et actifs",
+    "es": "Próximos y activos eventos",
+    "it": "Upcoming & active events",
+    "pt": "Upcoming & active events"
+  },
+  "PeakUpBookingDashboard.summaryAria": {
+    "de": "Buchungszusammenfassung",
+    "fr": "Récapitulatif de la réservation",
+    "es": "Resumen de la reserva",
+    "it": "Booking summary",
+    "pt": "Booking summary"
+  },
+  "PeakUpBookingDashboard.summaryPast": {
+    "de": "Vergangenheit",
+    "fr": "Passé ",
+    "es": "Atrasadas",
+    "it": "Past",
+    "pt": "Past"
+  },
+  "PeakUpBookingDashboard.summaryPending": {
+    "de": "Ausstehend",
+    "fr": "En attente",
+    "es": "Pendiente",
+    "it": "Pending",
+    "pt": "Pending"
+  },
+  "PeakUpBookingDashboard.summaryUpcoming": {
+    "de": "anstehend",
+    "fr": "À venir",
+    "es": "Próximos",
+    "it": "Upcoming",
+    "pt": "Upcoming"
+  },
+  "PeakUpHq.nav.group.core": {
+    "de": "Nutzerverwaltung",
+    "fr": "Gestion des utilisateurs",
+    "es": "Gestión de usuarios",
+    "it": "User management",
+    "pt": "User management"
+  },
+  "PeakUpHq.nav.group.platform": {
+    "de": "Plattform",
+    "fr": "Plateforme",
+    "es": "Platforma",
+    "it": "Platform",
+    "pt": "Platform"
+  },
+  "PeakUpHq.nav.group.workflows": {
+    "de": "Anwendungen/Programme",
+    "fr": "Applications et programmes",
+    "es": "Aplicaciones y programas",
+    "it": "Applications & programs",
+    "pt": "Applications & programs"
+  },
+  "PeakUpHq.section.customerManagement.description": {
+    "de": "Vollständiges Kundenverzeichnis — Suche, Segmente, Buchungen und Aktivitäten.",
+    "fr": "Répertoire complet des clients — recherche, segments, réservations et activité.",
+    "es": "Directorio completo de clientes: búsqueda, segmentos, reservas y actividad.",
+    "it": "Full customer directory — search, segments, bookings, and activity.",
+    "pt": "Full customer directory — search, segments, bookings, and activity."
+  },
+  "PeakUpHq.section.customerManagement.title": {
+    "de": "Kundenmanagement",
+    "fr": "Gestion de la clientèle",
+    "es": "Customer Management",
+    "it": "Customer Management",
+    "pt": "Customer Management"
+  },
+  "PeakUpHq.section.teamApplications.description": {
+    "de": "Review and approve verified team / club applications.",
+    "fr": "Review and approve verified team / club applications.",
+    "es": "Review and approve verified team / club applications.",
+    "it": "Review and approve verified team / club applications.",
+    "pt": "Review and approve verified team / club applications."
+  },
+  "PeakUpHq.section.teamApplications.title": {
+    "de": "Teamanwendungen",
+    "fr": "• Demandes des équipes",
+    "es": "Aplicaciones de equipo",
+    "it": "Team applications",
+    "pt": "Team applications"
+  },
+  "PeakUpHq.section.teamManagement.description": {
+    "de": "Team directory — applications, rosters, invitations, and partner priority.",
+    "fr": "Team directory — applications, rosters, invitations, and partner priority.",
+    "es": "Team directory — applications, rosters, invitations, and partner priority.",
+    "it": "Team directory — applications, rosters, invitations, and partner priority.",
+    "pt": "Team directory — applications, rosters, invitations, and partner priority."
+  },
+  "PeakUpHq.section.teamManagement.title": {
+    "de": "Team Management",
+    "fr": "Team Management",
+    "es": "Team Management",
+    "it": "Team Management",
+    "pt": "Team Management"
+  },
+  "PeakUpHqCoachManagement.actionApprove": {
+    "de": "Genehmigen",
+    "fr": "Approuver",
+    "es": "Aprobado",
+    "it": "Approve",
+    "pt": "Approve"
+  },
+  "PeakUpHqCoachManagement.actionRequestMoreInfo": {
+    "de": "Request more info",
+    "fr": "Request more info",
+    "es": "Request more info",
+    "it": "Request more info",
+    "pt": "Request more info"
+  },
+  "PeakUpHqCoachManagement.actionViewApplication": {
+    "de": "View application",
+    "fr": "View application",
+    "es": "View application",
+    "it": "View application",
+    "pt": "View application"
+  },
+  "PeakUpHqCoachManagement.actionViewApplicationsList": {
+    "de": "Applications",
+    "fr": "Applications",
+    "es": "Applications",
+    "it": "Applications",
+    "pt": "Applications"
+  },
+  "PeakUpHqCoachManagement.assignPartner": {
+    "de": "Save partner priority",
+    "fr": "Save partner priority",
+    "es": "Save partner priority",
+    "it": "Save partner priority",
+    "pt": "Save partner priority"
+  },
+  "PeakUpHqCoachManagement.clearPartner": {
+    "de": "Clear partner priority",
+    "fr": "Clear partner priority",
+    "es": "Clear partner priority",
+    "it": "Clear partner priority",
+    "pt": "Clear partner priority"
+  },
+  "PeakUpHqCoachManagement.colActions": {
+    "de": "Aktionen",
+    "fr": "Actions",
+    "es": "Acciones",
+    "it": "Actions",
+    "pt": "Actions"
+  },
+  "PeakUpHqCoachManagement.colCoach": {
+    "de": "Coach",
+    "fr": "Coach",
+    "es": "Coach",
+    "it": "Coach",
+    "pt": "Coach"
+  },
+  "PeakUpHqCoachManagement.colEmail": {
+    "de": "E-Mail",
+    "fr": "E-mail",
+    "es": "Correo electrónico",
+    "it": "Email",
+    "pt": "Email"
+  },
+  "PeakUpHqCoachManagement.colLocation": {
+    "de": "Standort",
+    "fr": "Lieudit",
+    "es": "Ubicación",
+    "it": "Location",
+    "pt": "Location"
+  },
+  "PeakUpHqCoachManagement.colSport": {
+    "de": "Sports",
+    "fr": "Sports",
+    "es": "Sports",
+    "it": "Sports",
+    "pt": "Sports"
+  },
+  "PeakUpHqCoachManagement.colStatus": {
+    "de": "Status",
+    "fr": "Situation",
+    "es": "Prueba de traducción",
+    "it": "Status",
+    "pt": "Status"
+  },
+  "PeakUpHqCoachManagement.colSubmitted": {
+    "de": "Eingereicht",
+    "fr": "Partagées",
+    "es": "Enviado",
+    "it": "Submitted",
+    "pt": "Submitted"
+  },
+  "PeakUpHqCoachManagement.colVerification": {
+    "de": "Verification",
+    "fr": "Verification",
+    "es": "Verification",
+    "it": "Verification",
+    "pt": "Verification"
+  },
+  "PeakUpHqCoachManagement.count": {
+    "de": "{count, plural, one {# verified} other {# verified}} · {future, plural, one {# pending} other {# pending}} · {partners, plural, one {# partner} other {# partners}}",
+    "fr": "{count, plural, one {# verified} other {# verified}} · {future, plural, one {# pending} other {# pending}} · {partners, plural, one {# partner} other {# partners}}",
+    "es": "{count, plural, one {# verified} other {# verified}} · {future, plural, one {# pending} other {# pending}} · {partners, plural, one {# partner} other {# partners}}",
+    "it": "{count, plural, one {# verified} other {# verified}} · {future, plural, one {# pending} other {# pending}} · {partners, plural, one {# partner} other {# partners}}",
+    "pt": "{count, plural, one {# verified} other {# verified}} · {future, plural, one {# pending} other {# pending}} · {partners, plural, one {# partner} other {# partners}}"
+  },
+  "PeakUpHqCoachManagement.directorySubtitle": {
+    "de": "Browse verified coaches. Consumer ranking stays automatic on public pages.",
+    "fr": "Browse verified coaches. Consumer ranking stays automatic on public pages.",
+    "es": "Browse verified coaches. Consumer ranking stays automatic on public pages.",
+    "it": "Browse verified coaches. Consumer ranking stays automatic on public pages.",
+    "pt": "Browse verified coaches. Consumer ranking stays automatic on public pages."
+  },
+  "PeakUpHqCoachManagement.directoryTitle": {
+    "de": "Verified coaches",
+    "fr": "Verified coaches",
+    "es": "Verified coaches",
+    "it": "Verified coaches",
+    "pt": "Verified coaches"
+  },
+  "PeakUpHqCoachManagement.empty": {
+    "de": "No verified coaches match your filters.",
+    "fr": "No verified coaches match your filters.",
+    "es": "No verified coaches match your filters.",
+    "it": "No verified coaches match your filters.",
+    "pt": "No verified coaches match your filters."
+  },
+  "PeakUpHqCoachManagement.eyebrow": {
+    "de": "Coach administration",
+    "fr": "Coach administration",
+    "es": "Coach administration",
+    "it": "Coach administration",
+    "pt": "Coach administration"
+  },
+  "PeakUpHqCoachManagement.filterAll": {
+    "de": "All",
+    "fr": "Tous",
+    "es": "Todos",
+    "it": "All",
+    "pt": "All"
+  },
+  "PeakUpHqCoachManagement.filterCountry": {
+    "de": "Country",
+    "fr": "Country",
+    "es": "Country",
+    "it": "Country",
+    "pt": "Country"
+  },
+  "PeakUpHqCoachManagement.filterSport": {
+    "de": "Sport",
+    "fr": "Sport",
+    "es": "Deporte",
+    "it": "Sport",
+    "pt": "Sport"
+  },
+  "PeakUpHqCoachManagement.filterTier": {
+    "de": "Tier",
+    "fr": "Tier",
+    "es": "Tier",
+    "it": "Tier",
+    "pt": "Tier"
+  },
+  "PeakUpHqCoachManagement.filterViewLabel": {
+    "de": "View",
+    "fr": "View",
+    "es": "View",
+    "it": "View",
+    "pt": "View"
+  },
+  "PeakUpHqCoachManagement.futureApproveError": {
+    "de": "Could not approve coach.",
+    "fr": "Could not approve coach.",
+    "es": "Could not approve coach.",
+    "it": "Could not approve coach.",
+    "pt": "Could not approve coach."
+  },
+  "PeakUpHqCoachManagement.futureEmpty": {
+    "de": "No pending applications or unverified coach profiles match your filters.",
+    "fr": "No pending applications or unverified coach profiles match your filters.",
+    "es": "No pending applications or unverified coach profiles match your filters.",
+    "it": "No pending applications or unverified coach profiles match your filters.",
+    "pt": "No pending applications or unverified coach profiles match your filters."
+  },
+  "PeakUpHqCoachManagement.futureNeedInfoError": {
+    "de": "Status kann nicht aktualisiert werden",
+    "fr": "Impossible de mettre à jour le status",
+    "es": "No ha sido posible actualizar el estado del retiro",
+    "it": "Could not update application status.",
+    "pt": "Could not update application status."
+  },
+  "PeakUpHqCoachManagement.futureStatus.applicationNeedMoreInfo": {
+    "de": "Need more info",
+    "fr": "Need more info",
+    "es": "Need more info",
+    "it": "Need more info",
+    "pt": "Need more info"
+  },
+  "PeakUpHqCoachManagement.futureStatus.applicationPending": {
+    "de": "Pending application",
+    "fr": "Pending application",
+    "es": "Pending application",
+    "it": "Pending application",
+    "pt": "Pending application"
+  },
+  "PeakUpHqCoachManagement.futureStatus.draftProfile": {
+    "de": "Draft profile",
+    "fr": "Draft profile",
+    "es": "Draft profile",
+    "it": "Draft profile",
+    "pt": "Draft profile"
+  },
+  "PeakUpHqCoachManagement.futureStatus.invited": {
+    "de": "Invited",
+    "fr": "Invited",
+    "es": "Invited",
+    "it": "Invited",
+    "pt": "Invited"
+  },
+  "PeakUpHqCoachManagement.futureStatus.legacyUnverified": {
+    "de": "Legacy unverified",
+    "fr": "Legacy unverified",
+    "es": "Legacy unverified",
+    "it": "Legacy unverified",
+    "pt": "Legacy unverified"
+  },
+  "PeakUpHqCoachManagement.futureStatus.onboarding": {
+    "de": "Onboarding",
+    "fr": "Onboarding",
+    "es": "Onboarding",
+    "it": "Onboarding",
+    "pt": "Onboarding"
+  },
+  "PeakUpHqCoachManagement.futureSubtitle": {
+    "de": "{count, plural, =0 {No pending coach profiles} one {# coach awaiting verification} other {# coaches awaiting verification}}",
+    "fr": "{count, plural, =0 {No pending coach profiles} one {# coach awaiting verification} other {# coaches awaiting verification}}",
+    "es": "{count, plural, =0 {No pending coach profiles} one {# coach awaiting verification} other {# coaches awaiting verification}}",
+    "it": "{count, plural, =0 {No pending coach profiles} one {# coach awaiting verification} other {# coaches awaiting verification}}",
+    "pt": "{count, plural, =0 {No pending coach profiles} one {# coach awaiting verification} other {# coaches awaiting verification}}"
+  },
+  "PeakUpHqCoachManagement.futureTitle": {
+    "de": "Future coaches",
+    "fr": "Future coaches",
+    "es": "Future coaches",
+    "it": "Future coaches",
+    "pt": "Future coaches"
+  },
+  "PeakUpHqCoachManagement.gateHint": {
+    "de": "This page is not publicly linked. Enter the admin token (COACH_APPLICATION_ADMIN_TOKEN) or sign in as an HQ admin.",
+    "fr": "This page is not publicly linked. Enter the admin token (COACH_APPLICATION_ADMIN_TOKEN) or sign in as an HQ admin.",
+    "es": "This page is not publicly linked. Enter the admin token (COACH_APPLICATION_ADMIN_TOKEN) or sign in as an HQ admin.",
+    "it": "This page is not publicly linked. Enter the admin token (COACH_APPLICATION_ADMIN_TOKEN) or sign in as an HQ admin.",
+    "pt": "This page is not publicly linked. Enter the admin token (COACH_APPLICATION_ADMIN_TOKEN) or sign in as an HQ admin."
+  },
+  "PeakUpHqCoachManagement.gateInvalid": {
+    "de": "Ungültiges Admin-Token.",
+    "fr": "Jeton d'administrateur non valide.",
+    "es": "Token de administrador no válido.",
+    "it": "Invalid admin token.",
+    "pt": "Invalid admin token."
+  },
+  "PeakUpHqCoachManagement.gateLabel": {
+    "de": "Admin-Zugriffstoken",
+    "fr": "Jeton d'accès administrateur",
+    "es": "Token de acceso de administrador",
+    "it": "Admin access token",
+    "pt": "Admin access token"
+  },
+  "PeakUpHqCoachManagement.gateNotConfigured": {
+    "de": "Der Admin-Zugriff ist auf dem Server nicht konfiguriert.",
+    "fr": "L'accès administrateur n'est pas configuré sur le serveur.",
+    "es": "El acceso de administrador no está configurado en el servidor.",
+    "it": "Admin access is not configured on the server.",
+    "pt": "Admin access is not configured on the server."
+  },
+  "PeakUpHqCoachManagement.gatePlaceholder": {
+    "de": "Admin-Token einfügen",
+    "fr": "Coller le jeton d'administration",
+    "es": "Pegar token de administrador",
+    "it": "Paste admin token",
+    "pt": "Paste admin token"
+  },
+  "PeakUpHqCoachManagement.gateSubmit": {
+    "de": "Dashboard entsperren",
+    "fr": "Déverrouiller le tableau de bord",
+    "es": "Desbloquear tablero",
+    "it": "Unlock dashboard",
+    "pt": "Unlock dashboard"
+  },
+  "PeakUpHqCoachManagement.linkAmbassadors": {
+    "de": "Ambassador program",
+    "fr": "Ambassador program",
+    "es": "Ambassador program",
+    "it": "Ambassador program",
+    "pt": "Ambassador program"
+  },
+  "PeakUpHqCoachManagement.linkApplications": {
+    "de": "Coach applications",
+    "fr": "Coach applications",
+    "es": "Coach applications",
+    "it": "Coach applications",
+    "pt": "Coach applications"
+  },
+  "PeakUpHqCoachManagement.linkTeamAffiliations": {
+    "de": "Team affiliations",
+    "fr": "Team affiliations",
+    "es": "Team affiliations",
+    "it": "Team affiliations",
+    "pt": "Team affiliations"
+  },
+  "PeakUpHqCoachManagement.loadError": {
+    "de": "Could not load coaches.",
+    "fr": "Could not load coaches.",
+    "es": "Could not load coaches.",
+    "it": "Could not load coaches.",
+    "pt": "Could not load coaches."
+  },
+  "PeakUpHqCoachManagement.loading": {
+    "de": "Loading…",
+    "fr": "Loading…",
+    "es": "Loading…",
+    "it": "Loading…",
+    "pt": "Loading…"
+  },
+  "PeakUpHqCoachManagement.logout": {
+    "de": "Lock",
+    "fr": "Lock",
+    "es": "Lock",
+    "it": "Lock",
+    "pt": "Lock"
+  },
+  "PeakUpHqCoachManagement.partnerAssignCoach": {
+    "de": "Coach",
+    "fr": "Coach",
+    "es": "Coach",
+    "it": "Coach",
+    "pt": "Coach"
+  },
+  "PeakUpHqCoachManagement.partnerAssignCoachPlaceholder": {
+    "de": "Select coach…",
+    "fr": "Select coach…",
+    "es": "Select coach…",
+    "it": "Select coach…",
+    "pt": "Select coach…"
+  },
+  "PeakUpHqCoachManagement.partnerAssignError": {
+    "de": "Could not save partner priority.",
+    "fr": "Could not save partner priority.",
+    "es": "Could not save partner priority.",
+    "it": "Could not save partner priority.",
+    "pt": "Could not save partner priority."
+  },
+  "PeakUpHqCoachManagement.partnerAssignHint": {
+    "de": "Assign partner priority to a coach from the directory.",
+    "fr": "Assign partner priority to a coach from the directory.",
+    "es": "Assign partner priority to a coach from the directory.",
+    "it": "Assign partner priority to a coach from the directory.",
+    "pt": "Assign partner priority to a coach from the directory."
+  },
+  "PeakUpHqCoachManagement.partnerClearError": {
+    "de": "Could not clear partner priority.",
+    "fr": "Could not clear partner priority.",
+    "es": "Could not clear partner priority.",
+    "it": "Could not clear partner priority.",
+    "pt": "Could not clear partner priority."
+  },
+  "PeakUpHqCoachManagement.partnerEmpty": {
+    "de": "No coaches have partner priority enabled. Use the form above to assign one.",
+    "fr": "No coaches have partner priority enabled. Use the form above to assign one.",
+    "es": "No coaches have partner priority enabled. Use the form above to assign one.",
+    "it": "No coaches have partner priority enabled. Use the form above to assign one.",
+    "pt": "No coaches have partner priority enabled. Use the form above to assign one."
+  },
+  "PeakUpHqCoachManagement.partnerGroupLabel": {
+    "de": "Partner priority",
+    "fr": "Partner priority",
+    "es": "Partner priority",
+    "it": "Partner priority",
+    "pt": "Partner priority"
+  },
+  "PeakUpHqCoachManagement.partnerHint": {
+    "de": "Commercial visibility for sponsors and partners. Does not override automatic ranking on public pages.",
+    "fr": "Commercial visibility for sponsors and partners. Does not override automatic ranking on public pages.",
+    "es": "Commercial visibility for sponsors and partners. Does not override automatic ranking on public pages.",
+    "it": "Commercial visibility for sponsors and partners. Does not override automatic ranking on public pages.",
+    "pt": "Commercial visibility for sponsors and partners. Does not override automatic ranking on public pages."
+  },
+  "PeakUpHqCoachManagement.partnerLevel": {
+    "de": "Stufe",
+    "fr": "Niveau",
+    "es": "Nivel",
+    "it": "Level",
+    "pt": "Level"
+  },
+  "PeakUpHqCoachManagement.partnerLevel.partner": {
+    "de": "Partner",
+    "fr": "Partenaire",
+    "es": "Socio",
+    "it": "Partner",
+    "pt": "Partner"
+  },
+  "PeakUpHqCoachManagement.partnerLevel.sponsor": {
+    "de": "Sponsor",
+    "fr": "Sponsor",
+    "es": "Sponsor",
+    "it": "Sponsor",
+    "pt": "Sponsor"
+  },
+  "PeakUpHqCoachManagement.partnerLevel.standard": {
+    "de": "Standard",
+    "fr": "Standard",
+    "es": "Standard",
+    "it": "Standard",
+    "pt": "Standard"
+  },
+  "PeakUpHqCoachManagement.partnerLevel.strategic": {
+    "de": "Strategic",
+    "fr": "Strategic",
+    "es": "Strategic",
+    "it": "Strategic",
+    "pt": "Strategic"
+  },
+  "PeakUpHqCoachManagement.partnerOnly": {
+    "de": "Partner priority only",
+    "fr": "Partner priority only",
+    "es": "Partner priority only",
+    "it": "Partner priority only",
+    "pt": "Partner priority only"
+  },
+  "PeakUpHqCoachManagement.partnerPriorityTitle": {
+    "de": "Partner priority coaches",
+    "fr": "Partner priority coaches",
+    "es": "Partner priority coaches",
+    "it": "Partner priority coaches",
+    "pt": "Partner priority coaches"
+  },
+  "PeakUpHqCoachManagement.partnerReason": {
+    "de": "Reason",
+    "fr": "Reason",
+    "es": "Reason",
+    "it": "Reason",
+    "pt": "Reason"
+  },
+  "PeakUpHqCoachManagement.partnerReasonPlaceholder": {
+    "de": "e.g. Tourism board Q1 campaign",
+    "fr": "e.g. Tourism board Q1 campaign",
+    "es": "e.g. Tourism board Q1 campaign",
+    "it": "e.g. Tourism board Q1 campaign",
+    "pt": "e.g. Tourism board Q1 campaign"
+  },
+  "PeakUpHqCoachManagement.partnerSectionSubtitle": {
+    "de": "{count, plural, =0 {No active partner priorities} one {# active partner priority} other {# active partner priorities}}",
+    "fr": "{count, plural, =0 {No active partner priorities} one {# active partner priority} other {# active partner priorities}}",
+    "es": "{count, plural, =0 {No active partner priorities} one {# active partner priority} other {# active partner priorities}}",
+    "it": "{count, plural, =0 {No active partner priorities} one {# active partner priority} other {# active partner priorities}}",
+    "pt": "{count, plural, =0 {No active partner priorities} one {# active partner priority} other {# active partner priorities}}"
+  },
+  "PeakUpHqCoachManagement.partnerSectionTitle": {
+    "de": "Partner priority management",
+    "fr": "Partner priority management",
+    "es": "Partner priority management",
+    "it": "Partner priority management",
+    "pt": "Partner priority management"
+  },
+  "PeakUpHqCoachManagement.partnerUntil": {
+    "de": "Valid until (optional)",
+    "fr": "Valid until (optional)",
+    "es": "Valid until (optional)",
+    "it": "Valid until (optional)",
+    "pt": "Valid until (optional)"
+  },
+  "PeakUpHqCoachManagement.rankingNotice": {
+    "de": "Landing Page, Coaches Page, Coach Map, and Sport Pages use automatic PeakUp ranking only — not manual curation.",
+    "fr": "Landing Page, Coaches Page, Coach Map, and Sport Pages use automatic PeakUp ranking only — not manual curation.",
+    "es": "Landing Page, Coaches Page, Coach Map, and Sport Pages use automatic PeakUp ranking only — not manual curation.",
+    "it": "Landing Page, Coaches Page, Coach Map, and Sport Pages use automatic PeakUp ranking only — not manual curation.",
+    "pt": "Landing Page, Coaches Page, Coach Map, and Sport Pages use automatic PeakUp ranking only — not manual curation."
+  },
+  "PeakUpHqCoachManagement.refresh": {
+    "de": "Aktualisieren",
+    "fr": "Actualisez",
+    "es": "Actualizar",
+    "it": "Refresh",
+    "pt": "Refresh"
+  },
+  "PeakUpHqCoachManagement.relatedTools": {
+    "de": "Related HQ tools: {applicationsLink} · {ambassadorsLink}",
+    "fr": "Related HQ tools: {applicationsLink} · {ambassadorsLink}",
+    "es": "Related HQ tools: {applicationsLink} · {ambassadorsLink}",
+    "it": "Related HQ tools: {applicationsLink} · {ambassadorsLink}",
+    "pt": "Related HQ tools: {applicationsLink} · {ambassadorsLink}"
+  },
+  "PeakUpHqCoachManagement.removePartner": {
+    "de": "Remove priority",
+    "fr": "Remove priority",
+    "es": "Remove priority",
+    "it": "Remove priority",
+    "pt": "Remove priority"
+  },
+  "PeakUpHqCoachManagement.savePartner": {
+    "de": "Änderungen speichern",
+    "fr": "Sauvegarder les modifications",
+    "es": "Guardar cambios",
+    "it": "Save changes",
+    "pt": "Save changes"
+  },
+  "PeakUpHqCoachManagement.schemaTitle": {
+    "de": "Coach Management | PeakUp HQ",
+    "fr": "Coach Management | PeakUp HQ",
+    "es": "Coach Management | PeakUp HQ",
+    "it": "Coach Management | PeakUp HQ",
+    "pt": "Coach Management | PeakUp HQ"
+  },
+  "PeakUpHqCoachManagement.searchLabel": {
+    "de": "Suche",
+    "fr": "Recherche",
+    "es": "Buscar",
+    "it": "Search",
+    "pt": "Search"
+  },
+  "PeakUpHqCoachManagement.searchPlaceholder": {
+    "de": "Name, email, or sport…",
+    "fr": "Name, email, or sport…",
+    "es": "Name, email, or sport…",
+    "it": "Name, email, or sport…",
+    "pt": "Name, email, or sport…"
+  },
+  "PeakUpHqCoachManagement.statusLevelLine": {
+    "de": "Level: {level}",
+    "fr": "Level: {level}",
+    "es": "Level: {level}",
+    "it": "Level: {level}",
+    "pt": "Level: {level}"
+  },
+  "PeakUpHqCoachManagement.statusMeritOnly": {
+    "de": "Merit ranking only",
+    "fr": "Merit ranking only",
+    "es": "Merit ranking only",
+    "it": "Merit ranking only",
+    "pt": "Merit ranking only"
+  },
+  "PeakUpHqCoachManagement.statusPartnerActive": {
+    "de": "Partner priority active",
+    "fr": "Partner priority active",
+    "es": "Partner priority active",
+    "it": "Partner priority active",
+    "pt": "Partner priority active"
+  },
+  "PeakUpHqCoachManagement.statusPartnerBadge": {
+    "de": "PARTNER PRIORITY",
+    "fr": "PARTNER PRIORITY",
+    "es": "PARTNER PRIORITY",
+    "it": "PARTNER PRIORITY",
+    "pt": "PARTNER PRIORITY"
+  },
+  "PeakUpHqCoachManagement.statusPartnerExpired": {
+    "de": "EXPIRED",
+    "fr": "EXPIRED",
+    "es": "EXPIRED",
+    "it": "EXPIRED",
+    "pt": "EXPIRED"
+  },
+  "PeakUpHqCoachManagement.statusUntilLine": {
+    "de": "Until: {date}",
+    "fr": "Until: {date}",
+    "es": "Until: {date}",
+    "it": "Until: {date}",
+    "pt": "Until: {date}"
+  },
+  "PeakUpHqCoachManagement.subtitle": {
+    "de": "Directory of verified coaches. Consumer ranking stays automatic (Founder, Ambassador, reviews, experience, sales). Partner Priority is a separate commercial layer for sponsors and strategic partners.",
+    "fr": "Directory of verified coaches. Consumer ranking stays automatic (Founder, Ambassador, reviews, experience, sales). Partner Priority is a separate commercial layer for sponsors and strategic partners.",
+    "es": "Directory of verified coaches. Consumer ranking stays automatic (Founder, Ambassador, reviews, experience, sales). Partner Priority is a separate commercial layer for sponsors and strategic partners.",
+    "it": "Directory of verified coaches. Consumer ranking stays automatic (Founder, Ambassador, reviews, experience, sales). Partner Priority is a separate commercial layer for sponsors and strategic partners.",
+    "pt": "Directory of verified coaches. Consumer ranking stays automatic (Founder, Ambassador, reviews, experience, sales). Partner Priority is a separate commercial layer for sponsors and strategic partners."
+  },
+  "PeakUpHqCoachManagement.tierNone": {
+    "de": "Standard",
+    "fr": "Standard",
+    "es": "Standard",
+    "it": "Standard",
+    "pt": "Standard"
+  },
+  "PeakUpHqCoachManagement.title": {
+    "de": "Coach Management",
+    "fr": "Coach Management",
+    "es": "Coach Management",
+    "it": "Coach Management",
+    "pt": "Coach Management"
+  },
+  "PeakUpHqCoachManagement.untilLabel": {
+    "de": "Until {date}",
+    "fr": "Until {date}",
+    "es": "Until {date}",
+    "it": "Until {date}",
+    "pt": "Until {date}"
+  },
+  "PeakUpHqCoachManagement.verificationUnverified": {
+    "de": "Unverified",
+    "fr": "Unverified",
+    "es": "Unverified",
+    "it": "Unverified",
+    "pt": "Unverified"
+  },
+  "PeakUpHqCoachManagement.verificationVerified": {
+    "de": "Verified",
+    "fr": "Verified",
+    "es": "Verified",
+    "it": "Verified",
+    "pt": "Verified"
+  },
+  "PeakUpHqCoachManagement.verifiedSubtitle": {
+    "de": "Approved coaches live on PeakUp. Consumer ranking stays automatic on public pages.",
+    "fr": "Approved coaches live on PeakUp. Consumer ranking stays automatic on public pages.",
+    "es": "Approved coaches live on PeakUp. Consumer ranking stays automatic on public pages.",
+    "it": "Approved coaches live on PeakUp. Consumer ranking stays automatic on public pages.",
+    "pt": "Approved coaches live on PeakUp. Consumer ranking stays automatic on public pages."
+  },
+  "PeakUpHqCoachManagement.verifiedTitle": {
+    "de": "Verified coaches",
+    "fr": "Verified coaches",
+    "es": "Verified coaches",
+    "it": "Verified coaches",
+    "pt": "Verified coaches"
+  },
+  "PeakUpHqCustomerManagement.activeEmpty": {
+    "de": "No active customers in the current filter set.",
+    "fr": "No active customers in the current filter set.",
+    "es": "No active customers in the current filter set.",
+    "it": "No active customers in the current filter set.",
+    "pt": "No active customers in the current filter set."
+  },
+  "PeakUpHqCustomerManagement.activeSubtitle": {
+    "de": "Booked within the last 90 days · {count, plural, one {# customer} other {# customers}}",
+    "fr": "Booked within the last 90 days · {count, plural, one {# customer} other {# customers}}",
+    "es": "Booked within the last 90 days · {count, plural, one {# customer} other {# customers}}",
+    "it": "Booked within the last 90 days · {count, plural, one {# customer} other {# customers}}",
+    "pt": "Booked within the last 90 days · {count, plural, one {# customer} other {# customers}}"
+  },
+  "PeakUpHqCustomerManagement.activeTitle": {
+    "de": "Active customers",
+    "fr": "Active customers",
+    "es": "Active customers",
+    "it": "Active customers",
+    "pt": "Active customers"
+  },
+  "PeakUpHqCustomerManagement.colBookings": {
+    "de": "Bookings",
+    "fr": "Bookings",
+    "es": "Bookings",
+    "it": "Bookings",
+    "pt": "Bookings"
+  },
+  "PeakUpHqCustomerManagement.colLastActivity": {
+    "de": "Last activity",
+    "fr": "Last activity",
+    "es": "Last activity",
+    "it": "Last activity",
+    "pt": "Last activity"
+  },
+  "PeakUpHqCustomerManagement.colLastBooking": {
+    "de": "Last booking",
+    "fr": "Last booking",
+    "es": "Last booking",
+    "it": "Last booking",
+    "pt": "Last booking"
+  },
+  "PeakUpHqCustomerManagement.colName": {
+    "de": "Name",
+    "fr": "Name",
+    "es": "Name",
+    "it": "Name",
+    "pt": "Name"
+  },
+  "PeakUpHqCustomerManagement.colSignup": {
+    "de": "Signup",
+    "fr": "Signup",
+    "es": "Signup",
+    "it": "Signup",
+    "pt": "Signup"
+  },
+  "PeakUpHqCustomerManagement.colSpent": {
+    "de": "Total spent",
+    "fr": "Total spent",
+    "es": "Total spent",
+    "it": "Total spent",
+    "pt": "Total spent"
+  },
+  "PeakUpHqCustomerManagement.count": {
+    "de": "{count, plural, one {# customer} other {# customers}} · {active, plural, one {# active} other {# active}} · {withBookings, plural, one {# with bookings} other {# with bookings}}",
+    "fr": "{count, plural, one {# customer} other {# customers}} · {active, plural, one {# active} other {# active}} · {withBookings, plural, one {# with bookings} other {# with bookings}}",
+    "es": "{count, plural, one {# customer} other {# customers}} · {active, plural, one {# active} other {# active}} · {withBookings, plural, one {# with bookings} other {# with bookings}}",
+    "it": "{count, plural, one {# customer} other {# customers}} · {active, plural, one {# active} other {# active}} · {withBookings, plural, one {# with bookings} other {# with bookings}}",
+    "pt": "{count, plural, one {# customer} other {# customers}} · {active, plural, one {# active} other {# active}} · {withBookings, plural, one {# with bookings} other {# with bookings}}"
+  },
+  "PeakUpHqCustomerManagement.directorySubtitle": {
+    "de": "{count, plural, one {# customer} other {# customers}} matching your filters",
+    "fr": "{count, plural, one {# customer} other {# customers}} matching your filters",
+    "es": "{count, plural, one {# customer} other {# customers}} matching your filters",
+    "it": "{count, plural, one {# customer} other {# customers}} matching your filters",
+    "pt": "{count, plural, one {# customer} other {# customers}} matching your filters"
+  },
+  "PeakUpHqCustomerManagement.directoryTitle": {
+    "de": "Customer directory",
+    "fr": "Customer directory",
+    "es": "Customer directory",
+    "it": "Customer directory",
+    "pt": "Customer directory"
+  },
+  "PeakUpHqCustomerManagement.empty": {
+    "de": "No customers match your filters.",
+    "fr": "No customers match your filters.",
+    "es": "No customers match your filters.",
+    "it": "No customers match your filters.",
+    "pt": "No customers match your filters."
+  },
+  "PeakUpHqCustomerManagement.eyebrow": {
+    "de": "Customer administration",
+    "fr": "Customer administration",
+    "es": "Customer administration",
+    "it": "Customer administration",
+    "pt": "Customer administration"
+  },
+  "PeakUpHqCustomerManagement.filterActive": {
+    "de": "Active (90 days)",
+    "fr": "Active (90 days)",
+    "es": "Active (90 days)",
+    "it": "Active (90 days)",
+    "pt": "Active (90 days)"
+  },
+  "PeakUpHqCustomerManagement.filterAll": {
+    "de": "All customers",
+    "fr": "All customers",
+    "es": "All customers",
+    "it": "All customers",
+    "pt": "All customers"
+  },
+  "PeakUpHqCustomerManagement.filterLabel": {
+    "de": "Filter",
+    "fr": "Filter",
+    "es": "Filter",
+    "it": "Filter",
+    "pt": "Filter"
+  },
+  "PeakUpHqCustomerManagement.filterNew": {
+    "de": "New (30 days)",
+    "fr": "New (30 days)",
+    "es": "New (30 days)",
+    "it": "New (30 days)",
+    "pt": "New (30 days)"
+  },
+  "PeakUpHqCustomerManagement.filterVip": {
+    "de": "VIP (coming soon)",
+    "fr": "VIP (coming soon)",
+    "es": "VIP (coming soon)",
+    "it": "VIP (coming soon)",
+    "pt": "VIP (coming soon)"
+  },
+  "PeakUpHqCustomerManagement.filterWithBookings": {
+    "de": "With bookings",
+    "fr": "With bookings",
+    "es": "With bookings",
+    "it": "With bookings",
+    "pt": "With bookings"
+  },
+  "PeakUpHqCustomerManagement.loadError": {
+    "de": "Could not load customers.",
+    "fr": "Could not load customers.",
+    "es": "Could not load customers.",
+    "it": "Could not load customers.",
+    "pt": "Could not load customers."
+  },
+  "PeakUpHqCustomerManagement.newEmpty": {
+    "de": "No new customers in the current filter set.",
+    "fr": "No new customers in the current filter set.",
+    "es": "No new customers in the current filter set.",
+    "it": "No new customers in the current filter set.",
+    "pt": "No new customers in the current filter set."
+  },
+  "PeakUpHqCustomerManagement.newSubtitle": {
+    "de": "Signed up within the last 30 days · {count, plural, one {# customer} other {# customers}}",
+    "fr": "Signed up within the last 30 days · {count, plural, one {# customer} other {# customers}}",
+    "es": "Signed up within the last 30 days · {count, plural, one {# customer} other {# customers}}",
+    "it": "Signed up within the last 30 days · {count, plural, one {# customer} other {# customers}}",
+    "pt": "Signed up within the last 30 days · {count, plural, one {# customer} other {# customers}}"
+  },
+  "PeakUpHqCustomerManagement.newTitle": {
+    "de": "New customers",
+    "fr": "New customers",
+    "es": "New customers",
+    "it": "New customers",
+    "pt": "New customers"
+  },
+  "PeakUpHqCustomerManagement.notice": {
+    "de": "Customers are marketplace users who are not verified coaches or teams. Use segments below for operational review — VIP tagging is coming soon.",
+    "fr": "Customers are marketplace users who are not verified coaches or teams. Use segments below for operational review — VIP tagging is coming soon.",
+    "es": "Customers are marketplace users who are not verified coaches or teams. Use segments below for operational review — VIP tagging is coming soon.",
+    "it": "Customers are marketplace users who are not verified coaches or teams. Use segments below for operational review — VIP tagging is coming soon.",
+    "pt": "Customers are marketplace users who are not verified coaches or teams. Use segments below for operational review — VIP tagging is coming soon."
+  },
+  "PeakUpHqCustomerManagement.schemaTitle": {
+    "de": "Customer Management | PeakUp HQ",
+    "fr": "Customer Management | PeakUp HQ",
+    "es": "Customer Management | PeakUp HQ",
+    "it": "Customer Management | PeakUp HQ",
+    "pt": "Customer Management | PeakUp HQ"
+  },
+  "PeakUpHqCustomerManagement.searchPlaceholder": {
+    "de": "Name or email…",
+    "fr": "Name or email…",
+    "es": "Name or email…",
+    "it": "Name or email…",
+    "pt": "Name or email…"
+  },
+  "PeakUpHqCustomerManagement.sortActivity": {
+    "de": "Last activity",
+    "fr": "Last activity",
+    "es": "Last activity",
+    "it": "Last activity",
+    "pt": "Last activity"
+  },
+  "PeakUpHqCustomerManagement.sortBookings": {
+    "de": "Bookings",
+    "fr": "Bookings",
+    "es": "Bookings",
+    "it": "Bookings",
+    "pt": "Bookings"
+  },
+  "PeakUpHqCustomerManagement.sortLabel": {
+    "de": "Sort",
+    "fr": "Sort",
+    "es": "Sort",
+    "it": "Sort",
+    "pt": "Sort"
+  },
+  "PeakUpHqCustomerManagement.sortName": {
+    "de": "Name",
+    "fr": "Name",
+    "es": "Name",
+    "it": "Name",
+    "pt": "Name"
+  },
+  "PeakUpHqCustomerManagement.sortSignup": {
+    "de": "Signup date",
+    "fr": "Signup date",
+    "es": "Signup date",
+    "it": "Signup date",
+    "pt": "Signup date"
+  },
+  "PeakUpHqCustomerManagement.statusActive": {
+    "de": "Active",
+    "fr": "Active",
+    "es": "Active",
+    "it": "Active",
+    "pt": "Active"
+  },
+  "PeakUpHqCustomerManagement.statusInactive": {
+    "de": "Inactive",
+    "fr": "Inactive",
+    "es": "Inactive",
+    "it": "Inactive",
+    "pt": "Inactive"
+  },
+  "PeakUpHqCustomerManagement.statusNew": {
+    "de": "New",
+    "fr": "New",
+    "es": "New",
+    "it": "New",
+    "pt": "New"
+  },
+  "PeakUpHqCustomerManagement.statusRegistered": {
+    "de": "Registered",
+    "fr": "Registered",
+    "es": "Registered",
+    "it": "Registered",
+    "pt": "Registered"
+  },
+  "PeakUpHqCustomerManagement.subtitle": {
+    "de": "Marketplace customers separate from coaches and teams — search, filter, and review activity in one CRM view.",
+    "fr": "Marketplace customers separate from coaches and teams — search, filter, and review activity in one CRM view.",
+    "es": "Marketplace customers separate from coaches and teams — search, filter, and review activity in one CRM view.",
+    "it": "Marketplace customers separate from coaches and teams — search, filter, and review activity in one CRM view.",
+    "pt": "Marketplace customers separate from coaches and teams — search, filter, and review activity in one CRM view."
+  },
+  "PeakUpHqCustomerManagement.title": {
+    "de": "Kundenmanagement",
+    "fr": "Gestion de la clientèle",
+    "es": "Customer Management",
+    "it": "Customer Management",
+    "pt": "Customer Management"
+  },
+  "PeakUpHqCustomerManagement.vipEmpty": {
+    "de": "VIP customer management is not available yet. This section will surface tagged high-value accounts.",
+    "fr": "VIP customer management is not available yet. This section will surface tagged high-value accounts.",
+    "es": "VIP customer management is not available yet. This section will surface tagged high-value accounts.",
+    "it": "VIP customer management is not available yet. This section will surface tagged high-value accounts.",
+    "pt": "VIP customer management is not available yet. This section will surface tagged high-value accounts."
+  },
+  "PeakUpHqCustomerManagement.vipSubtitle": {
+    "de": "High-value customer tagging — coming soon",
+    "fr": "High-value customer tagging — coming soon",
+    "es": "High-value customer tagging — coming soon",
+    "it": "High-value customer tagging — coming soon",
+    "pt": "High-value customer tagging — coming soon"
+  },
+  "PeakUpHqCustomerManagement.vipTitle": {
+    "de": "VIP customers",
+    "fr": "VIP customers",
+    "es": "VIP customers",
+    "it": "VIP customers",
+    "pt": "VIP customers"
+  },
+  "PeakUpHqCustomerManagement.withBookingsEmpty": {
+    "de": "No customers with bookings match your filters.",
+    "fr": "No customers with bookings match your filters.",
+    "es": "No customers with bookings match your filters.",
+    "it": "No customers with bookings match your filters.",
+    "pt": "No customers with bookings match your filters."
+  },
+  "PeakUpHqCustomerManagement.withBookingsSubtitle": {
+    "de": "At least one completed booking · {count, plural, one {# customer} other {# customers}}",
+    "fr": "At least one completed booking · {count, plural, one {# customer} other {# customers}}",
+    "es": "At least one completed booking · {count, plural, one {# customer} other {# customers}}",
+    "it": "At least one completed booking · {count, plural, one {# customer} other {# customers}}",
+    "pt": "At least one completed booking · {count, plural, one {# customer} other {# customers}}"
+  },
+  "PeakUpHqCustomerManagement.withBookingsTitle": {
+    "de": "Customers with bookings",
+    "fr": "Customers with bookings",
+    "es": "Customers with bookings",
+    "it": "Customers with bookings",
+    "pt": "Customers with bookings"
+  },
+  "PeakUpHqTeamManagement.actionViewApplication": {
+    "de": "View application",
+    "fr": "View application",
+    "es": "View application",
+    "it": "View application",
+    "pt": "View application"
+  },
+  "PeakUpHqTeamManagement.actionViewTeam": {
+    "de": "View team",
+    "fr": "View team",
+    "es": "View team",
+    "it": "View team",
+    "pt": "View team"
+  },
+  "PeakUpHqTeamManagement.activeEmpty": {
+    "de": "No verified teams match your filters.",
+    "fr": "No verified teams match your filters.",
+    "es": "No verified teams match your filters.",
+    "it": "No verified teams match your filters.",
+    "pt": "No verified teams match your filters."
+  },
+  "PeakUpHqTeamManagement.activeTitle": {
+    "de": "Active teams",
+    "fr": "Active teams",
+    "es": "Active teams",
+    "it": "Active teams",
+    "pt": "Active teams"
+  },
+  "PeakUpHqTeamManagement.approvedEmpty": {
+    "de": "No approved teams match your filters.",
+    "fr": "No approved teams match your filters.",
+    "es": "No approved teams match your filters.",
+    "it": "No approved teams match your filters.",
+    "pt": "No approved teams match your filters."
+  },
+  "PeakUpHqTeamManagement.approvedSubtitle": {
+    "de": "Verified organizations · {count, plural, one {# team} other {# teams}}",
+    "fr": "Verified organizations · {count, plural, one {# team} other {# teams}}",
+    "es": "Verified organizations · {count, plural, one {# team} other {# teams}}",
+    "it": "Verified organizations · {count, plural, one {# team} other {# teams}}",
+    "pt": "Verified organizations · {count, plural, one {# team} other {# teams}}"
+  },
+  "PeakUpHqTeamManagement.approvedTitle": {
+    "de": "Approved teams",
+    "fr": "Approved teams",
+    "es": "Approved teams",
+    "it": "Approved teams",
+    "pt": "Approved teams"
+  },
+  "PeakUpHqTeamManagement.coachesEmpty": {
+    "de": "No team coaches in the current filter set.",
+    "fr": "No team coaches in the current filter set.",
+    "es": "No team coaches in the current filter set.",
+    "it": "No team coaches in the current filter set.",
+    "pt": "No team coaches in the current filter set."
+  },
+  "PeakUpHqTeamManagement.coachesSubtitle": {
+    "de": "Active roster memberships · {count, plural, one {# coach} other {# coaches}}",
+    "fr": "Active roster memberships · {count, plural, one {# coach} other {# coaches}}",
+    "es": "Active roster memberships · {count, plural, one {# coach} other {# coaches}}",
+    "it": "Active roster memberships · {count, plural, one {# coach} other {# coaches}}",
+    "pt": "Active roster memberships · {count, plural, one {# coach} other {# coaches}}"
+  },
+  "PeakUpHqTeamManagement.coachesTitle": {
+    "de": "Team-Coaches",
+    "fr": "Coaches d’équipe",
+    "es": "Entrenadores de equipo",
+    "it": "Team coaches",
+    "pt": "Team coaches"
+  },
+  "PeakUpHqTeamManagement.colCoaches": {
+    "de": "Coaches",
+    "fr": "Coaches",
+    "es": "Entrenadores",
+    "it": "Coaches",
+    "pt": "Coaches"
+  },
+  "PeakUpHqTeamManagement.colOwner": {
+    "de": "Owner",
+    "fr": "Owner",
+    "es": "Owner",
+    "it": "Owner",
+    "pt": "Owner"
+  },
+  "PeakUpHqTeamManagement.colSport": {
+    "de": "Sport",
+    "fr": "Sport",
+    "es": "Deporte",
+    "it": "Sport",
+    "pt": "Sport"
+  },
+  "PeakUpHqTeamManagement.colTeam": {
+    "de": "Team",
+    "fr": "Équipe",
+    "es": "El equipo",
+    "it": "Team",
+    "pt": "Team"
+  },
+  "PeakUpHqTeamManagement.count": {
+    "de": "{teams, plural, one {# team} other {# teams}} · {pending, plural, one {# pending} other {# pending}} · {coaches, plural, one {# roster coach} other {# roster coaches}} · {partners, plural, one {# partner} other {# partners}}",
+    "fr": "{teams, plural, one {# team} other {# teams}} · {pending, plural, one {# pending} other {# pending}} · {coaches, plural, one {# roster coach} other {# roster coaches}} · {partners, plural, one {# partner} other {# partners}}",
+    "es": "{teams, plural, one {# team} other {# teams}} · {pending, plural, one {# pending} other {# pending}} · {coaches, plural, one {# roster coach} other {# roster coaches}} · {partners, plural, one {# partner} other {# partners}}",
+    "it": "{teams, plural, one {# team} other {# teams}} · {pending, plural, one {# pending} other {# pending}} · {coaches, plural, one {# roster coach} other {# roster coaches}} · {partners, plural, one {# partner} other {# partners}}",
+    "pt": "{teams, plural, one {# team} other {# teams}} · {pending, plural, one {# pending} other {# pending}} · {coaches, plural, one {# roster coach} other {# roster coaches}} · {partners, plural, one {# partner} other {# partners}}"
+  },
+  "PeakUpHqTeamManagement.directoryEmpty": {
+    "de": "No teams match your filters.",
+    "fr": "No teams match your filters.",
+    "es": "No teams match your filters.",
+    "it": "No teams match your filters.",
+    "pt": "No teams match your filters."
+  },
+  "PeakUpHqTeamManagement.directorySubtitle": {
+    "de": "{count, plural, one {# team} other {# teams}} matching your filters",
+    "fr": "{count, plural, one {# team} other {# teams}} matching your filters",
+    "es": "{count, plural, one {# team} other {# teams}} matching your filters",
+    "it": "{count, plural, one {# team} other {# teams}} matching your filters",
+    "pt": "{count, plural, one {# team} other {# teams}} matching your filters"
+  },
+  "PeakUpHqTeamManagement.directoryTitle": {
+    "de": "Team directory",
+    "fr": "Team directory",
+    "es": "Team directory",
+    "it": "Team directory",
+    "pt": "Team directory"
+  },
+  "PeakUpHqTeamManagement.eyebrow": {
+    "de": "Team administration",
+    "fr": "Team administration",
+    "es": "Team administration",
+    "it": "Team administration",
+    "pt": "Team administration"
+  },
+  "PeakUpHqTeamManagement.invitationsEmpty": {
+    "de": "No pending team invitations.",
+    "fr": "No pending team invitations.",
+    "es": "No pending team invitations.",
+    "it": "No pending team invitations.",
+    "pt": "No pending team invitations."
+  },
+  "PeakUpHqTeamManagement.invitationsSubtitle": {
+    "de": "Pending coach invites · {count, plural, one {# invitation} other {# invitations}}",
+    "fr": "Pending coach invites · {count, plural, one {# invitation} other {# invitations}}",
+    "es": "Pending coach invites · {count, plural, one {# invitation} other {# invitations}}",
+    "it": "Pending coach invites · {count, plural, one {# invitation} other {# invitations}}",
+    "pt": "Pending coach invites · {count, plural, one {# invitation} other {# invitations}}"
+  },
+  "PeakUpHqTeamManagement.invitationsTitle": {
+    "de": "Team invitations",
+    "fr": "Team invitations",
+    "es": "Team invitations",
+    "it": "Team invitations",
+    "pt": "Team invitations"
+  },
+  "PeakUpHqTeamManagement.invitedShort": {
+    "de": "invited",
+    "fr": "invited",
+    "es": "invited",
+    "it": "invited",
+    "pt": "invited"
+  },
+  "PeakUpHqTeamManagement.invitesHint": {
+    "de": "Pending invitations — managed per team roster",
+    "fr": "Pending invitations — managed per team roster",
+    "es": "Pending invitations — managed per team roster",
+    "it": "Pending invitations — managed per team roster",
+    "pt": "Pending invitations — managed per team roster"
+  },
+  "PeakUpHqTeamManagement.loadError": {
+    "de": "Could not load teams.",
+    "fr": "Could not load teams.",
+    "es": "Could not load teams.",
+    "it": "Could not load teams.",
+    "pt": "Could not load teams."
+  },
+  "PeakUpHqTeamManagement.notice": {
+    "de": "Teams are verified organizations on PeakUp. Review pending applications, approved teams, coach rosters, and invitations from this operations hub.",
+    "fr": "Teams are verified organizations on PeakUp. Review pending applications, approved teams, coach rosters, and invitations from this operations hub.",
+    "es": "Teams are verified organizations on PeakUp. Review pending applications, approved teams, coach rosters, and invitations from this operations hub.",
+    "it": "Teams are verified organizations on PeakUp. Review pending applications, approved teams, coach rosters, and invitations from this operations hub.",
+    "pt": "Teams are verified organizations on PeakUp. Review pending applications, approved teams, coach rosters, and invitations from this operations hub."
+  },
+  "PeakUpHqTeamManagement.partnerEmpty": {
+    "de": "No partner teams yet. Assign partner priority from team profiles or future partner tools.",
+    "fr": "No partner teams yet. Assign partner priority from team profiles or future partner tools.",
+    "es": "No partner teams yet. Assign partner priority from team profiles or future partner tools.",
+    "it": "No partner teams yet. Assign partner priority from team profiles or future partner tools.",
+    "pt": "No partner teams yet. Assign partner priority from team profiles or future partner tools."
+  },
+  "PeakUpHqTeamManagement.partnerSubtitle": {
+    "de": "Priority partner organizations · {count, plural, one {# team} other {# teams}}",
+    "fr": "Priority partner organizations · {count, plural, one {# team} other {# teams}}",
+    "es": "Priority partner organizations · {count, plural, one {# team} other {# teams}}",
+    "it": "Priority partner organizations · {count, plural, one {# team} other {# teams}}",
+    "pt": "Priority partner organizations · {count, plural, one {# team} other {# teams}}"
+  },
+  "PeakUpHqTeamManagement.partnerTitle": {
+    "de": "Partner teams",
+    "fr": "Partner teams",
+    "es": "Partner teams",
+    "it": "Partner teams",
+    "pt": "Partner teams"
+  },
+  "PeakUpHqTeamManagement.pendingEmpty": {
+    "de": "No pending team applications.",
+    "fr": "No pending team applications.",
+    "es": "No pending team applications.",
+    "it": "No pending team applications.",
+    "pt": "No pending team applications."
+  },
+  "PeakUpHqTeamManagement.pendingSubtitle": {
+    "de": "Applications awaiting review · {count, plural, one {# team} other {# teams}}",
+    "fr": "Applications awaiting review · {count, plural, one {# team} other {# teams}}",
+    "es": "Applications awaiting review · {count, plural, one {# team} other {# teams}}",
+    "it": "Applications awaiting review · {count, plural, one {# team} other {# teams}}",
+    "pt": "Applications awaiting review · {count, plural, one {# team} other {# teams}}"
+  },
+  "PeakUpHqTeamManagement.pendingTitle": {
+    "de": "Pending teams",
+    "fr": "Pending teams",
+    "es": "Pending teams",
+    "it": "Pending teams",
+    "pt": "Pending teams"
+  },
+  "PeakUpHqTeamManagement.rosterHint": {
+    "de": "Team coach roster — manage from team profile settings",
+    "fr": "Team coach roster — manage from team profile settings",
+    "es": "Team coach roster — manage from team profile settings",
+    "it": "Team coach roster — manage from team profile settings",
+    "pt": "Team coach roster — manage from team profile settings"
+  },
+  "PeakUpHqTeamManagement.rosterInvited": {
+    "de": "Invited",
+    "fr": "Invited",
+    "es": "Invited",
+    "it": "Invited",
+    "pt": "Invited"
+  },
+  "PeakUpHqTeamManagement.rosterMember": {
+    "de": "Member",
+    "fr": "Member",
+    "es": "Member",
+    "it": "Member",
+    "pt": "Member"
+  },
+  "PeakUpHqTeamManagement.schemaTitle": {
+    "de": "Team Management | PeakUp HQ",
+    "fr": "Team Management | PeakUp HQ",
+    "es": "Team Management | PeakUp HQ",
+    "it": "Team Management | PeakUp HQ",
+    "pt": "Team Management | PeakUp HQ"
+  },
+  "PeakUpHqTeamManagement.searchPlaceholder": {
+    "de": "Team name, owner, or sport…",
+    "fr": "Team name, owner, or sport…",
+    "es": "Team name, owner, or sport…",
+    "it": "Team name, owner, or sport…",
+    "pt": "Team name, owner, or sport…"
+  },
+  "PeakUpHqTeamManagement.sortCoaches": {
+    "de": "Coaches",
+    "fr": "Coaches",
+    "es": "Entrenadores",
+    "it": "Coaches",
+    "pt": "Coaches"
+  },
+  "PeakUpHqTeamManagement.sortLabel": {
+    "de": "Sort",
+    "fr": "Sort",
+    "es": "Sort",
+    "it": "Sort",
+    "pt": "Sort"
+  },
+  "PeakUpHqTeamManagement.sortName": {
+    "de": "Team name",
+    "fr": "Team name",
+    "es": "Team name",
+    "it": "Team name",
+    "pt": "Team name"
+  },
+  "PeakUpHqTeamManagement.sortSignup": {
+    "de": "Signup date",
+    "fr": "Signup date",
+    "es": "Signup date",
+    "it": "Signup date",
+    "pt": "Signup date"
+  },
+  "PeakUpHqTeamManagement.sortSport": {
+    "de": "Sport",
+    "fr": "Sport",
+    "es": "Deporte",
+    "it": "Sport",
+    "pt": "Sport"
+  },
+  "PeakUpHqTeamManagement.statusApplicationNeedMoreInfo": {
+    "de": "Need more info",
+    "fr": "Need more info",
+    "es": "Need more info",
+    "it": "Need more info",
+    "pt": "Need more info"
+  },
+  "PeakUpHqTeamManagement.statusApplicationPending": {
+    "de": "Pending application",
+    "fr": "Pending application",
+    "es": "Pending application",
+    "it": "Pending application",
+    "pt": "Pending application"
+  },
+  "PeakUpHqTeamManagement.statusUnverified": {
+    "de": "Unverified",
+    "fr": "Unverified",
+    "es": "Unverified",
+    "it": "Unverified",
+    "pt": "Unverified"
+  },
+  "PeakUpHqTeamManagement.statusVerifiedDraft": {
+    "de": "Verified · Draft",
+    "fr": "Verified · Draft",
+    "es": "Verified · Draft",
+    "it": "Verified · Draft",
+    "pt": "Verified · Draft"
+  },
+  "PeakUpHqTeamManagement.statusVerifiedPublic": {
+    "de": "Verified · Public",
+    "fr": "Verified · Public",
+    "es": "Verified · Public",
+    "it": "Verified · Public",
+    "pt": "Verified · Public"
+  },
+  "PeakUpHqTeamManagement.subtitle": {
+    "de": "Clubs, schools, academies and organizations — directory, applications, rosters, and invitations.",
+    "fr": "Clubs, schools, academies and organizations — directory, applications, rosters, and invitations.",
+    "es": "Clubs, schools, academies and organizations — directory, applications, rosters, and invitations.",
+    "it": "Clubs, schools, academies and organizations — directory, applications, rosters, and invitations.",
+    "pt": "Clubs, schools, academies and organizations — directory, applications, rosters, and invitations."
+  },
+  "PeakUpHqTeamManagement.title": {
+    "de": "Team Management",
+    "fr": "Team Management",
+    "es": "Team Management",
+    "it": "Team Management",
+    "pt": "Team Management"
+  },
+  "ProfilePage.sportSticker.climbing": {
+    "de": "Climbing",
+    "fr": "Climbing",
+    "es": "Climbing",
+    "it": "Arrampicata",
+    "pt": "Escalada"
+  },
+  "ProfilePage.sportSticker.crosscountry": {
+    "de": "Cross-country",
+    "fr": "Cross-country",
+    "es": "Cross-country",
+    "it": "Sci di fondo",
+    "pt": "Esqui de fundo"
+  },
+  "ProfilePage.sportSticker.fitness": {
+    "de": "Fitness",
+    "fr": "Fitness",
+    "es": "Fitness",
+    "it": "Fitness",
+    "pt": "Fitness"
+  },
+  "ProfilePage.sportSticker.freerideskiing": {
+    "de": "Freeride skiing",
+    "fr": "Freeride skiing",
+    "es": "Freeride skiing",
+    "it": "Freeride sci",
+    "pt": "Freeride esqui"
+  },
+  "ProfilePage.sportSticker.freeridesnowboard": {
+    "de": "Freeride snowboard",
+    "fr": "Freeride snowboard",
+    "es": "Freeride snowboard",
+    "it": "Freeride snowboard",
+    "pt": "Freeride snowboard"
+  },
+  "ProfilePage.sportSticker.freestyleskiing": {
+    "de": "Freeski",
+    "fr": "Freeski",
+    "es": "Freeski",
+    "it": "Freeski",
+    "pt": "Freeski"
+  },
+  "ProfilePage.sportSticker.freestylesnowboard": {
+    "de": "Freestyle snowboard",
+    "fr": "Freestyle snowboard",
+    "es": "Freestyle snowboard",
+    "it": "Freestyle snowboard",
+    "pt": "Freestyle snowboard"
+  },
+  "ProfilePage.sportSticker.golf": {
+    "de": "Golf",
+    "fr": "Golf",
+    "es": "Golf",
+    "it": "Golf",
+    "pt": "Golf"
+  },
+  "ProfilePage.sportSticker.kitesurf": {
+    "de": "Kitesurf",
+    "fr": "Kitesurf",
+    "es": "Kitesurf",
+    "it": "Kitesurf",
+    "pt": "Kitesurf"
+  },
+  "ProfilePage.sportSticker.mtb": {
+    "de": "MTB",
+    "fr": "MTB",
+    "es": "MTB",
+    "it": "MTB",
+    "pt": "MTB"
+  },
+  "ProfilePage.sportSticker.skate": {
+    "de": "Skateboard",
+    "fr": "Skateboard",
+    "es": "Skateboard",
+    "it": "Skateboard",
+    "pt": "Skateboard"
+  },
+  "ProfilePage.sportSticker.skateboard": {
+    "de": "Skateboard",
+    "fr": "Skateboard",
+    "es": "Skateboard",
+    "it": "Skateboard",
+    "pt": "Skateboard"
+  },
+  "ProfilePage.sportSticker.ski": {
+    "de": "Ski",
+    "fr": "Ski",
+    "es": "Ski",
+    "it": "Sci",
+    "pt": "Esqui"
+  },
+  "ProfilePage.sportSticker.skitouring": {
+    "de": "Skitouring",
+    "fr": "Skitouring",
+    "es": "Skitouring",
+    "it": "Scialpinismo",
+    "pt": "Esqui de montanha"
+  },
+  "ProfilePage.sportSticker.skydive": {
+    "de": "Skydive",
+    "fr": "Skydive",
+    "es": "Skydive",
+    "it": "Paracadutismo",
+    "pt": "Paraquedismo"
+  },
+  "ProfilePage.sportSticker.snowboard": {
+    "de": "Snowboard",
+    "fr": "Snowboard",
+    "es": "Snowboard",
+    "it": "Snowboard",
+    "pt": "Snowboard"
+  },
+  "ProfilePage.sportSticker.splittouring": {
+    "de": "Split touring",
+    "fr": "Split touring",
+    "es": "Split touring",
+    "it": "Splitboard touring",
+    "pt": "Splitboard touring"
+  },
+  "ProfilePage.sportSticker.surf": {
+    "de": "Surf",
+    "fr": "Surf",
+    "es": "Surf",
+    "it": "Surf",
+    "pt": "Surf"
+  },
+  "ProfilePage.sportSticker.tennis": {
+    "de": "Tennis",
+    "fr": "Tennis",
+    "es": "Tennis",
+    "it": "Tennis",
+    "pt": "Ténis"
+  },
+  "ProfilePage.sportSticker.wakeboard": {
+    "de": "Wakeboard",
+    "fr": "Wakeboard",
+    "es": "Wakeboard",
+    "it": "Wakeboard",
+    "pt": "Wakeboard"
+  },
+  "ProfilePage.sportSticker.wakesurf": {
+    "de": "Wakesurf",
+    "fr": "Wakesurf",
+    "es": "Wakesurf",
+    "it": "Wakesurf",
+    "pt": "Wakesurf"
+  },
+  "ProfilePage.sportSticker.yoga": {
+    "de": "Yoga",
+    "fr": "Yoga",
+    "es": "Yoga",
+    "it": "Yoga",
+    "pt": "Yoga"
+  },
+  "ProfilePage.teamAffiliation": {
+    "de": "Member of {teamName}",
+    "fr": "Member of {teamName}",
+    "es": "Member of {teamName}",
+    "it": "Membro di {teamName}",
+    "pt": "Membro de {teamName}"
+  },
+  "ProfileSettingsForm.teamBioHeading": {
+    "de": "About your crew",
+    "fr": "About your crew",
+    "es": "About your crew",
+    "it": "Informazioni sulla crew",
+    "pt": "Sobre a crew"
+  },
+  "ProfileSettingsForm.teamBioInfo": {
+    "de": "Tell athletes what your crew, academy, or team is about. This appears on your public team page.",
+    "fr": "Tell athletes what your crew, academy, or team is about. This appears on your public team page.",
+    "es": "Tell athletes what your crew, academy, or team is about. This appears on your public team page.",
+    "it": "Racconta agli atleti di cosa si occupa la tua crew, accademia o team. Appare sulla pagina team pubblica.",
+    "pt": "Conte aos atletas do que se trata a sua crew, academia ou equipa. Aparece na página pública da equipa."
+  },
+  "ProfileSettingsForm.teamBioLabel": {
+    "de": "About your crew",
+    "fr": "About your crew",
+    "es": "About your crew",
+    "it": "Informazioni sulla crew",
+    "pt": "Sobre a crew"
+  },
+  "ProfileSettingsForm.teamBioPlaceholder": {
+    "de": "Your vibe, main activities, location, and what makes your group special…",
+    "fr": "Your vibe, main activities, location, and what makes your group special…",
+    "es": "Your vibe, main activities, location, and what makes your group special…",
+    "it": "Il vostro stile, attività principali, posizione e cosa rende speciale il gruppo…",
+    "pt": "O vosso estilo, atividades principais, localização e o que torna o grupo especial…"
+  },
+  "ProfileSettingsForm.teamCoachCountLabel": {
+    "de": "Number of coaches / guides (optional)",
+    "fr": "Number of coaches / guides (optional)",
+    "es": "Number of coaches / guides (optional)",
+    "it": "Numero di coach / guide (opzionale)",
+    "pt": "Número de coaches / guias (opcional)"
+  },
+  "ProfileSettingsForm.teamCoachesAdd": {
+    "de": "+ Add coach",
+    "fr": "+ Add coach",
+    "es": "+ Add coach",
+    "it": "+ Aggiungi coach",
+    "pt": "+ Adicionar coach"
+  },
+  "ProfileSettingsForm.teamCoachesEmptyLead": {
+    "de": "Invite verified PeakUp coaches by email or profile. They choose whether to join — you never manage their accounts.",
+    "fr": "Invite verified PeakUp coaches by email or profile. They choose whether to join — you never manage their accounts.",
+    "es": "Invite verified PeakUp coaches by email or profile. They choose whether to join — you never manage their accounts.",
+    "it": "Invita coach PeakUp verificati via email o profilo. Scelgono loro se unirsi — non gestisci mai i loro account.",
+    "pt": "Convide coaches PeakUp verificados por email ou perfil. Eles escolhem se querem aderir — nunca gere as contas deles."
+  },
+  "ProfileSettingsForm.teamCoachesEmptyTitle": {
+    "de": "No coaches connected yet",
+    "fr": "No coaches connected yet",
+    "es": "No coaches connected yet",
+    "it": "Nessun coach collegato",
+    "pt": "Ainda sem coaches ligados"
+  },
+  "ProfileSettingsForm.teamCoachesHeading": {
+    "de": "Team-Coaches",
+    "fr": "Coaches d’équipe",
+    "es": "Entrenadores de equipo",
+    "it": "Coach del team",
+    "pt": "Coaches da equipa"
+  },
+  "ProfileSettingsForm.teamCoachesInfo": {
+    "de": "Connect independent PeakUp coaches to your organization. Each coach keeps their own profile, reviews, bookings, and payouts — your crew page simply showcases them together.",
+    "fr": "Connect independent PeakUp coaches to your organization. Each coach keeps their own profile, reviews, bookings, and payouts — your crew page simply showcases them together.",
+    "es": "Connect independent PeakUp coaches to your organization. Each coach keeps their own profile, reviews, bookings, and payouts — your crew page simply showcases them together.",
+    "it": "Collega coach PeakUp indipendenti alla tua organizzazione. Ogni coach mantiene profilo, recensioni, prenotazioni e pagamenti — la pagina crew li mostra insieme.",
+    "pt": "Ligue coaches PeakUp independentes à sua organização. Cada coach mantém perfil, avaliações, reservas e pagamentos — a página da crew mostra-os em conjunto."
+  },
+  "ProfileSettingsForm.teamCoachesLoading": {
+    "de": "Loading coaches…",
+    "fr": "Loading coaches…",
+    "es": "Loading coaches…",
+    "it": "Caricamento coach…",
+    "pt": "A carregar coaches…"
+  },
+  "ProfileSettingsForm.teamCoachesRemoveConfirm": {
+    "de": "Remove this coach from your organization profile?",
+    "fr": "Remove this coach from your organization profile?",
+    "es": "Remove this coach from your organization profile?",
+    "it": "Rimuovere questo coach dal profilo organizzazione?",
+    "pt": "Remover este coach do perfil da organização?"
+  },
+  "ProfileSettingsForm.teamDetailsHeading": {
+    "de": "Crew links",
+    "fr": "Crew links",
+    "es": "Crew links",
+    "it": "Link crew",
+    "pt": "Links da crew"
+  },
+  "ProfileSettingsForm.teamDetailsInfo": {
+    "de": "Optional details shown on your public team page.",
+    "fr": "Optional details shown on your public team page.",
+    "es": "Optional details shown on your public team page.",
+    "it": "Dettagli opzionali mostrati sulla pagina team pubblica.",
+    "pt": "Detalhes opcionais mostrados na página pública da equipa."
+  },
+  "ProfileSettingsForm.teamDisplayNameLabel": {
+    "de": "Team / crew name",
+    "fr": "Team / crew name",
+    "es": "Team / crew name",
+    "it": "Nome team / crew",
+    "pt": "Nome da equipa / crew"
+  },
+  "ProfileSettingsForm.teamDisplayNamePlaceholder": {
+    "de": "e.g. Alpine Freeski Crew",
+    "fr": "e.g. Alpine Freeski Crew",
+    "es": "e.g. Alpine Freeski Crew",
+    "it": "es. Alpine Freeski Crew",
+    "pt": "ex. Alpine Freeski Crew"
+  },
+  "ProfileSettingsForm.teamFoundedYearHelp": {
+    "de": "The year your crew, academy, or camp started (e.g. 2018).",
+    "fr": "The year your crew, academy, or camp started (e.g. 2018).",
+    "es": "The year your crew, academy, or camp started (e.g. 2018).",
+    "it": "L'anno in cui la crew, accademia o camp è nata (es. 2018).",
+    "pt": "O ano em que a crew, academia ou camp começou (ex. 2018)."
+  },
+  "ProfileSettingsForm.teamFoundedYearLabel": {
+    "de": "Founded in",
+    "fr": "Founded in",
+    "es": "Founded in",
+    "it": "Fondata nel",
+    "pt": "Fundada em"
+  },
+  "ProfileSettingsForm.teamInstagramLabel": {
+    "de": "Instagram",
+    "fr": "Instagram",
+    "es": "Instagram",
+    "it": "Instagram",
+    "pt": "Instagram"
+  },
+  "ProfileSettingsForm.teamLocationHelp": {
+    "de": "Where your crew is based or where you usually operate.",
+    "fr": "Where your crew is based or where you usually operate.",
+    "es": "Where your crew is based or where you usually operate.",
+    "it": "Dove è basata la crew o dove operate di solito.",
+    "pt": "Onde a crew está baseada ou onde costuma operar."
+  },
+  "ProfileSettingsForm.teamLocationLabel": {
+    "de": "Location / region",
+    "fr": "Location / region",
+    "es": "Location / region",
+    "it": "Posizione / regione",
+    "pt": "Localização / região"
+  },
+  "ProfileSettingsForm.teamMainSportEmptyOption": {
+    "de": "Sport",
+    "fr": "Sport",
+    "es": "Deporte",
+    "it": "Sport",
+    "pt": "Desporto"
+  },
+  "ProfileSettingsForm.teamMainSportLabel": {
+    "de": "Main sport",
+    "fr": "Main sport",
+    "es": "Main sport",
+    "it": "Sport principale",
+    "pt": "Desporto principal"
+  },
+  "ProfileSettingsForm.teamPrimarySportEmptyOption": {
+    "de": "Sport",
+    "fr": "Sport",
+    "es": "Deporte",
+    "it": "Sport",
+    "pt": "Desporto"
+  },
+  "ProfileSettingsForm.teamPrimarySportLabel": {
+    "de": "Primary sport",
+    "fr": "Primary sport",
+    "es": "Primary sport",
+    "it": "Sport primario",
+    "pt": "Desporto primário"
+  },
+  "ProfileSettingsForm.teamProfilePicture": {
+    "de": "Team / crew picture",
+    "fr": "Team / crew picture",
+    "es": "Team / crew picture",
+    "it": "Immagine team / crew",
+    "pt": "Imagem da equipa / crew"
+  },
+  "ProfileSettingsForm.teamProfilePictureHelp": {
+    "de": "Upload a logo, group photo, action shot, or visual that represents your crew. This image is used as the hero image on your public team page.",
+    "fr": "Upload a logo, group photo, action shot, or visual that represents your crew. This image is used as the hero image on your public team page.",
+    "es": "Upload a logo, group photo, action shot, or visual that represents your crew. This image is used as the hero image on your public team page.",
+    "it": "Carica logo, foto di gruppo, action shot o immagine che rappresenta la crew. Usata come hero sulla pagina team pubblica.",
+    "pt": "Carregue logótipo, foto de grupo, action shot ou imagem que represente a crew. Usada como hero na página pública da equipa."
+  },
+  "ProfileSettingsForm.teamSecondarySportDuplicate": {
+    "de": "Choose a different sport than your primary.",
+    "fr": "Choose a different sport than your primary.",
+    "es": "Choose a different sport than your primary.",
+    "it": "Scegli uno sport diverso dal primario.",
+    "pt": "Escolha um desporto diferente do primário."
+  },
+  "ProfileSettingsForm.teamSecondarySportEmptyOption": {
+    "de": "Optional",
+    "fr": "Optional",
+    "es": "Optional",
+    "it": "Opzionale",
+    "pt": "Opcional"
+  },
+  "ProfileSettingsForm.teamSecondarySportLabel": {
+    "de": "Secondary sport",
+    "fr": "Secondary sport",
+    "es": "Secondary sport",
+    "it": "Sport secondario",
+    "pt": "Desporto secundário"
+  },
+  "ProfileSettingsForm.teamSinceYearEmptyOption": {
+    "de": "Year",
+    "fr": "Year",
+    "es": "Year",
+    "it": "Anno",
+    "pt": "Ano"
+  },
+  "ProfileSettingsForm.teamSinceYearHelp": {
+    "de": "Year your crew started.",
+    "fr": "Year your crew started.",
+    "es": "Year your crew started.",
+    "it": "Anno di fondazione della crew.",
+    "pt": "Ano de fundação da crew."
+  },
+  "ProfileSettingsForm.teamSinceYearLabel": {
+    "de": "Since",
+    "fr": "Since",
+    "es": "Since",
+    "it": "Dal",
+    "pt": "Desde"
+  },
+  "ProfileSettingsForm.teamSinceYearPlaceholder": {
+    "de": "2018",
+    "fr": "2018",
+    "es": "2018",
+    "it": "2018",
+    "pt": "2018"
+  },
+  "ProfileSettingsForm.teamSportsAndLanguagesHeading": {
+    "de": "Sports & languages",
+    "fr": "Sports & languages",
+    "es": "Sports & languages",
+    "it": "Sport e lingue",
+    "pt": "Desportos e idiomas"
+  },
+  "ProfileSettingsForm.teamSportsAndLanguagesInfo": {
+    "de": "Select the sports and languages your crew offers. Individual coaches keep their own profiles and certifications.",
+    "fr": "Select the sports and languages your crew offers. Individual coaches keep their own profiles and certifications.",
+    "es": "Select the sports and languages your crew offers. Individual coaches keep their own profiles and certifications.",
+    "it": "Seleziona sport e lingue offerti dalla crew. I singoli coach mantengono profili e certificazioni propri.",
+    "pt": "Selecione desportos e idiomas oferecidos pela crew. Os coaches individuais mantêm perfis e certificações próprios."
+  },
+  "ProfileSettingsForm.teamSportsHeading": {
+    "de": "Sports",
+    "fr": "Sports",
+    "es": "Sports",
+    "it": "Sport",
+    "pt": "Desportos"
+  },
+  "ProfileSettingsForm.teamSportsInfo": {
+    "de": "Select the sports your crew offers. Individual coaches keep their own profiles and certifications.",
+    "fr": "Select the sports your crew offers. Individual coaches keep their own profiles and certifications.",
+    "es": "Select the sports your crew offers. Individual coaches keep their own profiles and certifications.",
+    "it": "Seleziona gli sport offerti dalla crew. I singoli coach mantengono profili e certificazioni propri.",
+    "pt": "Selecione os desportos oferecidos pela crew. Os coaches individuais mantêm perfis e certificações próprios."
+  },
+  "ProfileSettingsForm.teamTaglineLabel": {
+    "de": "Crew line",
+    "fr": "Crew line",
+    "es": "Crew line",
+    "it": "Tagline crew",
+    "pt": "Tagline da crew"
+  },
+  "ProfileSettingsForm.teamWebsiteLabel": {
+    "de": "Website",
+    "fr": "Website",
+    "es": "Website",
+    "it": "Sito web",
+    "pt": "Website"
+  },
+  "ReferralCenterPage.activityCoachActive": {
+    "de": "Coach became active",
+    "fr": "Coach became active",
+    "es": "Coach became active",
+    "it": "Coach became active",
+    "pt": "Coach became active"
+  },
+  "ReferralCenterPage.activityCoachApplied": {
+    "de": "New coach application",
+    "fr": "New coach application",
+    "es": "New coach application",
+    "it": "New coach application",
+    "pt": "New coach application"
+  },
+  "ReferralCenterPage.activityCoachVerified": {
+    "de": "Coach verified",
+    "fr": "Coach verified",
+    "es": "Coach verified",
+    "it": "Coach verified",
+    "pt": "Coach verified"
+  },
+  "ReferralCenterPage.activityDefault": {
+    "de": "Ambassador activity",
+    "fr": "Ambassador activity",
+    "es": "Ambassador activity",
+    "it": "Ambassador activity",
+    "pt": "Ambassador activity"
+  },
+  "ReferralCenterPage.activityEmpty": {
+    "de": "Your referral timeline will appear here as coaches join and grow.",
+    "fr": "Your referral timeline will appear here as coaches join and grow.",
+    "es": "Your referral timeline will appear here as coaches join and grow.",
+    "it": "Your referral timeline will appear here as coaches join and grow.",
+    "pt": "Your referral timeline will appear here as coaches join and grow."
+  },
+  "ReferralCenterPage.activityFirstBooking": {
+    "de": "First booking completed",
+    "fr": "First booking completed",
+    "es": "First booking completed",
+    "it": "First booking completed",
+    "pt": "First booking completed"
+  },
+  "ReferralCenterPage.activityRewardEarned": {
+    "de": "Reward earned",
+    "fr": "Reward earned",
+    "es": "Reward earned",
+    "it": "Reward earned",
+    "pt": "Reward earned"
+  },
+  "ReferralCenterPage.activityRewardsUnlocked": {
+    "de": "Rewards unlocked",
+    "fr": "Rewards unlocked",
+    "es": "Rewards unlocked",
+    "it": "Rewards unlocked",
+    "pt": "Rewards unlocked"
+  },
+  "ReferralCenterPage.activityTierUpgraded": {
+    "de": "Tier upgraded",
+    "fr": "Tier upgraded",
+    "es": "Tier upgraded",
+    "it": "Tier upgraded",
+    "pt": "Tier upgraded"
+  },
+  "ReferralCenterPage.activityTitle": {
+    "de": "Referral timeline",
+    "fr": "Referral timeline",
+    "es": "Referral timeline",
+    "it": "Referral timeline",
+    "pt": "Referral timeline"
+  },
+  "ReferralCenterPage.copyInviteMessage": {
+    "de": "Copy invite message",
+    "fr": "Copy invite message",
+    "es": "Copy invite message",
+    "it": "Copy invite message",
+    "pt": "Copy invite message"
+  },
+  "ReferralCenterPage.loadingDashboard": {
+    "de": "Loading your live referral data…",
+    "fr": "Loading your live referral data…",
+    "es": "Loading your live referral data…",
+    "it": "Loading your live referral data…",
+    "pt": "Loading your live referral data…"
+  },
+  "ReferralCenterPage.qrAlt": {
+    "de": "QR code for your referral link",
+    "fr": "QR code for your referral link",
+    "es": "QR code for your referral link",
+    "it": "QR code for your referral link",
+    "pt": "QR code for your referral link"
+  },
+  "ReferralCenterPage.qrCaption": {
+    "de": "Scan to join PeakUp with your referral code",
+    "fr": "Scan to join PeakUp with your referral code",
+    "es": "Scan to join PeakUp with your referral code",
+    "it": "Scan to join PeakUp with your referral code",
+    "pt": "Scan to join PeakUp with your referral code"
+  },
+  "ReferralCenterPage.rewardHistoryBooking": {
+    "de": "Booking total",
+    "fr": "Booking total",
+    "es": "Booking total",
+    "it": "Booking total",
+    "pt": "Booking total"
+  },
+  "ReferralCenterPage.rewardHistoryCoach": {
+    "de": "Referred coach",
+    "fr": "Referred coach",
+    "es": "Referred coach",
+    "it": "Referred coach",
+    "pt": "Referred coach"
+  },
+  "ReferralCenterPage.rewardHistoryCoachPayout": {
+    "de": "Coach payout",
+    "fr": "Coach payout",
+    "es": "Coach payout",
+    "it": "Coach payout",
+    "pt": "Coach payout"
+  },
+  "ReferralCenterPage.rewardHistoryDate": {
+    "de": "Date",
+    "fr": "Date",
+    "es": "Date",
+    "it": "Date",
+    "pt": "Date"
+  },
+  "ReferralCenterPage.rewardHistoryEmpty": {
+    "de": "Reward entries appear here when referred coaches complete paid bookings.",
+    "fr": "Reward entries appear here when referred coaches complete paid bookings.",
+    "es": "Reward entries appear here when referred coaches complete paid bookings.",
+    "it": "Reward entries appear here when referred coaches complete paid bookings.",
+    "pt": "Reward entries appear here when referred coaches complete paid bookings."
+  },
+  "ReferralCenterPage.rewardHistoryReward": {
+    "de": "Your reward",
+    "fr": "Your reward",
+    "es": "Your reward",
+    "it": "Your reward",
+    "pt": "Your reward"
+  },
+  "ReferralCenterPage.rewardHistoryStatus": {
+    "de": "Status",
+    "fr": "Situation",
+    "es": "Prueba de traducción",
+    "it": "Status",
+    "pt": "Status"
+  },
+  "ReferralCenterPage.rewardHistoryTitle": {
+    "de": "Reward history",
+    "fr": "Reward history",
+    "es": "Reward history",
+    "it": "Reward history",
+    "pt": "Reward history"
+  },
+  "ReferralCenterPage.rewardStatusEarned": {
+    "de": "Earned",
+    "fr": "Earned",
+    "es": "Earned",
+    "it": "Earned",
+    "pt": "Earned"
+  },
+  "ReferralCenterPage.rewardStatusPending": {
+    "de": "Ausstehend",
+    "fr": "En attente",
+    "es": "Pendiente",
+    "it": "Pending",
+    "pt": "Pending"
+  },
+  "ReferralCenterPage.rewardsBreakdownAria": {
+    "de": "Ambassador reward breakdown",
+    "fr": "Ambassador reward breakdown",
+    "es": "Ambassador reward breakdown",
+    "it": "Ambassador reward breakdown",
+    "pt": "Ambassador reward breakdown"
+  },
+  "ReferralCenterPage.rewardsBreakdownTitle": {
+    "de": "Ambassador earnings",
+    "fr": "Ambassador earnings",
+    "es": "Ambassador earnings",
+    "it": "Ambassador earnings",
+    "pt": "Ambassador earnings"
+  },
+  "ReferralCenterPage.rewardsFlowHint": {
+    "de": "Client payment → Stripe → PeakUp fee → Coach payout → Ambassador %",
+    "fr": "Client payment → Stripe → PeakUp fee → Coach payout → Ambassador %",
+    "es": "Client payment → Stripe → PeakUp fee → Coach payout → Ambassador %",
+    "it": "Client payment → Stripe → PeakUp fee → Coach payout → Ambassador %",
+    "pt": "Client payment → Stripe → PeakUp fee → Coach payout → Ambassador %"
+  },
+  "ReferralCenterPage.shareWhatsapp": {
+    "de": "Share via WhatsApp",
+    "fr": "Share via WhatsApp",
+    "es": "Share via WhatsApp",
+    "it": "Share via WhatsApp",
+    "pt": "Share via WhatsApp"
+  },
+  "ReferralCenterPage.statEarnedRewards": {
+    "de": "Earned rewards",
+    "fr": "Earned rewards",
+    "es": "Earned rewards",
+    "it": "Earned rewards",
+    "pt": "Earned rewards"
+  },
+  "ReferralCenterPage.statLifetimeRewards": {
+    "de": "Lebenslange Belohnungen",
+    "fr": "Récompenses à vie",
+    "es": "Recompensas de por vida",
+    "it": "Lifetime rewards",
+    "pt": "Lifetime rewards"
+  },
+  "ReferralCenterPage.statMonthlyRewards": {
+    "de": "This month",
+    "fr": "This month",
+    "es": "This month",
+    "it": "This month",
+    "pt": "This month"
+  },
+  "ReferralCenterPage.statPendingRewards": {
+    "de": "Pending rewards",
+    "fr": "Pending rewards",
+    "es": "Pending rewards",
+    "it": "Pending rewards",
+    "pt": "Pending rewards"
+  },
+  "ReferralCenterPage.unlockBannerBody": {
+    "de": "Your Bronze referral commission is now active.",
+    "fr": "Your Bronze referral commission is now active.",
+    "es": "Your Bronze referral commission is now active.",
+    "it": "Your Bronze referral commission is now active.",
+    "pt": "Your Bronze referral commission is now active."
+  },
+  "ReferralCenterPage.unlockBannerTitle": {
+    "de": "Bronze rewards unlocked",
+    "fr": "Bronze rewards unlocked",
+    "es": "Bronze rewards unlocked",
+    "it": "Bronze rewards unlocked",
+    "pt": "Bronze rewards unlocked"
+  },
+  "TeamApplicationPage.alreadyTeam": {
+    "de": "You are signed in as a team account.",
+    "fr": "You are signed in as a team account.",
+    "es": "You are signed in as a team account.",
+    "it": "You are signed in as a team account.",
+    "pt": "You are signed in as a team account."
+  },
+  "TeamApplicationPage.cityArea": {
+    "de": "City / region",
+    "fr": "City / region",
+    "es": "City / region",
+    "it": "City / region",
+    "pt": "City / region"
+  },
+  "TeamApplicationPage.editProfile": {
+    "de": "Team profile settings",
+    "fr": "Team profile settings",
+    "es": "Team profile settings",
+    "it": "Team profile settings",
+    "pt": "Team profile settings"
+  },
+  "TeamApplicationPage.lead": {
+    "de": "Apply to bring your academy, camp, or crew onto PeakUp — simple, visual, community-first.",
+    "fr": "Apply to bring your academy, camp, or crew onto PeakUp — simple, visual, community-first.",
+    "es": "Apply to bring your academy, camp, or crew onto PeakUp — simple, visual, community-first.",
+    "it": "Apply to bring your academy, camp, or crew onto PeakUp — simple, visual, community-first.",
+    "pt": "Apply to bring your academy, camp, or crew onto PeakUp — simple, visual, community-first."
+  },
+  "TeamApplicationPage.leadNote": {
+    "de": "Each coach on your crew keeps their own profile and gets verified individually. You do not upload coach certificates here.",
+    "fr": "Each coach on your crew keeps their own profile and gets verified individually. You do not upload coach certificates here.",
+    "es": "Each coach on your crew keeps their own profile and gets verified individually. You do not upload coach certificates here.",
+    "it": "Each coach on your crew keeps their own profile and gets verified individually. You do not upload coach certificates here.",
+    "pt": "Each coach on your crew keeps their own profile and gets verified individually. You do not upload coach certificates here."
+  },
+  "TeamApplicationPage.mainSport": {
+    "de": "Primary sport",
+    "fr": "Primary sport",
+    "es": "Primary sport",
+    "it": "Primary sport",
+    "pt": "Primary sport"
+  },
+  "TeamApplicationPage.submit": {
+    "de": "Submit application",
+    "fr": "Submit application",
+    "es": "Submit application",
+    "it": "Submit application",
+    "pt": "Submit application"
+  },
+  "TeamApplicationPage.successBody": {
+    "de": "Our team will review your application and contact you within a few business days.",
+    "fr": "Our team will review your application and contact you within a few business days.",
+    "es": "Our team will review your application and contact you within a few business days.",
+    "it": "Our team will review your application and contact you within a few business days.",
+    "pt": "Our team will review your application and contact you within a few business days."
+  },
+  "TeamApplicationPage.successTitle": {
+    "de": "Application received",
+    "fr": "Application received",
+    "es": "Application received",
+    "it": "Application received",
+    "pt": "Application received"
+  },
+  "TeamApplicationPage.teamBio": {
+    "de": "About your team",
+    "fr": "About your team",
+    "es": "About your team",
+    "it": "About your team",
+    "pt": "About your team"
+  },
+  "TeamApplicationPage.teamInstagram": {
+    "de": "Instagram (optional)",
+    "fr": "Instagram (optional)",
+    "es": "Instagram (optional)",
+    "it": "Instagram (optional)",
+    "pt": "Instagram (optional)"
+  },
+  "TeamApplicationPage.teamName": {
+    "de": "Team / club name",
+    "fr": "Team / club name",
+    "es": "Team / club name",
+    "it": "Team / club name",
+    "pt": "Team / club name"
+  },
+  "TeamApplicationPage.teamWebsite": {
+    "de": "Website (optional)",
+    "fr": "Website (optional)",
+    "es": "Website (optional)",
+    "it": "Website (optional)",
+    "pt": "Website (optional)"
+  },
+  "TeamApplicationPage.title": {
+    "de": "Apply as a verified team",
+    "fr": "Apply as a verified team",
+    "es": "Apply as a verified team",
+    "it": "Apply as a verified team",
+    "pt": "Apply as a verified team"
+  },
+  "TeamCard.priceFrom": {
+    "de": "From {price}",
+    "fr": "From {price}",
+    "es": "From {price}",
+    "it": "From {price}",
+    "pt": "From {price}"
+  },
+  "TeamCard.verifiedTeam": {
+    "de": "Verified team",
+    "fr": "Verified team",
+    "es": "Verified team",
+    "it": "Verified team",
+    "pt": "Verified team"
+  },
+  "TeamCoachRosterCard.cancelInvite": {
+    "de": "Cancel invite",
+    "fr": "Cancel invite",
+    "es": "Cancel invite",
+    "it": "Cancel invite",
+    "pt": "Cancel invite"
+  },
+  "TeamCoachRosterCard.message": {
+    "de": "Message",
+    "fr": "Message",
+    "es": "Message",
+    "it": "Message",
+    "pt": "Message"
+  },
+  "TeamCoachRosterCard.remove": {
+    "de": "Remove",
+    "fr": "Remove",
+    "es": "Remove",
+    "it": "Remove",
+    "pt": "Remove"
+  },
+  "TeamCoachRosterCard.statusActive": {
+    "de": "Active",
+    "fr": "Active",
+    "es": "Active",
+    "it": "Active",
+    "pt": "Active"
+  },
+  "TeamCoachRosterCard.statusDeclined": {
+    "de": "Declined",
+    "fr": "Declined",
+    "es": "Declined",
+    "it": "Declined",
+    "pt": "Declined"
+  },
+  "TeamCoachRosterCard.statusEligible": {
+    "de": "Available",
+    "fr": "Available",
+    "es": "Available",
+    "it": "Available",
+    "pt": "Available"
+  },
+  "TeamCoachRosterCard.statusNotVerified": {
+    "de": "Not verified",
+    "fr": "Not verified",
+    "es": "Not verified",
+    "it": "Not verified",
+    "pt": "Not verified"
+  },
+  "TeamCoachRosterCard.statusPending": {
+    "de": "Ausstehend",
+    "fr": "En attente",
+    "es": "Pendiente",
+    "it": "Pending",
+    "pt": "Pending"
+  },
+  "TeamCoachRosterCard.tableActions": {
+    "de": "Aktionen",
+    "fr": "Actions",
+    "es": "Acciones",
+    "it": "Actions",
+    "pt": "Actions"
+  },
+  "TeamCoachRosterCard.tableCoach": {
+    "de": "Coach",
+    "fr": "Coach",
+    "es": "Coach",
+    "it": "Coach",
+    "pt": "Coach"
+  },
+  "TeamCoachRosterCard.tableStatus": {
+    "de": "Status",
+    "fr": "Situation",
+    "es": "Prueba de traducción",
+    "it": "Status",
+    "pt": "Status"
+  },
+  "TeamCoachRosterCard.viewProfile": {
+    "de": "View profile",
+    "fr": "View profile",
+    "es": "View profile",
+    "it": "View profile",
+    "pt": "View profile"
+  },
+  "TeamDashboardBookingsPage.backToDashboard": {
+    "de": "← Back to team dashboard",
+    "fr": "← Back to team dashboard",
+    "es": "← Back to team dashboard",
+    "it": "← Back to team dashboard",
+    "pt": "← Back to team dashboard"
+  },
+  "TeamDashboardBookingsPage.eyebrow": {
+    "de": "Team bookings",
+    "fr": "Team bookings",
+    "es": "Team bookings",
+    "it": "Team bookings",
+    "pt": "Team bookings"
+  },
+  "TeamDashboardBookingsPage.lead": {
+    "de": "Upcoming sessions, open requests, reviews, and history for your team.",
+    "fr": "Upcoming sessions, open requests, reviews, and history for your team.",
+    "es": "Upcoming sessions, open requests, reviews, and history for your team.",
+    "it": "Upcoming sessions, open requests, reviews, and history for your team.",
+    "pt": "Upcoming sessions, open requests, reviews, and history for your team."
+  },
+  "TeamDashboardBookingsPage.schemaTitle": {
+    "de": "Team bookings | {marketplaceName}",
+    "fr": "Team bookings | {marketplaceName}",
+    "es": "Team bookings | {marketplaceName}",
+    "it": "Team bookings | {marketplaceName}",
+    "pt": "Team bookings | {marketplaceName}"
+  },
+  "TeamDashboardBookingsPage.title": {
+    "de": "DASHBOARD",
+    "fr": "Tableau de bord réservation",
+    "es": "Bookinter  - Tablero de mandos",
+    "it": "Booking dashboard",
+    "pt": "Booking dashboard"
+  },
+  "TeamDashboardPage.cardBookingsHint": {
+    "de": "Overview of your team booking activity.",
+    "fr": "Overview of your team booking activity.",
+    "es": "Overview of your team booking activity.",
+    "it": "Overview of your team booking activity.",
+    "pt": "Overview of your team booking activity."
+  },
+  "TeamDashboardPage.cardBookingsPast": {
+    "de": "Vergangenheit",
+    "fr": "Passé ",
+    "es": "Atrasadas",
+    "it": "Past",
+    "pt": "Past"
+  },
+  "TeamDashboardPage.cardBookingsPending": {
+    "de": "Ausstehend",
+    "fr": "En attente",
+    "es": "Pendiente",
+    "it": "Pending",
+    "pt": "Pending"
+  },
+  "TeamDashboardPage.cardBookingsTitle": {
+    "de": "Team bookings",
+    "fr": "Team bookings",
+    "es": "Team bookings",
+    "it": "Team bookings",
+    "pt": "Team bookings"
+  },
+  "TeamDashboardPage.cardBookingsUpcoming": {
+    "de": "anstehend",
+    "fr": "À venir",
+    "es": "Próximos",
+    "it": "Upcoming",
+    "pt": "Upcoming"
+  },
+  "TeamDashboardPage.cardInboxHint": {
+    "de": "Team booking conversations.",
+    "fr": "Team booking conversations.",
+    "es": "Team booking conversations.",
+    "it": "Team booking conversations.",
+    "pt": "Team booking conversations."
+  },
+  "TeamDashboardPage.cardInboxTitle": {
+    "de": "Nachrichten",
+    "fr": "Messages",
+    "es": "Mensajes",
+    "it": "Messages",
+    "pt": "Messages"
+  },
+  "TeamDashboardPage.cardOpen": {
+    "de": "Öffnen",
+    "fr": "Ouvrir",
+    "es": "Abierto",
+    "it": "Open",
+    "pt": "Open"
+  },
+  "TeamDashboardPage.cardWorkspaceHint": {
+    "de": "Roster, sports, and public profile.",
+    "fr": "Roster, sports, and public profile.",
+    "es": "Roster, sports, and public profile.",
+    "it": "Roster, sports, and public profile.",
+    "pt": "Roster, sports, and public profile."
+  },
+  "TeamDashboardPage.cardWorkspaceTitle": {
+    "de": "Team workspace",
+    "fr": "Team workspace",
+    "es": "Team workspace",
+    "it": "Team workspace",
+    "pt": "Team workspace"
+  },
+  "TeamDashboardPage.coachesSectionTitle": {
+    "de": "Team-Coaches",
+    "fr": "Coaches d’équipe",
+    "es": "Entrenadores de equipo",
+    "it": "Team coaches",
+    "pt": "Team coaches"
+  },
+  "TeamDashboardPage.eyebrow": {
+    "de": "Team dashboard",
+    "fr": "Team dashboard",
+    "es": "Team dashboard",
+    "it": "Team dashboard",
+    "pt": "Team dashboard"
+  },
+  "TeamDashboardPage.heroLead": {
+    "de": "Roster, bookings, and team profile status in one place.",
+    "fr": "Roster, bookings, and team profile status in one place.",
+    "es": "Roster, bookings, and team profile status in one place.",
+    "it": "Roster, bookings, and team profile status in one place.",
+    "pt": "Roster, bookings, and team profile status in one place."
+  },
+  "TeamDashboardPage.heroNameFallback": {
+    "de": "Team",
+    "fr": "Équipe",
+    "es": "El equipo",
+    "it": "Team",
+    "pt": "Team"
+  },
+  "TeamDashboardPage.heroTitlePrefix": {
+    "de": "Willkommen zurück",
+    "fr": "Bienvenue,",
+    "es": "Bienvenido/a de nuevo,",
+    "it": "Welcome back,",
+    "pt": "Welcome back,"
+  },
+  "TeamDashboardPage.profileComplete": {
+    "de": "Complete",
+    "fr": "Complete",
+    "es": "Complete",
+    "it": "Complete",
+    "pt": "Complete"
+  },
+  "TeamDashboardPage.profileIncomplete": {
+    "de": "Incomplete",
+    "fr": "Incomplete",
+    "es": "Incomplete",
+    "it": "Incomplete",
+    "pt": "Incomplete"
+  },
+  "TeamDashboardPage.profileNotice": {
+    "de": "Complete your team profile to improve visibility on PeakUp.",
+    "fr": "Complete your team profile to improve visibility on PeakUp.",
+    "es": "Complete your team profile to improve visibility on PeakUp.",
+    "it": "Complete your team profile to improve visibility on PeakUp.",
+    "pt": "Complete your team profile to improve visibility on PeakUp."
+  },
+  "TeamDashboardPage.schemaTitle": {
+    "de": "Team dashboard | {marketplaceName}",
+    "fr": "Team dashboard | {marketplaceName}",
+    "es": "Team dashboard | {marketplaceName}",
+    "it": "Team dashboard | {marketplaceName}",
+    "pt": "Team dashboard | {marketplaceName}"
+  },
+  "TeamDashboardPage.statCoaches": {
+    "de": "Connected coaches",
+    "fr": "Connected coaches",
+    "es": "Connected coaches",
+    "it": "Connected coaches",
+    "pt": "Connected coaches"
+  },
+  "TeamDashboardPage.statInvites": {
+    "de": "Pending invites",
+    "fr": "Pending invites",
+    "es": "Pending invites",
+    "it": "Pending invites",
+    "pt": "Pending invites"
+  },
+  "TeamDashboardPage.statProfileStatus": {
+    "de": "Profile status",
+    "fr": "Profile status",
+    "es": "Profile status",
+    "it": "Profile status",
+    "pt": "Profile status"
+  },
+  "TeamInviteBanner.accept": {
+    "de": "Accept",
+    "fr": "Accept",
+    "es": "Accept",
+    "it": "Accept",
+    "pt": "Accept"
+  },
+  "TeamInviteBanner.decline": {
+    "de": "Decline",
+    "fr": "Decline",
+    "es": "Decline",
+    "it": "Decline",
+    "pt": "Decline"
+  },
+  "TeamInviteBanner.lead": {
+    "de": "You'll stay fully independent — your reviews, bookings, certifications, and payouts remain on your own PeakUp profile.",
+    "fr": "You'll stay fully independent — your reviews, bookings, certifications, and payouts remain on your own PeakUp profile.",
+    "es": "You'll stay fully independent — your reviews, bookings, certifications, and payouts remain on your own PeakUp profile.",
+    "it": "You'll stay fully independent — your reviews, bookings, certifications, and payouts remain on your own PeakUp profile.",
+    "pt": "You'll stay fully independent — your reviews, bookings, certifications, and payouts remain on your own PeakUp profile."
+  },
+  "TeamInviteBanner.title": {
+    "de": "{teamName} invited you to join their crew",
+    "fr": "{teamName} invited you to join their crew",
+    "es": "{teamName} invited you to join their crew",
+    "it": "{teamName} invited you to join their crew",
+    "pt": "{teamName} invited you to join their crew"
+  },
+  "TeamProfilePage.aboutHeading": {
+    "de": "The crew",
+    "fr": "The crew",
+    "es": "The crew",
+    "it": "The crew",
+    "pt": "The crew"
+  },
+  "TeamProfilePage.aboutLead": {
+    "de": "A PeakUp sports collective — independent certified coaches, one community.",
+    "fr": "A PeakUp sports collective — independent certified coaches, one community.",
+    "es": "A PeakUp sports collective — independent certified coaches, one community.",
+    "it": "A PeakUp sports collective — independent certified coaches, one community.",
+    "pt": "A PeakUp sports collective — independent certified coaches, one community."
+  },
+  "TeamProfilePage.coachCount": {
+    "de": "{count, plural, one {# coach} other {# coaches}}",
+    "fr": "{count, plural, one {# coach} other {# coaches}}",
+    "es": "{count, plural, one {# coach} other {# coaches}}",
+    "it": "{count, plural, one {# coach} other {# coaches}}",
+    "pt": "{count, plural, one {# coach} other {# coaches}}"
+  },
+  "TeamProfilePage.editProfile": {
+    "de": "Edit crew profile",
+    "fr": "Edit crew profile",
+    "es": "Edit crew profile",
+    "it": "Edit crew profile",
+    "pt": "Edit crew profile"
+  },
+  "TeamProfilePage.instagram": {
+    "de": "Instagram",
+    "fr": "Instagram",
+    "es": "Instagram",
+    "it": "Instagram",
+    "pt": "Instagram"
+  },
+  "TeamProfilePage.joinCta": {
+    "de": "Join this crew",
+    "fr": "Join this crew",
+    "es": "Join this crew",
+    "it": "Join this crew",
+    "pt": "Join this crew"
+  },
+  "TeamProfilePage.rosterEmpty": {
+    "de": "Coaches will appear here as they join the crew.",
+    "fr": "Coaches will appear here as they join the crew.",
+    "es": "Coaches will appear here as they join the crew.",
+    "it": "Coaches will appear here as they join the crew.",
+    "pt": "Coaches will appear here as they join the crew."
+  },
+  "TeamProfilePage.rosterError": {
+    "de": "Could not load coaches right now.",
+    "fr": "Could not load coaches right now.",
+    "es": "Could not load coaches right now.",
+    "it": "Could not load coaches right now.",
+    "pt": "Could not load coaches right now."
+  },
+  "TeamProfilePage.rosterHeading": {
+    "de": "Meet our coaches",
+    "fr": "Meet our coaches",
+    "es": "Meet our coaches",
+    "it": "Meet our coaches",
+    "pt": "Meet our coaches"
+  },
+  "TeamProfilePage.rosterLead": {
+    "de": "Each coach has their own PeakUp profile, reviews, and pricing — this crew brings them together.",
+    "fr": "Each coach has their own PeakUp profile, reviews, and pricing — this crew brings them together.",
+    "es": "Each coach has their own PeakUp profile, reviews, and pricing — this crew brings them together.",
+    "it": "Each coach has their own PeakUp profile, reviews, and pricing — this crew brings them together.",
+    "pt": "Each coach has their own PeakUp profile, reviews, and pricing — this crew brings them together."
+  },
+  "TeamProfilePage.rosterLoading": {
+    "de": "Loading coaches…",
+    "fr": "Loading coaches…",
+    "es": "Loading coaches…",
+    "it": "Loading coaches…",
+    "pt": "Loading coaches…"
+  },
+  "TeamProfilePage.verifiedCrew": {
+    "de": "Verified crew",
+    "fr": "Verified crew",
+    "es": "Verified crew",
+    "it": "Verified crew",
+    "pt": "Verified crew"
+  },
+  "TeamProfilePage.website": {
+    "de": "Website",
+    "fr": "Website",
+    "es": "Website",
+    "it": "Website",
+    "pt": "Website"
+  },
+  "TopbarDesktop.customerDashboardLink": {
+    "de": "My dashboard",
+    "fr": "My dashboard",
+    "es": "My dashboard",
+    "it": "My dashboard",
+    "pt": "My dashboard"
+  },
+  "TopbarMobileMenu.customerDashboardLink": {
+    "de": "My dashboard",
+    "fr": "My dashboard",
+    "es": "My dashboard",
+    "it": "My dashboard",
+    "pt": "My dashboard"
+  },
+  "TransactionPage.ActivityFeed.default-booking.confirm-payment-instant": {
+    "de": "{actor, select, you {You booked {listingTitle}. Your session is confirmed.} other {{otherUsersName} booked {listingTitle}.}}",
+    "fr": "{actor, select, you {You booked {listingTitle}. Your session is confirmed.} other {{otherUsersName} booked {listingTitle}.}}",
+    "es": "{actor, select, you {You booked {listingTitle}. Your session is confirmed.} other {{otherUsersName} booked {listingTitle}.}}",
+    "it": "{actor, select, you {You booked {listingTitle}. Your session is confirmed.} other {{otherUsersName} booked {listingTitle}.}}",
+    "pt": "{actor, select, you {You booked {listingTitle}. Your session is confirmed.} other {{otherUsersName} booked {listingTitle}.}}"
+  },
+  "TransactionPage.ActivityFeed.default-purchase-day.canceled": {
+    "de": "The booking was canceled.",
+    "fr": "The booking was canceled.",
+    "es": "The booking was canceled.",
+    "it": "The booking was canceled.",
+    "pt": "The booking was canceled."
+  },
+  "TransactionPage.ActivityFeed.default-purchase-day.completed": {
+    "de": "{stateStatus, select, current {The experience was completed. {reviewLink}} other {The experience was completed.}}",
+    "fr": "{stateStatus, select, current {The experience was completed. {reviewLink}} other {The experience was completed.}}",
+    "es": "{stateStatus, select, current {The experience was completed. {reviewLink}} other {The experience was completed.}}",
+    "it": "{stateStatus, select, current {The experience was completed. {reviewLink}} other {The experience was completed.}}",
+    "pt": "{stateStatus, select, current {The experience was completed. {reviewLink}} other {The experience was completed.}}"
+  },
+  "TransactionPage.ActivityFeed.default-purchase-day.delivered": {
+    "de": "The booking is confirmed and upcoming.",
+    "fr": "The booking is confirmed and upcoming.",
+    "es": "The booking is confirmed and upcoming.",
+    "it": "The booking is confirmed and upcoming.",
+    "pt": "The booking is confirmed and upcoming."
+  },
+  "TransactionPage.ActivityFeed.default-purchase-day.disputed": {
+    "de": "The booking was disputed.",
+    "fr": "The booking was disputed.",
+    "es": "The booking was disputed.",
+    "it": "The booking was disputed.",
+    "pt": "The booking was disputed."
+  },
+  "TransactionPage.ActivityFeed.default-purchase-day.purchased": {
+    "de": "{actor, select, you {You booked {listingTitle}.} other {{otherUsersName} booked {listingTitle}.}}",
+    "fr": "{actor, select, you {You booked {listingTitle}.} other {{otherUsersName} booked {listingTitle}.}}",
+    "es": "{actor, select, you {You booked {listingTitle}.} other {{otherUsersName} booked {listingTitle}.}}",
+    "it": "{actor, select, you {You booked {listingTitle}.} other {{otherUsersName} booked {listingTitle}.}}",
+    "pt": "{actor, select, you {You booked {listingTitle}.} other {{otherUsersName} booked {listingTitle}.}}"
+  },
+  "TransactionPage.ActivityFeed.default-purchase-day.received": {
+    "de": "The experience was completed.",
+    "fr": "The experience was completed.",
+    "es": "The experience was completed.",
+    "it": "The experience was completed.",
+    "pt": "The experience was completed."
+  },
+  "TransactionPage.ActivityFeed.default-purchase-day.reviewed": {
+    "de": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "fr": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "es": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "it": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "pt": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  "TransactionPage.ActivityFeed.default-purchase-day.reviewed-by-customer": {
+    "de": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "fr": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "es": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "it": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "pt": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  "TransactionPage.ActivityFeed.default-purchase-day.reviewed-by-provider": {
+    "de": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "fr": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "es": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "it": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}",
+    "pt": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  "TransactionPage.default-booking.customer.accepted-instant.extraInfo": {
+    "de": "Your session is confirmed.",
+    "fr": "Your session is confirmed.",
+    "es": "Your session is confirmed.",
+    "it": "Your session is confirmed.",
+    "pt": "Your session is confirmed."
+  },
+  "TransactionPage.default-booking.customer.accepted-instant.title": {
+    "de": "Your booking was successful!",
+    "fr": "Your booking was successful!",
+    "es": "Your booking was successful!",
+    "it": "Your booking was successful!",
+    "pt": "Your booking was successful!"
+  },
+  "TransactionPage.default-booking.provider.accepted-instant.title": {
+    "de": "You have a new confirmed booking from {customerName}.",
+    "fr": "You have a new confirmed booking from {customerName}.",
+    "es": "You have a new confirmed booking from {customerName}.",
+    "it": "You have a new confirmed booking from {customerName}.",
+    "pt": "You have a new confirmed booking from {customerName}."
+  },
+  "TransactionPage.default-purchase-day.customer.canceled.title": {
+    "de": "Your booking was canceled.",
+    "fr": "Your booking was canceled.",
+    "es": "Your booking was canceled.",
+    "it": "Your booking was canceled.",
+    "pt": "Your booking was canceled."
+  },
+  "TransactionPage.default-purchase-day.customer.completed.title": {
+    "de": "Your experience was completed.",
+    "fr": "Your experience was completed.",
+    "es": "Your experience was completed.",
+    "it": "Your experience was completed.",
+    "pt": "Your experience was completed."
+  },
+  "TransactionPage.default-purchase-day.customer.delivered.title": {
+    "de": "Your booking is confirmed.",
+    "fr": "Your booking is confirmed.",
+    "es": "Your booking is confirmed.",
+    "it": "Your booking is confirmed.",
+    "pt": "Your booking is confirmed."
+  },
+  "TransactionPage.default-purchase-day.customer.disputed.title": {
+    "de": "You disputed the booking.",
+    "fr": "You disputed the booking.",
+    "es": "You disputed the booking.",
+    "it": "You disputed the booking.",
+    "pt": "You disputed the booking."
+  },
+  "TransactionPage.default-purchase-day.customer.initial.title": {
+    "de": "Booking initiated.",
+    "fr": "Booking initiated.",
+    "es": "Booking initiated.",
+    "it": "Booking initiated.",
+    "pt": "Booking initiated."
+  },
+  "TransactionPage.default-purchase-day.customer.inquiry.title": {
+    "de": "You inquired about a listing.",
+    "fr": "You inquired about a listing.",
+    "es": "You inquired about a listing.",
+    "it": "You inquired about a listing.",
+    "pt": "You inquired about a listing."
+  },
+  "TransactionPage.default-purchase-day.customer.payment-expired.title": {
+    "de": "{customerName}, you did not confirm the payment in time.",
+    "fr": "{customerName}, you did not confirm the payment in time.",
+    "es": "{customerName}, you did not confirm the payment in time.",
+    "it": "{customerName}, you did not confirm the payment in time.",
+    "pt": "{customerName}, you did not confirm the payment in time."
+  },
+  "TransactionPage.default-purchase-day.customer.pending-payment.title": {
+    "de": "{customerName}, you have not confirmed payment yet.",
+    "fr": "{customerName}, you have not confirmed payment yet.",
+    "es": "{customerName}, you have not confirmed payment yet.",
+    "it": "{customerName}, you have not confirmed payment yet.",
+    "pt": "{customerName}, you have not confirmed payment yet."
+  },
+  "TransactionPage.default-purchase-day.customer.purchased.extraInfo": {
+    "de": "Your spot has been reserved. Use the chat below to coordinate any final details with your coach.",
+    "fr": "Your spot has been reserved. Use the chat below to coordinate any final details with your coach.",
+    "es": "Your spot has been reserved. Use the chat below to coordinate any final details with your coach.",
+    "it": "Your spot has been reserved. Use the chat below to coordinate any final details with your coach.",
+    "pt": "Your spot has been reserved. Use the chat below to coordinate any final details with your coach."
+  },
+  "TransactionPage.default-purchase-day.customer.purchased.title": {
+    "de": "Your booking was successful!",
+    "fr": "Your booking was successful!",
+    "es": "Your booking was successful!",
+    "it": "Your booking was successful!",
+    "pt": "Your booking was successful!"
+  },
+  "TransactionPage.default-purchase-day.customer.received.title": {
+    "de": "Your experience was completed.",
+    "fr": "Your experience was completed.",
+    "es": "Your experience was completed.",
+    "it": "Your experience was completed.",
+    "pt": "Your experience was completed."
+  },
+  "TransactionPage.default-purchase-day.customer.reviewed-by-customer.title": {
+    "de": "Your experience was completed.",
+    "fr": "Your experience was completed.",
+    "es": "Your experience was completed.",
+    "it": "Your experience was completed.",
+    "pt": "Your experience was completed."
+  },
+  "TransactionPage.default-purchase-day.customer.reviewed-by-provider.title": {
+    "de": "Your experience was completed.",
+    "fr": "Your experience was completed.",
+    "es": "Your experience was completed.",
+    "it": "Your experience was completed.",
+    "pt": "Your experience was completed."
+  },
+  "TransactionPage.default-purchase-day.customer.reviewed.title": {
+    "de": "Your experience was completed.",
+    "fr": "Your experience was completed.",
+    "es": "Your experience was completed.",
+    "it": "Your experience was completed.",
+    "pt": "Your experience was completed."
+  },
+  "TransactionPage.default-purchase-day.customer.transition-dispute.actionButton": {
+    "de": "Dispute",
+    "fr": "Dispute",
+    "es": "Dispute",
+    "it": "Dispute",
+    "pt": "Dispute"
+  },
+  "TransactionPage.default-purchase-day.customer.transition-dispute.actionError": {
+    "de": "Oops, dispute action failed. Please refresh the page and try again.",
+    "fr": "Oops, dispute action failed. Please refresh the page and try again.",
+    "es": "Oops, dispute action failed. Please refresh the page and try again.",
+    "it": "Oops, dispute action failed. Please refresh the page and try again.",
+    "pt": "Oops, dispute action failed. Please refresh the page and try again."
+  },
+  "TransactionPage.default-purchase-day.customer.transition-mark-received-from-purchased.actionButton": {
+    "de": "Mark experience as completed",
+    "fr": "Mark experience as completed",
+    "es": "Mark experience as completed",
+    "it": "Mark experience as completed",
+    "pt": "Mark experience as completed"
+  },
+  "TransactionPage.default-purchase-day.customer.transition-mark-received-from-purchased.actionError": {
+    "de": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "fr": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "es": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "it": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "pt": "Oops, failed to mark the experience as completed. Please refresh the page and try again."
+  },
+  "TransactionPage.default-purchase-day.customer.transition-mark-received.actionButton": {
+    "de": "Mark experience as completed",
+    "fr": "Mark experience as completed",
+    "es": "Mark experience as completed",
+    "it": "Mark experience as completed",
+    "pt": "Mark experience as completed"
+  },
+  "TransactionPage.default-purchase-day.customer.transition-mark-received.actionError": {
+    "de": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "fr": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "es": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "it": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "pt": "Oops, failed to mark the experience as completed. Please refresh the page and try again."
+  },
+  "TransactionPage.default-purchase-day.provider.canceled.title": {
+    "de": "The booking from {customerName} was canceled.",
+    "fr": "The booking from {customerName} was canceled.",
+    "es": "The booking from {customerName} was canceled.",
+    "it": "The booking from {customerName} was canceled.",
+    "pt": "The booking from {customerName} was canceled."
+  },
+  "TransactionPage.default-purchase-day.provider.completed.title": {
+    "de": "{customerName} completed the experience.",
+    "fr": "{customerName} completed the experience.",
+    "es": "{customerName} completed the experience.",
+    "it": "{customerName} completed the experience.",
+    "pt": "{customerName} completed the experience."
+  },
+  "TransactionPage.default-purchase-day.provider.delivered.title": {
+    "de": "The booking from {customerName} is upcoming.",
+    "fr": "The booking from {customerName} is upcoming.",
+    "es": "The booking from {customerName} is upcoming.",
+    "it": "The booking from {customerName} is upcoming.",
+    "pt": "The booking from {customerName} is upcoming."
+  },
+  "TransactionPage.default-purchase-day.provider.disputed.title": {
+    "de": "{customerName} disputed the booking.",
+    "fr": "{customerName} disputed the booking.",
+    "es": "{customerName} disputed the booking.",
+    "it": "{customerName} disputed the booking.",
+    "pt": "{customerName} disputed the booking."
+  },
+  "TransactionPage.default-purchase-day.provider.initial.title": {
+    "de": "Booking initiated.",
+    "fr": "Booking initiated.",
+    "es": "Booking initiated.",
+    "it": "Booking initiated.",
+    "pt": "Booking initiated."
+  },
+  "TransactionPage.default-purchase-day.provider.inquiry.title": {
+    "de": "{customerName} inquired about your listing.",
+    "fr": "{customerName} inquired about your listing.",
+    "es": "{customerName} inquired about your listing.",
+    "it": "{customerName} inquired about your listing.",
+    "pt": "{customerName} inquired about your listing."
+  },
+  "TransactionPage.default-purchase-day.provider.payment-expired.title": {
+    "de": "Payment wasn't confirmed in time.",
+    "fr": "Payment wasn't confirmed in time.",
+    "es": "Payment wasn't confirmed in time.",
+    "it": "Payment wasn't confirmed in time.",
+    "pt": "Payment wasn't confirmed in time."
+  },
+  "TransactionPage.default-purchase-day.provider.pending-payment.title": {
+    "de": "Payment hasn't been confirmed yet.",
+    "fr": "Payment hasn't been confirmed yet.",
+    "es": "Payment hasn't been confirmed yet.",
+    "it": "Payment hasn't been confirmed yet.",
+    "pt": "Payment hasn't been confirmed yet."
+  },
+  "TransactionPage.default-purchase-day.provider.purchased.title": {
+    "de": "New booking received",
+    "fr": "New booking received",
+    "es": "New booking received",
+    "it": "New booking received",
+    "pt": "New booking received"
+  },
+  "TransactionPage.default-purchase-day.provider.received.title": {
+    "de": "{customerName} completed the experience.",
+    "fr": "{customerName} completed the experience.",
+    "es": "{customerName} completed the experience.",
+    "it": "{customerName} completed the experience.",
+    "pt": "{customerName} completed the experience."
+  },
+  "TransactionPage.default-purchase-day.provider.reviewed-by-customer.title": {
+    "de": "{customerName} completed the experience.",
+    "fr": "{customerName} completed the experience.",
+    "es": "{customerName} completed the experience.",
+    "it": "{customerName} completed the experience.",
+    "pt": "{customerName} completed the experience."
+  },
+  "TransactionPage.default-purchase-day.provider.reviewed-by-provider.title": {
+    "de": "{customerName} completed the experience.",
+    "fr": "{customerName} completed the experience.",
+    "es": "{customerName} completed the experience.",
+    "it": "{customerName} completed the experience.",
+    "pt": "{customerName} completed the experience."
+  },
+  "TransactionPage.default-purchase-day.provider.reviewed.title": {
+    "de": "{customerName} completed the experience.",
+    "fr": "{customerName} completed the experience.",
+    "es": "{customerName} completed the experience.",
+    "it": "{customerName} completed the experience.",
+    "pt": "{customerName} completed the experience."
+  },
+  "TransactionPage.default-purchase-day.provider.transition-mark-delivered.actionButton": {
+    "de": "Mark experience as completed",
+    "fr": "Mark experience as completed",
+    "es": "Mark experience as completed",
+    "it": "Mark experience as completed",
+    "pt": "Mark experience as completed"
+  },
+  "TransactionPage.default-purchase-day.provider.transition-mark-delivered.actionButtonShipped": {
+    "de": "Mark experience as completed",
+    "fr": "Mark experience as completed",
+    "es": "Mark experience as completed",
+    "it": "Mark experience as completed",
+    "pt": "Mark experience as completed"
+  },
+  "TransactionPage.default-purchase-day.provider.transition-mark-delivered.actionError": {
+    "de": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "fr": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "es": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "it": "Oops, failed to mark the experience as completed. Please refresh the page and try again.",
+    "pt": "Oops, failed to mark the experience as completed. Please refresh the page and try again."
+  },
+  "TransactionPanel.default-purchase-day.orderBreakdownTitle": {
+    "de": "Booking breakdown",
+    "fr": "Booking breakdown",
+    "es": "Booking breakdown",
+    "it": "Booking breakdown",
+    "pt": "Booking breakdown"
+  }
+}

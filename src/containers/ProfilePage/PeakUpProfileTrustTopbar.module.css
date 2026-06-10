@@ -1,52 +1,12 @@
 @import '../../styles/customMediaQueries.css';
 
-/* Desktop: dentro centerSlot topbar (viewportLarge+) */
+/* Trust bar removed from topbar — info lives in profile card/sections */
 .rootTopbar {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 56px;
-  width: 100%;
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 0 16px;
-  box-sizing: border-box;
-  align-self: center;
+  display: none;
 }
 
-/* Mobile / tablet: fascia sotto header — sempre su una sola riga.
-   Tier divider + glow via CSS vars from ProfilePage (unchanged). */
 .rootRail {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  width: 100%;
-  padding: 14px 20px 16px;
-  box-sizing: border-box;
-  background:
-    radial-gradient(80% 120% at 50% 0%, rgba(25, 223, 242, 0.06) 0%, transparent 55%),
-    linear-gradient(180deg, rgba(10, 18, 32, 0.98) 0%, rgba(6, 11, 20, 0.99) 100%);
-  border-bottom: 1px solid var(--tier-border, rgba(25, 223, 242, 0.14));
-  box-shadow:
-    0 1px 0 var(--tier-glow, rgba(25, 223, 242, 0.06)),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  overflow-x: auto;
-
-  @media (--viewportMedium) {
-    padding: 16px 28px 18px;
-    gap: 40px;
-    overflow-x: visible;
-    justify-content: space-evenly;
-  }
-
-  @media (--viewportLarge) {
-    display: none;
-  }
+  display: none;
 }
 
 .item {

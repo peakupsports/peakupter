@@ -57,6 +57,7 @@ import {
   setPlatformMode,
 } from '../../../ducks/peakupPlatformMode.duck';
 import { PLATFORM_MODE_COACH, PLATFORM_MODE_CUSTOMER } from '../../../util/peakupPlatformMode';
+import { isHowItWorksCmsPage, isInstructorsCmsPage } from '../../../util/coachOnboarding';
 import useInboxNotificationRefresh from '../../../util/useInboxNotificationRefresh';
 
 const MAX_MOBILE_SCREEN_WIDTH = 1024;
@@ -351,7 +352,27 @@ const TopbarComponent = props => {
   // Pages that render the global SportBar inside the topbar instead of an
   // inline filter row. CoachMapPage owns its own (with winter variants) and
   // passes it explicitly via `topbarCenterContent`, so it isn't listed here.
-  const GLOBAL_SPORTBAR_PAGES = ['LandingPage', 'CoachesPage'];
+  const cmsPageId =
+    typeof resolvedCurrentPage === 'string' && resolvedCurrentPage.startsWith('CMSPage:')
+      ? resolvedCurrentPage.slice('CMSPage:'.length)
+      : null;
+  const isInstructorsMarketingPage = cmsPageId ? isInstructorsCmsPage(cmsPageId) : false;
+  const isHowItWorksMarketingPage = cmsPageId ? isHowItWorksCmsPage(cmsPageId) : false;
+
+  const CUSTOMER_SPORTBAR_PAGES = new Set([
+    'LandingPage',
+    'CoachesPage',
+    'ProfilePage',
+    'ProfilePageVariant',
+    'AboutPage',
+  ]);
+  // Customer/public discovery header only — hidden in coach/team provider nav mode.
+  const useSportBarCenter =
+    !providerNavMode &&
+    !isInstructorsMarketingPage &&
+    (CUSTOMER_SPORTBAR_PAGES.has(resolvedCurrentPage) || isHowItWorksMarketingPage);
+  const useLandingCenterSlot =
+    useSportBarCenter || (resolvedCurrentPage === 'CoachMapPage' && topbarCenterContent);
 
   // Pages where a SportBar click should update `?sport=` *in place* instead
   // of navigating away. LandingPage is intentionally NOT in this list: from
@@ -438,6 +459,8 @@ const TopbarComponent = props => {
   const isMobileMenuOpen = isMobileLayout && mobilemenu === 'open';
   const isMobileSearchOpen = isMobileLayout && mobilesearch === 'open';
 
+  const customerDiscoveryMobile = !providerNavMode;
+
   const mobileMenu = (
     <TopbarMobileMenu
       isAuthenticated={isAuthenticated}
@@ -456,6 +479,7 @@ const TopbarComponent = props => {
       onExploreAsCustomer={handleExploreAsCustomer}
       onReturnToCoachMode={handleReturnToCoachMode}
       inboxTab={topbarInboxTab}
+      customerDiscoveryMenu={customerDiscoveryMobile}
     />
   );
 
@@ -500,7 +524,7 @@ const TopbarComponent = props => {
   // via `topbarCenterContent`) and on every other page the topbar falls back
   // to the search form / spacer like before.
   const globalSportBarCenterContent = useMemo(() => {
-    if (!GLOBAL_SPORTBAR_PAGES.includes(resolvedCurrentPage)) return null;
+    if (!useSportBarCenter) return null;
     return (
       <div className={css.landingSportBarCenterScale}>
         <SportBar
@@ -512,7 +536,7 @@ const TopbarComponent = props => {
       </div>
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resolvedCurrentPage, currentSportFromUrl, handleGlobalSportChange]);
+  }, [useSportBarCenter, currentSportFromUrl, handleGlobalSportChange]);
 
   const showSearchFormEffective =
     discoveryTopbarEnabled &&
@@ -531,9 +555,7 @@ const TopbarComponent = props => {
         ariaLabel={intl.formatMessage({ id: 'Topbar.searchIcon' })}
       />
     </Button>
-  ) : (
-    <div className={css.searchMenu} />
-  );
+  ) : null;
 
   const mobileCoachInboxMaybe =
     providerNavMode && isAuthenticated ? (
@@ -550,11 +572,31 @@ const TopbarComponent = props => {
 
   const mobileLanguageSelector = <LanguageSelector variant="mobile" />;
 
-  const mobileRightSlotMaybe = (
-    <div className={css.mobileRightSlot}>
-      {mobileLanguageSelector}
-      {providerNavMode && isAuthenticated ? mobileCoachInboxMaybe : mobileSearchButtonMaybe}
-    </div>
+  const mobileMenuButton = (
+    <Button
+      id={MOBILE_MENU_BUTTON_ID}
+      rootClassName={css.menu}
+      onClick={() => redirectToURLWithModalState(history, location, 'mobilemenu')}
+      title={intl.formatMessage({ id: 'Topbar.menuIcon' })}
+    >
+      <MenuIcon
+        className={css.menuIcon}
+        ariaLabel={intl.formatMessage({ id: 'Topbar.menuIcon' })}
+      />
+      {notificationDot}
+    </Button>
+  );
+
+  const mobileLogoLink = (
+    <LinkedLogo
+      id="logo-topbar-mobile"
+      layout="mobile"
+      className={customerDiscoveryMobile ? css.mobileLogoLink : null}
+      alt={intl.formatMessage({ id: 'Topbar.logoIcon' })}
+      linkToExternalSite={config?.topbar?.logoLink}
+      linkName={logoLinkName}
+      linkParams={logoLinkParams}
+    />
   );
 
   const handleSkipToMainContent = e => {
@@ -595,31 +637,30 @@ const TopbarComponent = props => {
           mobileRootClassName || css.container,
           isSportPremiumChrome ? css.containerSportPremium : null,
           providerNavMode ? css.containerCoachNav : null,
+          customerDiscoveryMobile ? css.containerCustomerDiscovery : null,
           resolvedCurrentPage === 'CoachMapPage' ? css.containerCoachMap : null,
           mobileClassName
         )}
       >
-        <Button
-          id={MOBILE_MENU_BUTTON_ID}
-          rootClassName={css.menu}
-          onClick={() => redirectToURLWithModalState(history, location, 'mobilemenu')}
-          title={intl.formatMessage({ id: 'Topbar.menuIcon' })}
-        >
-          <MenuIcon
-            className={css.menuIcon}
-            ariaLabel={intl.formatMessage({ id: 'Topbar.menuIcon' })}
-          />
-          {notificationDot}
-        </Button>
-        <LinkedLogo
-          id="logo-topbar-mobile"
-          layout={'mobile'}
-          alt={intl.formatMessage({ id: 'Topbar.logoIcon' })}
-          linkToExternalSite={config?.topbar?.logoLink}
-          linkName={logoLinkName}
-          linkParams={logoLinkParams}
-        />
-        {mobileRightSlotMaybe}
+        {providerNavMode ? (
+          <>
+            {mobileMenuButton}
+            {mobileLogoLink}
+            <div className={css.mobileRightSlot}>
+              {mobileLanguageSelector}
+              {isAuthenticated ? mobileCoachInboxMaybe : <div className={css.searchMenu} />}
+            </div>
+          </>
+        ) : (
+          <>
+            {mobileLogoLink}
+            <div className={css.mobileRightSlot}>
+              {mobileLanguageSelector}
+              {mobileSearchButtonMaybe}
+              {mobileMenuButton}
+            </div>
+          </>
+        )}
       </nav>
       <div className={css.desktop}>
         <TopbarDesktop
@@ -639,11 +680,9 @@ const TopbarComponent = props => {
           config={config}
           customLinks={topbarCustomLinks}
           showSearchForm={
-            discoveryTopbarEnabled &&
-            (GLOBAL_SPORTBAR_PAGES.includes(resolvedCurrentPage) ||
-            (resolvedCurrentPage === 'CoachMapPage' && topbarCenterContent)
+            useSportBarCenter || (resolvedCurrentPage === 'CoachMapPage' && topbarCenterContent)
               ? false
-              : showSearchFormEffective)
+              : discoveryTopbarEnabled && showSearchFormEffective
           }
           showCreateListingsLink={showCreateListingsLink}
           showCoachCalendarLink={showCoachCalendarLink}
@@ -656,13 +695,10 @@ const TopbarComponent = props => {
           logoLinkParams={logoLinkParams}
           inboxTab={topbarInboxTab}
           topbarCenterContent={
-            discoveryTopbarEnabled
-              ? topbarCenterContent ||
-                (GLOBAL_SPORTBAR_PAGES.includes(resolvedCurrentPage)
-                  ? globalSportBarCenterContent
-                  : null)
-              : null
+            topbarCenterContent || (useSportBarCenter ? globalSportBarCenterContent : null)
           }
+          useLandingCenterSlot={useLandingCenterSlot}
+          compactMarketingHeader={isInstructorsMarketingPage}
         />
       </div>
       <Modal

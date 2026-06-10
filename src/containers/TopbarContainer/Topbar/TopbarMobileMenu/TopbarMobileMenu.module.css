@@ -417,6 +417,15 @@
   margin-bottom: 48px;
   margin-top: var(--TopbarMobileMenu_topMargin);
 }
+
+.authenticationCta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 32px;
+  margin-bottom: 24px;
+}
 .authenticationLinks {
   white-space: nowrap;
 }

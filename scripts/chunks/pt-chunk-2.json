@@ -1,0 +1,1802 @@
+[
+  {
+    "k": "PrivacyPage.title",
+    "en": "Privacy Policy"
+  },
+  {
+    "k": "CookiesPage.description",
+    "en": "Read the official Cookies Policy explaining how PeakUp Sports uses cookies and similar technologies."
+  },
+  {
+    "k": "CookiesPage.downloadPdf",
+    "en": "Download PDF"
+  },
+  {
+    "k": "CookiesPage.eyebrow",
+    "en": "COOKIES POLICY"
+  },
+  {
+    "k": "CookiesPage.lastUpdated",
+    "en": "Last updated: {date}"
+  },
+  {
+    "k": "CookiesPage.schemaDescription",
+    "en": "Download the PeakUp Sports Cookies Policy PDF."
+  },
+  {
+    "k": "CookiesPage.schemaTitle",
+    "en": "Cookies Policy | {marketplaceName}"
+  },
+  {
+    "k": "CookiesPage.subtitle",
+    "en": "How PeakUp Sports uses cookies and similar technologies."
+  },
+  {
+    "k": "CookiesPage.title",
+    "en": "Cookies Policy"
+  },
+  {
+    "k": "TermsOfServicePage.downloadPdf",
+    "en": "Download PDF"
+  },
+  {
+    "k": "TermsOfServicePage.heroEyebrow",
+    "en": "TERMS & CONDITIONS"
+  },
+  {
+    "k": "TermsOfServicePage.heroSubtitle",
+    "en": "Marketplace terms for athletes, coaches, instructors, guides, and independent sports professionals."
+  },
+  {
+    "k": "TermsOfServicePage.heroTitle",
+    "en": "PeakUp Sports Terms of Service"
+  },
+  {
+    "k": "TermsOfServicePage.lastUpdated",
+    "en": "Last updated: {date}"
+  },
+  {
+    "k": "TermsOfServicePage.schemaDescription",
+    "en": "Read the PeakUp Sports Terms of Service for athletes, coaches, and independent sports professionals."
+  },
+  {
+    "k": "TermsOfServicePage.schemaTitle",
+    "en": "Terms of Service | {marketplaceName}"
+  },
+  {
+    "k": "AddressLinkMaybe.viewOnGoogleMaps",
+    "en": "View on Google Maps"
+  },
+  {
+    "k": "AuthenticationPage.confirmSignupInfoText",
+    "en": "Please check that your information is correct."
+  },
+  {
+    "k": "AuthenticationPage.fixEmail",
+    "en": "Is there an error in your email? {fixEmailLink}."
+  },
+  {
+    "k": "AuthenticationPage.fixEmailLinkText",
+    "en": "Fix it"
+  },
+  {
+    "k": "AuthenticationPage.loginLinkText",
+    "en": "Log in"
+  },
+  {
+    "k": "AuthenticationPage.loginWithFacebook",
+    "en": "Continue with Facebook"
+  },
+  {
+    "k": "AuthenticationPage.loginWithGoogle",
+    "en": "Continue with Google"
+  },
+  {
+    "k": "AuthenticationPage.or",
+    "en": "or"
+  },
+  {
+    "k": "AuthenticationPage.resendEmail",
+    "en": "Didn't get the email? {resendEmailLink}."
+  },
+  {
+    "k": "AuthenticationPage.resendEmailLinkText",
+    "en": "Resend email"
+  },
+  {
+    "k": "AuthenticationPage.resendFailed",
+    "en": "Resending verification email failed. Please try again."
+  },
+  {
+    "k": "AuthenticationPage.resendFailedTooManyRequests",
+    "en": "The maximum of 5 verification emails has been reached. Please try again tomorrow."
+  },
+  {
+    "k": "AuthenticationPage.schemaDescriptionLogin",
+    "en": "Log in to {marketplaceName}"
+  },
+  {
+    "k": "AuthenticationPage.sendingEmail",
+    "en": "Sending verification email…"
+  },
+  {
+    "k": "AuthenticationPage.signupFailed",
+    "en": "Signup failed. Please make sure all the information you entered is correct and try again."
+  },
+  {
+    "k": "AuthenticationPage.signupChoiceClient",
+    "en": "Join as Client"
+  },
+  {
+    "k": "AuthenticationPage.signupChoiceCoach",
+    "en": "Apply as a coach"
+  },
+  {
+    "k": "AuthenticationPage.signupChoiceCoachHint",
+    "en": "Create your account, verify your email, then complete the PeakUp coach application — reviewed within 48h."
+  },
+  {
+    "k": "AuthenticationPage.signupChoiceDivider",
+    "en": "or"
+  },
+  {
+    "k": "AuthenticationPage.signupChoiceTitle",
+    "en": "How would you like to join?"
+  },
+  {
+    "k": "AuthenticationPage.signupPathTitle",
+    "en": "How do you want to join PeakUp?"
+  },
+  {
+    "k": "AuthenticationPage.signupPathClient",
+    "en": "Join as a Client"
+  },
+  {
+    "k": "AuthenticationPage.signupPathClientHint",
+    "en": "Find certified coaches, guides, and instructors near you."
+  },
+  {
+    "k": "AuthenticationPage.signupPathCoach",
+    "en": "Apply as a Coach"
+  },
+  {
+    "k": "AuthenticationPage.signupPathCoachHint",
+    "en": "Grow independently on PeakUp and connect with athletes worldwide."
+  },
+  {
+    "k": "AuthenticationPage.signupWithFacebook",
+    "en": "Continue with Facebook"
+  },
+  {
+    "k": "AuthenticationPage.signupWithGoogle",
+    "en": "Continue with Google"
+  },
+  {
+    "k": "AuthenticationPage.termsAndConditionsAcceptText",
+    "en": "I accept the {termsLink} and the {privacyLink}"
+  },
+  {
+    "k": "AuthenticationPage.termsAndConditionsPrivacyLinkText",
+    "en": "Privacy Policy"
+  },
+  {
+    "k": "AuthenticationPage.termsAndConditionsTermsLinkText",
+    "en": "Terms of Service"
+  },
+  {
+    "k": "AuthenticationPage.verifyEmailClose",
+    "en": "LATER"
+  },
+  {
+    "k": "AuthenticationPage.verifyEmailText",
+    "en": "Thanks for signing up! There's one quick step left. Please verify your email address so we can contact you. Click the link we sent to {email}."
+  },
+  {
+    "k": "AuthenticationPage.verifyEmailTitle",
+    "en": "{name}, check your email inbox to verify your email address"
+  },
+  {
+    "k": "Avatar.bannedUserDisplayName",
+    "en": "Banned user"
+  },
+  {
+    "k": "Avatar.deletedUserDisplayName",
+    "en": "Deleted user"
+  },
+  {
+    "k": "BookingDateRangeFilter.labelPlain",
+    "en": "Dates"
+  },
+  {
+    "k": "BookingDateRangeFilter.labelPopup",
+    "en": "Dates"
+  },
+  {
+    "k": "BookingDateRangeFilter.labelSelectedPlain",
+    "en": "{dates}"
+  },
+  {
+    "k": "BookingDateRangeFilter.labelSelectedPopup",
+    "en": "{dates}"
+  },
+  {
+    "k": "BookingDatesForm.bookingEndTitle",
+    "en": "End date"
+  },
+  {
+    "k": "BookingDatesForm.bookingStartTitle",
+    "en": "Start date"
+  },
+  {
+    "k": "BookingDatesForm.priceBreakdownTitle",
+    "en": "Booking breakdown"
+  },
+  {
+    "k": "BookingDatesForm.requestToBook",
+    "en": "Request to book"
+  },
+  {
+    "k": "BookingDatesForm.requiredDate",
+    "en": "Select an available date"
+  },
+  {
+    "k": "BookingDatesForm.seatsTitle",
+    "en": "Number of seats"
+  },
+  {
+    "k": "BookingDatesForm.timeSlotsError",
+    "en": "We encountered an error when loading the available dates. Please refresh the page."
+  },
+  {
+    "k": "BookingFixedDurationForm.bookingStartTitle",
+    "en": "Pick a date"
+  },
+  {
+    "k": "BookingFixedDurationForm.priceBreakdownTitle",
+    "en": "Booking breakdown"
+  },
+  {
+    "k": "BookingFixedDurationForm.requestToBook",
+    "en": "Request to book"
+  },
+  {
+    "k": "BookingFixedDurationForm.requiredDate",
+    "en": "Select an available date"
+  },
+  {
+    "k": "BookingFixedDurationForm.seatsTitle",
+    "en": "Number of seats"
+  },
+  {
+    "k": "BookingFixedDurationForm.peakupSelectedSessionsTitle",
+    "en": "Selected sessions"
+  },
+  {
+    "k": "BookingFixedDurationForm.peakupEmptyCartHint",
+    "en": "Choose a date and start time above, then add each session you want."
+  },
+  {
+    "k": "BookingFixedDurationForm.peakupRemoveSession",
+    "en": "Remove"
+  },
+  {
+    "k": "BookingFixedDurationForm.peakupSubmitRequiresSessions",
+    "en": "Add at least one session before continuing."
+  },
+  {
+    "k": "BookingTimeForm.bookingEndTitle",
+    "en": "End date"
+  },
+  {
+    "k": "BookingTimeForm.bookingStartTitle",
+    "en": "Pick a date"
+  },
+  {
+    "k": "BookingTimeForm.peakupSelectedSlotsTitle",
+    "en": "Selected time slots"
+  },
+  {
+    "k": "BookingTimeForm.peakupEmptyCartHint",
+    "en": "Choose a date and times above, then add each slot you want to book."
+  },
+  {
+    "k": "BookingTimeForm.peakupRemoveSlot",
+    "en": "Remove"
+  },
+  {
+    "k": "BookingTimeForm.peakupSlotDuration",
+    "en": "{hours}"
+  },
+  {
+    "k": "BookingTimeForm.peakupSlotHourlyRate",
+    "en": "{rate}/hr"
+  },
+  {
+    "k": "BookingTimeForm.peakupSlotSubtotal",
+    "en": "Subtotal {subtotal}"
+  },
+  {
+    "k": "BookingTimeForm.peakupCartTotal",
+    "en": "{count, plural, one {# slot} other {# slots}} · {hours} · {total}"
+  },
+  {
+    "k": "BookingTimeForm.placeholder",
+    "en": "mm/dd/yyyy"
+  },
+  {
+    "k": "BookingTimeForm.priceBreakdownTitle",
+    "en": "Booking breakdown"
+  },
+  {
+    "k": "BookingTimeForm.requestToBook",
+    "en": "Request to book"
+  },
+  {
+    "k": "BookingTimeForm.requiredDate",
+    "en": "Select an available date"
+  },
+  {
+    "k": "BookingTimeForm.seatsTitle",
+    "en": "Number of seats"
+  },
+  {
+    "k": "BookingTimeForm.timeSlotsError",
+    "en": "We encountered an error when loading the available dates. Please refresh the page."
+  },
+  {
+    "k": "CheckoutPage.bookingTimeNotAvailableMessage",
+    "en": "Unfortunately, the requested time has just been booked."
+  },
+  {
+    "k": "CheckoutPage.chargeDisabledMessage",
+    "en": "The transaction can't move forward because the provider's payout information is incomplete. Please contact support."
+  },
+  {
+    "k": "CheckoutPage.correctQuantityInformationMissing",
+    "en": "The order data is missing correct quantity information"
+  },
+  {
+    "k": "CheckoutPage.default-booking.orderBreakdown",
+    "en": "Booking breakdown"
+  },
+  {
+    "k": "CheckoutPage.default-booking.title",
+    "en": "Complete booking request"
+  },
+  {
+    "k": "CheckoutPage.peakUpSummaryTitle",
+    "en": "Booking summary"
+  },
+  {
+    "k": "CheckoutPage.sessionsHeading",
+    "en": "Sessions"
+  },
+  {
+    "k": "CheckoutPage.sessionsTotalSummary",
+    "en": "{hours} booked · Total {total}"
+  },
+  {
+    "k": "CheckoutPage.default-inquiry.orderBreakdown",
+    "en": "Order breakdown"
+  },
+  {
+    "k": "CheckoutPage.default-inquiry.title",
+    "en": "Send an inquiry to {authorDisplayName}"
+  },
+  {
+    "k": "CheckoutPage.default-negotiation.orderBreakdown",
+    "en": "Order breakdown"
+  },
+  {
+    "k": "CheckoutPage.default-negotiation.title",
+    "en": "Complete order"
+  },
+  {
+    "k": "CheckoutPage.default-purchase.orderBreakdown",
+    "en": "Order breakdown"
+  },
+  {
+    "k": "CheckoutPage.default-purchase.title",
+    "en": "Complete order"
+  },
+  {
+    "k": "CheckoutPage.destinationAccountNotCompleteStripeError",
+    "en": "This listing is currently unavailable because the listing author's payout information is incomplete. Your card hasn't been charged. Please contact support."
+  },
+  {
+    "k": "CheckoutPage.initiateOrderAmountTooLow",
+    "en": "We are unable to process this payment because the payment amount is too low. Please contact support."
+  },
+  {
+    "k": "CheckoutPage.initiateOrderError",
+    "en": "Payment request failed. Please go back to {listingLink} and try again. If the error persists, try refreshing the page or contacting support."
+  },
+  {
+    "k": "CheckoutPage.listingTitle",
+    "en": "{listingTitle}"
+  },
+  {
+    "k": "CheckoutPage.paymentExpiredMessage",
+    "en": "Payment was not completed in 15 minutes. Please go back to {listingLink} and try again."
+  },
+  {
+    "k": "CheckoutPage.providerCommissionBiggerThanMinPrice",
+    "en": "This listing is currently unavailable. Please contact support."
+  },
+  {
+    "k": "CheckoutPage.providerInfo",
+    "en": "{name}"
+  },
+  {
+    "k": "CheckoutPage.providerStripeAccountMissingError",
+    "en": "This listing is currently unavailable because the listing author hasn't added their payout details yet. Please contact support."
+  },
+  {
+    "k": "CheckoutPage.retrievingStripePaymentIntentFailed",
+    "en": "Oops, something went wrong. Please refresh the page. If the error persists, go back to {listingLink} and try again after 15 minutes"
+  },
+  {
+    "k": "CheckoutPage.tooManyRequestsError",
+    "en": "Payment request failed. There have been too many requests made in a short amount of time. If the error persists, try refreshing the page or contact support."
+  },
+  {
+    "k": "CheckoutPageWithInquiryProcess.messagePlaceholder",
+    "en": "Hello there! I'm interested in…"
+  },
+  {
+    "k": "CheckoutPageWithInquiryProcess.perUnit",
+    "en": "{unitType, select, day {per day} night {per night} hour {per hour} other {}}"
+  },
+  {
+    "k": "CheckoutPageWithInquiryProcess.submitButtonText",
+    "en": "Send inquiry"
+  },
+  {
+    "k": "ConfirmSignupForm.displayNameLabel",
+    "en": "Display name"
+  },
+  {
+    "k": "ConfirmSignupForm.displayNamePlaceholder",
+    "en": "Jane D"
+  },
+  {
+    "k": "ConfirmSignupForm.emailLabel",
+    "en": "Email"
+  },
+  {
+    "k": "ConfirmSignupForm.emailPlaceholder",
+    "en": "jane.doe@example.com"
+  },
+  {
+    "k": "ConfirmSignupForm.firstNameLabel",
+    "en": "First name"
+  },
+  {
+    "k": "ConfirmSignupForm.firstNamePlaceholder",
+    "en": "Jane"
+  },
+  {
+    "k": "ConfirmSignupForm.lastNameLabel",
+    "en": "Last name"
+  },
+  {
+    "k": "ConfirmSignupForm.lastNamePlaceholder",
+    "en": "Doe"
+  },
+  {
+    "k": "ConfirmSignupForm.signUp",
+    "en": "Continue with {idp}"
+  },
+  {
+    "k": "TeamProfilePage.coachCount",
+    "en": "{count, plural, one {# coach} other {# coaches}}"
+  },
+  {
+    "k": "TeamProfilePage.website",
+    "en": "Website"
+  },
+  {
+    "k": "TeamProfilePage.instagram",
+    "en": "Instagram"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.eyebrow",
+    "en": "PeakUp HQ"
+  },
+  {
+    "k": "AdminTeamApplicationsPage.colStatus",
+    "en": "Status"
+  },
+  {
+    "k": "CoachApplicationPage.acceptLegalLabel",
+    "en": "I have read and agree to the <terms>Terms & Conditions</terms>, <privacy>Privacy Policy</privacy>, <cookies>Cookie Policy</cookies> and <cancellation>Cancellation Policy</cancellation>."
+  },
+  {
+    "k": "CoachApplicationPage.acceptLegalRequired",
+    "en": "Please confirm you agree to the Terms & Conditions, Privacy Policy and Cookie Policy."
+  },
+  {
+    "k": "CoachApplicationPage.acceptVerificationLabel",
+    "en": "I confirm that all information provided is accurate and I accept the PeakUp manual verification process."
+  },
+  {
+    "k": "CoachApplicationPage.ambassadorCodeLabel",
+    "en": "Ambassador referral code"
+  },
+  {
+    "k": "CoachApplicationPage.ambassadorCodePlaceholder",
+    "en": "Enter referral code"
+  },
+  {
+    "k": "CoachApplicationPage.ambassadorProgramBlockLabel",
+    "en": "PeakUp Ambassador Program"
+  },
+  {
+    "k": "CoachApplicationPage.ambassadorProgramDiscoverText",
+    "en": "Discover ambassador rewards, referral earnings, visibility perks, and progression tiers."
+  },
+  {
+    "k": "CoachApplicationPage.ambassadorProgramLearnMoreCta",
+    "en": "Learn more about the Ambassador Program"
+  },
+  {
+    "k": "CoachApplicationPage.ambassadorProgramLearnMoreCtaAria",
+    "en": "Learn more about the Ambassador Program (opens in a new tab)"
+  },
+  {
+    "k": "CoachApplicationPage.ambassadorProgramPanelTitle",
+    "en": "Explore the Ambassador Program"
+  },
+  {
+    "k": "CoachApplicationPage.applyingIndependentlyLabel",
+    "en": "I am applying independently (no referral code)"
+  },
+  {
+    "k": "CoachApplicationPage.back",
+    "en": "Back"
+  },
+  {
+    "k": "CoachApplicationPage.certification.federation",
+    "en": "Federation certified"
+  },
+  {
+    "k": "CoachApplicationPage.certification.instructor",
+    "en": "Licensed instructor"
+  },
+  {
+    "k": "CoachApplicationPage.certification.international",
+    "en": "International certification"
+  },
+  {
+    "k": "CoachApplicationPage.certification.national",
+    "en": "National certification"
+  },
+  {
+    "k": "CoachApplicationPage.certification.none",
+    "en": "No formal certification yet"
+  },
+  {
+    "k": "CoachApplicationPage.certification.other",
+    "en": "Other"
+  },
+  {
+    "k": "CoachApplicationPage.certificationLevelLabel",
+    "en": "Certification level"
+  },
+  {
+    "k": "CoachApplicationPage.cityAreaLabel",
+    "en": "City / area"
+  },
+  {
+    "k": "CoachApplicationPage.coachingCertificatesLabel",
+    "en": "Coaching certificates"
+  },
+  {
+    "k": "CoachApplicationPage.confirmCorrectLabel",
+    "en": "I confirm the information provided is correct."
+  },
+  {
+    "k": "CoachApplicationPage.countryLabel",
+    "en": "Country"
+  },
+  {
+    "k": "CoachApplicationPage.dateOfBirthLabel",
+    "en": "Date of birth"
+  },
+  {
+    "k": "CoachApplicationPage.emailLabel",
+    "en": "Email"
+  },
+  {
+    "k": "CoachApplicationPage.eyebrow",
+    "en": "Partnership application"
+  },
+  {
+    "k": "CoachApplicationPage.federationSchoolLabel",
+    "en": "Federation / school"
+  },
+  {
+    "k": "CoachApplicationPage.fileHelp",
+    "en": "PDF, JPG, or PNG up to 10 MB each."
+  },
+  {
+    "k": "CoachApplicationPage.filePrompt",
+    "en": "Choose a file…"
+  },
+  {
+    "k": "CoachApplicationPage.fileTooLarge",
+    "en": "One or more files exceed the 10 MB limit."
+  },
+  {
+    "k": "CoachApplicationPage.fileTypeInvalid",
+    "en": "Use PDF, JPG, PNG, or WebP files only."
+  },
+  {
+    "k": "CoachApplicationPage.fullNameLabel",
+    "en": "Full name"
+  },
+  {
+    "k": "CoachApplicationPage.hearAbout.ambassador",
+    "en": "PeakUp Ambassador"
+  },
+  {
+    "k": "CoachApplicationPage.hearAbout.event",
+    "en": "Event or camp"
+  },
+  {
+    "k": "CoachApplicationPage.hearAbout.friendCoach",
+    "en": "Friend or coach referral"
+  },
+  {
+    "k": "CoachApplicationPage.hearAbout.other",
+    "en": "Other"
+  },
+  {
+    "k": "CoachApplicationPage.hearAbout.socialMedia",
+    "en": "Social media"
+  },
+  {
+    "k": "CoachApplicationPage.hearAboutLabel",
+    "en": "How did you hear about PeakUp?"
+  },
+  {
+    "k": "CoachApplicationPage.hearAboutPeakUpRequired",
+    "en": "Tell us how you heard about PeakUp."
+  },
+  {
+    "k": "CoachApplicationPage.idDocumentLabel",
+    "en": "ID / passport"
+  },
+  {
+    "k": "CoachApplicationPage.instagramWebsiteLabel",
+    "en": "Instagram / website"
+  },
+  {
+    "k": "CoachApplicationPage.insuranceDocumentLabel",
+    "en": "Insurance document"
+  },
+  {
+    "k": "CoachApplicationPage.interestedInAmbassadorLabel",
+    "en": "I am interested in becoming a PeakUp Ambassador"
+  },
+  {
+    "k": "CoachApplicationPage.referralInviteSubtitle",
+    "en": "Enter the ambassador referral code you received to connect your coach application to a PeakUp Ambassador."
+  },
+  {
+    "k": "CoachApplicationPage.referralInviteTitle",
+    "en": "Invited by a PeakUp Ambassador?"
+  },
+  {
+    "k": "CoachApplicationPage.referralOptionalLabel",
+    "en": "Optional"
+  },
+  {
+    "k": "CoachApplicationPage.languagesLabel",
+    "en": "Languages spoken"
+  },
+  {
+    "k": "CoachApplicationPage.languagesRequired",
+    "en": "List the languages you coach in."
+  },
+  {
+    "k": "CoachApplicationPage.heroSubheadline",
+    "en": "For independent certified coaches, instructors and guides."
+  },
+  {
+    "k": "CoachApplicationPage.lead",
+    "en": "Tell us about your practice — our team reviews every partnership application manually."
+  },
+  {
+    "k": "CoachApplicationPage.mainSportPlaceholder",
+    "en": "e.g. Snowboard"
+  },
+  {
+    "k": "CoachApplicationPage.otherSportsPlaceholder",
+    "en": "e.g. Surf, Skateboard, MTB"
+  },
+  {
+    "k": "CoachApplicationPage.stepNav",
+    "en": "Application steps"
+  },
+  {
+    "k": "CoachApplicationPage.stepTrack01",
+    "en": "Referral"
+  },
+  {
+    "k": "CoachApplicationPage.stepTrack02",
+    "en": "Personal"
+  },
+  {
+    "k": "CoachApplicationPage.stepTrack03",
+    "en": "Coaching"
+  },
+  {
+    "k": "CoachApplicationPage.stepTrack04",
+    "en": "Verification"
+  },
+  {
+    "k": "CoachApplicationPage.stepTrack05",
+    "en": "Submit"
+  },
+  {
+    "k": "CoachApplicationPage.successBody",
+    "en": "Our team manually reviews every application to maintain PeakUp standards for independent certified professionals."
+  },
+  {
+    "k": "CoachApplicationPage.successEmailNote",
+    "en": "We'll email you at the address you provided once your review begins."
+  },
+  {
+    "k": "CoachApplicationPage.successHeadline",
+    "en": "Application received ✓"
+  },
+  {
+    "k": "CoachApplicationPage.successTimeline",
+    "en": "Review within 24–72 hours"
+  },
+  {
+    "k": "CoachApplicationPage.uploadDone",
+    "en": "File uploaded"
+  },
+  {
+    "k": "CoachApplicationPage.uploadDropHint",
+    "en": "Drag & drop or click to upload"
+  },
+  {
+    "k": "CoachApplicationPage.mainSportLabel",
+    "en": "Main sport you teach"
+  },
+  {
+    "k": "CoachApplicationPage.next",
+    "en": "Continue"
+  },
+  {
+    "k": "CoachApplicationPage.optional",
+    "en": "optional"
+  },
+  {
+    "k": "CoachApplicationPage.otherDocumentsLabel",
+    "en": "Other documents"
+  },
+  {
+    "k": "CoachApplicationPage.otherSportsLabel",
+    "en": "Other sports you teach"
+  },
+  {
+    "k": "CoachApplicationPage.shortBioLabel",
+    "en": "Short bio"
+  },
+  {
+    "k": "CoachApplicationPage.shortBioRequired",
+    "en": "Write a short bio for your profile."
+  },
+  {
+    "k": "CoachApplicationPage.stepCoachingLabel",
+    "en": "Professional profile"
+  },
+  {
+    "k": "CoachApplicationPage.stepConsentHint",
+    "en": "Please confirm the statements below before submitting."
+  },
+  {
+    "k": "CoachApplicationPage.stepConsentLabel",
+    "en": "Consent"
+  },
+  {
+    "k": "CoachApplicationPage.stepConsentTitle",
+    "en": "Review & consent"
+  },
+  {
+    "k": "CoachApplicationPage.stepCounter",
+    "en": "Step {current} of {total}"
+  },
+  {
+    "k": "CoachApplicationPage.stepDocumentsLabel",
+    "en": "Documents"
+  },
+  {
+    "k": "CoachApplicationPage.stepDocumentsTitle",
+    "en": "Upload documents"
+  },
+  {
+    "k": "CoachApplicationPage.stepPersonalHint",
+    "en": "We use these details to contact you about your partnership application."
+  },
+  {
+    "k": "CoachApplicationPage.stepPersonalLabel",
+    "en": "Personal details"
+  },
+  {
+    "k": "CoachApplicationPage.stepPersonalTitle",
+    "en": "Personal details"
+  },
+  {
+    "k": "CoachApplicationPage.stepReferralHint",
+    "en": "Tell us how you found PeakUp and add a referral code if an ambassador invited you."
+  },
+  {
+    "k": "CoachApplicationPage.stepReferralLabel",
+    "en": "Referral"
+  },
+  {
+    "k": "CoachApplicationPage.stepReferralTitle",
+    "en": "Your coach application path"
+  },
+  {
+    "k": "CoachApplicationPage.submit",
+    "en": "Submit application"
+  },
+  {
+    "k": "CoachApplicationPage.successEyebrow",
+    "en": "Partnership application received"
+  },
+  {
+    "k": "CoachApplicationPage.successMessage",
+    "en": "Application received. Our team will review your documents and contact you within 24–72 hours."
+  },
+  {
+    "k": "CoachApplicationPage.understandManualReviewLabel",
+    "en": "I understand that manual review is required before approval."
+  },
+  {
+    "k": "CoachApplicationPage.understandManualReviewRequired",
+    "en": "Please confirm you understand manual review is required."
+  },
+  {
+    "k": "CoachApplicationPage.yearsExperienceLabel",
+    "en": "Years of coaching experience"
+  },
+  {
+    "k": "CoachApplicationPage.yearsExperienceRequired",
+    "en": "Enter your years of coaching experience."
+  },
+  {
+    "k": "CoachDashboardPage.cardAmbassadorTitle",
+    "en": "Ambassador tools"
+  },
+  {
+    "k": "CoachDashboardPage.cardInboxHint",
+    "en": "Review booking requests and messages from athletes."
+  },
+  {
+    "k": "CoachDashboardPage.cardInboxAlertHint",
+    "en": "You have {count} new {count, plural, one {booking request or message} other {booking requests or messages}}."
+  },
+  {
+    "k": "CoachDashboardPage.cardInboxTitle",
+    "en": "Inbox & booking requests"
+  },
+  {
+    "k": "CoachDashboardPage.cardOpen",
+    "en": "Open"
+  },
+  {
+    "k": "CoachDashboardPage.cardProfileTitle",
+    "en": "Edit coach profile"
+  },
+  {
+    "k": "CoachDashboardPage.cardPublicProfileTitle",
+    "en": "Preview public profile"
+  },
+  {
+    "k": "CoachDashboardPage.cardView",
+    "en": "View"
+  },
+  {
+    "k": "CoachDashboardPage.eyebrow",
+    "en": "Coach dashboard"
+  },
+  {
+    "k": "CoachDashboardPage.heroNameFallback",
+    "en": "Coach"
+  },
+  {
+    "k": "CoachDashboardPage.schemaTitle",
+    "en": "Coach dashboard | {marketplaceName}"
+  },
+  {
+    "k": "CoachDashboardPage.statNewRequests",
+    "en": "New requests"
+  },
+  {
+    "k": "CoachDashboardPage.statProfileViews",
+    "en": "Profile views"
+  },
+  {
+    "k": "CoachDashboardPage.statUpcomingSessions",
+    "en": "Upcoming lessons"
+  },
+  {
+    "k": "CoachDashboardPage.statUpcomingEvents",
+    "en": "Upcoming events"
+  },
+  {
+    "k": "CoachDashboardPage.statsAria",
+    "en": "Dashboard overview statistics"
+  },
+  {
+    "k": "CoachEarningsPage.commissionBullet1",
+    "en": "Only on completed bookings"
+  },
+  {
+    "k": "CoachEarningsPage.commissionBullet2",
+    "en": "No setup costs"
+  },
+  {
+    "k": "CoachEarningsPage.commissionBullet3",
+    "en": "No subscriptions"
+  },
+  {
+    "k": "CoachEarningsPage.commissionBullet4",
+    "en": "No monthly fees"
+  },
+  {
+    "k": "CoachEarningsPage.commissionBullet5",
+    "en": "No hidden charges"
+  },
+  {
+    "k": "CoachEarningsPage.commissionLabel",
+    "en": "02 · Commission"
+  },
+  {
+    "k": "CoachEarningsPage.commissionTitle",
+    "en": "9% platform commission"
+  },
+  {
+    "k": "CoachEarningsPage.commissionFootnote",
+    "en": "Additional payment provider processing fees may apply. Online payment processing typically ranges around 2–4% depending on provider, currency, and region — separate from the PeakUp platform fee."
+  },
+  {
+    "k": "CoachEarningsPage.dashboardEyebrow",
+    "en": "This week"
+  },
+  {
+    "k": "CoachEarningsPage.dashboardFeeBadge",
+    "en": "9% platform fee"
+  },
+  {
+    "k": "CoachEarningsPage.dashboardPayoutLabel",
+    "en": "Available payout"
+  },
+  {
+    "k": "CoachEarningsPage.dashboardPayoutValue",
+    "en": "1,820 CHF"
+  },
+  {
+    "k": "CoachEarningsPage.dashboardBookingsLabel",
+    "en": "Completed bookings"
+  },
+  {
+    "k": "CoachEarningsPage.dashboardBookingsValue",
+    "en": "12"
+  },
+  {
+    "k": "CoachEarningsPage.dashboardWeeklyLabel",
+    "en": "Weekly earnings"
+  },
+  {
+    "k": "CoachEarningsPage.dashboardWeeklyValue",
+    "en": "+18%"
+  },
+  {
+    "k": "CoachEarningsPage.controlIndependentText",
+    "en": "PeakUp helps you grow while remaining fully independent."
+  },
+  {
+    "k": "CoachEarningsPage.controlIndependentTitle",
+    "en": "Independent"
+  },
+  {
+    "k": "CoachEarningsPage.controlLabel",
+    "en": "01 · You stay in control"
+  },
+  {
+    "k": "CoachEarningsPage.controlSportsText",
+    "en": "One profile Multiple disciplines"
+  },
+  {
+    "k": "CoachEarningsPage.ctaApply",
+    "en": "Apply for free"
+  },
+  {
+    "k": "CoachEarningsPage.ctaCoachLevels",
+    "en": "Learn about coach levels"
+  },
+  {
+    "k": "CoachEarningsPage.earningsAthleteLabel",
+    "en": "Athlete pays"
+  },
+  {
+    "k": "CoachEarningsPage.earningsAthleteValue",
+    "en": "100 CHF"
+  },
+  {
+    "k": "CoachEarningsPage.earningsCoachLabel",
+    "en": "Coach receives"
+  },
+  {
+    "k": "CoachEarningsPage.earningsCoachValue",
+    "en": "91 CHF"
+  },
+  {
+    "k": "CoachEarningsPage.earningsFeeLabel",
+    "en": "PeakUp fee (9%)"
+  },
+  {
+    "k": "CoachEarningsPage.earningsFeeValue",
+    "en": "-9 CHF"
+  },
+  {
+    "k": "CoachEarningsPage.exampleLabel",
+    "en": "03 · Example earnings"
+  },
+  {
+    "k": "CoachEarningsPage.exampleTitle",
+    "en": "A simple example"
+  },
+  {
+    "k": "CoachEarningsPage.finalTitle",
+    "en": "Ready to grow your coaching business?"
+  },
+  {
+    "k": "CoachEarningsPage.growBullet1",
+    "en": "Build your reputation with reviews"
+  },
+  {
+    "k": "CoachEarningsPage.growBullet2",
+    "en": "Unlock higher coach levels"
+  },
+  {
+    "k": "CoachEarningsPage.growBullet3",
+    "en": "Get visibility boosts"
+  },
+  {
+    "k": "CoachEarningsPage.growBullet4",
+    "en": "Access the Ambassador & Partner program"
+  },
+  {
+    "k": "CoachEarningsPage.growBullet5",
+    "en": "Earn more through referrals and partnerships"
+  },
+  {
+    "k": "CoachEarningsPage.growTitle",
+    "en": "More visibility More clients More opportunities"
+  },
+  {
+    "k": "CoachEarningsPage.heroLead",
+    "en": "No subscriptions. No hidden fees. No monthly costs."
+  },
+  {
+    "k": "CoachEarningsPage.heroSubtitle",
+    "en": "PeakUp only earns when you earn"
+  },
+  {
+    "k": "CoachEarningsPage.heroTitle",
+    "en": "Simple Transparent Fair"
+  },
+  {
+    "k": "CoachEarningsPage.providesItem1",
+    "en": "Premium coach profile"
+  },
+  {
+    "k": "CoachEarningsPage.providesItem2",
+    "en": "Worldwide visibility"
+  },
+  {
+    "k": "CoachEarningsPage.providesItem3",
+    "en": "Secure booking flow"
+  },
+  {
+    "k": "CoachEarningsPage.providesItem4",
+    "en": "Verified coach network"
+  },
+  {
+    "k": "CoachEarningsPage.providesItem5",
+    "en": "Athlete discovery"
+  },
+  {
+    "k": "CoachEarningsPage.providesItem7",
+    "en": "Marketing opportunities"
+  },
+  {
+    "k": "CoachEarningsPage.providesItem8",
+    "en": "Ambassador program"
+  },
+  {
+    "k": "CoachEarningsPage.providesLabel",
+    "en": "04 · What PeakUp provides"
+  },
+  {
+    "k": "CoachEarningsPage.providesTitle",
+    "en": "Everything you need to grow"
+  },
+  {
+    "k": "CoachEarningsPage.schemaDescription",
+    "en": "Transparent coach commission and earnings on PeakUp — 9% platform fee, no subscriptions, no hidden charges."
+  },
+  {
+    "k": "CoachEarningsPage.schemaTitle",
+    "en": "Coach earnings & commission | {marketplaceName}"
+  },
+  {
+    "k": "CoachEarningsPage.title",
+    "en": "Coach earnings"
+  },
+  {
+    "k": "InstructorsEarningsBanner.cta",
+    "en": "See earnings & commission"
+  },
+  {
+    "k": "InstructorsEarningsBanner.text",
+    "en": "Understand our 9% commission, example earnings, and what PeakUp provides before you apply."
+  },
+  {
+    "k": "InstructorsEarningsBanner.title",
+    "en": "Transparent earnings"
+  },
+  {
+    "k": "CoachCalendarPage.badge",
+    "en": "Mother Calendar"
+  },
+  {
+    "k": "CoachCalendarPage.listingWizardReturnHint",
+    "en": "Block the days you need, then save and return to continue your listing."
+  },
+  {
+    "k": "CoachCalendarPage.saveAndBackInProgress",
+    "en": "Saving…"
+  },
+  {
+    "k": "CoachCalendarPage.selectedDayLabel",
+    "en": "Selected day"
+  },
+  {
+    "k": "CoachCalendarPage.statusAvailable",
+    "en": "Available"
+  },
+  {
+    "k": "CoachCalendarPage.statusUnavailable",
+    "en": "Unavailable"
+  },
+  {
+    "k": "CoachCalendarPage.statusPartiallyBlocked",
+    "en": "Partially blocked"
+  },
+  {
+    "k": "CoachCalendarPage.dayAvailabilityTitle",
+    "en": "Day availability"
+  },
+  {
+    "k": "CoachCalendarPage.markAvailableButton",
+    "en": "Mark as available"
+  },
+  {
+    "k": "CoachCalendarPage.blockTimeSectionTitle",
+    "en": "Block unavailable time"
+  },
+  {
+    "k": "CoachCalendarPage.blockTimeSectionHint",
+    "en": "Block the full day or add specific unavailable ranges."
+  },
+  {
+    "k": "CoachCalendarPage.blockScopeLegend",
+    "en": "Block scope"
+  },
+  {
+    "k": "CoachCalendarPage.blockAllDayOption",
+    "en": "All day"
+  },
+  {
+    "k": "CoachCalendarPage.blockSpecificOption",
+    "en": "Specific time"
+  },
+  {
+    "k": "CoachCalendarPage.blockAllDayHint",
+    "en": "The entire day will be unavailable for new bookings."
+  },
+  {
+    "k": "CoachCalendarPage.blockAllDayButton",
+    "en": "Block entire day"
+  },
+  {
+    "k": "CoachCalendarPage.blockedSlotsTitle",
+    "en": "Blocked time on this day"
+  },
+  {
+    "k": "CoachCalendarPage.agendaAvailable",
+    "en": "Open for bookings — add blocks below if needed."
+  },
+  {
+    "k": "CoachCalendarPage.agendaPartialBlocked",
+    "en": "{count, plural, one {# blocked range} other {# blocked ranges}} — other hours stay open."
+  },
+  {
+    "k": "CoachCalendarPage.agendaFullDayBlocked",
+    "en": "Entire day blocked — no new bookings."
+  },
+  {
+    "k": "CoachCalendarPage.blockAllDayShort",
+    "en": "Full day unavailable"
+  },
+  {
+    "k": "CoachCalendarPage.blockSpecificShort",
+    "en": "Partially blocked"
+  },
+  {
+    "k": "CoachCalendarPage.noBlockReason",
+    "en": "No note"
+  },
+  {
+    "k": "CoachCalendarPage.fullDayBlockedNote",
+    "en": "Entire day is blocked."
+  },
+  {
+    "k": "CoachCalendarPage.bookingWarningTitle",
+    "en": "You already have active sessions on this day."
+  },
+  {
+    "k": "CoachCalendarPage.bookingWarningSession",
+    "en": "{time} · {customer} · {status}"
+  },
+  {
+    "k": "CoachCalendarPage.bookingCustomerFallback",
+    "en": "Athlete"
+  },
+  {
+    "k": "CoachCalendarPage.bookingAllDay",
+    "en": "All day"
+  },
+  {
+    "k": "CoachCalendarPage.statusBookings",
+    "en": "Active bookings"
+  },
+  {
+    "k": "CoachCalendarPage.dayBookingsTooltip",
+    "en": "{count, plural, one {# active booking} other {# active bookings}}"
+  },
+  {
+    "k": "CoachCalendarPage.dayWithBookingsAria",
+    "en": "{date}, {count, plural, one {# active booking} other {# active bookings}}"
+  },
+  {
+    "k": "CoachCalendarPage.blockBookingConflictConfirm",
+    "en": "This time range overlaps with an existing booking.\n\n{details}{more}\n\nBlock anyway?"
+  },
+  {
+    "k": "CoachCalendarPage.blockBookingConflictLine",
+    "en": "{time} · {customer} · {status}"
+  },
+  {
+    "k": "CoachCalendarPage.blockBookingConflictMore",
+    "en": "…and {count} more."
+  },
+  {
+    "k": "CoachCalendarPage.blockConflictModalDescription",
+    "en": "Blocking this period will affect existing bookings and notify the impacted customers."
+  },
+  {
+    "k": "CoachCalendarPage.blockConflictConfirmAction",
+    "en": "Cancel affected sessions"
+  },
+  {
+    "k": "CoachCalendarPage.blockConflictColCustomer",
+    "en": "Customer"
+  },
+  {
+    "k": "CoachCalendarPage.blockConflictColSession",
+    "en": "Session"
+  },
+  {
+    "k": "CoachCalendarPage.blockConflictColDate",
+    "en": "Date"
+  },
+  {
+    "k": "CoachCalendarPage.blockConflictColTime",
+    "en": "Time"
+  },
+  {
+    "k": "CoachCalendarPage.blockConflictColStatus",
+    "en": "Status"
+  },
+  {
+    "k": "CoachCalendarPage.blockConflictCancelInProgress",
+    "en": "Cancelling sessions…"
+  },
+  {
+    "k": "CoachCalendarPage.cancelEventColStatus",
+    "en": "Status"
+  },
+  {
+    "k": "CoachCalendarPage.legendTitle",
+    "en": "Availability legend"
+  },
+  {
+    "k": "CoachCalendarPage.dayAvailabilityLegend",
+    "en": "Day availability"
+  },
+  {
+    "k": "CoachCalendarPage.noteLabel",
+    "en": "Note (optional)"
+  },
+  {
+    "k": "CoachCalendarPage.notePlaceholder",
+    "en": "Add a note for this day"
+  },
+  {
+    "k": "CoachCalendarPage.saveDayButton",
+    "en": "Save day"
+  },
+  {
+    "k": "CoachCalendarPage.prevMonth",
+    "en": "Previous month"
+  },
+  {
+    "k": "CoachCalendarPage.nextMonth",
+    "en": "Next month"
+  },
+  {
+    "k": "CoachCalendarPage.weeklyAvailabilityTitle",
+    "en": "Weekly availability"
+  },
+  {
+    "k": "CoachCalendarPage.weeklyAvailabilityDescription",
+    "en": "Set the days and times you are open for bookings each week."
+  },
+  {
+    "k": "CoachCalendarPage.blockSpecificTimeTitle",
+    "en": "Block specific time"
+  },
+  {
+    "k": "CoachCalendarPage.upcomingBlockedTimesTitle",
+    "en": "Upcoming blocked times"
+  },
+  {
+    "k": "CoachCalendarPage.availabilityPreviewTitle",
+    "en": "Availability preview"
+  },
+  {
+    "k": "CoachCalendarPage.startTimeLabel",
+    "en": "Start time"
+  },
+  {
+    "k": "CoachCalendarPage.endTimeLabel",
+    "en": "End time"
+  },
+  {
+    "k": "CoachCalendarPage.blockDateLabel",
+    "en": "Date"
+  },
+  {
+    "k": "CoachCalendarPage.reasonLabel",
+    "en": "Reason (optional)"
+  },
+  {
+    "k": "CoachCalendarPage.reasonPlaceholder",
+    "en": "Add a note for this block"
+  },
+  {
+    "k": "CoachCalendarPage.blockTimeButton",
+    "en": "Block time"
+  },
+  {
+    "k": "CoachCalendarPage.removeButton",
+    "en": "Remove"
+  },
+  {
+    "k": "CoachCalendarPage.availableLabel",
+    "en": "Available"
+  },
+  {
+    "k": "CoachCalendarPage.unavailableLabel",
+    "en": "Unavailable"
+  },
+  {
+    "k": "CoachCalendarPage.dailyUnavailableText",
+    "en": "No availability today"
+  },
+  {
+    "k": "CoachCalendarPage.noBlockedSlots",
+    "en": "No blocked times yet."
+  },
+  {
+    "k": "CoachCalendarPage.noBlocksToday",
+    "en": "No blocked slots for this day."
+  },
+  {
+    "k": "CoachCalendarPage.selectedRangeLabel",
+    "en": "Selected range"
+  },
+  {
+    "k": "CoachCalendarPage.selectedRangeDayCount",
+    "en": "{count, plural, one {# day} other {# days}}"
+  },
+  {
+    "k": "CoachCalendarPage.selectedRangeSameMonth",
+    "en": "{startDay}–{endDay} {monthYear}"
+  },
+  {
+    "k": "CoachCalendarPage.selectedRangeSameYear",
+    "en": "{startDate} – {endDate}"
+  },
+  {
+    "k": "CoachCalendarPage.selectedRangeFull",
+    "en": "{startDate} – {endDate}"
+  },
+  {
+    "k": "CoachCalendarPage.rangeApplyHint",
+    "en": "{count, plural, one {Changes apply to # selected day.} other {Changes apply to all # selected days.}}"
+  },
+  {
+    "k": "CoachCalendarPage.blockedSlotsRangeTitle",
+    "en": "Blocked time in selected range"
+  },
+  {
+    "k": "CoachCalendarPage.blockAllDaysInRangeButton",
+    "en": "Block entire period ({count} days)"
+  },
+  {
+    "k": "CoachCalendarPage.syncAvailabilityAria",
+    "en": "Sync availability"
+  },
+  {
+    "k": "CoachCalendarPage.syncAvailabilityButton",
+    "en": "Sync availability"
+  },
+  {
+    "k": "CoachCalendarPage.syncAvailabilityInProgress",
+    "en": "Syncing availability…"
+  },
+  {
+    "k": "CoachCalendarPage.syncAvailabilitySuccess",
+    "en": "Availability synced successfully ✓"
+  },
+  {
+    "k": "CoachDirectory.heroSubtitleInPlace",
+    "en": "Discover trusted instructors in {place}."
+  },
+  {
+    "k": "CoachDirectory.heroSubtitleNearYou",
+    "en": "Discover trusted instructors near you."
+  },
+  {
+    "k": "CoachesPage.contact",
+    "en": "Contact"
+  },
+  {
+    "k": "CoachesPage.priceFrom",
+    "en": "From {price}"
+  },
+  {
+    "k": "CoachesPage.regionLabel",
+    "en": "PeakUp coaches"
+  },
+  {
+    "k": "CoachesPage.schemaTitle",
+    "en": "Coaches | {marketplaceName}"
+  },
+  {
+    "k": "CoachesPage.scrollNext",
+    "en": "Scroll to more coaches"
+  },
+  {
+    "k": "CoachesPage.scrollPrev",
+    "en": "Scroll to previous coaches"
+  },
+  {
+    "k": "CoachesPage.subtitle",
+    "en": "Find a verified coach for your next session."
+  },
+  {
+    "k": "CoachesPage.title",
+    "en": "Coaches"
+  },
+  {
+    "k": "CoachStickerCard.fallbackSport",
+    "en": "Coach"
+  },
+  {
+    "k": "CoachStickerCard.ratingReviews",
+    "en": "{rating} ({count, plural, one {# review} other {# reviews}})"
+  },
+  {
+    "k": "CoachCard.fallbackName",
+    "en": "Coach"
+  },
+  {
+    "k": "CoachCard.languagesAria",
+    "en": "Languages spoken"
+  },
+  {
+    "k": "CoachCard.ratingAria",
+    "en": "Rated {rating} from {count, plural, one {# review} other {# reviews}}"
+  },
+  {
+    "k": "CoachMap.specialty.skitouring",
+    "en": "Ski Touring"
+  },
+  {
+    "k": "CoachMap.specialty.splittouring",
+    "en": "Split Touring"
+  },
+  {
+    "k": "CoachMap.specialty.freerideskiing",
+    "en": "Freeride"
+  },
+  {
+    "k": "CoachMap.specialty.freestyleskiing",
+    "en": "Freestyle"
+  },
+  {
+    "k": "CoachMap.specialty.freeridesnowboard",
+    "en": "Freeride"
+  },
+  {
+    "k": "CoachMap.specialty.freestylesnowboard",
+    "en": "Freestyle"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.badge.founder",
+    "en": "Founder"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.badge.ambassador",
+    "en": "Ambassador"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.badge.topCoach",
+    "en": "Top coach"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.badge.certifiedCoach",
+    "en": "Certified coach"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.cta",
+    "en": "View profile"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.founderLogoAlt",
+    "en": "PeakUp Founder badge"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.locationLabel",
+    "en": "Based in {location}"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.podiumRank",
+    "en": "Rank {rank} on PeakUp"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.priceFrom",
+    "en": "From {price} / hour"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.priceFromShort",
+    "en": "💰 From {price}"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.reviewMeta",
+    "en": "{rating} ({count, plural, one {# review} other {# reviews}})"
+  },
+  {
+    "k": "PeakUpCoachFigurineCard.reviewMetaEmpty",
+    "en": "No reviews"
+  },
+  {
+    "k": "PeakupCoachBadgesHierarchyModal.title",
+    "en": "PeakUp Sports Coach Badges"
+  },
+  {
+    "k": "PeakupCoachBadgesHierarchyModal.founderBody",
+    "en": "Original creator of PeakUp Sports. Exclusive highest-level badge."
+  },
+  {
+    "k": "PeakupCoachBadgesHierarchyModal.ambassadorBody",
+    "en": "Early coaches helping grow the PeakUp community and platform."
+  },
+  {
+    "k": "PeakupCoachBadgesHierarchyModal.topCoachBody",
+    "en": "Verified coach with 10+ years of certified experience."
+  },
+  {
+    "k": "PeakupCoachBadgesHierarchyModal.certifiedBody",
+    "en": "Verified and qualified coach with recognized certifications."
+  },
+  {
+    "k": "PeakupCoachBadgesHierarchyModal.badgeButtonHint",
+    "en": "Open PeakUp coach badge guide"
+  },
+  {
+    "k": "SectionFooter.trust247SupportText",
+    "en": "Real humans available around the clock."
+  },
+  {
+    "k": "SectionFooter.trust247SupportTitle",
+    "en": "24/7 Support"
+  },
+  {
+    "k": "SectionFooter.trustGlobalCommunityText",
+    "en": "Coaches and athletes from 30+ countries."
+  },
+  {
+    "k": "SectionFooter.trustGlobalCommunityTitle",
+    "en": "Global Community"
+  },
+  {
+    "k": "SectionFooter.trustSecureBookingsText",
+    "en": "Protected payments and full booking guarantee."
+  },
+  {
+    "k": "SectionFooter.trustSecureBookingsTitle",
+    "en": "Secure Bookings"
+  },
+  {
+    "k": "SectionFooter.trustVerifiedCoachesTitle",
+    "en": "Verified Coaches"
+  },
+  {
+    "k": "SectionPeakupFeaturedCoaches.scrollPrev",
+    "en": "Scroll to previous coaches"
+  },
+  {
+    "k": "SectionPeakupFeaturedCoaches.titleCoach",
+    "en": "Coach"
+  },
+  {
+    "k": "CustomExtendedDataField.notValidYoutubeVideoURL",
+    "en": "The URL you entered is not a valid YouTube URL."
+  },
+  {
+    "k": "CustomExtendedDataField.numberTooBig",
+    "en": "The number must be less than or equal to {max}"
+  },
+  {
+    "k": "CustomExtendedDataField.numberTooSmall",
+    "en": "The number must be greater than or equal to {min}"
+  },
+  {
+    "k": "CustomExtendedDataField.placeholderLong",
+    "en": "Add number"
+  },
+  {
+    "k": "CustomExtendedDataField.placeholderText",
+    "en": "Write description…"
+  },
+  {
+    "k": "CustomExtendedDataField.placeholderYoutubeVideoURL",
+    "en": "The URL of a YouTube video"
+  },
+  {
+    "k": "CustomExtendedDataField.required",
+    "en": "Required"
+  },
+  {
+    "k": "DatePicker.clearButton",
+    "en": "Clear"
+  },
+  {
+    "k": "DatePicker.screenreader.blockedDate",
+    "en": "{date} is not available"
+  },
+  {
+    "k": "DatePicker.screenreader.chooseDate",
+    "en": "Choose {date}"
+  },
+  {
+    "k": "DatePicker.screenreader.chooseEndDate",
+    "en": "Choose {date} as the end date"
+  },
+  {
+    "k": "DatePicker.screenreader.chooseStartDate",
+    "en": "Choose {date} as the start date"
+  },
+  {
+    "k": "DatePicker.screenreader.nextMonthButton",
+    "en": "Next month"
+  },
+  {
+    "k": "DatePicker.screenreader.previousMonthButton",
+    "en": "Previous month"
+  },
+  {
+    "k": "DatePicker.screenreader.selectedDate",
+    "en": "{date} is selected"
+  },
+  {
+    "k": "DatePicker.screenreader.selectedEndDate",
+    "en": "{date} is selected as the end date"
+  },
+  {
+    "k": "DatePicker.screenreader.selectedStartDate",
+    "en": "{date} is selected as the start date"
+  },
+  {
+    "k": "DatePicker.todayButton",
+    "en": "Show today"
+  },
+  {
+    "k": "DeleteAccountForm.checkboxLabel",
+    "en": "I want to delete my account"
+  },
+  {
+    "k": "DeleteAccountForm.confirmDeleteTitle",
+    "en": "Confirm account deletion"
+  },
+  {
+    "k": "DeleteAccountForm.deleteAccount",
+    "en": "Delete account"
+  },
+  {
+    "k": "DeleteAccountForm.ongoingTransactionsError",
+    "en": "Account deletion failed. Please complete any ongoing transactions before deleting your account or contact support."
+  },
+  {
+    "k": "DeleteAccountForm.passwordFailed",
+    "en": "Please double-check your password."
+  },
+  {
+    "k": "DeleteAccountForm.resendPasswordLinkText",
+    "en": "Resend instructions."
+  },
+  {
+    "k": "DeleteAccountForm.resetPasswordInfo",
+    "en": "Forgot your password or don't have one? {resetPasswordLink}"
+  },
+  {
+    "k": "DeleteAccountForm.resetPasswordLinkText",
+    "en": "Send reset instructions."
+  },
+  {
+    "k": "DeleteAccountForm.stripeDeletionFailedError",
+    "en": "Account deletion failed. Stripe data could not be deleted. Please contact support."
+  },
+  {
+    "k": "DiscardDraftModal.message",
+    "en": "This can't be undone."
+  },
+  {
+    "k": "DiscardDraftModal.submit",
+    "en": "Discard draft"
+  },
+  {
+    "k": "DiscardDraftModal.title",
+    "en": "Are you sure you want to discard this draft?"
+  },
+  {
+    "k": "DisputeModal.disputePlaceholder",
+    "en": "There was an issue with…"
+  },
+  {
+    "k": "DisputeModal.disputeReasonRequired",
+    "en": "You need to specify a reason"
+  },
+  {
+    "k": "DisputeModal.label",
+    "en": "Please explain the situation in detail"
+  },
+  {
+    "k": "DisputeModal.sentMessage",
+    "en": "Thank you for letting us know. We will review the situation and take the necessary actions to solve the dispute."
+  }
+]

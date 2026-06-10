@@ -1,0 +1,990 @@
+{
+  "it": {
+    "AboutPage.ctaTitle": {
+      "en": "Grow your visibility, bookings, and business",
+      "de": "Steigere Sichtbarkeit, Buchungen und dein Geschäft",
+      "fr": "Développez votre visibilité, vos réservations et votre activité",
+      "cur": "Aumenta la tua visibilità, le tue prenotazioni e il tuo business"
+    },
+    "AboutPage.heroCtaPrimary": {
+      "en": "Find your coach",
+      "de": "Finde deinen Coach",
+      "fr": "Trouvez votre coach",
+      "cur": "Trouvez il tuo coach"
+    },
+    "AboutPage.missionLabel": {
+      "en": "Our mission",
+      "de": "Unsere Mission",
+      "fr": "Notre mission",
+      "cur": "La nostra missione"
+    },
+    "AboutPage.missionTitle": {
+      "en": "Sport deserves a platform as ambitious as the people who live it",
+      "de": "Sport verdient eine Plattform, die so ambitioniert ist wie die Menschen, die ihn leben",
+      "fr": "Le sport mérite une plateforme aussi ambitieuse que ceux qui le vivent",
+      "cur": "Lo sport merita una piattaforma ambiziosa quanto le persone che lo vivono"
+    },
+    "AboutPage.whyTitle": {
+      "en": "Because performance needs a better stage",
+      "de": "Weil Leistung eine bessere Bühne braucht",
+      "fr": "Parce que la performance mérite une meilleure scène",
+      "cur": "Perché la performance ha bisogno di un palcoscenico migliore"
+    },
+    "AuthenticationPage.confirmSignupInfoText": {
+      "en": "Please check that your information is correct.",
+      "de": "Bitte prüfe, dass deine Informationen korrekt sind.",
+      "fr": "Veuillez vérifier que vos informations sont correctes.",
+      "cur": "Per favore controlla che le tue informazioni siano corrette."
+    },
+    "AuthenticationPage.loginFailed": {
+      "en": "The email and password you provided don't match our records. Please double-check and try again.",
+      "de": "Die von dir angegebene E-Mail-Adresse und das Passwort stimmen nicht mit unseren Aufzeichnungen überein. Bitte überprüfe es noch einmal und versuche es erneut.",
+      "fr": "L'email et le mot de passe que vous avez fournis ne correspondent pas à nos enregistrements. Veuillez vérifier et réessayer.",
+      "cur": "L'e-mail e la password che hai fornito non corrispondono ai nostri record. Per favore ricontrolla e riprova."
+    },
+    "AuthenticationPage.loginWithFacebook": {
+      "en": "Continue with Facebook",
+      "de": "Mit Facebook fortsetzen",
+      "fr": "Continuer avec Facebook",
+      "cur": "Continua avec Facebook"
+    },
+    "AuthenticationPage.loginWithGoogle": {
+      "en": "Continue with Google",
+      "de": "Mit Google fortsetzen",
+      "fr": "Continuer avec Google",
+      "cur": "Continua avec Google"
+    },
+    "AuthenticationPage.signupFailed": {
+      "en": "Signup failed. Please make sure all the information you entered is correct and try again.",
+      "de": "Registrierung fehlgeschlagen. Bitte sicherstellen, dass alle Informationen richtig sind, und danach erneut versuchen.",
+      "fr": "L'inscription a échoué. Assurez vous que toutes les informations entrées sont correctes et réessayer.",
+      "cur": "Registrazione non riuscita. Assicurati che tutte le informazioni inserite siano corrette e riprova."
+    },
+    "AuthenticationPage.signupChoiceCoachHint": {
+      "en": "Create your account, verify your email, then complete the PeakUp coach application — reviewed within 48h.",
+      "de": "Konto erstellen, E-Mail bestätigen, dann die PeakUp-Coach-Bewerbung ausfüllen — Antwort innerhalb von 48h.",
+      "fr": "Créez votre compte, vérifiez votre e-mail, puis complétez la candidature coach PeakUp — réponse sous 48h.",
+      "cur": "Crea il tuo account, verifica la tua email, quindi completa la richiesta del coach PeakUp, esaminata entro 48 ore."
+    },
+    "AuthenticationPage.signupChoiceTitle": {
+      "en": "How would you like to join?",
+      "de": "Wie möchtest du beitreten?",
+      "fr": "Comment veux-tu nous rejoindre ?",
+      "cur": "Comment veux-tu noi rejoindre ?"
+    },
+    "AuthenticationPage.signupPathSubtitle": {
+      "en": "Pick your path — discover coaches, grow as a pro, or build your crew.",
+      "de": "Wähle deinen Weg — Coaches entdecken, als Pro wachsen oder deine Crew aufbauen.",
+      "fr": "Choisis ton parcours — découvre des coachs, grandis en pro ou construis ta crew.",
+      "cur": "Scegli il tuo percorso: scopri gli allenatori, cresci come professionista o costruisci la tua squadra."
+    },
+    "AuthenticationPage.signupWithFacebook": {
+      "en": "Continue with Facebook",
+      "de": "Mit Facebook fortsetzen",
+      "fr": "Continuer avec Facebook",
+      "cur": "Continua avec Facebook"
+    },
+    "AuthenticationPage.signupWithGoogle": {
+      "en": "Continue with Google",
+      "de": "Mit Google fortsetzen",
+      "fr": "Continuer avec Google",
+      "cur": "Continua avec Google"
+    },
+    "AuthenticationPage.verifyEmailTitle": {
+      "en": "{name}, check your email inbox to verify your email address",
+      "de": "{name}, bitte überprüfe deinen E-Mail-Posteingang, um deine E-Mail-Adresse zu bestätigen",
+      "fr": "{name}, consultez votre boîte de réception pour confirmer votre adresse email",
+      "cur": "{name}, controlla la tua casella di posta elettronica per verificare il tuo indirizzo email"
+    },
+    "CoachApplicationPage.acceptVerificationLabel": {
+      "en": "I confirm that all information provided is accurate and I accept the PeakUp manual verification process.",
+      "de": "Ich bestätige, dass alle Angaben korrekt sind, und akzeptiere den manuellen PeakUp-Verifizierungsprozess.",
+      "fr": "Je confirme que toutes les informations fournies sont exactes et j'accepte le processus de vérification manuelle PeakUp.",
+      "cur": "Confermo che tutte le informazioni fornite sono accurate e accetto il processo di verifica manuale di PeakUp."
+    },
+    "CoachApplicationPage.acceptVerificationRequired": {
+      "en": "Please confirm your information is accurate and accept the verification process.",
+      "de": "Bitte bestätigen Sie die Richtigkeit Ihrer Angaben und akzeptieren Sie den Verifizierungsprozess.",
+      "fr": "Veuillez confirmer l'exactitude de vos informations et accepter le processus de vérification.",
+      "cur": "Conferma che le tue informazioni sono accurate e accetta il processo di verifica."
+    },
+    "CoachApplicationPage.cityAreaRequired": {
+      "en": "Enter your city or area.",
+      "de": "Geben Sie Ihre Stadt oder Region ein.",
+      "fr": "Indiquez votre ville ou région.",
+      "cur": "Inserisci la tua città o zona."
+    },
+    "CoachApplicationPage.confirmCorrectLabel": {
+      "en": "I confirm the information provided is correct.",
+      "de": "Ich bestätige, dass die Angaben korrekt sind.",
+      "fr": "Je confirme que les informations fournies sont exactes.",
+      "cur": "Confermo che le informazioni fornite sono corrette."
+    },
+    "CoachApplicationPage.emailLabel": {
+      "en": "Email",
+      "de": "E-Mail",
+      "fr": "E-mail",
+      "cur": "E-mail"
+    },
+    "CoachApplicationPage.referralInviteSubtitle": {
+      "en": "Enter the ambassador referral code you received to connect your coach application to a PeakUp Ambassador.",
+      "de": "Gib den Ambassador-Empfehlungscode ein, den du erhalten hast, um deine Coach-Bewerbung mit einem PeakUp Ambassador zu verknüpfen.",
+      "fr": "Saisis le code de parrainage ambassador que tu as reçu pour lier ta candidature coach à un Ambassador PeakUp.",
+      "cur": "Inserisci il codice di riferimento dell'ambasciatore che hai ricevuto per collegare la tua richiesta di coach a un PeakUp Ambassador."
+    },
+    "CoachApplicationPage.languagesRequired": {
+      "en": "List the languages you coach in.",
+      "de": "Nennen Sie die Sprachen, in denen Sie coachen.",
+      "fr": "Indiquez les langues dans lesquelles vous coachez.",
+      "cur": "Elenca le lingue in cui alleni."
+    },
+    "CoachApplicationPage.successEmailNote": {
+      "en": "We'll email you at the address you provided once your review begins.",
+      "de": "Wir senden Ihnen eine E-Mail an die angegebene Adresse, sobald die Prüfung beginnt.",
+      "fr": "Nous vous enverrons un e-mail à l'adresse indiquée lorsque la revue commencera.",
+      "cur": "Ti invieremo un'email all'indirizzo che hai fornito una volta iniziata la revisione."
+    },
+    "CoachApplicationPage.stepCoachingHint": {
+      "en": "Share your experience, certifications, and how you work with athletes.",
+      "de": "Teilen Sie Ihre Erfahrung, Zertifizierungen und wie Sie mit Athleten arbeiten.",
+      "fr": "Partagez votre expérience, vos certifications et votre façon de travailler avec les athlètes.",
+      "cur": "Condividi la tua esperienza, le certificazioni e il modo in cui lavori con gli atleti."
+    },
+    "CoachApplicationPage.stepConsentHint": {
+      "en": "Please confirm the statements below before submitting.",
+      "de": "Bitte bestätigen Sie die folgenden Angaben vor dem Absenden.",
+      "fr": "Veuillez confirmer les déclarations ci-dessous avant d'envoyer.",
+      "cur": "Si prega di confermare le dichiarazioni seguenti prima di inviarle."
+    },
+    "CoachApplicationPage.stepDocumentsHint": {
+      "en": "Upload your documents securely. Our team reviews them during verification.",
+      "de": "Laden Sie Ihre Dokumente sicher hoch. Unser Team prüft sie bei der Verifizierung.",
+      "fr": "Téléversez vos documents en toute sécurité. Notre équipe les examinera lors de la vérification.",
+      "cur": "Carica i tuoi documenti in tutta sicurezza. Il nostro team li esamina durante la verifica."
+    },
+    "CoachApplicationPage.understandManualReviewRequired": {
+      "en": "Please confirm you understand manual review is required.",
+      "de": "Bitte bestätigen Sie, dass eine manuelle Prüfung erforderlich ist.",
+      "fr": "Veuillez confirmer que vous comprenez qu'un examen manuel est requis.",
+      "cur": "Conferma di aver compreso che è necessaria la revisione manuale."
+    },
+    "CoachDashboardPage.cardAmbassadorHint": {
+      "en": "Share your referral link, track rewards, and grow your network.",
+      "de": "Teile deinen Empfehlungslink, verfolge Belohnungen und erweitere dein Netzwerk.",
+      "fr": "Partagez votre lien de parrainage, suivez les récompenses et développez votre réseau.",
+      "cur": "Condividi il tuo link di riferimento, monitora i premi e fai crescere la tua rete."
+    },
+    "CoachDashboardPage.cardCalendarHint": {
+      "en": "Set your availability and sync your coaching calendar.",
+      "de": "Verfügbarkeit festlegen und Coaching-Kalender synchronisieren.",
+      "fr": "Définissez vos disponibilités et synchronisez votre calendrier.",
+      "cur": "Imposta la tua disponibilità e sincronizza il tuo calendario di coaching."
+    },
+    "CoachDashboardPage.cardInboxHint": {
+      "en": "Review booking requests and messages from athletes.",
+      "de": "Buchungsanfragen und Nachrichten von Athleten prüfen.",
+      "fr": "Consultez les demandes de réservation et les messages des athlètes.",
+      "cur": "Esamina le richieste di prenotazione e i messaggi degli atleti."
+    },
+    "CoachDashboardPage.cardListingsTitle": {
+      "en": "Manage listings",
+      "de": "Angebote verwalten",
+      "fr": "Gérer les annonces",
+      "cur": "Gestisci le inserzioni"
+    },
+    "CoachDashboardPage.operationsAria": {
+      "en": "Bookings and availability",
+      "de": "Buchungen und Verfügbarkeit",
+      "fr": "Réservations et disponibilités",
+      "cur": "Bookings and availability"
+    },
+    "CoachDashboardPage.cardProfileHint": {
+      "en": "Update your bio, sports, photos, and coach details.",
+      "de": "Bio, Sportarten, Fotos und Coach-Details aktualisieren.",
+      "fr": "Mettez à jour votre bio, sports, photos et informations coach.",
+      "cur": "Aggiorna la tua biografia, gli sport, le foto e i dettagli dell'allenatore."
+    },
+    "CoachDashboardPage.cardPublicProfileHint": {
+      "en": "See how athletes view your PeakUp coach page.",
+      "de": "So sehen Athleten deine PeakUp-Coach-Seite.",
+      "fr": "Voyez comment les athlètes consultent votre page PeakUp.",
+      "cur": "Scopri come gli atleti visualizzano la pagina del tuo allenatore PeakUp."
+    },
+    "CoachDashboardPage.heroLead": {
+      "en": "Your coaching business, all in one place.",
+      "de": "Dein Coaching-Business – alles an einem Ort.",
+      "fr": "Votre activité de coaching, réunie en un seul endroit.",
+      "cur": "La tua attività di coaching, tutto in un unico posto."
+    },
+    "CoachDashboardPage.cardBookingsTitle": {
+      "en": "My bookings",
+      "de": "Meine Buchungen",
+      "fr": "Mes réservations",
+      "cur": "My bookings"
+    },
+    "CoachDashboardPage.cardEventsHint": {
+      "en": "Camps, clinics, retreats and multi-day experiences.",
+      "de": "Camps, Kliniken, Retreats und mehrtägige Erlebnisse.",
+      "fr": "Camps, cliniques, retraites et expériences de plusieurs jours.",
+      "cur": "Camps, clinics, retreats and multi-day experiences."
+    },
+    "CoachEarningsPage.commissionFootnote": {
+      "en": "Additional payment provider processing fees may apply. Online payment processing typically ranges around 2–4% depending on provider, currency, and region — separate from the PeakUp platform fee.",
+      "de": "Zusätzliche Gebühren des Zahlungsanbieters können anfallen. Die Online-Zahlungsabwicklung liegt typischerweise bei etwa 2–4 % je nach Anbieter, Währung und Region — getrennt von der PeakUp-Plattformgebühr.",
+      "fr": "Des frais de traitement du prestataire de paiement peuvent s'appliquer en plus. Le traitement des paiements en ligne se situe généralement autour de 2 à 4 % selon le prestataire, la devise et la région — distinct de la commission PeakUp.",
+      "cur": "Potrebbero essere applicate commissioni di elaborazione aggiuntive per il fornitore di servizi di pagamento. L'elaborazione dei pagamenti online varia in genere intorno al 2–4% a seconda del fornitore, della valuta e della regione, a parte la tariffa della piattaforma PeakUp."
+    },
+    "CoachEarningsPage.dashboardBookingsValue": {
+      "en": "12",
+      "de": "12",
+      "fr": "12",
+      "cur": "12"
+    },
+    "CoachEarningsPage.dashboardWeeklyValue": {
+      "en": "+18%",
+      "de": "+18 %",
+      "fr": "+18 %",
+      "cur": "+18%"
+    },
+    "CoachEarningsPage.controlPricesText": {
+      "en": "You decide how much your sessions cost.",
+      "de": "Du entscheidest, was deine Sessions kosten.",
+      "fr": "Vous décidez du prix de vos sessions.",
+      "cur": "Decidi tu quanto costano le tue sessioni."
+    },
+    "CoachEarningsPage.controlScheduleText": {
+      "en": "Open and block your availability anytime.",
+      "de": "Verfügbarkeit jederzeit öffnen oder blockieren.",
+      "fr": "Ouvrez ou bloquez vos disponibilités à tout moment.",
+      "cur": "Apri e blocca la tua disponibilità in qualsiasi momento."
+    },
+    "CoachEarningsPage.controlSportsTitle": {
+      "en": "Multisport",
+      "de": "Multideporte",
+      "fr": "Multideporte",
+      "cur": "Multisport"
+    },
+    "CoachEarningsPage.controlTitle": {
+      "en": "You run your coaching business",
+      "de": "Du führst dein Coaching-Geschäft",
+      "fr": "Vous gérez votre activité de coaching",
+      "cur": "Gestisci la tua attività di coaching"
+    },
+    "CoachEarningsPage.finalTitle": {
+      "en": "Ready to grow your coaching business?",
+      "de": "Bereit, dein Coaching-Geschäft auszubauen?",
+      "fr": "Prêt à développer votre activité de coaching ?",
+      "cur": "Pronto a far crescere la tua attività di coaching?"
+    },
+    "CoachEarningsPage.growBullet1": {
+      "en": "Build your reputation with reviews",
+      "de": "Baue deinen Ruf mit Bewertungen auf",
+      "fr": "Construisez votre réputation avec les avis",
+      "cur": "Costruisci la tua reputazione con le recensioni"
+    },
+    "CoachCalendarPage.description": {
+      "en": "Manage your global availability for all services and bookings.",
+      "de": "Verwalte deine globale Verfügbarkeit für alle Services und Buchungen.",
+      "fr": "Gérez votre disponibilité globale pour tous les services et réservations.",
+      "cur": "Gestisci la tua disponibilità globale per tutti i servizi e le prenotazioni."
+    },
+    "CoachCalendarPage.listingWizardReturnHint": {
+      "en": "Block the days you need, then save and return to continue your listing.",
+      "de": "Blockiere die gewünschten Tage, speichere und kehre zurück, um deinen Eintrag fortzusetzen.",
+      "fr": "Bloquez les jours souhaités, enregistrez puis revenez pour poursuivre votre annonce.",
+      "cur": "Blocca i giorni che ti servono, quindi salva e torna per continuare la tua inserzione."
+    },
+    "CoachCalendarPage.agendaAvailable": {
+      "en": "Open for bookings — add blocks below if needed.",
+      "de": "Offen für Buchungen — Blockierungen unten hinzufügen.",
+      "fr": "Ouvert aux réservations — ajoutez des blocages ci-dessous si besoin.",
+      "cur": "Aperto per le prenotazioni: aggiungi i blocchi di seguito se necessario."
+    },
+    "CoachCalendarPage.bookingWarningSession": {
+      "en": "{time} · {customer} · {status}",
+      "de": "{time} · {customer} · {status}",
+      "fr": "{time} · {customer} · {status}",
+      "cur": "{time} · {customer} · {status}"
+    },
+    "CoachCalendarPage.blockBookingConflictLine": {
+      "en": "{time} · {customer} · {status}",
+      "de": "{time} · {customer} · {status}",
+      "fr": "{time} · {customer} · {status}",
+      "cur": "{time} · {customer} · {status}"
+    },
+    "CoachCalendarPage.blockConflictModalDescription": {
+      "en": "Blocking this period will affect existing bookings and notify the impacted customers.",
+      "de": "Das Blockieren betrifft bestehende Buchungen und benachrichtigt die betroffenen Kunden.",
+      "fr": "Bloquer cette période affectera les réservations existantes et notifiera les clients concernés.",
+      "cur": "Il blocco di questo periodo influenzerà le prenotazioni esistenti e avviserà i clienti interessati."
+    },
+    "CoachCalendarPage.blockConflictConfirmAction": {
+      "en": "Cancel affected sessions",
+      "de": "Betroffene Sessions stornieren",
+      "fr": "Annuler les sessions concernées",
+      "cur": "Annulla le sessioni interessate"
+    },
+    "CoachCalendarPage.blockConflictError": {
+      "en": "Could not cancel sessions. Please try again or contact PeakUp support.",
+      "de": "Sessions konnten nicht storniert werden. Bitte erneut versuchen oder PeakUp kontaktieren.",
+      "fr": "Impossible d'annuler les sessions. Réessayez ou contactez PeakUp.",
+      "cur": "Impossibile annullare le sessioni. Riprova o contatta l'assistenza PeakUp."
+    },
+    "CoachCalendarPage.cancelEventDescription": {
+      "en": "This will cancel the participant's registration, process any applicable refund according to PeakUp's cancellation policy, and notify them by message and email. The transaction history and inbox thread will be kept.",
+      "de": "Dadurch wird die Registrierung des Teilnehmers storniert, etwaige Rückerstattungen gemäß den Stornierungsbedingungen von PeakUp bearbeitet und er per Nachricht und E-Mail benachrichtigt. Der Transaktionsverlauf und der Posteingangsthread bleiben erhalten.",
+      "fr": "Cela annulera l'inscription du participant, traitera tout remboursement applicable conformément à la politique d'annulation de PeakUp et l'en informera par message et par e-mail. L’historique des transactions et le fil de discussion de la boîte de réception seront conservés.",
+      "cur": "This will cancel the participant's registration, process any applicable refund according to PeakUp's cancellation policy, and notify them by message and email. The transaction history and inbox thread will be kept."
+    },
+    "CoachCalendarPage.cancelEventReliabilityWarning": {
+      "en": "Frequent cancellations may impact your coach reliability status.",
+      "de": "Häufige Stornierungen können deinen Coach-Zuverlässigkeitsstatus beeinflussen.",
+      "fr": "Des annulations fréquentes peuvent affecter votre score de fiabilité coach.",
+      "cur": "Frequent cancellations may impact your coach reliability status."
+    },
+    "CoachCalendarPage.savedStatusHint": {
+      "en": "Changes apply locally until you connect your calendar.",
+      "de": "Änderungen gelten lokal, bis du deinen Kalender verbindest.",
+      "fr": "Les modifications s'appliquent localement jusqu'à la connexion de votre calendrier.",
+      "cur": "Le modifiche verranno applicate localmente finché non collegherai il tuo calendario."
+    },
+    "CoachCalendarPage.saveDayButton": {
+      "en": "Save day",
+      "de": "Tag speichern",
+      "fr": "Enregistrer le jour",
+      "cur": "Salva la giornata"
+    },
+    "CoachCalendarPage.weeklyAvailabilityDescription": {
+      "en": "Set the days and times you are open for bookings each week.",
+      "de": "Lege die Tage und Zeiten fest, zu denen du jede Woche buchbar bist.",
+      "fr": "Définissez les jours et horaires où vous êtes disponible chaque semaine.",
+      "cur": "Imposta i giorni e gli orari in cui sei aperto per le prenotazioni ogni settimana."
+    },
+    "CoachCalendarPage.selectedRangeDayCount": {
+      "en": "{count, plural, one {# day} other {# days}}",
+      "de": "{count, plural, one {# Tag} other {# Tage}}",
+      "fr": "{count, plural, one {# jour} other {# jours}}",
+      "cur": "{count, plural, one {# day} other {# days}}"
+    },
+    "CoachCalendarPage.selectedRangeSameMonth": {
+      "en": "{startDay}–{endDay} {monthYear}",
+      "de": "{startDay}.–{endDay} {monthYear}",
+      "fr": "{startDay}–{endDay} {monthYear}",
+      "cur": "{startDay}–{endDay} {monthYear}"
+    },
+    "CoachCalendarPage.selectedRangeSameYear": {
+      "en": "{startDate} – {endDate}",
+      "de": "{startDate} – {endDate}",
+      "fr": "{startDate} – {endDate}",
+      "cur": "{startDate} – {endDate}"
+    },
+    "CoachCalendarPage.selectedRangeFull": {
+      "en": "{startDate} – {endDate}",
+      "de": "{startDate} – {endDate}",
+      "fr": "{startDate} – {endDate}",
+      "cur": "{startDate} – {endDate}"
+    },
+    "CoachCalendarPage.rangeApplyHint": {
+      "en": "{count, plural, one {Changes apply to # selected day.} other {Changes apply to all # selected days.}}",
+      "de": "{count, plural, one {Änderungen gelten für # ausgewählten Tag.} other {Änderungen gelten für alle # ausgewählten Tage.}}",
+      "fr": "{count, plural, one {Les modifications s'appliquent à # jour sélectionné.} other {Les modifications s'appliquent aux # jours sélectionnés.}}",
+      "cur": "{count, plural, one {Changes apply to # selected day.} other {Changes apply to all # selected days.}}"
+    },
+    "CoachCalendarPage.syncAvailabilityAria": {
+      "en": "Sync availability",
+      "de": "Verfügbarkeit synchronisieren",
+      "fr": "Synchroniser la disponibilité",
+      "cur": "Sincronizza la disponibilità"
+    },
+    "CoachCalendarPage.syncAvailabilityButton": {
+      "en": "Sync availability",
+      "de": "Verfügbarkeit synchronisieren",
+      "fr": "Synchroniser la disponibilité",
+      "cur": "Sincronizza la disponibilità"
+    },
+    "CoachCalendarPage.syncAvailabilityError": {
+      "en": "Could not sync availability. Please try again.",
+      "de": "Verfügbarkeit konnte nicht synchronisiert werden. Bitte erneut versuchen.",
+      "fr": "Impossible de synchroniser la disponibilité. Veuillez réessayer.",
+      "cur": "Impossibile sincronizzare la disponibilità. Per favore riprova."
+    },
+    "InboxPage.default-booking.reviewed-by-customer.status": {
+      "en": "{transactionRole, select, customer {Waiting for listing owner review} other {Waiting for your review}}",
+      "de": "{transactionRole, select, customer {Warte auf die Bewertung des Eintragseigentümers} other {Warte auf deine Bewertung}}",
+      "fr": "{transactionRole, select, customer {En attente de l'avis du propriétaire de l'annonce} other {En attente de votre avis}}",
+      "cur": "{transactionRole, select, customer {Waiting for listing owner review} other {Waiting for your review}}"
+    },
+    "InboxPage.default-booking.reviewed-by-provider.status": {
+      "en": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}",
+      "de": "{transactionRole, select, customer {Warte auf deine Bewertung} other {Warte auf Kundenbewertung}}",
+      "fr": "{transactionRole, select, customer {En attente de votre avis} other {En attente de l'avis du client}}",
+      "cur": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}"
+    },
+    "InboxPage.default-inquiry.free-inquiry.status": {
+      "en": "Free inquiry",
+      "de": "Kostenlose Anfrage",
+      "fr": "Demande gratuite",
+      "cur": "Demande gratuite"
+    },
+    "InboxPage.default-negotiation.changes-requested.status": {
+      "en": "Changes requested",
+      "de": "Änderungen angefordert",
+      "fr": "Modifications demandées",
+      "cur": "Modifications demandées"
+    },
+    "InboxPage.default-negotiation.customer-offer-pending.status": {
+      "en": "Counter offer",
+      "de": "Gegenangebot",
+      "fr": "Contre-offre",
+      "cur": "Contre-offre"
+    },
+    "InboxPage.default-negotiation.delivered.status": {
+      "en": "{transactionRole, select, customer {Accept order} other {Delivered}}",
+      "de": "{transactionRole, select, customer {Angebot annehmen} other {Geliefert}}",
+      "fr": "{transactionRole, select, customer {Acceptée la commande} other {Livrée}}",
+      "cur": "{transactionRole, select, customer {Accept order} other {Delivered}}"
+    },
+    "InboxPage.default-negotiation.offer-accepted.status": {
+      "en": "Waiting for delivery",
+      "de": "Warte auf Lieferung",
+      "fr": "En attente de la livraison",
+      "cur": "in attesa de la consegna"
+    },
+    "InboxPage.default-negotiation.offer-pending.status": {
+      "en": "{transactionRole, select, customer {Offer pending} other {Offer received}}",
+      "de": "{transactionRole, select, customer {Angebot ausstehend} other {Angebot erhalten}}",
+      "fr": "{transactionRole, select, customer {Offre en attente} other {Offre reçue}}",
+      "cur": "{transactionRole, select, customer {Offer pending} other {Offer received}}"
+    },
+    "InboxPage.default-negotiation.offer-rejected.status": {
+      "en": "Rejected",
+      "de": "Abgelehnt",
+      "fr": "Rejetée",
+      "cur": "Rejetée"
+    },
+    "InboxPage.default-negotiation.quote-requested.status": {
+      "en": "Quote requested",
+      "de": "Preisangebot angefragt",
+      "fr": "Devis demandé",
+      "cur": "Devis demandé"
+    },
+    "InboxPage.default-negotiation.request-rejected.status": {
+      "en": "Request rejected",
+      "de": "Anfrage abgelehnt",
+      "fr": "Demande rejetée",
+      "cur": "Demande rejetée"
+    },
+    "InboxPage.default-negotiation.reviewed-by-customer.status": {
+      "en": "{transactionRole, select, customer {Waiting for provider review} other {Waiting for your review}}",
+      "de": "{transactionRole, select, customer {Warte auf Bewertung durch den Anbieter} other {Warte auf deine Bewertung}}",
+      "fr": "{transactionRole, select, customer {En attente de l'avis du vendeur} other {En attente de votre avis}}",
+      "cur": "{transactionRole, select, customer {Waiting for provider review} other {Waiting for your review}}"
+    },
+    "InboxPage.default-negotiation.reviewed-by-provider.status": {
+      "en": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}",
+      "de": "{transactionRole, select, customer {Warte auf deine Bewertung} other {Warte auf Bewertung durch den Kunden}}",
+      "fr": "{transactionRole, select, customer {En attente de votre avis} other {En attente de l'avis du client}}",
+      "cur": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}"
+    },
+    "InboxPage.default-negotiation.update-pending.status": {
+      "en": "{transactionRole, select, customer {Offer update pending} other {Offer updated}}",
+      "de": "{transactionRole, select, customer {Aktualisierung des Angebots ausstehend} other {Angebot aktualisiert}}",
+      "fr": "{transactionRole, select, customer {Nouvelle offre en attente} other {Offre modifiée}}",
+      "cur": "{transactionRole, select, customer {Offer update pending} other {Offer updated}}"
+    },
+    "InboxPage.default-purchase.delivered.status": {
+      "en": "{transactionRole, select, customer {Mark as received} other {Delivered}}",
+      "de": "{transactionRole, select, customer {Als empfangen markieren} other {Geliefert}}",
+      "fr": "{transactionRole, select, client {Marquer comme reçu} other {Livré}}",
+      "cur": "{transactionRole, select, customer {Mark as received} other {Delivered}}"
+    },
+    "InboxPage.default-purchase.disputed.status": {
+      "en": "Disputed",
+      "de": "Reklamiert",
+      "fr": "Contestée",
+      "cur": "Contestée"
+    },
+    "InboxPage.default-purchase.purchased.status": {
+      "en": "Waiting for delivery",
+      "de": "Warte auf Lieferung",
+      "fr": "En attente de la livraison",
+      "cur": "in attesa de la consegna"
+    },
+    "InboxPage.default-purchase.reviewed-by-provider.status": {
+      "en": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}",
+      "de": "{transactionRole, select, customer {Warte auf deine Bewertung} other {Warte auf Kundenbewertung}}",
+      "fr": "{transactionRole, select, customer {En attente de votre avis} other {En attente de l'avis du client}}",
+      "cur": "{transactionRole, select, customer {Waiting for your review} other {Waiting for customer review}}"
+    },
+    "InboxPage.fetchFailed": {
+      "en": "Couldn't load all messages. Please try again.",
+      "de": "Es konnten nicht alle Nachrichten geladen werden. Bitte versuche es erneut.",
+      "fr": "Impossible de charger tous les messages. Veuillez réessayer.",
+      "cur": "Impossibile de charger tous les messaggios. Per favore réessayer."
+    },
+    "InboxPage.ordersTabTitle": {
+      "en": "As a customer",
+      "de": "Als Kund:in",
+      "fr": "En tant que client",
+      "cur": "En tant que client"
+    },
+    "InboxPage.salesTabTitle": {
+      "en": "As a provider",
+      "de": "Als Anbieter",
+      "fr": "En tant que vendeur",
+      "cur": "En tant que vendeur"
+    },
+    "InboxPage.sortBy.createdAt": {
+      "en": "Newest",
+      "de": "Neueste",
+      "fr": "Plus récentes",
+      "cur": "Plus récentes"
+    },
+    "InboxPage.sortBy.lastMessageAt": {
+      "en": "Latest message",
+      "de": "Letzte Nachricht",
+      "fr": "Message le plus récent",
+      "cur": "Messaggio le plus récent"
+    },
+    "InboxPage.sortBy.lastTransitionedAt": {
+      "en": "Latest status change",
+      "de": "Letzte Statusänderung",
+      "fr": "Changement de statut le plus récent",
+      "cur": "Changement de statut le plus récent"
+    },
+    "InboxPage.title": {
+      "en": "Inbox",
+      "de": "Inbox",
+      "fr": "Inbox",
+      "cur": "Inbox"
+    },
+    "LandingPage.schemaDescription": {
+      "en": "An online marketplace.",
+      "de": "Ein Online-Marktplatz.",
+      "fr": "Une place de marché en ligne.",
+      "cur": "Une place de marché en ligne."
+    },
+    "LandingPage.schemaTitle": {
+      "en": "{marketplaceName}",
+      "de": "{marketplaceName}",
+      "fr": "{marketplaceName}",
+      "cur": "{marketplaceName}"
+    },
+    "ManageListingsPage.createServiceCTA": {
+      "en": "+ Create new service",
+      "de": "+ Neuen Service erstellen",
+      "fr": "+ Créer un nouveau service",
+      "cur": "+ Créer un nouveau service"
+    },
+    "ManageListingsPage.queryError": {
+      "en": "Query failed. Please try again.",
+      "de": "Abfrage fehlgeschlagen. Bitte versuche es erneut.",
+      "fr": "La demande a échoué. Veuillez réessayer.",
+      "cur": "La demande a échoué. Per favore réessayer."
+    },
+    "LandingHeroSection.locationSelectHint": {
+      "en": "Please select a location from the list.",
+      "de": "Bitte wählen Sie einen Standort aus der Liste aus.",
+      "fr": "Veuillez sélectionner un emplacement dans la liste.",
+      "cur": "Please select a location from the list."
+    },
+    "LandingHeroSection.locationSearchError": {
+      "en": "Could not find that location. Try another spelling or use current location.",
+      "de": "Dieser Ort konnte nicht gefunden werden. Versuchen Sie es mit einer anderen Schreibweise oder verwenden Sie den aktuellen Standort.",
+      "fr": "Impossible de trouver cet emplacement. Essayez une autre orthographe ou utilisez l'emplacement actuel.",
+      "cur": "Could not find that location. Try another spelling or use current location."
+    },
+    "LandingHeroSection.currentLocationHttpsRequired": {
+      "en": "Current location is only available on HTTPS. Please type your location.",
+      "de": "Der aktuelle Standort ist nur auf HTTPS verfügbar. Bitte geben Sie Ihren Standort ein.",
+      "fr": "L'emplacement actuel n'est disponible que sur HTTPS. Veuillez saisir votre emplacement.",
+      "cur": "Current location is only available on HTTPS. Please type your location."
+    },
+    "LandingHeroSection.currentLocationDenied": {
+      "en": "Location permission was denied. Allow location access or type your location.",
+      "de": "Die Standortgenehmigung wurde verweigert. Erlauben Sie den Standortzugriff oder geben Sie Ihren Standort ein.",
+      "fr": "L'autorisation de localisation a été refusée. Autorisez l’accès à la localisation ou saisissez votre position.",
+      "cur": "Location permission was denied. Allow location access or type your location."
+    },
+    "LandingHeroSection.currentLocationUnavailable": {
+      "en": "Current location is unavailable right now. Please type your location.",
+      "de": "Der aktuelle Standort ist derzeit nicht verfügbar. Bitte geben Sie Ihren Standort ein.",
+      "fr": "L'emplacement actuel n'est pas disponible pour le moment. Veuillez saisir votre emplacement.",
+      "cur": "Current location is unavailable right now. Please type your location."
+    },
+    "LandingWhyPeakupSection.titlePeakUp": {
+      "en": "PeakUp",
+      "de": "PeakUp",
+      "fr": "PeakUp",
+      "cur": "PeakUp"
+    },
+    "LandingWhyPeakupSection.cardAthleteTitle": {
+      "en": "Find your coach",
+      "de": "Finde deinen Coach",
+      "fr": "Trouve ton coach",
+      "cur": "Trova il tuo coach"
+    },
+    "LandingWhyPeakupSection.cardAthleteCta": {
+      "en": "Find your coach",
+      "de": "Finde deinen Coach",
+      "fr": "Trouve ton coach",
+      "cur": "Trova il tuo coach"
+    },
+    "LandingWhyPeakupSection.cardCoachText": {
+      "en": "Build your visibility, grow your bookings, and stay fully independent.",
+      "de": "Baue deine Sichtbarkeit auf, steigere deine Buchungen und bleibe vollig unabhangig.",
+      "fr": "Developpez votre visibilite, augmentez vos reservations et restez totalement independant.",
+      "cur": "Aumenta la tua visibilità, le prenotazioni e resta completamente indipendente."
+    },
+    "CoachDashboardPage.teamInvitationsLead": {
+      "en": "Organizations can invite you to appear on their crew page. Accept only if you want to be listed — you keep your own PeakUp profile and payouts.",
+      "de": "Organisationen können dich einladen, auf ihrer Crew-Seite zu erscheinen. Akzeptiere nur, wenn du gelistet werden möchtest — dein PeakUp-Profil und deine Auszahlungen bleiben deine eigenen.",
+      "fr": "Les organisations peuvent vous inviter à apparaître sur leur page crew. Acceptez seulement si vous souhaitez être listé — vous conservez votre profil et vos paiements PeakUp.",
+      "cur": "Les organizzaziones peuvent tu invita à apparaître sur leur page crew. Acceptez seulement si tu souhaitez être listé — tu conservez il tuo profilo et i tuoi paiements PeakUp."
+    },
+    "CoachDashboardPage.teamInvitationInvitedOn": {
+      "en": "Invited {date}",
+      "de": "Eingeladen am {date}",
+      "fr": "Invité le {date}",
+      "cur": "Invité le {date}"
+    }
+  },
+  "pt": {
+    "AuthenticationPage.confirmSignupInfoText": {
+      "en": "Please check that your information is correct.",
+      "de": "Bitte prüfe, dass deine Informationen korrekt sind.",
+      "es": "Por favor, verifica que tu información sea correcta",
+      "cur": "Por favor verifique se suas informações estão corretas."
+    },
+    "AuthenticationPage.loginWithFacebook": {
+      "en": "Continue with Facebook",
+      "de": "Mit Facebook fortsetzen",
+      "es": "Continuar con Facebook",
+      "cur": "Continuar com o Facebook"
+    },
+    "AuthenticationPage.loginWithGoogle": {
+      "en": "Continue with Google",
+      "de": "Mit Google fortsetzen",
+      "es": "Continuar con Google",
+      "cur": "Continuar com o Google"
+    },
+    "AuthenticationPage.resendFailed": {
+      "en": "Resending verification email failed. Please try again.",
+      "de": "Bestätigungs-E-Mail konnte nicht erneut gesendet werden. Bitte versuche es erneut.",
+      "es": "Error al reenviar el correo de verificación. Por favor, inténtalo de nuevo.",
+      "cur": "Falha no reenvio do email de verificação. Por favor, tente novamente."
+    },
+    "AuthenticationPage.resendFailedTooManyRequests": {
+      "en": "The maximum of 5 verification emails has been reached. Please try again tomorrow.",
+      "de": "Die maximale Anzahl von 5 Bestätigungs-E-Mails wurde erreicht. Bitte versuche es morgen erneut.",
+      "es": "Has alcanzado el número máximo de correos de verificación. Por favor, inténtalo otra vez mañana.",
+      "cur": "O máximo de 5 emails de verificação foi atingido. Por favor, tente novamente amanhã."
+    },
+    "AuthenticationPage.signupWithFacebook": {
+      "en": "Continue with Facebook",
+      "de": "Mit Facebook fortsetzen",
+      "es": "Continuar con Facebook",
+      "cur": "Continuar com o Facebook"
+    },
+    "AuthenticationPage.signupWithGoogle": {
+      "en": "Continue with Google",
+      "de": "Mit Google fortsetzen",
+      "es": "Continuar con Google",
+      "cur": "Continuar com o Google"
+    },
+    "CoachApplicationPage.acceptLegalRequired": {
+      "en": "Please confirm you agree to the Terms & Conditions, Privacy Policy and Cookie Policy.",
+      "de": "Bitte bestätigen Sie, dass Sie den AGB, der Datenschutzerklärung und der Cookie-Richtlinie zustimmen.",
+      "es": "Confirma que aceptas los Términos y condiciones, la Política de privacidad y la Política de cookies.",
+      "cur": "Por favor, confirme que concorda com os Termos e Condições, Política de Privacidade e Política de Cookies."
+    },
+    "CoachApplicationPage.certification.federation": {
+      "en": "Federation certified",
+      "de": "Verbandszertifiziert",
+      "es": "Certificación federativa",
+      "cur": "Certificado pela Federação"
+    },
+    "CoachApplicationPage.countryLabel": {
+      "en": "Country",
+      "de": "Land",
+      "es": "País",
+      "cur": "País"
+    },
+    "CoachApplicationPage.insuranceDocumentLabel": {
+      "en": "Insurance document",
+      "de": "Versicherungsnachweis",
+      "es": "Documento de seguro",
+      "cur": "Documento de seguro"
+    },
+    "CoachApplicationPage.referralOptionalLabel": {
+      "en": "Optional",
+      "de": "Optionnel",
+      "es": "Opcional",
+      "cur": "Opcional"
+    },
+    "CoachApplicationPage.stepTrack05": {
+      "en": "Submit",
+      "de": "Absenden",
+      "es": "Enviar",
+      "cur": "Enviar"
+    },
+    "CoachApplicationPage.next": {
+      "en": "Continue",
+      "de": "Weiter",
+      "es": "Continuar",
+      "cur": "Continuar"
+    },
+    "CoachApplicationPage.optional": {
+      "en": "optional",
+      "de": "facultatif",
+      "es": "opcional",
+      "cur": "opcional"
+    },
+    "CoachApplicationPage.stepConsentHint": {
+      "en": "Please confirm the statements below before submitting.",
+      "de": "Bitte bestätigen Sie die folgenden Angaben vor dem Absenden.",
+      "es": "Confirma las siguientes declaraciones antes de enviar.",
+      "cur": "Por favor, confirme as declarações abaixo antes de enviar."
+    },
+    "CoachApplicationPage.stepDocumentsLabel": {
+      "en": "Documents",
+      "de": "Dokumente",
+      "es": "Documentos",
+      "cur": "Documentos"
+    },
+    "CoachDashboardPage.cardOpen": {
+      "en": "Open",
+      "de": "Öffnen",
+      "es": "Abrir",
+      "cur": "Abrir"
+    },
+    "CoachDashboardPage.heroNameFallback": {
+      "en": "Coach",
+      "de": "Coach",
+      "es": "Coach",
+      "cur": "Coach"
+    },
+    "CoachDashboardPage.statUpcomingEvents": {
+      "en": "Upcoming events",
+      "de": "Kommende Events",
+      "es": "Próximos eventos",
+      "cur": "Próximos eventos"
+    },
+    "CoachDashboardPage.cardEventsTitle": {
+      "en": "Events",
+      "de": "Veranstaltungen",
+      "es": "Eventos",
+      "cur": "Events"
+    },
+    "CoachDashboardPage.cardEventsSummaryUpcoming": {
+      "en": "Upcoming events",
+      "de": "Kommende Events",
+      "es": "Próximos eventos",
+      "cur": "Upcoming events"
+    },
+    "CoachEarningsPage.dashboardBookingsValue": {
+      "en": "12",
+      "de": "12",
+      "es": "12",
+      "cur": "12"
+    },
+    "CoachEarningsPage.dashboardWeeklyValue": {
+      "en": "+18%",
+      "de": "+18 %",
+      "es": "+18 %",
+      "cur": "+18%"
+    },
+    "CoachEarningsPage.providesItem7": {
+      "en": "Marketing opportunities",
+      "de": "Marketing-Möglichkeiten",
+      "es": "Oportunidades de marketing",
+      "cur": "Oportunidades de marketing"
+    },
+    "CoachCalendarPage.listingWizardReturnHint": {
+      "en": "Block the days you need, then save and return to continue your listing.",
+      "de": "Blockiere die gewünschten Tage, speichere und kehre zurück, um deinen Eintrag fortzusetzen.",
+      "es": "Bloquea los días que necesites, guarda y vuelve para continuar tu anuncio.",
+      "cur": "Bloqueie os dias que precisa, salve e retorne para continuar sua listagem."
+    },
+    "CoachCalendarPage.statusPartiallyBlocked": {
+      "en": "Partially blocked",
+      "de": "Teilweise blockiert",
+      "es": "Parcialmente bloqueado",
+      "cur": "Parcialmente bloqueado"
+    },
+    "CoachCalendarPage.agendaPartialBlocked": {
+      "en": "{count, plural, one {# blocked range} other {# blocked ranges}} — other hours stay open.",
+      "de": "{count, plural, one {# blockierter Zeitraum} other {# blockierte Zeiträume}} — andere Stunden bleiben offen.",
+      "es": "{count, plural, one {# franja bloqueada} other {# franjas bloqueadas}} — el resto del día sigue abierto.",
+      "cur": "{count, plural, one {# franja bloqueada} other {# franjas bloqueadas}} — el resto del día sigue abierto."
+    },
+    "CoachCalendarPage.blockSpecificShort": {
+      "en": "Partially blocked",
+      "de": "Teilweise blockiert",
+      "es": "Parcialmente bloqueado",
+      "cur": "Parcialmente bloqueado"
+    },
+    "CoachCalendarPage.bookingWarningSession": {
+      "en": "{time} · {customer} · {status}",
+      "de": "{time} · {customer} · {status}",
+      "es": "{time} · {customer} · {status}",
+      "cur": "{time} · {customer} · {status}"
+    },
+    "CoachCalendarPage.bookingCustomerFallback": {
+      "en": "Athlete",
+      "de": "Athlet",
+      "es": "Atleta",
+      "cur": "Atleta"
+    },
+    "CoachCalendarPage.dayBookingsTooltip": {
+      "en": "{count, plural, one {# active booking} other {# active bookings}}",
+      "de": "{count, plural, one {# aktive Buchung} other {# aktive Buchungen}}",
+      "es": "{count, plural, one {# reserva activa} other {# reservas activas}}",
+      "cur": "{count, plural, one {# reserva activa} other {# reservas activas}}"
+    },
+    "CoachCalendarPage.dayWithBookingsAria": {
+      "en": "{date}, {count, plural, one {# active booking} other {# active bookings}}",
+      "de": "{date}, {count, plural, one {# aktive Buchung} other {# aktive Buchungen}}",
+      "es": "{date}, {count, plural, one {# reserva activa} other {# reservas activas}}",
+      "cur": "{date}, {count, plural, one {# reserva activa} other {# reservas activas}}"
+    },
+    "CoachCalendarPage.blockBookingConflictLine": {
+      "en": "{time} · {customer} · {status}",
+      "de": "{time} · {customer} · {status}",
+      "es": "{time} · {customer} · {status}",
+      "cur": "{time} · {customer} · {status}"
+    },
+    "CoachCalendarPage.blockConflictColCustomer": {
+      "en": "Customer",
+      "de": "Kunde",
+      "es": "Cliente",
+      "cur": "Cliente"
+    },
+    "CoachCalendarPage.blockConflictColStatus": {
+      "en": "Status",
+      "de": "Statut",
+      "es": "Estado",
+      "cur": "Status"
+    },
+    "CoachCalendarPage.cancelEventButton": {
+      "en": "Cancel event",
+      "de": "Veranstaltung absagen",
+      "es": "Cancelar evento",
+      "cur": "Cancel event"
+    },
+    "CoachCalendarPage.cancelEventColEvent": {
+      "en": "Event",
+      "de": "Événement",
+      "es": "Evento",
+      "cur": "Event"
+    },
+    "CoachCalendarPage.cancelEventColStatus": {
+      "en": "Status",
+      "de": "Statut",
+      "es": "Estado",
+      "cur": "Status"
+    },
+    "CoachCalendarPage.cancelEventConfirmAction": {
+      "en": "Cancel event",
+      "de": "Veranstaltung absagen",
+      "es": "Cancelar evento",
+      "cur": "Cancel event"
+    },
+    "CoachCalendarPage.cancelEventInProgress": {
+      "en": "Cancelling event…",
+      "de": "Veranstaltung wird abgesagt…",
+      "es": "Cancelando evento…",
+      "cur": "Cancelling event…"
+    },
+    "CoachCalendarPage.noteLabel": {
+      "en": "Note (optional)",
+      "de": "Notiz (optional)",
+      "es": "Nota (opcional)",
+      "cur": "Nota (opcional)"
+    },
+    "CoachCalendarPage.selectedRangeDayCount": {
+      "en": "{count, plural, one {# day} other {# days}}",
+      "de": "{count, plural, one {# Tag} other {# Tage}}",
+      "es": "{count, plural, one {# día} other {# días}}",
+      "cur": "{count, plural, one {# día} other {# días}}"
+    },
+    "CoachCalendarPage.selectedRangeSameMonth": {
+      "en": "{startDay}–{endDay} {monthYear}",
+      "de": "{startDay}.–{endDay} {monthYear}",
+      "es": "{startDay}–{endDay} {monthYear}",
+      "cur": "{startDay}–{endDay} {monthYear}"
+    },
+    "CoachCalendarPage.selectedRangeSameYear": {
+      "en": "{startDate} – {endDate}",
+      "de": "{startDate} – {endDate}",
+      "es": "{startDate} – {endDate}",
+      "cur": "{startDate} – {endDate}"
+    },
+    "CoachCalendarPage.selectedRangeFull": {
+      "en": "{startDate} – {endDate}",
+      "de": "{startDate} – {endDate}",
+      "es": "{startDate} – {endDate}",
+      "cur": "{startDate} – {endDate}"
+    },
+    "CoachCalendarPage.rangeApplyHint": {
+      "en": "{count, plural, one {Changes apply to # selected day.} other {Changes apply to all # selected days.}}",
+      "de": "{count, plural, one {Änderungen gelten für # ausgewählten Tag.} other {Änderungen gelten für alle # ausgewählten Tage.}}",
+      "es": "{count, plural, one {Los cambios se aplican a # día seleccionado.} other {Los cambios se aplican a los # días seleccionados.}}",
+      "cur": "{count, plural, one {Los cambios se aplican a # día seleccionado.} other {Los cambios se aplican a los # días seleccionados.}}"
+    },
+    "InboxPage.default-inquiry.free-inquiry.status": {
+      "en": "Free inquiry",
+      "de": "Kostenlose Anfrage",
+      "es": "Consulta gratuita",
+      "cur": "Consulta gratuita"
+    },
+    "InboxPage.default-purchase-day.purchased.status": {
+      "en": "Booking confirmed",
+      "de": "Buchung bestätigt",
+      "es": "Reserva confirmada",
+      "cur": "Booking confirmed"
+    },
+    "InboxPage.noSalesFound": {
+      "en": "Nobody has ordered anything from you yet.",
+      "de": "Bisher hat noch niemand etwas bei dir bestellt.",
+      "es": "Nadie te ha pedido nada todavía.",
+      "cur": "Ninguém encomendou nada de tu ainda."
+    },
+    "InboxPage.ordersTabTitle": {
+      "en": "As a customer",
+      "de": "Als Kund:in",
+      "es": "Como cliente",
+      "cur": "Como cliente"
+    },
+    "InboxPage.ordersTitle": {
+      "en": "Inbox: As a customer",
+      "de": "Inbox: Als Kund:in",
+      "es": "Inbox: como cliente",
+      "cur": "Inbox: como cliente"
+    },
+    "InboxPage.title": {
+      "en": "Inbox",
+      "de": "Inbox",
+      "es": "Inbox",
+      "cur": "Inbox"
+    },
+    "LandingPage.schemaTitle": {
+      "en": "{marketplaceName}",
+      "de": "{marketplaceName}",
+      "es": "{marketplaceName}",
+      "cur": "{marketplaceName}"
+    },
+    "ManageListingsPage.noResults": {
+      "en": "You haven't listed any listings.",
+      "de": "Du hast keine Einträge aufgelistet.",
+      "es": "No tienes ningún anuncio.",
+      "cur": "Tu não listou nenhuma anúncio."
+    },
+    "LandingWhyPeakupSection.titlePeakUp": {
+      "en": "PeakUp",
+      "de": "PeakUp",
+      "es": "PeakUp",
+      "cur": "PeakUp"
+    }
+  }
+}

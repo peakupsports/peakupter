@@ -1100,6 +1100,14 @@ export const GROW_WITH_PEAKUP_CMS_PAGE_PATH = '/p/4_instructors';
 const GROW_WITH_PEAKUP_CMS_PAGE_IDS = new Set(['4_instructors']);
 const GROW_WITH_PEAKUP_CMS_SLUGS = new Set(['growwithpeakup', 'peakupgrow', '4instructors']);
 
+/** CMS slugs for the customer-facing How it works page (see CMSPage.js). */
+const HOW_IT_WORKS_CMS_SLUGS = new Set([
+  'howitworks',
+  'howitworkspeakup',
+  'growwithpeakup',
+  'peakupgrow',
+]);
+
 const normalizeCmsPageSlug = pageId =>
   String(pageId || '')
     .toLowerCase()
@@ -1112,6 +1120,22 @@ const normalizeCmsPageSlug = pageId =>
 export const isGrowWithPeakUpCmsPage = pageId =>
   GROW_WITH_PEAKUP_CMS_PAGE_IDS.has(String(pageId || '')) ||
   GROW_WITH_PEAKUP_CMS_SLUGS.has(normalizeCmsPageSlug(pageId));
+
+/**
+ * @param {string|null|undefined} pageId
+ * @returns {boolean}
+ */
+export const isHowItWorksCmsPage = pageId =>
+  HOW_IT_WORKS_CMS_SLUGS.has(normalizeCmsPageSlug(pageId));
+
+/**
+ * Grow with PeakUp instructors CMS page (`/p/4_instructors`) — not How it works aliases.
+ *
+ * @param {string|null|undefined} pageId
+ * @returns {boolean}
+ */
+export const isInstructorsCmsPage = pageId =>
+  GROW_WITH_PEAKUP_CMS_PAGE_IDS.has(String(pageId || '').toLowerCase());
 
 const isJoinNowCtaContent = content => /^join\s+now$/i.test(String(content || '').trim());
 

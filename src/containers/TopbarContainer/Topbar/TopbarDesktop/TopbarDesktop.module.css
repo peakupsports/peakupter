@@ -52,6 +52,14 @@
   box-shadow: none;
 }
 
+/* Grow with PeakUp (/p/4_instructors): simple marketing header, no center column gap */
+.rootMarketingCompact .middleSlot .spacer {
+  min-width: 0;
+  width: 0;
+  padding: 0;
+  border-left: none;
+}
+
 /* Coach mode: compact topbar — logo, inbox and avatar vertically centered. */
 .rootCoachNav {
   align-items: center;

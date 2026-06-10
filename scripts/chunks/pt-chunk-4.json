@@ -1,0 +1,1802 @@
+[
+  {
+    "k": "PeakUpHqFeaturedCoaches.gateNotConfigured",
+    "en": "Admin access is not configured on the server."
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.loadError",
+    "en": "Could not load coaches."
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.empty",
+    "en": "No verified coaches match your filters."
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.refresh",
+    "en": "Refresh"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.logout",
+    "en": "Lock"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.count",
+    "en": "{count, plural, one {# coach} other {# coaches}} · {featured, plural, one {# featured} other {# featured}}"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.filterAll",
+    "en": "All placements"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.filterViewLabel",
+    "en": "View"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.featuredOnly",
+    "en": "Featured only"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.colName",
+    "en": "Coach"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.colEmail",
+    "en": "Email"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.colTier",
+    "en": "Tier"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.colStatus",
+    "en": "Featured status"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.colActions",
+    "en": "Actions"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.placementsGroupLabel",
+    "en": "Placements"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.tierNone",
+    "en": "Standard"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.statusFeatured",
+    "en": "Featured"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.statusNotFeatured",
+    "en": "Not featured"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.featureCoach",
+    "en": "Feature coach"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.updatePlacements",
+    "en": "Save placements"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.removeFeatured",
+    "en": "Remove from featured"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.placement.homepage",
+    "en": "Homepage"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.placement.map",
+    "en": "Map"
+  },
+  {
+    "k": "PeakUpHqFeaturedCoaches.placement.coachesPage",
+    "en": "Coaches page"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.count",
+    "en": "{count, plural, one {# verified} other {# verified}} · {future, plural, one {# pending} other {# pending}} · {partners, plural, one {# partner} other {# partners}}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.futureSubtitle",
+    "en": "{count, plural, =0 {No pending coach profiles} one {# coach awaiting verification} other {# coaches awaiting verification}}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerSectionSubtitle",
+    "en": "{count, plural, =0 {No active partner priorities} one {# active partner priority} other {# active partner priorities}}"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.partnerAssignCoach",
+    "en": "Coach"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.colCoach",
+    "en": "Coach"
+  },
+  {
+    "k": "PeakUpHqCoachManagement.colStatus",
+    "en": "Status"
+  },
+  {
+    "k": "PeakUpHqCustomerManagement.count",
+    "en": "{count, plural, one {# customer} other {# customers}} · {active, plural, one {# active} other {# active}} · {withBookings, plural, one {# with bookings} other {# with bookings}}"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.count",
+    "en": "{teams, plural, one {# team} other {# teams}} · {pending, plural, one {# pending} other {# pending}} · {coaches, plural, one {# roster coach} other {# roster coaches}} · {partners, plural, one {# partner} other {# partners}}"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.sortCoaches",
+    "en": "Coaches"
+  },
+  {
+    "k": "PeakUpHqTeamManagement.colCoaches",
+    "en": "Coaches"
+  },
+  {
+    "k": "PeakUpHq.section.payments.description",
+    "en": "Track payouts, commissions, and payment health across the marketplace."
+  },
+  {
+    "k": "PeakUpHq.section.payments.title",
+    "en": "Payments Overview"
+  },
+  {
+    "k": "PeakUpHq.section.reports.description",
+    "en": "Platform analytics, growth metrics, and operational reporting."
+  },
+  {
+    "k": "PeakUpHq.section.reports.title",
+    "en": "Reports & Analytics"
+  },
+  {
+    "k": "PeakUpHq.section.verification.description",
+    "en": "Coach verification workflow, documents, and compliance review."
+  },
+  {
+    "k": "PeakUpHq.section.verification.title",
+    "en": "Verification Center"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.schemaTitle",
+    "en": "Cancellation Center | PeakUp HQ"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.eyebrow",
+    "en": "Session issues"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.title",
+    "en": "Cancellation Center"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.subtitle",
+    "en": "Track and manage coach-initiated session cancellations, refunds, and customer follow-up."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gateHint",
+    "en": "This page is not publicly linked. Enter the admin token (COACH_APPLICATION_ADMIN_TOKEN)."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gateLabel",
+    "en": "Admin access token"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gatePlaceholder",
+    "en": "Paste admin token"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gateSubmit",
+    "en": "Open dashboard"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gateInvalid",
+    "en": "Invalid admin token."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.gateNotConfigured",
+    "en": "Admin access is not configured on the server."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.loadError",
+    "en": "Could not load cancellation cases."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.saveError",
+    "en": "Could not save changes."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.empty",
+    "en": "No cancellation cases yet."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.caseCount",
+    "en": "{count, plural, one {# case} other {# cases}}"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.refresh",
+    "en": "Refresh"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.logout",
+    "en": "Lock"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.summaryTotal",
+    "en": "Total cases"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.summaryOpen",
+    "en": "Open cases"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.summaryHighUrgency",
+    "en": "High urgency"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colCoach",
+    "en": "Coach"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colCustomer",
+    "en": "Customer"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colSession",
+    "en": "Session"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colBookingAt",
+    "en": "Booking"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colStatus",
+    "en": "Case status"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colUrgency",
+    "en": "Urgency"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colCreated",
+    "en": "Created"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colOutcome",
+    "en": "Outcome"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.colTransaction",
+    "en": "Transaction ID"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.fieldStatus",
+    "en": "Case status"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.fieldRefund",
+    "en": "Refund status"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.fieldReassignment",
+    "en": "Reassignment status"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.fieldNotes",
+    "en": "Admin notes"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.save",
+    "en": "Save changes"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.markResolved",
+    "en": "Mark resolved"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.dismissCase",
+    "en": "Dismiss case"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.reopenCase",
+    "en": "Reopen case"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.deleteCase",
+    "en": "Delete permanently"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.confirmDismiss",
+    "en": "Are you sure? This will remove the case from active follow-up."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.confirmDelete",
+    "en": "Are you sure? This will permanently delete this cancellation case."
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.notesPlaceholder",
+    "en": "Internal follow-up notes for PeakUp ops…"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.resolvedAt",
+    "en": "Resolved {date}"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.dismissedAt",
+    "en": "Dismissed {date}"
+  },
+  {
+    "k": "PeakUpHqCancellationCenterPage.reopenedAt",
+    "en": "Reopened {date}"
+  },
+  {
+    "k": "PasswordRecoveryForm.emailLabel",
+    "en": "Email"
+  },
+  {
+    "k": "PasswordRecoveryForm.emailPlaceholder",
+    "en": "jane.doe@example.com"
+  },
+  {
+    "k": "PasswordRecoveryForm.emailRequired",
+    "en": "This field is required."
+  },
+  {
+    "k": "PasswordRecoveryForm.loginLinkInfo",
+    "en": "Suddenly remembered your password? {loginLink}"
+  },
+  {
+    "k": "PasswordRecoveryForm.loginLinkText",
+    "en": "Log in."
+  },
+  {
+    "k": "PasswordRecoveryForm.sendInstructions",
+    "en": "Send instructions"
+  },
+  {
+    "k": "PasswordRecoveryPage.actionFailedMessage",
+    "en": "Something went wrong. Please refresh the page and try again."
+  },
+  {
+    "k": "PasswordRecoveryPage.actionFailedTitle",
+    "en": "Oops!"
+  },
+  {
+    "k": "PasswordRecoveryPage.fixEmailInfo",
+    "en": "Oops, a typo in your email? {fixEmailLink}"
+  },
+  {
+    "k": "PasswordRecoveryPage.fixEmailLinkText",
+    "en": "Fix it."
+  },
+  {
+    "k": "PasswordRecoveryPage.forgotPasswordMessage",
+    "en": "No worries! Please enter the email address you used to sign up and we'll send you instructions to set a new password."
+  },
+  {
+    "k": "PasswordRecoveryPage.forgotPasswordTitle",
+    "en": "Forgot your password?"
+  },
+  {
+    "k": "PasswordRecoveryPage.resendEmailInfo",
+    "en": "Didn't get the email? {resendEmailLink}"
+  },
+  {
+    "k": "PasswordRecoveryPage.resendEmailLinkText",
+    "en": "Send another email."
+  },
+  {
+    "k": "PasswordRecoveryPage.resendingEmailInfo",
+    "en": "Resending instructions…"
+  },
+  {
+    "k": "PasswordResetForm.passwordRequired",
+    "en": "This field is required."
+  },
+  {
+    "k": "PasswordResetPage.helpText",
+    "en": "Please provide a new password."
+  },
+  {
+    "k": "PasswordResetPage.resetFailed",
+    "en": "Reset failed. Please try again."
+  },
+  {
+    "k": "PaymentMethodsForm.billingDetails",
+    "en": "Billing details"
+  },
+  {
+    "k": "PaymentMethodsForm.billingDetailsNameLabel",
+    "en": "Card holder's name"
+  },
+  {
+    "k": "PaymentMethodsForm.billingDetailsNamePlaceholder",
+    "en": "Enter your name…"
+  },
+  {
+    "k": "PaymentMethodsForm.genericError",
+    "en": "Could not handle payment data. Please try again."
+  },
+  {
+    "k": "PaymentMethodsForm.infoText",
+    "en": "I authorise {marketplaceName} to send instructions to the financial institution that issued my card to take payments from my card account in accordance with the terms of my agreement with you."
+  },
+  {
+    "k": "PaymentMethodsForm.paymentCardDetails",
+    "en": "Payment card details"
+  },
+  {
+    "k": "PaymentMethodsForm.submitPaymentInfo",
+    "en": "Save payment card"
+  },
+  {
+    "k": "PaymentMethodsPage.heading",
+    "en": "Payment methods"
+  },
+  {
+    "k": "PaymentMethodsPage.title",
+    "en": "Payment methods"
+  },
+  {
+    "k": "PriceFilter.labelSelectedButton",
+    "en": "{minPrice} - {maxPrice}"
+  },
+  {
+    "k": "PriceFilter.screenreader.rangeHandle",
+    "en": "{handle, select, min {{formattedPrice} {currency} minimum price} other {{formattedPrice} {currency} maximum price}}"
+  },
+  {
+    "k": "PriceVariantPicker.onePriceVariantOnly",
+    "en": "{priceVariantName}"
+  },
+  {
+    "k": "PriceVariantPicker.priceVariantLabel",
+    "en": "Pick an option"
+  },
+  {
+    "k": "PriceVariantPicker.priceVariantUnselected",
+    "en": "Choose…"
+  },
+  {
+    "k": "ProductOrderForm.breakdownTitle",
+    "en": "Order breakdown"
+  },
+  {
+    "k": "ProductOrderForm.ctaButton",
+    "en": "Buy now"
+  },
+  {
+    "k": "ProductOrderForm.ctaButtonNoStock",
+    "en": "Out of stock"
+  },
+  {
+    "k": "ProductOrderForm.deliveryMethodLabel",
+    "en": "Delivery method"
+  },
+  {
+    "k": "ProductOrderForm.deliveryMethodRequired",
+    "en": "Delivery method is required."
+  },
+  {
+    "k": "ProductOrderForm.finePrint",
+    "en": "You won't be charged yet"
+  },
+  {
+    "k": "ProductOrderForm.finePrintNoStock",
+    "en": "Unfortunately this listing is out of stock right now but you can {contactSellerLink}."
+  },
+  {
+    "k": "ProductOrderForm.pickupOption",
+    "en": "Pickup"
+  },
+  {
+    "k": "ProductOrderForm.quantityLabel",
+    "en": "Number of items"
+  },
+  {
+    "k": "ProductOrderForm.quantityOption",
+    "en": "{quantity, number} {quantity, plural, one {item} other {items}}"
+  },
+  {
+    "k": "ProductOrderForm.quantityRequired",
+    "en": "Please select the number of items you want to buy."
+  },
+  {
+    "k": "ProductOrderForm.selectDeliveryMethodOption",
+    "en": "Select delivery method"
+  },
+  {
+    "k": "ProductOrderForm.shippingOption",
+    "en": "Shipping"
+  },
+  {
+    "k": "PrivateDetailsForm.saveChanges",
+    "en": "Save changes"
+  },
+  {
+    "k": "CoachBookingServiceSelection.eyebrow",
+    "en": "PeakUp Sports"
+  },
+  {
+    "k": "CoachBookingServiceSelection.subtitle",
+    "en": "Pick the session that fits you. You'll share a few details next, then choose dates and times."
+  },
+  {
+    "k": "CoachBookingServiceSelection.badgeMostAffordable",
+    "en": "Most affordable"
+  },
+  {
+    "k": "CoachBookingServiceSelection.badgeBestPrice",
+    "en": "Best price"
+  },
+  {
+    "k": "CoachBookingServiceSelection.badgeCamp",
+    "en": "Camp"
+  },
+  {
+    "k": "CoachBookingServiceSelection.badgeEvent",
+    "en": "Event"
+  },
+  {
+    "k": "CoachBookingServiceSelection.badgePrivateLesson",
+    "en": "Private lesson"
+  },
+  {
+    "k": "CoachBookingServiceSelection.badgeKidsFriendly",
+    "en": "Kids friendly"
+  },
+  {
+    "k": "CoachBookingServiceSelection.selectCta",
+    "en": "Select"
+  },
+  {
+    "k": "CoachBookingServiceSelection.sectionPrivateLessons",
+    "en": "Private lessons"
+  },
+  {
+    "k": "CoachBookingServiceSelection.sectionCampsEvents",
+    "en": "Camps & events"
+  },
+  {
+    "k": "CoachBookingServiceSelection.campDurationDays",
+    "en": "{count} days"
+  },
+  {
+    "k": "CoachBookingServiceSelection.trustFooter",
+    "en": "🔒 Secure booking • 🛡 PeakUp Protection"
+  },
+  {
+    "k": "CoachBookingServiceSelection.pricePrefixFrom",
+    "en": "From"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceSuffixHour",
+    "en": "/ hour"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceSuffixDay",
+    "en": "/ day"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceSuffixNight",
+    "en": "/ night"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceSuffixTotal",
+    "en": "total"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceFrom",
+    "en": "From {price} {pricePerUnit}"
+  },
+  {
+    "k": "CoachBookingServiceSelection.priceStartingFrom",
+    "en": "From {price} {pricePerUnit}"
+  },
+  {
+    "k": "FieldCoachMapLocation.label",
+    "en": "Where do you coach?"
+  },
+  {
+    "k": "FieldCoachMapLocation.advancedTag",
+    "en": "Advanced"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.rowTitle",
+    "en": "Meeting point {number}"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.labelName",
+    "en": "Name"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.placeholderLabel",
+    "en": "e.g. Laax Murschetg cable car"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.labelAddress",
+    "en": "Address"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.labelNotes",
+    "en": "Notes (optional)"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.placeholderNotes",
+    "en": "e.g. Meet at the lift, parking side B"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.selectSuggestionForMap",
+    "en": "Select a suggestion to enable map and directions"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.exactPinRequired",
+    "en": "Please set the exact pin for this meeting point"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.setExactPin",
+    "en": "Set exact pin"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.editExactPin",
+    "en": "Edit exact pin"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.setExactPinHint",
+    "en": "Set an exact pin for trailheads, lifts, and parking."
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.exactPinSaved",
+    "en": "Exact pin set ✓"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.pinModalTitle",
+    "en": "Exact meeting pin"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.pinModalIntro",
+    "en": "Place the pin where clients should meet you. Click the map or drag the pin, then zoom in for precision."
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.pinModalSave",
+    "en": "Save pin"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.pinModalCancel",
+    "en": "Cancel"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.pinMapHint",
+    "en": "Click anywhere on the map or drag the pin. Use + / − to zoom."
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.removeButton",
+    "en": "Remove"
+  },
+  {
+    "k": "FieldPreferredMeetingPoints.emptyHint",
+    "en": "Add named meetup spots and place each one on the map with an exact pin — cable car, parking, trailhead, and so on."
+  },
+  {
+    "k": "AddTeamCoachModal.emailPlaceholder",
+    "en": "coach@example.com"
+  },
+  {
+    "k": "TeamCoachRosterCard.tableCoach",
+    "en": "Coach"
+  },
+  {
+    "k": "TeamCoachRosterCard.tableStatus",
+    "en": "Status"
+  },
+  {
+    "k": "TeamInvitationInboxPage.threadTitle",
+    "en": "Join {teamName}"
+  },
+  {
+    "k": "TeamInvitationInboxPage.benefitsHeading",
+    "en": "What happens if you join?"
+  },
+  {
+    "k": "TeamInvitationInboxPage.benefitIndependent",
+    "en": "You remain fully independent"
+  },
+  {
+    "k": "TeamInvitationInboxPage.benefitReviews",
+    "en": "Keep your own reviews"
+  },
+  {
+    "k": "TeamInvitationInboxPage.dashboardCta",
+    "en": "Open Coach Dashboard"
+  },
+  {
+    "k": "TeamInvitationBranding.coachCount",
+    "en": "{count, plural, one {# coach} other {# coaches}}"
+  },
+  {
+    "k": "CoachDashboardPage.teamInvitationInvitedOn",
+    "en": "Invited {date}"
+  },
+  {
+    "k": "CoachDashboardPage.teamInvitationOpenInbox",
+    "en": "Open inbox thread"
+  },
+  {
+    "k": "FieldTeamMapLocation.label",
+    "en": "Where is your crew based?"
+  },
+  {
+    "k": "FieldTeamMapLocation.placeholder",
+    "en": "Search your city, resort, or base…"
+  },
+  {
+    "k": "TeamMapPopup.crewBadge",
+    "en": "Crew"
+  },
+  {
+    "k": "TeamMapPopup.coachCount",
+    "en": "{count, plural, one {# coach} other {# coaches}}"
+  },
+  {
+    "k": "TeamMapPopup.viewCrew",
+    "en": "View crew"
+  },
+  {
+    "k": "TeamCard.verifiedCrew",
+    "en": "Verified crew"
+  },
+  {
+    "k": "TeamCard.viewCrew",
+    "en": "View crew →"
+  },
+  {
+    "k": "RequestChangesForm.messagePlaceholder",
+    "en": "Describe what should be fixed…"
+  },
+  {
+    "k": "RequestChangesForm.messageRequired",
+    "en": "You need to describe the changes you'd like to be made."
+  },
+  {
+    "k": "RequestChangesForm.submit",
+    "en": "Send the request"
+  },
+  {
+    "k": "RequestChangesModal.description",
+    "en": "Did the delivered order match what was agreed upon? If not, you can request changes before accepting it."
+  },
+  {
+    "k": "RequestChangesModal.title",
+    "en": "Request changes"
+  },
+  {
+    "k": "RequestQuotePage.defaultMessagePlaceholder",
+    "en": "What do you need?"
+  },
+  {
+    "k": "RequestQuotePage.finePrint",
+    "en": "You’ll be notified when {providerName} reacts to your request."
+  },
+  {
+    "k": "RequestQuotePage.heading",
+    "en": "Request a quote"
+  },
+  {
+    "k": "RequestQuotePage.listingTitle",
+    "en": "{listingTitle}"
+  },
+  {
+    "k": "RequestQuotePage.submitButtonText",
+    "en": "Request a quote"
+  },
+  {
+    "k": "ResponsiveBackgroundImageContainer.backgroundImageAlt",
+    "en": "Background image"
+  },
+  {
+    "k": "ResponsiveImage.noImage",
+    "en": "No image"
+  },
+  {
+    "k": "ReviewForm.reviewContentPlaceholder",
+    "en": "How did it go…"
+  },
+  {
+    "k": "ReviewForm.reviewSubmit",
+    "en": "Publish review"
+  },
+  {
+    "k": "ReviewForm.reviewSubmitAlreadySent",
+    "en": "Review already sent. Please refresh the page."
+  },
+  {
+    "k": "ReviewForm.reviewSubmitFailed",
+    "en": "Failed to send a review. Please try again."
+  },
+  {
+    "k": "ReviewModal.description",
+    "en": "Please share what went well and what could be improved."
+  },
+  {
+    "k": "ReviewModal.later",
+    "en": "Later"
+  },
+  {
+    "k": "ReviewModal.title",
+    "en": "Leave a review for {revieweeName}"
+  },
+  {
+    "k": "SavedCardDetails.cancel",
+    "en": "Cancel"
+  },
+  {
+    "k": "SavedCardDetails.deletePaymentMethod",
+    "en": "Remove payment card"
+  },
+  {
+    "k": "SavedCardDetails.expiredCardText",
+    "en": "This payment card has expired."
+  },
+  {
+    "k": "SavedCardDetails.removeCard",
+    "en": "Remove card"
+  },
+  {
+    "k": "SavedCardDetails.removeCardModalTitle",
+    "en": "Are you sure you want to remove this payment card?"
+  },
+  {
+    "k": "SavedCardDetails.replaceCardText",
+    "en": "Credit or debit card"
+  },
+  {
+    "k": "SavedCardDetails.replaceCardTitle",
+    "en": "Use another payment card"
+  },
+  {
+    "k": "SavedCardDetails.savedPaymentMethodPlaceholderDesktop",
+    "en": "•••• •••• •••• {last4Digits}"
+  },
+  {
+    "k": "SavedCardDetails.savedPaymentMethodPlaceholderMobile",
+    "en": "…{last4Digits}"
+  },
+  {
+    "k": "SearchMapInfoCard.noImage",
+    "en": "No photo"
+  },
+  {
+    "k": "SearchMapInfoCard.perUnit",
+    "en": "{unitType, select, day {per day} night {per night} hour {per hour} other {}}"
+  },
+  {
+    "k": "SearchMapInfoCard.price",
+    "en": "{priceValue}"
+  },
+  {
+    "k": "SearchMapInfoCard.priceStartingFrom",
+    "en": "From {priceValue}"
+  },
+  {
+    "k": "SearchMapPriceLabel.price",
+    "en": "{priceValue}"
+  },
+  {
+    "k": "SearchMapPriceLabel.priceStartingFrom",
+    "en": "From {priceValue}"
+  },
+  {
+    "k": "SearchResultsPanel.screenreader.pagination",
+    "en": "Pagination"
+  },
+  {
+    "k": "SeatsFilter.labelSelected",
+    "en": "Seats: {seatCount}"
+  },
+  {
+    "k": "SectionListings.genericErrorTitle",
+    "en": "Content temporarily unavailable"
+  },
+  {
+    "k": "SectionListings.carouselGoToSlide",
+    "en": "Go to slide {page} of {pageCount}"
+  },
+  {
+    "k": "SelectMultipleFilter.labelSelected",
+    "en": "{labelText} • {count}"
+  },
+  {
+    "k": "SelectMultipleFilterPlainForm.labelSelected",
+    "en": "• {count}"
+  },
+  {
+    "k": "SendMessageForm.sendFailed",
+    "en": "Failed to send. Please try again."
+  },
+  {
+    "k": "SendMessageForm.contactSharingBlocked",
+    "en": "For safety and to protect the PeakUp community, contact details can only be shared after a booking request has been made through PeakUp."
+  },
+  {
+    "k": "ShippingDetails.addressLine1Label",
+    "en": "Street address"
+  },
+  {
+    "k": "ShippingDetails.addressLine1Placeholder",
+    "en": "123 Example Street"
+  },
+  {
+    "k": "ShippingDetails.addressLine1Required",
+    "en": "Street address is required."
+  },
+  {
+    "k": "ShippingDetails.addressLine2Label",
+    "en": "Apt # {optionalText}"
+  },
+  {
+    "k": "ShippingDetails.addressLine2Placeholder",
+    "en": "A 42"
+  },
+  {
+    "k": "ShippingDetails.cityLabel",
+    "en": "City"
+  },
+  {
+    "k": "ShippingDetails.cityPlaceholder",
+    "en": "Helsinki"
+  },
+  {
+    "k": "ShippingDetails.cityRequired",
+    "en": "City is required."
+  },
+  {
+    "k": "ShippingDetails.countryLabel",
+    "en": "Country"
+  },
+  {
+    "k": "ShippingDetails.countryPlaceholder",
+    "en": "Select a country…"
+  },
+  {
+    "k": "ShippingDetails.countryRequired",
+    "en": "Country is required."
+  },
+  {
+    "k": "ShippingDetails.optionalText",
+    "en": "• optional"
+  },
+  {
+    "k": "ShippingDetails.postalCodeLabel",
+    "en": "Postal code"
+  },
+  {
+    "k": "ShippingDetails.postalCodePlaceholder",
+    "en": "00100"
+  },
+  {
+    "k": "ShippingDetails.postalCodeRequired",
+    "en": "Postal code is required."
+  },
+  {
+    "k": "ShippingDetails.recipientNameLabel",
+    "en": "Name"
+  },
+  {
+    "k": "ShippingDetails.recipientNamePlaceholder",
+    "en": "Jane Doe"
+  },
+  {
+    "k": "ShippingDetails.recipientNameRequired",
+    "en": "Recipient name is required."
+  },
+  {
+    "k": "ShippingDetails.recipientPhoneNumberPlaceholder",
+    "en": "+358 123456789"
+  },
+  {
+    "k": "ShippingDetails.stateLabel",
+    "en": "State {optionalText}"
+  },
+  {
+    "k": "ShippingDetails.title",
+    "en": "Shipping address"
+  },
+  {
+    "k": "SignupForm.displayNameLabel",
+    "en": "Display name"
+  },
+  {
+    "k": "SignupForm.displayNamePlaceholder",
+    "en": "Jane D"
+  },
+  {
+    "k": "SignupForm.displayNamePlaceholderTeam",
+    "en": "Crew / academy name"
+  },
+  {
+    "k": "SignupForm.emailLabel",
+    "en": "Email"
+  },
+  {
+    "k": "SignupForm.emailPlaceholder",
+    "en": "jane.doe@example.com"
+  },
+  {
+    "k": "SignupForm.firstNameLabel",
+    "en": "First name"
+  },
+  {
+    "k": "SignupForm.firstNamePlaceholder",
+    "en": "Jane"
+  },
+  {
+    "k": "SignupForm.lastNameLabel",
+    "en": "Last name"
+  },
+  {
+    "k": "SignupForm.lastNamePlaceholder",
+    "en": "Doe"
+  },
+  {
+    "k": "SortBy.heading",
+    "en": "Sort by"
+  },
+  {
+    "k": "SortBy.highestPrice",
+    "en": "Highest price"
+  },
+  {
+    "k": "SortBy.lowestPrice",
+    "en": "Lowest price"
+  },
+  {
+    "k": "SortBy.newest",
+    "en": "Newest"
+  },
+  {
+    "k": "SortBy.numericSortOption",
+    "en": "{fieldLabel} ({direction, select, asc {low to high} desc {high to low} other {}})"
+  },
+  {
+    "k": "SortBy.oldest",
+    "en": "Oldest"
+  },
+  {
+    "k": "SortBy.relevance",
+    "en": "Relevance"
+  },
+  {
+    "k": "StartTimeInterval.label",
+    "en": "When should bookings start?"
+  },
+  {
+    "k": "StartTimeInterval.startEveryHalfHour",
+    "en": "Every half hour"
+  },
+  {
+    "k": "StartTimeInterval.startEveryHour",
+    "en": "Every hour"
+  },
+  {
+    "k": "StartTimeInterval.startEveryQuarterHour",
+    "en": "Every quarter hour"
+  },
+  {
+    "k": "StripeConnectAccountForm.accountTypeTitle",
+    "en": "Account type"
+  },
+  {
+    "k": "StripeConnectAccountForm.accountTypes.company",
+    "en": "Company"
+  },
+  {
+    "k": "StripeConnectAccountForm.accountTypes.individual",
+    "en": "Individual"
+  },
+  {
+    "k": "StripeConnectAccountForm.bankAccountLabel",
+    "en": "Bank account"
+  },
+  {
+    "k": "StripeConnectAccountForm.companyAccount",
+    "en": "I represent a company"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryLabel",
+    "en": "Country"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.AT",
+    "en": "Austria"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.AU",
+    "en": "Australia"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.BE",
+    "en": "Belgium"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.BG",
+    "en": "Bulgaria"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.CA",
+    "en": "Canada"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.CH",
+    "en": "Switzerland"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.CY",
+    "en": "Cyprus"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.CZ",
+    "en": "Czech Republic"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.DE",
+    "en": "Germany"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.DK",
+    "en": "Denmark"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.EE",
+    "en": "Estonia"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.ES",
+    "en": "Spain"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.FI",
+    "en": "Finland"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.FR",
+    "en": "France"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.GB",
+    "en": "United Kingdom"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.GR",
+    "en": "Greece"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.HK",
+    "en": "Hong Kong"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.IE",
+    "en": "Ireland"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.IT",
+    "en": "Italy"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.JP",
+    "en": "Japan"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.LT",
+    "en": "Lithuania"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.LU",
+    "en": "Luxembourg"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.LV",
+    "en": "Latvia"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.MT",
+    "en": "Malta"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.MX",
+    "en": "Mexico"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.NL",
+    "en": "Netherlands"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.NO",
+    "en": "Norway"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.NZ",
+    "en": "New Zealand"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.PL",
+    "en": "Poland"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.PT",
+    "en": "Portugal"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.RO",
+    "en": "Romania"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.SE",
+    "en": "Sweden"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.SG",
+    "en": "Singapore"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.SI",
+    "en": "Slovenia"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.SK",
+    "en": "Slovakia"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryNames.US",
+    "en": "United States"
+  },
+  {
+    "k": "StripeConnectAccountForm.countryRequired",
+    "en": "This field is required."
+  },
+  {
+    "k": "StripeConnectAccountForm.createStripeAccountLinkFailed",
+    "en": "Oops, something went wrong. Please contact support."
+  },
+  {
+    "k": "StripeConnectAccountForm.individualAccount",
+    "en": "I'm an individual"
+  },
+  {
+    "k": "StripeConnectAccountForm.stripeConnectedAccountTermsLink",
+    "en": "Stripe Connected Account Agreement"
+  },
+  {
+    "k": "StripeConnectAccountForm.stripeToSText",
+    "en": "By moving forward in the process, you agree to the {stripeConnectedAccountTermsLink}."
+  },
+  {
+    "k": "StripeConnectAccountStatusBox.editAccountButton",
+    "en": "Edit Stripe account"
+  },
+  {
+    "k": "StripeConnectAccountStatusBox.getVerifiedButton",
+    "en": "Get verified"
+  },
+  {
+    "k": "StripeConnectAccountStatusBox.verificationFailedTitle",
+    "en": "Something went wrong. Please try again."
+  },
+  {
+    "k": "StripeConnectAccountStatusBox.verificationNeededTitle",
+    "en": "Complete verification to receive payments"
+  },
+  {
+    "k": "StripeConnectAccountStatusBox.verificationSuccessTitle",
+    "en": "Your Stripe account is up to date!"
+  },
+  {
+    "k": "StripePaymentAddress.addressLine1Label",
+    "en": "Street address"
+  },
+  {
+    "k": "StripePaymentAddress.addressLine1Placeholder",
+    "en": "123 Example Street"
+  },
+  {
+    "k": "StripePaymentAddress.addressLine1Required",
+    "en": "Street address is required."
+  },
+  {
+    "k": "StripePaymentAddress.addressLine2Label",
+    "en": "Apt # {optionalText}"
+  },
+  {
+    "k": "StripePaymentAddress.addressLine2Placeholder",
+    "en": "A 42"
+  },
+  {
+    "k": "StripePaymentAddress.cityLabel",
+    "en": "City"
+  },
+  {
+    "k": "StripePaymentAddress.cityPlaceholder",
+    "en": "Helsinki"
+  },
+  {
+    "k": "StripePaymentAddress.cityRequired",
+    "en": "City is required."
+  },
+  {
+    "k": "StripePaymentAddress.countryLabel",
+    "en": "Country"
+  },
+  {
+    "k": "StripePaymentAddress.countryPlaceholder",
+    "en": "Select a country…"
+  },
+  {
+    "k": "StripePaymentAddress.countryRequired",
+    "en": "Country is required."
+  },
+  {
+    "k": "StripePaymentAddress.optionalText",
+    "en": "• optional"
+  },
+  {
+    "k": "StripePaymentAddress.postalCodeLabel",
+    "en": "Postal code"
+  },
+  {
+    "k": "StripePaymentAddress.postalCodePlaceholder",
+    "en": "00100"
+  },
+  {
+    "k": "StripePaymentAddress.postalCodeRequired",
+    "en": "Postal code is required."
+  },
+  {
+    "k": "StripePaymentAddress.stateLabel",
+    "en": "State {optionalText}"
+  },
+  {
+    "k": "StripePaymentForm.billingDetails",
+    "en": "Billing details"
+  },
+  {
+    "k": "StripePaymentForm.billingDetailsNameLabel",
+    "en": "Card holder's name"
+  },
+  {
+    "k": "StripePaymentForm.confirmPaymentError",
+    "en": "A payment has been made but we are unable to confirm the order. Please try to confirm the request again. If the order isn't confirmed in time, the payment will be fully refunded."
+  },
+  {
+    "k": "StripePaymentForm.messageHeading",
+    "en": "Additional information"
+  },
+  {
+    "k": "StripePaymentForm.messageLabel",
+    "en": "Is there something the listing owner should know? {messageOptionalText}"
+  },
+  {
+    "k": "StripePaymentForm.messageOptionalText",
+    "en": "(optional)"
+  },
+  {
+    "k": "StripePaymentForm.messagePlaceholder",
+    "en": "Hello {name}! You should know that…"
+  },
+  {
+    "k": "StripePaymentForm.payWithHeading",
+    "en": "Payment"
+  },
+  {
+    "k": "StripePaymentForm.paymentCardDetails",
+    "en": "Payment card details"
+  },
+  {
+    "k": "StripePaymentForm.paymentHeading",
+    "en": "Payment"
+  },
+  {
+    "k": "StripePaymentForm.pickupDetailsTitle",
+    "en": "Pickup location"
+  },
+  {
+    "k": "StripePaymentForm.pickupLocationUnknown",
+    "en": "Pickup location not set. Contact provider."
+  },
+  {
+    "k": "StripePaymentForm.replaceAfterOnetimePayment",
+    "en": "Replace card …{last4Digits} with the new card for future orders"
+  },
+  {
+    "k": "StripePaymentForm.sameBillingAndShippingAddress",
+    "en": "My billing and shipping address are the same"
+  },
+  {
+    "k": "StripePaymentForm.saveAfterOnetimePayment",
+    "en": "Save card details for future orders"
+  },
+  {
+    "k": "StripePaymentForm.saveforLaterUseLegalInfo",
+    "en": "I authorise {marketplaceName} to send instructions to the financial institution that issued my card to take payments from my card account in accordance with the terms of my agreement with you."
+  },
+  {
+    "k": "StripePaymentForm.stripe.card_error",
+    "en": "Payment card can't be handled."
+  },
+  {
+    "k": "StripePaymentForm.stripe.invalid_request_error",
+    "en": "Invalid request to Stripe API."
+  },
+  {
+    "k": "StripePaymentForm.stripe.rate_limit_error",
+    "en": "Too many requests to Stripe API."
+  },
+  {
+    "k": "StripePaymentForm.stripe.validation_error.card_declined",
+    "en": "The card was declined."
+  },
+  {
+    "k": "StripePaymentForm.stripe.validation_error.expired_card",
+    "en": "The card has expired."
+  },
+  {
+    "k": "StripePaymentForm.stripe.validation_error.incomplete_number",
+    "en": "Your card number is incomplete."
+  },
+  {
+    "k": "StripePaymentForm.stripe.validation_error.incorrect_cvc",
+    "en": "The card's security code is incorrect."
+  },
+  {
+    "k": "StripePaymentForm.stripe.validation_error.incorrect_number",
+    "en": "The card number is incorrect."
+  },
+  {
+    "k": "StripePaymentForm.stripe.validation_error.incorrect_zip",
+    "en": "The card's zip code failed validation."
+  },
+  {
+    "k": "StripePaymentForm.stripe.validation_error.invalid_cvc",
+    "en": "The card's security code is invalid."
+  },
+  {
+    "k": "StripePaymentForm.stripe.validation_error.invalid_expiry_year",
+    "en": "The card's expiration year is invalid."
+  },
+  {
+    "k": "StripePaymentForm.stripe.validation_error.invalid_number",
+    "en": "The card number is not a valid credit card number."
+  },
+  {
+    "k": "StripePaymentForm.stripe.validation_error.invalid_swipe_data",
+    "en": "The card's swipe data is invalid."
+  },
+  {
+    "k": "StripePaymentForm.stripe.validation_error.missing",
+    "en": "There is no card on a customer that is being charged."
+  },
+  {
+    "k": "StripePaymentForm.submitConfirmPaymentFinePrint",
+    "en": "{isBooking, select, instant {Your card will be charged immediately to confirm this booking.} yes {Your card will only be charged when {name} accepts the booking request.} other {{name} won't receive money before delivering the item.}}"
+  },
+  {
+    "k": "StripePaymentForm.submitConfirmPaymentInfo",
+    "en": "Continue"
+  },
+  {
+    "k": "StripePaymentForm.submitPaymentInfo",
+    "en": "{isBooking, select, yes {Confirm booking request} other {Confirm and pay {totalPrice}}}"
+  },
+  {
+    "k": "StripePayoutPage.redirectingToStripe",
+    "en": "You returned early from Stripe. Redirecting you back to Stripe…"
+  },
+  {
+    "k": "StripePayoutPage.submitButtonText",
+    "en": "Save details"
+  },
+  {
+    "k": "Topbar.genericError",
+    "en": "Oh no, something went wrong. Please check your network connection and try again."
+  },
+  {
+    "k": "TabNav.screenreader.tabNavigation",
+    "en": "Tab navigation"
+  },
+  {
+    "k": "Topbar.logoIcon",
+    "en": "Go to homepage"
+  },
+  {
+    "k": "Topbar.menuIcon",
+    "en": "Open menu"
+  },
+  {
+    "k": "Topbar.skipToMainContent",
+    "en": "Skip to content"
+  },
+  {
+    "k": "LanguageSelector.option.it",
+    "en": "Italiano"
+  },
+  {
+    "k": "LanguageSelector.option.pt",
+    "en": "Português"
+  },
+  {
+    "k": "TopbarDesktop.LinksMenu.all",
+    "en": "Menu"
+  },
+  {
+    "k": "TopbarDesktop.LinksMenu.more",
+    "en": "More"
+  },
+  {
+    "k": "TopbarDesktop.coachEarningsLink",
+    "en": "Earnings & Rewards"
+  },
+  {
+    "k": "TopbarDesktop.dashboardLink",
+    "en": "Dashboard"
+  },
+  {
+    "k": "TopbarDesktop.exploreAsCustomerLink",
+    "en": "Explore as customer"
+  },
+  {
+    "k": "TopbarDesktop.requestsLink",
+    "en": "Requests"
+  },
+  {
+    "k": "TopbarDesktop.ambassadorToolsLink",
+    "en": "Ambassador tools"
+  },
+  {
+    "k": "TopbarDesktop.ambassadorEarningsLink",
+    "en": "Earnings & Rewards"
+  },
+  {
+    "k": "TopbarDesktop.ambassadorProgramLink",
+    "en": "Ambassador Program"
+  },
+  {
+    "k": "TopbarDesktop.ambassadorSectionLabel",
+    "en": "AMBASSADOR ✦"
+  },
+  {
+    "k": "TopbarDesktop.peakUpHqLink",
+    "en": "PeakUp HQ"
+  },
+  {
+    "k": "TopbarDesktop.peakUpHqSectionLabel",
+    "en": "PEAKUP HQ"
+  },
+  {
+    "k": "TopbarDesktop.referralCenterLink",
+    "en": "Referral Center"
+  },
+  {
+    "k": "TopbarDesktop.createListing",
+    "en": "Create service"
+  },
+  {
+    "k": "TopbarDesktop.inbox",
+    "en": "Inbox"
+  },
+  {
+    "k": "TopbarDesktop.logo",
+    "en": "{marketplaceName}"
+  },
+  {
+    "k": "TopbarDesktop.screenreader.profileMenu",
+    "en": "Open profile menu"
+  },
+  {
+    "k": "TopbarDesktop.screenreader.topbarNavigation",
+    "en": "Top bar navigation"
+  },
+  {
+    "k": "TopbarMobileMenu.coachEarningsLink",
+    "en": "Earnings & Rewards"
+  },
+  {
+    "k": "TopbarMobileMenu.dashboardLink",
+    "en": "Dashboard"
+  },
+  {
+    "k": "TopbarMobileMenu.exploreAsCustomerLink",
+    "en": "Explore as customer"
+  },
+  {
+    "k": "TopbarMobileMenu.requestsLink",
+    "en": "Requests"
+  },
+  {
+    "k": "TopbarMobileMenu.ambassadorToolsLink",
+    "en": "Ambassador tools"
+  },
+  {
+    "k": "TopbarMobileMenu.ambassadorEarningsLink",
+    "en": "Earnings & Rewards"
+  },
+  {
+    "k": "TopbarMobileMenu.ambassadorProgramLink",
+    "en": "Ambassador Program"
+  },
+  {
+    "k": "TopbarMobileMenu.ambassadorSectionLabel",
+    "en": "AMBASSADOR ✦"
+  },
+  {
+    "k": "TopbarMobileMenu.peakUpHqLink",
+    "en": "PeakUp HQ"
+  },
+  {
+    "k": "TopbarMobileMenu.peakUpHqSectionLabel",
+    "en": "PEAKUP HQ"
+  },
+  {
+    "k": "TopbarMobileMenu.referralCenterLink",
+    "en": "Referral Center"
+  },
+  {
+    "k": "TopbarMobileMenu.greeting",
+    "en": "Hello {displayName}"
+  },
+  {
+    "k": "TopbarMobileMenu.inboxLink",
+    "en": "Inbox"
+  },
+  {
+    "k": "TopbarMobileMenu.newListingLink",
+    "en": "Create service"
+  },
+  {
+    "k": "TopbarMobileMenu.signupOrLogin",
+    "en": "{signup} or {login}"
+  },
+  {
+    "k": "TopbarMobileMenu.unauthorizedGreeting",
+    "en": "Hello there,{lineBreak}would you like to {signupOrLogin}?"
+  },
+  {
+    "k": "TopbarSimplified.goToLandingPage",
+    "en": "Go to the homepage"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-booking.accepted",
+    "en": "{actor, select, you {You accepted the booking request.} operator {The booking request was accepted.} other {{otherUsersName} accepted the booking request.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-booking.canceled",
+    "en": "The booking was canceled."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-booking.declined",
+    "en": "{actor, select, you {You declined the booking request.} operator {The booking request was declined.} other {{otherUsersName} declined the booking request.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-booking.delivered",
+    "en": "The booking was completed. {reviewLink}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-booking.expired",
+    "en": "{actor, select, you {Booking request expired. You did not reply on time.} other {Booking request expired. {otherUsersName} did not reply on time.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-booking.confirm-payment-instant",
+    "en": "{actor, select, you {You booked {listingTitle}. Your session is confirmed.} other {{otherUsersName} booked {listingTitle}.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-booking.preauthorized",
+    "en": "{actor, select, you {You requested to book { listingTitle }.} other {{ otherUsersName } requested to book {listingTitle}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-booking.reviewed",
+    "en": "{actor, select, you {You left a review for { otherUsersName }.} other {{ otherUsersName } left a review for you. }}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-booking.reviewed-by-customer",
+    "en": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-booking.reviewed-by-provider",
+    "en": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-inquiry.free-inquiry",
+    "en": "{actor, select, you {You started a conversation.} other {{otherUsersName} started a conversation.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.canceled",
+    "en": "The order was canceled."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.changes-requested",
+    "en": "Changes were requested."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.completed",
+    "en": "{stateStatus, select, current {The order was accepted. {reviewLink}} other {The order was accepted.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.customer-offer-pending",
+    "en": "{actor, select, you {You made a counter offer of {negotiationOffer}.} other {{otherUsersName} made a counter offer of {negotiationOffer}.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.delivered",
+    "en": "The order was delivered."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.offer-accepted",
+    "en": "{actor, select, you {You accepted the offer and placed an order.} other {{otherUsersName} accepted the offer and placed an order.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.offer-pending",
+    "en": "{actor, select, you {You submitted an offer with a quote of {negotiationOffer}.} other {{otherUsersName} submitted an offer with a quote of {negotiationOffer}.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.offer-rejected",
+    "en": "The offer was rejected."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.quote-requested",
+    "en": "{actor, select, you {You requested a quote.} other {{otherUsersName} requested a quote.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.request-rejected",
+    "en": "The offer was rejected."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.reviewed",
+    "en": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.reviewed-by-customer",
+    "en": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.reviewed-by-provider",
+    "en": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.transition.accept-update",
+    "en": "{actor, select, you {You accepted the updated offer.} other {{otherUsersName} accepted the updated offer.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.transition.customer-withdraw-counter-offer",
+    "en": "{actor, select, you {You withdrew the counter offer.} other {{otherUsersName} withdrew the counter offer.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.transition.provider-accept-counter-offer",
+    "en": "{actor, select, you {You accepted the counter offer.} other {{otherUsersName} accepted the counter offer.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.transition.provider-reject-counter-offer",
+    "en": "{actor, select, you {You rejected the counter offer.} other {{otherUsersName} rejected the counter offer.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-negotiation.update-pending",
+    "en": "{actor, select, you {You updated the offer.} other {{otherUsersName} updated the offer.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase.canceled",
+    "en": "The order was canceled."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase.completed",
+    "en": "{stateStatus, select, current {The listing was received. {reviewLink}} other {The listing was received.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase.delivered",
+    "en": "{deliveryMethod, select, shipping {The listing was shipped.} other {The listing was delivered.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase.disputed",
+    "en": "The order was disputed."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase.purchased",
+    "en": "{actor, select, you {You placed an order for {listingTitle}.} other {{otherUsersName} placed an order for {listingTitle}.}}"
+  }
+]

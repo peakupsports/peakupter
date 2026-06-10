@@ -1,0 +1,726 @@
+[
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase.received",
+    "en": "The listing was received."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase.reviewed",
+    "en": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase.reviewed-by-customer",
+    "en": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase.reviewed-by-provider",
+    "en": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.completed",
+    "en": "{stateStatus, select, current {The experience was completed. {reviewLink}} other {The experience was completed.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.purchased",
+    "en": "{actor, select, you {You booked {listingTitle}.} other {{otherUsersName} booked {listingTitle}.}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.reviewed",
+    "en": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.reviewed-by-customer",
+    "en": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.default-purchase-day.reviewed-by-provider",
+    "en": "{actor, select, you {You left a review for {otherUsersName}.} other {{otherUsersName} left a review for you. {reviewLink}}}"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.deletedReviewContent",
+    "en": "This review is deleted."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.reviewAsSecondLink",
+    "en": "Leave a review for {otherUsersName} to see their review."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.reviewLink",
+    "en": "Leave a review for {otherUsersName}."
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.showOlderMessages",
+    "en": "Show older"
+  },
+  {
+    "k": "TransactionPage.ActivityFeed.today",
+    "en": "Today"
+  },
+  {
+    "k": "TransactionPage.detailNo",
+    "en": "No"
+  },
+  {
+    "k": "TransactionPage.Offer.counterOfferLabel",
+    "en": "Counter offer"
+  },
+  {
+    "k": "TransactionPage.Offer.heading",
+    "en": "Offer"
+  },
+  {
+    "k": "TransactionPage.Offer.quoteLabel",
+    "en": "Quote"
+  },
+  {
+    "k": "TransactionPage.Offer.quote",
+    "en": "{quote}"
+  },
+  {
+    "k": "TransactionPage.RequestQuote.heading",
+    "en": "Request"
+  },
+  {
+    "k": "TransactionPage.RequestQuote.customerDefaultMessageLabel",
+    "en": "Description"
+  },
+  {
+    "k": "TransactionPage.default-booking.customer.accepted.title",
+    "en": "Your booking request was accepted!"
+  },
+  {
+    "k": "TransactionPage.default-booking.customer.declined.title",
+    "en": "Your booking request was declined."
+  },
+  {
+    "k": "TransactionPage.default-booking.customer.expired.title",
+    "en": "Your booking request expired."
+  },
+  {
+    "k": "TransactionPage.default-booking.customer.initial.title",
+    "en": "Booking initiated."
+  },
+  {
+    "k": "TransactionPage.default-booking.customer.inquiry.title",
+    "en": "You sent an inquiry."
+  },
+  {
+    "k": "TransactionPage.default-booking.customer.payment-expired.title",
+    "en": "You didn't confirm the payment in time."
+  },
+  {
+    "k": "TransactionPage.default-booking.customer.pending-payment.title",
+    "en": "{customerName}, you haven't confirmed the payment yet."
+  },
+  {
+    "k": "TransactionPage.default-booking.customer.preauthorized.extraInfo",
+    "en": "You'll be notified when {providerName} accepts your request."
+  },
+  {
+    "k": "TransactionPage.default-booking.customer.preauthorized.title",
+    "en": "Your booking request was successful!"
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.accepted.title",
+    "en": "You accepted a booking request from {customerName}."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.canceled.title",
+    "en": "The booking from {customerName} was canceled."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.declined.title",
+    "en": "The request from {customerName} was declined."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.delivered.title",
+    "en": "The booking from {customerName} was completed."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.expired.title",
+    "en": "The request from {customerName} expired."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.inquiry.title",
+    "en": "You received an inquiry from {customerName}."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.payment-expired.title",
+    "en": "Payment wasn't confirmed in time."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.pending-payment.title",
+    "en": "Payment hasn't been confirmed yet."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.preauthorized.title",
+    "en": "You received a booking request from {customerName}."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.reviewed-by-customer.title",
+    "en": "The booking was completed."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.reviewed-by-provider.title",
+    "en": "The booking was completed."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.reviewed.title",
+    "en": "The booking from {customerName} was completed."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.transition-accept.actionButton",
+    "en": "Accept request"
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.transition-accept.actionError",
+    "en": "Oops, accepting failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.transition-decline.actionButton",
+    "en": "Decline request"
+  },
+  {
+    "k": "TransactionPage.default-booking.provider.transition-decline.actionError",
+    "en": "Oops, declining failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-inquiry.customer.free-inquiry.title",
+    "en": "You sent an inquiry."
+  },
+  {
+    "k": "TransactionPage.default-inquiry.provider.free-inquiry.title",
+    "en": "You received an inquiry from {customerName}."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.canceled.title",
+    "en": "The order was canceled."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.changes-requested.extraInfo",
+    "en": "You'll be notified when {providerName} delivers the changes."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.changes-requested.title",
+    "en": "Changes requested"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.completed.title",
+    "en": "You accepted the order!"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.customer-offer-pending.extraInfo",
+    "en": "{providerName} can now react to the offer."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.customer-offer-pending.title",
+    "en": "You made a counter offer."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.delivered.disabled.maxRequests",
+    "en": "You've reached the maximum limit for change requests. Please contact support."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.delivered.title",
+    "en": "The order was delivered."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.inquiry.title",
+    "en": "{customerName} sent you an inquiry."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.offer-accepted.extraInfo",
+    "en": "You'll be notified when {providerName} delivers the order."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.offer-accepted.title",
+    "en": "Order placed successfully!"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.offer-pending.extraInfo",
+    "en": "You can now react to the offer."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.offer-pending.title",
+    "en": "{providerName} made an offer."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.offer-rejected.title",
+    "en": "The offer was rejected."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.pending-payment.title",
+    "en": "{customerName}, you have not confirmed payment yet."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.quote-requested.extraInfo",
+    "en": "You’ll be notified when {providerName} reacts to your request."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.quote-requested.title",
+    "en": "Your request has been received!"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.request-rejected.title",
+    "en": "The request was rejected."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.reviewed-by-customer.title",
+    "en": "{customerName} received the order!"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.reviewed-by-provider.title",
+    "en": "{customerName} received the order!"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.reviewed.title",
+    "en": "You've received your order!"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-accept-deliverable.actionButton",
+    "en": "Accept order"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-customer-make-counter-offer.actionButton",
+    "en": "Make a counter offer"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-customer-make-counter-offer.actionError",
+    "en": "Oops, making a counter offer failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-customer-reject-from-update-pending.actionError",
+    "en": "Oops, rejecting failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-customer-reject-offer.actionButton",
+    "en": "Reject offer"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-customer-reject-offer.actionError",
+    "en": "Oops, rejecting failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-customer-withdraw-counter-offer.actionButton",
+    "en": "Withdraw counter offer"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-customer-withdraw-counter-offer.actionError",
+    "en": "Oops, withdrawing the counter offer failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-request-changes.actionButton",
+    "en": "Request changes"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-request-payment-to-accept-offer.actionButton",
+    "en": "Accept and pay"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-request-payment-to-accept-offer.actionError",
+    "en": "Oops, accepting failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-withdraw-request.actionButton",
+    "en": "Withdraw request"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.transition-withdraw-request.actionError",
+    "en": "Oops, withdraw failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.update-pending.extraInfo",
+    "en": "You can accept the update or reject the offer."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.customer.update-pending.title",
+    "en": "{providerName} updated their offer."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.canceled.title",
+    "en": "The order was canceled."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.changes-requested.title",
+    "en": "Changes requested"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.completed.title",
+    "en": "{customerName} accepted the order!"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.customer-offer-pending.extraInfo",
+    "en": "You can now react to the offer."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.customer-offer-pending.title",
+    "en": "{customerName} made a counter offer."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.deliver.actionButton",
+    "en": "I've delivered the order"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.deliver.actionError",
+    "en": "Oops, delivering the order failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.delivered.title",
+    "en": "The order was delivered."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.inquiry.title",
+    "en": "You sent an inquiry."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.offer-pending.disabled.maxRequests",
+    "en": "You've reached the maximum number of offer updates. Please contact support."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.offer-rejected.title",
+    "en": "The offer was rejected."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.pending-payment.title",
+    "en": "Payment hasn't been confirmed yet."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.quote-requested.extraInfo",
+    "en": "You can now submit an offer."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.quote-requested.title",
+    "en": "{customerName} requested a quote"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.request-rejected.title",
+    "en": "The request was rejected."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.reviewed-by-customer.title",
+    "en": "{customerName} received the order!"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.reviewed-by-provider.title",
+    "en": "{customerName} received the order!"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.reviewed.title",
+    "en": "{customerName} received the order!"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-deliver-changes.actionButton",
+    "en": "I've delivered the changes"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-deliver-changes.actionError",
+    "en": "Oops, delivering the changes failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-deliver.actionButton",
+    "en": "I've delivered the order"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-deliver.actionError",
+    "en": "Oops, delivering the changes failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-make-offer-from-request.actionButton",
+    "en": "Submit an offer"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-make-offer-from-request.actionError",
+    "en": "Oops, submit failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-provider-accept-counter-offer.actionButton",
+    "en": "Accept counter offer"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-provider-accept-counter-offer.actionError",
+    "en": "Oops, accepting the counter offer failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-provider-make-counter-offer.actionButton",
+    "en": "Make a new counter offer"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-provider-make-counter-offer.actionError",
+    "en": "Oops, making a counter offer failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-provider-reject-counter-offer.actionButton",
+    "en": "Reject counter offer"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-provider-reject-counter-offer.actionError",
+    "en": "Oops, rejecting the counter offer failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-provider-withdraw-from-update-pending.actionButton",
+    "en": "Withdraw offer"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-provider-withdraw-from-update-pending.actionError",
+    "en": "Oops, withdrawing the offer failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-provider-withdraw-offer.actionButton",
+    "en": "Withdraw offer"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-provider-withdraw-offer.actionError",
+    "en": "Oops, withdrawing the offer failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-reject-request.actionButton",
+    "en": "Reject request"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-reject-request.actionError",
+    "en": "Oops, rejecting failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-update-from-update-pending.actionButton",
+    "en": "Update offer"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-update-offer.actionButton",
+    "en": "Update offer"
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.transition-update-offer.actionError",
+    "en": "Oops, updating offer failed. Please try again."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.update-offer.disabled.maxRequests",
+    "en": "You've reached the maximum number of offer updates. Please contact support."
+  },
+  {
+    "k": "TransactionPage.default-negotiation.provider.update-pending.extraInfo",
+    "en": "{customerName} can accept or reject your update."
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.completed.title",
+    "en": "You've received your order!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.delivered.title",
+    "en": "Your order is on its way!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.disputed.title",
+    "en": "You disputed the order."
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.initial.title",
+    "en": "Order initiated."
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.payment-expired.title",
+    "en": "{customerName}, you did not confirm the payment in time."
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.pending-payment.title",
+    "en": "{customerName}, you have not confirmed payment yet."
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.purchased.title",
+    "en": "Your payment was successful!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.received.title",
+    "en": "You've received your order!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.reviewed-by-customer.title",
+    "en": "You've received your order!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.reviewed-by-provider.title",
+    "en": "You've received your order!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.reviewed.title",
+    "en": "You've received your order!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.transition-dispute.actionButton",
+    "en": "Dispute"
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.transition-mark-received-from-purchased.actionButton",
+    "en": "I've received my order"
+  },
+  {
+    "k": "TransactionPage.default-purchase.customer.transition-mark-received.actionButton",
+    "en": "I've received my order"
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.canceled.title",
+    "en": "The order from {customerName} was canceled."
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.completed.title",
+    "en": "{customerName} received the order!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.delivered.title",
+    "en": "You delivered this order from {customerName}."
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.disputed.title",
+    "en": "{customerName} disputed the order."
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.initial.title",
+    "en": "Sale initiated."
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.payment-expired.title",
+    "en": "Payment wasn't confirmed in time."
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.pending-payment.title",
+    "en": "Payment hasn't been confirmed yet."
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.purchased.title",
+    "en": "{customerName} placed an order."
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.received.title",
+    "en": "{customerName} received the order!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.reviewed-by-customer.title",
+    "en": "{customerName} received the order!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.reviewed-by-provider.title",
+    "en": "{customerName} received the order!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.reviewed.title",
+    "en": "{customerName} received the order!"
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.transition-mark-delivered.actionButton",
+    "en": "I've delivered this order"
+  },
+  {
+    "k": "TransactionPage.default-purchase.provider.transition-mark-delivered.actionButtonShipped",
+    "en": "I've shipped this order"
+  },
+  {
+    "k": "TransactionPage.leaveReview.actionButton",
+    "en": "Leave a review"
+  },
+  {
+    "k": "TransactionPage.listingTitleMobile",
+    "en": "{listingLink}"
+  },
+  {
+    "k": "TransactionPage.unknownTransactionProcess",
+    "en": "Oops, it looks like the marketplace processes aren't up to date. Please contact the marketplace operator."
+  },
+  {
+    "k": "TransactionPanel.activityHeading",
+    "en": "Activity"
+  },
+  {
+    "k": "TransactionPanel.peakUpMeetingPointMapAlt",
+    "en": "Map showing meeting point: {place}"
+  },
+  {
+    "k": "TransactionPanel.peakUpMapDirections",
+    "en": "Get directions"
+  },
+  {
+    "k": "TransactionPanel.conversationHeading",
+    "en": "Conversation"
+  },
+  {
+    "k": "TransactionPanel.peakUpConversation.coachSubtitle",
+    "en": "Coach"
+  },
+  {
+    "k": "TransactionPanel.peakUpConversation.memberSubtitle",
+    "en": "Member"
+  },
+  {
+    "k": "TransactionPanel.peakUpConversation.participantCardLabel",
+    "en": "Conversation participant"
+  },
+  {
+    "k": "TransactionPanel.peakUpConversation.viewProfile",
+    "en": "View profile"
+  },
+  {
+    "k": "TransactionPage.peakUpConversation.title",
+    "en": "Conversation with {otherUserName}"
+  },
+  {
+    "k": "TransactionPanel.customerBannedStatus",
+    "en": "The user was banned after contacting you."
+  },
+  {
+    "k": "TransactionPanel.default-booking.orderBreakdownTitle",
+    "en": "Booking breakdown"
+  },
+  {
+    "k": "TransactionPanel.default-negotiation.orderBreakdownTitle",
+    "en": "Order breakdown"
+  },
+  {
+    "k": "TransactionPanel.default-purchase.orderBreakdownTitle",
+    "en": "Order breakdown"
+  },
+  {
+    "k": "TransactionPanel.defaultMessageHeading",
+    "en": "Additional information"
+  },
+  {
+    "k": "TransactionPanel.disputeOrder",
+    "en": "Dispute order"
+  },
+  {
+    "k": "TransactionPanel.paymentMethodsPageLink",
+    "en": "payment methods page"
+  },
+  {
+    "k": "TransactionPanel.pickupInfoHeading",
+    "en": "Pickup address"
+  },
+  {
+    "k": "TransactionPanel.salePaymentPendingInfo",
+    "en": "{customerName} has 15 minutes to confirm the payment."
+  },
+  {
+    "k": "TransactionPanel.shippingInfoHeading",
+    "en": "Shipping address"
+  },
+  {
+    "k": "UserCard.contactUser",
+    "en": "Contact"
+  },
+  {
+    "k": "UserCard.heading",
+    "en": "Hello, I'm {name}."
+  },
+  {
+    "k": "UserCard.showFullBioLink",
+    "en": "more"
+  },
+  {
+    "k": "UserCard.viewProfileLink",
+    "en": "View profile"
+  },
+  {
+    "k": "UserDisplayName.banned",
+    "en": "Banned user"
+  },
+  {
+    "k": "UserDisplayName.deleted",
+    "en": "Deleted user"
+  }
+]
