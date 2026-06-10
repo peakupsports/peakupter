@@ -15,8 +15,18 @@ export const LOCAL_TRANSLATION_PRIORITY_PREFIXES = [
  * @param {Object} [hostedMessages]
  * @returns {Object}
  */
-export const mergeIntlMessages = (localMessages = {}, hostedMessages = {}) => {
-  const merged = { ...localMessages, ...hostedMessages };
+/**
+ * @param {object} localMessages
+ * @param {object} [hostedMessages]
+ * @param {object} [options]
+ * @param {boolean} [options.preferLocal] When true, locale file wins over hosted Console copy.
+ * @returns {object}
+ */
+export const mergeIntlMessages = (localMessages = {}, hostedMessages = {}, options = {}) => {
+  const { preferLocal = false } = options;
+  const merged = preferLocal
+    ? { ...hostedMessages, ...localMessages }
+    : { ...localMessages, ...hostedMessages };
 
   Object.keys(localMessages).forEach(key => {
     if (LOCAL_TRANSLATION_PRIORITY_PREFIXES.some(prefix => key.startsWith(prefix))) {

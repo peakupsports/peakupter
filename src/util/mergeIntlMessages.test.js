@@ -30,4 +30,14 @@ describe('mergeIntlMessages', () => {
     expect(merged['PeakUpBookingDashboard.sectionUpcomingEvents']).toBe('Upcoming events');
     expect(merged['CoachDashboardPage.cardEventsTitle']).toBe('Events');
   });
+
+  it('prefers locale file copy over hosted assets when preferLocal is true', () => {
+    const merged = mergeIntlMessages(
+      { 'LandingHeroSection.subtitle': 'Local subtitle' },
+      { 'LandingHeroSection.subtitle': 'Hosted subtitle' },
+      { preferLocal: true }
+    );
+
+    expect(merged['LandingHeroSection.subtitle']).toBe('Local subtitle');
+  });
 });

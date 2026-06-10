@@ -150,7 +150,6 @@ const LandingHeroSection = props => {
     sectionId,
     className,
     rootClassName,
-    description,
     appearance,
     callToAction,
     options,
@@ -172,7 +171,6 @@ const LandingHeroSection = props => {
     return merged;
   }, [location.search]);
 
-  const hasDescription = !!validProps(description, fieldOptions);
   const heroSlides = Array.isArray(LANDING_HERO_MEDIA.slides) ? LANDING_HERO_MEDIA.slides : [];
   const hasHeroRotation = heroSlides.length > 0;
   const usesLocalHeroImage =
@@ -307,16 +305,12 @@ const LandingHeroSection = props => {
             </span>
           </h1>
 
-          {hasDescription ? (
-            <Field data={description} className={css.subtitle} options={fieldOptions} />
-          ) : (
-            <p className={css.subtitle}>
-              <FormattedMessage
-                id="LandingHeroSection.subtitle"
-                defaultMessage="Discover verified coaches for every sport and destination, wherever your next trip takes you."
-              />
-            </p>
-          )}
+          <p className={css.subtitle}>
+            <FormattedMessage
+              id="LandingHeroSection.subtitle"
+              defaultMessage="Discover verified coaches for every sport and destination, wherever your next trip takes you."
+            />
+          </p>
 
           <div className={css.ctaRow}>
             <NamedLink

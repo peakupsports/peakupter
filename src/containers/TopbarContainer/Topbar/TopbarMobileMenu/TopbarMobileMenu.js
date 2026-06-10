@@ -15,6 +15,7 @@ import {
   AvatarLarge,
   ExternalLink,
   InlineTextButton,
+  LanguageSelector,
   NamedLink,
   NotificationBadge,
 } from '../../../../components';
@@ -141,6 +142,8 @@ const TopbarMobileMenu = props => {
           </div>
 
           <ul className={css.customLinksWrapper}>{extraLinks}</ul>
+
+          <LanguageSelector variant="mobileMenu" />
 
           <div className={css.spacer} />
         </div>
@@ -419,6 +422,7 @@ const TopbarMobileMenu = props => {
 
         <ul className={css.accountLinksWrapper}>{accountLinks}</ul>
         {!coachNavMode && !teamNavMode ? <ul className={css.customLinksWrapper}>{extraLinks}</ul> : null}
+        <LanguageSelector variant="mobileMenu" />
         <div className={css.spacer} />
       </div>
     </div>

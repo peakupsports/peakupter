@@ -8,6 +8,7 @@ import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
 import {
   Avatar,
   InlineTextButton,
+  LanguageSelector,
   LinkedLogo,
   Menu,
   MenuLabel,
@@ -541,6 +542,7 @@ const TopbarDesktop = props => {
 
   const rightActionsMaybe = (
     <>
+      <LanguageSelector variant="desktop" className={css.languageSelector} />
       {!providerNavMode ? (
         <CustomLinksMenu
           currentPage={currentPage}

@@ -23,6 +23,7 @@ import {
 import {
   Button,
   IconArrowHead,
+  LanguageSelector,
   LimitedAccessBanner,
   LinkedLogo,
   Modal,
@@ -506,7 +507,7 @@ const TopbarComponent = props => {
           value={currentSportFromUrl}
           inTopbar
           onChange={handleGlobalSportChange}
-          allLabel="All sports"
+          allLabel={intl.formatMessage({ id: 'SportBar.allSports', defaultMessage: 'All sports' })}
         />
       </div>
     );
@@ -547,9 +548,14 @@ const TopbarComponent = props => {
       />
     ) : null;
 
-  const mobileRightSlotMaybe = providerNavMode && isAuthenticated
-    ? mobileCoachInboxMaybe
-    : mobileSearchButtonMaybe;
+  const mobileLanguageSelector = <LanguageSelector variant="mobile" />;
+
+  const mobileRightSlotMaybe = (
+    <div className={css.mobileRightSlot}>
+      {mobileLanguageSelector}
+      {providerNavMode && isAuthenticated ? mobileCoachInboxMaybe : mobileSearchButtonMaybe}
+    </div>
+  );
 
   const handleSkipToMainContent = e => {
     e.preventDefault();
