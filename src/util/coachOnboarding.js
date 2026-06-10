@@ -1102,7 +1102,6 @@ const GROW_WITH_PEAKUP_CMS_SLUGS = new Set(['growwithpeakup', 'peakupgrow', '4in
 
 /** CMS slugs for the customer-facing How it works page (see CMSPage.js). */
 const HOW_IT_WORKS_CMS_SLUGS = new Set([
-  'howitworks',
   'howitworkspeakup',
   'growwithpeakup',
   'peakupgrow',

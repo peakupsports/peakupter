@@ -28,6 +28,19 @@
     var(--ambCanvas);
 }
 
+.main::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 3;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
+}
+
 .page :global(footer) {
   max-width: 100%;
   overflow-x: hidden;
@@ -62,14 +75,8 @@
 .sectionDivider {
   height: 1px;
   margin: 0 0 48px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(232, 197, 71, 0.16) 20%,
-    rgba(25, 223, 242, 0.12) 50%,
-    rgba(157, 255, 79, 0.1) 80%,
-    transparent 100%
-  );
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 @media (--viewportMedium) {
@@ -87,6 +94,19 @@
   align-items: center;
   overflow: visible;
   scroll-margin-top: var(--topbarHeight);
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 3;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 @media (--viewportMedium) {

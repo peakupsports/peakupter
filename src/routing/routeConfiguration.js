@@ -6,6 +6,12 @@ import LandingPage from '../containers/LandingPage/LandingPage';
 const AboutPage = loadable(() =>
   import(/* webpackChunkName: "AboutPage" */ '../containers/AboutPage/AboutPage')
 );
+const HowItWorksPage = loadable(() =>
+  import(/* webpackChunkName: "HowItWorksPage" */ '../containers/HowItWorksPage/HowItWorksPage')
+);
+const InstructorsPage = loadable(() =>
+  import(/* webpackChunkName: "InstructorsPage" */ '../containers/InstructorsPage/InstructorsPage')
+);
 const CoachApplicationPage = loadable(() =>
   import(
     /* webpackChunkName: "CoachApplicationPage" */ '../containers/CoachApplicationPage/CoachApplicationPage'
@@ -234,6 +240,19 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       name: 'AboutPage',
       component: AboutPage,
       loadData: pageDataLoadingAPI.AboutPage.loadData,
+    },
+    {
+      path: '/p/howitworks',
+      name: 'HowItWorksPage',
+      component: HowItWorksPage,
+      loadData: pageDataLoadingAPI.HowItWorksPage.loadData,
+      prioritizeMapLibraryLoading: true,
+    },
+    {
+      path: '/p/4_instructors',
+      name: 'InstructorsPage',
+      component: InstructorsPage,
+      loadData: pageDataLoadingAPI.InstructorsPage.loadData,
     },
     {
       path: '/join',
@@ -475,7 +494,7 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       path: '/4_instructors',
       name: 'InstructorsPageRedirect',
       component: props => (
-        <NamedRedirect name="CMSPage" params={{ pageId: '4_instructors' }} search={props.location?.search} />
+        <NamedRedirect name="InstructorsPage" search={props.location?.search} />
       ),
     },
     {

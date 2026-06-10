@@ -10,17 +10,12 @@ import { withRouter } from 'react-router-dom';
 import { fetchFeaturedListings } from '../../ducks/featuredListings.duck';
 import { getListingsById } from '../../ducks/marketplaceData.duck';
 import { getFeaturedListingsProps } from '../../util/data';
-import {
-  isGrowWithPeakUpCmsPage,
-  rewriteHowItWorksJoinNowLinks,
-  rewriteInstructorsPageCoachSignupLinks,
-} from '../../util/coachOnboarding';
+import { isGrowWithPeakUpCmsPage, rewriteHowItWorksJoinNowLinks } from '../../util/coachOnboarding';
 import sportTheme from '../SportPagesTheme.module.css';
 import css from './HowItWorksPage.module.css';
 import transitionCss from './CMSPage.module.css';
 
 import NotFoundPage from '../../containers/NotFoundPage/NotFoundPage';
-import InstructorsEarningsBanner from './InstructorsEarningsBanner';
 const PageBuilder = loadable(() =>
   import(/* webpackChunkName: "PageBuilder" */ '../PageBuilder/PageBuilder')
 );
@@ -31,7 +26,6 @@ const PageBuilder = loadable(() =>
  * We match a normalized slug (lowercase, strip separators) against this set.
  */
 const HOW_IT_WORKS_PAGE_SLUGS = new Set([
-  'howitworks',
   'howitworkspeakup',
   'growwithpeakup',
   'peakupgrow',
@@ -43,10 +37,8 @@ const normalizeCmsPageSlug = pageId =>
     .replace(/[^a-z0-9]+/g, '');
 
 const isHowItWorksPage = pageId => HOW_IT_WORKS_PAGE_SLUGS.has(normalizeCmsPageSlug(pageId));
-const INSTRUCTORS_PAGE_IDS = new Set(['4_instructors']);
-const isInstructorsPage = pageId => INSTRUCTORS_PAGE_IDS.has(String(pageId || '').toLowerCase());
 
-const isPremiumCmsPageId = pageId => isHowItWorksPage(pageId) || isInstructorsPage(pageId);
+const isPremiumCmsPageId = pageId => isHowItWorksPage(pageId);
 
 const PREMIUM_CMS_CROSSFADE_MS = 240;
 
@@ -160,8 +152,7 @@ export const CMSPageComponent = props => {
   const { params, pageAssetsData, inProgress, error } = props;
   const pageId = params.pageId || props.pageId;
   const isPremiumHowItWorks = isHowItWorksPage(pageId);
-  const isPremiumInstructors = isInstructorsPage(pageId);
-  const isPremiumCMSPage = isPremiumHowItWorks || isPremiumInstructors;
+  const isPremiumCMSPage = isPremiumHowItWorks;
   const previousPremiumPageIdRef = useRef(null);
   const pageAssetsDataRef = useRef(pageAssetsData);
   pageAssetsDataRef.current = pageAssetsData;
@@ -171,8 +162,6 @@ export const CMSPageComponent = props => {
   const pageData = pageAssetsData?.[pageId]?.data;
   const themedPageData = isPremiumHowItWorks
     ? applyHowItWorksPageTransforms(pageData, pageId)
-    : isPremiumInstructors
-    ? rewriteInstructorsPageCoachSignupLinks(pageData)
     : pageData;
 
   useLayoutEffect(() => {
@@ -186,18 +175,14 @@ export const CMSPageComponent = props => {
 
   const buildPremiumPageSnapshot = targetPageId => {
     const targetIsPremiumHowItWorks = isHowItWorksPage(targetPageId);
-    const targetIsPremiumInstructors = isInstructorsPage(targetPageId);
     const targetPageData = pageAssetsDataRef.current?.[targetPageId]?.data;
     const targetThemedPageData = targetIsPremiumHowItWorks
       ? applyHowItWorksPageTransforms(targetPageData, targetPageId)
-      : targetIsPremiumInstructors
-      ? rewriteInstructorsPageCoachSignupLinks(targetPageData)
       : targetPageData;
 
     return {
       pageId: targetPageId,
       isPremiumHowItWorks: targetIsPremiumHowItWorks,
-      isPremiumInstructors: targetIsPremiumInstructors,
       themedPageData: targetThemedPageData,
     };
   };
@@ -279,15 +264,14 @@ export const CMSPageComponent = props => {
       key={snapshot.pageId}
       className={classNames(
         sportTheme.sportPremium,
-        snapshot.isPremiumHowItWorks ? css.howItWorksPremium : null,
-        snapshot.isPremiumInstructors ? css.instructorsPremiumPage : null
+        snapshot.isPremiumHowItWorks ? css.howItWorksPremium : null
       )}
       chromeTheme="sportPremium"
       pageAssetsData={snapshot.themedPageData}
       inProgress={inProgress}
       schemaType="Article"
       featuredListings={getFeaturedListingsProps(snapshot.pageId, props)}
-      beforeFooter={snapshot.isPremiumInstructors ? <InstructorsEarningsBanner /> : null}
+      beforeFooter={null}
     />
   );
 
@@ -295,9 +279,6 @@ export const CMSPageComponent = props => {
     console.info('[CMSPage] pageId:', pageId);
     if (isPremiumHowItWorks) {
       console.info('[CMSPage] activating howItWorksPremium for:', pageId);
-    }
-    if (isPremiumInstructors) {
-      console.info('[CMSPage] activating instructorsPremiumPage for:', pageId);
     }
   }
 
@@ -308,7 +289,6 @@ export const CMSPageComponent = props => {
   const currentPremiumSnapshot = {
     pageId,
     isPremiumHowItWorks,
-    isPremiumInstructors,
     themedPageData,
   };
 

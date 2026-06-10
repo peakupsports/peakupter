@@ -356,7 +356,9 @@ const TopbarComponent = props => {
     typeof resolvedCurrentPage === 'string' && resolvedCurrentPage.startsWith('CMSPage:')
       ? resolvedCurrentPage.slice('CMSPage:'.length)
       : null;
-  const isInstructorsMarketingPage = cmsPageId ? isInstructorsCmsPage(cmsPageId) : false;
+  const isInstructorsMarketingPage =
+    resolvedCurrentPage === 'InstructorsPage' ||
+    (cmsPageId ? isInstructorsCmsPage(cmsPageId) : false);
   const isHowItWorksMarketingPage = cmsPageId ? isHowItWorksCmsPage(cmsPageId) : false;
 
   const CUSTOMER_SPORTBAR_PAGES = new Set([
@@ -365,6 +367,7 @@ const TopbarComponent = props => {
     'ProfilePage',
     'ProfilePageVariant',
     'AboutPage',
+    'HowItWorksPage',
   ]);
   // Customer/public discovery header only — hidden in coach/team provider nav mode.
   const useSportBarCenter =

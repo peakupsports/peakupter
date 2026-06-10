@@ -13,8 +13,8 @@ import FooterContainer from '../FooterContainer/FooterContainer';
 import sportTheme from '../SportPagesTheme.module.css';
 import css from './AboutPage.module.css';
 
-const HERO_IMAGE = '/CoachPagePic/aurora.jpg';
-const VALUES_ATMOSPHERE_TEXTURE = '/CoachPagePic/aurora.jpg';
+const HERO_IMAGE = '/Multisports.jpg';
+const VALUES_ATMOSPHERE_TEXTURE = '/CoachPagePic/Multisports.jpg';
 const IMG_SURF_COACH = '/CoachPagePic/about-surf-coach.jpg';
 const IMG_COACHING_MOMENT = '/CoachPagePic/about-mtb-coaching.jpg';
 const IMG_MTB_COACH = '/CoachPagePic/about-mtb-coaching2.jpg';
@@ -167,11 +167,7 @@ const AboutPage = () => {
                 <NamedLink name="CoachesPage" className={css.primaryCta}>
                   <FormattedMessage id="AboutPage.heroCtaPrimary" />
                 </NamedLink>
-                <NamedLink
-                  name="CMSPage"
-                  params={{ pageId: '4_instructors' }}
-                  className={css.secondaryCta}
-                >
+                <NamedLink name="InstructorsPage" className={css.secondaryCta}>
                   <FormattedMessage id="AboutPage.heroCtaApply" />
                 </NamedLink>
               </div>
@@ -345,11 +341,7 @@ const AboutPage = () => {
                   <p className={css.ctaBody}>
                     <FormattedMessage id="AboutPage.ctaBody" />
                   </p>
-                  <NamedLink
-                    name="CMSPage"
-                    params={{ pageId: '4_instructors' }}
-                    className={css.ctaFinalButton}
-                  >
+                  <NamedLink name="InstructorsPage" className={css.ctaFinalButton}>
                     <FormattedMessage id="AboutPage.ctaApply" />
                   </NamedLink>
                 </div>

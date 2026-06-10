@@ -324,11 +324,7 @@ const LandingHeroSection = props => {
               />
             </NamedLink>
 
-            <NamedLink
-              className={css.secondaryCta}
-              name="CMSPage"
-              params={{ pageId: 'howitworks' }}
-            >
+            <NamedLink className={css.secondaryCta} name="HowItWorksPage">
               <FormattedMessage
                 id="LandingHeroSection.secondaryCta"
                 defaultMessage="How it works"

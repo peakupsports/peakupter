@@ -7,6 +7,15 @@
   --peakupSportTextPrimary: rgba(244, 246, 250, 0.92);
   --peakupSportTextSecondary: rgba(244, 246, 250, 0.78);
   --peakupSportGlowSoft: rgba(21, 155, 255, 0.06);
+  --peakupSeparatorLine: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(24, 200, 255, 0.4) 16%,
+    rgba(33, 230, 193, 0.46) 50%,
+    rgba(183, 255, 63, 0.36) 84%,
+    transparent 100%
+  );
+  --peakupSeparatorGlow: drop-shadow(0 0 5px rgba(33, 230, 193, 0.18));
 
   background:
     radial-gradient(82% 64% at 18% 0%, rgba(21, 155, 255, 0.08) 0%, transparent 58%),

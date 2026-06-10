@@ -20,6 +20,19 @@
     var(--earnCanvas);
 }
 
+.main::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 3;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
+}
+
 /* ─── Scroll reveal ────────────────────────────────────────────────────────── */
 
 .reveal {
@@ -48,15 +61,8 @@
 .sectionDivider {
   height: 1px;
   margin: 0 0 48px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(25, 223, 242, 0.14) 22%,
-    rgba(157, 255, 79, 0.1) 50%,
-    rgba(25, 223, 242, 0.14) 78%,
-    transparent 100%
-  );
-  opacity: 0.85;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 @media (--viewportMedium) {
@@ -76,6 +82,19 @@
   margin-bottom: -56px;
   overflow: hidden;
   scroll-margin-top: var(--topbarHeight);
+}
+
+.heroCinematic::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 3;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 @media (--viewportMedium) {

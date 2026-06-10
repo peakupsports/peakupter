@@ -17,6 +17,19 @@
   overflow-x: clip;
 }
 
+.main::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 3;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
+}
+
 /* Left editorial rail — matches hero content inset. */
 .sectionRail {
   width: 100%;
@@ -270,6 +283,19 @@
   pointer-events: none;
 }
 
+.hero::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 3;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
+}
+
 /* Same left-rail rhythm as LandingHeroSection `.heroLayout` + `.contentColumn`. */
 .heroContent {
   position: relative;
@@ -499,11 +525,11 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 48px;
-  background: linear-gradient(180deg, var(--aboutCanvas) 0%, transparent 100%);
-  opacity: 0.35;
+  height: 1px;
   pointer-events: none;
-  z-index: 0;
+  z-index: 2;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 .section > .sectionRail {
@@ -578,10 +604,6 @@
   position: relative;
   overflow: visible;
   isolation: isolate;
-}
-
-.valuesSection::before {
-  opacity: 0.2;
 }
 
 .valuesAtmosphere {
@@ -867,7 +889,16 @@
 }
 
 .ctaSection::before {
-  display: none;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 2;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 .ctaSectionGlow {
@@ -883,7 +914,6 @@
   position: relative;
   z-index: 1;
   padding: clamp(48px, 6vw, 72px) 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .ctaCopy {
