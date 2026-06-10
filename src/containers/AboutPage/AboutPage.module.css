@@ -493,8 +493,8 @@
   color: #06101c;
   text-decoration: none;
   box-shadow:
-    0 14px 32px rgba(2, 8, 16, 0.4),
-    0 0 28px rgba(23, 217, 255, 0.28);
+    0 12px 30px rgba(2, 8, 16, 0.36),
+    0 0 18px rgba(23, 217, 255, 0.18);
 }
 
 .secondaryCta {
@@ -978,12 +978,12 @@
 .ctaFinalButton:focus-visible {
   color: #041018;
   text-decoration: none;
-  transform: translateY(-2px);
-  filter: brightness(1.05) saturate(1.06);
+  transform: translateY(-1px);
+  filter: brightness(1.04) saturate(1.04);
   box-shadow:
-    0 18px 44px rgba(2, 8, 16, 0.42),
-    0 0 36px rgba(23, 217, 255, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    0 14px 36px rgba(2, 8, 16, 0.38),
+    0 0 20px rgba(23, 217, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 @media (--viewportMedium) {

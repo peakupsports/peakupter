@@ -1968,12 +1968,7 @@
 .howItWorksPremium :global(main) [class*='SectionBuilder_ctaButton']::before,
 .howItWorksPremium :global(main) [class*='SectionBuilder_ctaButton']::after,
 .instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton']::before,
-.instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton']::after,
-.instructorsPremiumPage
-  :global(main)
-  [class*='SectionCarousel_block']
-  > [class*='BlockDefault_text']
-  > :is(h2, h3, h4, h5, h6)::before {
+.instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton']::after {
   hyphens: none;
   -webkit-hyphens: none;
   word-break: normal;
@@ -2354,9 +2349,11 @@
   border: 1px solid rgba(232, 248, 255, 0.26);
   border-radius: 999px;
   font-size: 1rem;
+  line-height: 1;
   font-weight: 800;
   letter-spacing: 0.01em;
-  color: transparent;
+  color: #041018;
+  text-decoration: none;
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.11) 16%, rgba(255, 255, 255, 0) 44%),
     linear-gradient(90deg, #17d9ff 0%, #39f3d1 45%, #9dff4f 100%);
@@ -2369,7 +2366,8 @@
     transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
     filter 320ms ease,
     box-shadow 320ms ease,
-    border-color 320ms ease;
+    border-color 320ms ease,
+    color 320ms ease;
 }
 
 /* Hero CTA — positioning only. Visual styling inherited from the generic
@@ -2382,20 +2380,13 @@
   margin: 46px auto 24px;
 }
 
+/* Hero CTA — native link label only; ::before must not duplicate button text. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):first-of-type
   [class*='SectionBuilder_ctaButton']::before {
-  content: var(--instructorsHeroCtaLabel, 'JOIN PEAKUP');
-  position: absolute;
-  inset: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #041018;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-  pointer-events: none;
+  content: none;
+  display: none;
 }
 
 .instructorsPremiumPage
@@ -2419,15 +2410,20 @@
 }
 
 .instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton']:hover,
-.instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton']:focus-visible {
+.instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton']:focus-visible,
+.instructorsPremiumPage :global(main) :global(.darkTheme) [class*='SectionBuilder_ctaButton']:hover,
+.instructorsPremiumPage :global(main) :global(.darkTheme) [class*='SectionBuilder_ctaButton']:focus-visible {
   transform: translateY(-1px);
   filter: brightness(1.04);
   border-color: rgba(239, 251, 255, 0.34);
+  color: #041018 !important;
+  -webkit-text-fill-color: #041018 !important;
+  text-decoration: none;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 20px 40px rgba(2, 8, 16, 0.4),
-    0 0 20px rgba(24, 200, 255, 0.16),
-    0 0 32px rgba(33, 230, 193, 0.1);
+    0 14px 32px rgba(2, 8, 16, 0.36),
+    0 0 14px rgba(24, 200, 255, 0.14),
+    0 0 20px rgba(33, 230, 193, 0.08);
 }
 
 /* Hero CTA hover — fully inherited from the unified generic CTA :hover rule above. */
@@ -2809,10 +2805,9 @@
  * paints in the upper-middle area, producing the visible dark band crossing
  * the title.
  *
- * Fix: explicitly reset every offset and dimension below. We also bump
- * `top: 100%` + `height: 0` + `bottom: auto` to render the radial as a
- * tiny halo ONLY at the bottom edge of the section — the title area then
- * cannot receive any darkening from this layer at all. */
+ * Fix: 1px PeakUp separator flush at the section bottom edge — exactly where
+ * the climbing background ends and the Transparent earnings block begins.
+ * (Fade into earnings is handled by the banner transition layer on the aside.) */
 .instructorsPremiumPage :global(main) > :global(section):nth-of-type(3)::after {
   content: '';
   position: absolute;
@@ -2821,15 +2816,11 @@
   bottom: 0 !important;
   left: 0 !important;
   width: 100% !important;
-  height: clamp(120px, 14vw, 180px) !important;
+  height: 1px !important;
   pointer-events: none;
-  z-index: 0;
-  background: radial-gradient(
-    52% 100% at 50% 100%,
-    rgba(5, 9, 16, 0.08) 0%,
-    rgba(5, 9, 16, 0.03) 52%,
-    transparent 82%
-  ) !important;
+  z-index: 3;
+  background: var(--peakupSeparatorLine) !important;
+  filter: var(--peakupSeparatorGlow);
 }
 
 /* Background image wrapper: lift brightness a touch and shift focal point
@@ -2961,12 +2952,13 @@
   :global(main)
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_threeColumns'] {
-  --instructorsStepCardHeight: clamp(108px, 9.5vw, 132px);
+  --instructorsStepCardHeight: clamp(132px, 11vw, 168px);
   --instructorsStepGapToCta: clamp(42px, 4.6vw, 58px);
+  --instructorsStepsPaddingBottom: clamp(108px, 12vw, 140px);
   position: relative;
   counter-reset: instructorsPremiumSteps;
   overflow: visible;
-  padding-bottom: clamp(108px, 12vw, 140px);
+  padding-bottom: var(--instructorsStepsPaddingBottom);
 }
 
 /* Thin glowing PeakUp connector line between the 3 cards (desktop only).
@@ -2981,12 +2973,13 @@
     [class*='SectionCarousel_threeColumns']::before {
     content: '';
     position: absolute;
-    top: calc(var(--instructorsStepCardHeight) / 2);
+    top: calc((100% - var(--instructorsStepsPaddingBottom)) / 2);
     left: 16.66%;
     right: 16.66%;
     height: 1px;
     pointer-events: none;
     z-index: 0;
+    transform: translateY(-50%);
     background: linear-gradient(
       90deg,
       transparent 0%,
@@ -3020,9 +3013,9 @@
   overflow: visible;
   display: flex;
   align-items: center;
-  height: clamp(108px, 9.5vw, 132px);
-  min-height: clamp(108px, 9.5vw, 132px);
-  padding: 16px 22px;
+  height: auto;
+  min-height: var(--instructorsStepCardHeight);
+  padding: 18px 20px;
   border-radius: 24px;
   background:
     linear-gradient(180deg, rgba(10, 16, 26, 0.78) 0%, rgba(7, 11, 19, 0.92) 100%) padding-box,
@@ -3091,8 +3084,67 @@
   align-items: center;
   align-content: center;
   column-gap: 14px;
-  row-gap: 4px;
+  row-gap: 6px;
   text-align: left;
+}
+
+/* Desktop: wider equal columns so long localized step titles can wrap cleanly. */
+@media (min-width: 1024px) {
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_carouselContainer'] {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: clamp(12px, 2vw, 28px);
+    padding-right: clamp(12px, 2vw, 28px);
+    box-sizing: border-box;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_threeColumns'] {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(12px, 1.2vw, 18px) !important;
+    width: 100% !important;
+    max-width: min(1240px, 100%);
+    margin-inline: auto;
+    overflow: visible !important;
+    transform: none !important;
+    scroll-snap-type: none !important;
+    scroll-padding-inline: 0 !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block'] {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    flex: unset !important;
+    margin-right: 0 !important;
+    transform: none !important;
+    padding: 18px clamp(16px, 1.4vw, 22px);
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block']:last-of-type {
+    width: 100% !important;
+    padding-right: clamp(16px, 1.4vw, 22px) !important;
+  }
+
+  .instructorsPremiumPage
+    :global(main)
+    > :global(section):nth-of-type(3)
+    [class*='SectionCarousel_block']
+    > [class*='BlockDefault_text'] {
+    column-gap: 12px;
+  }
 }
 
 /* Circular step number (left, centred over both rows): dark gradient + thin lime border + soft glow */
@@ -3168,7 +3220,7 @@
   > :is(h2, h3, h4, h5, h6) {
   grid-column: 2;
   grid-row: 1;
-  align-self: end;
+  align-self: start;
   margin: 0;
   font-size: 0;
   line-height: 0;
@@ -3183,10 +3235,15 @@
   content: var(--instructorsStepTitle);
   display: block;
   color: #ffffff;
-  font-size: clamp(1rem, 0.94rem + 0.18vw, 1.12rem);
+  font-size: clamp(0.98rem, 0.92rem + 0.16vw, 1.1rem);
   font-weight: 700;
   letter-spacing: -0.005em;
-  line-height: 1.18;
+  line-height: 1.28;
+  white-space: normal;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
   text-shadow: 0 0 12px rgba(24, 200, 255, 0.04);
 }
 
@@ -3249,16 +3306,8 @@
   [class*='SectionCarousel_block']
   > [class*='BlockDefault_text']
   > [class*='SectionBuilder_ctaButton']::before {
-  content: var(--instructorsStepsCtaLabel, 'JOIN PEAKUP');
-  position: absolute;
-  inset: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #041018;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-  pointer-events: none;
+  content: none;
+  display: none;
 }
 
 .instructorsPremiumPage
@@ -3760,51 +3809,8 @@
   }
 }
 
-.instructorsPremiumPage :global(main) > :global(section):last-of-type::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: clamp(120px, 14vw, 180px);
-  pointer-events: none;
-  z-index: 2;
-  background:
-    linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(24, 200, 255, 0.4) 16%,
-        rgba(33, 230, 193, 0.46) 50%,
-        rgba(183, 255, 63, 0.36) 84%,
-        transparent 100%
-      )
-      0 0 / 100% 1px no-repeat,
-    radial-gradient(76% 72% at 50% 0%, rgba(24, 200, 255, 0.05) 0%, transparent 64%),
-    linear-gradient(
-      180deg,
-      rgba(7, 11, 18, 0) 0%,
-      rgba(7, 11, 18, 0.14) 24%,
-      rgba(8, 12, 20, 0.42) 56%,
-      rgba(9, 12, 20, 0.88) 100%
-    );
-  filter: drop-shadow(0 0 5px rgba(33, 230, 193, 0.18));
-}
-
 .instructorsPremiumPage :global(footer) {
   position: relative;
-}
-
-.instructorsPremiumPage :global(footer)::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 1px;
-  pointer-events: none;
-  z-index: 4;
-  background: var(--peakupSeparatorLine);
-  filter: var(--peakupSeparatorGlow);
 }
 
 .instructorsPremiumPage :global(footer)::before {
@@ -3915,7 +3921,7 @@
   z-index: 2;
 }
 
-/* 1px PeakUp separator at the page bottom — before footer. */
+/* 1px PeakUp separator at the page bottom — after Transparent earnings, before footer. */
 .instructorsPremiumPage :global(main)::after {
   content: '';
   position: absolute;

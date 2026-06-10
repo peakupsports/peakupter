@@ -299,44 +299,26 @@
 
 .heroCtaPrimary,
 .finalCtaPrimary {
+  overflow: hidden;
+  isolation: isolate;
   border: none;
   color: #05080e;
   background: linear-gradient(95deg, var(--earnLime) 0%, var(--earnMint) 52%, var(--earnCyan) 100%);
   box-shadow:
-    0 8px 28px rgba(25, 223, 242, 0.32),
-    0 0 0 1px rgba(157, 255, 79, 0.22),
-    0 0 24px rgba(34, 230, 184, 0.18);
-}
-
-.heroCtaPrimary::before,
-.finalCtaPrimary::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  z-index: -1;
-  border-radius: inherit;
-  background: linear-gradient(95deg, rgba(157, 255, 79, 0.45), rgba(25, 223, 242, 0.35));
-  filter: blur(10px);
-  opacity: 0.55;
-  transition: opacity 260ms ease;
+    0 8px 24px rgba(25, 223, 242, 0.24),
+    0 0 0 1px rgba(157, 255, 79, 0.2),
+    0 0 14px rgba(34, 230, 184, 0.12);
 }
 
 .heroCtaPrimary:hover,
 .heroCtaPrimary:focus-visible,
 .finalCtaPrimary:hover,
 .finalCtaPrimary:focus-visible {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow:
-    0 14px 40px rgba(25, 223, 242, 0.42),
-    0 0 0 1px rgba(157, 255, 79, 0.32),
-    0 0 32px rgba(34, 230, 184, 0.28);
-}
-
-.heroCtaPrimary:hover::before,
-.heroCtaPrimary:focus-visible::before,
-.finalCtaPrimary:hover::before,
-.finalCtaPrimary:focus-visible::before {
-  opacity: 0.85;
+    0 10px 30px rgba(25, 223, 242, 0.3),
+    0 0 0 1px rgba(157, 255, 79, 0.26),
+    0 0 18px rgba(34, 230, 184, 0.14);
 }
 
 .heroCtaSecondary,
