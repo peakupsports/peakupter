@@ -33,6 +33,7 @@ import { mergeConfig } from './util/configHelpers';
 import { matchPathname } from './util/routes';
 import * as apiUtils from './util/api';
 import * as log from './util/log';
+import { readStoredPeakUpLocaleCode } from './util/peakupLocale';
 
 // Import relevant global duck files
 import { authInfo } from './ducks/auth.duck';
@@ -79,20 +80,19 @@ const render = (store, shouldHydrate) => {
         return { ...collectedData, [name]: content.data || {} };
       }, {});
 
-      if (shouldHydrate) {
-        const container = document.getElementById('root');
+      const preferClientRender = Boolean(readStoredPeakUpLocaleCode());
+      const useHydrate = shouldHydrate && !preferClientRender;
+      const container = document.getElementById('root');
+      const clientApp = (
+        <ClientApp store={store} hostedTranslations={translations} hostedConfig={hostedConfig} />
+      );
 
-        ReactDOMClient.hydrateRoot(
-          container,
-          <ClientApp store={store} hostedTranslations={translations} hostedConfig={hostedConfig} />,
-          { onRecoverableError: log.onRecoverableError }
-        );
+      if (useHydrate) {
+        ReactDOMClient.hydrateRoot(container, clientApp, {
+          onRecoverableError: log.onRecoverableError,
+        });
       } else {
-        const container = document.getElementById('root');
-        const root = ReactDOMClient.createRoot(container);
-        root.render(
-          <ClientApp store={store} hostedTranslations={translations} hostedConfig={hostedConfig} />
-        );
+        ReactDOMClient.createRoot(container).render(clientApp);
       }
     })
     .catch(e => {

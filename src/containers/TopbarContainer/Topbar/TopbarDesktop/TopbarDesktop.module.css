@@ -296,6 +296,12 @@
   align-items: center;
   justify-self: end;
   justify-content: flex-end;
+  overflow: visible;
+}
+
+.languageSelector {
+  flex-shrink: 0;
+  overflow: visible;
 }
 
 /* logo */

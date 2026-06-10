@@ -13,9 +13,9 @@ import configureStore from './store';
 // utils
 import { RouteConfigurationProvider } from './context/routeConfigurationContext';
 import { ConfigurationProvider } from './context/configurationContext';
-import { difference } from './util/common';
 import { mergeConfig } from './util/configHelpers';
-import { mergeIntlMessages } from './util/mergeIntlMessages';
+import { applyPeakUpLocaleToAppConfig, readStoredPeakUpLocaleCode } from './util/peakupLocale';
+import { buildPeakUpIntlMessages } from './util/peakupLocaleMessages';
 import { IntlProvider } from './util/reactIntl';
 import { includeCSSProperties } from './util/style';
 import { IncludeScripts } from './util/includeScripts';
@@ -26,21 +26,8 @@ import { MaintenanceMode } from './components';
 import routeConfiguration from './routing/routeConfiguration';
 import Routes from './routing/Routes';
 
-// Sharetribe Web Template uses English translations as default translations.
-import defaultMessages from './translations/en.json';
-
-// If you want to change the language of default (fallback) translations,
-// change the imports to match the wanted locale:
-//
-//   1) Change the language in the config.js file!
-//   2) Import correct locale rules for Moment library
-//   3) Use the `messagesInLocale` import to add the correct translation file.
-//   4) (optionally) To support older browsers you need add the intl-relativetimeformat npm packages
-//      and take it into use in `util/polyfills.js`
-
-// Note that there is also translations in './translations/countryCodes.js' file
-// This file contains ISO 3166-1 alpha-2 country codes, country names and their translations in our default languages
-// This used to collect billing address in StripePaymentAddress on CheckoutPage
+// PeakUp UI translations live in src/translations/*.json (see peakupLocaleMessages.js).
+// Country names: src/translations/countryCodes.js (Stripe billing, etc.).
 
 // Step 2:
 // If you are using a non-english locale with moment library,
@@ -52,55 +39,12 @@ import defaultMessages from './translations/en.json';
 // import 'moment/locale/fr';
 // const hardCodedLocale = process.env.NODE_ENV === 'test' ? 'en' : 'fr';
 
-// Step 3:
-// The "./translations/en.json" has generic English translations
-// that should work as a default translation if some translation keys are missing
-// from the hosted translation.json (which can be edited in Console). The other files
-// (e.g. en.json) in that directory has Biketribe themed translations.
-//
-// If you are using a non-english locale, point `messagesInLocale` to correct <lang>.json file.
-// That way the priority order would be:
-//   1. hosted translation.json
-//   2. <lang>.json
-//   3. en.json
-//
-// I.e. remove "const messagesInLocale" and add import for the correct locale:
-// import messagesInLocale from './translations/fr.json';
-const messagesInLocale = {};
-
-// If translation key is missing from `messagesInLocale` (e.g. fr.json),
-// corresponding key will be added to messages from `defaultMessages` (en.json)
-// to prevent missing translation key errors.
-const addMissingTranslations = (sourceLangTranslations, targetLangTranslations) => {
-  const sourceKeys = Object.keys(sourceLangTranslations);
-  const targetKeys = Object.keys(targetLangTranslations);
-
-  // if there's no translations defined for target language, return source translations
-  if (targetKeys.length === 0) {
-    return sourceLangTranslations;
-  }
-  const missingKeys = difference(sourceKeys, targetKeys);
-
-  const addMissingTranslation = (translations, missingKey) => ({
-    ...translations,
-    [missingKey]: sourceLangTranslations[missingKey],
-  });
-
-  return missingKeys.reduce(addMissingTranslation, targetLangTranslations);
-};
-
-// Get default messages for a given locale.
-//
-// Note: Locale should not affect the tests. We ensure this by providing
-//       messages with the key as the value of each message and discard the value.
-//       { 'My.translationKey1': 'My.translationKey1', 'My.translationKey2': 'My.translationKey2' }
+// PeakUp loads locale files from src/translations/ via buildPeakUpIntlMessages.
+// Priority: hosted translation.json → locale file (de/it/…) → en.json fallback per key.
 const isTestEnv = process.env.NODE_ENV === 'test';
-const localeMessages = isTestEnv
-  ? Object.fromEntries(Object.entries(defaultMessages).map(([key]) => [key, key]))
-  : addMissingTranslations(defaultMessages, messagesInLocale);
 
-const intlMessages = (hostedTranslations = {}) =>
-  mergeIntlMessages(localeMessages, hostedTranslations);
+const intlMessages = (locale, hostedTranslations = {}, options = {}) =>
+  buildPeakUpIntlMessages(locale, hostedTranslations, options);
 
 // For customized apps, this dynamic loading of locale files is not necessary.
 // It helps locale change from configDefault.js file or hosted configs, but customizers should probably
@@ -124,6 +68,10 @@ const MomentLocaleLoader = props => {
       ? loadable.lib(() => import(/* webpackChunkName: "de" */ 'moment/locale/de'))
       : ['es', 'es-ES'].includes(locale)
       ? loadable.lib(() => import(/* webpackChunkName: "es" */ 'moment/locale/es'))
+      : ['it', 'it-IT'].includes(locale)
+      ? loadable.lib(() => import(/* webpackChunkName: "it" */ 'moment/locale/it'))
+      : ['pt', 'pt-PT', 'pt-BR'].includes(locale)
+      ? loadable.lib(() => import(/* webpackChunkName: "pt" */ 'moment/locale/pt'))
       : ['fi', 'fi-FI'].includes(locale)
       ? loadable.lib(() => import(/* webpackChunkName: "fi" */ 'moment/locale/fi'))
       : ['nl', 'nl-NL'].includes(locale)
@@ -214,7 +162,10 @@ const EnvironmentVariableWarning = props => {
  */
 export const ClientApp = props => {
   const { store, hostedTranslations = {}, hostedConfig = {} } = props;
-  const appConfig = mergeConfig(hostedConfig, defaultConfig);
+  const appConfig = applyPeakUpLocaleToAppConfig(mergeConfig(hostedConfig, defaultConfig));
+  const locale = isTestEnv ? 'en' : appConfig.localization.locale;
+  const preferLocalMessages = Boolean(readStoredPeakUpLocaleCode());
+  const intlMessageOptions = { preferLocal: preferLocalMessages };
 
   // Show warning on the localhost:3000, if the environment variable key contains "SECRET"
   if (appSettings.dev) {
@@ -234,8 +185,8 @@ export const ClientApp = props => {
   if (!appConfig.hasMandatoryConfigurations) {
     return (
       <MaintenanceModeError
-        locale={appConfig.localization.locale}
-        messages={intlMessages(hostedTranslations)}
+        locale={locale}
+        messages={intlMessages(locale, hostedTranslations, intlMessageOptions)}
       />
     );
   }
@@ -253,8 +204,8 @@ export const ClientApp = props => {
   return (
     <Configurations appConfig={appConfig}>
       <IntlProvider
-        locale={appConfig.localization.locale}
-        messages={intlMessages(hostedTranslations)}
+        locale={locale}
+        messages={intlMessages(locale, hostedTranslations, intlMessageOptions)}
         textComponent="span"
       >
         <Provider store={store}>
@@ -291,17 +242,19 @@ export const ServerApp = props => {
     return (
       <MaintenanceModeError
         locale={appConfig.localization.locale}
-        messages={intlMessages(hostedTranslations)}
+        messages={intlMessages(appConfig.localization.locale, hostedTranslations)}
         helmetContext={helmetContext}
       />
     );
   }
 
+  const locale = appConfig.localization.locale;
+
   return (
     <Configurations appConfig={appConfig}>
       <IntlProvider
-        locale={appConfig.localization.locale}
-        messages={intlMessages(hostedTranslations)}
+        locale={locale}
+        messages={intlMessages(locale, hostedTranslations)}
         textComponent="span"
       >
         <Provider store={store}>

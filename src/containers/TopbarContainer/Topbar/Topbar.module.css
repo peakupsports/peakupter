@@ -45,6 +45,14 @@
   pointer-events: auto;
 }
 
+.mobileRightSlot {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  overflow: visible;
+}
+
 .container {
   /* Size */
   width: 100%;
