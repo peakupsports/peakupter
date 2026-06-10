@@ -398,7 +398,7 @@
     :global(main)
     :global(section):has([class*="SectionColumns_threeColumns"])
     [class*="SectionColumns_threeColumns"] {
-    gap: 26px;
+    gap: 22px;
     padding-top: 44px;
   }
 }
@@ -439,7 +439,7 @@
     :global(main)
     [class*="SectionColumns_threeColumns"]
     > * {
-    padding: 24px 24px 22px;
+    padding: 24px 20px 22px;
   }
 }
 
@@ -646,6 +646,11 @@
   letter-spacing: -0.022em;
   line-height: 1.08;
   text-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  max-width: 100%;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .landingPremium
@@ -656,6 +661,10 @@
   :is(p, li) {
   color: rgba(236, 242, 250, 0.68);
   line-height: 1.62;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .landingPremium
@@ -664,7 +673,7 @@
   > *
   [class*="BlockDefault_text"]
   :is(p, ul, ol) {
-  max-width: 30ch;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
 }

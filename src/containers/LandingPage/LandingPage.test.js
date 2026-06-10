@@ -297,4 +297,100 @@ describe('LandingPage', () => {
       ).toBeInTheDocument();
     });
   });
+
+  it('renders the localized How PeakUp Sports Works section override', async () => {
+    const data = {
+      sections: [
+        {
+          sectionType: 'columns',
+          sectionId: 'how-peakup-sports-works',
+          numColumns: 3,
+          title: { fieldType: 'heading2', content: 'How PeakUp Sports Works' },
+          description: {
+            fieldType: 'paragraph',
+            content: 'Find your coach. Book your session. Enjoy your sport.',
+          },
+          blocks: [
+            {
+              blockType: 'defaultBlock',
+              blockId: 'find-book',
+              title: { fieldType: 'heading3', content: 'Find & Book' },
+              text: {
+                fieldType: 'markdown',
+                content: 'Browse coaches, check availability, and book your session in minutes.',
+              },
+            },
+            {
+              blockType: 'defaultBlock',
+              blockId: 'enjoy-session',
+              title: { fieldType: 'heading3', content: 'Enjoy your Session' },
+              text: {
+                fieldType: 'markdown',
+                content: 'Train with experienced coaches and improve your skills.',
+              },
+            },
+            {
+              blockType: 'defaultBlock',
+              blockId: 'leave-review',
+              title: { fieldType: 'heading3', content: 'Leave a review' },
+              text: {
+                fieldType: 'markdown',
+                content:
+                  'Help others find the right coach. Share your experience with the community.',
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const { getByText } = render(
+      <LandingPageComponent
+        pageAssetsData={{ landingPage: { data } }}
+        inProgress={false}
+        error={null}
+      />
+    );
+
+    await waitFor(() => {
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'h2' &&
+            /How PeakUp Sports Works|LandingHowItWorksSection\.title/.test(node?.textContent || '')
+          );
+        })
+      ).toBeInTheDocument();
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'p' &&
+            /Find your coach\. Book your session\. Enjoy your sport\.|LandingHowItWorksSection\.subtitle/.test(
+              node?.textContent || ''
+            )
+          );
+        })
+      ).toBeInTheDocument();
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'h3' &&
+            /Find & Book|LandingHowItWorksSection\.cardFindBookTitle/.test(node?.textContent || '')
+          );
+        })
+      ).toBeInTheDocument();
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'h3' &&
+            /Leave a review|LandingHowItWorksSection\.cardReviewTitle/.test(node?.textContent || '')
+          );
+        })
+      ).toBeInTheDocument();
+    });
+  });
 });

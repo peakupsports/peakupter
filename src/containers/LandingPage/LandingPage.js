@@ -19,6 +19,7 @@ import SectionFeatures from '../PageBuilder/SectionBuilder/SectionFeatures';
 import SectionListings from '../PageBuilder/SectionBuilder/SectionListings';
 import SectionPeakupFeaturedCoaches from '../PageBuilder/SectionBuilder/SectionPeakupFeaturedCoaches';
 import LandingHeroSection from './LandingHeroSection';
+import LandingHowItWorksSection from './LandingHowItWorksSection';
 import LandingWhyPeakupSection from './LandingWhyPeakupSection';
 import PageBuilder from '../PageBuilder/PageBuilder';
 
@@ -40,6 +41,20 @@ const includesCoach = value =>
 
 const includesWhyPeakup = value =>
   typeof value === 'string' && /why[\s-]*peakup/i.test(value);
+
+const includesHowPeakupWorks = value =>
+  typeof value === 'string' &&
+  /how[\s-]*(it[\s-]*)?works|how[\s-]*peakup|peakup[\s-]*sports[\s-]*works/i.test(value);
+
+const isPeakupHowItWorksSection = section => {
+  if (!section) return false;
+  if (section.peakupRenderAs === 'defaultColumns') return false;
+  if (section.peakupRenderAs === 'howItWorks') return true;
+  if (includesHowPeakupWorks(section.sectionId)) return true;
+  if (includesHowPeakupWorks(section.sectionName)) return true;
+  if (includesHowPeakupWorks(section.title?.content)) return true;
+  return section.numColumns === 3 && includesHowPeakupWorks(section.description?.content);
+};
 
 const isPeakupCoachListingsSection = section => {
   if (!section) return false;
@@ -74,7 +89,9 @@ export const LandingPageComponent = props => {
       },
       columns: {
         component: forwardedProps =>
-          isPeakupWhySection(forwardedProps) ? (
+          isPeakupHowItWorksSection(forwardedProps) ? (
+            <LandingHowItWorksSection {...forwardedProps} />
+          ) : isPeakupWhySection(forwardedProps) ? (
             <LandingWhyPeakupSection {...forwardedProps} />
           ) : (
             <SectionColumns {...forwardedProps} />
