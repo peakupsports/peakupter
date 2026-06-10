@@ -26,7 +26,8 @@
 
   @media (--viewportLarge) {
     display: grid;
-    grid-template-columns: 280px minmax(0, 1fr);
+    /* Wide enough for longest step labels (IT/FR booking preferences) without clipping */
+    grid-template-columns: minmax(336px, 336px) minmax(0, 1fr);
     align-items: start;
     gap: 32px;
     width: 100%;
@@ -73,6 +74,7 @@
     top: 120px;
     align-self: start;
     width: 100%;
+    min-width: 336px;
     height: fit-content;
     max-height: calc(100vh - 144px);
     margin: 0;
@@ -109,6 +111,11 @@
 
   @media (--viewportLarge) {
     margin-left: 0;
+    width: 100%;
+    white-space: normal;
+    hyphens: none;
+    word-break: normal;
+    overflow-wrap: normal;
 
     &:first-child {
       padding-left: 0;
@@ -134,12 +141,20 @@
 
   @media (--viewportLarge) {
     position: relative;
-    width: auto;
-    min-width: 180px;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     margin-bottom: 10px;
     padding: 10px 16px 10px 20px;
     border-radius: 10px;
     border: 1px solid transparent;
+    white-space: normal;
+    hyphens: none;
+    word-break: normal;
+    overflow-wrap: normal;
+    line-height: 1.35;
     transition:
       color 180ms ease,
       background-color 180ms ease,
@@ -159,6 +174,15 @@
   background-image: none !important;
 
   @media (--viewportLarge) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    white-space: normal;
+    hyphens: none;
+    word-break: normal;
+    overflow-wrap: normal;
+    line-height: 1.35;
     border-bottom-width: 0;
     background-color: rgba(23, 217, 255, 0.08);
     border-color: rgba(25, 223, 242, 0.28);

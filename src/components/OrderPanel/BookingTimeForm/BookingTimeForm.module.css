@@ -97,11 +97,14 @@
 }
 
 .peakupAddButton {
+  display: block;
   width: 100%;
-
-  @media (--viewportMedium) {
-    width: auto;
-  }
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .peakupSessionsHeading {

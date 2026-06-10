@@ -1242,6 +1242,25 @@
   }
 }
 
+.listingPeakUp :global([class*='BookingTimeForm_peakupSessionBlock']) {
+  @media (--viewportLarge) {
+    margin: 16px 0 0;
+    padding: 0;
+  }
+}
+
+.listingPeakUp :global([class*='BookingTimeForm_peakupAddButton']),
+.listingPeakUp :global([class*='BookingFixedDurationForm_peakupAddButton']) {
+  @media (--viewportLarge) {
+    width: 100%;
+    max-width: 100%;
+    white-space: nowrap;
+    hyphens: none;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+}
+
 .listingPeakUp :global([class*='BookingDatesForm_priceBreakdownContainer']),
 .listingPeakUp :global([class*='BookingTimeForm_priceBreakdownContainer']),
 .listingPeakUp :global([class*='BookingFixedDurationForm_receipt']) {

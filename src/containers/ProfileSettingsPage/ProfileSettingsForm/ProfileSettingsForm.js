@@ -83,6 +83,37 @@ const mergeTeamFieldConfigLabels = (fieldProps, intl) => {
   };
 };
 
+const mergePeakSportsLangFieldLabels = (fieldProps, intl, isCoachUser) => {
+  const labelIdByKey = isCoachUser
+    ? {
+        [PUB_SPORTS_KEY]: 'ProfileSettingsForm.coachSportsLabel',
+        [PUB_LANGUAGES_KEY]: 'ProfileSettingsForm.coachLanguagesLabel',
+      }
+    : {
+        [PUB_SPORTS_KEY]: 'ProfileSettingsForm.customerSportsLabel',
+        [PUB_LANGUAGES_KEY]: 'ProfileSettingsForm.customerLanguagesLabel',
+      };
+  const labelId = labelIdByKey[fieldProps.key];
+  if (!labelId || !fieldProps.fieldConfig) {
+    return fieldProps;
+  }
+  const label = intl.formatMessage({ id: labelId });
+  return {
+    ...fieldProps,
+    fieldConfig: {
+      ...fieldProps.fieldConfig,
+      showConfig: {
+        ...fieldProps.fieldConfig.showConfig,
+        label,
+      },
+      saveConfig: {
+        ...fieldProps.fieldConfig.saveConfig,
+        label,
+      },
+    },
+  };
+};
+
 const PUB_SPORTS_KEY = addScopePrefix('public', 'sports');
 const PUB_LANGUAGES_KEY = addScopePrefix('public', 'languages');
 // NOTE: `peakupCoachBadges` is no longer rendered as a form field. Founder /
@@ -439,7 +470,8 @@ class ProfileSettingsFormComponent extends Component {
               (a, b) =>
                 PEAK_SPORTS_LANG_COLUMN_ORDER.indexOf(a.key) -
                 PEAK_SPORTS_LANG_COLUMN_ORDER.indexOf(b.key)
-            );
+            )
+            .map(p => mergePeakSportsLangFieldLabels(p, intl, isCoachUser));
           const coachPeakPricing = peakUpFieldProps
             .filter(p => PEAK_ROW_PRICING_KEYS.has(p.key))
             .sort(

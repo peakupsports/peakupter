@@ -28,11 +28,24 @@ const PARTICIPANT_MESSAGE_IDS = {
   group: 'PreBookingIntroModal.participantType.group',
 };
 
+const PARTICIPANT_DEFAULTS = {
+  self: 'Myself (adult)',
+  child: 'Child / youth',
+  group: 'Group / family',
+};
+
 const SKILL_MESSAGE_IDS = {
   beginner: 'ProfilePage.memberLevel_beginner',
   intermediate: 'ProfilePage.memberLevel_intermediate',
   advanced: 'ProfilePage.memberLevel_advanced',
   expert: 'ProfilePage.memberLevel_expert',
+};
+
+const SKILL_DEFAULTS = {
+  beginner: 'Beginner',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
+  expert: 'Expert',
 };
 
 /**
@@ -214,7 +227,7 @@ export const getPreBookingParticipantTypeOptions = intl =>
     value,
     label: intl.formatMessage({
       id: PARTICIPANT_MESSAGE_IDS[value],
-      defaultMessage: value,
+      defaultMessage: PARTICIPANT_DEFAULTS[value] || value,
     }),
   }));
 
@@ -227,7 +240,7 @@ export const getPreBookingSkillLevelOptions = intl =>
     value,
     label: intl.formatMessage({
       id: SKILL_MESSAGE_IDS[value],
-      defaultMessage: value,
+      defaultMessage: SKILL_DEFAULTS[value] || value,
     }),
   }));
 

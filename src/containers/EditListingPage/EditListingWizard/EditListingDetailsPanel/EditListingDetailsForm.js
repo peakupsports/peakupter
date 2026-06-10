@@ -28,6 +28,7 @@ import {
   CustomExtendedDataField,
 } from '../../../../components';
 import { isPeakUpMultiDayExperienceListing, isPeakUpMultiDayExperienceListingTypeConfig } from '../../../../util/peakUpMultiDayExperienceListing';
+import { getLocalizedListingTypeLabel, localizeListingTypeConfigs } from '../../../../util/listingTypeLabels';
 // Import modules from this directory
 import css from './EditListingDetailsForm.module.css';
 
@@ -135,7 +136,9 @@ const FieldSelectListingType = props => {
   };
   const getListingTypeLabel = listingType => {
     const listingTypeConfig = listingTypes.find(config => config.listingType === listingType);
-    return listingTypeConfig ? listingTypeConfig.label : listingType;
+    return listingTypeConfig
+      ? getLocalizedListingTypeLabel(intl, listingTypeConfig)
+      : listingType;
   };
 
   return hasMultipleListingTypes && !hasPredefinedListingType ? (
@@ -393,6 +396,7 @@ const EditListingDetailsForm = props => (
 
       const intl = useIntl();
       const { listingType, transactionProcessAlias, unitType } = values;
+      const localizedListingTypes = localizeListingTypeConfigs(intl, selectableListingTypes);
       const [allCategoriesChosen, setAllCategoriesChosen] = useState(false);
 
       const titleRequiredMessage = intl.formatMessage({
@@ -459,7 +463,7 @@ const EditListingDetailsForm = props => (
 
           <FieldSelectListingType
             name="listingType"
-            listingTypes={selectableListingTypes}
+            listingTypes={localizedListingTypes}
             hasPredefinedListingType={hasPredefinedListingType}
             onListingTypeChange={onListingTypeChange}
             formApi={formApi}

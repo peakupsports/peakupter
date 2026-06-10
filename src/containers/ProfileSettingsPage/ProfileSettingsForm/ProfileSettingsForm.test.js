@@ -493,6 +493,10 @@ describe('ProfileSettingsForm', () => {
     expect(screen.queryByText('ProfileSettingsForm.coachLocationHeading')).toBeNull();
     expect(screen.queryByText('ProfileSettingsForm.preferredMeetingPointsHeading')).toBeNull();
     expect(screen.getByText('ProfileSettingsForm.clientSportsAndLanguagesHeading')).toBeInTheDocument();
+    expect(screen.getByText('ProfileSettingsForm.customerSportsLabel')).toBeInTheDocument();
+    expect(screen.getByText('ProfileSettingsForm.customerLanguagesLabel')).toBeInTheDocument();
+    expect(screen.queryByText('ProfileSettingsForm.coachSportsLabel')).toBeNull();
+    expect(screen.queryByText('Sports you coach')).toBeNull();
   });
 
   it('shows coach PeakUp fields for coach users', () => {
@@ -515,8 +519,9 @@ describe('ProfileSettingsForm', () => {
       />
     );
 
-    expect(screen.getByText('ProfileSettingsForm.coachSessionPriceHeading')).toBeInTheDocument();
     expect(screen.getByText('ProfileSettingsForm.sportsAndLanguagesHeading')).toBeInTheDocument();
+    expect(screen.getByText('ProfileSettingsForm.coachSportsLabel')).toBeInTheDocument();
+    expect(screen.getByText('ProfileSettingsForm.coachLanguagesLabel')).toBeInTheDocument();
     expect(screen.getByText('ProfileSettingsForm.coachLocationHeading')).toBeInTheDocument();
     expect(
       screen.getByText('ProfileSettingsForm.preferredMeetingPointsHeading')
