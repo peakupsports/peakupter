@@ -32,7 +32,12 @@ import {
 import { sortByPeakUpTopLevelSportOrder } from '../../util/peakupSportTaxonomy';
 import { getCoachCoordinates } from '../../util/profileCoachSticker';
 import { getTeamCoordinates } from '../../util/peakupTeam';
-import { getSportDirectoryHeroTitleId } from '../../util/sportProfessionalTitles';
+import {
+  getSportDirectoryHeroSubtitleId,
+  getSportDirectoryHeroTitleId,
+  getSportDirectorySchemaDescriptionId,
+  getSportDirectorySchemaTitleId,
+} from '../../util/sportProfessionalTitles';
 import { coachPreferredMeetingPointsList } from '../../util/peakupMeetingPoint';
 // TEMP DEMO COACHES FOR MARKETING REEL – REMOVE BEFORE PRODUCTION
 // Single source of truth in `./demoCoaches.js`. To remove, delete this
@@ -1249,8 +1254,15 @@ const CoachMapPage = props => {
   }, [filteredCoaches, filteredTeams, selectedCoachKey]);
 
   const marketplaceName = config.branding.marketplaceName || 'Marketplace';
-  const schemaTitle = intl.formatMessage({ id: 'CoachMapPage.schemaTitle' }, { marketplaceName });
-  const schemaDescription = intl.formatMessage({ id: 'CoachMapPage.schemaDescription' });
+  const hasSportFilter = Boolean(selectedSport.trim());
+  const schemaTitleId = hasSportFilter
+    ? getSportDirectorySchemaTitleId(selectedSport, 'CoachMapPage.schemaTitle')
+    : 'CoachMapPage.schemaTitle';
+  const schemaDescriptionId = hasSportFilter
+    ? getSportDirectorySchemaDescriptionId(selectedSport, 'CoachMapPage.schemaDescription')
+    : 'CoachMapPage.schemaDescription';
+  const schemaTitle = intl.formatMessage({ id: schemaTitleId }, { marketplaceName });
+  const schemaDescription = intl.formatMessage({ id: schemaDescriptionId });
 
   const loading = fetchStatus === 'loading';
   const failed = fetchStatus === 'failed';
@@ -1310,9 +1322,13 @@ const CoachMapPage = props => {
     </div>
   );
 
-  const heroTitleId = selectedSport.trim()
+  const heroTitleId = hasSportFilter
     ? getSportDirectoryHeroTitleId(selectedSport)
     : 'CoachMapPage.title';
+  const defaultHeroSubtitleId = getSportDirectoryHeroSubtitleId(
+    selectedSport,
+    'CoachMapPage.subtitle'
+  );
 
   const titleNode = <FormattedMessage id={heroTitleId} />;
 
@@ -1324,7 +1340,7 @@ const CoachMapPage = props => {
       values={{ place: queryExplore.locationLabel }}
     />
   ) : (
-    <FormattedMessage id="CoachMapPage.subtitle" />
+    <FormattedMessage id={defaultHeroSubtitleId} />
   );
 
   return (

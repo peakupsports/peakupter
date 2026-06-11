@@ -11,6 +11,7 @@ export const PARTNER_PRIORITY_LEVEL_LABEL_IDS = {
   strategic: 'PeakUpHqCoachManagement.partnerLevel.strategic',
 };
 
+/** @deprecated Use {@link getTierBadgeLabel} from `coachTier.js` (English-only labels). */
 export const TIER_FILTER_LABEL_IDS = {
   founder: 'PeakUpCoachFigurineCard.badge.founder',
   ambassador: 'PeakUpCoachFigurineCard.badge.ambassador',

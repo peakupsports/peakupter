@@ -7,12 +7,7 @@ import {
   resolveDisplayBadgeIds,
   PROFILE_SPORT_DISPLAY_LABELS,
 } from '../../util/profileCoachSticker';
-import {
-  pickPrimaryTierId,
-  getTierStyleVars,
-  TIER_BADGE_MESSAGE_IDS,
-  TIER_BADGE_DEFAULT_LABELS,
-} from '../../util/coachTier';
+import { pickPrimaryTierId, getTierStyleVars, getTierBadgeLabel } from '../../util/coachTier';
 import { isVerifiedCoachForTeamRoster, extractCoachUserUuid } from '../../util/peakupTeam';
 
 import Avatar from '../Avatar/Avatar';
@@ -111,12 +106,7 @@ const TeamCoachRosterCard = props => {
       <Avatar className={css.avatar} user={coach} disableProfileLink renderSizes="48px" />
     );
 
-  const tierLabel = topBadgeId
-    ? intl.formatMessage(
-        { id: TIER_BADGE_MESSAGE_IDS[topBadgeId] },
-        { defaultMessage: TIER_BADGE_DEFAULT_LABELS[topBadgeId] || topBadgeId }
-      )
-    : null;
+  const tierLabel = getTierBadgeLabel(topBadgeId);
 
   const statusBadge = (
     <span className={classNames(css.status, STATUS_CLASS[statusKey])}>

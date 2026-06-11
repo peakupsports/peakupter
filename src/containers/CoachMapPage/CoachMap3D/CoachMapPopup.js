@@ -9,11 +9,7 @@ import {
   resolveCoachStickerDisplay,
   splitCoachSportsForCoachMap,
 } from '../../../util/profileCoachSticker';
-import {
-  pickPrimaryTierId,
-  getTierStyleVars,
-  TIER_BADGE_MESSAGE_IDS,
-} from '../../../util/coachTier';
+import { pickPrimaryTierId, getTierStyleVars, getTierBadgeLabel } from '../../../util/coachTier';
 
 import { Avatar } from '../../../components/Avatar/Avatar';
 import NamedLink from '../../../components/NamedLink/NamedLink';
@@ -74,6 +70,7 @@ const CoachMapPopup = ({ coach, onClose }) => {
   const sportEntries = mainSportEntries.slice(0, 2);
   const visibleSpecialties = specialties.slice(0, 3);
   const tierId = pickPrimaryTierId(publicData);
+  const tierLabel = getTierBadgeLabel(tierId);
   const tierStyle = getTierStyleVars(tierId);
 
   // Demo coaches: profile / contact links would 404 (no real Sharetribe
@@ -152,11 +149,7 @@ const CoachMapPopup = ({ coach, onClose }) => {
           )}
 
           <div className={css.identityMeta}>
-            {tierId ? (
-              <span className={css.badge}>
-                <FormattedMessage id={TIER_BADGE_MESSAGE_IDS[tierId]} />
-              </span>
-            ) : null}
+            {tierLabel ? <span className={css.badge}>{tierLabel}</span> : null}
             {reviewCount > 0 && ratingNumber != null ? (
               <span className={css.rating}>
                 <span className={css.ratingStar} aria-hidden>

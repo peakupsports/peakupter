@@ -64,7 +64,7 @@ import {
   isPeakUpCustomerMemberProfile,
   isCoachProfileStickerEligible,
 } from '../../util/profileCoachSticker';
-import { pickPrimaryTierId, getTierStyleVars } from '../../util/coachTier';
+import { pickPrimaryTierId, getTierBadgeLabel, getTierStyleVars } from '../../util/coachTier';
 
 import { isScrollingDisabled, manageDisableScrolling } from '../../ducks/ui.duck';
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
@@ -656,10 +656,7 @@ export const AsideContent = props => {
                     aria-haspopup="dialog"
                     onClick={() => setBadgeHierarchyOpen(true)}
                   >
-                    {intl.formatMessage({
-                      id: `ProfilePage.stickerBadge_${id}`,
-                      defaultMessage: id.replace(/_/g, ' '),
-                    })}
+                    {getTierBadgeLabel(id) || id.replace(/_/g, ' ')}
                   </button>
                 ))}
                 {legacyCoachLevel ? (

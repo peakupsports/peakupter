@@ -33,17 +33,28 @@ import {
  *             omitted, `getTierStyleVars` derives one from `rgb` at ~10%.
  *
  * Visual hierarchy targets:
- * 1. Founder         — premium crystal / icy elite (saturated cyan)
- * 2. Ambassador      — gold
- * 3. Top Coach       — titanium silver (neutral, professional, less luminous)
- * 4. Certified Coach — bronze
+ * 1. Founder    — premium crystal / icy elite (saturated cyan)
+ * 2. Ambassador — gold
+ * 3. Top Pro    — titanium silver (neutral, professional, less luminous)
+ * 4. Certified  — bronze
  *
  * Founder uses a *saturated* border (#9BE7FF) instead of the previously
  * pale ice tone so the tier reads as "rare / luxury-tech" next to Top
  * Coach's neutral titanium (#B8C2CF). Each level should feel one notch
  * less luminous than the one above it.
  */
-/** react-intl message ids for tier badge labels (shared by coach card, map popup, contact modal). */
+/**
+ * Canonical English badge labels — never localized. Display order:
+ * Founder > Ambassador > Top Pro > Certified.
+ */
+export const TIER_BADGE_LABELS = {
+  founder: 'FOUNDER',
+  ambassador: 'AMBASSADOR',
+  top_coach: 'TOP PRO',
+  certified_coach: 'CERTIFIED',
+};
+
+/** @deprecated Use {@link TIER_BADGE_LABELS} / {@link getTierBadgeLabel}. Kept for legacy intl keys. */
 export const TIER_BADGE_MESSAGE_IDS = {
   founder: 'PeakUpCoachFigurineCard.badge.founder',
   ambassador: 'PeakUpCoachFigurineCard.badge.ambassador',
@@ -51,12 +62,21 @@ export const TIER_BADGE_MESSAGE_IDS = {
   certified_coach: 'PeakUpCoachFigurineCard.badge.certifiedCoach',
 };
 
-/** English fallbacks when a hosted translation is missing. */
-export const TIER_BADGE_DEFAULT_LABELS = {
-  founder: 'Founder',
-  ambassador: 'Ambassador',
-  top_coach: 'Top Coach',
-  certified_coach: 'Certified Coach',
+/** @deprecated Use {@link TIER_BADGE_LABELS} / {@link getTierBadgeLabel}. */
+export const TIER_BADGE_DEFAULT_LABELS = { ...TIER_BADGE_LABELS };
+
+/** Badge ids in display-priority order (highest first). */
+export const TIER_BADGE_ORDER = ['founder', 'ambassador', 'top_coach', 'certified_coach'];
+
+/**
+ * English-only tier badge label for UI (pills, cards, filters). Ignores locale.
+ *
+ * @param {string|null|undefined} tierId
+ * @returns {string|null}
+ */
+export const getTierBadgeLabel = tierId => {
+  if (!tierId) return null;
+  return TIER_BADGE_LABELS[tierId] || null;
 };
 
 export const TIER_COLORS = {
@@ -93,8 +113,8 @@ export const TIER_COLORS = {
  *
  * Uses `resolveDisplayBadgeIds` which already enforces the new badge rules:
  *  - Founder / Ambassador are admin-only manual flags.
- *  - Top coach is auto-derived for `experience` >= 10 years.
- *  - Certified coach is the default for all other coaches.
+ *  - Top Pro is auto-derived for `experience` >= 10 years.
+ *  - Certified is the default for all other coaches.
  * The result is therefore mutually exclusive (always a single tier).
  *
  * @param {Object|null|undefined} profilePd `user.attributes.profile.publicData`

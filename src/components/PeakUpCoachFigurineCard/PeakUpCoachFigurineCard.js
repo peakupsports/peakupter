@@ -14,7 +14,7 @@ import {
   PROFILE_SPORT_DISPLAY_LABELS,
   PROFILE_SPORT_EMOJI,
 } from '../../util/profileCoachSticker';
-import { getTierStyleVars } from '../../util/coachTier';
+import { getTierBadgeLabel, getTierStyleVars } from '../../util/coachTier';
 
 import NamedLink from '../NamedLink/NamedLink';
 import PeakUpLocationPin from '../PeakUpLocationPin/PeakUpLocationPin';
@@ -27,20 +27,6 @@ import css from './PeakUpCoachFigurineCard.module.css';
 const PeakupCoachBadgesHierarchyModal = lazy(() =>
   import('../PeakupCoachBadgesHierarchyModal/PeakupCoachBadgesHierarchyModal')
 );
-
-const TOP_BADGE_LABEL_KEYS = {
-  founder: 'PeakUpCoachFigurineCard.badge.founder',
-  ambassador: 'PeakUpCoachFigurineCard.badge.ambassador',
-  top_coach: 'PeakUpCoachFigurineCard.badge.topCoach',
-  certified_coach: 'PeakUpCoachFigurineCard.badge.certifiedCoach',
-};
-
-const TOP_BADGE_FALLBACK = {
-  founder: 'Founder',
-  ambassador: 'Ambassador',
-  top_coach: 'Top coach',
-  certified_coach: 'Certified coach',
-};
 
 /** Classi pill tier — riferimenti statici (no `css[\`badge_${id}\`]`) per CSS Modules. */
 const BADGE_PILL_CLASS = {
@@ -82,8 +68,8 @@ const normalizeSportKey = raw => String(raw || '').toLowerCase().replace(/[\s-_]
  * @param {number} [props.reviewCount]
  * @param {number|null} [props.reviewAverage]
  * @param {string[]} [props.badgeIds] from {@link resolveDisplayBadgeIds}
- * (Founder / Ambassador admin-only, Top coach auto-derived from experience >= 10y,
- * Certified coach as default)
+ * (Founder / Ambassador admin-only, Top Pro auto-derived from experience >= 10y,
+ * Certified as default)
  * @param {number} [props.rank] posizione 1-indexed in classifica; combinato con
  *   `showPodiumBadge`, abilita la medaglia podio quando `rank ≤ 3`.
  * @param {boolean} [props.showPodiumBadge=false] mostra la medaglia oro/argento/bronzo
@@ -280,10 +266,7 @@ const PeakUpCoachFigurineCard = props => {
                 aria-haspopup="dialog"
                 onClick={() => setBadgeHierarchyOpen(true)}
               >
-                {intl.formatMessage({
-                  id: TOP_BADGE_LABEL_KEYS[bid],
-                  defaultMessage: TOP_BADGE_FALLBACK[bid] || bid,
-                })}
+                {getTierBadgeLabel(bid) || bid}
               </button>
             ))}
             {legacyCoachLevel ? (

@@ -16,7 +16,6 @@ import {
   PARTNER_PRIORITY_LEVELS,
   PARTNER_PRIORITY_LEVEL_LABEL_IDS,
   TIER_FILTER_IDS,
-  TIER_FILTER_LABEL_IDS,
   approveLegacyCoachAdmin,
   assignPartnerPriorityAdmin,
   clearPartnerPriorityAdmin,
@@ -32,11 +31,7 @@ import {
   deriveCountryCodeFromPlace,
   getCoachShortLocationLabel,
 } from '../../../util/coachExplore';
-import {
-  getTierStyleVars,
-  TIER_BADGE_DEFAULT_LABELS,
-  TIER_BADGE_MESSAGE_IDS,
-} from '../../../util/coachTier';
+import { getTierBadgeLabel, getTierStyleVars } from '../../../util/coachTier';
 import {
   PROFILE_SPORT_DISPLAY_LABELS,
   sportsForFigurinaOverlay,
@@ -113,7 +108,7 @@ const CoachDirectoryCell = ({ coach }) => {
   const displayName = coach?.displayName || '—';
   const tierId = coach?.tierId || null;
   const tierStyle = tierId ? getTierStyleVars(tierId) : null;
-  const tierMessageId = tierId ? TIER_BADGE_MESSAGE_IDS[tierId] : null;
+  const tierBadgeLabel = getTierBadgeLabel(tierId);
   const sportsLine = formatCompactSportsLine(intl, coach.sports);
 
   const locationLabel = getCoachShortLocationLabel(
@@ -151,12 +146,9 @@ const CoachDirectoryCell = ({ coach }) => {
       <div className={css.coachIdentityMeta}>
         <div className={css.coachNameRow}>
           <p className={css.coachName}>{displayName}</p>
-          {tierMessageId ? (
+          {tierBadgeLabel ? (
             <span className={css.coachTierBadge} style={tierStyle}>
-              <FormattedMessage
-                id={tierMessageId}
-                defaultMessage={TIER_BADGE_DEFAULT_LABELS[tierId] || tierId}
-              />
+              {tierBadgeLabel}
             </span>
           ) : (
             <span className={css.coachTierMuted}>
@@ -932,7 +924,7 @@ const PeakUpHqCoachManagementPage = () => {
                       </option>
                       {TIER_FILTER_IDS.map(tier => (
                         <option key={tier} value={tier}>
-                          {intl.formatMessage({ id: TIER_FILTER_LABEL_IDS[tier] })}
+                          {getTierBadgeLabel(tier)}
                         </option>
                       ))}
                     </select>

@@ -6,8 +6,7 @@ import { FormattedMessage } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
 import {
   pickPrimaryTierId,
-  TIER_BADGE_DEFAULT_LABELS,
-  TIER_BADGE_MESSAGE_IDS,
+  getTierBadgeLabel,
 } from '../../../util/coachTier';
 import { Modal, Avatar } from '../../../components';
 import InquiryForm from '../../ListingPage/InquiryForm/InquiryForm';
@@ -35,7 +34,7 @@ const ContactCoachModal = props => {
   } = props;
 
   const tierId = tierIdProp ?? pickPrimaryTierId(profilePublicData);
-  const tierBadgeMessageId = tierId ? TIER_BADGE_MESSAGE_IDS[tierId] : null;
+  const tierBadgeLabel = getTierBadgeLabel(tierId);
   const primaryTierBadgeClass = tierId ? css[`tierBadge_${tierId}`] : null;
 
   return (
@@ -73,12 +72,9 @@ const ContactCoachModal = props => {
                 />
               </p>
               <h3 className={css.coachHeaderName}>{coachDisplayName}</h3>
-              {tierBadgeMessageId ? (
+              {tierBadgeLabel ? (
                 <span className={classNames(css.coachTierBadge, primaryTierBadgeClass)}>
-                  <FormattedMessage
-                    id={tierBadgeMessageId}
-                    defaultMessage={TIER_BADGE_DEFAULT_LABELS[tierId]}
-                  />
+                  {tierBadgeLabel}
                 </span>
               ) : null}
             </div>

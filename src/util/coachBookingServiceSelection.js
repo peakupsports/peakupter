@@ -16,7 +16,7 @@ import {
   resolveDisplayBadgeIds,
   resolvePeakupCoachBadgeIds,
 } from './profileCoachSticker';
-import { TIER_BADGE_DEFAULT_LABELS, TIER_BADGE_MESSAGE_IDS } from './coachTier';
+import { getTierBadgeLabel } from './coachTier';
 
 export const SERVICE_GROUP_LESSONS = 'lessons';
 export const SERVICE_GROUP_CAMPS_EVENTS = 'campsEvents';
@@ -48,13 +48,10 @@ const resolveCoachBookingServiceTrustBadgeIds = (profilePd = {}) => {
  * @param {Object} [profilePd]
  * @returns {Array<{ id: string, label: string }>}
  */
-export const resolveCoachBookingServiceTrustBadges = (intl, profilePd = {}) =>
+export const resolveCoachBookingServiceTrustBadges = (_intl, profilePd = {}) =>
   resolveCoachBookingServiceTrustBadgeIds(profilePd).map(id => ({
     id,
-    label: intl.formatMessage({
-      id: TIER_BADGE_MESSAGE_IDS[id],
-      defaultMessage: TIER_BADGE_DEFAULT_LABELS[id] || id,
-    }),
+    label: getTierBadgeLabel(id) || id,
   }));
 
 /**

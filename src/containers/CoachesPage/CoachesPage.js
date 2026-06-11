@@ -21,7 +21,13 @@ import {
 } from '../../util/coachExplore';
 import { resolveDisplayBadgeIds } from '../../util/profileCoachSticker';
 import { getSportHeroImage } from '../../config/configSportMedia';
-import { getSportDirectoryHeroTitleId } from '../../util/sportProfessionalTitles';
+import {
+  getSportDirectoryAriaLabelId,
+  getSportDirectoryHeroSubtitleId,
+  getSportDirectoryHeroTitleId,
+  getSportDirectorySchemaDescriptionId,
+  getSportDirectorySchemaTitleId,
+} from '../../util/sportProfessionalTitles';
 import { fetchCoachesExploreThunk } from '../CoachesExplorePage/CoachesExplorePage.duck';
 
 import css from './CoachesPage.module.css';
@@ -69,8 +75,15 @@ const CoachesPage = props => {
   }, [config, dispatch]);
 
   const marketplaceName = config.branding.marketplaceName || 'Marketplace';
-  const schemaTitle = intl.formatMessage({ id: 'CoachesPage.schemaTitle' }, { marketplaceName });
-  const schemaDescription = intl.formatMessage({ id: 'CoachesPage.schemaDescription' });
+  const hasSportFilter = Boolean(selectedSport.trim());
+  const schemaTitleId = hasSportFilter
+    ? getSportDirectorySchemaTitleId(selectedSport)
+    : 'CoachesPage.schemaTitle';
+  const schemaDescriptionId = hasSportFilter
+    ? getSportDirectorySchemaDescriptionId(selectedSport)
+    : 'CoachesPage.schemaDescription';
+  const schemaTitle = intl.formatMessage({ id: schemaTitleId }, { marketplaceName });
+  const schemaDescription = intl.formatMessage({ id: schemaDescriptionId });
 
   // Sport-themed cinematic background for the page hero. Images come from
   // `public/CoachPagePic/` via the temporary sport-media library
@@ -84,10 +97,14 @@ const CoachesPage = props => {
     ? getSportDirectoryHeroTitleId(selectedSport)
     : 'CoachesPage.title';
 
+  const heroAriaLabelId = hasSportFilter
+    ? getSportDirectoryAriaLabelId(selectedSport)
+    : 'CoachDirectory.heroBannerAriaLabelGeneric';
   const heroAriaLabel = intl.formatMessage({
-    id: heroTitleId,
+    id: heroAriaLabelId,
     defaultMessage: 'Professionals',
   });
+  const defaultHeroSubtitleId = getSportDirectoryHeroSubtitleId(selectedSport);
 
   const hasGeoProximity =
     queryExplore.userLat != null &&
@@ -189,7 +206,7 @@ const CoachesPage = props => {
                 values={{ place: queryExplore.locationLabel }}
               />
             ) : (
-              <FormattedMessage id="CoachesPage.subtitle" />
+              <FormattedMessage id={defaultHeroSubtitleId} />
             )}
           </p>
         </header>

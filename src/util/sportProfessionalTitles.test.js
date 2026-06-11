@@ -1,4 +1,11 @@
-import { getSportDirectoryHeroTitleId } from './sportProfessionalTitles';
+import {
+  getSportDirectoryAriaLabelId,
+  getSportDirectoryHeroSubtitleId,
+  getSportDirectoryHeroTitleId,
+  getSportDirectorySchemaDescriptionId,
+  getSportDirectorySchemaTitleId,
+  resolveSportDirectorySport,
+} from './sportProfessionalTitles';
 
 describe('sportProfessionalTitles', () => {
   it('returns sport-specific hero title ids', () => {
@@ -9,9 +16,27 @@ describe('sportProfessionalTitles', () => {
 
   it('maps ski variants to ski instructors copy', () => {
     expect(getSportDirectoryHeroTitleId('freerideskiing')).toBe('CoachDirectory.heroTitle.ski');
+    expect(resolveSportDirectorySport('freerideskiing')).toBe('ski');
   });
 
   it('falls back to generic title for unknown sports', () => {
     expect(getSportDirectoryHeroTitleId('unknown-sport')).toBe('CoachDirectory.heroTitleGeneric');
+    expect(getSportDirectoryHeroSubtitleId('unknown-sport')).toBe('CoachesPage.subtitle');
+    expect(getSportDirectorySchemaTitleId('unknown-sport')).toBe('CoachesPage.schemaTitle');
+    expect(getSportDirectorySchemaDescriptionId('unknown-sport')).toBe(
+      'CoachesPage.schemaDescription'
+    );
+    expect(getSportDirectoryAriaLabelId('unknown-sport')).toBe(
+      'CoachDirectory.heroBannerAriaLabelGeneric'
+    );
+  });
+
+  it('returns sport-specific seo and subtitle ids', () => {
+    expect(getSportDirectoryHeroSubtitleId('golf')).toBe('CoachDirectory.heroSubtitle.golf');
+    expect(getSportDirectorySchemaTitleId('golf')).toBe('CoachDirectory.schemaTitle.golf');
+    expect(getSportDirectorySchemaDescriptionId('golf')).toBe(
+      'CoachDirectory.schemaDescription.golf'
+    );
+    expect(getSportDirectoryAriaLabelId('golf')).toBe('CoachDirectory.heroBannerAriaLabel.golf');
   });
 });

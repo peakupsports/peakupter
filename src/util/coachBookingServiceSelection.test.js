@@ -106,8 +106,8 @@ describe('coachBookingServiceSelection', () => {
       peakupCoachBadges: ['ambassador', 'certified_coach'],
     });
     expect(labels.length).toBe(2);
-    expect(labels[0]).toBe('Ambassador');
-    expect(labels[1]).toBe('Certified Coach');
+    expect(labels[0]).toBe('AMBASSADOR');
+    expect(labels[1]).toBe('CERTIFIED');
   });
 
   it('groupCoachBookingServiceCards hides labels for a single group', () => {
