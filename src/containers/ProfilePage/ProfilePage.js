@@ -594,7 +594,7 @@ export const AsideContent = props => {
   const badgeHierarchyModalId = `PeakupCoachBadgesHierarchy-aside-${user?.id?.uuid || 'profile'}`;
   const badgeModalHint = intl.formatMessage({
     id: 'PeakupCoachBadgesHierarchyModal.badgeButtonHint',
-    defaultMessage: 'Open PeakUp coach badge guide',
+    defaultMessage: 'Open PeakUp professional badge guide',
   });
 
   return (

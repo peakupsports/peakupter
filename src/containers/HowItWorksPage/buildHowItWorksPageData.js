@@ -172,7 +172,7 @@ export const buildHowItWorksPageData = (intl, options = {}) => {
             text: t('HowItWorksPage.ctaAthleteText'),
             imageUrl: HOW_IT_WORKS_CTA_ATHLETE_IMAGE,
             alt: t('HowItWorksPage.ctaAthleteImageAlt'),
-            alignment: 'right',
+            alignment: 'left',
             callToAction: {
               fieldType: 'internalButtonLink',
               content: t('HowItWorksPage.ctaAthleteButton'),

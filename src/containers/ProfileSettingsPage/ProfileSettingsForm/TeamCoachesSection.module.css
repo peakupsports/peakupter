@@ -53,11 +53,25 @@
 }
 
 .empty {
-  padding: 24px 18px;
+  padding: 28px 20px;
   border-radius: 14px;
   border: 1px dashed rgba(25, 223, 242, 0.22);
-  background: rgba(255, 255, 255, 0.03);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(23, 217, 255, 0.06) 0%, transparent 55%),
+    rgba(255, 255, 255, 0.03);
   text-align: center;
+}
+
+.connectedCount {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0;
+  font-weight: var(--fontWeightSemiBold);
+  color: rgba(120, 225, 255, 0.92);
+  letter-spacing: 0.02em;
+}
+
+.rootEmbedded .header {
+  margin-bottom: 16px;
 }
 
 .emptyTitle {

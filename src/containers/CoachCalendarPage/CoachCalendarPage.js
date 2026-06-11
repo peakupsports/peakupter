@@ -1292,7 +1292,7 @@ const CoachCalendarPageComponent = props => {
                 <h1 className={css.heading}>
                   <FormattedMessage
                     id="CoachCalendarPage.heading"
-                    defaultMessage="Coach Calendar"
+                    defaultMessage="Calendar"
                   />
                 </h1>
                 <p className={css.description}>

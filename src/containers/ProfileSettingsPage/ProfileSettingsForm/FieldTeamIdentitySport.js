@@ -35,7 +35,7 @@ const fieldConfigForRole = role => {
  * @param {string} [props.formId]
  */
 const FieldTeamIdentitySport = props => {
-  const { role, formId } = props;
+  const { role, formId, profileLayout = false } = props;
   const intl = useIntl();
   const { name, labelId, emptyId } = fieldConfigForRole(role);
   const id = formId ? `${formId}.${name}` : name;
@@ -66,8 +66,8 @@ const FieldTeamIdentitySport = props => {
     <FieldSelect
       id={id}
       name={name}
-      rootClassName={css.rootSport}
-      selectClassName={css.select}
+      rootClassName={profileLayout ? css.rootSportWide : css.rootSport}
+      selectClassName={profileLayout ? css.selectProfile : css.select}
       labelClassName={css.label}
       label={intl.formatMessage({ id: labelId })}
       {...validateMaybe}

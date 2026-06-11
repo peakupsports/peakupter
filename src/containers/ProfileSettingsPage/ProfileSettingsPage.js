@@ -169,7 +169,8 @@ export const ProfileSettingsPageComponent = props => {
   const profileImage = image || { imageId: profileImageId };
   const userTypeConfig = userTypes.find(config => config.userType === userType);
   const { provider: isCoachUser } = getCurrentUserTypeRoles(config, currentUser);
-  const isTeamUser = isTeamProviderProfileUserType(currentUser);
+  const isTeamUser =
+    isTeamProviderProfileUserType(currentUser) || userType === 'team';
   const isCoachProfileUser = isCoachUser && !isTeamUser;
   const isDisplayNameIncluded = userTypeConfig?.defaultUserFields?.displayName !== false;
   // ProfileSettingsForm decides if it's allowed to show the input field.
@@ -246,7 +247,7 @@ export const ProfileSettingsPageComponent = props => {
                 <FormattedMessage
                   id={
                     isTeamUser
-                      ? 'ProfileSettingsPage.pageLabelTeamDashboard'
+                      ? 'ProfileSettingsPage.pageLabelTeam'
                       : isCoachProfileUser
                       ? 'ProfileSettingsPage.pageLabel'
                       : 'ProfileSettingsPage.pageLabelCustomer'

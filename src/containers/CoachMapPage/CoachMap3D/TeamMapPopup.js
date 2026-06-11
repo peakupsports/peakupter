@@ -44,7 +44,7 @@ const TeamMapPopup = ({ team, onClose }) => {
     profileImage && profileImageVariants.length > 0 ? (
       <ResponsiveImage
         rootClassName={css.photoImage}
-        alt={displayName || 'Crew'}
+        alt={displayName || intl.formatMessage({ id: 'TeamMapPopup.crewBadge', defaultMessage: 'Team' })}
         image={profileImage}
         variants={profileImageVariants}
         sizes="52px"
@@ -54,7 +54,7 @@ const TeamMapPopup = ({ team, onClose }) => {
     );
 
   return (
-    <div className={css.root} role="dialog" aria-label={displayName || 'Crew'}>
+    <div className={css.root} role="dialog" aria-label={displayName || intl.formatMessage({ id: 'TeamMapPopup.crewBadge', defaultMessage: 'Team' })}>
       {typeof onClose === 'function' ? (
         <button
           type="button"

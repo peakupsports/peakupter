@@ -17,7 +17,7 @@ const sendAmbassadorRewardsUnlockEmail = payload => {
       '',
       'Congratulations — you unlocked Bronze Ambassador rewards on PeakUp.',
       '',
-      `Your referral commission is now active at ${payload.commissionPercent || '2%'} on referred coach net payouts.`,
+      `Your referral commission is now active at ${payload.commissionPercent || '2%'} on referred professional net payouts.`,
       '',
       'Visit your Referral Center to track referrals, progress, and rewards.',
       '',

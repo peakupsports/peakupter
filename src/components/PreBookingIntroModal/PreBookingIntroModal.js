@@ -168,13 +168,13 @@ const PreBookingIntroModal = ({
             <h2 className={css.title}>
               <FormattedMessage
                 id="PreBookingIntroModal.title"
-                defaultMessage="Tell your coach about your session"
+                defaultMessage="Tell your professional about your session"
               />
             </h2>
             <p className={css.subtitle}>
               <FormattedMessage
                 id="PreBookingIntroModal.subtitle"
-                defaultMessage="A few details help your coach prepare. You'll pick dates and times on the next step."
+                defaultMessage="A few details help your professional prepare. You'll pick dates and times on the next step."
               />
             </p>
 
@@ -327,7 +327,7 @@ const PreBookingIntroModal = ({
             <p className={css.footerNote}>
               <FormattedMessage
                 id="PreBookingIntroModal.footerNote"
-                defaultMessage="Most coaches reply within a few hours."
+                defaultMessage="Most professionals reply within a few hours."
               />
             </p>
 

@@ -32,6 +32,7 @@ import {
 import { sortByPeakUpTopLevelSportOrder } from '../../util/peakupSportTaxonomy';
 import { getCoachCoordinates } from '../../util/profileCoachSticker';
 import { getTeamCoordinates } from '../../util/peakupTeam';
+import { getSportDirectoryHeroTitleId } from '../../util/sportProfessionalTitles';
 import { coachPreferredMeetingPointsList } from '../../util/peakupMeetingPoint';
 // TEMP DEMO COACHES FOR MARKETING REEL – REMOVE BEFORE PRODUCTION
 // Single source of truth in `./demoCoaches.js`. To remove, delete this
@@ -1309,14 +1310,11 @@ const CoachMapPage = props => {
     </div>
   );
 
-  const titleNode = headlineSportPhrase ? (
-    <FormattedMessage
-      id="CoachDirectory.heroTitleWithSport"
-      values={{ sport: headlineSportPhrase }}
-    />
-  ) : (
-    <FormattedMessage id="CoachMapPage.title" />
-  );
+  const heroTitleId = selectedSport.trim()
+    ? getSportDirectoryHeroTitleId(selectedSport)
+    : 'CoachMapPage.title';
+
+  const titleNode = <FormattedMessage id={heroTitleId} />;
 
   const subtitleNode = hasGeoProximity ? (
     <FormattedMessage id="CoachDirectory.heroSubtitleNearYou" />

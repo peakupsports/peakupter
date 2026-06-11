@@ -20,7 +20,7 @@ const buildCoachCancellationNotificationEmailContent = ({
   const text = isEvent
     ? `${greeting}
 
-Unfortunately, your coach had to cancel the upcoming event.
+Unfortunately, your professional had to cancel the upcoming event.
 
 We understand this can be frustrating and sincerely apologize for the inconvenience.
 
@@ -32,13 +32,13 @@ Thank you for your understanding,
 PeakUp Sports Support`
     : `${greeting}
 
-Unfortunately, your coach had to cancel the upcoming session due to a scheduling conflict.
+Unfortunately, your professional had to cancel the upcoming session due to a scheduling conflict.
 
 We understand this can be frustrating and sincerely apologize for the inconvenience.
 
 If your booking was already paid, the refund process has already been initiated automatically.
 
-You can reschedule or discover other certified coaches anytime on PeakUp Sports.
+You can reschedule or discover other certified professionals anytime on PeakUp Sports.
 
 Thank you for your understanding,
 PeakUp Sports Support`;

@@ -266,7 +266,42 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* 5. Why PeakUp */}
+        {/* 5. Trust center — certified vs verified */}
+        <section className={css.section} aria-labelledby="about-trust-center-heading">
+          <div className={css.sectionRail}>
+            <div className={css.trustCenterIntro}>
+              <p className={css.sectionLabel}>
+                <FormattedMessage id="AboutPage.trustCenterLabel" />
+              </p>
+              <h2 id="about-trust-center-heading" className={css.sectionTitle}>
+                <FormattedMessage id="AboutPage.trustCenterTitle" />
+              </h2>
+              <p className={css.trustCenterLead}>
+                <FormattedMessage id="AboutPage.trustCenterLead" />
+              </p>
+            </div>
+            <div className={css.trustCenterGrid}>
+              <article className={css.trustCenterCard}>
+                <h3 className={css.trustCenterCardTitle}>
+                  <FormattedMessage id="AboutPage.trustCertifiedTitle" />
+                </h3>
+                <p className={css.trustCenterCardBody}>
+                  <FormattedMessage id="AboutPage.trustCertifiedBody" />
+                </p>
+              </article>
+              <article className={css.trustCenterCard}>
+                <h3 className={css.trustCenterCardTitle}>
+                  <FormattedMessage id="AboutPage.trustVerifiedTitle" />
+                </h3>
+                <p className={css.trustCenterCardBody}>
+                  <FormattedMessage id="AboutPage.trustVerifiedBody" />
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        {/* 6. Why PeakUp */}
         <section className={css.section} aria-labelledby="about-why-heading">
           <div className={css.sectionRail}>
             <div className={classNames(css.splitLayout, css.whyLayout)}>
@@ -301,7 +336,7 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* 6. Wellness / travel */}
+        {/* 7. Wellness / travel */}
         <section className={css.section} aria-labelledby="about-wellness-heading">
           <div className={css.sectionRail}>
             <div className={classNames(css.splitLayout, css.wellnessLayout)}>

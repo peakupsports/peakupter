@@ -1529,8 +1529,18 @@
   :global(main)
   > :global(section):last-of-type
   :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+  --hiwCtaCardPadX: 28px;
+  --hiwCtaCardPadY: 26px;
+  --hiwCtaCardPadBottom: 36px;
+  --hiwCtaCardTextMax: 20rem;
+  --hiwCtaCardTitleTextGap: 12px;
+  --hiwCtaCardKickerTitleGap: 10px;
+  --hiwCtaCardTopFootGap: 20px;
+
   position: relative;
-  min-height: 276px;
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
   padding: 0;
   overflow: hidden;
   border-radius: 0;
@@ -1544,10 +1554,23 @@
     :global(main)
     > :global(section):last-of-type
     :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
-    min-height: 322px;
+    min-height: 336px;
+    --hiwCtaCardPadBottom: 40px;
   }
 }
 
+@media (max-width: 767px) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):last-of-type
+    [class*='SectionBuilder_blockContainer']
+    > *:not(:first-child)
+    :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+}
+
+/* Twin editorial cards — identical left-weighted scrim on both panels */
 .howItWorksPremium
   :global(main)
   > :global(section):last-of-type
@@ -1555,16 +1578,26 @@
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
   background:
-    radial-gradient(68% 48% at 50% 18%, rgba(21, 155, 255, 0.12) 0%, transparent 56%),
     linear-gradient(
       180deg,
-      rgba(8, 13, 23, 0.08) 0%,
-      rgba(8, 13, 23, 0.26) 38%,
-      rgba(6, 10, 18, 0.84) 100%
-    );
+      rgba(6, 10, 16, 0.64) 0%,
+      rgba(6, 10, 16, 0.3) 34%,
+      rgba(6, 10, 16, 0.2) 52%,
+      rgba(6, 10, 16, 0.54) 72%,
+      rgba(4, 8, 14, 0.96) 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(4, 8, 14, 0.96) 0%,
+      rgba(6, 10, 16, 0.74) 34%,
+      rgba(6, 10, 16, 0.34) 58%,
+      rgba(6, 10, 16, 0) 78%
+    ),
+    radial-gradient(120% 82% at 18% 12%, rgba(21, 155, 255, 0.06) 0%, transparent 52%),
+    linear-gradient(180deg, rgba(4, 8, 14, 0.12) 0%, rgba(4, 8, 14, 0.12) 100%);
 }
 
 .howItWorksPremium
@@ -1583,85 +1616,11 @@
   :global(main)
   > :global(section):last-of-type
   [class*='SectionBuilder_blockContainer']
-  > *:first-child
-  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])::before {
-  background:
-    radial-gradient(74% 56% at 28% 18%, rgba(21, 155, 255, 0.1) 0%, transparent 58%),
-    radial-gradient(38% 34% at 74% 28%, rgba(8, 12, 20, 0.26) 0%, rgba(8, 12, 20, 0.14) 52%, rgba(8, 12, 20, 0) 100%),
-    linear-gradient(90deg, rgba(8, 13, 23, 0.02) 0%, rgba(8, 13, 23, 0.04) 36%, rgba(8, 13, 23, 0.16) 72%, rgba(8, 13, 23, 0.3) 100%),
-    linear-gradient(
-      180deg,
-      rgba(8, 13, 23, 0.04) 0%,
-      rgba(8, 13, 23, 0.2) 40%,
-      rgba(6, 10, 18, 0.82) 100%
-    );
-}
-
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='SectionBuilder_blockContainer']
-  > *:last-child
-  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])::before {
-  background:
-    radial-gradient(74% 56% at 72% 18%, rgba(33, 230, 193, 0.085) 0%, transparent 58%),
-    linear-gradient(90deg, rgba(8, 13, 23, 0.3) 0%, rgba(8, 13, 23, 0.16) 26%, rgba(8, 13, 23, 0.04) 60%, rgba(8, 13, 23, 0.02) 100%),
-    linear-gradient(
-      180deg,
-      rgba(8, 13, 23, 0.04) 0%,
-      rgba(8, 13, 23, 0.2) 40%,
-      rgba(6, 10, 18, 0.82) 100%
-    );
-}
-
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='SectionBuilder_blockContainer']
-  > *:first-child
-  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])::after {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 12%),
-    linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 97%, rgba(24, 200, 255, 0.06) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    inset -1px 0 0 rgba(24, 200, 255, 0.05);
-}
-
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='SectionBuilder_blockContainer']
-  > *:last-child
-  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block'])::after {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 12%),
-    linear-gradient(90deg, rgba(33, 230, 193, 0.06) 0%, rgba(255, 255, 255, 0) 3%, rgba(255, 255, 255, 0) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    inset 1px 0 0 rgba(33, 230, 193, 0.05);
-}
-
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='SectionBuilder_blockContainer']
-  > *:first-child:hover
+  > *:hover
   :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
   box-shadow:
-    inset 0 0 0 1px rgba(24, 200, 255, 0.08),
-    0 0 16px rgba(24, 200, 255, 0.04);
-}
-
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='SectionBuilder_blockContainer']
-  > *:last-child:hover
-  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
-  box-shadow:
-    inset 0 0 0 1px rgba(33, 230, 193, 0.08),
-    0 0 16px rgba(33, 230, 193, 0.04);
+    inset 0 0 0 1px rgba(24, 200, 255, 0.06),
+    0 0 16px rgba(24, 200, 255, 0.03);
 }
 
 .howItWorksPremium
@@ -1670,6 +1629,7 @@
   [class*='BlockDefault_media'] {
   position: absolute;
   inset: 0;
+  z-index: 0;
   margin: 0;
   width: 100%;
   height: 100%;
@@ -1683,36 +1643,76 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 30%;
+  object-position: 78% 42%;
+  transform: scale(1.02);
+  transition: transform 420ms ease;
 }
 
 .howItWorksPremium
   :global(main)
   > :global(section):last-of-type
+  :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']):hover
+  [class*='BlockDefault_media']
+  :global(img) {
+  transform: scale(1.05);
+}
+
+/* Editorial stack: title → description → CTA (anchored bottom). Same rules on both cards. */
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
   [class*='BlockDefault_text'] {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   z-index: 2;
   isolation: isolate;
-  margin-top: 0;
-  padding: 28px 24px;
-  display: grid;
-  grid-template-rows: auto minmax(4.9rem, auto) auto;
-  justify-items: start;
-  align-content: start;
-  align-items: start;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: var(--hiwCtaCardPadY) var(--hiwCtaCardPadX) var(--hiwCtaCardPadBottom);
+  box-sizing: border-box;
   text-align: left;
-  row-gap: 18px;
-  column-gap: 0;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:first-child
+  [class*='BlockDefault_text']::before {
+  content: var(--howItWorksCtaCustomersLabel, 'Customers');
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='SectionBuilder_blockContainer']
+  > *:last-child
+  [class*='BlockDefault_text']::before {
+  content: var(--howItWorksCtaProfessionalsLabel, 'Professionals');
 }
 
 .howItWorksPremium
   :global(main)
   > :global(section):last-of-type
   [class*='BlockDefault_text']::before {
-  content: none;
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: var(--hiwCtaCardTextMax);
+  margin: 0 0 var(--hiwCtaCardKickerTitleGap);
+  color: rgba(157, 255, 46, 0.88);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
 }
 
 .howItWorksPremium
@@ -1722,88 +1722,6 @@
   > * {
   position: relative;
   z-index: 1;
-}
-
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='BlockDefault_text']
-  > :first-child {
-  grid-row: 1;
-  width: 100%;
-  align-self: start;
-  justify-self: start;
-}
-
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='BlockDefault_text']
-  > :nth-child(2) {
-  grid-row: 2;
-  width: 100%;
-  min-height: 4.9rem;
-  align-self: start;
-  justify-self: start;
-}
-
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='BlockDefault_text']
-  > [class*='SectionBuilder_ctaButton'] {
-  grid-row: 3;
-  justify-self: start;
-}
-
-@media (--viewportMedium) {
-  .howItWorksPremium
-    :global(main)
-    > :global(section):last-of-type
-    [class*='BlockDefault_text'] {
-    top: 34px;
-    bottom: auto;
-    padding: 30px 24px;
-    row-gap: 20px;
-  }
-
-  .howItWorksPremium
-    :global(main)
-    > :global(section):last-of-type
-    [class*='SectionBuilder_blockContainer'][class*='SectionColumns_twoColumns']
-    > *:first-child
-    [class*='BlockDefault_text'] {
-    left: auto;
-    right: 6%;
-    width: min(38%, 356px);
-    max-width: 356px;
-    padding-left: 18px;
-    padding-right: 34px;
-    align-items: flex-start;
-  }
-
-  .howItWorksPremium
-    :global(main)
-    > :global(section):last-of-type
-    [class*='SectionBuilder_blockContainer'][class*='SectionColumns_twoColumns']
-    > *:last-child
-    [class*='BlockDefault_text'] {
-    left: 0;
-    right: auto;
-    width: min(38%, 356px);
-    max-width: 356px;
-    padding-left: 34px;
-    padding-right: 18px;
-    align-items: flex-start;
-  }
-
-  .howItWorksPremium
-    :global(main)
-    > :global(section):last-of-type
-    [class*='BlockDefault_text']
-    :is(h1, h2, h3, h4, h5, h6) {
-    white-space: nowrap;
-  }
 }
 
 .howItWorksPremium
@@ -1820,6 +1738,7 @@
   [class*='BlockDefault_text']
   > :not([class*='SectionBuilder_ctaButton']) {
   width: 100%;
+  max-width: var(--hiwCtaCardTextMax);
   margin-left: 0;
   margin-right: 0;
 }
@@ -1830,13 +1749,22 @@
   [class*='BlockDefault_text']
   :is(h1, h2, h3, h4, h5, h6) {
   color: #ffffff;
-  font-size: clamp(1.46rem, 1.34rem + 0.28vw, 1.66rem);
+  font-size: clamp(1.5rem, 1.28rem + 0.42vw, 2rem);
   font-weight: 600;
-  line-height: 1.14;
-  letter-spacing: 0.01em;
-  max-width: none;
-  text-wrap: pretty;
-  text-shadow: 0 14px 34px rgba(0, 0, 0, 0.36);
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+  white-space: normal;
+  text-shadow: 0 12px 32px rgba(0, 0, 0, 0.36);
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text']
+  > :nth-child(2) {
+  margin-top: var(--hiwCtaCardTitleTextGap);
+  margin-bottom: var(--hiwCtaCardTopFootGap);
 }
 
 .howItWorksPremium
@@ -1844,12 +1772,16 @@
   > :global(section):last-of-type
   [class*='BlockDefault_text']
   :is(p, li, span) {
-  color: rgba(245, 248, 252, 0.88);
-  font-size: clamp(0.96rem, 0.94rem + 0.1vw, 1.02rem);
-  line-height: 1.56;
+  color: rgba(244, 246, 250, 0.86);
+  font-size: clamp(0.94rem, 0.92rem + 0.08vw, 1rem);
+  line-height: 1.55;
   text-wrap: pretty;
   max-width: 30ch;
-  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.26);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
 
 .howItWorksPremium
@@ -1858,13 +1790,18 @@
   [class*='BlockDefault_text']
   [class*='SectionBuilder_ctaButton'] {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  height: 48px;
-  width: 188px;
-  max-width: 100%;
-  padding: 0 28px;
-  margin-top: 0;
+  width: auto;
+  min-width: 0;
+  max-width: max-content;
+  box-sizing: border-box;
+  min-height: 44px;
+  height: 44px;
+  padding: 0 20px;
+  margin-top: auto;
+  margin-bottom: 0;
   align-self: flex-start;
   border: none;
   border-radius: 999px;
@@ -1874,8 +1811,11 @@
   font-weight: 800;
   letter-spacing: 0.01em;
   line-height: 1;
+  text-align: center;
+  white-space: nowrap;
   text-decoration: none;
   text-shadow: none;
+  -webkit-font-smoothing: antialiased;
   backdrop-filter: blur(10px);
   box-shadow:
     0 12px 28px rgba(0, 0, 0, 0.22),
@@ -1890,57 +1830,26 @@
 .howItWorksPremium
   :global(main)
   > :global(section):last-of-type
-  [class*='SectionBuilder_blockContainer']
-  > *:first-child
-  [class*='SectionBuilder_ctaButton'] {
-  background-image: linear-gradient(135deg, #18c8ff 0%, #21e6c1 45%, #b7ff3f 100%);
-  box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.22),
-    0 0 24px rgba(33, 230, 193, 0.08);
-}
-
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='SectionBuilder_blockContainer']
-  > *:last-child
-  [class*='SectionBuilder_ctaButton'] {
-  background-image: linear-gradient(135deg, #18c8ff 0%, #21e6c1 45%, #b7ff3f 100%);
-  box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.22),
-    0 0 24px rgba(33, 230, 193, 0.08);
-}
-
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='SectionBuilder_blockContainer']
-  > *:first-child
+  [class*='BlockDefault_text']
   [class*='SectionBuilder_ctaButton']:hover,
 .howItWorksPremium
   :global(main)
   > :global(section):last-of-type
-  [class*='SectionBuilder_blockContainer']
-  > *:first-child
+  [class*='BlockDefault_text']
   [class*='SectionBuilder_ctaButton']:focus-visible {
   transform: translateY(-1px);
   filter: brightness(1.03);
 }
 
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='SectionBuilder_blockContainer']
-  > *:last-child
-  [class*='SectionBuilder_ctaButton']:hover,
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='SectionBuilder_blockContainer']
-  > *:last-child
-  [class*='SectionBuilder_ctaButton']:focus-visible {
-  transform: translateY(-1px);
-  filter: brightness(1.03);
+@media (--viewportMedium) {
+  .howItWorksPremium
+    :global(main)
+    > :global(section):last-of-type
+    :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
+    --hiwCtaCardPadX: 32px;
+    --hiwCtaCardPadY: 28px;
+    --hiwCtaCardPadBottom: 40px;
+  }
 }
 
 /* Localized marketing copy: no mid-word hyphenation on headings, cards, or CTAs. */

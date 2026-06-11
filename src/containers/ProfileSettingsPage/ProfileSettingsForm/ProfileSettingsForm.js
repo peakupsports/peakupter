@@ -36,6 +36,8 @@ import FieldPreferredMeetingPoints from './FieldPreferredMeetingPoints';
 import ViewProfileLink from '../ViewProfileLink';
 import TeamCoachesSection from './TeamCoachesSection';
 import TeamInviteBanner from './TeamInviteBanner';
+import TeamSectionHeader from './TeamSectionHeader';
+import TeamSportsOfferedSummary from './TeamSportsOfferedSummary';
 
 /* userFieldProps use namespaced keys (e.g. pub_sports); raw keys alone never match */
 const PEAK_UP_PROFILE_FIELD_KEYS = new Set(
@@ -320,9 +322,16 @@ class ProfileSettingsFormComponent extends Component {
             values,
             userFields,
             userTypeConfig,
-            isCoachUser = true,
-            isTeamUser = false,
           } = fieldRenderProps;
+
+          const isTeamUser = Boolean(
+            this.props.isTeamUser ??
+              fieldRenderProps.isTeamUser ??
+              userTypeConfig?.userType === 'team'
+          );
+          const isCoachUser = Boolean(
+            this.props.isCoachUser ?? fieldRenderProps.isCoachUser ?? false
+          );
 
           const isCoachProfileUser = isCoachUser && !isTeamUser;
           const user = ensureCurrentUser(currentUser);
@@ -419,10 +428,22 @@ class ProfileSettingsFormComponent extends Component {
             ) : (
               <div className={css.avatarPlaceholder}>
                 <div className={css.avatarPlaceholderText}>
-                  <FormattedMessage id="ProfileSettingsForm.addYourProfilePicture" />
+                  <FormattedMessage
+                    id={
+                      isTeamUser
+                        ? 'ProfileSettingsForm.teamHeroImageAdd'
+                        : 'ProfileSettingsForm.addYourProfilePicture'
+                    }
+                  />
                 </div>
                 <div className={css.avatarPlaceholderTextMobile}>
-                  <FormattedMessage id="ProfileSettingsForm.addYourProfilePictureMobile" />
+                  <FormattedMessage
+                    id={
+                      isTeamUser
+                        ? 'ProfileSettingsForm.teamHeroImageAddMobile'
+                        : 'ProfileSettingsForm.addYourProfilePictureMobile'
+                    }
+                  />
                 </div>
               </div>
             );
@@ -433,7 +454,9 @@ class ProfileSettingsFormComponent extends Component {
             </div>
           ) : null;
 
-          const classes = classNames(rootClassName || css.root, className, css.peakUpForm);
+          const classes = classNames(rootClassName || css.root, className, css.peakUpForm, {
+            [css.teamBuilderForm]: isTeamUser,
+          });
           const submitInProgress = updateInProgress;
           const submittedOnce = Object.keys(this.submittedValues).length > 0;
           const pristineSinceLastSubmit = submittedOnce && isEqual(values, this.submittedValues);
@@ -516,6 +539,10 @@ class ProfileSettingsFormComponent extends Component {
           const teamDetailsFields = TEAM_DETAILS_FIELD_ORDER.map(key =>
             teamFieldProps.find(p => p.key === key)
           ).filter(Boolean);
+          const teamTaglineFieldProps = teamDetailsFields.find(p => p.key === PUB_TEAM_TAGLINE_KEY);
+          const teamLinkFieldProps = teamDetailsFields.filter(p =>
+            [PUB_TEAM_WEBSITE_KEY, PUB_TEAM_INSTAGRAM_KEY].includes(p.key)
+          );
 
           const experienceFieldForHero = isCoachProfileUser
             ? otherUserFieldProps.find(p => p.key === PUB_EXPERIENCE_KEY)
@@ -556,16 +583,179 @@ class ProfileSettingsFormComponent extends Component {
               }}
             >
               {isCoachProfileUser ? <TeamInviteBanner /> : null}
-              <div className={classNames(css.sectionContainer, css.profileHeroSection)}>
-                <H4 as="h2" className={css.sectionTitle}>
-                  <FormattedMessage
-                    id={
-                      isTeamUser
-                        ? 'ProfileSettingsForm.teamProfilePicture'
-                        : 'ProfileSettingsForm.yourProfilePicture'
-                    }
-                  />
-                </H4>
+              {isTeamUser ? (
+                <div className={css.teamBuilderSections}>
+                  <div
+                    className={classNames(
+                      css.sectionContainer,
+                      css.teamWorkspaceSection,
+                      css.teamProfileSection
+                    )}
+                  >
+                    <TeamSectionHeader
+                      sectionNumber={1}
+                      titleId="ProfileSettingsForm.teamProfileSectionTitle"
+                      infoId="ProfileSettingsForm.teamProfileSectionInfo"
+                    />
+                    <div className={css.teamProfileNameBlock}>
+                      <DisplayNameMaybe
+                        embeddedInProfileHero
+                        userTypeConfig={userTypeConfig}
+                        intl={intl}
+                        isTeamUser={isTeamUser}
+                      />
+                    </div>
+                    <div className={css.teamProfileHeroBlock}>
+                      <Field
+                        accept={ACCEPT_IMAGES}
+                        id="profileImage"
+                        name="profileImage"
+                        label={chooseAvatarLabel}
+                        type="file"
+                        form={null}
+                        uploadImageError={uploadImageError}
+                        disabled={uploadInProgress}
+                      >
+                        {fieldProps => {
+                          const { accept, id, input, label, disabled, uploadImageError } =
+                            fieldProps;
+                          const { name, type } = input;
+                          const onChange = e => {
+                            const file = e.target.files[0];
+                            form.change(`profileImage`, file);
+                            form.blur(`profileImage`);
+                            if (file != null) {
+                              const tempId = `${file.name}_${Date.now()}`;
+                              onImageUpload({ id: tempId, file });
+                            }
+                          };
+
+                          let error = null;
+
+                          if (isUploadImageOverLimitError(uploadImageError)) {
+                            error = (
+                              <div className={css.error}>
+                                <FormattedMessage id="ProfileSettingsForm.imageUploadFailedFileTooLarge" />
+                              </div>
+                            );
+                          } else if (uploadImageError) {
+                            error = (
+                              <div className={css.error}>
+                                <FormattedMessage id="ProfileSettingsForm.imageUploadFailed" />
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div className={css.teamProfileHeroUpload}>
+                              <p className={css.teamHeroImageLabel}>
+                                <FormattedMessage id="ProfileSettingsForm.teamHeroImageLabel" />
+                              </p>
+                              <label className={css.teamProfileHeroLabel} htmlFor={id}>
+                                {label}
+                              </label>
+                              <input
+                                accept={accept}
+                                id={id}
+                                name={name}
+                                className={css.uploadAvatarInput}
+                                disabled={disabled}
+                                onChange={onChange}
+                                type={type}
+                              />
+                              {error}
+                              <p className={css.teamProfileHeroHelp}>
+                                <FormattedMessage id="ProfileSettingsForm.teamProfilePictureHelp" />
+                              </p>
+                            </div>
+                          );
+                        }}
+                      </Field>
+                    </div>
+                    <div className={css.teamProfileMetaGrid}>
+                      <div className={css.teamProfileMetaField}>
+                        <FieldTeamSinceYear formId={formId} profileLayout />
+                      </div>
+                      <div className={css.teamProfileMetaField}>
+                        <FieldTeamPrimarySport formId={formId} profileLayout />
+                      </div>
+                      <div className={css.teamProfileMetaField}>
+                        <FieldTeamSecondarySport formId={formId} profileLayout />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={classNames(css.sectionContainer, css.teamWorkspaceSection)}>
+                    <TeamSectionHeader
+                      sectionNumber={2}
+                      titleId="ProfileSettingsForm.teamAboutSectionTitle"
+                      infoId="ProfileSettingsForm.teamAboutSectionInfo"
+                    />
+                    {teamTaglineFieldProps ? (
+                      <CustomExtendedDataField
+                        key={teamTaglineFieldProps.key}
+                        {...teamTaglineFieldProps}
+                        formId={formId}
+                      />
+                    ) : null}
+                    <FieldTextInput
+                      type="textarea"
+                      id="bio"
+                      name="bio"
+                      label={bioLabel}
+                      placeholder={bioPlaceholder}
+                    />
+                    {teamLinkFieldProps.length > 0 ? (
+                      <div className={css.teamLinksGroup}>
+                        <p className={css.teamLinksSubheading}>
+                          <FormattedMessage id="ProfileSettingsForm.teamLinksSubheading" />
+                        </p>
+                        {teamLinkFieldProps.map(({ key, ...fieldProps }) => (
+                          <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className={classNames(css.sectionContainer, css.teamWorkspaceSection)}>
+                    <TeamSectionHeader
+                      sectionNumber={3}
+                      titleId="ProfileSettingsForm.teamLocationSectionTitle"
+                      infoId="ProfileSettingsForm.teamLocationSectionInfo"
+                    />
+                    <FieldTeamMapLocation formId={formId} />
+                  </div>
+
+                  <div className={classNames(css.sectionContainer, css.teamWorkspaceSection)}>
+                    <TeamSectionHeader
+                      sectionNumber={4}
+                      titleId="ProfileSettingsForm.teamCoachesSectionTitle"
+                      infoId="ProfileSettingsForm.teamCoachesSectionInfo"
+                    />
+                    <TeamCoachesSection embedded />
+                  </div>
+
+                  <div
+                    className={classNames(
+                      css.sectionContainer,
+                      css.teamWorkspaceSection,
+                      css.teamSportsSection,
+                      css.lastSection
+                    )}
+                  >
+                    <TeamSectionHeader
+                      sectionNumber={5}
+                      titleId="ProfileSettingsForm.teamSportsOfferedSectionTitle"
+                      infoId="ProfileSettingsForm.teamSportsOfferedSectionInfo"
+                    />
+                    <TeamSportsOfferedSummary />
+                  </div>
+                </div>
+              ) : (
+                <div className={classNames(css.sectionContainer, css.profileHeroSection)}>
+                  <H4 as="h2" className={css.sectionTitle}>
+                    <FormattedMessage id="ProfileSettingsForm.yourProfilePicture" />
+                  </H4>
                 <div className={css.profilePictureLayout}>
                   <div className={css.profilePictureColLeft}>
                     <Field
@@ -627,70 +817,49 @@ class ProfileSettingsFormComponent extends Component {
                       }}
                     </Field>
                     <div className={css.profilePictureColHelp}>
-                      {isTeamUser ? (
-                        <p className={css.extraInfo}>
-                          <FormattedMessage id="ProfileSettingsForm.teamProfilePictureHelp" />
-                        </p>
-                      ) : (
-                        <>
-                          <div className={css.tip}>
-                            <FormattedMessage id="ProfileSettingsForm.tip" />
-                          </div>
-                          <div className={css.fileInfo}>
-                            <FormattedMessage id="ProfileSettingsForm.fileInfo" />
-                          </div>
-                        </>
-                      )}
+                      <>
+                        <div className={css.tip}>
+                          <FormattedMessage id="ProfileSettingsForm.tip" />
+                        </div>
+                        <div className={css.fileInfo}>
+                          <FormattedMessage id="ProfileSettingsForm.fileInfo" />
+                        </div>
+                      </>
                     </div>
                   </div>
                   <div className={css.profilePictureColRight}>
-                    {!isTeamUser ? (
-                      <div className={css.nameFieldsInHero}>
-                        <H4 as="h2" className={classNames(css.sectionTitle, css.subsectionTitle)}>
-                          <FormattedMessage id="ProfileSettingsForm.yourName" />
-                        </H4>
-                        <div className={css.nameContainer}>
-                          <FieldTextInput
-                            className={css.firstName}
-                            type="text"
-                            id="firstName"
-                            name="firstName"
-                            label={firstNameLabel}
-                            placeholder={firstNamePlaceholder}
-                            validate={firstNameRequired}
-                          />
-                          <FieldTextInput
-                            className={css.lastName}
-                            type="text"
-                            id="lastName"
-                            name="lastName"
-                            label={lastNameLabel}
-                            placeholder={lastNamePlaceholder}
-                            validate={lastNameRequired}
-                          />
-                        </div>
+                    <div className={css.nameFieldsInHero}>
+                      <H4 as="h2" className={classNames(css.sectionTitle, css.subsectionTitle)}>
+                        <FormattedMessage id="ProfileSettingsForm.yourName" />
+                      </H4>
+                      <div className={css.nameContainer}>
+                        <FieldTextInput
+                          className={css.firstName}
+                          type="text"
+                          id="firstName"
+                          name="firstName"
+                          label={firstNameLabel}
+                          placeholder={firstNamePlaceholder}
+                          validate={firstNameRequired}
+                        />
+                        <FieldTextInput
+                          className={css.lastName}
+                          type="text"
+                          id="lastName"
+                          name="lastName"
+                          label={lastNameLabel}
+                          placeholder={lastNamePlaceholder}
+                          validate={lastNameRequired}
+                        />
                       </div>
-                    ) : null}
+                    </div>
                     <DisplayNameMaybe
                       embeddedInProfileHero
                       userTypeConfig={userTypeConfig}
                       intl={intl}
-                      isTeamUser={isTeamUser}
+                      isTeamUser={false}
                     />
-                    {isTeamUser ? (
-                      <div className={css.profileHeroMetaRow}>
-                        <div className={css.teamSinceFieldCol}>
-                          <FieldTeamSinceYear formId={formId} />
-                        </div>
-                        <div className={css.teamIdentitySportFieldCol}>
-                          <FieldTeamPrimarySport formId={formId} />
-                        </div>
-                        <div className={css.teamIdentitySportFieldCol}>
-                          <FieldTeamSecondarySport formId={formId} />
-                        </div>
-                      </div>
-                    ) : null}
-                    {!isTeamUser && (countryHeroFieldProps || experienceHeroFieldProps) ? (
+                    {countryHeroFieldProps || experienceHeroFieldProps ? (
                       <div className={css.profileHeroMetaRow}>
                         {countryHeroFieldProps ? (
                           <div className={css.profileHeroMetaCol}>
@@ -715,43 +884,19 @@ class ProfileSettingsFormComponent extends Component {
                   </div>
                 </div>
               </div>
+              )}
 
-              {isTeamUser ? (
-                <div className={css.sectionContainer}>
-                  <H4 as="h2" className={css.sectionTitle}>
-                    <FormattedMessage id="ProfileSettingsForm.teamMapLocationHeading" />
-                  </H4>
-                  <p className={css.extraInfo}>
-                    <FormattedMessage id="ProfileSettingsForm.teamMapLocationInfo" />
-                  </p>
-                  <FieldTeamMapLocation formId={formId} />
-                </div>
-              ) : null}
-
-              {isTeamUser ? (
-                <div className={css.sectionContainer}>
-                  <TeamCoachesSection />
-                </div>
-              ) : null}
-
+              {!isTeamUser ? (
               <div
                 className={classNames(css.sectionContainer, {
                   [css.lastSection]:
                     !isCoachUser &&
-                    !isTeamUser &&
                     coachPeakSportsLanguages.length === 0 &&
-                    otherUserFieldPropsRest.length === 0 &&
-                    teamDetailsFields.length === 0,
+                    otherUserFieldPropsRest.length === 0,
                 })}
               >
                 <H4 as="h2" className={css.sectionTitle}>
-                  <FormattedMessage
-                    id={
-                      isTeamUser
-                        ? 'ProfileSettingsForm.teamBioHeading'
-                        : 'ProfileSettingsForm.bioHeading'
-                    }
-                  />
+                  <FormattedMessage id="ProfileSettingsForm.bioHeading" />
                 </H4>
                 <FieldTextInput
                   type="textarea"
@@ -763,9 +908,7 @@ class ProfileSettingsFormComponent extends Component {
                 <p className={css.extraInfo}>
                   <FormattedMessage
                     id={
-                      isTeamUser
-                        ? 'ProfileSettingsForm.teamBioInfo'
-                        : isCoachUser
+                      isCoachUser
                         ? 'ProfileSettingsForm.bioInfo'
                         : 'ProfileSettingsForm.bioInfoCustomer'
                     }
@@ -773,23 +916,8 @@ class ProfileSettingsFormComponent extends Component {
                   />
                 </p>
               </div>
-              {isTeamUser && teamDetailsFields.length > 0 ? (
-                <div
-                  className={classNames(css.sectionContainer, {
-                    [css.lastSection]: coachPeakSportsLanguages.length === 0,
-                  })}
-                >
-                  <H4 as="h2" className={css.sectionTitle}>
-                    <FormattedMessage id="ProfileSettingsForm.teamDetailsHeading" />
-                  </H4>
-                  <p className={css.extraInfo}>
-                    <FormattedMessage id="ProfileSettingsForm.teamDetailsInfo" />
-                  </p>
-                  {teamDetailsFields.map(({ key, ...fieldProps }) => (
-                    <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
-                  ))}
-                </div>
               ) : null}
+
               {otherUserFieldPropsRest.length > 0 ? (
                 <div className={css.sectionContainer}>
                   {otherUserFieldPropsRest.map(({ key, ...fieldProps }) => (
@@ -798,7 +926,7 @@ class ProfileSettingsFormComponent extends Component {
                 </div>
               ) : null}
 
-              {coachPeakSportsLanguages.length > 0 ? (
+              {coachPeakSportsLanguages.length > 0 && !isTeamUser ? (
                 <div
                   className={classNames(css.sectionContainer, css.coachSportsLangSection, {
                     [css.lastSection]: !isCoachProfileUser,
@@ -807,9 +935,7 @@ class ProfileSettingsFormComponent extends Component {
                   <H4 as="h2" className={css.sectionTitle}>
                     <FormattedMessage
                       id={
-                        isTeamUser
-                          ? 'ProfileSettingsForm.teamSportsHeading'
-                          : isCoachUser
+                        isCoachUser
                           ? 'ProfileSettingsForm.sportsAndLanguagesHeading'
                           : coachHasSportsAndLanguages
                           ? 'ProfileSettingsForm.clientSportsAndLanguagesHeading'
@@ -819,11 +945,6 @@ class ProfileSettingsFormComponent extends Component {
                       }
                     />
                   </H4>
-                  {isTeamUser ? (
-                    <p className={css.extraInfo}>
-                      <FormattedMessage id="ProfileSettingsForm.teamSportsInfo" />
-                    </p>
-                  ) : null}
                   <div
                     className={
                       coachHasSportsAndLanguages ? css.coachSportsLangPair : css.coachRowTwoCol

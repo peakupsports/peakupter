@@ -13,7 +13,7 @@ const capitalizeTier = tier =>
  * @returns {{ subject: string, text: string, html: string }}
  */
 const buildAmbassadorWelcomeEmailContent = payload => {
-  const coachName = payload.coachName || 'Coach';
+  const coachName = payload.coachName || 'there';
   const referralCode = payload.referralCode || '';
   const referralLink = payload.referralLink || '';
   const referralCenterLink = payload.referralCenterLink || '';
@@ -21,7 +21,7 @@ const buildAmbassadorWelcomeEmailContent = payload => {
   const rewardsUnlocked = Boolean(payload.rewardsUnlocked);
 
   const rewardsStatusCopy = rewardsUnlocked
-    ? 'Your Bronze ambassador rewards are active — you earn commission on referred coach payouts.'
+    ? 'Your Bronze ambassador rewards are active — you earn commission on referred professional payouts.'
     : 'Your Bronze rewards are locked until you complete the Bronze tier criteria in your Referral Center. You can still share your code and track referrals now.';
 
   const subject = 'Welcome to the PeakUp Ambassador Program';
@@ -38,11 +38,11 @@ const buildAmbassadorWelcomeEmailContent = payload => {
     rewardsStatusCopy,
     '',
     'How rewards work:',
-    'Client payment → Stripe fee → PeakUp platform fee → Coach payout → Ambassador %',
+    'Client payment → Stripe fee → PeakUp platform fee → Professional payout → Ambassador %',
     '',
     'Next steps:',
     `- Open your Referral Center: ${referralCenterLink}`,
-    '- Share your referral link with coaches you trust',
+    '- Share your referral link with professionals you trust',
     '- Track referrals, progress, and rewards as your network grows',
     '',
     'PeakUp Team',
@@ -59,7 +59,7 @@ const buildAmbassadorWelcomeEmailContent = payload => {
               <td style="padding:28px 28px 12px;">
                 <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#9dff4f;">PeakUp Ambassador Program</p>
                 <h1 style="margin:0 0 12px;font-size:28px;line-height:1.2;color:#ffffff;">Welcome, ${coachName}</h1>
-                <p style="margin:0;font-size:15px;line-height:1.6;color:#d8e0ea;">You're now an active PeakUp Ambassador. Share your code, grow your coach network, and unlock referral rewards.</p>
+                <p style="margin:0;font-size:15px;line-height:1.6;color:#d8e0ea;">You're now an active PeakUp Ambassador. Share your code, grow your professional network, and unlock referral rewards.</p>
               </td>
             </tr>
             <tr>
@@ -77,7 +77,7 @@ const buildAmbassadorWelcomeEmailContent = payload => {
             <tr>
               <td style="padding:0 28px 18px;">
                 <p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#d8e0ea;">${rewardsStatusCopy}</p>
-                <p style="margin:0;font-size:13px;line-height:1.6;color:#9ca8b8;">Client payment → Stripe fee → PeakUp platform fee → Coach payout → Ambassador %</p>
+                <p style="margin:0;font-size:13px;line-height:1.6;color:#9ca8b8;">Client payment → Stripe fee → PeakUp platform fee → Professional payout → Ambassador %</p>
               </td>
             </tr>
             <tr>

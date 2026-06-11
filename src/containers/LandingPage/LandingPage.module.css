@@ -651,6 +651,7 @@
   -webkit-hyphens: none;
   word-break: normal;
   overflow-wrap: normal;
+  text-wrap: balance;
 }
 
 .landingPremium
@@ -658,7 +659,26 @@
   [class*="SectionColumns_threeColumns"]
   > *
   [class*="BlockDefault_text"]
-  :is(p, li) {
+  p {
+  color: rgba(236, 242, 250, 0.68);
+  line-height: 1.62;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.landingPremium
+  :global(main)
+  [class*="SectionColumns_threeColumns"]
+  > *
+  [class*="BlockDefault_text"]
+  :is(li) {
   color: rgba(236, 242, 250, 0.68);
   line-height: 1.62;
   hyphens: none;

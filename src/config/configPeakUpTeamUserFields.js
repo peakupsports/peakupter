@@ -42,7 +42,7 @@ export { TEAM_SPORT_OPTIONS };
 export const peakUpTeamUserTypes = [
   {
     userType: 'team',
-    label: 'Team / Crew',
+    label: 'Team',
     roles: ['provider'],
   },
 ];
@@ -53,14 +53,14 @@ export const peakUpTeamUserFields = [
     scope: 'public',
     schemaType: 'text',
     showConfig: {
-      label: 'Crew line',
+      label: 'Team tagline',
       displayInProfile: true,
     },
     saveConfig: {
-      label: 'Crew line',
+      label: 'Team tagline',
       displayInSignUp: false,
       isRequired: false,
-      placeholderMessage: 'Short vibe line on your hero (e.g. Freeski crew · Laax)',
+      placeholderMessage: 'Short tagline on your hero (e.g. Freeski team · Laax)',
     },
     userTypeConfig: {
       limitToUserTypeIds: true,
@@ -72,14 +72,14 @@ export const peakUpTeamUserFields = [
     scope: 'public',
     schemaType: 'text',
     showConfig: {
-      label: 'About your crew',
+      label: 'About your team',
       displayInProfile: true,
     },
     saveConfig: {
-      label: 'About your crew',
+      label: 'About your team',
       displayInSignUp: false,
       isRequired: false,
-      placeholderMessage: 'Tell athletes what your academy, camp, or collective is about.',
+      placeholderMessage: 'Tell customers what your team is about.',
     },
     userTypeConfig: {
       limitToUserTypeIds: true,
@@ -157,7 +157,7 @@ export const peakUpTeamUserFields = [
       label: 'Website',
       displayInSignUp: false,
       isRequired: false,
-      placeholderMessage: 'https://yourcrew.com',
+      placeholderMessage: 'https://yourteam.com',
     },
     userTypeConfig: {
       limitToUserTypeIds: true,
@@ -176,7 +176,7 @@ export const peakUpTeamUserFields = [
       label: 'Instagram',
       displayInSignUp: false,
       isRequired: false,
-      placeholderMessage: '@yourcrew',
+      placeholderMessage: '@yourteam',
     },
     userTypeConfig: {
       limitToUserTypeIds: true,
@@ -188,7 +188,7 @@ export const peakUpTeamUserFields = [
     scope: 'public',
     schemaType: 'text',
     showConfig: {
-      label: 'Coaches on the crew',
+      label: 'Coaches on the team',
       displayInProfile: false,
     },
     saveConfig: {

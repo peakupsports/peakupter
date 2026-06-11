@@ -16,7 +16,7 @@ const sendAmbassadorRewardEarnedEmail = payload => {
       '',
       `Great news — ${payload.referredCoachName} completed a paid booking on PeakUp.`,
       '',
-      `Your ambassador reward: ${payload.rewardFormatted} (${payload.ambassadorPercent}% of coach net payout).`,
+      `Your ambassador reward: ${payload.rewardFormatted} (${payload.ambassadorPercent}% of professional net payout).`,
       '',
       'View your earnings and reward history in the Referral Center.',
       '',

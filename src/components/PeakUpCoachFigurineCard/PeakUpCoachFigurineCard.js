@@ -204,7 +204,7 @@ const PeakUpCoachFigurineCard = props => {
 
   const badgeModalHint = intl.formatMessage({
     id: 'PeakupCoachBadgesHierarchyModal.badgeButtonHint',
-    defaultMessage: 'Open PeakUp coach badge guide',
+    defaultMessage: 'Open PeakUp professional badge guide',
   });
   const badgeHierarchyModalId = `PeakupCoachBadgesHierarchy-card-${profileId || author?.id?.uuid || 'anon'}`;
 
@@ -400,7 +400,7 @@ const PeakUpCoachFigurineCard = props => {
               <span className={classNames(css.reviewMeta, css.reviewMetaMuted)}>
                 <FormattedMessage
                   id="PeakUpCoachFigurineCard.reviewMetaEmpty"
-                  defaultMessage="New coach"
+                  defaultMessage="New on PeakUp"
                 />
               </span>
             )}

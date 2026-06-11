@@ -69,7 +69,7 @@ const ContactCoachModal = props => {
               <p className={css.coachHeaderEyebrow}>
                 <FormattedMessage
                   id="ProfilePage.coachInquiryEyebrow"
-                  defaultMessage="Contact coach"
+                  defaultMessage="Get in touch"
                 />
               </p>
               <h3 className={css.coachHeaderName}>{coachDisplayName}</h3>

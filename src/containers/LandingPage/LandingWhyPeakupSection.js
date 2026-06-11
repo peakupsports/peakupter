@@ -22,7 +22,7 @@ const WHY_PEAKUP_CARD_MEDIA_SIZES = [
 const trustItems = [
   {
     id: 'LandingWhyPeakupSection.trustVerified',
-    defaultMessage: 'Verified Coaches',
+    defaultMessage: 'Certified & verified',
     icon: 'shield',
   },
   {
@@ -121,22 +121,22 @@ const GradientLineIcon = ({ icon, className }) => {
 const cardContent = [
   {
     titleId: 'LandingWhyPeakupSection.cardAthleteTitle',
-    titleDefault: 'Find your coach',
+    titleDefault: 'Find professionals',
     textId: 'LandingWhyPeakupSection.cardAthleteText',
-    textDefault: 'Choose your sport, location, and preferred time slot in just a few clicks.',
+    textDefault: 'Sport, location, and time — in a few clicks.',
     ctaId: 'LandingWhyPeakupSection.cardAthleteCta',
-    ctaDefault: 'Find your coach',
+    ctaDefault: 'Find professionals',
     toneClassName: css.cardAthlete,
     ctaClassName: css.cardCtaPrimary,
     icon: 'pin',
   },
   {
     titleId: 'LandingWhyPeakupSection.cardCoachTitle',
-    titleDefault: 'Grow with PeakUp',
+    titleDefault: 'Grow your business',
     textId: 'LandingWhyPeakupSection.cardCoachText',
-    textDefault: 'Build your visibility, grow your bookings, and stay fully independent.',
+    textDefault: 'More visibility. More bookings. Full independence.',
     ctaId: 'LandingWhyPeakupSection.cardCoachCta',
-    ctaDefault: 'Grow with PeakUp',
+    ctaDefault: 'Grow your business',
     toneClassName: css.cardCoach,
     ctaClassName: css.cardCtaSecondary,
     icon: 'star',
@@ -206,7 +206,7 @@ const LandingWhyPeakupSection = props => {
         <p className={css.subtitle}>
           <FormattedMessage
             id="LandingWhyPeakupSection.subtitle"
-            defaultMessage="One platform. Two journeys. Built for athletes and coaches."
+            defaultMessage="One platform. Two journeys. Built for customers and professionals."
           />
         </p>
 
@@ -243,40 +243,56 @@ const LandingWhyPeakupSection = props => {
                   options={fieldOptions}
                 />
               ) : null}
-              <div className={css.cardIconBadge} aria-hidden="true">
-                <GradientLineIcon icon={card.icon} className={css.cardIconSvg} />
-              </div>
               <div className={css.cardBackground} aria-hidden="true" />
               <div className={css.cardContent}>
-                <h3 className={css.cardTitle}>
-                  <FormattedMessage id={card.titleId} defaultMessage={card.titleDefault} />
-                </h3>
-                <p className={css.cardText}>
-                  <FormattedMessage id={card.textId} defaultMessage={card.textDefault} />
-                </p>
+                <div className={css.cardContentTop}>
+                  <div className={css.cardIconBadge} aria-hidden="true">
+                    <GradientLineIcon icon={card.icon} className={css.cardIconSvg} />
+                  </div>
+                  <h3 className={css.cardTitle}>
+                    <FormattedMessage id={card.titleId} defaultMessage={card.titleDefault} />
+                  </h3>
+                  <p className={css.cardText}>
+                    <FormattedMessage id={card.textId} defaultMessage={card.textDefault} />
+                  </p>
+                </div>
 
-                {card.titleId === 'LandingWhyPeakupSection.cardAthleteTitle' ? (
-                  <NamedLink
-                    name="CoachMapPage"
-                    className={classNames(defaultClasses.ctaButton, css.cardCta, card.ctaClassName)}
-                    to={{ search: coachMapLocateSearch }}
-                  >
-                    <FormattedMessage id={card.ctaId} defaultMessage={card.ctaDefault} />
-                  </NamedLink>
-                ) : card.titleId === 'LandingWhyPeakupSection.cardCoachTitle' ? (
-                  <NamedLink
-                    name="InstructorsPage"
-                    className={classNames(defaultClasses.ctaButton, css.cardCta, card.ctaClassName)}
-                  >
-                    <FormattedMessage id={card.ctaId} defaultMessage={card.ctaDefault} />
-                  </NamedLink>
-                ) : rightCardCtaData ? (
-                  <Field
-                    data={rightCardCtaData}
-                    className={classNames(defaultClasses.ctaButton, css.cardCta, card.ctaClassName)}
-                    options={fieldOptions}
-                  />
-                ) : null}
+                <div className={css.cardContentFoot}>
+                  {card.titleId === 'LandingWhyPeakupSection.cardAthleteTitle' ? (
+                    <NamedLink
+                      name="CoachMapPage"
+                      className={classNames(
+                        defaultClasses.ctaButton,
+                        css.cardCta,
+                        card.ctaClassName
+                      )}
+                      to={{ search: coachMapLocateSearch }}
+                    >
+                      <FormattedMessage id={card.ctaId} defaultMessage={card.ctaDefault} />
+                    </NamedLink>
+                  ) : card.titleId === 'LandingWhyPeakupSection.cardCoachTitle' ? (
+                    <NamedLink
+                      name="InstructorsPage"
+                      className={classNames(
+                        defaultClasses.ctaButton,
+                        css.cardCta,
+                        card.ctaClassName
+                      )}
+                    >
+                      <FormattedMessage id={card.ctaId} defaultMessage={card.ctaDefault} />
+                    </NamedLink>
+                  ) : rightCardCtaData ? (
+                    <Field
+                      data={rightCardCtaData}
+                      className={classNames(
+                        defaultClasses.ctaButton,
+                        css.cardCta,
+                        card.ctaClassName
+                      )}
+                      options={fieldOptions}
+                    />
+                  ) : null}
+                </div>
               </div>
             </article>
           );

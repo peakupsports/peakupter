@@ -28,7 +28,7 @@ export const buildTeamSinceYearOptions = () => {
  * @param {string} [props.formId]
  */
 const FieldTeamSinceYear = props => {
-  const { formId } = props;
+  const { formId, profileLayout = false } = props;
   const intl = useIntl();
   const id = formId ? `${formId}.pub_teamFoundedYear` : 'pub_teamFoundedYear';
   const years = useMemo(() => buildTeamSinceYearOptions(), []);
@@ -37,8 +37,8 @@ const FieldTeamSinceYear = props => {
     <FieldSelect
       id={id}
       name="pub_teamFoundedYear"
-      rootClassName={css.root}
-      selectClassName={css.selectCompact}
+      rootClassName={profileLayout ? css.rootWide : css.root}
+      selectClassName={profileLayout ? css.selectProfile : css.selectCompact}
       labelClassName={css.label}
       label={intl.formatMessage({ id: 'ProfileSettingsForm.teamSinceYearLabel' })}
     >

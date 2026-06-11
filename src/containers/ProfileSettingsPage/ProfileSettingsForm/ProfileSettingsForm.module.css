@@ -177,8 +177,8 @@
   }
 
   .teamIdentitySportFieldCol {
-    width: 136px;
-    max-width: 136px;
+    width: 156px;
+    max-width: 156px;
   }
 }
 
@@ -742,4 +742,319 @@
 
 .peakUpForm :global([class*='FieldCoachMapLocation_helpText']) {
   color: rgba(195, 210, 226, 0.72) !important;
+}
+
+/* ─── Team workspace sections (Team Space profile builder) ─── */
+
+.teamBuilderForm {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.teamBuilderSections {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+
+  @media (--viewportMedium) {
+    gap: 36px;
+  }
+}
+
+.peakUpForm.teamBuilderForm .teamWorkspaceSection {
+  position: relative;
+  padding: 28px 20px 32px;
+  margin-bottom: 0;
+  border-radius: 20px;
+  border: 1px solid rgba(23, 217, 255, 0.2);
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(23, 217, 255, 0.08) 0%, transparent 52%),
+    linear-gradient(180deg, rgba(17, 28, 46, 0.78) 0%, rgba(11, 18, 32, 0.88) 100%);
+  box-shadow:
+    0 16px 44px rgba(0, 0, 0, 0.32),
+    0 0 32px rgba(23, 217, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: visible;
+
+  @media (--viewportMedium) {
+    padding: 36px 36px 40px;
+  }
+}
+
+.peakUpForm.teamBuilderForm .teamWorkspaceSection::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  bottom: 28px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, #17d9ff 0%, #39f3d1 55%, #9dff4f 100%);
+  box-shadow: 0 0 16px rgba(23, 217, 255, 0.35);
+  pointer-events: none;
+
+  @media (--viewportMedium) {
+    top: 36px;
+    bottom: 36px;
+  }
+}
+
+.peakUpForm.teamBuilderForm .teamProfileSection {
+  border-color: rgba(23, 217, 255, 0.28);
+  box-shadow:
+    0 20px 52px rgba(0, 0, 0, 0.36),
+    0 0 40px rgba(23, 217, 255, 0.1),
+    0 0 56px rgba(157, 255, 79, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.peakUpForm.teamBuilderForm .teamSportsSection {
+  border-left-color: rgba(157, 255, 79, 0.35);
+}
+
+.teamSectionHeader {
+  margin-bottom: 28px;
+  padding-left: 12px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 32px;
+    padding-left: 16px;
+  }
+}
+
+.teamSectionEyebrow {
+  margin: 0 0 10px;
+}
+
+.teamSectionIndex {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(120, 225, 255, 0.95);
+  background: rgba(23, 217, 255, 0.1);
+  border: 1px solid rgba(23, 217, 255, 0.28);
+  box-shadow: 0 0 14px rgba(23, 217, 255, 0.12);
+}
+
+.peakUpForm.teamBuilderForm .teamSectionTitle {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  background-image: linear-gradient(90deg, #17d9ff 0%, #39f3d1 45%, #9dff4f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(23, 217, 255, 0.12));
+
+  @media (--viewportMedium) {
+    font-size: 26px;
+  }
+}
+
+.teamProfileNameBlock {
+  margin-bottom: 24px;
+  padding-left: 12px;
+
+  @media (--viewportMedium) {
+    padding-left: 16px;
+  }
+}
+
+.peakUpForm.teamBuilderForm .teamProfileNameBlock .displayNameInHero {
+  margin-top: 0;
+}
+
+.teamProfileHeroBlock {
+  margin-bottom: 28px;
+  padding-left: 12px;
+
+  @media (--viewportMedium) {
+    padding-left: 16px;
+  }
+}
+
+.teamProfileHeroUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 320px;
+}
+
+.teamProfileHeroLabel {
+  display: block;
+  cursor: pointer;
+}
+
+.teamProfileHeroHelp {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0;
+  max-width: 42ch;
+  color: rgba(196, 210, 228, 0.78);
+  line-height: 1.5;
+}
+
+.teamProfileMetaGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  padding-left: 12px;
+
+  @media (--viewportMedium) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px 24px;
+    padding-left: 16px;
+  }
+}
+
+.teamProfileMetaField {
+  min-width: 0;
+}
+
+.peakUpForm .teamWorkspaceSection {
+  padding: 24px 18px;
+  margin-bottom: 24px;
+
+  @media (--viewportMedium) {
+    padding: 32px 32px;
+    margin-bottom: 32px;
+  }
+}
+
+.peakUpForm .teamSectionHeader {
+  margin-bottom: 24px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 28px;
+  }
+}
+
+.peakUpForm .teamSectionHeader .sectionTitle {
+  margin-bottom: 10px;
+}
+
+.teamSectionLead {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0;
+  max-width: 56ch;
+  color: rgba(196, 210, 228, 0.82);
+  line-height: 1.55;
+}
+
+.teamHeroImageLabel {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0 0 8px;
+  font-weight: var(--fontWeightSemiBold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(23, 217, 255, 0.78);
+}
+
+.peakUpForm .teamLinksGroup {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(23, 217, 255, 0.1);
+}
+
+.teamLinksSubheading {
+  composes: marketplaceTinyFontStyles from global;
+  margin: 0 0 14px;
+  font-weight: var(--fontWeightSemiBold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(176, 196, 220, 0.72);
+}
+
+.peakUpForm .teamSportsHighlightRow,
+.teamSportsOfferedPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 12px;
+
+  @media (--viewportMedium) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 14px 16px;
+    padding-left: 16px;
+  }
+}
+
+.peakUpForm .teamSportHighlightCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: min(100%, 200px);
+  max-width: 280px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(23, 217, 255, 0.22);
+  background:
+    radial-gradient(ellipse 90% 80% at 10% 0%, rgba(23, 217, 255, 0.1) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(17, 28, 46, 0.72) 0%, rgba(11, 18, 32, 0.85) 100%);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.peakUpForm .teamSportHighlightSecondary {
+  border-color: rgba(157, 255, 79, 0.18);
+  background:
+    radial-gradient(ellipse 90% 80% at 10% 0%, rgba(157, 255, 79, 0.06) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(17, 28, 46, 0.65) 0%, rgba(11, 18, 32, 0.82) 100%);
+}
+
+.teamSportHighlightBadge {
+  composes: marketplaceTinyFontStyles from global;
+  display: inline-block;
+  width: fit-content;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: var(--fontWeightSemiBold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(120, 225, 255, 0.95);
+  background: rgba(23, 217, 255, 0.12);
+  border: 1px solid rgba(23, 217, 255, 0.22);
+}
+
+.teamSportHighlightSecondary .teamSportHighlightBadge {
+  color: rgba(200, 255, 140, 0.92);
+  background: rgba(157, 255, 79, 0.1);
+  border-color: rgba(157, 255, 79, 0.22);
+}
+
+.teamSportHighlightLabel {
+  composes: marketplaceDefaultFontStyles from global;
+  margin: 0;
+  font-weight: var(--fontWeightSemiBold);
+  font-size: 18px;
+  line-height: 1.25;
+  color: #f4f7fb;
+}
+
+.teamSportsOfferedEmpty {
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0 0 0 12px;
+  padding: 20px 18px;
+  border-radius: 12px;
+  border: 1px dashed rgba(25, 223, 242, 0.2);
+  color: rgba(196, 210, 228, 0.72);
+  line-height: 1.5;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+
+  @media (--viewportMedium) {
+    margin-left: 16px;
+  }
 }

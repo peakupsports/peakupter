@@ -28,11 +28,19 @@ const HowItWorksPage = () => {
   );
 
   const heroEyebrow = intl.formatMessage({ id: 'HowItWorksPage.heroEyebrow' });
+  const ctaCustomersKicker = intl.formatMessage({ id: 'HowItWorksPage.ctaCustomersKicker' });
+  const ctaProfessionalsKicker = intl.formatMessage({
+    id: 'HowItWorksPage.ctaProfessionalsKicker',
+  });
 
   return (
     <PageBuilder
       className={classNames(sportTheme.sportPremium, premiumCss.howItWorksPremium)}
-      style={{ '--howItWorksHeroEyebrow': `"${heroEyebrow}"` }}
+      style={{
+        '--howItWorksHeroEyebrow': `"${heroEyebrow}"`,
+        '--howItWorksCtaCustomersLabel': `"${ctaCustomersKicker}"`,
+        '--howItWorksCtaProfessionalsLabel': `"${ctaProfessionalsKicker}"`,
+      }}
       chromeTheme="sportPremium"
       currentPage="HowItWorksPage"
       pageAssetsData={pageAssetsData}

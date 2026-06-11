@@ -14,20 +14,19 @@ const cardContent = [
     titleId: 'LandingHowItWorksSection.cardFindBookTitle',
     titleDefault: 'Find & Book',
     textId: 'LandingHowItWorksSection.cardFindBookText',
-    textDefault: 'Browse coaches, check availability, and book your session in minutes.',
+    textDefault: 'Browse professionals and book in minutes.',
   },
   {
     titleId: 'LandingHowItWorksSection.cardEnjoyTitle',
     titleDefault: 'Enjoy your Session',
     textId: 'LandingHowItWorksSection.cardEnjoyText',
-    textDefault: 'Train with experienced coaches and improve your skills.',
+    textDefault: 'Learn with great instructors. Enjoy your session.',
   },
   {
     titleId: 'LandingHowItWorksSection.cardReviewTitle',
     titleDefault: 'Leave a review',
     textId: 'LandingHowItWorksSection.cardReviewText',
-    textDefault:
-      'Help others find the right coach. Share your experience with the community.',
+    textDefault: 'Share your experience with the community.',
   },
 ];
 
@@ -107,7 +106,7 @@ const LandingHowItWorksSection = props => {
         <p className={defaultClasses.description}>
           <FormattedMessage
             id="LandingHowItWorksSection.subtitle"
-            defaultMessage="Find your coach. Book your session. Enjoy your sport."
+            defaultMessage="Find a professional. Book your session. Enjoy your sport."
           />
         </p>
         {hasSectionCta ? (

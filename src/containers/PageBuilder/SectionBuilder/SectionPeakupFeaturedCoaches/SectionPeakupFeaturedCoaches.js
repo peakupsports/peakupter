@@ -288,7 +288,7 @@ const SectionPeakupFeaturedCoaches = props => {
             <span className={css.showcaseTitleAccent}>
               <FormattedMessage
                 id="SectionPeakupFeaturedCoaches.titleCoach"
-                defaultMessage="Coach"
+                defaultMessage="Professionals"
               />
             </span>
           </span>
@@ -297,7 +297,7 @@ const SectionPeakupFeaturedCoaches = props => {
         <p className={css.showcaseSubtitle}>
           <FormattedMessage
             id="SectionPeakupFeaturedCoaches.subtitle"
-            defaultMessage="Top rated coaches by our community"
+            defaultMessage="Top rated professionals by our community"
           />
         </p>
 
@@ -321,7 +321,7 @@ const SectionPeakupFeaturedCoaches = props => {
           <h4 className={css.errorTitle}>
             <FormattedMessage
               id="SectionPeakupFeaturedCoaches.errorTitle"
-              defaultMessage="We couldn't load coaches right now"
+              defaultMessage="We couldn't load professionals right now"
             />
           </h4>
           <ErrorMessage error={fetchError} />
@@ -332,7 +332,7 @@ const SectionPeakupFeaturedCoaches = props => {
         <p className={css.emptyState}>
           <FormattedMessage
             id="SectionPeakupFeaturedCoaches.empty"
-            defaultMessage="No featured coaches available yet."
+            defaultMessage="No featured professionals available yet."
           />
         </p>
       ) : null}
@@ -348,7 +348,7 @@ const SectionPeakupFeaturedCoaches = props => {
               disabled
               aria-label={intl.formatMessage({
                 id: 'SectionPeakupFeaturedCoaches.scrollPrev',
-                defaultMessage: 'Scroll to previous coaches',
+                defaultMessage: 'Scroll to previous professionals',
               })}
             >
               <span aria-hidden>‹</span>
@@ -360,7 +360,7 @@ const SectionPeakupFeaturedCoaches = props => {
               role="list"
               aria-label={intl.formatMessage({
                 id: 'SectionPeakupFeaturedCoaches.regionLabel',
-                defaultMessage: 'Featured PeakUp coaches',
+                defaultMessage: 'Featured PeakUp professionals',
               })}
             >
               {cards.map((card, idx) => (
@@ -375,7 +375,7 @@ const SectionPeakupFeaturedCoaches = props => {
               onClick={() => scrollBy(1)}
               aria-label={intl.formatMessage({
                 id: 'SectionPeakupFeaturedCoaches.scrollNext',
-                defaultMessage: 'Scroll to more coaches',
+                defaultMessage: 'Scroll to more professionals',
               })}
             >
               <span aria-hidden>›</span>

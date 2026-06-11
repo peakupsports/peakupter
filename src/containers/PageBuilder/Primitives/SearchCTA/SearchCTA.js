@@ -37,7 +37,7 @@ import {
 
 import css from './SearchCTA.module.css';
 
-const PEAKUP_SEARCH_BUTTON_LABEL = 'Find your coach';
+const PEAKUP_SEARCH_BUTTON_LABEL = 'Find professionals';
 
 const GRID_CONFIG = [
   { gridCss: css.gridCol1 },

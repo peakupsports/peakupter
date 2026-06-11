@@ -145,7 +145,7 @@ describe('LandingPage', () => {
           const tagName = node?.tagName?.toLowerCase();
           return (
             tagName === 'p' &&
-            /One platform\. Two journeys\. Built for athletes and coaches\.|LandingWhyPeakupSection\.subtitle/.test(
+            /One platform\. Two journeys\. Built for customers and professionals\.|LandingWhyPeakupSection\.subtitle/.test(
               node?.textContent || ''
             )
           );
@@ -156,7 +156,9 @@ describe('LandingPage', () => {
           const tagName = node?.tagName?.toLowerCase();
           return (
             tagName === 'a' &&
-            /Find your coach|LandingWhyPeakupSection\.cardAthleteCta/.test(node?.textContent || '')
+            /Find professionals|LandingWhyPeakupSection\.cardAthleteCta/.test(
+              node?.textContent || ''
+            )
           );
         })
       ).toBeInTheDocument();
@@ -291,7 +293,9 @@ describe('LandingPage', () => {
           const tagName = node?.tagName?.toLowerCase();
           return (
             tagName === 'a' &&
-            /Find your coach|LandingWhyPeakupSection\.cardAthleteCta/.test(node?.textContent || '')
+            /Find professionals|LandingWhyPeakupSection\.cardAthleteCta/.test(
+              node?.textContent || ''
+            )
           );
         })
       ).toBeInTheDocument();
@@ -367,7 +371,7 @@ describe('LandingPage', () => {
           const tagName = node?.tagName?.toLowerCase();
           return (
             tagName === 'p' &&
-            /Find your coach\. Book your session\. Enjoy your sport\.|LandingHowItWorksSection\.subtitle/.test(
+            /Find a professional\. Book your session\. Enjoy your sport\.|LandingHowItWorksSection\.subtitle/.test(
               node?.textContent || ''
             )
           );

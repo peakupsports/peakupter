@@ -100,7 +100,7 @@ const PeakupCoachBadgesHierarchyModal = ({ id, isOpen, onClose }) => {
           <h2 className={css.title}>
             <FormattedMessage
               id="PeakupCoachBadgesHierarchyModal.title"
-              defaultMessage="PeakUp Sports Coach Badges"
+              defaultMessage="PeakUp professional badges"
             />
             <span className={css.titleAccent} aria-hidden />
           </h2>

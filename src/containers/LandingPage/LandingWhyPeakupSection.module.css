@@ -131,6 +131,12 @@
 
 .cardsGrid {
   /* Match `.trustWrap` / page content rail so card photos read the same width as the bar below. */
+  --whyCardPadX: 28px;
+  --whyCardPadY: 28px;
+  --whyCardTextMax: 20rem;
+  --whyCardTitleTextGap: 12px;
+  --whyCardTopFootGap: 28px;
+
   max-width: var(--contentMaxWidthPages);
   width: 100%;
   margin: 40px auto 0;
@@ -142,8 +148,10 @@
 
 .card {
   position: relative;
-  aspect-ratio: 1.42 / 1;
-  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 4 / 3;
+  min-height: 360px;
   overflow: hidden;
   border-radius: 28px;
   isolation: isolate;
@@ -196,15 +204,13 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: 78% 42%;
   transform: scale(1.02);
   transition: transform 420ms ease;
 }
 
 .cardIconBadge {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  z-index: 2;
+  flex: 0 0 auto;
   width: 41px;
   height: 41px;
   display: inline-flex;
@@ -277,42 +283,40 @@
   background:
     linear-gradient(
       180deg,
-      rgba(8, 12, 18, 0.08) 0%,
-      rgba(8, 12, 18, 0.16) 18%,
-      rgba(8, 12, 18, 0.34) 42%,
-      rgba(8, 12, 18, 0.74) 72%,
-      rgba(8, 12, 18, 0.94) 100%
+      rgba(8, 12, 18, 0.52) 0%,
+      rgba(8, 12, 18, 0.18) 34%,
+      rgba(8, 12, 18, 0.08) 52%,
+      rgba(8, 12, 18, 0.42) 72%,
+      rgba(8, 12, 18, 0.9) 100%
     ),
     linear-gradient(
       90deg,
-      rgba(8, 12, 18, 0.78) 0%,
-      rgba(8, 12, 18, 0.48) 28%,
-      rgba(8, 12, 18, 0.18) 58%,
-      rgba(8, 12, 18, 0.02) 100%
+      rgba(8, 12, 18, 0.9) 0%,
+      rgba(8, 12, 18, 0.62) 34%,
+      rgba(8, 12, 18, 0.22) 58%,
+      rgba(8, 12, 18, 0) 78%
     ),
-    radial-gradient(92% 76% at 12% 88%, rgba(6, 10, 16, 0.74) 0%, transparent 74%),
-    radial-gradient(120% 82% at 18% 12%, rgba(21, 155, 255, 0.13) 0%, transparent 52%);
+    radial-gradient(120% 82% at 18% 12%, rgba(21, 155, 255, 0.1) 0%, transparent 52%);
 }
 
 .cardCoach::after {
   background:
     linear-gradient(
       180deg,
-      rgba(10, 13, 20, 0.08) 0%,
-      rgba(10, 13, 20, 0.16) 18%,
-      rgba(10, 13, 20, 0.34) 42%,
-      rgba(10, 13, 20, 0.74) 72%,
-      rgba(10, 13, 20, 0.94) 100%
+      rgba(10, 13, 20, 0.52) 0%,
+      rgba(10, 13, 20, 0.18) 34%,
+      rgba(10, 13, 20, 0.08) 52%,
+      rgba(10, 13, 20, 0.42) 72%,
+      rgba(10, 13, 20, 0.9) 100%
     ),
     linear-gradient(
       90deg,
-      rgba(10, 13, 20, 0.74) 0%,
-      rgba(10, 13, 20, 0.42) 28%,
-      rgba(10, 13, 20, 0.16) 58%,
-      rgba(10, 13, 20, 0.02) 100%
+      rgba(10, 13, 20, 0.9) 0%,
+      rgba(10, 13, 20, 0.62) 34%,
+      rgba(10, 13, 20, 0.22) 58%,
+      rgba(10, 13, 20, 0) 78%
     ),
-    radial-gradient(92% 76% at 12% 88%, rgba(7, 10, 16, 0.72) 0%, transparent 74%),
-    radial-gradient(120% 85% at 82% 14%, rgba(34, 230, 184, 0.14) 0%, transparent 50%);
+    radial-gradient(120% 85% at 82% 14%, rgba(34, 230, 184, 0.12) 0%, transparent 50%);
 }
 
 .card:hover {
@@ -342,31 +346,60 @@
 }
 
 .cardContent {
-  position: absolute;
-  left: 34px;
-  right: 28px;
-  bottom: 20px;
+  position: relative;
   z-index: 2;
-  width: min(100%, 31rem);
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  min-height: 100%;
+  padding: var(--whyCardPadY) var(--whyCardPadX);
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.cardContentTop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  max-width: var(--whyCardTextMax);
+}
+
+.cardContentFoot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: var(--whyCardTextMax);
+  margin-top: var(--whyCardTopFootGap);
+  padding-top: 4px;
 }
 
 .cardTitle {
-  margin: 0;
+  margin: 14px 0 0;
   color: #ffffff;
-  font-size: clamp(28px, 4vw, 40px);
+  font-size: clamp(26px, 3.2vw, 36px);
   font-weight: 600;
-  line-height: 1.04;
-  letter-spacing: -0.016em;
+  line-height: 1.08;
+  letter-spacing: -0.018em;
   text-shadow: 0 12px 32px rgba(0, 0, 0, 0.36);
+  text-wrap: balance;
 }
 
 .cardText {
-  margin: 14px 0 0;
-  max-width: 32ch;
+  margin: var(--whyCardTitleTextGap) 0 0;
+  max-width: 30ch;
   color: rgba(244, 246, 250, 0.86);
-  font-size: 16px;
-  line-height: 1.58;
+  font-size: 15px;
+  line-height: 1.55;
   text-shadow: 0 6px 18px rgba(0, 0, 0, 0.26);
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
 
 .cardCta {
@@ -375,9 +408,9 @@
   justify-content: center;
   width: fit-content;
   max-width: 100%;
-  margin-top: 22px;
+  margin-top: 0;
   min-height: 40px;
-  padding: 0 38px;
+  padding: 0 32px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 700;
@@ -521,15 +554,23 @@
     padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
 
+  .cardsGrid {
+    --whyCardPadX: 20px;
+    --whyCardPadY: 22px;
+    --whyCardTextMax: 100%;
+    --whyCardTitleTextGap: 10px;
+    --whyCardTopFootGap: 20px;
+  }
+
   .card {
-    aspect-ratio: 16 / 11;
-    min-height: 0;
+    aspect-ratio: 4 / 3;
+    min-height: 300px;
     border-radius: 22px;
   }
 
   .cardMedia img {
     transform: none;
-    object-position: 50% 22%;
+    object-position: 76% 38%;
   }
 
   .card:hover,
@@ -542,42 +583,35 @@
     transform: none;
   }
 
-  .cardContent {
-    left: 20px;
-    right: 20px;
-    bottom: 9px;
-    width: auto;
-    max-width: 100%;
-  }
-
   .cardIconBadge {
-    top: 12px;
-    left: 16px;
-    width: 43px;
-    height: 43px;
+    width: 40px;
+    height: 40px;
   }
 
   .cardIconSvg {
-    width: 29px;
-    height: 29px;
+    width: 28px;
+    height: 28px;
   }
 
   .cardTitle {
-    margin-top: 29px;
-    font-size: clamp(22px, 6.4vw, 30px);
-    line-height: 1.09;
-    letter-spacing: -0.022em;
+    margin-top: 12px;
+    font-size: clamp(22px, 5.8vw, 28px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
   }
 
   .cardText {
-    margin-top: 7px;
     font-size: 14px;
-    line-height: 1.52;
-    max-width: 36ch;
+    line-height: 1.5;
+    max-width: 32ch;
   }
 
   .cardCta {
-    margin-top: 9px;
+    white-space: normal;
+    text-align: left;
+    line-height: 1.2;
+    padding: 10px 22px;
+    min-height: 38px;
   }
 
   .trustWrap {
@@ -594,30 +628,29 @@
   .cardsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
+    --whyCardPadX: 32px;
+    --whyCardPadY: 32px;
+    --whyCardTextMax: 19rem;
+    --whyCardTopFootGap: 32px;
   }
 
-  .cardContent {
-    left: 42px;
-    right: 34px;
-    bottom: 24px;
-    width: min(100%, 32rem);
+  .card {
+    min-height: 380px;
   }
 
   .cardIconBadge {
-    top: 22px;
-    left: 22px;
-    width: 45px;
-    height: 45px;
+    width: 44px;
+    height: 44px;
   }
 
   .cardIconSvg {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
   }
 
   .cardCta {
-    min-height: 39px;
-    padding: 0 42px;
+    min-height: 40px;
+    padding: 0 36px;
   }
 
   .trustBar {
@@ -630,43 +663,26 @@
   }
 }
 
-/* Tablet only (after `--viewportMedium` so these win over 768+ defaults): icon → title
- * rhythm; badge slightly larger than medium for this range only. */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .cardContent {
-    bottom: 17px;
+@media (--viewportLarge) {
+  .cardsGrid {
+    gap: 28px;
+    --whyCardPadX: 36px;
+    --whyCardPadY: 36px;
+    --whyCardTextMax: 21rem;
+    --whyCardTitleTextGap: 14px;
+    --whyCardTopFootGap: 36px;
   }
 
-  .cardIconBadge {
-    top: 16px;
-    left: 20px;
-    width: 47px;
-    height: 47px;
-  }
-
-  .cardIconSvg {
-    width: 32px;
-    height: 32px;
+  .card {
+    min-height: 400px;
   }
 
   .cardTitle {
-    margin-top: 27px;
-    line-height: 1.07;
-    letter-spacing: -0.019em;
+    font-size: clamp(28px, 2.4vw, 38px);
   }
 
   .cardText {
-    margin-top: 9px;
-  }
-
-  .cardCta {
-    margin-top: 18px;
-  }
-}
-
-@media (--viewportLarge) {
-  .cardsGrid {
-    gap: 24px;
+    font-size: 16px;
   }
 
   .trustWrap {

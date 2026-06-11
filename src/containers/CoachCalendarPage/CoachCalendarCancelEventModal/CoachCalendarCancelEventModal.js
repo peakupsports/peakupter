@@ -117,7 +117,7 @@ const CoachCalendarCancelEventModal = props => {
         <p className={css.reliabilityWarning}>
           <FormattedMessage
             id="CoachCalendarPage.cancelEventReliabilityWarning"
-            defaultMessage="Frequent cancellations may impact your coach reliability status."
+            defaultMessage="Frequent cancellations may impact your reliability status."
           />
         </p>
 

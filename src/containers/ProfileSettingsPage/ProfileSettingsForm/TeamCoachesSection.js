@@ -18,7 +18,7 @@ import css from './TeamCoachesSection.module.css';
  * Coaches keep their own accounts, reviews, bookings, and payouts.
  */
 const TeamCoachesSection = props => {
-  const { onRosterChange, className } = props;
+  const { onRosterChange, className, embedded = false } = props;
   const intl = useIntl();
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -97,15 +97,26 @@ const TeamCoachesSection = props => {
   };
 
   return (
-    <div className={classNames(css.root, className)}>
+    <div className={classNames(css.root, embedded && css.rootEmbedded, className)}>
       <div className={css.header}>
         <div>
-          <H4 as="h2" className={css.title}>
-            <FormattedMessage id="ProfileSettingsForm.teamCoachesHeading" />
-          </H4>
-          <p className={css.lead}>
-            <FormattedMessage id="ProfileSettingsForm.teamCoachesInfo" />
-          </p>
+          {!embedded ? (
+            <>
+              <H4 as="h2" className={css.title}>
+                <FormattedMessage id="ProfileSettingsForm.teamCoachesHeading" />
+              </H4>
+              <p className={css.lead}>
+                <FormattedMessage id="ProfileSettingsForm.teamCoachesInfo" />
+              </p>
+            </>
+          ) : (
+            <p className={css.connectedCount} aria-live="polite">
+              <FormattedMessage
+                id="ProfileSettingsForm.teamCoachesConnectedCount"
+                values={{ count: coaches.length }}
+              />
+            </p>
+          )}
         </div>
         <Button type="button" className={css.addBtn} onClick={() => setModalOpen(true)}>
           <FormattedMessage id="ProfileSettingsForm.teamCoachesAdd" />
