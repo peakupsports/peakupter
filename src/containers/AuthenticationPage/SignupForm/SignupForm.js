@@ -16,10 +16,11 @@ import UserFieldDisplayName from '../UserFieldDisplayName';
 import UserFieldPhoneNumber from '../UserFieldPhoneNumber';
 
 import { getCustomerUserTypeForCoachSignup } from '../../../util/coachOnboarding';
+import { PEAKUP_TEAM_USER_TYPE } from '../../../util/peakupTeam';
 import {
   getSignupPathOptions,
-  resolveActiveSignupPath,
   shouldUseSignupPathSelector,
+  SIGNUP_PATH_TEAM,
 } from '../../../util/signupPaths';
 
 import css from './SignupForm.module.css';
@@ -67,9 +68,8 @@ const SignupFormComponent = props => (
         pathSelectorUserTypes,
         coachSignupTo,
         onUserTypeChange,
-        signupPathLocation,
-        signupPathFrom,
-        signupPathCurrentUser,
+        activeSignupPath,
+        onSignupPathSelect,
       } = formRenderProps;
 
       const { userType } = values || {};
@@ -79,16 +79,11 @@ const SignupFormComponent = props => (
         userTypes: typesForPathCards,
       });
       const { customerUserType, teamUserType } = getSignupPathOptions(typesForPathCards);
-      const activeSignupPath = resolveActiveSignupPath({
-        location: signupPathLocation,
-        from: signupPathFrom,
-        currentUser: signupPathCurrentUser,
-        selectedUserType: userType,
-        userTypes: typesForPathCards,
-      });
-      const isTeamSignup = Boolean(teamUserType && userType === teamUserType);
+      const isTeamSignup = Boolean(
+        teamUserType && userType === teamUserType && userType === PEAKUP_TEAM_USER_TYPE
+      );
       const isClientSignup = Boolean(
-        customerUserType && userType === customerUserType
+        customerUserType && userType === customerUserType && !isTeamSignup
       );
       const displayNamePlaceholderId = usePathSelector
         ? isTeamSignup
@@ -158,10 +153,23 @@ const SignupFormComponent = props => (
       const submitInProgress = inProgress;
       const submitDisabled = invalid || submitInProgress || isPasswordUsedMoreThanOnce(values);
 
-      const handlePathSelect = nextType => {
-        form.change('userType', nextType);
-        if (typeof onUserTypeChange === 'function') {
-          onUserTypeChange(nextType);
+      const handlePathSelect = (path, nextType) => {
+        if (nextType) {
+          form.change('userType', nextType);
+          if (typeof onUserTypeChange === 'function') {
+            onUserTypeChange(nextType);
+          }
+        }
+        if (path === SIGNUP_PATH_TEAM) {
+          form.batch(() => {
+            form.change('fname', undefined);
+            form.change('lname', undefined);
+          });
+        } else if (path !== SIGNUP_PATH_TEAM) {
+          form.change('teamName', undefined);
+        }
+        if (typeof onSignupPathSelect === 'function') {
+          onSignupPathSelect(path, nextType);
         }
       };
 
@@ -189,52 +197,75 @@ const SignupFormComponent = props => (
                 })}
                 validate={validators.composeValidators(emailRequired, emailValid)}
               />
-              <div className={css.name}>
+              {isTeamSignup ? (
                 <FieldTextInput
-                  className={css.firstNameRoot}
+                  className={css.teamNameRoot}
                   type="text"
-                  id={formId ? `${formId}.fname` : 'fname'}
-                  name="fname"
-                  autoComplete="given-name"
+                  id={formId ? `${formId}.teamName` : 'teamName'}
+                  name="teamName"
+                  autoComplete="organization"
                   label={intl.formatMessage({
-                    id: 'SignupForm.firstNameLabel',
+                    id: 'SignupForm.teamNameLabel',
                   })}
                   placeholder={intl.formatMessage({
-                    id: 'SignupForm.firstNamePlaceholder',
+                    id: 'SignupForm.teamNamePlaceholder',
                   })}
                   validate={validators.required(
                     intl.formatMessage({
-                      id: 'SignupForm.firstNameRequired',
+                      id: 'SignupForm.teamNameRequired',
                     })
                   )}
                 />
-                <FieldTextInput
-                  className={css.lastNameRoot}
-                  type="text"
-                  id={formId ? `${formId}.lname` : 'lname'}
-                  name="lname"
-                  autoComplete="family-name"
-                  label={intl.formatMessage({
-                    id: 'SignupForm.lastNameLabel',
-                  })}
-                  placeholder={intl.formatMessage({
-                    id: 'SignupForm.lastNamePlaceholder',
-                  })}
-                  validate={validators.required(
-                    intl.formatMessage({
-                      id: 'SignupForm.lastNameRequired',
-                    })
-                  )}
-                />
-              </div>
+              ) : (
+                <div className={css.name}>
+                  <FieldTextInput
+                    className={css.firstNameRoot}
+                    type="text"
+                    id={formId ? `${formId}.fname` : 'fname'}
+                    name="fname"
+                    autoComplete="given-name"
+                    label={intl.formatMessage({
+                      id: 'SignupForm.firstNameLabel',
+                    })}
+                    placeholder={intl.formatMessage({
+                      id: 'SignupForm.firstNamePlaceholder',
+                    })}
+                    validate={validators.required(
+                      intl.formatMessage({
+                        id: 'SignupForm.firstNameRequired',
+                      })
+                    )}
+                  />
+                  <FieldTextInput
+                    className={css.lastNameRoot}
+                    type="text"
+                    id={formId ? `${formId}.lname` : 'lname'}
+                    name="lname"
+                    autoComplete="family-name"
+                    label={intl.formatMessage({
+                      id: 'SignupForm.lastNameLabel',
+                    })}
+                    placeholder={intl.formatMessage({
+                      id: 'SignupForm.lastNamePlaceholder',
+                    })}
+                    validate={validators.required(
+                      intl.formatMessage({
+                        id: 'SignupForm.lastNameRequired',
+                      })
+                    )}
+                  />
+                </div>
+              )}
 
-              <UserFieldDisplayName
-                formName="SignupForm"
-                className={css.row}
-                userTypeConfig={userTypeConfig}
-                intl={intl}
-                displayNamePlaceholderId={displayNamePlaceholderId}
-              />
+              {!isTeamSignup ? (
+                <UserFieldDisplayName
+                  formName="SignupForm"
+                  className={css.row}
+                  userTypeConfig={userTypeConfig}
+                  intl={intl}
+                  displayNamePlaceholderId={displayNamePlaceholderId}
+                />
+              ) : null}
 
               <FieldTextInput
                 className={css.password}
@@ -251,12 +282,14 @@ const SignupFormComponent = props => (
                 validate={passwordValidators}
               />
 
-              <UserFieldPhoneNumber
-                formName="SignupForm"
-                className={css.row}
-                userTypeConfig={userTypeConfig}
-                intl={intl}
-              />
+              {!isTeamSignup ? (
+                <UserFieldPhoneNumber
+                  formName="SignupForm"
+                  className={css.row}
+                  userTypeConfig={userTypeConfig}
+                  intl={intl}
+                />
+              ) : null}
             </div>
           ) : null}
 
@@ -290,9 +323,8 @@ const SignupFormComponent = props => (
                 <SignupPathSelector
                   splitLayout
                   userTypes={typesForPathCards}
-                  selectedUserType={userType}
                   activeSignupPath={activeSignupPath}
-                  onSelectUserType={handlePathSelect}
+                  onSelectSignupPath={handlePathSelect}
                   coachSignupTo={coachSignupTo}
                 />
               </aside>
@@ -324,9 +356,8 @@ const SignupFormComponent = props => (
  * @param {propTypes.userTypes} [props.pathSelectorUserTypes] - Full user types for path cards (incl. team)
  * @param {Object} [props.coachSignupTo] - NamedLink `to` for coach path card
  * @param {(userType: string) => void} [props.onUserTypeChange] - Sync selected type to parent (e.g. SSO)
- * @param {import('react-router-dom').Location} [props.signupPathLocation] - Router location for path highlight
- * @param {string|object|null} [props.signupPathFrom] - Router `from` for coach onboarding detection
- * @param {import('../../util/types').propTypes.currentUser|null|undefined} [props.signupPathCurrentUser]
+ * @param {'client'|'coach'|'team'|null} [props.activeSignupPath] - Resolved path card highlight
+ * @param {(path: 'client'|'coach'|'team', userType?: string) => void} [props.onSignupPathSelect]
  * @returns {JSX.Element}
  */
 const SignupForm = props => {

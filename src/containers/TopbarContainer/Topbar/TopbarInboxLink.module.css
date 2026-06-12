@@ -63,11 +63,12 @@
 }
 
 .inboxLinkCustomerMode {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   height: 100%;
   margin: 0;
   padding: 0 12px;
-  line-height: normal;
+  line-height: 18px;
 }
 
 .labelCoachMode {
@@ -76,7 +77,8 @@
 }
 
 .labelCustomerMode {
-  line-height: inherit;
+  margin: 0;
+  line-height: 18px;
 }
 
 .inboxLinkCoachMode:hover,

@@ -477,35 +477,36 @@ export const InboxPageComponent = props => {
           />
         }
         sideNav={
-          <>
-            <H2 as="h1" className={css.title}>
-              <FormattedMessage id="InboxPage.title" />
-            </H2>
-            <TabNav
-              rootClassName={css.tabs}
-              tabRootClassName={css.tab}
-              tabs={tabs}
-              ariaLabel={intl.formatMessage({ id: 'InboxPage.screenreader.sidenav' })}
-            />{' '}
-          </>
+          <TabNav
+            rootClassName={css.tabs}
+            tabRootClassName={css.tab}
+            tabs={tabs}
+            ariaLabel={intl.formatMessage({ id: 'InboxPage.screenreader.sidenav' })}
+          />
         }
         footer={<FooterContainer />}
       >
-        <InboxSearchForm
-          className={css.searchForm}
-          onSubmit={() => {}}
-          onSelect={handleSortSelect(tab, routeConfiguration, history)}
-          intl={intl}
-          tab={tab}
-          routeConfiguration={routeConfiguration}
-          history={history}
-        />
-        {fetchOrdersOrSalesError ? (
-          <p className={css.error}>
-            <FormattedMessage id="InboxPage.fetchFailed" />
-          </p>
-        ) : null}
-        <ul className={css.itemList}>
+        <div className={css.inboxShell}>
+          <header className={css.pageHeader}>
+            <H2 as="h1" className={css.title}>
+              <FormattedMessage id="InboxPage.title" />
+            </H2>
+          </header>
+          <InboxSearchForm
+            className={css.searchForm}
+            onSubmit={() => {}}
+            onSelect={handleSortSelect(tab, routeConfiguration, history)}
+            intl={intl}
+            tab={tab}
+            routeConfiguration={routeConfiguration}
+            history={history}
+          />
+          {fetchOrdersOrSalesError ? (
+            <p className={css.error}>
+              <FormattedMessage id="InboxPage.fetchFailed" />
+            </p>
+          ) : null}
+          <ul className={css.itemList}>
           {!fetchInProgress && !isOrders
             ? pendingTeamInvitations.map(invite => (
                 <li key={`team-invitation-${invite.teamId}`} className={css.listItem}>
@@ -526,21 +527,33 @@ export const InboxPageComponent = props => {
           )}
           {hasNoResults ? (
             <li key="noResults" className={css.noResults}>
-              <FormattedMessage
-                id={isOrders ? 'InboxPage.noOrdersFound' : 'InboxPage.noSalesFound'}
-              />
+              <div className={css.emptyStateCard}>
+                <p className={css.emptyStateTitle}>
+                  <FormattedMessage id="InboxPage.emptyStateTitle" />
+                </p>
+                <p className={css.emptyStateDescription}>
+                  <FormattedMessage
+                    id={
+                      isOrders
+                        ? 'InboxPage.emptyStateDescription'
+                        : 'InboxPage.emptyStateDescriptionSales'
+                    }
+                  />
+                </p>
+              </div>
             </li>
           ) : null}
-        </ul>
-        {hasTransactions && pagination && pagination.totalPages > 1 ? (
-          <PaginationLinks
-            className={css.pagination}
-            pageName="InboxPage"
-            pagePathParams={params}
-            pageSearchParams={search}
-            pagination={pagination}
-          />
-        ) : null}
+          </ul>
+          {hasTransactions && pagination && pagination.totalPages > 1 ? (
+            <PaginationLinks
+              className={css.pagination}
+              pageName="InboxPage"
+              pagePathParams={params}
+              pageSearchParams={search}
+              pagination={pagination}
+            />
+          ) : null}
+        </div>
       </LayoutSideNavigation>
     </Page>
   );

@@ -11,11 +11,11 @@
   }
 }
 
-/* Mobile: cards → form. Desktop: [ paths | form ] */
+/* Path selector + form fields inside the signup card */
 .signupSplit {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   width: 100%;
 }
 
@@ -47,9 +47,11 @@
     min-width: 0;
     padding-left: 24px;
     padding-top: 0;
+    box-sizing: border-box;
   }
 
-  .signupSplitForm .name {
+  .signupSplitForm .name,
+  .signupSplitForm .teamNameRoot {
     margin-top: 8px;
   }
 
@@ -73,7 +75,8 @@
 }
 
 @media (max-width: 767px) {
-  .signupSplitForm .name {
+  .signupSplitForm .name,
+  .signupSplitForm .teamNameRoot {
     margin-top: 16px;
   }
 
@@ -119,6 +122,15 @@
 
 .lastNameRoot {
   width: calc(66% - 9px);
+}
+
+.teamNameRoot {
+  width: 100%;
+  margin-top: 24px;
+
+  @media (--viewportMedium) {
+    margin-top: 32px;
+  }
 }
 
 .password {

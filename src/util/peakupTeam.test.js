@@ -11,7 +11,7 @@ import {
   resolveTeamLogoLink,
   resolveTeamDashboardLink,
   TEAM_DASHBOARD_ROUTE_NAME,
-  TEAM_PROFILE_SETTINGS_PATH,
+  TEAM_DASHBOARD_PATH,
   PEAKUP_AFFILIATION_ACTIVE,
 } from './peakupTeam';
 
@@ -91,7 +91,7 @@ describe('peakupTeam', () => {
       },
     };
     expect(isTeamProfileComplete(incompleteTeam)).toBe(false);
-    expect(resolveTeamPostLoginRedirectTarget(incompleteTeam)).toBe(TEAM_PROFILE_SETTINGS_PATH);
+    expect(resolveTeamPostLoginRedirectTarget(incompleteTeam)).toBe(TEAM_DASHBOARD_PATH);
   });
 
   it('redirects complete team profile to public profile path', () => {
@@ -111,7 +111,7 @@ describe('peakupTeam', () => {
       },
     };
     expect(isTeamProfileComplete(completeTeam)).toBe(true);
-    expect(resolveTeamPostLoginRedirectTarget(completeTeam)).toBe(TEAM_PROFILE_SETTINGS_PATH);
+    expect(resolveTeamPostLoginRedirectTarget(completeTeam)).toBe(TEAM_DASHBOARD_PATH);
   });
 
   it('resolves team logo link to profile settings (V1)', () => {

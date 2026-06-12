@@ -44,13 +44,16 @@
 .linkMenuLabelWrapper {
   display: inline-flex;
   flex-direction: row;
-  align-items: baseline;
-  margin: 27px 0;
+  align-items: center;
+  height: 100%;
+  margin: 0;
   text-decoration: inherit;
 }
 
 .linkMenuLabel {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
 
   border-bottom: 0px solid;
   transition: var(--transitionStyleButton);
@@ -61,7 +64,6 @@
   letter-spacing: 0;
   color: var(--colorGrey700);
 
-  display: inline;
   height: 100%;
   margin: 0;
   padding: 0 12px 0 12px;

@@ -229,11 +229,7 @@ exports[`InboxPage InboxItem: default-booking process with "day" check booking: 
   >
     <div
       class="rowNotificationDot"
-    >
-      <div
-        class="notificationDot"
-      />
-    </div>
+    />
     <div
       class="itemUsername"
     >
@@ -5921,11 +5917,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" InboxItem wit
   >
     <div
       class="rowNotificationDot"
-    >
-      <div
-        class="notificationDot"
-      />
-    </div>
+    />
     <div
       class="itemUsername"
     >
@@ -5950,7 +5942,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" InboxItem wit
         class="stateName stateActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.purchased.status
+          InboxPage.default-purchase-day.purchased.status
         </span>
       </div>
     </div>
@@ -6012,7 +6004,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateConcluded stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.canceled.status
+          InboxPage.default-purchase-day.canceled.status
         </span>
       </div>
     </div>
@@ -6074,7 +6066,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateConcluded stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.canceled.status
+          InboxPage.default-purchase-day.canceled.status
         </span>
       </div>
     </div>
@@ -6136,7 +6128,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.completed.status
+          InboxPage.default-purchase-day.completed.status
         </span>
       </div>
     </div>
@@ -6198,7 +6190,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.received.status
+          InboxPage.default-purchase-day.received.status
         </span>
       </div>
     </div>
@@ -6260,7 +6252,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateConcluded stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.canceled.status
+          InboxPage.default-purchase-day.canceled.status
         </span>
       </div>
     </div>
@@ -6322,7 +6314,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateConcluded stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.canceled.status
+          InboxPage.default-purchase-day.canceled.status
         </span>
       </div>
     </div>
@@ -6355,11 +6347,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
   >
     <div
       class="rowNotificationDot"
-    >
-      <div
-        class="notificationDot"
-      />
-    </div>
+    />
     <div
       class="itemUsername"
     >
@@ -6388,7 +6376,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.purchased.status
+          InboxPage.default-purchase-day.purchased.status
         </span>
       </div>
     </div>
@@ -6450,7 +6438,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.disputed.status
+          InboxPage.default-purchase-day.disputed.status
         </span>
       </div>
     </div>
@@ -6512,7 +6500,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateConcluded stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.reviewed.status
+          InboxPage.default-purchase-day.reviewed.status
         </span>
       </div>
     </div>
@@ -6574,7 +6562,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.payment-expired.status
+          InboxPage.default-purchase-day.payment-expired.status
         </span>
       </div>
     </div>
@@ -6636,7 +6624,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateConcluded stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.reviewed.status
+          InboxPage.default-purchase-day.reviewed.status
         </span>
       </div>
     </div>
@@ -6698,7 +6686,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateConcluded stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.reviewed.status
+          InboxPage.default-purchase-day.reviewed.status
         </span>
       </div>
     </div>
@@ -6756,7 +6744,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.inquiry.status
+          InboxPage.default-purchase-day.inquiry.status
         </span>
       </div>
     </div>
@@ -6818,7 +6806,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.delivered.status
+          InboxPage.default-purchase-day.delivered.status
         </span>
       </div>
     </div>
@@ -6880,7 +6868,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.received.status
+          InboxPage.default-purchase-day.received.status
         </span>
       </div>
     </div>
@@ -6942,7 +6930,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.received.status
+          InboxPage.default-purchase-day.received.status
         </span>
       </div>
     </div>
@@ -7004,7 +6992,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.received.status
+          InboxPage.default-purchase-day.received.status
         </span>
       </div>
     </div>
@@ -7066,7 +7054,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.disputed.status
+          InboxPage.default-purchase-day.disputed.status
         </span>
       </div>
     </div>
@@ -7128,7 +7116,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.delivered.status
+          InboxPage.default-purchase-day.delivered.status
         </span>
       </div>
     </div>
@@ -7190,7 +7178,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.pending-payment.status
+          InboxPage.default-purchase-day.pending-payment.status
         </span>
       </div>
     </div>
@@ -7252,7 +7240,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.pending-payment.status
+          InboxPage.default-purchase-day.pending-payment.status
         </span>
       </div>
     </div>
@@ -7314,7 +7302,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.reviewed-by-customer.status
+          InboxPage.default-purchase-day.reviewed-by-customer.status
         </span>
       </div>
     </div>
@@ -7376,7 +7364,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.reviewed-by-provider.status
+          InboxPage.default-purchase-day.reviewed-by-provider.status
         </span>
       </div>
     </div>
@@ -7438,7 +7426,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateConcluded stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.reviewed.status
+          InboxPage.default-purchase-day.reviewed.status
         </span>
       </div>
     </div>
@@ -7500,7 +7488,7 @@ exports[`InboxPage InboxItem: default-purchase process with "item" check purchas
         class="stateName stateConcluded stateNoActionNeeded"
       >
         <span>
-          InboxPage.default-purchase.reviewed.status
+          InboxPage.default-purchase-day.reviewed.status
         </span>
       </div>
     </div>

@@ -2,6 +2,13 @@ import Cookies from 'js-cookie';
 
 import { isEmpty } from '../../util/common';
 import { pickUserFieldsData, addScopePrefix } from '../../util/userHelpers';
+import { PEAKUP_TEAM_USER_TYPE } from '../../util/peakupTeam';
+import {
+  buildCoachOnboardingProfilePublicData,
+  clearCoachOnboardingIntent,
+  readCoachOnboardingIntent,
+} from '../../util/coachOnboarding';
+import { SIGNUP_PATH_COACH } from '../../util/signupPaths';
 
 /**
  * Filters out configured user-field entries, returning only the remaining key/value pairs.
@@ -30,79 +37,147 @@ export const getNonUserFieldParams = (values, userFieldConfigs) => {
 };
 
 /**
+ * @param {Object} submitValues
+ * @param {string} userType
+ * @param {Array} userFields
+ * @returns {Object}
+ */
+export const buildSignupPublicData = (submitValues, userType, userFields) => {
+  const pickedPublic = !isEmpty(submitValues)
+    ? pickUserFieldsData(submitValues, 'public', userType, userFields)
+    : {};
+
+  return {
+    userType,
+    ...pickedPublic,
+  };
+};
+
+/**
  * Builds extended data (public/private/protected) for the created currentUser entity.
- *
- * Returns an empty object when no extended data is provided.
  *
  * @param {Object} submitValues - Unhandled form submit values
  * @param {string} userType - The user type
  * @param {Array} userFields - User field configurations
- * @returns {{ publicData: Object, privateData: Object, protectedData: Object } | {}}
+ * @returns {{ publicData: Object, privateData?: Object, protectedData?: Object } | {}}
  */
 export const getExtendedDataMaybe = (submitValues, userType, userFields) => {
-  return !isEmpty(submitValues)
-    ? {
-        publicData: {
-          userType,
-          ...pickUserFieldsData(submitValues, 'public', userType, userFields),
-        },
-        privateData: {
-          ...pickUserFieldsData(submitValues, 'private', userType, userFields),
-        },
-        protectedData: {
-          ...pickUserFieldsData(submitValues, 'protected', userType, userFields),
-          // If the form has any additional values, pass them forward as user's protected data
-          ...getNonUserFieldParams(submitValues, userFields),
-        },
-      }
-    : {};
+  if (!userType && isEmpty(submitValues)) {
+    return {};
+  }
+
+  const extendedData = {
+    publicData: buildSignupPublicData(submitValues, userType, userFields),
+  };
+
+  if (!isEmpty(submitValues)) {
+    extendedData.privateData = pickUserFieldsData(submitValues, 'private', userType, userFields);
+    extendedData.protectedData = {
+      ...pickUserFieldsData(submitValues, 'protected', userType, userFields),
+      ...getNonUserFieldParams(submitValues, userFields),
+    };
+  }
+
+  return extendedData;
+};
+
+/**
+ * @param {Object} [context]
+ * @param {'client'|'coach'|'team'|null|undefined} [context.activeSignupPath]
+ * @param {string} [context.coachSignupRef]
+ * @returns {{ isCoachSignup: boolean, coachOnboardingPublicData: object|null }}
+ */
+export const resolveSignupCoachPayload = ({ activeSignupPath, coachSignupRef } = {}) => {
+  const isCoachSignup = activeSignupPath === SIGNUP_PATH_COACH;
+  const coachOnboardingPublicData = isCoachSignup
+    ? buildCoachOnboardingProfilePublicData({ ref: coachSignupRef })
+    : null;
+
+  return { isCoachSignup, coachOnboardingPublicData };
 };
 
 /**
  * Creates a submit handler for the signup form.
- * I.e. the handler dispatches the signup thunk action.
+ * Coach onboarding flags are resolved at submit time from the active signup path,
+ * not from render-time props (avoids stale coach payload after switching to Customer).
  *
  * @param {Object} params
  * @param {Function} params.submitSignup
  * @param {Array} params.userFields
- * @param {object} [params.coachOnboardingPublicData]
+ * @param {() => { activeSignupPath?: 'client'|'coach'|'team'|null, coachSignupRef?: string }} [params.getSignupSubmitContext]
  * @returns {(values: Object) => Promise|void}
  */
-export const getHandleSubmitSignup = ({ submitSignup, userFields, coachOnboardingPublicData }) => values => {
-  const { userType, email, password, fname, lname, displayName, ...rest } = values;
-  const displayNameMaybe = displayName ? { displayName: displayName.trim() } : {};
+export const getHandleSubmitSignup = ({ submitSignup, userFields, getSignupSubmitContext }) => values => {
+  const submitContext =
+    typeof getSignupSubmitContext === 'function' ? getSignupSubmitContext() : {};
+  const { isCoachSignup, coachOnboardingPublicData } = resolveSignupCoachPayload(submitContext);
+  const { userType, email, password, fname, lname, displayName, teamName, ...rest } = values;
+
+  if (!isCoachSignup) {
+    clearCoachOnboardingIntent();
+  }
+
+  const isTeamSignup = userType === PEAKUP_TEAM_USER_TYPE;
+
+  const identityFields = isTeamSignup
+    ? (() => {
+        const normalizedTeamName = String(teamName || '').trim();
+        return {
+          firstName: normalizedTeamName,
+          lastName: normalizedTeamName,
+          displayName: normalizedTeamName,
+        };
+      })()
+    : {
+        firstName: fname.trim(),
+        lastName: lname.trim(),
+        ...(displayName ? { displayName: displayName.trim() } : {}),
+      };
 
   const submitParams = {
     email,
     password,
-    firstName: fname.trim(),
-    lastName: lname.trim(),
-    ...displayNameMaybe,
+    ...identityFields,
     ...getExtendedDataMaybe(rest, userType, userFields),
-    ...(coachOnboardingPublicData && Object.keys(coachOnboardingPublicData).length > 0
+    activeSignupPath: submitContext.activeSignupPath || null,
+    ...(isCoachSignup && coachOnboardingPublicData
       ? { coachOnboardingPublicData }
       : {}),
   };
+
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp SIGNUP SUBMIT — BEFORE DISPATCH]', {
+    activeSignupPath: submitContext.activeSignupPath || null,
+    formUserType: userType,
+    isCoachSignup,
+    publicData: submitParams.publicData || null,
+    coachOnboardingPublicData: coachOnboardingPublicData || null,
+    coachOnboardingPublicDataIsNull: coachOnboardingPublicData == null,
+    localStorageIntent: readCoachOnboardingIntent(),
+  });
 
   return submitSignup(submitParams).catch(() => undefined);
 };
 
 /**
  * Creates a submit handler for confirming signup data after SSO.
- * I.e. the handler dispatches the signupWithIdp thunk action.
  *
  * @param {Object} params
  * @param {Object} params.authInfo
  * @param {Function} params.submitSingupWithIdp
  * @param {Array} params.userFields
+ * @param {() => { activeSignupPath?: 'client'|'coach'|'team'|null, coachSignupRef?: string }} [params.getSignupSubmitContext]
  * @returns {(values: Object) => void}
  */
 export const getHandleSubmitConfirm = ({
   authInfo,
   submitSingupWithIdp,
   userFields,
-  coachOnboardingPublicData,
+  getSignupSubmitContext,
 }) => values => {
+  const submitContext =
+    typeof getSignupSubmitContext === 'function' ? getSignupSubmitContext() : {};
+  const { isCoachSignup, coachOnboardingPublicData } = resolveSignupCoachPayload(submitContext);
   const { idpToken, email, firstName, lastName, idpId } = authInfo;
 
   const {
@@ -114,23 +189,34 @@ export const getHandleSubmitConfirm = ({
     ...rest
   } = values;
 
+  if (!isCoachSignup) {
+    clearCoachOnboardingIntent();
+  }
+
   const displayNameMaybe = displayName ? { displayName: displayName.trim() } : {};
 
-  // Pass email, fistName or lastName to Marketplace API only if user has edited them
-  // and they can't be fetched directly from idp provider (e.g. Facebook)
   const authParams = {
     ...(newEmail !== email && { email: newEmail }),
     ...(newFirstName !== firstName && { firstName: newFirstName }),
     ...(newLastName !== lastName && { lastName: newLastName }),
   };
 
-  // Pass other values as extended data according to user field configuration
   const extendedDataMaybe = getExtendedDataMaybe(rest, userType, userFields);
+  const publicData = isCoachSignup
+    ? {
+        ...(extendedDataMaybe.publicData || {}),
+        ...(coachOnboardingPublicData || {}),
+      }
+    : extendedDataMaybe.publicData || { userType };
 
-  const publicData = {
-    ...(extendedDataMaybe.publicData || {}),
-    ...(coachOnboardingPublicData || {}),
-  };
+  // eslint-disable-next-line no-console
+  console.log('[PeakUp SIGNUP CONFIRM SUBMIT]', {
+    activeSignupPath: submitContext.activeSignupPath || null,
+    formUserType: userType,
+    isCoachSignup,
+    publicData,
+    coachOnboardingPublicData: coachOnboardingPublicData || null,
+  });
 
   submitSingupWithIdp({
     idpToken,
@@ -139,7 +225,7 @@ export const getHandleSubmitConfirm = ({
     ...displayNameMaybe,
     ...extendedDataMaybe,
     ...(Object.keys(publicData).length > 0 ? { publicData } : {}),
-    ...(coachOnboardingPublicData && Object.keys(coachOnboardingPublicData).length > 0
+    ...(isCoachSignup && coachOnboardingPublicData
       ? { coachOnboardingPublicData }
       : {}),
   });

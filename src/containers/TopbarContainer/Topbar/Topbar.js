@@ -59,6 +59,7 @@ import {
 } from '../../../ducks/peakupPlatformMode.duck';
 import { PLATFORM_MODE_COACH, PLATFORM_MODE_CUSTOMER } from '../../../util/peakupPlatformMode';
 import { isHowItWorksCmsPage, isInstructorsCmsPage } from '../../../util/coachOnboarding';
+import { shouldShowCustomerSportBar } from '../../../util/peakupCustomerSportBar';
 import useInboxNotificationRefresh from '../../../util/useInboxNotificationRefresh';
 
 const MAX_MOBILE_SCREEN_WIDTH = 1024;
@@ -350,9 +351,7 @@ const TopbarComponent = props => {
   const resolvedCurrentPage = currentPage || getResolvedCurrentPage(location, routeConfiguration);
   const isSportPremiumChrome = chromeTheme === 'sportPremium';
 
-  // Pages that render the global SportBar inside the topbar instead of an
-  // inline filter row. CoachMapPage owns its own (with winter variants) and
-  // passes it explicitly via `topbarCenterContent`, so it isn't listed here.
+  // Global SportBar (desktop topbar center + mobile rail). CoachMapPage injects its own.
   const cmsPageId =
     typeof resolvedCurrentPage === 'string' && resolvedCurrentPage.startsWith('CMSPage:')
       ? resolvedCurrentPage.slice('CMSPage:'.length)
@@ -362,19 +361,14 @@ const TopbarComponent = props => {
     (cmsPageId ? isInstructorsCmsPage(cmsPageId) : false);
   const isHowItWorksMarketingPage = cmsPageId ? isHowItWorksCmsPage(cmsPageId) : false;
 
-  const CUSTOMER_SPORTBAR_PAGES = new Set([
-    'LandingPage',
-    'CoachesPage',
-    'ProfilePage',
-    'ProfilePageVariant',
-    'AboutPage',
-    'HowItWorksPage',
-  ]);
-  // Customer/public discovery header only — hidden in coach/team provider nav mode.
+  // Global SportBar in customer/discovery mode — hidden on coach/team/admin routes.
   const useSportBarCenter =
-    !providerNavMode &&
-    !isInstructorsMarketingPage &&
-    (CUSTOMER_SPORTBAR_PAGES.has(resolvedCurrentPage) || isHowItWorksMarketingPage);
+    isCoachNavModeReady &&
+    shouldShowCustomerSportBar({
+      currentPage: resolvedCurrentPage,
+      providerNavMode,
+      cmsPageId,
+    });
   const useLandingCenterSlot =
     useSportBarCenter || (resolvedCurrentPage === 'CoachMapPage' && topbarCenterContent);
 
@@ -523,10 +517,8 @@ const TopbarComponent = props => {
   const showSearchForm =
     !disableSearch && (showSearchOnAllPages || showSearchOnSearchPage || showSearchNotOnLandingPage);
 
-  // Single global SportBar shared across LandingPage and CoachesPage.
-  // CoachMapPage opts out (it injects its own SportBar with winter variants
-  // via `topbarCenterContent`) and on every other page the topbar falls back
-  // to the search form / spacer like before.
+  // Single global SportBar for customer/discovery mode (desktop topbar center +
+  // mobile rail below the compact header). CoachMapPage injects its own variant.
   const globalSportBarCenterContent = useMemo(() => {
     if (!useSportBarCenter) return null;
     return (
@@ -541,6 +533,24 @@ const TopbarComponent = props => {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useSportBarCenter, currentSportFromUrl, handleGlobalSportChange]);
+
+  const mobileCustomerSportBarMaybe =
+    useSportBarCenter && isMobileLayout ? (
+      <div
+        className={classNames(
+          css.mobileCustomerSportBar,
+          isSportPremiumChrome ? css.mobileCustomerSportBarSportPremium : null
+        )}
+        aria-label={intl.formatMessage({ id: 'CoachMapPage.mobileSportBarA11y' })}
+      >
+        <SportBar
+          value={currentSportFromUrl}
+          variant="coachMapMobileRail"
+          onChange={handleGlobalSportChange}
+          allLabel={intl.formatMessage({ id: 'SportBar.allSports', defaultMessage: 'All sports' })}
+        />
+      </div>
+    ) : null;
 
   const showSearchFormEffective =
     discoveryTopbarEnabled &&
@@ -670,6 +680,7 @@ const TopbarComponent = props => {
           </>
         )}
       </nav>
+      {mobileCustomerSportBarMaybe}
       <div className={css.desktop}>
         <TopbarDesktop
           className={desktopClassName}

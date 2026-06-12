@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useHistory } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import classNames from 'classnames';
 
@@ -57,13 +57,21 @@ import {
   isCoachProviderSignupUserType,
   parseReferralCodeFromLocation,
   buildCoachSignupAuthSearch,
-  buildCoachOnboardingProfilePublicData,
   captureAmbassadorRefFromEntry,
+  clearCoachOnboardingIntent,
   getCoachOnboardingProfilePublicData,
+  persistCoachOnboardingIntent,
   resolvePostLoginRedirect,
   resolveSignupAmbassadorRef,
   syncCoachOnboardingIntent,
 } from '../../util/coachOnboarding';
+
+import {
+  resolveActiveSignupPath,
+  SIGNUP_PATH_CLIENT,
+  SIGNUP_PATH_COACH,
+  SIGNUP_PATH_TEAM,
+} from '../../util/signupPaths';
 
 import TermsAndConditions from './TermsAndConditions/TermsAndConditions';
 import ConfirmSignupForm from './ConfirmSignupForm/ConfirmSignupForm';
@@ -234,9 +242,15 @@ export const AuthenticationPageComponent = props => {
   );
   const [mounted, setMounted] = useState(false);
   const [signupUserType, setSignupUserType] = useState(null);
+  const [explicitSignupPath, setExplicitSignupPath] = useState(null);
+  const signupSubmitContextRef = useRef({
+    activeSignupPath: null,
+    coachSignupRef: '',
+  });
 
   const config = useConfiguration();
   const intl = useIntl();
+  const history = useHistory();
 
   const {
     authInProgress,
@@ -270,7 +284,9 @@ export const AuthenticationPageComponent = props => {
     if (authError) {
       Cookies.remove('st-autherror');
     }
-    if (hasCoachOnboardingUrlSignal({ location, from })) {
+    const skipCoachIntentSync =
+      explicitSignupPath === SIGNUP_PATH_CLIENT || explicitSignupPath === SIGNUP_PATH_TEAM;
+    if (!skipCoachIntentSync && hasCoachOnboardingUrlSignal({ location, from })) {
       captureAmbassadorRefFromEntry({
         location,
         from,
@@ -278,17 +294,53 @@ export const AuthenticationPageComponent = props => {
       });
     }
     const userForSync = ensureCurrentUser(currentUser);
-    syncCoachOnboardingIntent({
-      location,
-      from,
-      pathname: location.pathname,
-      currentUser: userForSync.id ? userForSync : null,
-    });
+    if (!skipCoachIntentSync) {
+      syncCoachOnboardingIntent({
+        location,
+        from,
+        pathname: location.pathname,
+        currentUser: userForSync.id ? userForSync : null,
+      });
+    }
     setMounted(true);
-  }, [authError, location, from, currentUser]);
+  }, [authError, location, from, currentUser, explicitSignupPath]);
 
   const user = ensureCurrentUser(currentUser);
   const currentUserLoaded = !!user.id;
+  const { userTypes = [], userFields = [] } = config.user;
+
+  const handleSignupPathSelect = useCallback(
+    (path, nextUserType) => {
+      signupSubmitContextRef.current = {
+        ...signupSubmitContextRef.current,
+        activeSignupPath: path,
+      };
+      setExplicitSignupPath(path);
+
+      if (nextUserType) {
+        setSignupUserType(nextUserType);
+      }
+
+      if (path === SIGNUP_PATH_CLIENT || path === SIGNUP_PATH_TEAM) {
+        clearCoachOnboardingIntent();
+        if (
+          location.pathname === '/signup' &&
+          (isCoachOnboardingQueryActive(location.search) || location.search)
+        ) {
+          history.replace({
+            pathname: '/signup',
+            search: '',
+            state: location.state,
+          });
+        }
+      } else if (path === SIGNUP_PATH_COACH) {
+        persistCoachOnboardingIntent({
+          ref: resolveSignupAmbassadorRef({ location, from }),
+        });
+      }
+    },
+    [from, history, location.pathname, location.search, location.state]
+  );
 
   // On mobile, it's better to scroll to top.
   useEffect(() => {
@@ -315,6 +367,31 @@ export const AuthenticationPageComponent = props => {
   const userTypeInPushState = location.state?.userType || null;
   const userTypeInAuthInfo = isConfirm && authInfo?.userType ? authInfo?.userType : null;
   const userType = pathParams?.userType || userTypeInPushState || userTypeInAuthInfo || null;
+  const pathSelectionUserType =
+    signupUserType ||
+    getCustomerUserTypeForCoachSignup(userTypes) ||
+    userTypes.find(conf => conf.userType === userType)?.userType ||
+    null;
+  const activeSignupPath = useMemo(
+    () =>
+      resolveActiveSignupPath({
+        explicitSignupPath,
+        location,
+        from,
+        currentUser: user.id ? user : null,
+        selectedUserType: pathSelectionUserType,
+        userTypes,
+      }),
+    [
+      explicitSignupPath,
+      location,
+      from,
+      user,
+      profileRedirectKey,
+      pathSelectionUserType,
+      userTypes,
+    ]
+  );
 
   if (!isLogin && isCoachProviderSignupUserType(userType)) {
     const ref = parseReferralCodeFromLocation(location);
@@ -328,8 +405,7 @@ export const AuthenticationPageComponent = props => {
     );
   }
 
-  const { userTypes = [], userFields = [] } = config.user;
-  const isCoachOnboardingFlow = hasCoachOnboardingUrlSignal({ location, from });
+  const isCoachOnboardingFlow = activeSignupPath === SIGNUP_PATH_COACH;
   const onboardingUserTypes = isCoachOnboardingFlow
     ? filterCoachOnboardingUserTypes(userTypes)
     : userTypes;
@@ -366,10 +442,11 @@ export const AuthenticationPageComponent = props => {
   };
   const fromMaybe = from ? { from } : {};
   const coachSignupRef = resolveSignupAmbassadorRef({ location, from });
-  const preserveCoachSearch =
-    isCoachOnboardingFlow ||
-    isCoachOnboardingQueryActive(location.search) ||
-    hasCoachOnboardingUrlSignal({ location, from });
+  signupSubmitContextRef.current = {
+    activeSignupPath,
+    coachSignupRef,
+  };
+  const preserveCoachSearch = isCoachOnboardingFlow;
   const coachSearch =
     location.search ||
     (preserveCoachSearch ? buildCoachSignupAuthSearch({ ref: coachSignupRef }) : '');
@@ -502,13 +579,7 @@ export const AuthenticationPageComponent = props => {
                   onSubmit={getHandleSubmitSignup({
                     submitSignup,
                     userFields,
-                    ...(isCoachOnboardingFlow
-                      ? {
-                          coachOnboardingPublicData: buildCoachOnboardingProfilePublicData({
-                            ref: coachSignupRef,
-                          }),
-                        }
-                      : {}),
+                    getSignupSubmitContext: () => signupSubmitContextRef.current,
                   })}
                   inProgress={authInProgress}
                   termsAndConditions={termsAndConditions}
@@ -519,9 +590,8 @@ export const AuthenticationPageComponent = props => {
                   pathSelectorUserTypes={userTypes}
                   coachSignupTo={coachSignupTo}
                   onUserTypeChange={setSignupUserType}
-                  signupPathLocation={location}
-                  signupPathFrom={from}
-                  signupPathCurrentUser={user.id ? user : null}
+                  activeSignupPath={activeSignupPath}
+                  onSignupPathSelect={handleSignupPathSelect}
                 />
               )}
 
@@ -560,13 +630,7 @@ export const AuthenticationPageComponent = props => {
                   authInfo,
                   submitSingupWithIdp,
                   userFields,
-                  ...(isCoachOnboardingFlow
-                    ? {
-                        coachOnboardingPublicData: buildCoachOnboardingProfilePublicData({
-                          ref: coachSignupRef,
-                        }),
-                      }
-                    : {}),
+                  getSignupSubmitContext: () => signupSubmitContextRef.current,
                 })}
                 termsAndConditions={termsAndConditions}
                 authInfo={authInfo}

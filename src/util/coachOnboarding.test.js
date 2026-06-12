@@ -10,6 +10,7 @@ import {
   clearCoachOnboardingIntent,
   clearStalePostLoginRedirectStorage,
   consumeCoachOnboardingRedirectPath,
+  ensureCoachApplicantProfilePayload,
   filterCoachOnboardingUserTypes,
   getProfileAmbassadorRef,
   getCoachOnboardingRedirectPath,
@@ -92,7 +93,7 @@ describe('coachOnboarding', () => {
     };
 
     expect(shouldRedirectToCoachApplication(pendingUser)).toBe(true);
-    expect(shouldRedirectToCoachApplication(intentOnlyUser)).toBe(true);
+    expect(shouldRedirectToCoachApplication(intentOnlyUser)).toBe(false);
     expect(shouldRedirectToCoachApplication(submittedUser)).toBe(false);
   });
 
@@ -103,9 +104,31 @@ describe('coachOnboarding', () => {
       attributes: { profile: { publicData: { userType: 'customer' } } },
     };
 
+    expect(getCoachApplicantProfileRepairPayload(user)).toBe(null);
+  });
+
+  it('getCoachApplicantProfileRepairPayload still repairs profiles without customer/team type from stored intent', () => {
+    persistCoachOnboardingIntent({ ref: 'REPAIR01' });
+    const user = {
+      id: 'u1',
+      attributes: { profile: { publicData: {} } },
+    };
+
     expect(getCoachApplicantProfileRepairPayload(user)).toEqual(
       buildCoachOnboardingProfilePublicData({ ref: 'REPAIR01' })
     );
+  });
+
+  it('ensureCoachApplicantProfilePayload does not coachify customer profiles on login repair', () => {
+    persistCoachOnboardingIntent({ ref: 'AMB01' });
+    const customerUser = {
+      id: 'u1',
+      attributes: {
+        profile: { publicData: { userType: 'customer' } },
+      },
+    };
+
+    expect(ensureCoachApplicantProfilePayload(customerUser, 'AMB01')).toBe(null);
   });
 
   it('captures ambassador ref from coach-signup URL and persists pre-login', () => {
@@ -232,7 +255,7 @@ describe('coachOnboarding', () => {
     expect(resolvePostVerifyRedirect()).toBe('/login?coachOnboarding=1&ref=CODE01');
   });
 
-  it('falls back to stored coach onboarding intent when profile flags are missing', () => {
+  it('customer profile with stored coach intent redirects to customer dashboard, not coach-application', () => {
     persistCoachOnboardingIntent({ ref: 'FALLBACK' });
     const customerUser = {
       id: 'user-1',
@@ -247,8 +270,8 @@ describe('coachOnboarding', () => {
       },
     };
 
-    expect(resolvePostLoginRedirectTarget(customerUser)).toBe('/coach-application?ref=FALLBACK');
-    expect(resolvePostLoginRedirect(customerUser)).toBe('/coach-application?ref=FALLBACK');
+    expect(resolvePostLoginRedirectTarget(customerUser)).toBe(CUSTOMER_DASHBOARD_PATH);
+    expect(resolvePostLoginRedirect(customerUser)).toBe(CUSTOMER_DASHBOARD_PATH);
   });
 
   it('redirects pending ambassador coach to application with profile ref (case A)', () => {
@@ -912,11 +935,11 @@ describe('coachOnboarding', () => {
       expect(shouldRedirectToCoachApplication(verifiedCoach)).toBe(true);
     });
 
-    it('step 6 — broken profile flags are recovered from stored intent at login', () => {
+    it('step 6 — customer profile with stale localStorage intent stays on customer dashboard', () => {
       persistCoachOnboardingIntent({ ref: 'AMB01' });
 
-      const verifiedCoachMissingFlags = {
-        id: 'new-coach-1',
+      const verifiedCustomer = {
+        id: 'new-customer-1',
         attributes: {
           emailVerified: true,
           pendingEmail: null,
@@ -926,9 +949,30 @@ describe('coachOnboarding', () => {
         },
       };
 
-      expect(resolvePostLoginRedirect(verifiedCoachMissingFlags)).toBe(
-        '/coach-application?ref=AMB01'
-      );
+      expect(resolvePostLoginRedirect(verifiedCustomer)).toBe(CUSTOMER_DASHBOARD_PATH);
+      expect(resolvePostVerifyRedirect(verifiedCustomer)).toBe(CUSTOMER_DASHBOARD_PATH);
+      expect(shouldRedirectToCoachApplication(verifiedCustomer)).toBe(false);
+      expect(isCoachApplicantProfile(verifiedCustomer)).toBe(false);
+    });
+
+    it('customer signup after previously selecting Professional does not redirect to coach-application', () => {
+      persistCoachOnboardingIntent({ ref: 'AMB01' });
+      clearCoachOnboardingIntent();
+
+      const verifiedCustomer = {
+        id: 'customer-after-switch-1',
+        attributes: {
+          emailVerified: true,
+          pendingEmail: null,
+          profile: {
+            publicData: { userType: 'customer' },
+          },
+        },
+      };
+
+      expect(hasCoachOnboardingIntent()).toBe(false);
+      expect(resolvePostVerifyRedirect(verifiedCustomer)).toBe(CUSTOMER_DASHBOARD_PATH);
+      expect(resolveCoachOnboardingRedirect({ currentUser: verifiedCustomer })).toBe(null);
     });
   });
 });

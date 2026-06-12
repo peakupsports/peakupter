@@ -19,37 +19,39 @@ import css from './SignupPathSelector.module.css';
  * Client & team set Final Form `userType`; coach navigates to coach-signup entry.
  *
  * @param {Object} props
- * @param {string|null} props.selectedUserType
- * @param {(userType: string) => void} props.onSelectUserType
- * @param {Array} props.userTypes
- * @param {Object} [props.coachSignupTo] NamedLink `to` for coach path
- * @param {'client'|'coach'|'team'|null} [props.activeSignupPath] - Visual selection override
+ * @param {(path: 'client'|'coach'|'team', userType?: string) => void} props.onSelectSignupPath
+ * @param {'client'|'coach'|'team'|null} [props.activeSignupPath]
  */
 const SignupPathSelector = props => {
   const {
     rootClassName,
     splitLayout,
-    selectedUserType,
     activeSignupPath,
-    onSelectUserType,
+    onSelectSignupPath,
     userTypes,
     coachSignupTo,
   } = props;
   const { customerUserType, teamUserType, showCoachPath } = getSignupPathOptions(userTypes);
 
   const isCoachSelected = activeSignupPath === SIGNUP_PATH_COACH;
-  const isClientSelected =
-    activeSignupPath != null
-      ? activeSignupPath === SIGNUP_PATH_CLIENT
-      : Boolean(customerUserType && selectedUserType === customerUserType);
-  const isTeamSelected =
-    activeSignupPath != null
-      ? activeSignupPath === SIGNUP_PATH_TEAM
-      : Boolean(teamUserType && selectedUserType === teamUserType);
+  const isClientSelected = activeSignupPath === SIGNUP_PATH_CLIENT;
+  const isTeamSelected = activeSignupPath === SIGNUP_PATH_TEAM;
 
-  const handleSelect = userType => () => {
-    if (userType && typeof onSelectUserType === 'function') {
-      onSelectUserType(userType);
+  const handleClientSelect = () => {
+    if (customerUserType && typeof onSelectSignupPath === 'function') {
+      onSelectSignupPath(SIGNUP_PATH_CLIENT, customerUserType);
+    }
+  };
+
+  const handleTeamSelect = () => {
+    if (teamUserType && typeof onSelectSignupPath === 'function') {
+      onSelectSignupPath(SIGNUP_PATH_TEAM, teamUserType);
+    }
+  };
+
+  const handleCoachSelect = () => {
+    if (typeof onSelectSignupPath === 'function') {
+      onSelectSignupPath(SIGNUP_PATH_COACH);
     }
   };
 
@@ -79,7 +81,7 @@ const SignupPathSelector = props => {
             className={classNames(css.card, css.cardClient, {
               [css.cardSelected]: isClientSelected,
             })}
-            onClick={handleSelect(customerUserType)}
+            onClick={handleClientSelect}
           >
             <span className={css.cardIcon} aria-hidden>
               <SignupPathIcon variant="client" className={css.cardIconSvg} />
@@ -102,6 +104,7 @@ const SignupPathSelector = props => {
             })}
             name="CoachSignupPage"
             to={coachSignupTo || {}}
+            onClick={handleCoachSelect}
           >
             <span className={css.cardIcon} aria-hidden>
               <SignupPathIcon variant="coach" className={css.cardIconSvg} />
@@ -125,7 +128,7 @@ const SignupPathSelector = props => {
             className={classNames(css.card, css.cardTeam, {
               [css.cardSelected]: isTeamSelected,
             })}
-            onClick={handleSelect(teamUserType)}
+            onClick={handleTeamSelect}
           >
             <span className={css.cardIcon} aria-hidden>
               <SignupPathIcon variant="team" className={css.cardIconSvg} />

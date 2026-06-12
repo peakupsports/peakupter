@@ -3,7 +3,7 @@
  * Provider user types cannot skip the application via /signup/:userType.
  */
 
-import { resolveTeamPostLoginRedirectTarget } from './peakupTeam';
+import { resolveTeamPostLoginRedirectTarget, PEAKUP_TEAM_USER_TYPE } from './peakupTeam';
 import { CUSTOMER_DASHBOARD_PATH } from './peakupBookingDashboard';
 
 export const COACH_PROVIDER_SIGNUP_USER_TYPES = new Set([
@@ -563,6 +563,28 @@ export function hasCoachOnboardingUrlSignal({ location, from } = {}) {
 }
 
 /**
+ * @param {object} [publicData]
+ * @returns {boolean}
+ */
+export function isCustomerOrTeamPublicData(publicData = {}) {
+  const userType = String(publicData?.userType || '').trim().toLowerCase();
+  return userType === 'customer' || userType === PEAKUP_TEAM_USER_TYPE;
+}
+
+/**
+ * Customer and team accounts must never enter coach-application flows.
+ *
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {boolean}
+ */
+export function isCustomerOrTeamProfile(currentUser) {
+  if (!currentUser?.id) {
+    return false;
+  }
+  return isCustomerOrTeamPublicData(getCoachOnboardingProfilePublicData(currentUser));
+}
+
+/**
  * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
  * @returns {boolean}
  */
@@ -605,6 +627,10 @@ export function isCoachApplicantProfile(currentUser) {
   }
 
   const publicData = getCoachOnboardingProfilePublicData(currentUser);
+  if (isCustomerOrTeamPublicData(publicData)) {
+    return false;
+  }
+
   const userType = String(publicData.userType || '').trim().toLowerCase();
 
   return (
@@ -683,7 +709,10 @@ export function resolvePostVerifyRedirect(currentUser) {
       }
     }
 
-    if (shouldRedirectToCoachApplication(currentUser) || isCoachApplicantProfile(currentUser)) {
+    if (
+      !isCustomerOrTeamProfile(currentUser) &&
+      (shouldRedirectToCoachApplication(currentUser) || isCoachApplicantProfile(currentUser))
+    ) {
       const target = buildCoachApplicationPath({ ref: getProfileAmbassadorRef(currentUser) });
       // eslint-disable-next-line no-console
       console.log('[PeakUp VERIFY REDIRECT]', { target, source: 'coach-applicant-profile' });
@@ -761,6 +790,10 @@ export function shouldRedirectToCoachApplication(currentUser) {
   }
 
   const publicData = getCoachOnboardingProfilePublicData(currentUser);
+  if (isCustomerOrTeamPublicData(publicData)) {
+    return false;
+  }
+
   if (publicData.pendingCoachApplication === true) {
     return true;
   }
@@ -788,6 +821,9 @@ export function getCoachApplicantProfileRepairPayload(currentUser) {
   }
 
   const publicData = getCoachOnboardingProfilePublicData(currentUser);
+  if (isCustomerOrTeamPublicData(publicData)) {
+    return null;
+  }
   if (publicData.pendingCoachApplication === true) {
     return null;
   }
@@ -814,12 +850,19 @@ export function ensureCoachApplicantProfilePayload(currentUser, ref) {
   if (!currentUser?.id || isCoachProviderProfileUserType(currentUser)) {
     return null;
   }
+  if (isCustomerOrTeamProfile(currentUser)) {
+    return null;
+  }
   if (shouldRedirectToCoachApplication(currentUser)) {
     return null;
   }
 
   const publicData = getCoachOnboardingProfilePublicData(currentUser);
   if (publicData.peakupCoachApplicant === true) {
+    return null;
+  }
+
+  if (!hasCoachOnboardingIntent()) {
     return null;
   }
 
@@ -872,15 +915,19 @@ export function resolvePostLoginRedirectTarget(currentUser) {
     return null;
   }
 
+  const teamTarget = resolveTeamPostLoginRedirectTarget(currentUser);
+  if (teamTarget) {
+    return teamTarget;
+  }
+  if (isOnlyCustomerProfile(currentUser)) {
+    return CUSTOMER_DASHBOARD_PATH;
+  }
+
   const coachProviderProfile = isCoachProviderProfileUserType(currentUser);
   const ambassadorRef = getProfileAmbassadorRef(currentUser);
 
   if (shouldRedirectToCoachApplication(currentUser)) {
     return buildCoachApplicationPath({ ref: ambassadorRef });
-  }
-  const teamTarget = resolveTeamPostLoginRedirectTarget(currentUser);
-  if (teamTarget) {
-    return teamTarget;
   }
   if (coachProviderProfile) {
     return COACH_DASHBOARD_PATH;
@@ -888,9 +935,6 @@ export function resolvePostLoginRedirectTarget(currentUser) {
   if (hasCoachOnboardingIntent()) {
     const intent = readCoachOnboardingIntent();
     return buildCoachApplicationPath({ ref: intent?.ref });
-  }
-  if (isOnlyCustomerProfile(currentUser)) {
-    return CUSTOMER_DASHBOARD_PATH;
   }
   return '/';
 }

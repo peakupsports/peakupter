@@ -5,6 +5,7 @@ import {
   hasCoachOnboardingUrlSignal,
   isCoachApplicantProfile,
   isCoachOnboardingQueryActive,
+  isCoachOnboardingReturn,
   isCoachProviderProfileUserType,
   isCoachSignupEntryPathname,
   shouldRedirectToCoachApplication,
@@ -54,7 +55,28 @@ export const shouldUseSignupPathSelector = ({ showSignupPathSelector, userTypes 
 };
 
 /**
- * Whether the coach/professional signup path should appear selected in the path selector.
+ * Coach onboarding routes that default to Professionista until the user picks another path.
+ *
+ * @param {object} [options]
+ * @param {import('react-router-dom').Location} [options.location]
+ * @param {string|object|null} [options.from]
+ * @returns {boolean}
+ */
+export function isCoachOnboardingRouteForced({ location, from } = {}) {
+  if (isCoachSignupEntryPathname(location?.pathname)) {
+    return true;
+  }
+  if (isCoachOnboardingQueryActive(location?.search)) {
+    return true;
+  }
+  if (isCoachOnboardingReturn(from)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Default coach path before the user makes an explicit Cliente/Team choice.
  *
  * @param {object} [options]
  * @param {import('react-router-dom').Location} [options.location]
@@ -62,11 +84,8 @@ export const shouldUseSignupPathSelector = ({ showSignupPathSelector, userTypes 
  * @param {import('./types').propTypes.currentUser|null|undefined} [options.currentUser]
  * @returns {boolean}
  */
-export function isCoachSignupPathActive({ location, from, currentUser } = {}) {
-  if (isCoachSignupEntryPathname(location?.pathname)) {
-    return true;
-  }
-  if (isCoachOnboardingQueryActive(location?.search)) {
+export function isCoachSignupPathDefault({ location, from, currentUser } = {}) {
+  if (isCoachOnboardingRouteForced({ location, from })) {
     return true;
   }
   if (hasCoachOnboardingUrlSignal({ location, from })) {
@@ -93,6 +112,11 @@ export function isCoachSignupPathActive({ location, from, currentUser } = {}) {
   return false;
 }
 
+/** @deprecated Use isCoachSignupPathDefault */
+export function isCoachSignupPathActive(options) {
+  return isCoachSignupPathDefault(options);
+}
+
 /**
  * Active card in the PeakUp signup path selector (client / coach / team).
  *
@@ -101,6 +125,7 @@ export function isCoachSignupPathActive({ location, from, currentUser } = {}) {
  * @param {string|object|null} [options.from]
  * @param {import('./types').propTypes.currentUser|null|undefined} [options.currentUser]
  * @param {string|null|undefined} [options.selectedUserType]
+ * @param {'client'|'coach'|'team'|null} [options.explicitSignupPath]
  * @param {Array} [options.userTypes]
  * @returns {'client'|'coach'|'team'|null}
  */
@@ -109,11 +134,20 @@ export function resolveActiveSignupPath({
   from,
   currentUser,
   selectedUserType,
+  explicitSignupPath = null,
   userTypes = [],
 } = {}) {
   const { customerUserType, teamUserType } = getSignupPathOptions(userTypes);
 
-  if (isCoachSignupPathActive({ location, from, currentUser })) {
+  if (
+    explicitSignupPath === SIGNUP_PATH_CLIENT ||
+    explicitSignupPath === SIGNUP_PATH_COACH ||
+    explicitSignupPath === SIGNUP_PATH_TEAM
+  ) {
+    return explicitSignupPath;
+  }
+
+  if (isCoachSignupPathDefault({ location, from, currentUser })) {
     return SIGNUP_PATH_COACH;
   }
 

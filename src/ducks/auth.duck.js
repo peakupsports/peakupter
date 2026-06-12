@@ -4,8 +4,12 @@ import { getAuthErrorMessage, logSignupError, storableError } from '../util/erro
 import { clearCurrentUser, fetchCurrentUser } from './user.duck';
 import { createUserWithIdp } from '../util/api';
 import {
+  clearStalePostLoginRedirectStorage,
   ensureCoachApplicantProfilePayload,
   getCoachApplicantProfileRepairPayload,
+  getCoachOnboardingProfilePublicData,
+  isCustomerOrTeamProfile,
+  readCoachOnboardingIntent,
 } from '../util/coachOnboarding';
 
 const authenticated = authInfo => authInfo?.isAnonymous === false;
@@ -111,12 +115,30 @@ const repairCoachApplicantProfileThunk = createAsyncThunk(
   async (options, thunkAPI) => {
     const { extra: sdk, dispatch, getState } = thunkAPI;
     const currentUser = getState().user?.currentUser;
+
+    if (isCustomerOrTeamProfile(currentUser)) {
+      // eslint-disable-next-line no-console
+      console.log('[PeakUp Coach Profile Repair SKIPPED]', {
+        reason: 'customer-or-team-profile',
+        profilePublicData: getCoachOnboardingProfilePublicData(currentUser),
+        localStorageIntent: readCoachOnboardingIntent(),
+      });
+      return null;
+    }
+
     const repairPayload =
       getCoachApplicantProfileRepairPayload(currentUser) ||
       ensureCoachApplicantProfilePayload(currentUser, options?.ref);
     if (!repairPayload) {
       return null;
     }
+
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp Coach Profile Repair BEFORE updateProfile]', {
+      repairPublicData: repairPayload,
+      profilePublicDataBefore: getCoachOnboardingProfilePublicData(currentUser),
+      localStorageIntent: readCoachOnboardingIntent(),
+    });
 
     try {
       await sdk.currentUser.updateProfile({ publicData: repairPayload });
@@ -161,41 +183,57 @@ const signupThunk = createAsyncThunk(
   'auth/signup',
   (params, thunkAPI) => {
     const { rejectWithValue, extra: sdk, dispatch } = thunkAPI;
-    const { coachOnboardingPublicData, ...createParams } = params;
-    const createParamsWithCoach =
-      coachOnboardingPublicData && Object.keys(coachOnboardingPublicData).length > 0
-        ? {
-            ...createParams,
-            publicData: {
-              ...(createParams.publicData || {}),
-              ...coachOnboardingPublicData,
-            },
-          }
-        : createParams;
+    const { coachOnboardingPublicData, activeSignupPath, ...createParams } = params;
+    const shouldMergeCoachPublicData =
+      activeSignupPath === 'coach' &&
+      coachOnboardingPublicData &&
+      Object.keys(coachOnboardingPublicData).length > 0;
+    const createParamsWithOnboarding = shouldMergeCoachPublicData
+      ? {
+          ...createParams,
+          publicData: {
+            ...(createParams.publicData || {}),
+            ...coachOnboardingPublicData,
+          },
+        }
+      : createParams;
+
+    const localStorageIntent = readCoachOnboardingIntent();
 
     // eslint-disable-next-line no-console
-    console.log('[PeakUp SIGNUP INTENT]', {
-      email: createParams.email,
-      signupUserType: createParamsWithCoach.publicData?.userType || null,
-      signupPublicData: createParamsWithCoach.publicData || null,
+    console.log('[PeakUp SHARETRIBE CREATE — FINAL PAYLOAD]', {
+      activeSignupPath: activeSignupPath || null,
       coachOnboardingPublicData: coachOnboardingPublicData || null,
-      ambassadorRef: coachOnboardingPublicData?.ambassadorRef || null,
+      coachOnboardingPublicDataIsNull: coachOnboardingPublicData == null,
+      shouldMergeCoachPublicData,
+      localStorageIntent,
+      formPublicData: createParams.publicData || null,
+      finalPublicDataSentToSharetribe: createParamsWithOnboarding.publicData || null,
+      email: createParams.email,
     });
 
     return sdk.currentUser
-      .create(createParamsWithCoach)
+      .create(createParamsWithOnboarding)
       .then(() =>
         dispatch(loginThunk({ username: createParams.email, password: createParams.password })).unwrap()
       )
       .then(() =>
-        applyCoachOnboardingProfileMaybe(
-          sdk,
-          dispatch,
-          coachOnboardingPublicData,
-          createParams.email
-        )
+        shouldMergeCoachPublicData
+          ? applyCoachOnboardingProfileMaybe(
+              sdk,
+              dispatch,
+              coachOnboardingPublicData,
+              createParams.email
+            )
+          : null
       )
-      .then(() => dispatch(repairCoachApplicantProfileThunk()))
+      .then(() => {
+        if (shouldMergeCoachPublicData) {
+          return dispatch(repairCoachApplicantProfileThunk());
+        }
+        clearStalePostLoginRedirectStorage();
+        return null;
+      })
       .then(() => params)
       .catch(e => {
         logSignupError(e, {

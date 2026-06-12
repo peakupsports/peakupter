@@ -1,6 +1,7 @@
 import {
   getSignupPathOptions,
-  isCoachSignupPathActive,
+  isCoachOnboardingRouteForced,
+  isCoachSignupPathDefault,
   resolveActiveSignupPath,
   shouldUseSignupPathSelector,
   SIGNUP_PATH_CLIENT,
@@ -121,14 +122,62 @@ describe('signupPaths', () => {
     ).toBe(SIGNUP_PATH_TEAM);
   });
 
-  it('isCoachSignupPathActive follows coach onboarding signals only', () => {
+  it('explicit client choice overrides coach onboarding query', () => {
     expect(
-      isCoachSignupPathActive({
+      resolveActiveSignupPath({
+        explicitSignupPath: SIGNUP_PATH_CLIENT,
+        location: { pathname: '/signup', search: '?coachOnboarding=1' },
+        selectedUserType: 'customer',
+        userTypes,
+      })
+    ).toBe(SIGNUP_PATH_CLIENT);
+  });
+
+  it('explicit team choice overrides stored coach onboarding intent', () => {
+    persistCoachOnboardingIntent({ ref: 'AMB01' });
+
+    expect(
+      resolveActiveSignupPath({
+        explicitSignupPath: SIGNUP_PATH_TEAM,
+        location: { pathname: '/signup', search: '?coachOnboarding=1' },
+        selectedUserType: 'team',
+        userTypes,
+      })
+    ).toBe(SIGNUP_PATH_TEAM);
+  });
+
+  it('explicit coach choice stays active even on plain signup', () => {
+    expect(
+      resolveActiveSignupPath({
+        explicitSignupPath: SIGNUP_PATH_COACH,
+        location: { pathname: '/signup', search: '' },
+        selectedUserType: 'customer',
+        userTypes,
+      })
+    ).toBe(SIGNUP_PATH_COACH);
+  });
+
+  it('isCoachOnboardingRouteForced matches forced coach routes only', () => {
+    expect(
+      isCoachOnboardingRouteForced({
         location: { pathname: '/signup', search: '?coachOnboarding=1' },
       })
     ).toBe(true);
     expect(
-      isCoachSignupPathActive({
+      isCoachOnboardingRouteForced({
+        location: { pathname: '/signup', search: '' },
+      })
+    ).toBe(false);
+  });
+
+  it('isCoachSignupPathDefault follows coach onboarding signals only', () => {
+    expect(
+      isCoachSignupPathDefault({
+        location: { pathname: '/signup', search: '?coachOnboarding=1' },
+      })
+    ).toBe(true);
+    expect(
+      isCoachSignupPathDefault({
         location: { pathname: '/signup', search: '' },
       })
     ).toBe(false);

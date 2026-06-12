@@ -952,15 +952,34 @@
 }
 
 .inboxPeakUpPageShell .container {
+  width: 100%;
+  max-width: 1128px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(16px, 4vw, 24px);
+  padding-right: clamp(16px, 4vw, 24px);
+  box-sizing: border-box;
   background: transparent;
 }
 
 .inboxPeakUpPageShell .sideNav {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 16px 0 0;
   background: transparent !important;
   border-top-color: rgba(25, 223, 242, 0.1) !important;
   box-shadow: none !important;
 
+  @media (--viewportMedium) {
+    padding-top: 20px;
+  }
+
   @media (--viewportLarge) {
+    flex: 0 0 240px;
+    width: 240px;
+    padding: 40px 24px 72px 0;
     background: transparent !important;
     border: none;
     box-shadow: none;
@@ -968,10 +987,21 @@
 }
 
 .inboxPeakUpPageShell .main {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 20px 0 48px;
   background: transparent !important;
-  border-left-color: rgba(120, 225, 255, 0.12) !important;
+  border-left: none !important;
+
+  @media (--viewportMedium) {
+    padding-bottom: 56px;
+  }
 
   @media (--viewportLarge) {
+    flex: 1;
+    padding: 40px 0 72px 32px;
+    border-left: 1px solid rgba(120, 225, 255, 0.12) !important;
     background: transparent !important;
   }
 }

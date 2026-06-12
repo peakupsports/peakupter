@@ -71,6 +71,7 @@ export const NamedLink = withRouter(props => {
     className,
     style = {},
     activeClassName = 'NamedLink_active',
+    onClick,
   } = props;
 
   const onOver = () => {
@@ -99,7 +100,13 @@ export const NamedLink = withRouter(props => {
   };
 
   return (
-    <Link onMouseOver={onOver} onTouchStart={onOver} to={{ pathname, ...to }} {...aElemProps}>
+    <Link
+      onMouseOver={onOver}
+      onTouchStart={onOver}
+      onClick={onClick}
+      to={{ pathname, ...to }}
+      {...aElemProps}
+    >
       {children}
     </Link>
   );
