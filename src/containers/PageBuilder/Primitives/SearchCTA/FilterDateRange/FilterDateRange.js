@@ -112,7 +112,10 @@ const FilterDateRange = props => {
         <span className={labelClasses}>
           {selectedDates
             ? selectedDates
-            : intl.formatMessage({ id: 'PageBuilder.SearchCTA.dateFilterPlaceholder' })}
+            : intl.formatMessage({
+                id: 'PageBuilder.SearchCTA.dateFilterPlaceholder',
+                defaultMessage: 'Date',
+              })}
         </span>
       </div>
       {isOpen ? (

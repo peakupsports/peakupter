@@ -7,8 +7,6 @@ import { OutsideClickHandler } from '../../../../../components';
 
 import css from './FilterCategories.module.css';
 
-const PEAKUP_SPORT_PLACEHOLDER = 'Your sport';
-
 const CategoryDropdown = ({ input, className, rootClassName, categories, alignLeft }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -68,13 +66,17 @@ const CategoryDropdown = ({ input, className, rootClassName, categories, alignLe
   };
 
   const selectedCategory = categories.find(category => category.id === input.value);
+  const sportPlaceholder = intl.formatMessage({
+    id: 'PageBuilder.SearchCTA.CategoryFilter.placeholder',
+    defaultMessage: 'Sport',
+  });
 
   const labelText = selectedCategory ? (
     selectedCategory.name
   ) : hasSelected && input.value === '' ? (
     <FormattedMessage id="PageBuilder.SearchCTA.CategoryFilter.selectAll" />
   ) : (
-    PEAKUP_SPORT_PLACEHOLDER
+    sportPlaceholder
   );
 
   const rootClass = rootClassName || css.root;
@@ -96,10 +98,7 @@ const CategoryDropdown = ({ input, className, rootClassName, categories, alignLe
       <div className={css.dropdownContainer}>
         <div
           role="combobox"
-          aria-label={intl.formatMessage({
-            id: 'PageBuilder.SearchCTA.CategoryFilter.placeholder',
-            defaultMessage: PEAKUP_SPORT_PLACEHOLDER,
-          })}
+          aria-label={sportPlaceholder}
           aria-haspopup="listbox"
           aria-expanded={isOpen}
           aria-owns="category-listbox"

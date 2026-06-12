@@ -181,10 +181,11 @@ export function getVerifyEmailGateState({
   emailIsVerified = false,
   verificationToken = '',
   currentUserFetchInProgress = false,
+  currentUser = null,
 } = {}) {
   const token = String(verificationToken || parseEmailVerificationTokenFromSearch(search)).trim();
   const onVerifyPath = isVerifyEmailPathname(pathname);
-  const loginTarget = resolvePostVerifyRedirect();
+  const loginTarget = resolvePostVerifyRedirect(currentUser);
 
   if (token && !onVerifyPath) {
     const params = new URLSearchParams({ t: token });
@@ -663,11 +664,41 @@ export function shouldContinueCoachOnboarding({ currentUser } = {}) {
 }
 
 /**
- * After email verification, always send users to login.
+ * Post-email-verification redirect — coach applicants go to /coach-application, not the marketplace.
  *
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} [currentUser]
  * @returns {string}
  */
-export function resolvePostVerifyRedirect() {
+export function resolvePostVerifyRedirect(currentUser) {
+  if (currentUser?.id) {
+    if (isCurrentUserReadyForPostLoginDecision(currentUser)) {
+      const profileTarget = resolvePostLoginRedirectTarget(currentUser);
+      if (profileTarget && profileTarget !== '/') {
+        // eslint-disable-next-line no-console
+        console.log('[PeakUp VERIFY REDIRECT]', {
+          target: profileTarget,
+          source: 'profile-publicData',
+        });
+        return profileTarget;
+      }
+    }
+
+    if (shouldRedirectToCoachApplication(currentUser) || isCoachApplicantProfile(currentUser)) {
+      const target = buildCoachApplicationPath({ ref: getProfileAmbassadorRef(currentUser) });
+      // eslint-disable-next-line no-console
+      console.log('[PeakUp VERIFY REDIRECT]', { target, source: 'coach-applicant-profile' });
+      return target;
+    }
+  }
+
+  if (hasCoachOnboardingIntent()) {
+    const ref = getCoachOnboardingStoredReferralCode();
+    const target = `/login${buildCoachSignupAuthSearch({ ref })}`;
+    // eslint-disable-next-line no-console
+    console.log('[PeakUp VERIFY REDIRECT]', { target, source: 'coach-intent-login' });
+    return target;
+  }
+
   // eslint-disable-next-line no-console
   console.log('[PeakUp VERIFY REDIRECT]', { target: '/login' });
   return '/login';
@@ -719,6 +750,85 @@ export function hasPendingCoachApplication(currentUser) {
 }
 
 /**
+ * True when the user should be on /coach-application (pending form or broken signup flags).
+ *
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {boolean}
+ */
+export function shouldRedirectToCoachApplication(currentUser) {
+  if (!currentUser?.id) {
+    return false;
+  }
+
+  const publicData = getCoachOnboardingProfilePublicData(currentUser);
+  if (publicData.pendingCoachApplication === true) {
+    return true;
+  }
+
+  if (
+    publicData.coachOnboardingIntent === true &&
+    publicData.peakupCoachApplicant !== true &&
+    !isCoachProviderProfileUserType(currentUser)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Rebuild coach applicant flags from persisted pre-login intent when profile update failed at signup.
+ *
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @returns {ReturnType<typeof buildCoachOnboardingProfilePublicData>|null}
+ */
+export function getCoachApplicantProfileRepairPayload(currentUser) {
+  if (!currentUser?.id) {
+    return null;
+  }
+
+  const publicData = getCoachOnboardingProfilePublicData(currentUser);
+  if (publicData.pendingCoachApplication === true) {
+    return null;
+  }
+  if (publicData.peakupCoachApplicant === true || isCoachProviderProfileUserType(currentUser)) {
+    return null;
+  }
+
+  const intent = readCoachOnboardingIntent();
+  if (!intent?.active) {
+    return null;
+  }
+
+  return buildCoachOnboardingProfilePublicData({ ref: intent.ref });
+}
+
+/**
+ * Ensure coach applicant flags when a verified user re-enters coach signup (e.g. broken profile).
+ *
+ * @param {import('../util/types').propTypes.currentUser|null|undefined} currentUser
+ * @param {string} [ref]
+ * @returns {ReturnType<typeof buildCoachOnboardingProfilePublicData>|null}
+ */
+export function ensureCoachApplicantProfilePayload(currentUser, ref) {
+  if (!currentUser?.id || isCoachProviderProfileUserType(currentUser)) {
+    return null;
+  }
+  if (shouldRedirectToCoachApplication(currentUser)) {
+    return null;
+  }
+
+  const publicData = getCoachOnboardingProfilePublicData(currentUser);
+  if (publicData.peakupCoachApplicant === true) {
+    return null;
+  }
+
+  const normalizedRef =
+    String(ref || getProfileAmbassadorRef(currentUser) || '').trim() || undefined;
+  return buildCoachOnboardingProfilePublicData({ ref: normalizedRef });
+}
+
+/**
  * @param {string|null|undefined} pathname
  * @returns {boolean}
  */
@@ -762,12 +872,10 @@ export function resolvePostLoginRedirectTarget(currentUser) {
     return null;
   }
 
-  const publicData = getCoachOnboardingProfilePublicData(currentUser);
-  const pendingCoachApplication = publicData.pendingCoachApplication === true;
   const coachProviderProfile = isCoachProviderProfileUserType(currentUser);
   const ambassadorRef = getProfileAmbassadorRef(currentUser);
 
-  if (pendingCoachApplication) {
+  if (shouldRedirectToCoachApplication(currentUser)) {
     return buildCoachApplicationPath({ ref: ambassadorRef });
   }
   const teamTarget = resolveTeamPostLoginRedirectTarget(currentUser);
@@ -776,6 +884,10 @@ export function resolvePostLoginRedirectTarget(currentUser) {
   }
   if (coachProviderProfile) {
     return COACH_DASHBOARD_PATH;
+  }
+  if (hasCoachOnboardingIntent()) {
+    const intent = readCoachOnboardingIntent();
+    return buildCoachApplicationPath({ ref: intent?.ref });
   }
   if (isOnlyCustomerProfile(currentUser)) {
     return CUSTOMER_DASHBOARD_PATH;
@@ -934,11 +1046,18 @@ export function resolvePostLoginRedirect(currentUser) {
     return null;
   }
 
-  clearStalePostLoginRedirectStorage();
-
   const publicData = getCoachOnboardingProfilePublicData(currentUser);
   const ambassadorRef = getProfileAmbassadorRef(currentUser);
   const target = resolvePostLoginRedirectTarget(currentUser);
+
+  if (
+    target &&
+    (target.startsWith('/coach-application') ||
+      target === COACH_DASHBOARD_PATH ||
+      !hasCoachOnboardingIntent())
+  ) {
+    clearStalePostLoginRedirectStorage();
+  }
 
   // eslint-disable-next-line no-console
   console.log('[PeakUp LOGIN REDIRECT DECISION]', {
@@ -960,7 +1079,7 @@ export function resolvePostLoginRedirect(currentUser) {
  * @returns {string|null}
  */
 export function resolveCoachOnboardingRedirect({ currentUser } = {}) {
-  if (!hasPendingCoachApplication(currentUser)) {
+  if (!shouldRedirectToCoachApplication(currentUser)) {
     return null;
   }
 

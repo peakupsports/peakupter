@@ -519,6 +519,9 @@ export const AuthenticationPageComponent = props => {
                   pathSelectorUserTypes={userTypes}
                   coachSignupTo={coachSignupTo}
                   onUserTypeChange={setSignupUserType}
+                  signupPathLocation={location}
+                  signupPathFrom={from}
+                  signupPathCurrentUser={user.id ? user : null}
                 />
               )}
 
@@ -557,6 +560,13 @@ export const AuthenticationPageComponent = props => {
                   authInfo,
                   submitSingupWithIdp,
                   userFields,
+                  ...(isCoachOnboardingFlow
+                    ? {
+                        coachOnboardingPublicData: buildCoachOnboardingProfilePublicData({
+                          ref: coachSignupRef,
+                        }),
+                      }
+                    : {}),
                 })}
                 termsAndConditions={termsAndConditions}
                 authInfo={authInfo}

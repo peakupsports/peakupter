@@ -23,6 +23,7 @@ import { pathByRouteName } from '../../../../util/routes';
 
 // Shared components
 import { Form, PrimaryButton } from '../../../../components';
+import { FormattedMessage } from '../../../../util/reactIntl';
 
 import FilterCategories from './FilterCategories/FilterCategories';
 import FilterDateRange from './FilterDateRange/FilterDateRange';
@@ -36,8 +37,6 @@ import {
 } from './landingMobileSearchSubmit';
 
 import css from './SearchCTA.module.css';
-
-const PEAKUP_SEARCH_BUTTON_LABEL = 'Find professionals';
 
 const GRID_CONFIG = [
   { gridCss: css.gridCol1 },
@@ -261,7 +260,10 @@ export const SearchCTA = React.forwardRef((props, ref) => {
                     handleMobileCTAClick(values, ctaDisabled);
                   }}
                 >
-                  {PEAKUP_SEARCH_BUTTON_LABEL}
+                  <FormattedMessage
+                    id="PageBuilder.SearchCTA.buttonLabel"
+                    defaultMessage="Find professionals"
+                  />
                 </PrimaryButton>
               ) : (
                 <PrimaryButton
@@ -269,7 +271,10 @@ export const SearchCTA = React.forwardRef((props, ref) => {
                   className={css.submitButton}
                   type="submit"
                 >
-                  {PEAKUP_SEARCH_BUTTON_LABEL}
+                  <FormattedMessage
+                    id="PageBuilder.SearchCTA.buttonLabel"
+                    defaultMessage="Find professionals"
+                  />
                 </PrimaryButton>
               )}
             </Form>

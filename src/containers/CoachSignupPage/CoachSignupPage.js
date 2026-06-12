@@ -1,6 +1,6 @@
 import React, { useLayoutEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { useRouteConfiguration } from '../../context/routeConfigurationContext';
 import { ensureCurrentUser } from '../../util/data';
@@ -11,6 +11,7 @@ import {
   coachOnboardingSignupTo,
 } from '../../util/coachOnboarding';
 import { pathByRouteName } from '../../util/routes';
+import { repairCoachApplicantProfileThunk } from '../../ducks/auth.duck';
 
 import { IconSpinner, Page, LayoutSingleColumn } from '../../components';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
@@ -24,6 +25,7 @@ import css from './CoachSignupPage.module.css';
 const CoachSignupPage = () => {
   const history = useHistory();
   const location = useLocation();
+  const dispatch = useDispatch();
   const routeConfiguration = useRouteConfiguration();
   const isAuthenticated = useSelector(state => state.auth?.isAuthenticated);
   const currentUser = useSelector(state => state.user?.currentUser);
@@ -51,7 +53,9 @@ const CoachSignupPage = () => {
     }
 
     if (user.attributes.emailVerified) {
-      history.replace(coachApplicationPath);
+      dispatch(repairCoachApplicantProfileThunk({ ref })).finally(() => {
+        history.replace(coachApplicationPath);
+      });
       return;
     }
 
@@ -60,7 +64,7 @@ const CoachSignupPage = () => {
       search: buildCoachSignupAuthSearch({ ref }),
       ...coachOnboardingSignupTo({ ref }),
     });
-  }, [currentUser, history, isAuthenticated, location, routeConfiguration]);
+  }, [currentUser, dispatch, history, isAuthenticated, location, routeConfiguration]);
 
   return (
     <Page scrollingDisabled={false}>

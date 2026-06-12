@@ -82,7 +82,7 @@ export const EmailVerificationPageComponent = props => {
     (!!verificationToken && !emailIsVerified && !verificationError);
 
   if (emailIsVerified && !verificationPending) {
-    return <Redirect to={resolvePostVerifyRedirect()} />;
+    return <Redirect to={resolvePostVerifyRedirect(user.id ? user : null)} />;
   }
 
   if (verificationPending) {

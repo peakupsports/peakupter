@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { storableError } from '../util/errors';
-import { setPostLoginRedirectPending } from './auth.duck';
+import { repairCoachApplicantProfileThunk, setPostLoginRedirectPending } from './auth.duck';
 import { fetchCurrentUser } from './user.duck';
 
 // ================ Async Thunk ================ //
@@ -19,8 +19,9 @@ export const verifyEmail = createAsyncThunk(
       .then(() => {
         // eslint-disable-next-line no-console
         console.log('[PeakUp Verify Success]');
-        dispatch(fetchCurrentUser({ enforce: true }));
-        return true;
+        return dispatch(fetchCurrentUser({ enforce: true }))
+          .then(() => dispatch(repairCoachApplicantProfileThunk()))
+          .then(() => true);
       })
       .catch(e => {
         // eslint-disable-next-line no-console

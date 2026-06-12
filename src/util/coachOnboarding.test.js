@@ -2,6 +2,8 @@ import {
   buildCoachApplicationPath,
   buildCoachOnboardingPostVerifyRedirectPath,
   buildCoachOnboardingProfilePublicData,
+  getCoachApplicantProfileRepairPayload,
+  shouldRedirectToCoachApplication,
   buildCoachSignupAuthSearch,
   buildCoachSignupEntryPath,
   captureAmbassadorRefFromEntry,
@@ -32,6 +34,7 @@ import {
   persistCoachOnboardingIntent,
   resolveCoachOnboardingRedirect,
   resolvePostLoginRedirect,
+  resolvePostLoginRedirectTarget,
   resolvePostVerifyRedirect,
   resolveSignupAmbassadorRef,
   rewriteCoachSignupHref,
@@ -40,6 +43,8 @@ import {
   shouldContinueCoachOnboarding,
   syncCoachOnboardingIntent,
 } from './coachOnboarding';
+import { CUSTOMER_DASHBOARD_PATH } from './peakupBookingDashboard';
+import { TEAM_DASHBOARD_PATH } from './peakupTeam';
 
 describe('coachOnboarding', () => {
   beforeEach(() => {
@@ -60,6 +65,47 @@ describe('coachOnboarding', () => {
       referredByAmbassador: 'TEST123',
       coachReferralCode: 'TEST123',
     });
+  });
+
+  it('shouldRedirectToCoachApplication covers pending and intent-only profiles', () => {
+    const pendingUser = {
+      id: 'u1',
+      attributes: { profile: { publicData: { pendingCoachApplication: true } } },
+    };
+    const intentOnlyUser = {
+      id: 'u2',
+      attributes: {
+        profile: { publicData: { coachOnboardingIntent: true, userType: 'customer' } },
+      },
+    };
+    const submittedUser = {
+      id: 'u3',
+      attributes: {
+        profile: {
+          publicData: {
+            coachOnboardingIntent: true,
+            peakupCoachApplicant: true,
+            userType: 'instructor',
+          },
+        },
+      },
+    };
+
+    expect(shouldRedirectToCoachApplication(pendingUser)).toBe(true);
+    expect(shouldRedirectToCoachApplication(intentOnlyUser)).toBe(true);
+    expect(shouldRedirectToCoachApplication(submittedUser)).toBe(false);
+  });
+
+  it('getCoachApplicantProfileRepairPayload rebuilds flags from stored intent', () => {
+    persistCoachOnboardingIntent({ ref: 'REPAIR01' });
+    const user = {
+      id: 'u1',
+      attributes: { profile: { publicData: { userType: 'customer' } } },
+    };
+
+    expect(getCoachApplicantProfileRepairPayload(user)).toEqual(
+      buildCoachOnboardingProfilePublicData({ ref: 'REPAIR01' })
+    );
   });
 
   it('captures ambassador ref from coach-signup URL and persists pre-login', () => {
@@ -158,17 +204,41 @@ describe('coachOnboarding', () => {
     expect(isCoachOnboardingQueryActive('?ref=ABC')).toBe(false);
   });
 
-  it('always redirects to login after email verification', () => {
+  it('redirects generic users to login after email verification', () => {
     expect(resolvePostVerifyRedirect()).toBe('/login');
+    expect(resolvePostVerifyRedirect(null)).toBe('/login');
   });
 
-  it('does not redirect from localStorage alone after login (case D)', () => {
-    localStorage.setItem('ref', 'OLDREF');
-    localStorage.setItem('peakupAmbassadorRef', 'OLDREF');
+  it('redirects verified coach applicants to coach application after email verification', () => {
+    const pendingCoachUser = {
+      id: 'user-1',
+      attributes: {
+        emailVerified: true,
+        pendingEmail: null,
+        profile: {
+          publicData: {
+            pendingCoachApplication: true,
+            ambassadorRef: 'TEST123',
+          },
+        },
+      },
+    };
+
+    expect(resolvePostVerifyRedirect(pendingCoachUser)).toBe('/coach-application?ref=TEST123');
+  });
+
+  it('redirects to login with coach onboarding query when intent is stored pre-login', () => {
     persistCoachOnboardingIntent({ ref: 'CODE01' });
+    expect(resolvePostVerifyRedirect()).toBe('/login?coachOnboarding=1&ref=CODE01');
+  });
+
+  it('falls back to stored coach onboarding intent when profile flags are missing', () => {
+    persistCoachOnboardingIntent({ ref: 'FALLBACK' });
     const customerUser = {
       id: 'user-1',
       attributes: {
+        emailVerified: true,
+        pendingEmail: null,
         profile: {
           publicData: {
             userType: 'customer',
@@ -177,9 +247,8 @@ describe('coachOnboarding', () => {
       },
     };
 
-    expect(resolveCoachOnboardingRedirect({ currentUser: customerUser })).toBe(null);
-    expect(resolvePostLoginRedirect(customerUser)).toBe('/');
-    expect(localStorage.getItem('peakupCoachOnboarding')).toBe(null);
+    expect(resolvePostLoginRedirectTarget(customerUser)).toBe('/coach-application?ref=FALLBACK');
+    expect(resolvePostLoginRedirect(customerUser)).toBe('/coach-application?ref=FALLBACK');
   });
 
   it('redirects pending ambassador coach to application with profile ref (case A)', () => {
@@ -258,7 +327,7 @@ describe('coachOnboarding', () => {
     expect(hasAmbassadorDashboardAccess(founderUser)).toBe(true);
   });
 
-  it('redirects customer to landing (case C)', () => {
+  it('redirects customer to customer dashboard (case C)', () => {
     const customerUser = {
       id: 'user-1',
       attributes: {
@@ -274,10 +343,10 @@ describe('coachOnboarding', () => {
     expect(isOnlyCustomerProfile(customerUser)).toBe(true);
     expect(resolveCoachOnboardingRedirect({ currentUser: customerUser })).toBe(null);
     expect(shouldContinueCoachOnboarding({ currentUser: customerUser })).toBe(false);
-    expect(resolvePostLoginRedirect(customerUser)).toBe('/');
+    expect(resolvePostLoginRedirect(customerUser)).toBe(CUSTOMER_DASHBOARD_PATH);
   });
 
-  it('redirects incomplete team to profile settings after login', () => {
+  it('redirects team accounts to team dashboard after login', () => {
     const incompleteTeamUser = {
       id: { uuid: 'team-user-1' },
       attributes: {
@@ -291,10 +360,10 @@ describe('coachOnboarding', () => {
     };
 
     expect(isCoachProviderProfileUserType(incompleteTeamUser)).toBe(false);
-    expect(resolvePostLoginRedirect(incompleteTeamUser)).toBe('/profile-settings');
+    expect(resolvePostLoginRedirect(incompleteTeamUser)).toBe(TEAM_DASHBOARD_PATH);
   });
 
-  it('redirects complete team to profile settings after login (V1)', () => {
+  it('redirects complete team to team dashboard after login (V1)', () => {
     const completeTeamUser = {
       id: { uuid: 'team-user-2' },
       attributes: {
@@ -312,7 +381,7 @@ describe('coachOnboarding', () => {
     };
 
     expect(isCoachProviderProfileUserType(completeTeamUser)).toBe(false);
-    expect(resolvePostLoginRedirect(completeTeamUser)).toBe('/profile-settings');
+    expect(resolvePostLoginRedirect(completeTeamUser)).toBe(TEAM_DASHBOARD_PATH);
   });
 
   it('matches signup paths with optional user type segment', () => {
@@ -399,7 +468,41 @@ describe('coachOnboarding', () => {
     });
   });
 
-  it('redirects to login after verify success on verify-email (case A/B)', () => {
+  it('redirects to coach application after verify success on verify-email (case A/B)', () => {
+    const pendingCoachUser = {
+      id: 'user-1',
+      attributes: {
+        emailVerified: true,
+        pendingEmail: null,
+        profile: {
+          publicData: {
+            pendingCoachApplication: true,
+            ambassadorRef: 'TEST123',
+          },
+        },
+      },
+    };
+
+    expect(
+      getVerifyEmailGateState({
+        pathname: '/verify-email',
+        search: '?t=TOKEN123',
+        verifySuccess: true,
+        emailIsVerified: true,
+        verifyInProgress: false,
+        currentUserFetchInProgress: false,
+        currentUser: pendingCoachUser,
+      })
+    ).toEqual({
+      shouldBlockRoutes: true,
+      target: '/coach-application?ref=TEST123',
+      verifyInProgress: false,
+      verifySuccess: true,
+      redirectDecisionComplete: false,
+    });
+  });
+
+  it('redirects to login after verify success for non-coach users', () => {
     expect(
       getVerifyEmailGateState({
         pathname: '/verify-email',
@@ -505,7 +608,7 @@ describe('coachOnboarding', () => {
     });
   });
 
-  it('completes customer redirect decision at / after profile loads (case B)', () => {
+  it('completes customer redirect decision at customer dashboard after profile loads (case B)', () => {
     const customerUser = {
       id: 'user-1',
       attributes: {
@@ -528,11 +631,11 @@ describe('coachOnboarding', () => {
         location: { pathname: '/', search: '' },
       })
     ).toEqual({
-      pending: false,
-      shouldBlockRoutes: false,
-      target: '/',
-      atTarget: true,
-      redirectDecisionComplete: true,
+      pending: true,
+      shouldBlockRoutes: true,
+      target: CUSTOMER_DASHBOARD_PATH,
+      atTarget: false,
+      redirectDecisionComplete: false,
       currentUserLoaded: true,
       profileReady: true,
     });
@@ -705,5 +808,127 @@ describe('coachOnboarding', () => {
     const result = rewriteHowItWorksJoinNowLinks(pageData, 'howitworks');
 
     expect(result.sections[0].callToAction.href).toBe('/s');
+  });
+
+  describe('professional signup → email verification → login → /coach-application', () => {
+    const buildNewCoachAfterSignup = (ref = 'AMB01') => ({
+      id: 'new-coach-1',
+      attributes: {
+        emailVerified: false,
+        pendingEmail: null,
+        profile: {
+          publicData: buildCoachOnboardingProfilePublicData({ ref }),
+        },
+      },
+    });
+
+    const buildVerifiedCoachAfterEmailVerify = (ref = 'AMB01') => ({
+      id: 'new-coach-1',
+      attributes: {
+        emailVerified: true,
+        pendingEmail: null,
+        profile: {
+          publicData: buildCoachOnboardingProfilePublicData({ ref }),
+        },
+      },
+    });
+
+    it('step 1 — coach signup persists intent and profile flags on the user', () => {
+      captureAmbassadorRefFromEntry({
+        location: { pathname: '/coach-signup', search: '?ref=AMB01' },
+        source: 'integration-test',
+      });
+
+      const afterSignup = buildNewCoachAfterSignup('AMB01');
+
+      expect(hasCoachOnboardingIntent()).toBe(true);
+      expect(getCoachOnboardingRedirectPath()).toBe('/coach-application?ref=AMB01');
+      expect(shouldRedirectToCoachApplication(afterSignup)).toBe(true);
+      expect(isCurrentUserReadyForPostLoginDecision(afterSignup)).toBe(false);
+    });
+
+    it('step 2 — after email verification, verified coach is sent to /coach-application', () => {
+      const verifiedCoach = buildVerifiedCoachAfterEmailVerify('AMB01');
+
+      expect(
+        getVerifyEmailGateState({
+          pathname: '/verify-email',
+          search: '?t=TOKEN123',
+          verifySuccess: true,
+          emailIsVerified: true,
+          verifyInProgress: false,
+          currentUserFetchInProgress: false,
+          currentUser: verifiedCoach,
+        }).target
+      ).toBe('/coach-application?ref=AMB01');
+
+      expect(resolvePostVerifyRedirect(verifiedCoach)).toBe('/coach-application?ref=AMB01');
+    });
+
+    it('step 2b — verify in a session without profile yet falls back to login with coach onboarding params', () => {
+      persistCoachOnboardingIntent({ ref: 'AMB01' });
+
+      expect(resolvePostVerifyRedirect(null)).toBe('/login?coachOnboarding=1&ref=AMB01');
+    });
+
+    it('step 3 — authenticated login page resolves to /coach-application for verified coach', () => {
+      const verifiedCoach = buildVerifiedCoachAfterEmailVerify('AMB01');
+
+      expect(resolvePostLoginRedirect(verifiedCoach)).toBe('/coach-application?ref=AMB01');
+    });
+
+    it('step 4 — marketplace is blocked until /coach-application is reached after login', () => {
+      const verifiedCoach = buildVerifiedCoachAfterEmailVerify('AMB01');
+
+      const onLanding = getPostLoginRedirectState({
+        isAuthenticated: true,
+        authSettling: false,
+        postLoginRedirectPending: true,
+        currentUser: verifiedCoach,
+        location: { pathname: '/', search: '' },
+      });
+
+      expect(onLanding.shouldBlockRoutes).toBe(true);
+      expect(onLanding.target).toBe('/coach-application?ref=AMB01');
+
+      const atApplication = getPostLoginRedirectState({
+        isAuthenticated: true,
+        authSettling: false,
+        postLoginRedirectPending: true,
+        currentUser: verifiedCoach,
+        location: { pathname: '/coach-application', search: '?ref=AMB01' },
+      });
+
+      expect(atApplication.redirectDecisionComplete).toBe(true);
+      expect(atApplication.shouldBlockRoutes).toBe(false);
+    });
+
+    it('step 5 — global guard still redirects verified pending coaches off marketplace routes', () => {
+      const verifiedCoach = buildVerifiedCoachAfterEmailVerify('AMB01');
+
+      expect(resolveCoachOnboardingRedirect({ currentUser: verifiedCoach })).toBe(
+        '/coach-application?ref=AMB01'
+      );
+      expect(shouldRedirectToCoachApplication(verifiedCoach)).toBe(true);
+    });
+
+    it('step 6 — broken profile flags are recovered from stored intent at login', () => {
+      persistCoachOnboardingIntent({ ref: 'AMB01' });
+
+      const verifiedCoachMissingFlags = {
+        id: 'new-coach-1',
+        attributes: {
+          emailVerified: true,
+          pendingEmail: null,
+          profile: {
+            publicData: { userType: 'customer' },
+          },
+        },
+      };
+
+      expect(resolvePostLoginRedirect(verifiedCoachMissingFlags)).toBe(
+        '/coach-application?ref=AMB01'
+      );
+    });
   });
 });

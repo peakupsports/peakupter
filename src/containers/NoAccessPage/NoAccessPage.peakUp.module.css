@@ -1,0 +1,17 @@
+@import '../../styles/customMediaQueries.css';
+
+.peakUpPostingPage {
+  background: #07101d;
+}
+
+.layoutMain {
+  min-height: calc(100vh - var(--topbarHeight));
+  display: flex;
+  flex-direction: column;
+}
+
+@media (--viewportMedium) {
+  .layoutMain {
+    min-height: calc(100vh - var(--topbarHeightDesktop));
+  }
+}

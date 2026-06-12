@@ -80,8 +80,14 @@ const LocationSearchField = props => {
             isCurrentLocation={isCurrentLocation}
             placeholder={
               isCurrentLocation
-                ? intl.formatMessage({ id: 'PageBuilder.SearchCTA.currentLocationPlaceholder' })
-                : intl.formatMessage({ id: 'PageBuilder.SearchCTA.locationPlaceholder' })
+                ? intl.formatMessage({
+                    id: 'PageBuilder.SearchCTA.currentLocationPlaceholder',
+                    defaultMessage: 'Current location',
+                  })
+                : intl.formatMessage({
+                    id: 'PageBuilder.SearchCTA.locationPlaceholder',
+                    defaultMessage: 'Location',
+                  })
             }
             inputRef={inputRef}
             input={{ ...restInput, onChange: searchOnChange }}

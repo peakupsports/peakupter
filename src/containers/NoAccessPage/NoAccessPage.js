@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 
@@ -27,10 +28,13 @@ import {
 import NotFoundPage from '../NotFoundPage/NotFoundPage';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
+import sportTheme from '../SportPagesTheme.module.css';
 
+import CoachPostingPendingPanel from './CoachPostingPendingPanel';
 import IconDoor from './IconDoor';
 
 import css from './NoAccessPage.module.css';
+import peakUpCss from './NoAccessPage.peakUp.module.css';
 
 /**
  * CTAButtonMaybe component renders a call-to-action (CTA) button if it is enabled.
@@ -108,7 +112,6 @@ export const NoAccessPageComponent = props => {
   const {
     requireApprovalToJoinOptions: { callToAction: approvalToJoinCTA } = {},
     requirePermissionToInitiateTransactionsOptions: { callToAction: permissionToInitiateCTA } = {},
-    requirePermissionToPostListingsOptions: { callToAction: permissionToPostCTA } = {},
     requirePermissionToReadOptions: { callToAction: permissionToViewCTA } = {},
   } = accessControlConfig?.users || {};
 
@@ -121,10 +124,9 @@ export const NoAccessPageComponent = props => {
       }
     : isPostingRightsPage
     ? {
-        schemaTitle: 'NoAccessPage.postListings.schemaTitle',
-        heading: 'NoAccessPage.postListings.heading',
-        content: 'NoAccessPage.postListings.content',
-        ctaData: permissionToPostCTA,
+        schemaTitle: 'NoAccessPage.coachPostingPending.schemaTitle',
+        heading: 'NoAccessPage.coachPostingPending.heading',
+        content: 'NoAccessPage.coachPostingPending.content',
       }
     : isInitiateTransactionsPage
     ? {
@@ -150,6 +152,23 @@ export const NoAccessPageComponent = props => {
       );
     }
     return <NotFoundPage staticContext={props.staticContext} />;
+  }
+
+  if (isPostingRightsPage) {
+    return (
+      <Page
+        title={intl.formatMessage({ id: pageData.schemaTitle })}
+        scrollingDisabled={scrollingDisabled}
+        className={classNames(sportTheme.sportPremium, peakUpCss.peakUpPostingPage)}
+      >
+        <LayoutSingleColumn
+          mainColumnClassName={peakUpCss.layoutMain}
+          topbar={<TopbarContainer currentPage="NoAccessPage" chromeTheme="sportPremium" />}
+        >
+          <CoachPostingPendingPanel currentUser={currentUser} />
+        </LayoutSingleColumn>
+      </Page>
+    );
   }
 
   return (

@@ -7,6 +7,29 @@ import { SearchCTA } from './SearchCTA';
 const { screen, within } = testingLibrary;
 
 describe('SearchCTA category dropdown', () => {
+  it('localizes the submit button and field placeholders', () => {
+    renderWithProviders(
+      <SearchCTA
+        searchFields={{ categories: true, locationSearch: true, dateRange: true }}
+      />,
+      {
+        messages: {
+          'PageBuilder.SearchCTA.buttonLabel': 'Profis finden',
+          'PageBuilder.SearchCTA.CategoryFilter.placeholder': 'Sport',
+          'PageBuilder.SearchCTA.locationPlaceholder': 'Ort',
+          'PageBuilder.SearchCTA.dateFilterPlaceholder': 'Datum',
+        },
+      }
+    );
+
+    const searchForm = screen.getByRole('search');
+    expect(searchForm.textContent).toContain('Profis finden');
+    expect(searchForm.textContent).toContain('Sport');
+    expect(searchForm.textContent).toContain('Datum');
+    expect(searchForm.textContent).not.toContain('Find professionals');
+    expect(searchForm.textContent).not.toContain('Your sport');
+  });
+
   it('renders the canonical PeakUp sport taxonomy in the same order as the SportBar', async () => {
     const user = testingLibrary.userEvent.setup();
 

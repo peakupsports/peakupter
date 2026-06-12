@@ -2,7 +2,12 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../util/reactIntl';
-import { getSignupPathOptions } from '../../../util/signupPaths';
+import {
+  getSignupPathOptions,
+  SIGNUP_PATH_CLIENT,
+  SIGNUP_PATH_COACH,
+  SIGNUP_PATH_TEAM,
+} from '../../../util/signupPaths';
 
 import NamedLink from '../../../components/NamedLink/NamedLink';
 
@@ -18,16 +23,29 @@ import css from './SignupPathSelector.module.css';
  * @param {(userType: string) => void} props.onSelectUserType
  * @param {Array} props.userTypes
  * @param {Object} [props.coachSignupTo] NamedLink `to` for coach path
+ * @param {'client'|'coach'|'team'|null} [props.activeSignupPath] - Visual selection override
  */
 const SignupPathSelector = props => {
-  const { rootClassName, splitLayout, selectedUserType, onSelectUserType, userTypes, coachSignupTo } =
-    props;
+  const {
+    rootClassName,
+    splitLayout,
+    selectedUserType,
+    activeSignupPath,
+    onSelectUserType,
+    userTypes,
+    coachSignupTo,
+  } = props;
   const { customerUserType, teamUserType, showCoachPath } = getSignupPathOptions(userTypes);
 
-  const isClientSelected = Boolean(
-    customerUserType && selectedUserType === customerUserType
-  );
-  const isTeamSelected = Boolean(teamUserType && selectedUserType === teamUserType);
+  const isCoachSelected = activeSignupPath === SIGNUP_PATH_COACH;
+  const isClientSelected =
+    activeSignupPath != null
+      ? activeSignupPath === SIGNUP_PATH_CLIENT
+      : Boolean(customerUserType && selectedUserType === customerUserType);
+  const isTeamSelected =
+    activeSignupPath != null
+      ? activeSignupPath === SIGNUP_PATH_TEAM
+      : Boolean(teamUserType && selectedUserType === teamUserType);
 
   const handleSelect = userType => () => {
     if (userType && typeof onSelectUserType === 'function') {
@@ -79,7 +97,9 @@ const SignupPathSelector = props => {
 
         {showCoachPath ? (
           <NamedLink
-            className={classNames(css.card, css.cardCoach, css.cardLink)}
+            className={classNames(css.card, css.cardCoach, css.cardLink, {
+              [css.cardSelected]: isCoachSelected,
+            })}
             name="CoachSignupPage"
             to={coachSignupTo || {}}
           >

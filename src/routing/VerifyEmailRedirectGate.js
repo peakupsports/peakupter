@@ -39,6 +39,7 @@ const VerifyEmailRedirectGate = ({ children }) => {
         emailIsVerified,
         verificationToken,
         currentUserFetchInProgress,
+        currentUser: user.id ? user : null,
       }),
     [
       location.pathname,
@@ -48,6 +49,7 @@ const VerifyEmailRedirectGate = ({ children }) => {
       emailIsVerified,
       verificationToken,
       currentUserFetchInProgress,
+      user.id ? user : null,
     ]
   );
 

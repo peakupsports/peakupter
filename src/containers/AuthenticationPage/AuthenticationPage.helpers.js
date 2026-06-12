@@ -97,7 +97,12 @@ export const getHandleSubmitSignup = ({ submitSignup, userFields, coachOnboardin
  * @param {Array} params.userFields
  * @returns {(values: Object) => void}
  */
-export const getHandleSubmitConfirm = ({ authInfo, submitSingupWithIdp, userFields }) => values => {
+export const getHandleSubmitConfirm = ({
+  authInfo,
+  submitSingupWithIdp,
+  userFields,
+  coachOnboardingPublicData,
+}) => values => {
   const { idpToken, email, firstName, lastName, idpId } = authInfo;
 
   const {
@@ -120,7 +125,12 @@ export const getHandleSubmitConfirm = ({ authInfo, submitSingupWithIdp, userFiel
   };
 
   // Pass other values as extended data according to user field configuration
-  const extendedDataMaybe = getExtendedDataMaybe(rest, userType, userFields, true);
+  const extendedDataMaybe = getExtendedDataMaybe(rest, userType, userFields);
+
+  const publicData = {
+    ...(extendedDataMaybe.publicData || {}),
+    ...(coachOnboardingPublicData || {}),
+  };
 
   submitSingupWithIdp({
     idpToken,
@@ -128,6 +138,10 @@ export const getHandleSubmitConfirm = ({ authInfo, submitSingupWithIdp, userFiel
     ...authParams,
     ...displayNameMaybe,
     ...extendedDataMaybe,
+    ...(Object.keys(publicData).length > 0 ? { publicData } : {}),
+    ...(coachOnboardingPublicData && Object.keys(coachOnboardingPublicData).length > 0
+      ? { coachOnboardingPublicData }
+      : {}),
   });
 };
 

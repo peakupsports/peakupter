@@ -6,27 +6,45 @@ import { renderWithProviders as render, testingLibrary } from '../../util/testHe
 
 import { NoAccessPageComponent } from './NoAccessPage';
 
-const { screen, userEvent } = testingLibrary;
-
-const noop = () => null;
+const { screen } = testingLibrary;
 
 describe('NoAccessPageComponent', () => {
-  it('Check that /no-posting-rights has heading and content', async () => {
+  it('renders PeakUp coach posting-pending guidance for /no-posting-rights', async () => {
     await act(async () => {
       render(
         <NoAccessPageComponent
           params={{ missingAccessRight: 'posting-rights' }}
           scrollingDisabled={false}
           intl={fakeIntl}
+          currentUser={{
+            id: { uuid: 'coach-user-id' },
+            attributes: {
+              profile: {
+                publicData: {
+                  pendingCoachApplication: true,
+                },
+              },
+            },
+          }}
         />
       );
     });
-    const postListingsHeading = 'NoAccessPage.postListings.heading';
-    const found = screen.getByText(postListingsHeading);
-    expect(found).toBeInTheDocument();
-    const postListingsContent = 'NoAccessPage.postListings.content';
-    const found2 = screen.getByText(postListingsContent);
-    expect(found2).toBeInTheDocument();
+
+    expect(
+      screen.getByText('NoAccessPage.coachPostingPending.heading')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('NoAccessPage.coachPostingPending.content')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('NoAccessPage.coachPostingPending.primaryCta')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('NoAccessPage.coachPostingPending.secondaryCta')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('NoAccessPage.postListings.heading')
+    ).not.toBeInTheDocument();
   });
 
   it('Check that /no-transaction-rights has heading and content', async () => {

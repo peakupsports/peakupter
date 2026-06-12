@@ -16,7 +16,11 @@ import UserFieldDisplayName from '../UserFieldDisplayName';
 import UserFieldPhoneNumber from '../UserFieldPhoneNumber';
 
 import { getCustomerUserTypeForCoachSignup } from '../../../util/coachOnboarding';
-import { getSignupPathOptions, shouldUseSignupPathSelector } from '../../../util/signupPaths';
+import {
+  getSignupPathOptions,
+  resolveActiveSignupPath,
+  shouldUseSignupPathSelector,
+} from '../../../util/signupPaths';
 
 import css from './SignupForm.module.css';
 
@@ -63,6 +67,9 @@ const SignupFormComponent = props => (
         pathSelectorUserTypes,
         coachSignupTo,
         onUserTypeChange,
+        signupPathLocation,
+        signupPathFrom,
+        signupPathCurrentUser,
       } = formRenderProps;
 
       const { userType } = values || {};
@@ -72,6 +79,13 @@ const SignupFormComponent = props => (
         userTypes: typesForPathCards,
       });
       const { customerUserType, teamUserType } = getSignupPathOptions(typesForPathCards);
+      const activeSignupPath = resolveActiveSignupPath({
+        location: signupPathLocation,
+        from: signupPathFrom,
+        currentUser: signupPathCurrentUser,
+        selectedUserType: userType,
+        userTypes: typesForPathCards,
+      });
       const isTeamSignup = Boolean(teamUserType && userType === teamUserType);
       const isClientSignup = Boolean(
         customerUserType && userType === customerUserType
@@ -277,6 +291,7 @@ const SignupFormComponent = props => (
                   splitLayout
                   userTypes={typesForPathCards}
                   selectedUserType={userType}
+                  activeSignupPath={activeSignupPath}
                   onSelectUserType={handlePathSelect}
                   coachSignupTo={coachSignupTo}
                 />
@@ -309,6 +324,9 @@ const SignupFormComponent = props => (
  * @param {propTypes.userTypes} [props.pathSelectorUserTypes] - Full user types for path cards (incl. team)
  * @param {Object} [props.coachSignupTo] - NamedLink `to` for coach path card
  * @param {(userType: string) => void} [props.onUserTypeChange] - Sync selected type to parent (e.g. SSO)
+ * @param {import('react-router-dom').Location} [props.signupPathLocation] - Router location for path highlight
+ * @param {string|object|null} [props.signupPathFrom] - Router `from` for coach onboarding detection
+ * @param {import('../../util/types').propTypes.currentUser|null|undefined} [props.signupPathCurrentUser]
  * @returns {JSX.Element}
  */
 const SignupForm = props => {

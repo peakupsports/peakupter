@@ -3,6 +3,10 @@ import * as log from '../util/log';
 import { getAuthErrorMessage, logSignupError, storableError } from '../util/errors';
 import { clearCurrentUser, fetchCurrentUser } from './user.duck';
 import { createUserWithIdp } from '../util/api';
+import {
+  ensureCoachApplicantProfilePayload,
+  getCoachApplicantProfileRepairPayload,
+} from '../util/coachOnboarding';
 
 const authenticated = authInfo => authInfo?.isAnonymous === false;
 const loggedInAs = authInfo => authInfo?.isLoggedInAs === true;
@@ -63,9 +67,8 @@ const loginThunk = createAsyncThunk(
 
     return sdk
       .login({ username, password })
-      .then(() => {
-        return dispatch(fetchCurrentUser({ afterLogin: true }));
-      })
+      .then(() => dispatch(fetchCurrentUser({ afterLogin: true })))
+      .then(() => dispatch(repairCoachApplicantProfileThunk()))
       .then(() => ({ username, password }))
       .catch(e => rejectWithValue(storableError(e)));
   },
@@ -103,53 +106,97 @@ const logoutThunk = createAsyncThunk(
   }
 );
 
+const repairCoachApplicantProfileThunk = createAsyncThunk(
+  'auth/repairCoachApplicantProfile',
+  async (options, thunkAPI) => {
+    const { extra: sdk, dispatch, getState } = thunkAPI;
+    const currentUser = getState().user?.currentUser;
+    const repairPayload =
+      getCoachApplicantProfileRepairPayload(currentUser) ||
+      ensureCoachApplicantProfilePayload(currentUser, options?.ref);
+    if (!repairPayload) {
+      return null;
+    }
+
+    try {
+      await sdk.currentUser.updateProfile({ publicData: repairPayload });
+      await dispatch(fetchCurrentUser({ enforce: true }));
+      // eslint-disable-next-line no-console
+      console.log('[PeakUp Coach Profile Repair]', repairPayload);
+      return repairPayload;
+    } catch (e) {
+      log.error(e, 'coach-applicant-profile-repair-failed');
+      return null;
+    }
+  }
+);
+
+const applyCoachOnboardingProfileMaybe = (sdk, dispatch, coachOnboardingPublicData, email) => {
+  if (!coachOnboardingPublicData || Object.keys(coachOnboardingPublicData).length === 0) {
+    return Promise.resolve();
+  }
+
+  return sdk.currentUser
+    .updateProfile({ publicData: coachOnboardingPublicData })
+    .then(() => dispatch(fetchCurrentUser({ enforce: true })))
+    .then(() => {
+      // eslint-disable-next-line no-console
+      console.log('[PeakUp SIGNUP INTENT]', {
+        phase: 'coach-profile-update-success',
+        email,
+        coachOnboardingPublicData,
+        ambassadorRef: coachOnboardingPublicData?.ambassadorRef || null,
+      });
+    })
+    .catch(profileError => {
+      logSignupError(profileError, {
+        phase: 'coach-profile-update-after-signup',
+        email,
+      });
+      return null;
+    });
+};
+
 const signupThunk = createAsyncThunk(
   'auth/signup',
   (params, thunkAPI) => {
     const { rejectWithValue, extra: sdk, dispatch } = thunkAPI;
     const { coachOnboardingPublicData, ...createParams } = params;
+    const createParamsWithCoach =
+      coachOnboardingPublicData && Object.keys(coachOnboardingPublicData).length > 0
+        ? {
+            ...createParams,
+            publicData: {
+              ...(createParams.publicData || {}),
+              ...coachOnboardingPublicData,
+            },
+          }
+        : createParams;
 
     // eslint-disable-next-line no-console
     console.log('[PeakUp SIGNUP INTENT]', {
       email: createParams.email,
-      signupUserType: createParams.publicData?.userType || null,
-      signupPublicData: createParams.publicData || null,
+      signupUserType: createParamsWithCoach.publicData?.userType || null,
+      signupPublicData: createParamsWithCoach.publicData || null,
       coachOnboardingPublicData: coachOnboardingPublicData || null,
       ambassadorRef: coachOnboardingPublicData?.ambassadorRef || null,
     });
 
     return sdk.currentUser
-      .create(createParams)
+      .create(createParamsWithCoach)
       .then(() =>
         dispatch(loginThunk({ username: createParams.email, password: createParams.password })).unwrap()
       )
-      .then(() => {
-        if (!coachOnboardingPublicData || Object.keys(coachOnboardingPublicData).length === 0) {
-          return params;
-        }
-
-        return sdk.currentUser
-          .updateProfile({ publicData: coachOnboardingPublicData })
-          .then(() => dispatch(fetchCurrentUser({ enforce: true })))
-          .then(() => {
-            // eslint-disable-next-line no-console
-            console.log('[PeakUp SIGNUP INTENT]', {
-              phase: 'coach-profile-update-success',
-              email: createParams.email,
-              coachOnboardingPublicData,
-              publicData: coachOnboardingPublicData,
-              ambassadorRef: coachOnboardingPublicData?.ambassadorRef || null,
-            });
-          })
-          .catch(profileError => {
-            logSignupError(profileError, {
-              phase: 'coach-profile-update-after-signup',
-              email: createParams.email,
-            });
-            return null;
-          })
-          .then(() => params);
-      })
+      .then(() =>
+        applyCoachOnboardingProfileMaybe(
+          sdk,
+          dispatch,
+          coachOnboardingPublicData,
+          createParams.email
+        )
+      )
+      .then(() => dispatch(repairCoachApplicantProfileThunk()))
+      .then(() => params)
       .catch(e => {
         logSignupError(e, {
           phase: 'signup-create-or-login',
@@ -178,9 +225,30 @@ const signupThunk = createAsyncThunk(
 const signupWithIdpThunk = createAsyncThunk(
   'auth/signupWithIdp',
   (params, thunkAPI) => {
-    const { rejectWithValue, dispatch } = thunkAPI;
-    return createUserWithIdp(params)
+    const { rejectWithValue, extra: sdk, dispatch } = thunkAPI;
+    const { coachOnboardingPublicData, ...idpParams } = params;
+    const idpParamsWithCoach =
+      coachOnboardingPublicData && Object.keys(coachOnboardingPublicData).length > 0
+        ? {
+            ...idpParams,
+            publicData: {
+              ...(idpParams.publicData || {}),
+              ...coachOnboardingPublicData,
+            },
+          }
+        : idpParams;
+
+    return createUserWithIdp(idpParamsWithCoach)
       .then(() => dispatch(fetchCurrentUser({ afterLogin: true })))
+      .then(() =>
+        applyCoachOnboardingProfileMaybe(
+          sdk,
+          dispatch,
+          coachOnboardingPublicData,
+          idpParams.email || null
+        )
+      )
+      .then(() => dispatch(repairCoachApplicantProfileThunk()))
       .then(() => params)
       .catch(e => {
         log.error(e, 'create-user-with-idp-failed', { params });
@@ -295,7 +363,7 @@ const authSlice = createSlice({
   },
 });
 
-export { logoutThunk };
+export { logoutThunk, repairCoachApplicantProfileThunk };
 export const { clearPostLoginRedirectPending, setPostLoginRedirectPending } = authSlice.actions;
 export default authSlice.reducer;
 

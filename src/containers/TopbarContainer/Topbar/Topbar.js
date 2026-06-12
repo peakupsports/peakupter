@@ -24,6 +24,7 @@ import {
   Button,
   IconArrowHead,
   LanguageSelector,
+  CoachApplicantResumeBanner,
   LimitedAccessBanner,
   LinkedLogo,
   Modal,
@@ -634,6 +635,10 @@ const TopbarComponent = props => {
         currentUser={currentUser}
         onLogout={handleLogout}
         currentPage={resolvedCurrentPage}
+      />
+      <CoachApplicantResumeBanner
+        isAuthenticated={isAuthenticated}
+        currentUser={currentUser}
       />
       <nav
         className={classNames(
