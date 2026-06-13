@@ -17,9 +17,9 @@ const HERO_FEATURE_ITEMS = [
   {
     icon: 'shield',
     titleId: 'LandingHeroSection.featureVerified',
-    titleDefault: 'Verified Coaches',
+    titleDefault: 'Certified & verified',
     subtitleId: 'LandingHeroSection.featureVerifiedSubtitle',
-    subtitleDefault: 'All profiles verified',
+    subtitleDefault: 'Qualified and PeakUp-approved',
   },
   {
     icon: 'globe',
@@ -288,27 +288,23 @@ const LandingHeroSection = props => {
             <span className={css.headlineLine}>
               <FormattedMessage
                 id="LandingHeroSection.headlineLineOne"
-                defaultMessage="Find the right Coach"
+                defaultMessage="The marketplace for"
               />
             </span>
             <span className={css.headlineLine}>
               <span className={css.anywhereGradient}>
                 <FormattedMessage
-                  id="LandingHeroSection.headlineAnywhere"
-                  defaultMessage="Anywhere"
+                  id="LandingHeroSection.headlineLineTwoRest"
+                  defaultMessage="certified sports professionals"
                 />
-              </span>{' '}
-              <FormattedMessage
-                id="LandingHeroSection.headlineLineTwoRest"
-                defaultMessage="you travel"
-              />
+              </span>
             </span>
           </h1>
 
           <p className={css.subtitle}>
             <FormattedMessage
               id="LandingHeroSection.subtitle"
-              defaultMessage="Discover verified coaches for every sport and destination, wherever your next trip takes you."
+              defaultMessage="Discover certified and verified instructors, guides, and coaches for every sport, wherever you are."
             />
           </p>
 
@@ -320,15 +316,11 @@ const LandingHeroSection = props => {
             >
               <FormattedMessage
                 id="LandingHeroSection.primaryCta"
-                defaultMessage="Find a Coach"
+                defaultMessage="Find professionals"
               />
             </NamedLink>
 
-            <NamedLink
-              className={css.secondaryCta}
-              name="CMSPage"
-              params={{ pageId: 'howitworks' }}
-            >
+            <NamedLink className={css.secondaryCta} name="CMSPage" params={{ pageId: "howitworks" }}>
               <FormattedMessage
                 id="LandingHeroSection.secondaryCta"
                 defaultMessage="How it works"
