@@ -82,6 +82,7 @@ const TopbarMobileMenu = props => {
     onExploreAsCustomer,
     onReturnToCoachMode,
     intl,
+    customerDiscoveryMenu = false,
   } = props;
 
   const user = ensureCurrentUser(currentUser);
@@ -131,6 +132,22 @@ const TopbarMobileMenu = props => {
         />
       </span>
     );
+
+    if (customerDiscoveryMenu) {
+      return (
+        <nav className={css.root}>
+          <div className={css.content}>
+            <ul className={css.customLinksWrapper}>{extraLinks}</ul>
+            <div className={css.authenticationCta}>
+              {signup}
+              {login}
+            </div>
+            <div className={css.spacer} />
+          </div>
+        </nav>
+      );
+    }
+
     return (
       <nav className={css.root}>
         <div className={css.content}>
@@ -422,7 +439,7 @@ const TopbarMobileMenu = props => {
 
         <ul className={css.accountLinksWrapper}>{accountLinks}</ul>
         {!coachNavMode && !teamNavMode ? <ul className={css.customLinksWrapper}>{extraLinks}</ul> : null}
-        <LanguageSelector variant="mobileMenu" />
+        {!customerDiscoveryMenu ? <LanguageSelector variant="mobileMenu" /> : null}
         <div className={css.spacer} />
       </div>
     </div>
