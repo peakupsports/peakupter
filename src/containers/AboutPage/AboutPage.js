@@ -13,8 +13,8 @@ import FooterContainer from '../FooterContainer/FooterContainer';
 import sportTheme from '../SportPagesTheme.module.css';
 import css from './AboutPage.module.css';
 
-const HERO_IMAGE = '/CoachPagePic/aurora.jpg';
-const VALUES_ATMOSPHERE_TEXTURE = '/CoachPagePic/aurora.jpg';
+const HERO_IMAGE = '/Multisports.jpg';
+const VALUES_ATMOSPHERE_TEXTURE = '/CoachPagePic/Multisports.jpg';
 const IMG_SURF_COACH = '/CoachPagePic/about-surf-coach.jpg';
 const IMG_COACHING_MOMENT = '/CoachPagePic/about-mtb-coaching.jpg';
 const IMG_MTB_COACH = '/CoachPagePic/about-mtb-coaching2.jpg';
@@ -167,11 +167,7 @@ const AboutPage = () => {
                 <NamedLink name="CoachesPage" className={css.primaryCta}>
                   <FormattedMessage id="AboutPage.heroCtaPrimary" />
                 </NamedLink>
-                <NamedLink
-                  name="CMSPage"
-                  params={{ pageId: '4_instructors' }}
-                  className={css.secondaryCta}
-                >
+                <NamedLink name="InstructorsPage" className={css.secondaryCta}>
                   <FormattedMessage id="AboutPage.heroCtaApply" />
                 </NamedLink>
               </div>
@@ -270,7 +266,42 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* 5. Why PeakUp */}
+        {/* 5. Trust center — certified vs verified */}
+        <section className={css.section} aria-labelledby="about-trust-center-heading">
+          <div className={css.sectionRail}>
+            <div className={css.trustCenterIntro}>
+              <p className={css.sectionLabel}>
+                <FormattedMessage id="AboutPage.trustCenterLabel" />
+              </p>
+              <h2 id="about-trust-center-heading" className={css.sectionTitle}>
+                <FormattedMessage id="AboutPage.trustCenterTitle" />
+              </h2>
+              <p className={css.trustCenterLead}>
+                <FormattedMessage id="AboutPage.trustCenterLead" />
+              </p>
+            </div>
+            <div className={css.trustCenterGrid}>
+              <article className={css.trustCenterCard}>
+                <h3 className={css.trustCenterCardTitle}>
+                  <FormattedMessage id="AboutPage.trustCertifiedTitle" />
+                </h3>
+                <p className={css.trustCenterCardBody}>
+                  <FormattedMessage id="AboutPage.trustCertifiedBody" />
+                </p>
+              </article>
+              <article className={css.trustCenterCard}>
+                <h3 className={css.trustCenterCardTitle}>
+                  <FormattedMessage id="AboutPage.trustVerifiedTitle" />
+                </h3>
+                <p className={css.trustCenterCardBody}>
+                  <FormattedMessage id="AboutPage.trustVerifiedBody" />
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        {/* 6. Why PeakUp */}
         <section className={css.section} aria-labelledby="about-why-heading">
           <div className={css.sectionRail}>
             <div className={classNames(css.splitLayout, css.whyLayout)}>
@@ -305,7 +336,7 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* 6. Wellness / travel */}
+        {/* 7. Wellness / travel */}
         <section className={css.section} aria-labelledby="about-wellness-heading">
           <div className={css.sectionRail}>
             <div className={classNames(css.splitLayout, css.wellnessLayout)}>
@@ -345,11 +376,7 @@ const AboutPage = () => {
                   <p className={css.ctaBody}>
                     <FormattedMessage id="AboutPage.ctaBody" />
                   </p>
-                  <NamedLink
-                    name="CMSPage"
-                    params={{ pageId: '4_instructors' }}
-                    className={css.ctaFinalButton}
-                  >
+                  <NamedLink name="InstructorsPage" className={css.ctaFinalButton}>
                     <FormattedMessage id="AboutPage.ctaApply" />
                   </NamedLink>
                 </div>

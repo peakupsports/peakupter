@@ -17,6 +17,19 @@
   overflow-x: clip;
 }
 
+.main::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 3;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
+}
+
 /* Left editorial rail — matches hero content inset. */
 .sectionRail {
   width: 100%;
@@ -270,6 +283,19 @@
   pointer-events: none;
 }
 
+.hero::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 3;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
+}
+
 /* Same left-rail rhythm as LandingHeroSection `.heroLayout` + `.contentColumn`. */
 .heroContent {
   position: relative;
@@ -467,8 +493,8 @@
   color: #06101c;
   text-decoration: none;
   box-shadow:
-    0 14px 32px rgba(2, 8, 16, 0.4),
-    0 0 28px rgba(23, 217, 255, 0.28);
+    0 12px 30px rgba(2, 8, 16, 0.36),
+    0 0 18px rgba(23, 217, 255, 0.18);
 }
 
 .secondaryCta {
@@ -499,11 +525,11 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 48px;
-  background: linear-gradient(180deg, var(--aboutCanvas) 0%, transparent 100%);
-  opacity: 0.35;
+  height: 1px;
   pointer-events: none;
-  z-index: 0;
+  z-index: 2;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 .section > .sectionRail {
@@ -578,10 +604,6 @@
   position: relative;
   overflow: visible;
   isolation: isolate;
-}
-
-.valuesSection::before {
-  opacity: 0.2;
 }
 
 .valuesAtmosphere {
@@ -867,7 +889,16 @@
 }
 
 .ctaSection::before {
-  display: none;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 2;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 .ctaSectionGlow {
@@ -883,7 +914,6 @@
   position: relative;
   z-index: 1;
   padding: clamp(48px, 6vw, 72px) 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .ctaCopy {
@@ -948,12 +978,12 @@
 .ctaFinalButton:focus-visible {
   color: #041018;
   text-decoration: none;
-  transform: translateY(-2px);
-  filter: brightness(1.05) saturate(1.06);
+  transform: translateY(-1px);
+  filter: brightness(1.04) saturate(1.04);
   box-shadow:
-    0 18px 44px rgba(2, 8, 16, 0.42),
-    0 0 36px rgba(23, 217, 255, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    0 14px 36px rgba(2, 8, 16, 0.38),
+    0 0 20px rgba(23, 217, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 @media (--viewportMedium) {
@@ -981,4 +1011,58 @@
   .ctaTitle {
     max-width: none;
   }
+}
+
+/* ─── Trust center — certified vs verified ──────────────────────────────── */
+
+.trustCenterIntro {
+  max-width: 52ch;
+  margin-bottom: 28px;
+}
+
+.trustCenterLead {
+  composes: marketplaceDefaultFontStyles from global;
+  margin: 12px 0 0;
+  color: rgba(196, 210, 228, 0.88);
+  line-height: 1.6;
+  font-size: 17px;
+}
+
+.trustCenterGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  @media (--viewportMedium) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+
+.trustCenterCard {
+  padding: 24px 22px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 38%, transparent 62%),
+    linear-gradient(180deg, rgba(12, 18, 30, 0.72) 0%, rgba(8, 13, 22, 0.88) 100%);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.trustCenterCardTitle {
+  composes: marketplaceH3FontStyles from global;
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(244, 246, 250, 0.96);
+}
+
+.trustCenterCardBody {
+  composes: marketplaceDefaultFontStyles from global;
+  margin: 0;
+  color: rgba(196, 210, 228, 0.88);
+  line-height: 1.6;
+  font-size: 16px;
 }
