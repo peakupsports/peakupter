@@ -436,6 +436,7 @@
   font-weight: 650;
   line-height: 1.25;
   color: var(--dashInk);
+  text-wrap: balance;
 }
 
 .cardHint {
@@ -443,6 +444,11 @@
   font-size: 13px;
   line-height: 1.45;
   color: var(--dashInkSoft);
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .cardCta {
