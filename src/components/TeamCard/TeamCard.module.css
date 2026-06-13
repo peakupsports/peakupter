@@ -53,6 +53,7 @@
   color: var(--colorGrey900);
   display: block;
   margin: 0 0 4px;
+  text-wrap: balance;
 }
 
 .tagline,
@@ -61,6 +62,11 @@
   composes: marketplaceTinyFontStyles from global;
   margin: 0 0 4px;
   color: var(--colorGrey700);
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .viewCrewLink {
