@@ -454,6 +454,8 @@ const TopbarDesktop = props => {
     logoLinkParams,
     inboxTab,
     topbarCenterContent,
+    useLandingCenterSlot = false,
+    compactMarketingHeader = false,
   } = props;
   const [mounted, setMounted] = useState(false);
 
@@ -470,6 +472,7 @@ const TopbarDesktop = props => {
   const classes = classNames(
     rootClassName || css.root,
     chromeTheme === 'sportPremium' ? css.rootSportPremium : null,
+    compactMarketingHeader ? css.rootMarketingCompact : null,
     providerNavMode ? css.rootCoachNav : null,
     currentPage === 'CoachMapPage' ? css.rootCoachMap : null,
     className
@@ -525,9 +528,7 @@ const TopbarDesktop = props => {
       className={classNames(
         css.centerSlot,
         { [css.takeAvailableSpace]: giveSpaceForSearch },
-        ['LandingPage', 'CoachMapPage', 'CoachesPage'].includes(currentPage)
-          ? css.centerSlotLanding
-          : null
+        useLandingCenterSlot ? css.centerSlotLanding : null
       )}
     >
       {topbarCenterContent}
@@ -540,17 +541,32 @@ const TopbarDesktop = props => {
     />
   );
 
-  const rightActionsMaybe = (
+  const languageSelectorMaybe = (
+    <LanguageSelector variant="desktop" className={css.languageSelector} />
+  );
+  const menuMaybe = !providerNavMode ? (
+    <CustomLinksMenu
+      currentPage={currentPage}
+      customLinks={customLinks}
+      intl={intl}
+      hasClientSideContentReady={authenticatedOnClientSide || !isAuthenticatedOrJustHydrated}
+    />
+  ) : null;
+
+  // Public/customer discovery: Menu | Language | auth actions (matches landing).
+  // Coach/team provider nav: Language | inbox | profile — no menu.
+  const rightActionsMaybe = providerNavMode ? (
     <>
-      <LanguageSelector variant="desktop" className={css.languageSelector} />
-      {!providerNavMode ? (
-        <CustomLinksMenu
-          currentPage={currentPage}
-          customLinks={customLinks}
-          intl={intl}
-          hasClientSideContentReady={authenticatedOnClientSide || !isAuthenticatedOrJustHydrated}
-        />
-      ) : null}
+      {languageSelectorMaybe}
+      {inboxLinkMaybe}
+      {profileMenuMaybe}
+      {signupLinkMaybe}
+      {loginLinkMaybe}
+    </>
+  ) : (
+    <>
+      {menuMaybe}
+      {languageSelectorMaybe}
       {inboxLinkMaybe}
       {profileMenuMaybe}
       {signupLinkMaybe}
