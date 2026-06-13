@@ -11,7 +11,6 @@ import NamedLink from '../../../components/NamedLink/NamedLink';
 import ResponsiveImage from '../../../components/ResponsiveImage/ResponsiveImage';
 import TopbarContainer from '../../TopbarContainer/TopbarContainer';
 import FooterContainer from '../../FooterContainer/FooterContainer';
-import ProfilePageSportBarTopbar from '../ProfilePageSportBarTopbar';
 
 import css from './TeamProfileLayout.module.css';
 
@@ -159,7 +158,7 @@ const TeamProfileLayout = props => {
 
   return (
     <div className={css.teamPage}>
-      <TopbarContainer topbarCenterContent={<ProfilePageSportBarTopbar />} />
+      <TopbarContainer />
 
       <main className={css.main}>
         <header className={css.heroCinematic}>
