@@ -2,9 +2,9 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import classNames from 'classnames';
 
-import { FormattedMessage, useIntl } from '../../util/reactIntl';
+import { FormattedMessage } from '../../util/reactIntl';
 import { manageDisableScrolling } from '../../ducks/ui.duck';
-import { getTierStyleVars } from '../../util/coachTier';
+import { getTierBadgeLabel, getTierStyleVars } from '../../util/coachTier';
 
 import Modal from '../Modal/Modal';
 
@@ -21,43 +21,35 @@ const BADGE_IMAGE_SRC = {
 const BADGE_IMAGE_ALT = {
   founder: 'Founder badge',
   ambassador: 'Ambassador badge',
-  top_coach: 'Top Coach badge',
-  certified_coach: 'Certified Coach badge',
+  top_coach: 'Top Pro badge',
+  certified_coach: 'Certified badge',
 };
 
-/** Righe gerarchia: id badge (classe CSS) + chiave etichetta = PeakUpCoachFigurineCard.badge.* */
+/** Hierarchy rows: Founder → Ambassador → Top Pro → Certified (labels are English-only). */
 const BADGE_HIERARCHY_ROWS = [
   {
     tier: 'founder',
-    labelId: 'PeakUpCoachFigurineCard.badge.founder',
-    labelDefault: 'Founder',
     bodyId: 'PeakupCoachBadgesHierarchyModal.founderBody',
     bodyDefault:
       'Original creator of PeakUp Sports. Exclusive highest-level badge.',
   },
   {
     tier: 'ambassador',
-    labelId: 'PeakUpCoachFigurineCard.badge.ambassador',
-    labelDefault: 'Ambassador',
     bodyId: 'PeakupCoachBadgesHierarchyModal.ambassadorBody',
     bodyDefault:
-      'Early coaches helping grow the PeakUp community and platform.',
+      'Early professionals helping grow the PeakUp community and platform.',
   },
   {
     tier: 'top_coach',
-    labelId: 'PeakUpCoachFigurineCard.badge.topCoach',
-    labelDefault: 'Top coach',
     bodyId: 'PeakupCoachBadgesHierarchyModal.topCoachBody',
     bodyDefault:
-      'Verified coach with 10+ years of certified experience.',
+      'Higher recognition based on performance, reviews, experience and quality metrics.',
   },
   {
     tier: 'certified_coach',
-    labelId: 'PeakUpCoachFigurineCard.badge.certifiedCoach',
-    labelDefault: 'Certified coach',
     bodyId: 'PeakupCoachBadgesHierarchyModal.certifiedBody',
     bodyDefault:
-      'Verified and qualified coach with recognized certifications.',
+      'Baseline trust badge for approved professionals with recognized certifications.',
   },
 ];
 
@@ -72,7 +64,6 @@ const BADGE_HIERARCHY_ROWS = [
  * @param {Function} props.onClose
  */
 const PeakupCoachBadgesHierarchyModal = ({ id, isOpen, onClose }) => {
-  const intl = useIntl();
   const dispatch = useDispatch();
   const onManageDisableScrolling = useCallback(
     (componentId, disableScrolling) => {
@@ -100,7 +91,7 @@ const PeakupCoachBadgesHierarchyModal = ({ id, isOpen, onClose }) => {
           <h2 className={css.title}>
             <FormattedMessage
               id="PeakupCoachBadgesHierarchyModal.title"
-              defaultMessage="PeakUp Sports Coach Badges"
+              defaultMessage="PeakUp professional badges"
             />
             <span className={css.titleAccent} aria-hidden />
           </h2>
@@ -125,21 +116,11 @@ const PeakupCoachBadgesHierarchyModal = ({ id, isOpen, onClose }) => {
                         draggable="false"
                       />
                     </div>
-                    <span className={css.emblemRibbon}>
-                      {intl.formatMessage({
-                        id: row.labelId,
-                        defaultMessage: row.labelDefault,
-                      })}
-                    </span>
+                    <span className={css.emblemRibbon}>{getTierBadgeLabel(row.tier)}</span>
                   </div>
                   <span className={css.tierDivider} aria-hidden />
                   <div className={css.tierContent}>
-                    <strong className={css.tierName}>
-                      {intl.formatMessage({
-                        id: row.labelId,
-                        defaultMessage: row.labelDefault,
-                      })}
-                    </strong>
+                    <strong className={css.tierName}>{getTierBadgeLabel(row.tier)}</strong>
                     <p className={css.tierBody}>
                       <FormattedMessage id={row.bodyId} defaultMessage={row.bodyDefault} />
                     </p>

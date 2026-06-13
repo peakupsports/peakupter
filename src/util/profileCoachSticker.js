@@ -678,7 +678,7 @@ export const resolvePeakupCoachBadgeIds = (profilePd = {}) => {
 
 /**
  * Priorità ordinata dei badge PeakUp per il ranking (Featured coach landing).
- * Maggiore = più importante. Founder > Ambassador > Top coach > Certified coach > Coach level 4 > nessuno.
+ * Maggiore = più importante. Founder > Ambassador > Top Pro > Certified.
  *
  * @type {Object<string, number>}
  */
@@ -851,7 +851,7 @@ export const peakupCoachReviewScore = c => {
  * Comparator per ordinare i coach nella landing "Featured":
  *   1) score recensioni (media + volume) — chi ha recensioni vince su chi non ne ha
  *   2) numero recensioni (tie-breaker dello score)
- *   3) priorità badge (Founder > Ambassador > Top coach > Certified > Coach level 4)
+ *   3) priorità badge (Founder > Ambassador > Top Pro > Certified)
  *   4) nome alfabetico (tie-breaker finale)
  *
  * @param {{ author?: any, reviewAverage?: number|null, reviewCount?: number|null, badgePriority?: number }} a

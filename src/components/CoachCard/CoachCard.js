@@ -10,11 +10,7 @@ import {
   splitCoachSportsForCoachMap,
   LANGUAGE_FLAGS,
 } from '../../util/profileCoachSticker';
-import {
-  pickPrimaryTierId,
-  getTierStyleVars,
-  TIER_BADGE_MESSAGE_IDS,
-} from '../../util/coachTier';
+import { pickPrimaryTierId, getTierStyleVars, getTierBadgeLabel } from '../../util/coachTier';
 
 import { Avatar } from '../Avatar/Avatar';
 import PeakUpLocationPin from '../PeakUpLocationPin/PeakUpLocationPin';
@@ -149,6 +145,7 @@ const CoachCard = props => {
   const hasMapTarget = Number.isFinite(sticker.lat) && Number.isFinite(sticker.lng);
 
   const tierId = pickPrimaryTierId(publicData);
+  const tierLabel = getTierBadgeLabel(tierId);
   const tierStyle = getTierStyleVars(tierId);
 
   // Demo coaches: profile / contact links would 404 (no real Sharetribe
@@ -242,9 +239,9 @@ const CoachCard = props => {
                   {displayName || <FormattedMessage id="CoachCard.fallbackName" />}
                 </span>
               )}
-              {tierId && TIER_BADGE_MESSAGE_IDS[tierId] ? (
+              {tierLabel ? (
                 <span className={css.tierLabel} aria-hidden>
-                  <FormattedMessage id={TIER_BADGE_MESSAGE_IDS[tierId]} />
+                  {tierLabel}
                 </span>
               ) : null}
             </span>

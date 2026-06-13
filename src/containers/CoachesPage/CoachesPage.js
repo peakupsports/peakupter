@@ -16,12 +16,18 @@ import FooterContainer from '../FooterContainer/FooterContainer';
 
 import {
   filterCoachesBySport,
-  formatCoachExploreSportSlug,
   parseCoachExploreSearch,
   sortCoachRowsByDistanceKm,
 } from '../../util/coachExplore';
 import { resolveDisplayBadgeIds } from '../../util/profileCoachSticker';
 import { getSportHeroImage } from '../../config/configSportMedia';
+import {
+  getSportDirectoryAriaLabelId,
+  getSportDirectoryHeroSubtitleId,
+  getSportDirectoryHeroTitleId,
+  getSportDirectorySchemaDescriptionId,
+  getSportDirectorySchemaTitleId,
+} from '../../util/sportProfessionalTitles';
 import { fetchCoachesExploreThunk } from '../CoachesExplorePage/CoachesExplorePage.duck';
 
 import css from './CoachesPage.module.css';
@@ -69,12 +75,15 @@ const CoachesPage = props => {
   }, [config, dispatch]);
 
   const marketplaceName = config.branding.marketplaceName || 'Marketplace';
-  const schemaTitle = intl.formatMessage({ id: 'CoachesPage.schemaTitle' }, { marketplaceName });
-  const schemaDescription = intl.formatMessage({ id: 'CoachesPage.schemaDescription' });
-
-  const headlineSportPhrase = selectedSport.trim()
-    ? formatCoachExploreSportSlug(selectedSport)
-    : '';
+  const hasSportFilter = Boolean(selectedSport.trim());
+  const schemaTitleId = hasSportFilter
+    ? getSportDirectorySchemaTitleId(selectedSport)
+    : 'CoachesPage.schemaTitle';
+  const schemaDescriptionId = hasSportFilter
+    ? getSportDirectorySchemaDescriptionId(selectedSport)
+    : 'CoachesPage.schemaDescription';
+  const schemaTitle = intl.formatMessage({ id: schemaTitleId }, { marketplaceName });
+  const schemaDescription = intl.formatMessage({ id: schemaDescriptionId });
 
   // Sport-themed cinematic background for the page hero. Images come from
   // `public/CoachPagePic/` via the temporary sport-media library
@@ -84,18 +93,18 @@ const CoachesPage = props => {
   // photos, avatars, listing galleries and map popups stay untouched
   // per the architectural separation note in `configSportMedia.js`.
   const heroImage = getSportHeroImage(selectedSport);
-  const heroAriaLabel = headlineSportPhrase
-    ? intl.formatMessage(
-        {
-          id: 'CoachDirectory.heroBannerAriaLabel',
-          defaultMessage: '{sport} coaches',
-        },
-        { sport: headlineSportPhrase }
-      )
-    : intl.formatMessage({
-        id: 'CoachDirectory.heroBannerAriaLabelGeneric',
-        defaultMessage: 'PeakUp coaches',
-      });
+  const heroTitleId = selectedSport.trim()
+    ? getSportDirectoryHeroTitleId(selectedSport)
+    : 'CoachesPage.title';
+
+  const heroAriaLabelId = hasSportFilter
+    ? getSportDirectoryAriaLabelId(selectedSport)
+    : 'CoachDirectory.heroBannerAriaLabelGeneric';
+  const heroAriaLabel = intl.formatMessage({
+    id: heroAriaLabelId,
+    defaultMessage: 'Professionals',
+  });
+  const defaultHeroSubtitleId = getSportDirectoryHeroSubtitleId(selectedSport);
 
   const hasGeoProximity =
     queryExplore.userLat != null &&
@@ -186,14 +195,7 @@ const CoachesPage = props => {
       <main className={css.root}>
         <header className={css.pageHeader}>
           <h1 className={css.title}>
-            {headlineSportPhrase ? (
-              <FormattedMessage
-                id="CoachDirectory.heroTitleWithSport"
-                values={{ sport: headlineSportPhrase }}
-              />
-            ) : (
-              <FormattedMessage id="CoachesPage.title" />
-            )}
+            <FormattedMessage id={heroTitleId} />
           </h1>
           <p className={css.subtitle}>
             {hasGeoProximity ? (
@@ -204,7 +206,7 @@ const CoachesPage = props => {
                 values={{ place: queryExplore.locationLabel }}
               />
             ) : (
-              <FormattedMessage id="CoachesPage.subtitle" />
+              <FormattedMessage id={defaultHeroSubtitleId} />
             )}
           </p>
         </header>
@@ -241,7 +243,7 @@ const CoachesPage = props => {
               disabled={!canScrollPrev}
               aria-label={intl.formatMessage({
                 id: 'CoachesPage.scrollPrev',
-                defaultMessage: 'Scroll to previous coaches',
+                defaultMessage: 'Scroll to previous professionals',
               })}
             >
               <span aria-hidden>‹</span>
@@ -253,7 +255,7 @@ const CoachesPage = props => {
               role="list"
               aria-label={intl.formatMessage({
                 id: 'CoachesPage.regionLabel',
-                defaultMessage: 'PeakUp coaches',
+                defaultMessage: 'PeakUp professionals',
               })}
             >
               {filteredCoaches.map(coach => {
@@ -286,7 +288,7 @@ const CoachesPage = props => {
               disabled={!canScrollNext}
               aria-label={intl.formatMessage({
                 id: 'CoachesPage.scrollNext',
-                defaultMessage: 'Scroll to more coaches',
+                defaultMessage: 'Scroll to more professionals',
               })}
             >
               <span aria-hidden>›</span>
