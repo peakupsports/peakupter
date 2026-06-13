@@ -53,6 +53,15 @@
   overflow: visible;
 }
 
+.mobileLogoLink {
+  flex: 0 0 auto;
+  padding-left: 24px;
+}
+
+.containerCustomerDiscovery {
+  justify-content: flex-start;
+}
+
 .container {
   /* Size */
   width: 100%;
