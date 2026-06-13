@@ -3915,6 +3915,19 @@
   z-index: 2;
 }
 
+.instructorsPremiumPage :global(main) > :global(aside[data-instructors-earnings-banner])::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 3;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
+}
+
 /* 1px PeakUp separator at the page bottom — before footer. */
 .instructorsPremiumPage :global(main)::after {
   content: '';
