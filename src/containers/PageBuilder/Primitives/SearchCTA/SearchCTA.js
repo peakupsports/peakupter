@@ -20,6 +20,7 @@ import {
   startCoachMapLandingGeolocationPrimed,
 } from '../../../../util/coachExplore';
 import { pathByRouteName } from '../../../../util/routes';
+import { useIntl } from '../../../../util/reactIntl';
 
 // Shared components
 import { Form, PrimaryButton } from '../../../../components';
@@ -36,8 +37,6 @@ import {
 } from './landingMobileSearchSubmit';
 
 import css from './SearchCTA.module.css';
-
-const PEAKUP_SEARCH_BUTTON_LABEL = 'Find your coach';
 
 const GRID_CONFIG = [
   { gridCss: css.gridCol1 },
@@ -56,6 +55,8 @@ export const SearchCTA = React.forwardRef((props, ref) => {
   const location = useLocation();
   const routeConfiguration = useRouteConfiguration();
   const config = useConfiguration();
+  const intl = useIntl();
+  const searchButtonLabel = intl.formatMessage({ id: 'PageBuilder.SearchCTA.buttonLabel' });
 
   const { categories, dateRange, keywordSearch, locationSearch } = props.searchFields;
   const landingMobileHints = props.landingMobileHints === true;
@@ -261,7 +262,7 @@ export const SearchCTA = React.forwardRef((props, ref) => {
                     handleMobileCTAClick(values, ctaDisabled);
                   }}
                 >
-                  {PEAKUP_SEARCH_BUTTON_LABEL}
+                  {searchButtonLabel}
                 </PrimaryButton>
               ) : (
                 <PrimaryButton
@@ -269,7 +270,7 @@ export const SearchCTA = React.forwardRef((props, ref) => {
                   className={css.submitButton}
                   type="submit"
                 >
-                  {PEAKUP_SEARCH_BUTTON_LABEL}
+                  {searchButtonLabel}
                 </PrimaryButton>
               )}
             </Form>
