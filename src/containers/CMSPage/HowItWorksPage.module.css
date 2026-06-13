@@ -60,6 +60,7 @@
 }
 
 .howItWorksPremium :global(main) {
+  position: relative;
   background:
     radial-gradient(88% 68% at 16% 0%, rgba(21, 155, 255, 0.14) 0%, transparent 54%),
     radial-gradient(84% 70% at 82% 12%, rgba(34, 230, 184, 0.08) 0%, transparent 56%),
@@ -82,23 +83,18 @@
     linear-gradient(180deg, rgba(7, 12, 20, 0.94) 0%, rgba(7, 11, 18, 0.98) 100%);
 }
 
-.howItWorksPremium :global(main) > :global(section):nth-of-type(2)::before {
+.howItWorksPremium :global(main) > :global(section):nth-of-type(3)::before,
+.howItWorksPremium :global(main) > :global(section):nth-of-type(4)::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: clamp(116px, 14vw, 180px);
+  height: 1px;
   pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(72% 80% at 50% 0%, rgba(21, 155, 255, 0.06) 0%, transparent 72%),
-    linear-gradient(
-      180deg,
-      rgba(7, 11, 18, 0.54) 0%,
-      rgba(7, 11, 18, 0.22) 42%,
-      rgba(7, 11, 18, 0) 100%
-    );
+  z-index: 2;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 .howItWorksPremium
@@ -113,7 +109,7 @@
   :global(main)
   > :global(section):nth-of-type(3)
   > [class*='SectionContainer_sectionContent'] {
-  padding-top: 24px;
+  padding-top: 56px;
 }
 
 @media (--viewportMedium) {
@@ -129,7 +125,7 @@
     :global(main)
     > :global(section):nth-of-type(3)
     > [class*='SectionContainer_sectionContent'] {
-    padding-top: 32px;
+    padding-top: 88px;
   }
 }
 
@@ -146,20 +142,25 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -1px;
-  height: clamp(144px, 18vw, 220px);
+  bottom: 0;
+  height: 1px;
   pointer-events: none;
-  z-index: 1;
-  background:
-    radial-gradient(84% 72% at 50% 0%, rgba(21, 155, 255, 0.08) 0%, transparent 64%),
-    linear-gradient(
-      180deg,
-      rgba(7, 12, 20, 0) 0%,
-      rgba(7, 12, 20, 0.08) 22%,
-      rgba(7, 11, 18, 0.22) 48%,
-      rgba(7, 11, 18, 0.48) 72%,
-      rgba(7, 11, 18, 0.82) 100%
-    );
+  z-index: 2;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
+}
+
+.howItWorksPremium :global(main)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 3;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 .howItWorksPremium :global(main) > :global(section):first-of-type::before {
@@ -297,7 +298,7 @@
   :global(main)
   > :global(section):first-of-type
   [class*='SectionBuilder_title']::before {
-  content: 'HOW IT WORKS';
+  content: var(--howItWorksHeroEyebrow, 'HOW IT WORKS');
   display: block;
   width: max-content;
   margin-bottom: 18px;
@@ -1942,6 +1943,44 @@
   filter: brightness(1.03);
 }
 
+/* Localized marketing copy: no mid-word hyphenation on headings, cards, or CTAs. */
+.howItWorksPremium :global(main) :is(
+    [class*='SectionBuilder_title'],
+    [class*='SectionBuilder_description'],
+    [class*='BlockDefault_text'] :is(h1, h2, h3, h4, h5, h6, p, li),
+    [class*='SectionFeatures_block'] :is(h1, h2, h3, h4, h5, h6, p, li),
+    [class*='SectionBuilder_ctaButton']
+  ),
+.instructorsPremiumPage :global(main) :is(
+    [class*='SectionBuilder_title'],
+    [class*='SectionBuilder_description'],
+    [class*='BlockDefault_root'] :is(h2, h3, h4, h5, h6, p),
+    [class*='SectionFeatures_block'] :is(h2, h3, h4, h5, h6, p),
+    [class*='SectionCarousel_block'] :is(h2, h3, h4, h5, h6, p),
+    [class*='SectionBuilder_ctaButton']
+  ) {
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.howItWorksPremium :global(main) [class*='SectionBuilder_ctaButton']::before,
+.howItWorksPremium :global(main) [class*='SectionBuilder_ctaButton']::after,
+.instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton']::before,
+.instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton']::after,
+.instructorsPremiumPage
+  :global(main)
+  [class*='SectionCarousel_block']
+  > [class*='BlockDefault_text']
+  > :is(h2, h3, h4, h5, h6)::before {
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+
 .instructorsPremiumPage {
   --instructorsBgTop: #07111d;
   --instructorsBgMid: #09131f;
@@ -1975,6 +2014,7 @@
 }
 
 .instructorsPremiumPage :global(main) {
+  position: relative;
   background:
     radial-gradient(88% 68% at 14% 0%, rgba(21, 155, 255, 0.16) 0%, transparent 56%),
     radial-gradient(84% 72% at 82% 8%, rgba(33, 230, 193, 0.1) 0%, transparent 58%),
@@ -2050,28 +2090,16 @@
     );
 }
 
-/* No pseudo-element between Benefits and How it works.
- * We want a perfectly invisible seam — the bottom divider line of Benefits
- * is removed entirely, the top divider above Benefits (::before) stays. */
+/* No pseudo-elements at the Benefits boundaries (hero above, How it works below). */
 .instructorsPremiumPage :global(main) > :global(section):nth-of-type(2)::after {
   content: none;
   display: none;
 }
 
+/* No top pseudo at the hero → Benefits seam (avoids a 1px divider + top fade). */
 .instructorsPremiumPage :global(main) > :global(section):nth-of-type(2)::before {
-  height: clamp(14px, 1.9vw, 24px);
-  background:
-    radial-gradient(58% 140% at 50% 50%, rgba(24, 200, 255, 0.08) 0%, rgba(33, 230, 193, 0.05) 28%, rgba(183, 255, 63, 0.025) 46%, transparent 76%),
-    linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(24, 200, 255, 0.18) 14%,
-      rgba(33, 230, 193, 0.16) 50%,
-      rgba(183, 255, 63, 0.14) 86%,
-      transparent 100%
-    )
-    center top / 100% 1px no-repeat;
-  filter: drop-shadow(0 0 6px rgba(24, 200, 255, 0.06));
+  content: none;
+  display: none;
 }
 
 /* Intentional 1px PeakUp separator line between Benefits and How it works.
@@ -2089,15 +2117,8 @@
   height: 1px;
   pointer-events: none;
   z-index: 2;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(24, 200, 255, 0.4) 16%,
-    rgba(33, 230, 193, 0.46) 50%,
-    rgba(183, 255, 63, 0.36) 84%,
-    transparent 100%
-  );
-  filter: drop-shadow(0 0 5px rgba(33, 230, 193, 0.18));
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 .instructorsPremiumPage
@@ -2124,6 +2145,12 @@
   min-height: 88vh;
   background-color: #07111d;
   isolation: isolate;
+  z-index: 1;
+}
+
+/* Overlap sub-pixel gap at the hero → Benefits boundary. */
+.instructorsPremiumPage :global(main) > :global(section):nth-of-type(2) {
+  margin-top: -2px;
 }
 
 .instructorsPremiumPage :global(main) > :global(section):first-of-type::before {
@@ -2137,15 +2164,6 @@
     radial-gradient(62% 52% at 82% 16%, rgba(33, 230, 193, 0.12) 0%, transparent 58%),
     linear-gradient(
       90deg,
-      transparent 49.72%,
-      rgba(24, 200, 255, 0.05) 49.94%,
-      rgba(33, 230, 193, 0.08) 50%,
-      rgba(183, 255, 63, 0.04) 50.06%,
-      transparent 50.28%
-    ),
-    radial-gradient(48% 104% at 50% 42%, rgba(5, 9, 16, 0.26) 0%, rgba(5, 9, 16, 0.16) 36%, rgba(5, 9, 16, 0.05) 62%, transparent 82%),
-    linear-gradient(
-      90deg,
       rgba(5, 9, 16, 0.74) 0%,
       rgba(6, 12, 21, 0.5) 20%,
       rgba(7, 13, 22, 0.16) 40%,
@@ -2156,32 +2174,24 @@
     ),
     linear-gradient(
       180deg,
-      rgba(7, 13, 22, 0.18) 0%,
-      rgba(7, 13, 22, 0.3) 28%,
-      rgba(7, 13, 22, 0.84) 100%
+      rgba(7, 13, 22, 0.12) 0%,
+      rgba(7, 13, 22, 0.28) 42%,
+      rgba(7, 13, 22, 0.72) 100%
     );
 }
 
+/* 1px PeakUp separator at the hero bottom edge. */
 .instructorsPremiumPage :global(main) > :global(section):first-of-type::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -1px;
-  height: clamp(150px, 18vw, 220px);
+  bottom: 0;
+  height: 1px;
   pointer-events: none;
-  z-index: 1;
-  background:
-    radial-gradient(78% 70% at 50% 0%, rgba(21, 155, 255, 0.06) 0%, transparent 66%),
-    radial-gradient(88% 80% at 50% 100%, rgba(5, 9, 16, 0.16) 0%, rgba(5, 9, 16, 0.05) 48%, transparent 76%),
-    linear-gradient(
-      180deg,
-      rgba(7, 12, 20, 0) 0%,
-      rgba(7, 12, 20, 0.06) 20%,
-      rgba(7, 11, 18, 0.22) 42%,
-      rgba(7, 11, 18, 0.52) 70%,
-      rgba(7, 11, 18, 0.88) 100%
-    );
+  z-index: 2;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 .instructorsPremiumPage
@@ -2190,6 +2200,24 @@
   [class*='CustomAppearance_backgroundImageWrapper'] {
   opacity: 0.96;
   filter: saturate(1.08) contrast(1.08) brightness(0.8);
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Flat CMS overlay can read as a horizontal band over the photo — use a smooth
+ * vertical gradient instead while keeping the hero dark. */
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):first-of-type
+  [class*='CustomAppearance_backgroundOverlay'] {
+  background-color: transparent !important;
+  background-image: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.32) 0%,
+    rgba(0, 0, 0, 0.46) 48%,
+    rgba(0, 0, 0, 0.54) 100%
+  ) !important;
+  opacity: 1 !important;
 }
 
 .instructorsPremiumPage
@@ -2202,24 +2230,6 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-}
-
-.instructorsPremiumPage
-  :global(main)
-  > :global(section):first-of-type
-  > [class*='SectionContainer_sectionContent']::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  transform: translateX(-50%);
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.78;
-  background: linear-gradient(180deg, transparent 8%, rgba(24, 200, 255, 0.12) 24%, rgba(33, 230, 193, 0.16) 50%, rgba(24, 200, 255, 0.1) 76%, transparent 92%);
-  box-shadow: 0 0 12px rgba(24, 200, 255, 0.08);
 }
 
 .instructorsPremiumPage
@@ -2279,6 +2289,10 @@
   letter-spacing: -0.028em;
   font-weight: 600;
   text-wrap: balance;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
   text-shadow: 0 2px 26px rgba(0, 0, 0, 0.52);
 }
 
@@ -2303,6 +2317,10 @@
   font-size: clamp(1.06rem, 0.97rem + 0.4vw, 1.28rem);
   line-height: 1.7;
   text-wrap: pretty;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
   text-shadow:
     0 2px 8px rgba(0, 0, 0, 0.42),
     0 12px 30px rgba(0, 0, 0, 0.3);
@@ -2368,7 +2386,7 @@
   :global(main)
   > :global(section):first-of-type
   [class*='SectionBuilder_ctaButton']::before {
-  content: 'JOIN PEAKUP';
+  content: var(--instructorsHeroCtaLabel, 'JOIN PEAKUP');
   position: absolute;
   inset: 0;
   display: inline-flex;
@@ -2384,7 +2402,7 @@
   :global(main)
   > :global(section):first-of-type
   [class*='SectionBuilder_ctaButton']::after {
-  content: 'Takes 2 minutes · No commitment';
+  content: var(--instructorsHeroCtaSubtext, 'Takes 2 minutes · No commitment');
   position: absolute;
   top: calc(100% + 12px);
   left: 50%;
@@ -2435,6 +2453,10 @@
   line-height: 1;
   letter-spacing: -0.02em;
   text-wrap: balance;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
   text-shadow:
     0 0 22px rgba(24, 200, 255, 0.06),
     0 16px 36px rgba(0, 0, 0, 0.24);
@@ -2449,6 +2471,10 @@
   font-size: clamp(1.02rem, 0.98rem + 0.18vw, 1.12rem);
   line-height: 1.72;
   text-wrap: pretty;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .instructorsPremiumPage
@@ -2725,6 +2751,10 @@
   font-size: clamp(1.22rem, 1.1rem + 0.28vw, 1.44rem);
   line-height: 1.18;
   text-align: center;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .instructorsPremiumPage
@@ -2737,6 +2767,10 @@
   font-size: 0.98rem;
   line-height: 1.68;
   text-align: center;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 /* ===========================================================================
@@ -2980,7 +3014,7 @@
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_block'] {
   --instructorsStepIconCurrent: var(--instructorsStepIconApply);
-  --instructorsStepTitle: 'Apply';
+  --instructorsStepTitle: var(--instructorsStep1Title, 'Apply');
   position: static;
   z-index: 1;
   overflow: visible;
@@ -3026,7 +3060,7 @@
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_block']:nth-child(2) {
   --instructorsStepIconCurrent: var(--instructorsStepIconApproved);
-  --instructorsStepTitle: 'Get approved';
+  --instructorsStepTitle: var(--instructorsStep2Title, 'Get approved');
 }
 
 .instructorsPremiumPage
@@ -3034,7 +3068,7 @@
   > :global(section):nth-of-type(3)
   [class*='SectionCarousel_block']:nth-child(3) {
   --instructorsStepIconCurrent: var(--instructorsStepIconBookings);
-  --instructorsStepTitle: 'Start receiving bookings';
+  --instructorsStepTitle: var(--instructorsStep3Title, 'Start receiving bookings');
 }
 
 /* Inner card grid:
@@ -3215,7 +3249,7 @@
   [class*='SectionCarousel_block']
   > [class*='BlockDefault_text']
   > [class*='SectionBuilder_ctaButton']::before {
-  content: 'JOIN PEAKUP';
+  content: var(--instructorsStepsCtaLabel, 'JOIN PEAKUP');
   position: absolute;
   inset: 0;
   display: inline-flex;
@@ -3233,7 +3267,7 @@
   [class*='SectionCarousel_block']
   > [class*='BlockDefault_text']
   > [class*='SectionBuilder_ctaButton']::after {
-  content: 'Apply in 2 minutes — reviewed within 48h';
+  content: var(--instructorsStepsCtaSubtext, 'Apply in 2 minutes — reviewed within 48h');
   position: absolute;
   top: calc(100% + 26px);
   left: 50%;
@@ -3734,8 +3768,17 @@
   bottom: -1px;
   height: clamp(120px, 14vw, 180px);
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
   background:
+    linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(24, 200, 255, 0.4) 16%,
+        rgba(33, 230, 193, 0.46) 50%,
+        rgba(183, 255, 63, 0.36) 84%,
+        transparent 100%
+      )
+      0 0 / 100% 1px no-repeat,
     radial-gradient(76% 72% at 50% 0%, rgba(24, 200, 255, 0.05) 0%, transparent 64%),
     linear-gradient(
       180deg,
@@ -3744,10 +3787,24 @@
       rgba(8, 12, 20, 0.42) 56%,
       rgba(9, 12, 20, 0.88) 100%
     );
+  filter: drop-shadow(0 0 5px rgba(33, 230, 193, 0.18));
 }
 
 .instructorsPremiumPage :global(footer) {
   position: relative;
+}
+
+.instructorsPremiumPage :global(footer)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 4;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 .instructorsPremiumPage :global(footer)::before {
@@ -3856,6 +3913,20 @@
 .instructorsPremiumPage :global(main) > :global(aside[data-instructors-earnings-banner]) {
   position: relative;
   z-index: 2;
+}
+
+/* 1px PeakUp separator at the page bottom — before footer. */
+.instructorsPremiumPage :global(main)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  z-index: 3;
+  background: var(--peakupSeparatorLine);
+  filter: var(--peakupSeparatorGlow);
 }
 
 .instructorsPremiumPage
