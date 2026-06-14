@@ -1,48 +1,102 @@
+@import '../../styles/customMediaQueries.css';
+
+.page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #070b14 0%, #0b1220 45%, #0f1728 100%);
+  color: rgba(244, 246, 250, 0.92);
+}
+
+.bgGlow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(55% 45% at 12% 8%, rgba(25, 223, 242, 0.12) 0%, transparent 55%),
+    radial-gradient(45% 40% at 88% 12%, rgba(157, 255, 79, 0.08) 0%, transparent 50%);
+}
+
 .root {
+  position: relative;
   max-width: 560px;
   margin: 0 auto;
-  padding: 48px 24px 80px;
+  padding: 40px 20px 80px;
+  color: rgba(244, 246, 250, 0.92);
+
+  @media (--viewportMedium) {
+    padding: 56px 32px 96px;
+  }
+}
+
+.pageTitle {
+  composes: marketplaceH1FontStyles from global;
+  margin: 0 0 12px;
+  color: #f4f7fb;
+  font-size: clamp(28px, 5vw, 36px);
+  letter-spacing: -0.02em;
 }
 
 .lead {
   composes: marketplaceDefaultFontStyles from global;
-  color: var(--colorGrey700);
-  margin-bottom: 12px;
+  margin: 0 0 12px;
+  color: rgba(196, 210, 228, 0.82);
+  line-height: 1.55;
 }
 
 .leadNote {
   composes: marketplaceTinyFontStyles from global;
-  color: var(--colorGrey600);
-  margin: 0 0 24px;
+  margin: 0 0 28px;
+  color: rgba(157, 175, 198, 0.78);
   line-height: 1.45;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  padding: 24px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(23, 217, 255, 0.18);
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(23, 217, 255, 0.08) 0%, transparent 52%),
+    linear-gradient(180deg, rgba(14, 22, 38, 0.92) 0%, rgba(10, 16, 28, 0.96) 100%);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  @media (--viewportMedium) {
+    padding: 28px 28px;
+    border-radius: 22px;
+  }
 }
 
 .error {
-  color: var(--colorFail);
+  composes: marketplaceSmallFontStyles from global;
+  margin: 0;
+  color: #ff8f8f;
 }
 
 .success {
   margin-top: 8px;
+  padding: 28px 22px;
+  border-radius: 20px;
+  border: 1px solid rgba(157, 255, 79, 0.24);
+  background:
+    radial-gradient(90% 70% at 0% 0%, rgba(157, 255, 79, 0.1) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(14, 22, 38, 0.9) 0%, rgba(10, 16, 28, 0.95) 100%);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
 }
 
 .successTitle {
   composes: marketplaceH1FontStyles from global;
-  margin: 0 0 16px;
+  margin: 0 0 12px;
+  color: #f4f7fb;
+  font-size: clamp(24px, 4vw, 32px);
 }
 
 .successBody {
   composes: marketplaceDefaultFontStyles from global;
   margin: 0;
-  color: var(--colorGrey700);
-}
-
-.pageTitle {
-  composes: marketplaceH1FontStyles from global;
-  margin: 0 0 16px;
+  color: rgba(196, 210, 228, 0.82);
+  line-height: 1.55;
 }

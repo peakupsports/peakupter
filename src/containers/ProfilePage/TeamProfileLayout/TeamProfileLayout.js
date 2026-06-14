@@ -1,11 +1,23 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 
+import appSettings from '../../../config/settings';
 import { FormattedMessage } from '../../../util/reactIntl';
 import { richText } from '../../../util/richText';
-import { extractSportKeysFromCoachProfile } from '../../../util/coachExplore';
-import { getPeakupTeamMemberIds, getPeakupTeamSports, getTeamShortLocationLabel, isPeakUpVerifiedTeam } from '../../../util/peakupTeam';
-import { formatProfileSportsForSticker, resolveDisplayBadgeIds } from '../../../util/profileCoachSticker';
 import { fetchTeamMembers } from '../../../util/api';
+import * as apiUtils from '../../../util/api';
+import { extractSportKeysFromCoachProfile } from '../../../util/coachExplore';
+import { batchedReviewStats } from '../../../util/coachReviewStats';
+import {
+  getPeakupTeamMemberIds,
+  getPeakupTeamSports,
+  getTeamPrimarySportFormValue,
+  getTeamSecondarySportFormValue,
+  getTeamShortLocationLabel,
+  isPeakUpVerifiedTeam,
+} from '../../../util/peakupTeam';
+import { formatProfileSportsForSticker, resolveDisplayBadgeIds } from '../../../util/profileCoachSticker';
+import { createInstance } from '../../../util/sdkLoader';
 import { Button, PeakUpCoachFigurineCard, PeakUpLocationPin } from '../../../components';
 import NamedLink from '../../../components/NamedLink/NamedLink';
 import ResponsiveImage from '../../../components/ResponsiveImage/ResponsiveImage';
@@ -16,16 +28,33 @@ import css from './TeamProfileLayout.module.css';
 
 const MIN_LENGTH_FOR_LONG_WORDS = 20;
 
-const HERO_IMAGE_VARIANTS = [
-  'scaled-large',
-  'scaled-medium',
-  'scaled-small',
-  'default',
-  'square-small2x',
-  'square-small',
-];
+/** Wide banner variants only — never reuse square logo crops in the hero. */
+const HERO_IMAGE_VARIANTS = ['scaled-large', 'scaled-medium', 'scaled-small', 'default'];
 
 const LOGO_VARIANTS = ['square-small2x', 'square-small'];
+
+let clientSdk = null;
+
+const getClientSdk = () => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  if (!clientSdk) {
+    const baseUrl = appSettings.sdk.baseUrl ? { baseUrl: appSettings.sdk.baseUrl } : {};
+    const assetCdnBaseUrl = appSettings.sdk.assetCdnBaseUrl
+      ? { assetCdnBaseUrl: appSettings.sdk.assetCdnBaseUrl }
+      : {};
+    clientSdk = createInstance({
+      transitVerbose: appSettings.sdk.transitVerbose,
+      clientId: appSettings.sdk.clientId,
+      secure: appSettings.usingSSL,
+      typeHandlers: apiUtils.typeHandlers,
+      ...baseUrl,
+      ...assetCdnBaseUrl,
+    });
+  }
+  return clientSdk;
+};
 
 const normalizeExternalUrl = raw => {
   const value = String(raw || '').trim();
@@ -43,8 +72,46 @@ const normalizeInstagramUrl = raw => {
   return `https://instagram.com/${handle}`;
 };
 
+const TeamSectionHeader = props => {
+  const { kickerId, titleId, infoId, large = false } = props;
+  return (
+    <header className={classNames(css.sectionHeader, large && css.sectionHeaderLarge)}>
+      {kickerId ? (
+        <p className={css.sectionKicker}>
+          <FormattedMessage id={kickerId} />
+        </p>
+      ) : null}
+      <h2 className={css.sectionTitle}>
+        <FormattedMessage id={titleId} />
+      </h2>
+      {infoId ? (
+        <p className={css.sectionLead}>
+          <FormattedMessage id={infoId} />
+        </p>
+      ) : null}
+    </header>
+  );
+};
+
+const TeamStat = props => {
+  const { labelId, value, subLabelId, loading = false } = props;
+  return (
+    <div className={css.statCard}>
+      <span className={css.statValue}>{loading ? '—' : value}</span>
+      <span className={css.statLabel}>
+        <FormattedMessage id={labelId} />
+      </span>
+      {subLabelId ? (
+        <span className={css.statSubLabel}>
+          <FormattedMessage id={subLabelId} />
+        </span>
+      ) : null}
+    </div>
+  );
+};
+
 /**
- * PeakUp team / crew profile — cinematic hero + coach figurina roster (not coach figurina layout).
+ * PeakUp public team profile — organizational layout for teams, clubs and academies.
  */
 const TeamProfileLayout = props => {
   const {
@@ -60,17 +127,30 @@ const TeamProfileLayout = props => {
   const [members, setMembers] = useState([]);
   const [membersError, setMembersError] = useState(null);
   const [membersLoading, setMembersLoading] = useState(false);
+  const [reviewStatsLoading, setReviewStatsLoading] = useState(false);
+  const [aggregatedReviews, setAggregatedReviews] = useState({ count: 0, average: null });
 
   const verified = isPeakUpVerifiedTeam(publicData);
   const teamBio = publicData?.teamBio || bio || '';
-  const crewLine = publicData?.teamTagline || '';
+  const tagline = publicData?.teamTagline || '';
+  const foundedYear = String(publicData?.teamFoundedYear || '').trim();
   const websiteUrl = normalizeExternalUrl(publicData?.teamWebsite);
   const instagramUrl = normalizeInstagramUrl(publicData?.teamInstagram);
 
-  const sports =
-    intl && typeof intl.formatMessage === 'function'
-      ? formatProfileSportsForSticker(intl, getPeakupTeamSports(publicData))
-      : [];
+  const primarySportKey = getTeamPrimarySportFormValue(publicData);
+  const secondarySportKey = getTeamSecondarySportFormValue(publicData);
+  const allSportKeys = getPeakupTeamSports(publicData);
+
+  const sportsOffered = useMemo(() => {
+    if (!intl || allSportKeys.length === 0) {
+      return [];
+    }
+    return formatProfileSportsForSticker(intl, allSportKeys).map(sport => ({
+      ...sport,
+      isPrimary: sport.key === primarySportKey,
+      isSecondary: sport.key === secondarySportKey,
+    }));
+  }, [allSportKeys, intl, primarySportKey, secondarySportKey]);
 
   const teamRow = useMemo(
     () => ({
@@ -84,14 +164,19 @@ const TeamProfileLayout = props => {
 
   const storedCoachCount = parseInt(String(publicData?.teamCoachCount || '').trim(), 10);
   const profileMemberCount = getPeakupTeamMemberIds(publicData).length;
-  const coachCountDisplay =
+  const coachCount =
     members.length > 0
       ? members.length
       : profileMemberCount > 0
       ? profileMemberCount
       : Number.isFinite(storedCoachCount) && storedCoachCount > 0
       ? storedCoachCount
-      : null;
+      : 0;
+
+  const ratingDisplay =
+    aggregatedReviews.average != null && aggregatedReviews.count > 0
+      ? aggregatedReviews.average.toFixed(1)
+      : '—';
 
   useEffect(() => {
     if (!profileUserUuid) {
@@ -104,7 +189,6 @@ const TeamProfileLayout = props => {
     fetchTeamMembers(profileUserUuid)
       .then(res => {
         if (cancelled) return;
-        const activeCoachIds = Array.isArray(res?.activeCoachIds) ? res.activeCoachIds : [];
         const raw = Array.isArray(res?.members) ? res.members : [];
         const mapped = raw.map(m => ({
           id: { uuid: m.id },
@@ -113,29 +197,11 @@ const TeamProfileLayout = props => {
           profileImage: m.profileImage,
         }));
         setMembers(mapped);
-        if (typeof console !== 'undefined') {
-          // eslint-disable-next-line no-console
-          console.log('[PeakUp TEAM PUBLIC COACHES]', {
-            teamId: profileUserUuid,
-            activeCoachIds,
-            fetchedCoachCount: mapped.length,
-            fetchError: null,
-          });
-        }
       })
-      .catch(err => {
+      .catch(() => {
         if (!cancelled) {
           setMembersError(true);
           setMembers([]);
-          if (typeof console !== 'undefined') {
-            // eslint-disable-next-line no-console
-            console.log('[PeakUp TEAM PUBLIC COACHES]', {
-              teamId: profileUserUuid,
-              activeCoachIds: getPeakupTeamMemberIds(publicData),
-              fetchedCoachCount: 0,
-              fetchError: err?.message || 'Failed to load team coaches.',
-            });
-          }
         }
       })
       .finally(() => {
@@ -146,155 +212,160 @@ const TeamProfileLayout = props => {
     };
   }, [profileUserUuid]);
 
+  useEffect(() => {
+    const coachIds = members.map(m => m.id?.uuid || m.id).filter(Boolean);
+    if (coachIds.length === 0) {
+      setAggregatedReviews({ count: 0, average: null });
+      return;
+    }
+
+    const sdk = getClientSdk();
+    if (!sdk) {
+      return;
+    }
+
+    let cancelled = false;
+    setReviewStatsLoading(true);
+    batchedReviewStats(sdk, coachIds, {
+      concurrency: 3,
+      maxSubjects: 12,
+      source: 'TeamProfileLayout',
+    })
+      .then(({ stats }) => {
+        if (cancelled) return;
+        let totalCount = 0;
+        let weightedSum = 0;
+        Object.values(stats || {}).forEach(row => {
+          const count = row?.count || 0;
+          const avg = row?.average;
+          if (count > 0 && avg != null) {
+            totalCount += count;
+            weightedSum += avg * count;
+          }
+        });
+        setAggregatedReviews({
+          count: totalCount,
+          average: totalCount > 0 ? weightedSum / totalCount : null,
+        });
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAggregatedReviews({ count: 0, average: null });
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setReviewStatsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [members]);
+
   const profileImage = profileUser?.profileImage;
   const heroVariants = profileImage
-    ? Object.keys(profileImage?.attributes?.variants || {}).filter(k => HERO_IMAGE_VARIANTS.includes(k))
+    ? Object.keys(profileImage?.attributes?.variants || {}).filter(k =>
+        HERO_IMAGE_VARIANTS.includes(k)
+      )
     : [];
   const logoVariants = profileImage
     ? Object.keys(profileImage?.attributes?.variants || {}).filter(k => LOGO_VARIANTS.includes(k))
     : [];
 
   const hasHeroPhoto = profileImage && heroVariants.length > 0;
+  const hasLogo = profileImage && logoVariants.length > 0;
+  const showAbout = Boolean(teamBio || websiteUrl || instagramUrl);
+  const showSports = sportsOffered.length > 0;
 
   return (
     <div className={css.teamPage}>
+      <div className={css.bgGlow} aria-hidden="true" />
       <TopbarContainer />
 
       <main className={css.main}>
-        <header className={css.heroCinematic}>
-          <div className={css.heroMedia} aria-hidden={!hasHeroPhoto}>
-            {hasHeroPhoto ? (
-              <ResponsiveImage
-                className={css.heroPhoto}
-                image={profileImage}
-                variants={heroVariants}
-                alt=""
-              />
-            ) : (
-              <div className={css.heroPlaceholder} />
-            )}
-          </div>
-          <div className={css.heroOverlay} />
-          <div className={css.heroGlow} />
-
-          <div className={css.heroContent}>
-            <div className={css.heroBrandRow}>
-              {profileImage && logoVariants.length > 0 ? (
+        <div className={css.shell}>
+          <header className={css.teamHero}>
+            <div className={css.heroBackdrop} aria-hidden={!hasHeroPhoto}>
+              {hasHeroPhoto ? (
                 <ResponsiveImage
-                  className={css.logoBadge}
+                  className={css.heroPhoto}
                   image={profileImage}
-                  variants={logoVariants}
+                  variants={heroVariants}
                   alt=""
                 />
-              ) : null}
-              <div>
-                {verified ? (
-                  <span className={css.verifiedBadge}>
-                    <FormattedMessage id="TeamProfilePage.verifiedCrew" />
-                  </span>
-                ) : null}
-                <h1 className={css.teamName}>{displayName || ''}</h1>
-              </div>
+              ) : (
+                <div className={css.heroPlaceholder} />
+              )}
+              <div className={css.heroBackdropOverlay} />
             </div>
 
-            {crewLine ? <p className={css.crewLine}>{crewLine}</p> : null}
-
-            <div className={css.heroMeta}>
-              {locationLabel ? (
-                <div className={css.locationRow}>
-                  <PeakUpLocationPin size="md" rootClassName={css.locationPin} />
-                  <span className={css.locationText}>{locationLabel}</span>
-                </div>
-              ) : null}
-              {sports?.length > 0 ? (
-                <ul className={css.sportChips}>
-                  {sports.map(s => (
-                    <li key={s.key} className={css.sportChip}>
-                      {s.emoji} {s.label}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
-          </div>
-        </header>
-
-        <div className={css.rail}>
-          <section className={css.introSection} aria-labelledby="team-about-heading">
-            <h2 id="team-about-heading" className={css.sectionTitle}>
-              <FormattedMessage id="TeamProfilePage.aboutHeading" />
-            </h2>
-            <p className={css.sectionLead}>
-              <FormattedMessage id="TeamProfilePage.aboutLead" />
-            </p>
-
-            {teamBio ? (
-              <div className={css.bio}>
-                {richText(teamBio, {
-                  linkify: true,
-                  longWordMinLength: MIN_LENGTH_FOR_LONG_WORDS,
-                  longWordClass: css.longWord,
-                })}
-              </div>
-            ) : null}
-
-            {coachCountDisplay != null ? (
-              <div className={css.statsRow}>
-                <span className={css.statPill}>
-                  <FormattedMessage
-                    id="TeamProfilePage.coachCount"
-                    values={{ count: coachCountDisplay }}
+            <div className={css.heroContent}>
+              <div className={css.heroIdentity}>
+                {hasLogo ? (
+                  <ResponsiveImage
+                    className={css.logoMark}
+                    image={profileImage}
+                    variants={logoVariants}
+                    alt=""
                   />
-                </span>
+                ) : (
+                  <div className={css.logoFallback} aria-hidden="true">
+                    {(displayName || 'T').charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className={css.heroIdentityText}>
+                  <p className={css.pageEyebrow}>
+                    <FormattedMessage id="TeamProfilePage.pageEyebrow" />
+                  </p>
+                  {verified ? (
+                    <span className={css.verifiedBadge}>
+                      <FormattedMessage id="TeamProfilePage.verifiedTeam" />
+                    </span>
+                  ) : null}
+                  <h1 className={css.teamName}>{displayName || ''}</h1>
+                  {tagline ? <p className={css.tagline}>{tagline}</p> : null}
+                  {locationLabel ? (
+                    <p className={css.heroLocation}>
+                      <PeakUpLocationPin size="md" rootClassName={css.locationPin} />
+                      <span>{locationLabel}</span>
+                    </p>
+                  ) : null}
+                </div>
               </div>
-            ) : null}
 
-            {(websiteUrl || instagramUrl) && (
-              <div className={css.socialRow}>
-                {websiteUrl ? (
-                  <a
-                    className={css.socialLink}
-                    href={websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <FormattedMessage id="TeamProfilePage.website" />
-                  </a>
-                ) : null}
-                {instagramUrl ? (
-                  <a
-                    className={css.socialLink}
-                    href={instagramUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <FormattedMessage id="TeamProfilePage.instagram" />
-                  </a>
-                ) : null}
+              <div className={css.statsRow} aria-label="Team statistics">
+                <TeamStat
+                  labelId="TeamProfilePage.statCoaches"
+                  value={coachCount > 0 ? coachCount : '—'}
+                  loading={membersLoading && coachCount === 0}
+                />
+                <TeamStat
+                  labelId="TeamProfilePage.statReviews"
+                  value={aggregatedReviews.count > 0 ? aggregatedReviews.count : '—'}
+                  loading={reviewStatsLoading && aggregatedReviews.count === 0}
+                />
+                <TeamStat
+                  labelId="TeamProfilePage.statSports"
+                  value={sportsOffered.length > 0 ? sportsOffered.length : '—'}
+                />
+                <TeamStat labelId="TeamProfilePage.statFounded" value={foundedYear || '—'} />
               </div>
-            )}
-
-            <div className={css.ctaRow}>
-              <NamedLink name="TeamApplicationPage">
-                <Button className={css.joinBtn}>
-                  <FormattedMessage id="TeamProfilePage.joinCta" />
-                </Button>
-              </NamedLink>
-              {showEditProfileLink ? (
-                <NamedLink className={css.editLink} name="ProfileSettingsPage">
-                  <FormattedMessage id="TeamProfilePage.editProfile" />
-                </NamedLink>
-              ) : null}
             </div>
-          </section>
+          </header>
 
-          <section className={css.rosterSection} aria-labelledby="team-roster-heading">
-            <h2 id="team-roster-heading" className={css.sectionTitle}>
+          <section
+            className={classNames(css.workspaceSection, css.coachesSection)}
+            aria-labelledby="team-roster-heading"
+          >
+            <TeamSectionHeader
+              kickerId="TeamProfilePage.coachesKicker"
+              titleId="TeamProfilePage.rosterHeading"
+              infoId="TeamProfilePage.rosterLead"
+              large
+            />
+            <h2 id="team-roster-heading" className={css.srOnly}>
               <FormattedMessage id="TeamProfilePage.rosterHeading" />
             </h2>
-            <p className={css.sectionLead}>
-              <FormattedMessage id="TeamProfilePage.rosterLead" />
-            </p>
 
             {membersLoading ? (
               <p className={css.status}>
@@ -307,9 +378,14 @@ const TeamProfileLayout = props => {
               </p>
             ) : null}
             {!membersLoading && !membersError && members.length === 0 ? (
-              <p className={css.status}>
-                <FormattedMessage id="TeamProfilePage.rosterEmpty" />
-              </p>
+              <div className={css.emptyState}>
+                <p className={css.emptyTitle}>
+                  <FormattedMessage id="TeamProfilePage.rosterEmptyTitle" />
+                </p>
+                <p className={css.emptyLead}>
+                  <FormattedMessage id="TeamProfilePage.rosterEmpty" />
+                </p>
+              </div>
             ) : null}
             {!membersLoading && members.length > 0 ? (
               <ul className={css.rosterGrid}>
@@ -329,6 +405,120 @@ const TeamProfileLayout = props => {
                 })}
               </ul>
             ) : null}
+          </section>
+
+          {(showSports || showAbout) && (
+            <div className={css.detailGrid}>
+              {showSports ? (
+                <section className={classNames(css.workspaceSection, css.sportsSection)}>
+                  <TeamSectionHeader
+                    kickerId="TeamProfilePage.sportsKicker"
+                    titleId="TeamProfilePage.sportsOfferedHeading"
+                    infoId="TeamProfilePage.sportsOfferedLead"
+                  />
+                  <div className={css.sportsPanel}>
+                    {sportsOffered.map(sport => (
+                      <div
+                        key={sport.key}
+                        className={classNames(
+                          css.sportCard,
+                          sport.isPrimary && css.sportCardPrimary,
+                          sport.isSecondary && css.sportCardSecondary
+                        )}
+                      >
+                        {sport.isPrimary || sport.isSecondary ? (
+                          <span className={css.sportCardBadge}>
+                            <FormattedMessage
+                              id={
+                                sport.isPrimary
+                                  ? 'TeamProfilePage.sportsPrimaryBadge'
+                                  : 'TeamProfilePage.sportsSecondaryBadge'
+                              }
+                            />
+                          </span>
+                        ) : null}
+                        <span className={css.sportCardEmoji} aria-hidden="true">
+                          {sport.emoji}
+                        </span>
+                        <span className={css.sportCardLabel}>{sport.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {aggregatedReviews.average != null && aggregatedReviews.count > 0 ? (
+                    <p className={css.sportsFootnote}>
+                      <FormattedMessage
+                        id="TeamProfilePage.teamRatingFootnote"
+                        values={{ rating: ratingDisplay, count: aggregatedReviews.count }}
+                      />
+                    </p>
+                  ) : null}
+                </section>
+              ) : null}
+
+              {showAbout ? (
+                <section className={classNames(css.workspaceSection, css.aboutSection)}>
+                  <TeamSectionHeader
+                    kickerId="TeamProfilePage.aboutKicker"
+                    titleId="TeamProfilePage.aboutHeading"
+                    infoId="TeamProfilePage.aboutLead"
+                  />
+                  {teamBio ? (
+                    <div className={css.bio}>
+                      {richText(teamBio, {
+                        linkify: true,
+                        longWordMinLength: MIN_LENGTH_FOR_LONG_WORDS,
+                        longWordClass: css.longWord,
+                      })}
+                    </div>
+                  ) : null}
+                  {(websiteUrl || instagramUrl) && (
+                    <div className={css.socialRow}>
+                      {websiteUrl ? (
+                        <a
+                          className={css.socialLink}
+                          href={websiteUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FormattedMessage id="TeamProfilePage.website" />
+                        </a>
+                      ) : null}
+                      {instagramUrl ? (
+                        <a
+                          className={css.socialLink}
+                          href={instagramUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FormattedMessage id="TeamProfilePage.instagram" />
+                        </a>
+                      ) : null}
+                    </div>
+                  )}
+                </section>
+              ) : null}
+            </div>
+          )}
+
+          <section className={css.ctaCard} aria-labelledby="team-cta-heading">
+            <h2 id="team-cta-heading" className={css.srOnly}>
+              <FormattedMessage id="TeamProfilePage.ctaHeading" />
+            </h2>
+            <p className={css.ctaLead}>
+              <FormattedMessage id="TeamProfilePage.ctaLead" />
+            </p>
+            <div className={css.ctaRow}>
+              <NamedLink name="TeamApplicationPage">
+                <Button className={css.joinBtn}>
+                  <FormattedMessage id="TeamProfilePage.joinCta" />
+                </Button>
+              </NamedLink>
+              {showEditProfileLink ? (
+                <NamedLink className={css.editLink} name="ProfileSettingsPage">
+                  <FormattedMessage id="TeamProfilePage.editProfile" />
+                </NamedLink>
+              ) : null}
+            </div>
           </section>
         </div>
       </main>

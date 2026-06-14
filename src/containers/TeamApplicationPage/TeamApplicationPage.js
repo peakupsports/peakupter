@@ -22,7 +22,8 @@ const TeamApplicationPage = () => {
 
   if (isTeamProviderProfileUserType(currentUser)) {
     return (
-      <Page scrollingDisabled={scrollingDisabled}>
+      <Page scrollingDisabled={scrollingDisabled} className={css.page}>
+        <div className={css.bgGlow} aria-hidden="true" />
         <TopbarContainer />
         <div className={css.root}>
           <p>
@@ -59,7 +60,9 @@ const TeamApplicationPage = () => {
     <Page
       scrollingDisabled={scrollingDisabled}
       title={intl.formatMessage({ id: 'TeamApplicationPage.title' })}
+      className={css.page}
     >
+      <div className={css.bgGlow} aria-hidden="true" />
       <TopbarContainer />
       <div className={css.root}>
         {submitted ? (
