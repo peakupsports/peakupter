@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { LinkedLogo } from '../../../../components';
-import { FormattedMessage } from '../../../../util/reactIntl';
+import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 
 import Field from '../../Field';
 import BlockBuilder from '../../BlockBuilder';
@@ -63,23 +63,33 @@ const TRUST_ITEMS = [
   },
 ];
 
-const TrustStrip = () => (
-  <ul className={css.trustStrip} aria-label="PeakUp commitments">
-    {TRUST_ITEMS.map(item => (
-      <li key={item.id} className={css.trustItem}>
-        <span className={css.trustIcon} aria-hidden="true">{item.icon}</span>
-        <div className={css.trustText}>
-          <span className={css.trustTitle}>
-            <FormattedMessage id={item.titleId} />
-          </span>
-          <span className={css.trustDescription}>
-            <FormattedMessage id={item.textId} />
-          </span>
-        </div>
-      </li>
-    ))}
-  </ul>
-);
+const TrustStrip = () => {
+  const intl = useIntl();
+
+  return (
+    <ul
+      className={css.trustStrip}
+      aria-label={intl.formatMessage({
+        id: 'SectionFooter.trustStripAriaLabel',
+        defaultMessage: 'PeakUp commitments',
+      })}
+    >
+      {TRUST_ITEMS.map(item => (
+        <li key={item.id} className={css.trustItem}>
+          <span className={css.trustIcon} aria-hidden="true">{item.icon}</span>
+          <div className={css.trustText}>
+            <span className={css.trustTitle}>
+              <FormattedMessage id={item.titleId} />
+            </span>
+            <span className={css.trustDescription}>
+              <FormattedMessage id={item.textId} />
+            </span>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+};
 
 // The number of columns (numberOfColumns) affects styling
 

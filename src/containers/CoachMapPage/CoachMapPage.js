@@ -1400,7 +1400,9 @@ const CoachMapPage = props => {
             </div>
           ) : filteredCoaches.length === 0 && filteredTeams.length === 0 ? (
             <p className={css.status}>
-              <FormattedMessage id="CoachesPage.empty" />
+              <FormattedMessage
+                id={isSportFilterActive ? 'CoachDirectory.noResults' : 'CoachesPage.empty'}
+              />
             </p>
           ) : (
             <>

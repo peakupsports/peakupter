@@ -17,6 +17,7 @@ const SPORT_TITLE_KEYS = {
   skydive: 'skydive',
   crosscountry: 'crosscountry',
   skateboard: 'skateboard',
+  swimming: 'swimming',
 };
 
 /**

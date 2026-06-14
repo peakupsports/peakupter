@@ -230,7 +230,9 @@ const CoachesPage = props => {
 
         {!loading && !failed && filteredCoaches.length === 0 ? (
           <p className={css.empty}>
-            <FormattedMessage id="CoachesPage.empty" />
+            <FormattedMessage
+              id={hasSportFilter ? 'CoachDirectory.noResults' : 'CoachesPage.empty'}
+            />
           </p>
         ) : null}
 

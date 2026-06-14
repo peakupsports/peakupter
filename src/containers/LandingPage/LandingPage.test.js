@@ -297,4 +297,101 @@ describe('LandingPage', () => {
       ).toBeInTheDocument();
     });
   });
+
+  it('renders the localized How It Works section override', async () => {
+    const data = {
+      sections: [
+        {
+          sectionType: 'columns',
+          sectionId: 'how-peakup-sports-works',
+          numColumns: 3,
+          title: { fieldType: 'heading2', content: 'How It Works' },
+          description: {
+            fieldType: 'paragraph',
+            content: 'Find your coach. Book your session. Enjoy your sport.',
+          },
+          blocks: [
+            {
+              blockType: 'defaultBlock',
+              blockId: 'find-book',
+              title: { fieldType: 'heading3', content: 'Find & Book' },
+              text: {
+                fieldType: 'markdown',
+                content:
+                  'Browse professionals, check availability, and book your session in minutes.',
+              },
+            },
+            {
+              blockType: 'defaultBlock',
+              blockId: 'enjoy-session',
+              title: { fieldType: 'heading3', content: 'Enjoy Your Session' },
+              text: {
+                fieldType: 'markdown',
+                content: 'Train with experienced professionals and improve your skills.',
+              },
+            },
+            {
+              blockType: 'defaultBlock',
+              blockId: 'leave-review',
+              title: { fieldType: 'heading3', content: 'Leave a Review' },
+              text: {
+                fieldType: 'markdown',
+                content:
+                  'Help others find the right professional. Share your experience with the community.',
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const { getByText } = render(
+      <LandingPageComponent
+        pageAssetsData={{ landingPage: { data } }}
+        inProgress={false}
+        error={null}
+      />
+    );
+
+    await waitFor(() => {
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'h2' &&
+            /How It Works|LandingHowItWorksSection\.title/.test(node?.textContent || '')
+          );
+        })
+      ).toBeInTheDocument();
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'p' &&
+            /Find a professional\. Book your session\. Enjoy your sport\.|LandingHowItWorksSection\.subtitle/.test(
+              node?.textContent || ''
+            )
+          );
+        })
+      ).toBeInTheDocument();
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'h3' &&
+            /Find & Book|LandingHowItWorksSection\.cardFindBookTitle/.test(node?.textContent || '')
+          );
+        })
+      ).toBeInTheDocument();
+      expect(
+        getByText((_, node) => {
+          const tagName = node?.tagName?.toLowerCase();
+          return (
+            tagName === 'h3' &&
+            /Leave a Review|LandingHowItWorksSection\.cardReviewTitle/.test(node?.textContent || '')
+          );
+        })
+      ).toBeInTheDocument();
+    });
+  });
 });
