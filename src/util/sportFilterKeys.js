@@ -36,6 +36,7 @@ const PRIMARY_SPORT_PAGE_SLUGS = [
   'skydive',
   'fitness',
   'climbing',
+  'canyoning',
   'kitesurf',
   'skateboard',
 ];

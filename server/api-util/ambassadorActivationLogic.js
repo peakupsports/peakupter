@@ -1,5 +1,7 @@
 const crypto = require('crypto');
 
+const { normalizeReferralCode } = require('./referralCodeNormalize');
+
 const { isPeakUpHqAdminUser } = require('./peakUpHqAdminAuth');
 
 const VERIFIED_SEAL_BADGE_IDS = new Set(['founder', 'certified_coach', 'top_coach']);
@@ -68,29 +70,29 @@ const buildReferralCodeBase = displayName => {
 
 const formatReferralCode = (baseName, sequence = 1) => {
   const seq = String(Math.max(1, sequence)).padStart(2, '0');
-  return `${buildReferralCodeBase(baseName)}PKUP${seq}`;
+  return `${buildReferralCodeBase(baseName)}PKUP${seq}`.toUpperCase();
 };
 
 const generateUniqueReferralCode = (displayName, takenCodes, existingCode) => {
-  const existing = String(existingCode || '').trim();
+  const existing = normalizeReferralCode(existingCode);
   if (existing) {
     return existing;
   }
 
   const taken = new Set(
-    (takenCodes || []).map(code => String(code || '').trim().toUpperCase()).filter(Boolean)
+    (takenCodes || []).map(code => normalizeReferralCode(code)).filter(Boolean)
   );
   const base = buildReferralCodeBase(displayName);
 
   for (let i = 1; i <= 99; i += 1) {
     const candidate = formatReferralCode(base, i);
-    if (!taken.has(candidate.toUpperCase())) {
+    if (!taken.has(candidate)) {
       return candidate;
     }
   }
 
   const suffix = crypto.randomBytes(2).toString('hex').toUpperCase();
-  return `${base}PKUP${suffix}`;
+  return `${base.toUpperCase()}PKUP${suffix}`;
 };
 
 const mergeAmbassadorPublicData = (publicData, activationFields) => {

@@ -5,6 +5,7 @@
 import { resolveAmbassadorRewardsUnlockedWithDevOverride } from './ambassadorDevBronzeOverride';
 import { resolveAmbassadorFounderOverride } from './ambassadorFounderOverride';
 import { isPeakUpHqAdmin } from './peakupAdmin';
+import { normalizeReferralCode } from './referralCode';
 import { getCurrentUserTypeRoles, isUserAuthorized } from './userHelpers';
 import { coachStickerShowsVerifiedSeal } from './profileCoachSticker';
 
@@ -135,7 +136,7 @@ export const getAmbassadorProfileState = currentUser => {
     founderOverrideActive: founderOverride.overrideActive,
     ambassadorJoinedAt: pd.ambassadorJoinedAt ? String(pd.ambassadorJoinedAt) : null,
     ambassadorReferralCode: pd.ambassadorReferralCode
-      ? String(pd.ambassadorReferralCode).trim()
+      ? normalizeReferralCode(pd.ambassadorReferralCode)
       : null,
   };
 };
@@ -181,7 +182,7 @@ export const buildReferralCodeBase = displayName => {
  */
 export const formatReferralCode = (baseName, sequence = 1) => {
   const seq = String(Math.max(1, sequence)).padStart(2, '0');
-  return `${buildReferralCodeBase(baseName)}PKUP${seq}`;
+  return `${buildReferralCodeBase(baseName)}PKUP${seq}`.toUpperCase();
 };
 
 /**
@@ -194,18 +195,18 @@ export const formatReferralCode = (baseName, sequence = 1) => {
 export const generateUniqueReferralCode = (displayName, takenCodes) => {
   const taken = new Set(
     (Array.isArray(takenCodes) ? takenCodes : [...takenCodes]).map(code =>
-      String(code || '').trim().toUpperCase()
+      normalizeReferralCode(code)
     )
   );
   const base = buildReferralCodeBase(displayName);
 
   for (let i = 1; i <= 99; i += 1) {
     const candidate = formatReferralCode(base, i);
-    if (!taken.has(candidate.toUpperCase())) {
+    if (!taken.has(candidate)) {
       return candidate;
     }
   }
 
   const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `${base}PKUP${suffix}`;
+  return `${base.toUpperCase()}PKUP${suffix}`;
 };

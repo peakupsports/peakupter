@@ -7,6 +7,7 @@ const SPORT_TITLE_KEYS = {
   mtb: 'mtb',
   hiking: 'hiking',
   climbing: 'climbing',
+  canyoning: 'canyoning',
   kitesurf: 'kitesurf',
   wakeboard: 'wakeboard',
   wakesurf: 'wakesurf',

@@ -5,6 +5,7 @@
 
 import { resolveTeamPostLoginRedirectTarget } from './peakupTeam';
 import { CUSTOMER_DASHBOARD_PATH } from './peakupBookingDashboard';
+import { normalizeReferralCode } from './referralCode';
 
 export const COACH_PROVIDER_SIGNUP_USER_TYPES = new Set([
   'coach',
@@ -50,7 +51,7 @@ export const isCoachOnboardingReturn = from => {
  */
 export const parseReferralCodeFromSearch = search => {
   const ref = new URLSearchParams(String(search || '')).get('ref');
-  return ref ? String(ref).trim() : '';
+  return ref ? normalizeReferralCode(ref) : '';
 };
 
 /**
@@ -65,7 +66,7 @@ export const parseReferralCodeFromLocation = location =>
  * @returns {string}
  */
 export const buildCoachApplicationPath = ({ ref, pathname = '/coach-application' } = {}) => {
-  const normalizedRef = String(ref || '').trim();
+  const normalizedRef = normalizeReferralCode(ref);
   if (!normalizedRef) {
     return pathname;
   }
@@ -325,7 +326,7 @@ export function readCoachOnboardingIntent() {
 
     return {
       active: true,
-      ref: String(parsed.ref || '').trim(),
+      ref: normalizeReferralCode(parsed.ref || ''),
       returnPath: String(parsed.returnPath),
     };
   } catch (e) {
@@ -377,10 +378,11 @@ export function persistCoachOnboardingIntent({ ref } = {}) {
     return;
   }
 
+  const normalizedRef = normalizeReferralCode(ref);
   const payload = {
     active: true,
-    ref: String(ref || '').trim(),
-    returnPath: buildCoachApplicationPath({ ref }),
+    ref: normalizedRef,
+    returnPath: buildCoachApplicationPath({ ref: normalizedRef }),
   };
 
   try {
@@ -410,7 +412,7 @@ export function persistCoachOnboardingIntent({ ref } = {}) {
  * }}
  */
 export function buildCoachOnboardingProfilePublicData({ ref } = {}) {
-  const normalizedRef = String(ref || '').trim();
+  const normalizedRef = normalizeReferralCode(ref);
   return {
     userType: 'instructor',
     coachOnboardingIntent: true,
@@ -481,7 +483,7 @@ export function hasCoachOnboardingIntent() {
 export const buildCoachSignupAuthSearch = ({ ref } = {}) => {
   const params = new URLSearchParams();
   params.set(COACH_ONBOARDING_QUERY_PARAM, '1');
-  const normalizedRef = String(ref || '').trim();
+  const normalizedRef = normalizeReferralCode(ref);
   if (normalizedRef) {
     params.set('ref', normalizedRef);
   }
@@ -492,7 +494,7 @@ export const buildCoachSignupAuthSearch = ({ ref } = {}) => {
  * @returns {string}
  */
 export function getCoachOnboardingStoredReferralCode() {
-  return String(readCoachOnboardingIntent()?.ref || '').trim();
+  return normalizeReferralCode(readCoachOnboardingIntent()?.ref || '');
 }
 
 /**
@@ -630,7 +632,7 @@ export function hasCoachOnboardingProfileIntent(currentUser) {
  */
 export function getProfileAmbassadorRef(currentUser) {
   const publicData = getCoachOnboardingProfilePublicData(currentUser);
-  return String(publicData.ambassadorRef || publicData.ambassadorReferralCode || '').trim();
+  return normalizeReferralCode(publicData.ambassadorRef || publicData.ambassadorReferralCode || '');
 }
 
 /**
@@ -644,9 +646,9 @@ export function getProfileAmbassadorRef(currentUser) {
  */
 export function resolveCoachOnboardingReferralCode({ currentUser, location, from } = {}) {
   const publicData = currentUser?.attributes?.profile?.publicData || {};
-  const refFromProfile = String(
+  const refFromProfile = normalizeReferralCode(
     publicData.coachReferralCode || publicData.ambassadorReferralCode || publicData.referralCode || ''
-  ).trim();
+  );
   const refFromLocation = location ? parseReferralCodeFromLocation(location) : '';
   const refFromFrom =
     typeof from === 'string'

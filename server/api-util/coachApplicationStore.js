@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
+const { normalizeReferralCode } = require('./referralCodeNormalize');
+
 const SUBMISSIONS_DIR = path.join(__dirname, '..', 'data', 'coach-applications');
 
 const APPLICATION_STATUSES = {
@@ -64,7 +66,7 @@ const toListItem = record => ({
   certificationLevel: record.certificationLevel || '',
   federationSchool: record.federationSchool || '',
   instagramWebsite: record.instagramWebsite || '',
-  ambassadorReferralCode: record.ambassadorReferralCode || '',
+  ambassadorReferralCode: normalizeReferralCode(record.ambassadorReferralCode),
   applicantUserId: record.applicantUserId || '',
   applyingIndependently: Boolean(record.applyingIndependently),
   interestedInAmbassador: Boolean(record.interestedInAmbassador),
@@ -117,7 +119,7 @@ const saveCoachApplicationSubmission = payload => {
     submittedAt,
     updatedAt: submittedAt,
     hearAboutPeakUp: payload.hearAboutPeakUp,
-    ambassadorReferralCode: payload.ambassadorReferralCode,
+    ambassadorReferralCode: normalizeReferralCode(payload.ambassadorReferralCode),
     applicantUserId: payload.applicantUserId || '',
     applyingIndependently: payload.applyingIndependently,
     interestedInAmbassador: false,

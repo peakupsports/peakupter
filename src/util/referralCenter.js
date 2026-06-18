@@ -2,6 +2,8 @@
  * Referral Center — ambassador invite link helpers.
  */
 
+import { normalizeReferralCode } from './referralCode';
+
 export const PRODUCTION_AMBASSADOR_HOST = 'peakup.ch';
 export const AMBASSADOR_INVITE_PATH = '/coach-signup';
 
@@ -92,7 +94,7 @@ export const getAmbassadorShareDomain = (config = {}) => {
  */
 export const buildAmbassadorShareLink = (code, config = {}, runtimeWindow) => {
   const origin = resolveAmbassadorShareOrigin(config, runtimeWindow);
-  const normalized = String(code || '').trim();
+  const normalized = normalizeReferralCode(code);
   if (!normalized) {
     return `${origin}${AMBASSADOR_INVITE_PATH}`;
   }

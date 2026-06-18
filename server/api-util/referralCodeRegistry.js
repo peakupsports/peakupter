@@ -1,9 +1,5 @@
 const { listAmbassadorActivations } = require('./ambassadorActivationStore');
-
-const normalizeCode = code =>
-  String(code || '')
-    .trim()
-    .toUpperCase();
+const { normalizeReferralCode: normalizeCode } = require('./referralCodeNormalize');
 
 /**
  * Resolve an ambassador referral code to activation metadata.
@@ -26,7 +22,7 @@ const resolveReferralCode = code => {
 
   return {
     ambassadorUserId: match.userId,
-    ambassadorReferralCode: match.referralCode,
+    ambassadorReferralCode: normalizeCode(match.referralCode),
     ambassadorName: match.coachName,
     ambassadorEmail: match.email,
     ambassadorTier: match.ambassadorTier || 'bronze',

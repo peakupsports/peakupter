@@ -259,6 +259,11 @@
   color: var(--coachInkSoft);
 }
 
+.referralCodeInput {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .checkboxGroup {
   display: grid;
   gap: 14px;

@@ -49,7 +49,13 @@ describe('referralCenter', () => {
 
     it('builds localhost coach-signup URL when running locally', () => {
       expect(buildAmbassadorShareLink('GiangioPKUP01', {}, localWindow)).toBe(
-        'http://localhost:3000/coach-signup?ref=GiangioPKUP01'
+        'http://localhost:3000/coach-signup?ref=GIANGIOPKUP01'
+      );
+    });
+
+    it('normalizes referral codes to uppercase in share links', () => {
+      expect(buildAmbassadorShareLink('giangiopkup01', {}, prodWindow)).toBe(
+        `https://${PRODUCTION_AMBASSADOR_HOST}/coach-signup?ref=GIANGIOPKUP01`
       );
     });
 

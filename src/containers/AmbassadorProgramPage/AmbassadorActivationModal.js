@@ -12,6 +12,7 @@ import {
   getAmbassadorProfileState,
   isAmbassadorActive,
 } from '../../util/ambassadorActivation';
+import { normalizeReferralCode } from '../../util/referralCode';
 import { fetchCurrentUser } from '../../ducks/user.duck';
 import { manageDisableScrolling } from '../../ducks/ui.duck';
 
@@ -99,8 +100,9 @@ const AmbassadorActivationModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const referralCode =
-    activationResult?.ambassadorReferralCode || profileState.ambassadorReferralCode;
+  const referralCode = normalizeReferralCode(
+    activationResult?.ambassadorReferralCode || profileState.ambassadorReferralCode || ''
+  );
   const referralLink =
     activationResult?.referralLink ||
     (referralCode ? buildAmbassadorReferralLink(referralCode) : '');

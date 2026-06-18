@@ -40,11 +40,13 @@ describe('sportProfessionalTitles', () => {
     expect(getSportDirectoryAriaLabelId('golf')).toBe('CoachDirectory.heroBannerAriaLabel.golf');
   });
 
-  it('returns sport-specific ids for kitesurf and swimming', () => {
+  it('returns sport-specific ids for kitesurf, canyoning and swimming', () => {
     expect(getSportDirectoryHeroSubtitleId('kitesurf')).toBe(
       'CoachDirectory.heroSubtitle.kitesurf'
     );
     expect(getSportDirectorySchemaTitleId('kitesurf')).toBe('CoachDirectory.schemaTitle.kitesurf');
+    expect(getSportDirectoryHeroTitleId('canyoning')).toBe('CoachDirectory.heroTitle.canyoning');
+    expect(resolveSportDirectorySport('canyoning')).toBe('canyoning');
     expect(resolveSportDirectorySport('swimming')).toBe('swimming');
     expect(getSportDirectoryHeroTitleId('swimming')).toBe('CoachDirectory.heroTitle.swimming');
   });

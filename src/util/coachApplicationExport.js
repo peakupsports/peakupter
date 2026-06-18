@@ -2,6 +2,7 @@ import moment from 'moment';
 import XLSX from 'xlsx-js-style';
 
 import { APPLICATION_STATUSES, formatApplicationType } from './coachApplicationAdmin';
+import { normalizeReferralCode } from './referralCode';
 
 const CERTIFICATION_EXPORT_LABELS = {
   none: 'No formal certification yet',
@@ -113,7 +114,7 @@ export const applicationToExportValues = (app, { datesAsDateObjects = false } = 
     app.federationSchool,
     instagram,
     website,
-    app.ambassadorReferralCode,
+    normalizeReferralCode(app.ambassadorReferralCode),
     formatYesNo(app.interestedInAmbassador),
     applicationTypeLabel(app),
     statusLabel(app.status),

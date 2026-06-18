@@ -16,6 +16,7 @@ import {
   isCoachApplicationCheckboxChecked,
   validateCoachApplicationStep,
 } from '../../util/coachApplication';
+import { normalizeReferralCode } from '../../util/referralCode';
 import { submitCoachApplication } from '../../util/api';
 
 import {
@@ -333,6 +334,8 @@ const ReferralStepFieldsInner = ({ values, form, hearAboutOptions, intl }) => {
           id="ambassadorReferralCode"
           name="ambassadorReferralCode"
           type="text"
+          parse={normalizeReferralCode}
+          inputRootClass={css.referralCodeInput}
           label={intl.formatMessage({
             id: 'CoachApplicationPage.ambassadorCodeLabel',
           })}
@@ -358,7 +361,7 @@ const CoachApplicationForm = props => {
   const applicantUserId = user.id?.uuid || '';
   const initialFormValues = useMemo(
     () => ({
-      ambassadorReferralCode: initialReferralCode,
+      ambassadorReferralCode: normalizeReferralCode(initialReferralCode),
       hearAboutPeakUp: initialReferralCode ? 'ambassador' : undefined,
       fullName: accountName,
       email: accountEmail,

@@ -23,6 +23,7 @@ import {
   canAccessHqAdminApiViaSession,
   hasPeakUpHqAdminDashboardAccess,
 } from '../../util/peakupAdmin';
+import { normalizeReferralCode } from '../../util/referralCode';
 import { downloadCoachApplicationsXlsx } from '../../util/coachApplicationExport';
 
 import { Page, NamedLink } from '../../components';
@@ -286,7 +287,7 @@ const ApplicationFilters = ({ filters, onChange, sports, countries }) => {
           className={css.fieldInput}
           type="text"
           value={filters.referral}
-          onChange={e => onChange({ referral: e.target.value })}
+          onChange={e => onChange({ referral: normalizeReferralCode(e.target.value) })}
           placeholder={intl.formatMessage({
             id: 'AdminCoachApplicationsPage.filterReferralPlaceholder',
           })}
@@ -361,7 +362,7 @@ const ApplicationsList = ({ applications, onOpen, onRequestDelete }) => {
                   <td>
                     {[app.country, app.cityArea].filter(Boolean).join(' · ')}
                   </td>
-                  <td>{app.ambassadorReferralCode || '—'}</td>
+                  <td>{normalizeReferralCode(app.ambassadorReferralCode) || '—'}</td>
                   <td>{formatType(app)}</td>
                   <td>
                     <StatusBadge status={app.status} />
@@ -410,7 +411,7 @@ const ApplicationsList = ({ applications, onOpen, onRequestDelete }) => {
             </div>
             <div>
               <FormattedMessage id="AdminCoachApplicationsPage.colReferral" />:{' '}
-              {app.ambassadorReferralCode || '—'}
+              {normalizeReferralCode(app.ambassadorReferralCode) || '—'}
             </div>
             <div>{formatDate(app.submittedAt)}</div>
             <button
@@ -645,7 +646,7 @@ const ApplicationDetail = ({ applicationId, onBack, onStatusUpdated, onDeleted }
           />
           <DetailRow
             label={intl.formatMessage({ id: 'CoachApplicationPage.ambassadorCodeLabel' })}
-            value={application.ambassadorReferralCode}
+            value={normalizeReferralCode(application.ambassadorReferralCode) || '—'}
           />
           <DetailRow
             label={intl.formatMessage({

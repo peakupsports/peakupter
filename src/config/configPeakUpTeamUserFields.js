@@ -33,6 +33,7 @@ const TEAM_SPORT_OPTIONS = [
   { option: 'golf', label: 'Golf' },
   { option: 'mtb', label: 'MTB' },
   { option: 'climbing', label: 'Climbing' },
+  { option: 'canyoning', label: 'Canyoning' },
   { option: 'yoga', label: 'Yoga' },
   { option: 'fitness', label: 'Fitness' },
 ];

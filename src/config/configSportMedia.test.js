@@ -8,8 +8,9 @@ import {
 } from './configSportMedia';
 
 describe('SPORT_MEDIA_LIBRARY', () => {
-  it('exposes the 15 top-level sports + 9 Snowboard/Ski variant keys we have artwork for', () => {
+  it('exposes the 16 top-level sports + 9 Snowboard/Ski variant keys we have artwork for', () => {
     expect([...SPORT_MEDIA_KEYS].sort()).toEqual([
+      'canyoning',
       'climbing',
       'crosscountry',
       'fitness',
@@ -53,6 +54,8 @@ describe('SPORT_MEDIA_LIBRARY', () => {
     // Filename intentionally preserves the on-disk lower-case `wakesurf.jpg`.
     // `wakesurf` is a separate top-level bookable sport (NOT a Wakeboard variant).
     expect(SPORT_MEDIA_LIBRARY.wakesurf.hero).toBe('/CoachPagePic/wakesurf.jpg');
+    // Filename intentionally preserves the on-disk capitalised `Canyoning.jpg`.
+    expect(SPORT_MEDIA_LIBRARY.canyoning.hero).toBe('/CoachPagePic/Canyoning.jpg');
     // Filename intentionally preserves the on-disk lower-case `climbing.jpg`.
     expect(SPORT_MEDIA_LIBRARY.climbing.hero).toBe('/CoachPagePic/climbing.jpg');
     // Filename intentionally preserves the on-disk capitalised `Fitness.jpg`.

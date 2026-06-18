@@ -18,6 +18,7 @@ const {
   summarizeRewardsForAmbassador,
   toPublicRewardRecord,
 } = require('./referralRewardsStore');
+const { normalizeReferralCode } = require('./referralCodeNormalize');
 
 const CRITERIA_LABEL_KEYS = {
   reviews: {
@@ -68,7 +69,9 @@ const buildReferralCenterDashboard = async ({ sdk, trustedSdk, currentUser }) =>
   const ambassadorUserId = currentUser?.id?.uuid;
   const publicData = currentUser?.attributes?.profile?.publicData || {};
   const ambassadorEmail = currentUser?.attributes?.email || '';
-  const ambassadorReferralCode = publicData.ambassadorReferralCode || null;
+  const ambassadorReferralCode = publicData.ambassadorReferralCode
+    ? normalizeReferralCode(publicData.ambassadorReferralCode)
+    : null;
 
   const founderOverride = resolveAmbassadorFounderOverride({
     publicData,

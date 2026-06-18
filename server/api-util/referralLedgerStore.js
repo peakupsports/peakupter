@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
+const { normalizeReferralCode } = require('./referralCodeNormalize');
+
 const LEDGER_DIR = path.join(__dirname, '..', 'data', 'referral-ledger');
 
 const REFERRAL_STATUSES = {
@@ -49,7 +51,7 @@ const toPublicReferral = entry => ({
   joinedAt: entry.joinedAt || entry.createdAt,
   listings: entry.listingsCount || 0,
   rewardStatus: entry.rewardStatus || 'pending',
-  ambassadorReferralCode: entry.ambassadorReferralCode,
+  ambassadorReferralCode: normalizeReferralCode(entry.ambassadorReferralCode),
 });
 
 const listAllReferrals = () => {
@@ -88,7 +90,7 @@ const createReferralEntry = payload => {
   const entry = normalizeEntry({
     id: crypto.randomUUID(),
     ambassadorUserId: payload.ambassadorUserId,
-    ambassadorReferralCode: payload.ambassadorReferralCode,
+    ambassadorReferralCode: normalizeReferralCode(payload.ambassadorReferralCode),
     applicationId: payload.applicationId,
     applicantName: payload.applicantName,
     applicantEmail: payload.applicantEmail,
@@ -159,7 +161,7 @@ const deleteReferralByApplicationId = applicationId => {
 };
 
 const syncReferralFromApplication = application => {
-  const code = String(application.ambassadorReferralCode || '').trim();
+  const code = normalizeReferralCode(application.ambassadorReferralCode);
   if (!code) {
     return null;
   }

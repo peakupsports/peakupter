@@ -16,6 +16,7 @@ import {
   canAccessHqAdminApiViaSession,
   hasPeakUpHqAdminDashboardAccess,
 } from '../../../util/peakupAdmin';
+import { normalizeReferralCode } from '../../../util/referralCode';
 
 import { Page, NamedLink } from '../../../components';
 import TopbarContainer from '../../TopbarContainer/TopbarContainer';
@@ -173,7 +174,7 @@ const ActivationsTable = ({ activations }) => {
               <td>{item.email}</td>
               <td>{item.activatedAt ? moment(item.activatedAt).format('YYYY-MM-DD HH:mm') : '—'}</td>
               <td>
-                <code className={css.code}>{item.referralCode}</code>
+                <code className={css.code}>{normalizeReferralCode(item.referralCode) || '—'}</code>
               </td>
               <td>{item.ambassadorTier || 'bronze'}</td>
               <td>{item.activeReferrals ?? 0}</td>

@@ -18,6 +18,7 @@ const SPORT_EMOJI = {
   tennis: '🎾',
   golf: '⛳️',
   climbing: '🧗',
+  canyoning: '🪢',
   yoga: '🧘',
   skydive: '🪂',
   fitness: '💪',

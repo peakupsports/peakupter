@@ -12,6 +12,9 @@ const HowItWorksPage = loadable(() =>
 const InstructorsPage = loadable(() =>
   import(/* webpackChunkName: "InstructorsPage" */ '../containers/InstructorsPage/InstructorsPage')
 );
+const SportLandingPage = loadable(() =>
+  import(/* webpackChunkName: "SportLandingPage" */ '../containers/SportLandingPage/SportLandingPage')
+);
 const CoachApplicationPage = loadable(() =>
   import(
     /* webpackChunkName: "CoachApplicationPage" */ '../containers/CoachApplicationPage/CoachApplicationPage'
@@ -501,6 +504,13 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       path: '/about',
       name: 'AboutPageRedirect',
       component: props => <NamedRedirect name="AboutPage" search={props.location?.search} />,
+    },
+    {
+      path: '/p/canyoning',
+      name: 'CanyoningSportPage',
+      component: props => <SportLandingPage sportKey="canyoning" {...props} />,
+      loadData: pageDataLoadingAPI.CanyoningSportPage.loadData,
+      prioritizeMapLibraryLoading: true,
     },
     {
       path: '/p/:pageId',

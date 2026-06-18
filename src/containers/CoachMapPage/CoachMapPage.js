@@ -116,6 +116,7 @@ const MTB_DISCIPLINE = { key: 'mtb', label: 'MTB', emoji: '🚵' };
 const SURF_DISCIPLINE = { key: 'surf', label: 'Surf', emoji: '🏄' };
 const TENNIS_DISCIPLINE = { key: 'tennis', label: 'Tennis', emoji: '🎾' };
 const CLIMBING_DISCIPLINE = { key: 'climbing', label: 'Climbing', emoji: '🧗' };
+const CANYONING_DISCIPLINE = { key: 'canyoning', label: 'Canyoning', emoji: '🪢' };
 const GOLF_DISCIPLINE = { key: 'golf', label: 'Golf', emoji: '⛳️' };
 // 💪 matches `PROFILE_SPORT_EMOJI.fitness` so chip / figurine / marker stay aligned.
 const FITNESS_DISCIPLINE = { key: 'fitness', label: 'Fitness', emoji: '💪' };
@@ -161,6 +162,7 @@ const getCoachMapDisciplines = () =>
       TENNIS_DISCIPLINE,
       GOLF_DISCIPLINE,
       CLIMBING_DISCIPLINE,
+      CANYONING_DISCIPLINE,
       YOGA_DISCIPLINE,
       SKYDIVE_DISCIPLINE,
       FITNESS_DISCIPLINE,

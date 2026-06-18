@@ -4,6 +4,7 @@ const {
   saveAmbassadorActivation,
 } = require('../api-util/ambassadorActivationStore');
 const { validateActivationRequest } = require('../api-util/ambassadorActivationLogic');
+const { normalizeReferralCode } = require('../api-util/referralCodeNormalize');
 const { sendAmbassadorWelcomeEmail } = require('../api-util/ambassadorWelcomeEmail');
 
 const getRequestOrigin = req => {
@@ -14,7 +15,7 @@ const getRequestOrigin = req => {
 
 const buildReferralLink = (req, code) => {
   const origin = getRequestOrigin(req);
-  const normalized = String(code || '').trim();
+  const normalized = normalizeReferralCode(code);
   if (!origin) {
     return `/coach-signup?ref=${encodeURIComponent(normalized)}`;
   }

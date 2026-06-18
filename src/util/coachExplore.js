@@ -93,6 +93,7 @@ const SEARCH_SPORT_WINTER_ORDER = [
   'kitesurf',
   'skydive',
   'climbing',
+  'canyoning',
   'fitness',
   'yoga',
 ];
@@ -107,6 +108,7 @@ const SEARCH_SPORT_SUMMER_ORDER = [
   'kitesurf',
   'skydive',
   'climbing',
+  'canyoning',
   'tennis',
   'golf',
   'fitness',

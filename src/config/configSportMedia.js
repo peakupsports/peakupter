@@ -67,7 +67,7 @@ const ASSET_BASE = '/CoachPagePic';
  *
  * Two classes of keys live in this map:
  *
- *   1. **Top-level sports** (15 keys) — mirror the canonical SportBar
+ *   1. **Top-level sports** (16 keys) — mirror the canonical SportBar
  *      keys (`SPORT_LABELS` / `TOPBAR_SPORT_ORDER` in
  *      `src/components/SportBar/SportBar.js`), so the value flowing
  *      through `?sport=…` resolves directly without alias resolution.
@@ -111,6 +111,7 @@ export const SPORT_MEDIA_LIBRARY = Object.freeze({
   // per the temporary-asset policy above.
   wakesurf: Object.freeze({ hero: `${ASSET_BASE}/wakesurf.jpg` }),
   climbing: Object.freeze({ hero: `${ASSET_BASE}/climbing.jpg` }),
+  canyoning: Object.freeze({ hero: `${ASSET_BASE}/Canyoning.jpg` }),
   fitness: Object.freeze({ hero: `${ASSET_BASE}/Fitness.jpg` }),
   yoga: Object.freeze({ hero: `${ASSET_BASE}/yoga.jpg` }),
   skateboard: Object.freeze({ hero: `${ASSET_BASE}/skateboard.jpg` }),

@@ -52,14 +52,14 @@ describe('ambassadorActivation', () => {
     expect(buildReferralCodeBase('Gian Luca')).toBe('GianLuca');
   });
 
-  it('formats referral codes with PKUP suffix', () => {
-    expect(formatReferralCode('Javier', 1)).toBe('JavierPKUP01');
-    expect(formatReferralCode('Gian Luca', 1)).toBe('GianLucaPKUP01');
+  it('formats referral codes with PKUP suffix in uppercase', () => {
+    expect(formatReferralCode('Javier', 1)).toBe('JAVIERPKUP01');
+    expect(formatReferralCode('Gian Luca', 1)).toBe('GIANLUCAPKUP01');
   });
 
   it('avoids duplicate referral codes', () => {
     const taken = new Set(['JAVIERPKUP01']);
-    expect(generateUniqueReferralCode('Javier', taken)).toBe('JavierPKUP02');
+    expect(generateUniqueReferralCode('Javier', taken)).toBe('JAVIERPKUP02');
   });
 
   it('allows PeakUp HQ admins to access ambassador activation', () => {

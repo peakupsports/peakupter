@@ -4,6 +4,7 @@
 import { loadData as AboutPageLoader } from './AboutPage/AboutPage.duck';
 import { loadData as HowItWorksPageLoader } from './HowItWorksPage/HowItWorksPage.duck';
 import { loadData as InstructorsPageLoader } from './InstructorsPage/InstructorsPage.duck';
+import { loadData as SportLandingPageLoader } from './SportLandingPage/SportLandingPage.duck';
 import { loadData as CoachApplicationPageLoader } from './CoachApplicationPage/CoachApplicationPage.duck';
 import { loadData as TeamApplicationPageLoader } from './TeamApplicationPage/TeamApplicationPage.duck';
 import { loadData as AdminTeamApplicationsPageLoader } from './AdminTeamApplicationsPage/AdminTeamApplicationsPage.duck';
@@ -62,6 +63,9 @@ const getPageDataLoadingAPI = () => {
     },
     InstructorsPage: {
       loadData: InstructorsPageLoader,
+    },
+    CanyoningSportPage: {
+      loadData: SportLandingPageLoader,
     },
     CoachApplicationPage: {
       loadData: CoachApplicationPageLoader,

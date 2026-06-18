@@ -19,6 +19,7 @@ export const LANDING_HERO_MEDIA = Object.freeze({
       { key: 'surf', imageUrl: getSportHeroImage('surf', { fallback: null }) },
       { key: 'mtb', imageUrl: getSportHeroImage('mtb', { fallback: null }) },
       { key: 'climbing', imageUrl: getSportHeroImage('climbing', { fallback: null }) },
+      { key: 'canyoning', imageUrl: getSportHeroImage('canyoning', { fallback: null }) },
       { key: 'yoga', imageUrl: getSportHeroImage('yoga', { fallback: null }) },
       { key: 'tennis', imageUrl: getSportHeroImage('tennis', { fallback: null }) },
       // Keep exactly one winter freeride shot in the mix so the hero reads

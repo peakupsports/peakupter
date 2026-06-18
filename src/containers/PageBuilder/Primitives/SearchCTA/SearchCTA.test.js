@@ -26,6 +26,7 @@ describe('SearchCTA category dropdown', () => {
       'Tennis',
       'Golf',
       'Climbing',
+      'Canyoning',
       'Yoga',
       'Skydive',
       'Fitness',

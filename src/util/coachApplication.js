@@ -7,6 +7,7 @@ import {
   parseReferralCodeFromLocation,
   resolveSignupAmbassadorRef,
 } from './coachOnboarding';
+import { hasReferralCodeValue, normalizeReferralCode } from './referralCode';
 
 export const COACH_APPLICATION_STEPS = [
   'referral',
@@ -75,12 +76,12 @@ export const resolveCoachApplicationInitialReferralCode = ({ location, currentUs
     return fromProfile;
   }
 
-  return resolveSignupAmbassadorRef({ location });
+  return normalizeReferralCode(resolveSignupAmbassadorRef({ location }));
 };
 
 /** @param {Record<string, unknown>|null|undefined} values */
 export const hasCoachApplicationReferralCode = values =>
-  Boolean(String(values?.ambassadorReferralCode || '').trim());
+  hasReferralCodeValue(values?.ambassadorReferralCode);
 
 /** @param {unknown} value Final Form checkbox field value */
 export const isCoachApplicationCheckboxChecked = value => {
@@ -142,7 +143,7 @@ export const buildCoachApplicationPayload = async values => {
 
   return {
     hearAboutPeakUp: values.hearAboutPeakUp || '',
-    ambassadorReferralCode: String(values.ambassadorReferralCode || '').trim(),
+    ambassadorReferralCode: normalizeReferralCode(values.ambassadorReferralCode),
     applyingIndependently: hasCoachApplicationReferralCode(values)
       ? false
       : isCoachApplicationCheckboxChecked(values.applyingIndependently),

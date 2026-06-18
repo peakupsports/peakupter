@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
+const { normalizeReferralCode } = require('./referralCodeNormalize');
+
 const ACTIVATIONS_DIR = path.join(__dirname, '..', 'data', 'ambassador-activations');
 
 const ensureDir = dir => {
@@ -30,7 +32,7 @@ const toListItem = record => ({
   coachName: record.coachName,
   email: record.email,
   activatedAt: record.activatedAt,
-  referralCode: record.referralCode,
+  referralCode: normalizeReferralCode(record.referralCode),
   ambassadorTier: record.ambassadorTier,
   ambassadorRewardsUnlocked: Boolean(record.ambassadorRewardsUnlocked),
 });
@@ -67,7 +69,7 @@ const saveAmbassadorActivation = payload => {
     userId: payload.userId,
     coachName: payload.coachName,
     email: payload.email,
-    referralCode: payload.referralCode,
+    referralCode: normalizeReferralCode(payload.referralCode),
     ambassadorTier: payload.ambassadorTier || 'bronze',
     ambassadorRewardsUnlocked: Boolean(payload.ambassadorRewardsUnlocked),
     activatedAt: payload.activatedAt,
