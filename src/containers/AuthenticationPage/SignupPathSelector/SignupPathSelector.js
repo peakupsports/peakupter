@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../util/reactIntl';
-import { getSignupPathOptions } from '../../../util/signupPaths';
+import { getSignupPathOptions, SIGNUP_PATH_IDS } from '../../../util/signupPaths';
 
 import NamedLink from '../../../components/NamedLink/NamedLink';
 
@@ -14,20 +14,19 @@ import css from './SignupPathSelector.module.css';
  * Client & team set Final Form `userType`; coach navigates to coach-signup entry.
  *
  * @param {Object} props
- * @param {string|null} props.selectedUserType
+ * @param {'customer'|'coach'|'team'|null} props.selectedSignupPath
  * @param {(userType: string) => void} props.onSelectUserType
  * @param {Array} props.userTypes
  * @param {Object} [props.coachSignupTo] NamedLink `to` for coach path
  */
 const SignupPathSelector = props => {
-  const { rootClassName, splitLayout, selectedUserType, onSelectUserType, userTypes, coachSignupTo } =
+  const { rootClassName, splitLayout, selectedSignupPath, onSelectUserType, userTypes, coachSignupTo } =
     props;
   const { customerUserType, teamUserType, showCoachPath } = getSignupPathOptions(userTypes);
 
-  const isClientSelected = Boolean(
-    customerUserType && selectedUserType === customerUserType
-  );
-  const isTeamSelected = Boolean(teamUserType && selectedUserType === teamUserType);
+  const isClientSelected = selectedSignupPath === SIGNUP_PATH_IDS.CUSTOMER;
+  const isCoachSelected = selectedSignupPath === SIGNUP_PATH_IDS.COACH;
+  const isTeamSelected = selectedSignupPath === SIGNUP_PATH_IDS.TEAM;
 
   const handleSelect = userType => () => {
     if (userType && typeof onSelectUserType === 'function') {
@@ -79,9 +78,12 @@ const SignupPathSelector = props => {
 
         {showCoachPath ? (
           <NamedLink
-            className={classNames(css.card, css.cardCoach, css.cardLink)}
+            className={classNames(css.card, css.cardCoach, css.cardLink, {
+              [css.cardSelected]: isCoachSelected,
+            })}
             name="CoachSignupPage"
             to={coachSignupTo || {}}
+            aria-current={isCoachSelected ? 'true' : undefined}
           >
             <span className={css.cardIcon} aria-hidden>
               <SignupPathIcon variant="coach" className={css.cardIconSvg} />

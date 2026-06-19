@@ -518,6 +518,7 @@ export const AuthenticationPageComponent = props => {
                   showSignupPathSelector
                   pathSelectorUserTypes={userTypes}
                   coachSignupTo={coachSignupTo}
+                  isCoachOnboardingActive={isCoachOnboardingFlow}
                   onUserTypeChange={setSignupUserType}
                 />
               )}

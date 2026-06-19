@@ -1,6 +1,13 @@
 import { getCustomerUserTypeForCoachSignup } from './coachOnboarding';
 import { PEAKUP_TEAM_USER_TYPE } from './peakupTeam';
 
+/** Signup path card ids — distinct from Sharetribe `userType` (coach path uses customer type). */
+export const SIGNUP_PATH_IDS = {
+  CUSTOMER: 'customer',
+  COACH: 'coach',
+  TEAM: 'team',
+};
+
 /**
  * Resolve PeakUp signup path user-type ids from hosted `userTypes` config.
  *
@@ -37,4 +44,33 @@ export const shouldUseSignupPathSelector = ({ showSignupPathSelector, userTypes 
   const pathCount =
     (customerUserType ? 1 : 0) + (showCoachPath ? 1 : 0) + (teamUserType ? 1 : 0);
   return pathCount >= 2;
+};
+
+/**
+ * Which signup path card should show the active state.
+ * Coach onboarding keeps `userType` on the customer id — path must be tracked separately.
+ *
+ * @param {Object} params
+ * @param {string|null|undefined} params.userType Final Form `userType` value
+ * @param {boolean} [params.isCoachOnboardingActive] Coach/professional onboarding signal
+ * @param {Array} [params.userTypes] Hosted user types for path card resolution
+ * @returns {'customer'|'coach'|'team'|null}
+ */
+export const resolveSelectedSignupPath = ({
+  userType,
+  isCoachOnboardingActive,
+  userTypes,
+}) => {
+  const { customerUserType, teamUserType } = getSignupPathOptions(userTypes);
+
+  if (isCoachOnboardingActive) {
+    return SIGNUP_PATH_IDS.COACH;
+  }
+  if (teamUserType && userType === teamUserType) {
+    return SIGNUP_PATH_IDS.TEAM;
+  }
+  if (customerUserType && userType === customerUserType) {
+    return SIGNUP_PATH_IDS.CUSTOMER;
+  }
+  return null;
 };

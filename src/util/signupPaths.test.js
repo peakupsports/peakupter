@@ -1,5 +1,7 @@
 import {
   getSignupPathOptions,
+  resolveSelectedSignupPath,
+  SIGNUP_PATH_IDS,
   shouldUseSignupPathSelector,
 } from './signupPaths';
 
@@ -30,5 +32,31 @@ describe('signupPaths', () => {
         userTypes,
       })
     ).toBe(false);
+  });
+
+  it('resolveSelectedSignupPath maps userType and coach onboarding to card ids', () => {
+    expect(
+      resolveSelectedSignupPath({
+        userType: 'customer',
+        isCoachOnboardingActive: false,
+        userTypes,
+      })
+    ).toBe(SIGNUP_PATH_IDS.CUSTOMER);
+
+    expect(
+      resolveSelectedSignupPath({
+        userType: 'customer',
+        isCoachOnboardingActive: true,
+        userTypes,
+      })
+    ).toBe(SIGNUP_PATH_IDS.COACH);
+
+    expect(
+      resolveSelectedSignupPath({
+        userType: 'team',
+        isCoachOnboardingActive: false,
+        userTypes,
+      })
+    ).toBe(SIGNUP_PATH_IDS.TEAM);
   });
 });

@@ -1,7 +1,8 @@
-import React from 'react';
-import { Form as FinalForm } from 'react-final-form';
+import React, { useCallback } from 'react';
+import { Form as FinalForm, FormSpy } from 'react-final-form';
 import arrayMutators from 'final-form-arrays';
 import classNames from 'classnames';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
@@ -12,11 +13,19 @@ import { Form, PrimaryButton, FieldTextInput, CustomExtendedDataField } from '..
 
 import FieldSelectUserType from '../FieldSelectUserType';
 import SignupPathSelector from '../SignupPathSelector/SignupPathSelector';
-import UserFieldDisplayName from '../UserFieldDisplayName';
 import UserFieldPhoneNumber from '../UserFieldPhoneNumber';
 
-import { getCustomerUserTypeForCoachSignup } from '../../../util/coachOnboarding';
-import { getSignupPathOptions, shouldUseSignupPathSelector } from '../../../util/signupPaths';
+import {
+  clearCoachOnboardingIntent,
+  COACH_ONBOARDING_QUERY_PARAM,
+  getCustomerUserTypeForCoachSignup,
+  isCoachOnboardingReturn,
+} from '../../../util/coachOnboarding';
+import {
+  getSignupPathOptions,
+  resolveSelectedSignupPath,
+  shouldUseSignupPathSelector,
+} from '../../../util/signupPaths';
 
 import css from './SignupForm.module.css';
 
@@ -63,6 +72,8 @@ const SignupFormComponent = props => (
         pathSelectorUserTypes,
         coachSignupTo,
         onUserTypeChange,
+        isCoachOnboardingActive,
+        onClearCoachOnboarding,
       } = formRenderProps;
 
       const { userType } = values || {};
@@ -72,17 +83,6 @@ const SignupFormComponent = props => (
         userTypes: typesForPathCards,
       });
       const { customerUserType, teamUserType } = getSignupPathOptions(typesForPathCards);
-      const isTeamSignup = Boolean(teamUserType && userType === teamUserType);
-      const isClientSignup = Boolean(
-        customerUserType && userType === customerUserType
-      );
-      const displayNamePlaceholderId = usePathSelector
-        ? isTeamSignup
-          ? 'SignupForm.displayNamePlaceholderTeam'
-          : isClientSignup
-          ? 'SignupForm.displayNamePlaceholderClient'
-          : 'SignupForm.displayNamePlaceholder'
-        : 'SignupForm.displayNamePlaceholder';
 
       // email
       const emailRequired = validators.required(
@@ -145,6 +145,11 @@ const SignupFormComponent = props => (
       const submitDisabled = invalid || submitInProgress || isPasswordUsedMoreThanOnce(values);
 
       const handlePathSelect = nextType => {
+        const isCustomerPath = Boolean(customerUserType && nextType === customerUserType);
+        const isTeamPath = Boolean(teamUserType && nextType === teamUserType);
+        if ((isCustomerPath || isTeamPath) && typeof onClearCoachOnboarding === 'function') {
+          onClearCoachOnboarding();
+        }
         form.change('userType', nextType);
         if (typeof onUserTypeChange === 'function') {
           onUserTypeChange(nextType);
@@ -214,14 +219,6 @@ const SignupFormComponent = props => (
                 />
               </div>
 
-              <UserFieldDisplayName
-                formName="SignupForm"
-                className={css.row}
-                userTypeConfig={userTypeConfig}
-                intl={intl}
-                displayNamePlaceholderId={displayNamePlaceholderId}
-              />
-
               <FieldTextInput
                 className={css.password}
                 type="password"
@@ -273,13 +270,21 @@ const SignupFormComponent = props => (
           {usePathSelector ? (
             <div className={css.signupSplit}>
               <aside className={css.signupSplitPaths} aria-label="Join PeakUp">
-                <SignupPathSelector
-                  splitLayout
-                  userTypes={typesForPathCards}
-                  selectedUserType={userType}
-                  onSelectUserType={handlePathSelect}
-                  coachSignupTo={coachSignupTo}
-                />
+                <FormSpy subscription={{ values: true }}>
+                  {({ values: formValues }) => (
+                    <SignupPathSelector
+                      splitLayout
+                      userTypes={typesForPathCards}
+                      selectedSignupPath={resolveSelectedSignupPath({
+                        userType: formValues?.userType ?? userType,
+                        isCoachOnboardingActive,
+                        userTypes: typesForPathCards,
+                      })}
+                      onSelectUserType={handlePathSelect}
+                      coachSignupTo={coachSignupTo}
+                    />
+                  )}
+                </FormSpy>
               </aside>
               <div className={css.signupSplitForm}>{formBody}</div>
             </div>
@@ -309,11 +314,40 @@ const SignupFormComponent = props => (
  * @param {propTypes.userTypes} [props.pathSelectorUserTypes] - Full user types for path cards (incl. team)
  * @param {Object} [props.coachSignupTo] - NamedLink `to` for coach path card
  * @param {(userType: string) => void} [props.onUserTypeChange] - Sync selected type to parent (e.g. SSO)
+ * @param {boolean} [props.isCoachOnboardingActive] - Professional/coach onboarding path is active
  * @returns {JSX.Element}
  */
 const SignupForm = props => {
   const intl = useIntl();
-  return <SignupFormComponent {...props} intl={intl} />;
+  const history = useHistory();
+  const location = useLocation();
+
+  const onClearCoachOnboarding = useCallback(() => {
+    clearCoachOnboardingIntent();
+    const params = new URLSearchParams(String(location.search || '').replace(/^\?/, ''));
+    const hadCoachQuery = params.has(COACH_ONBOARDING_QUERY_PARAM);
+    if (hadCoachQuery) {
+      params.delete(COACH_ONBOARDING_QUERY_PARAM);
+    }
+    const fromIsCoachReturn =
+      location.state?.from && isCoachOnboardingReturn(location.state.from);
+    if (!hadCoachQuery && !fromIsCoachReturn) {
+      return;
+    }
+    history.replace({
+      pathname: location.pathname,
+      search: params.toString() ? `?${params.toString()}` : '',
+      state: fromIsCoachReturn ? undefined : location.state,
+    });
+  }, [history, location]);
+
+  return (
+    <SignupFormComponent
+      {...props}
+      intl={intl}
+      onClearCoachOnboarding={onClearCoachOnboarding}
+    />
+  );
 };
 
 export default SignupForm;
