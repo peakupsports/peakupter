@@ -32,6 +32,8 @@ import FieldCoachMapLocation from './FieldCoachMapLocation';
 import FieldTeamMapLocation from './FieldTeamMapLocation';
 import FieldTeamSinceYear from './FieldTeamSinceYear';
 import { FieldTeamPrimarySport, FieldTeamSecondarySport } from './FieldTeamIdentitySport';
+import FieldCoachPrimarySport from './FieldCoachPrimarySport';
+import CoachSportsManualSync from './CoachSportsManualSync';
 import FieldPreferredMeetingPoints from './FieldPreferredMeetingPoints';
 import ViewProfileLink from '../ViewProfileLink';
 import TeamCoachesSection from './TeamCoachesSection';
@@ -161,7 +163,13 @@ const ACCEPT_IMAGES = 'image/*';
 const UPLOAD_CHANGE_DELAY = 2000; // Show spinner so that browser has time to load img srcset
 
 const DisplayNameMaybe = props => {
-  const { userTypeConfig, intl, embeddedInProfileHero, isTeamUser = false } = props;
+  const {
+    userTypeConfig,
+    intl,
+    embeddedInProfileHero,
+    embeddedInDisplayNameRow = false,
+    isTeamUser = false,
+  } = props;
 
   const isDisabled = userTypeConfig?.defaultUserFields?.displayName === false;
   if (isDisabled) {
@@ -181,7 +189,11 @@ const DisplayNameMaybe = props => {
       }
     : {};
 
-  const wrapClass = embeddedInProfileHero ? css.displayNameInHero : css.sectionContainer;
+  const wrapClass = embeddedInDisplayNameRow
+    ? css.displayNameInHeroRowCol
+    : embeddedInProfileHero
+    ? css.displayNameInHero
+    : css.sectionContainer;
 
   return (
     <div className={wrapClass}>
@@ -639,12 +651,27 @@ class ProfileSettingsFormComponent extends Component {
                         </div>
                       </div>
                     ) : null}
-                    <DisplayNameMaybe
-                      embeddedInProfileHero
-                      userTypeConfig={userTypeConfig}
-                      intl={intl}
-                      isTeamUser={isTeamUser}
-                    />
+                    {isCoachProfileUser ? (
+                      <div className={css.profileHeroDisplayNameRow}>
+                        <DisplayNameMaybe
+                          embeddedInProfileHero
+                          embeddedInDisplayNameRow
+                          userTypeConfig={userTypeConfig}
+                          intl={intl}
+                          isTeamUser={false}
+                        />
+                        <div className={css.coachPrimarySportHeroCol}>
+                          <FieldCoachPrimarySport formId={formId} />
+                        </div>
+                      </div>
+                    ) : (
+                      <DisplayNameMaybe
+                        embeddedInProfileHero
+                        userTypeConfig={userTypeConfig}
+                        intl={intl}
+                        isTeamUser={isTeamUser}
+                      />
+                    )}
                     {isTeamUser ? (
                       <div className={css.profileHeroMetaRow}>
                         <div className={css.teamSinceFieldCol}>
@@ -772,6 +799,7 @@ class ProfileSettingsFormComponent extends Component {
                     [css.lastSection]: !isCoachProfileUser,
                   })}
                 >
+                  {isCoachProfileUser ? <CoachSportsManualSync /> : null}
                   <H4 as="h2" className={css.sectionTitle}>
                     <FormattedMessage
                       id={

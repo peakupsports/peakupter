@@ -955,7 +955,7 @@
   overflow: hidden;
 }
 
-.footerSportBadge:first-child {
+.footerSportBadges > :first-child {
   /* Align first sport emoji under the language flag column (bottom-left of photo). */
   margin-left: 8px;
 }

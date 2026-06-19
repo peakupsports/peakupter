@@ -270,6 +270,10 @@ export const peakupBookingHoldRelease = body =>
 export const submitCoachApplication = body =>
   postJsonToLocalApi('/api/coach-application', body);
 
+/** Fire-and-forget HQ admin email after Professional (coach) signup. */
+export const notifyCoachProfessionalSignup = () =>
+  postJsonToLocalApi('/api/coach-onboarding-notify', {});
+
 /** Submit PeakUp team / club application. */
 export const submitTeamApplication = body => postJsonToLocalApi('/api/team-application', body);
 

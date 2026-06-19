@@ -2727,6 +2727,8 @@
   "ProfileSettingsForm.teamMapLocationInfo": "Choose where your team is based so customers can find you on the map.",
   "ProfileSettingsForm.teamPrimarySportEmptyOption": "Sport",
   "ProfileSettingsForm.teamPrimarySportLabel": "Primary sport",
+  "ProfileSettingsForm.coachPrimarySportLabel": "Primary sport",
+  "ProfileSettingsForm.coachPrimarySportEmptyOption": "Select primary sport",
   "ProfileSettingsForm.teamProfilePicture": "Team picture",
   "ProfileSettingsForm.teamProfilePictureHelp": "Upload a logo, group photo, action shot, or visual that represents your team. This image is used as the hero image on your public team page.",
   "ProfileSettingsForm.teamProfileSectionInfo": "Create the public identity of your team. This information appears on your public PeakUp team page.",

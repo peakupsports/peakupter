@@ -1530,7 +1530,10 @@
   > :global(section):last-of-type
   :is([class*='BlockDefault_root'], [class*='SectionFeatures_block']) {
   position: relative;
+  display: flex;
+  flex-direction: column;
   min-height: 276px;
+  height: 100%;
   padding: 0;
   overflow: hidden;
   border-radius: 0;
@@ -1690,22 +1693,50 @@
   :global(main)
   > :global(section):last-of-type
   [class*='BlockDefault_text'] {
+  --howItWorksCtaContentWidth: min(16.25rem, 82%);
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 2;
   isolation: isolate;
   margin-top: 0;
-  padding: 28px 24px;
-  display: grid;
-  grid-template-rows: auto minmax(4.9rem, auto) auto;
-  justify-items: start;
-  align-content: start;
-  align-items: start;
+  padding: 24px 20px 28px 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
   text-align: left;
-  row-gap: 18px;
-  column-gap: 0;
+  gap: 16px;
+}
+
+/* Hero-style left column — ignore block alignment from PageBuilder data. */
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text'][class*='alignRight'],
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text'][class*='alignLeft'],
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text'][class*='alignCenter'] {
+  text-align: left;
+}
+
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text'][class*='alignRight']
+  > :is(p, ul, ol),
+.howItWorksPremium
+  :global(main)
+  > :global(section):last-of-type
+  [class*='BlockDefault_text'][class*='alignCenter']
+  > :is(p, ul, ol) {
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .howItWorksPremium
@@ -1722,17 +1753,11 @@
   > * {
   position: relative;
   z-index: 1;
-}
-
-.howItWorksPremium
-  :global(main)
-  > :global(section):last-of-type
-  [class*='BlockDefault_text']
-  > :first-child {
-  grid-row: 1;
-  width: 100%;
-  align-self: start;
-  justify-self: start;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: var(--howItWorksCtaContentWidth);
+  min-width: 0;
+  align-self: flex-start;
 }
 
 .howItWorksPremium
@@ -1740,11 +1765,8 @@
   > :global(section):last-of-type
   [class*='BlockDefault_text']
   > :nth-child(2) {
-  grid-row: 2;
-  width: 100%;
-  min-height: 4.9rem;
-  align-self: start;
-  justify-self: start;
+  flex: 0 1 auto;
+  max-width: min(26ch, var(--howItWorksCtaContentWidth));
 }
 
 .howItWorksPremium
@@ -1752,8 +1774,8 @@
   > :global(section):last-of-type
   [class*='BlockDefault_text']
   > [class*='SectionBuilder_ctaButton'] {
-  grid-row: 3;
-  justify-self: start;
+  flex-shrink: 0;
+  align-self: flex-start;
 }
 
 @media (--viewportMedium) {
@@ -1761,10 +1783,15 @@
     :global(main)
     > :global(section):last-of-type
     [class*='BlockDefault_text'] {
-    top: 34px;
-    bottom: auto;
-    padding: 30px 24px;
-    row-gap: 20px;
+    --howItWorksCtaContentWidth: min(16.5rem, 100%);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: min(52%, 320px);
+    max-width: 320px;
+    padding: 30px 24px 28px 28px;
+    gap: 16px;
   }
 
   .howItWorksPremium
@@ -1772,16 +1799,7 @@
     > :global(section):last-of-type
     [class*='SectionBuilder_blockContainer'][class*='SectionColumns_twoColumns']
     > *:first-child
-    [class*='BlockDefault_text'] {
-    left: auto;
-    right: 6%;
-    width: min(38%, 356px);
-    max-width: 356px;
-    padding-left: 18px;
-    padding-right: 34px;
-    align-items: flex-start;
-  }
-
+    [class*='BlockDefault_text'],
   .howItWorksPremium
     :global(main)
     > :global(section):last-of-type
@@ -1790,19 +1808,10 @@
     [class*='BlockDefault_text'] {
     left: 0;
     right: auto;
-    width: min(38%, 356px);
-    max-width: 356px;
-    padding-left: 34px;
-    padding-right: 18px;
-    align-items: flex-start;
-  }
-
-  .howItWorksPremium
-    :global(main)
-    > :global(section):last-of-type
-    [class*='BlockDefault_text']
-    :is(h1, h2, h3, h4, h5, h6) {
-    white-space: nowrap;
+    width: min(52%, 320px);
+    max-width: 320px;
+    padding-left: 28px;
+    padding-right: 24px;
   }
 }
 
@@ -1819,7 +1828,8 @@
   > :global(section):last-of-type
   [class*='BlockDefault_text']
   > :not([class*='SectionBuilder_ctaButton']) {
-  width: 100%;
+  width: auto;
+  max-width: var(--howItWorksCtaContentWidth);
   margin-left: 0;
   margin-right: 0;
 }
@@ -1834,7 +1844,7 @@
   font-weight: 600;
   line-height: 1.14;
   letter-spacing: 0.01em;
-  max-width: none;
+  max-width: min(22ch, var(--howItWorksCtaContentWidth));
   text-wrap: pretty;
   text-shadow: 0 14px 34px rgba(0, 0, 0, 0.36);
 }
@@ -1846,9 +1856,9 @@
   :is(p, li, span) {
   color: rgba(245, 248, 252, 0.88);
   font-size: clamp(0.96rem, 0.94rem + 0.1vw, 1.02rem);
-  line-height: 1.56;
+  line-height: 1.5;
   text-wrap: pretty;
-  max-width: 30ch;
+  max-width: min(26ch, var(--howItWorksCtaContentWidth));
   text-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
 }
 
@@ -1861,7 +1871,8 @@
   align-items: center;
   justify-content: center;
   height: 48px;
-  width: 188px;
+  width: auto;
+  min-width: 188px;
   max-width: 100%;
   padding: 0 28px;
   margin-top: 0;

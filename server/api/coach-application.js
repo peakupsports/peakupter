@@ -1,6 +1,7 @@
 const { getSdk } = require('../api-util/sdk');
 const { saveCoachApplicationSubmission, getCoachApplication } = require('../api-util/coachApplicationStore');
 const { trackCoachApplicationReferral } = require('../api-util/referralTracking');
+const { sendCoachProfessionalApplicationAdminEmail } = require('../api-util/coachProfessionalAdminNotifyEmail');
 
 const REQUIRED_FIELDS = ['fullName', 'email', 'phone', 'mainSport'];
 
@@ -76,16 +77,27 @@ module.exports = async (req, res) => {
       );
     }
 
-    const notifyEmail = process.env.COACH_APPLICATION_NOTIFY_EMAIL;
-    if (notifyEmail) {
-      console.info(
-        `[coach-application] New submission ${result.id} for ${accountEmail} (user ${currentUser.id.uuid}) — notify: ${notifyEmail}`
+    console.info(
+      `[coach-application] New submission ${result.id} saved for user ${currentUser.id.uuid} at ${result.dir}`
+    );
+
+    sendCoachProfessionalApplicationAdminEmail({
+      applicationId: result.id,
+      fullName: application?.fullName || payload.fullName,
+      email: accountEmail,
+      phone: application?.phone || payload.phone,
+      country: application?.country || payload.country,
+      cityArea: application?.cityArea || payload.cityArea,
+      mainSport: application?.mainSport || payload.mainSport,
+      otherSports: application?.otherSports || payload.otherSports,
+      applicantUserId: currentUser.id.uuid,
+      submittedAt: application?.submittedAt,
+    }).catch(emailError => {
+      console.error(
+        `[coach-application] Admin notification email failed for submission ${result.id}:`,
+        emailError?.message || emailError
       );
-    } else {
-      console.info(
-        `[coach-application] New submission ${result.id} saved for user ${currentUser.id.uuid} at ${result.dir}`
-      );
-    }
+    });
 
     res.status(201).json({
       ok: true,

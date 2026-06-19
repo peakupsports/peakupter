@@ -21,6 +21,11 @@ import {
   teamIdentitySportsFormValuesToPublicData,
 } from '../../util/peakupTeam';
 import {
+  getCoachPrimarySportFormValue,
+  getCoachManualSportsFormValue,
+  coachPrimarySportFormValueToPublicData,
+} from '../../util/coachPrimarySport';
+import {
   coachMapLocationFromPublicData,
   publicDataPatchFromCoachMapLocation,
 } from '../../util/coachMapLocationForm';
@@ -101,6 +106,8 @@ export const ProfileSettingsPageComponent = props => {
       pub_teamMainSport,
       pub_teamPrimarySport,
       pub_teamSecondarySport,
+      pub_primarySport,
+      pub_sportsManual,
       preferredMeetingPoints,
       teachingHoursStart,
       teachingHoursEnd,
@@ -115,6 +122,8 @@ export const ProfileSettingsPageComponent = props => {
     const bio = rawBio || '';
 
     const isTeamUser = userType === 'team';
+    const isCoachProfileUser = isCoachUser && !isTeamUser;
+    const pickedPublicFields = pickUserFieldsData(rest, 'public', userType, userFields);
     const coachLocationPatch = isTeamUser
       ? publicDataPatchFromTeamMapLocation(pub_teamMapLocation)
       : publicDataPatchFromCoachMapLocation(pub_coachMapLocation);
@@ -137,7 +146,14 @@ export const ProfileSettingsPageComponent = props => {
               ...(teachingHoursStart ? { teachingHoursStart } : { teachingHoursStart: null }),
               ...(teachingHoursEnd ? { teachingHoursEnd } : { teachingHoursEnd: null }),
             }),
-        ...pickUserFieldsData(rest, 'public', userType, userFields),
+        ...pickedPublicFields,
+        ...(isCoachProfileUser
+          ? coachPrimarySportFormValueToPublicData(
+              pub_primarySport,
+              pickedPublicFields.sports,
+              pub_sportsManual
+            )
+          : {}),
         ...(isTeamUser && bio ? { teamBio: bio } : {}),
         ...(isTeamUser
           ? teamIdentitySportsFormValuesToPublicData(
@@ -193,6 +209,8 @@ export const ProfileSettingsPageComponent = props => {
         ...initialValuesForUserFields(publicData, 'public', userType, userFields),
         pub_teamPrimarySport: getTeamPrimarySportFormValue(publicData),
         pub_teamSecondarySport: getTeamSecondarySportFormValue(publicData),
+        pub_primarySport: getCoachPrimarySportFormValue(publicData),
+        pub_sportsManual: getCoachManualSportsFormValue(publicData),
       }}
       profileImage={profileImage}
       onImageUpload={e => onImageUploadHandler(e, onImageUpload)}

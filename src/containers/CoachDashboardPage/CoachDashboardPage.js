@@ -10,6 +10,7 @@ import {
   hasAmbassadorDashboardAccess,
   isCoachProviderProfileUserType,
 } from '../../util/coachOnboarding';
+import { getCoachDashboardBackgroundImage } from '../../util/coachPrimarySport';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 import { isPeakUpMultiDayPurchaseTransaction } from '../../util/peakUpMultiDayPurchase';
 import { getPeakUpMultiDayExperiencePhase } from '../../util/peakUpCoachBookingTransaction';
@@ -153,6 +154,8 @@ const CoachDashboardPage = () => {
   const user = ensureCurrentUser(currentUser);
   const marketplaceName = config.marketplaceName || 'PeakUp';
   const profile = user.attributes?.profile || {};
+  const publicData = profile.publicData || {};
+  const dashboardSportBackground = getCoachDashboardBackgroundImage(publicData);
   const heroDisplayName =
     profile.displayName?.trim() ||
     profile.firstName?.trim() ||
@@ -292,7 +295,22 @@ const CoachDashboardPage = () => {
       scrollingDisabled={scrollingDisabled}
       className={classNames(sportTheme.sportPremium, css.page)}
     >
-      <div className={css.bgGlow} aria-hidden="true" />
+      {dashboardSportBackground ? (
+        <div className={css.pageBackdrop} aria-hidden="true">
+          <img
+            className={css.pageBackdropImage}
+            src={dashboardSportBackground}
+            alt=""
+            role="presentation"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+          />
+          <div className={css.pageBackdropOverlay} />
+        </div>
+      ) : (
+        <div className={css.bgGlow} aria-hidden="true" />
+      )}
       <TopbarContainer currentPage="CoachDashboardPage" chromeTheme="sportPremium" />
 
       <main className={css.main}>

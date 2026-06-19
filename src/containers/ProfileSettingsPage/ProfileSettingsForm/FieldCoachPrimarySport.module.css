@@ -1,0 +1,11 @@
+@import '../../../styles/customMediaQueries.css';
+
+/* Layout only — dark select chrome comes from ProfileSettingsForm.peakUpForm globals */
+.root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}

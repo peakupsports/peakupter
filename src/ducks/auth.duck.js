@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as log from '../util/log';
 import { getAuthErrorMessage, logSignupError, storableError } from '../util/errors';
 import { clearCurrentUser, fetchCurrentUser } from './user.duck';
-import { createUserWithIdp } from '../util/api';
+import { createUserWithIdp, notifyCoachProfessionalSignup } from '../util/api';
 
 const authenticated = authInfo => authInfo?.isAnonymous === false;
 const loggedInAs = authInfo => authInfo?.isLoggedInAs === true;
@@ -139,6 +139,9 @@ const signupThunk = createAsyncThunk(
               coachOnboardingPublicData,
               publicData: coachOnboardingPublicData,
               ambassadorRef: coachOnboardingPublicData?.ambassadorRef || null,
+            });
+            notifyCoachProfessionalSignup().catch(notifyError => {
+              log.error(notifyError, 'coach-professional-signup-admin-notify');
             });
           })
           .catch(profileError => {

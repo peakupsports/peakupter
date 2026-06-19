@@ -19,6 +19,7 @@ import { getTierBadgeLabel, getTierStyleVars } from '../../util/coachTier';
 import NamedLink from '../NamedLink/NamedLink';
 import PeakUpLocationPin from '../PeakUpLocationPin/PeakUpLocationPin';
 import ResponsiveImage from '../ResponsiveImage/ResponsiveImage';
+import SportEmojiTooltip from '../SportEmojiTooltip/SportEmojiTooltip';
 
 import peakUpFounderLogo from '../../assets/peakup-founder-logo.png';
 import PeakUpRankShieldBadge from './PeakUpRankShieldBadge';
@@ -393,9 +394,12 @@ const PeakUpCoachFigurineCard = props => {
             {sportIcons.length > 0 ? (
               <div className={css.footerSportBadges} aria-label="Sports">
                 {sportIcons.map(s => (
-                  <span key={s.key} className={css.footerSportBadge} title={s.label}>
-                    {s.emoji}
-                  </span>
+                  <SportEmojiTooltip
+                    key={s.key}
+                    emoji={s.emoji}
+                    label={s.label}
+                    badgeClassName={css.footerSportBadge}
+                  />
                 ))}
               </div>
             ) : (

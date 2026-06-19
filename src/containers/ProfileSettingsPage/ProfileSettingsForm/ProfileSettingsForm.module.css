@@ -210,6 +210,45 @@
   }
 }
 
+/* Display name (left) + Primary sport (right) — coach/professional hero row */
+.profileHeroDisplayNameRow {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 18px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+
+  @media (--viewportMedium) {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 16px 24px;
+    margin-top: 22px;
+  }
+}
+
+.displayNameInHeroRowCol {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+  padding-top: 0;
+  margin-bottom: 0;
+}
+
+.coachPrimarySportHeroCol {
+  flex: 0 0 auto;
+  width: min(100%, 200px);
+  max-width: 200px;
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+
+  @media (--viewportMedium) {
+    width: 200px;
+  }
+}
+
 .uploadAvatarWrapper {
   margin-top: 18px;
   margin-bottom: 0;
@@ -598,6 +637,7 @@
 .peakUpForm :global([class*='FieldTextInput_root']) input,
 .peakUpForm :global([class*='FieldTextInput_root']) textarea,
 .peakUpForm :global([class*='FieldSelect_root']) select,
+.peakUpForm .coachPrimarySportHeroCol :global([class*='FieldSelect_root']) select,
 .peakUpForm :global([class*='FieldCoachMapLocation_locationRoot']) input,
 .peakUpForm :global([class*='FieldPreferredMeetingPoints_locationRoot']) input {
   color: rgba(247, 250, 255, 0.96) !important;
@@ -621,6 +661,7 @@
 .peakUpForm :global([class*='FieldTextInput_root']) input:focus,
 .peakUpForm :global([class*='FieldTextInput_root']) textarea:focus,
 .peakUpForm :global([class*='FieldSelect_root']) select:focus,
+.peakUpForm .coachPrimarySportHeroCol :global([class*='FieldSelect_root']) select:focus,
 .peakUpForm :global([class*='FieldCoachMapLocation_locationRoot']) input:focus,
 .peakUpForm :global([class*='FieldPreferredMeetingPoints_locationRoot']) input:focus {
   outline: none;
@@ -628,6 +669,14 @@
   box-shadow:
     0 0 0 1px rgba(23, 217, 255, 0.25),
     0 0 20px rgba(23, 217, 255, 0.12);
+}
+
+.peakUpForm .coachPrimarySportHeroCol :global([class*='FieldSelect_root']) > label {
+  color: rgba(228, 235, 243, 0.88) !important;
+  font-weight: 600;
+  font-size: inherit;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .peakUpForm :global([class*='FieldTeamSinceYear_select']),

@@ -2727,6 +2727,8 @@
   "ProfileSettingsForm.teamMapLocationInfo": "Wähle, wo dein Team beheimatet ist, damit Kundinnen und Kunden euch auf der Karte finden — Academy, Camp, Schule oder Collective.",
   "ProfileSettingsForm.teamPrimarySportEmptyOption": "Sport",
   "ProfileSettingsForm.teamPrimarySportLabel": "Hauptsport",
+  "ProfileSettingsForm.coachPrimarySportLabel": "Hauptsport",
+  "ProfileSettingsForm.coachPrimarySportEmptyOption": "Hauptsport wählen",
   "ProfileSettingsForm.teamProfilePicture": "Teambild",
   "ProfileSettingsForm.teamProfilePictureHelp": "Lade ein Logo, Gruppenfoto, Actionaufnahme oder Bild hoch, das dein Team repräsentiert. Wird als Hero-Bild auf deiner öffentlichen Teamseite verwendet.",
   "ProfileSettingsForm.teamProfileSectionInfo": "Erstelle die öffentliche Identität deines Teams. Diese Informationen erscheinen auf deiner öffentlichen PeakUp-Teamseite.",
