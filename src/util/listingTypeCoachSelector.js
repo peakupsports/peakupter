@@ -9,6 +9,26 @@ export const normalizeListingTypeKey = value =>
     .trim()
     .replace(/[\s-]+/g, '_');
 
+/**
+ * Localized label for a listing type id (falls back to hosted config label).
+ *
+ * @param {import('react-intl').IntlShape} intl
+ * @param {string} listingType
+ * @param {string} [fallbackLabel]
+ * @returns {string}
+ */
+export const getListingTypeDisplayLabel = (intl, listingType, fallbackLabel) => {
+  const key = normalizeListingTypeKey(listingType);
+  if (!key) {
+    return fallbackLabel || listingType || '';
+  }
+
+  return intl.formatMessage({
+    id: `ListingType.${key}`,
+    defaultMessage: fallbackLabel || listingType,
+  });
+};
+
 /** Internal booking calendar listing type (coach_booking) — not coach-selectable. */
 const TECHNICAL_BOOKING_LISTING_TYPE_KEYS = new Set(['coach_booking', 'coachbooking']);
 

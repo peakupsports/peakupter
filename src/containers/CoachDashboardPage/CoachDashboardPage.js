@@ -297,15 +297,17 @@ const CoachDashboardPage = () => {
     >
       {dashboardSportBackground ? (
         <div className={css.pageBackdrop} aria-hidden="true">
-          <img
-            className={css.pageBackdropImage}
-            src={dashboardSportBackground}
-            alt=""
-            role="presentation"
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-          />
+          <div className={css.pageBackdropMedia}>
+            <img
+              className={css.pageBackdropImage}
+              src={dashboardSportBackground}
+              alt=""
+              role="presentation"
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+            />
+          </div>
           <div className={css.pageBackdropOverlay} />
         </div>
       ) : (

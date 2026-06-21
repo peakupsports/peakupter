@@ -124,24 +124,12 @@ const TopbarMobileMenu = props => {
       </NamedLink>
     );
 
-    const signupOrLogin = (
-      <span className={css.authenticationLinks}>
-        <FormattedMessage
-          id="TopbarMobileMenu.signupOrLogin"
-          values={{ lineBreak: <br />, signup, login }}
-        />
-      </span>
-    );
-
     if (customerDiscoveryMenu) {
       return (
         <nav className={css.root}>
           <div className={css.content}>
             <ul className={css.customLinksWrapper}>{extraLinks}</ul>
-            <div className={css.authenticationCta}>
-              {signup}
-              {login}
-            </div>
+            <div className={css.unauthorizedActions}>{signup}{login}</div>
             <div className={css.spacer} />
           </div>
         </nav>
@@ -151,11 +139,17 @@ const TopbarMobileMenu = props => {
     return (
       <nav className={css.root}>
         <div className={css.content}>
-          <div className={css.authenticationGreeting}>
-            <FormattedMessage
-              id="TopbarMobileMenu.unauthorizedGreeting"
-              values={{ lineBreak: <br />, signupOrLogin }}
-            />
+          <div className={css.unauthorizedHero}>
+            <h2 className={css.unauthorizedTitle}>
+              <FormattedMessage id="TopbarMobileMenu.unauthorizedTitle" />
+            </h2>
+            <p className={css.unauthorizedSubtitle}>
+              <FormattedMessage id="TopbarMobileMenu.unauthorizedSubtitle" />
+            </p>
+            <div className={css.unauthorizedActions}>
+              {signup}
+              {login}
+            </div>
           </div>
 
           <ul className={css.customLinksWrapper}>{extraLinks}</ul>

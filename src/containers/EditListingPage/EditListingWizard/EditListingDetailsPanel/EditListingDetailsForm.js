@@ -28,6 +28,7 @@ import {
   CustomExtendedDataField,
 } from '../../../../components';
 import { isPeakUpMultiDayExperienceListing, isPeakUpMultiDayExperienceListingTypeConfig } from '../../../../util/peakUpMultiDayExperienceListing';
+import { getListingTypeDisplayLabel } from '../../../../util/listingTypeCoachSelector';
 // Import modules from this directory
 import css from './EditListingDetailsForm.module.css';
 
@@ -135,7 +136,11 @@ const FieldSelectListingType = props => {
   };
   const getListingTypeLabel = listingType => {
     const listingTypeConfig = listingTypes.find(config => config.listingType === listingType);
-    return listingTypeConfig ? listingTypeConfig.label : listingType;
+    return getListingTypeDisplayLabel(
+      intl,
+      listingType,
+      listingTypeConfig?.label || listingType
+    );
   };
 
   return hasMultipleListingTypes && !hasPredefinedListingType ? (
@@ -157,7 +162,7 @@ const FieldSelectListingType = props => {
           const type = config.listingType;
           return (
             <option key={type} value={type}>
-              {config.label}
+              {getListingTypeDisplayLabel(intl, type, config.label)}
             </option>
           );
         })}

@@ -3385,6 +3385,8 @@
   "TopbarMobileMenu.signupLink": "Registar",
   "TopbarMobileMenu.signupOrLogin": "{signup} ou {login}",
   "TopbarMobileMenu.teamDashboardLink": "Espacio de equipa",
+  "TopbarMobileMenu.unauthorizedSubtitle": "Registe-se ou inicie sessão para continuar.",
+  "TopbarMobileMenu.unauthorizedTitle": "Bem-vindo ao PeakUp",
   "TopbarMobileMenu.unauthorizedGreeting": "Hello there,{lineBreak}would you like to {signupOrLogin}?",
   "TopbarMobileMenu.yourListingsLink": "Os seus anúncios",
   "TopbarSearchForm.placeholder": "Pesquisar anúncios…",

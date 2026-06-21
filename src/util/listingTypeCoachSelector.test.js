@@ -1,9 +1,11 @@
 import {
   filterListingTypesForCoachCreateSelector,
+  getListingTypeDisplayLabel,
   isRemovedFromCoachListingTypeSelector,
   isTechnicalBookingListingTypeConfig,
   listingTypesForCoachDetailsSelector,
 } from './listingTypeCoachSelector';
+import { fakeIntl } from './testData';
 
 const type = (listingType, label) => ({ listingType, label });
 
@@ -37,5 +39,18 @@ describe('listingTypeCoachSelector', () => {
   it('does not duplicate existing type when it is already in filtered list', () => {
     const result = listingTypesForCoachDetailsSelector(all, { listingType: 'camp' });
     expect(result.map(t => t.listingType)).toEqual(['camp', 'clinic']);
+  });
+
+  it('returns localized listing type labels with config fallback', () => {
+    const intl = fakeIntl;
+    expect(getListingTypeDisplayLabel(intl, 'hourly_booking', 'Hourly booking')).toBe(
+      'ListingType.hourly_booking'
+    );
+    expect(getListingTypeDisplayLabel(intl, 'Multi-day experiences', 'Multi-day experiences')).toBe(
+      'ListingType.multi_day_experiences'
+    );
+    expect(getListingTypeDisplayLabel(intl, 'custom-type', 'Custom label')).toBe(
+      'ListingType.custom_type'
+    );
   });
 });

@@ -3384,6 +3384,8 @@
   "TopbarMobileMenu.returnToCoachDashboardLink": "Return to dashboard",
   "TopbarMobileMenu.signupLink": "Sign up",
   "TopbarMobileMenu.signupOrLogin": "{signup} or {login}",
+  "TopbarMobileMenu.unauthorizedSubtitle": "Sign up or log in to continue.",
+  "TopbarMobileMenu.unauthorizedTitle": "Welcome to PeakUp",
   "TopbarMobileMenu.teamDashboardLink": "Team workspace",
   "TopbarMobileMenu.unauthorizedGreeting": "Hello there,{lineBreak}would you like to {signupOrLogin}?",
   "TopbarMobileMenu.yourListingsLink": "Your listings",

@@ -291,6 +291,9 @@
   min-height: 100vh;
   padding: 0;
   padding: var(--modalPadding);
+  overflow-x: hidden;
+  max-width: 100vw;
+  box-sizing: border-box;
 
   /* PeakUp dark mobile menu surface (matches the dark topbar). */
   background:
@@ -350,9 +353,34 @@
 .modalContainerSportPremium
   :global(
     [class*='TopbarMobileMenu_greeting'],
-    [class*='TopbarMobileMenu_authenticationGreeting']
+    [class*='TopbarMobileMenu_authenticationGreeting'],
+    [class*='TopbarMobileMenu_unauthorizedTitle']
   ) {
   color: #ffffff;
+}
+
+/* Mobile menu close: icon-only on small screens (aria-label stays translated). */
+.modalContainer :global([class*='marketplaceModalCloseStyles']) {
+  color: rgba(244, 246, 250, 0.9);
+}
+
+@media (max-width: 767px) {
+  .modalContainer :global([class*='marketplaceModalCloseText']) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .modalContainer :global([class*='marketplaceModalCloseIcon']) {
+    margin-left: 0;
+    margin-top: 0;
+  }
 }
 
 .modalContainerSportPremium
