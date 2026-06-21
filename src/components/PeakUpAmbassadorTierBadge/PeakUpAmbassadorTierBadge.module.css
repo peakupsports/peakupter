@@ -18,6 +18,11 @@
   height: 22px;
 }
 
+.root_showcase {
+  width: 44px;
+  height: 44px;
+}
+
 @media (--viewportMedium) {
   .root_title {
     width: 28px;
@@ -27,6 +32,11 @@
   .root_stat {
     width: 26px;
     height: 26px;
+  }
+
+  .root_showcase {
+    width: 48px;
+    height: 48px;
   }
 }
 

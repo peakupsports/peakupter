@@ -2025,13 +2025,12 @@
   }
 }
 
-/* ─── Ambassadors carousel ─────────────────────────────────────────────────── */
+/* ─── Ambassadors grid ─────────────────────────────────────────────────────── */
 
 .ambassadorsTrack {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow: hidden;
 }
 
 .ambassadorsEmptyLead,
@@ -2048,31 +2047,24 @@
   color: #ffb4b4;
 }
 
-.ambassadorsScroller {
+.ambassadorsGrid {
   list-style: none;
   margin: 0;
   padding: 4px 0 16px;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.ambassadorsScroller::-webkit-scrollbar {
-  display: none;
 }
 
 .ambassadorCard {
   position: relative;
-  flex: 0 0 auto;
-  scroll-snap-align: start;
-  width: min(260px, 78vw);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
   padding: 22px 20px 18px;
   border-radius: 22px;
   border: 1px solid var(--tier-border, rgba(255, 255, 255, 0.08));
@@ -2098,9 +2090,41 @@
 }
 
 .ambassadorCardLink {
-  display: block;
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
   color: inherit;
   text-decoration: none;
+}
+
+.ambassadorCardBadge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+}
+
+.ambassadorCardBadgeFounder.ambassadorCardBadgeFounder {
+  width: 48px;
+  height: 48px;
+}
+
+@media (--viewportMedium) {
+  .ambassadorCardBadgeFounder.ambassadorCardBadgeFounder {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+.ambassadorCardBody {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
 }
 
 .ambassadorCard_bronze {
@@ -2131,11 +2155,9 @@
 .ambassadorCard_founder {
   --tier-border: rgba(155, 231, 255, 0.55);
   --tier-glow: rgba(155, 231, 255, 0.42);
-  width: min(300px, 84vw);
-  padding: 30px 24px 26px;
   overflow: hidden;
   isolation: isolate;
-  border: 1px solid rgba(155, 231, 255, 0.38);
+  border-color: rgba(155, 231, 255, 0.38);
   background:
     linear-gradient(
       158deg,
@@ -2145,13 +2167,10 @@
     ),
     radial-gradient(ellipse 130% 90% at 50% -18%, rgba(155, 231, 255, 0.22), transparent 58%),
     radial-gradient(ellipse 70% 55% at 100% 110%, rgba(88, 168, 255, 0.1), transparent 52%);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   box-shadow:
-    0 28px 56px rgba(0, 0, 0, 0.42),
-    0 0 0 1px rgba(255, 255, 255, 0.07) inset,
-    0 0 48px rgba(155, 231, 255, 0.16);
-  animation: founderCardGlow 6s ease-in-out infinite;
+    0 16px 36px rgba(0, 0, 0, 0.34),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 0 36px rgba(155, 231, 255, 0.14);
 }
 
 .ambassadorCard_founder::before {
@@ -2161,75 +2180,22 @@
   border-radius: inherit;
   background: linear-gradient(
     128deg,
-    rgba(255, 255, 255, 0.14) 0%,
-    transparent 32%,
-    transparent 62%,
-    rgba(155, 231, 255, 0.08) 100%
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 34%,
+    transparent 64%,
+    rgba(155, 231, 255, 0.06) 100%
   );
   pointer-events: none;
   z-index: 0;
 }
 
-.ambassadorCard_founder::after {
-  content: '';
-  position: absolute;
-  top: -42%;
-  left: -22%;
-  width: 72%;
-  height: 58%;
-  background: radial-gradient(circle, rgba(214, 245, 255, 0.12), transparent 68%);
-  pointer-events: none;
-  z-index: 0;
-  animation: founderCardShimmer 9s ease-in-out infinite;
-}
-
-.ambassadorCardFounder {
-  z-index: 1;
-}
-
-.ambassadorFounderCardLink {
-  position: relative;
-  z-index: 1;
-}
-
 .ambassadorCard_founder:hover,
 .ambassadorCard_founder:focus-within {
-  transform: translateY(-8px);
   border-color: rgba(155, 231, 255, 0.58);
   box-shadow:
-    0 34px 64px rgba(0, 0, 0, 0.48),
-    0 0 0 1px rgba(214, 245, 255, 0.12) inset,
-    0 0 56px rgba(155, 231, 255, 0.28);
-}
-
-@keyframes founderCardGlow {
-  0%,
-  100% {
-    box-shadow:
-      0 28px 56px rgba(0, 0, 0, 0.42),
-      0 0 0 1px rgba(255, 255, 255, 0.07) inset,
-      0 0 40px rgba(155, 231, 255, 0.14);
-  }
-
-  50% {
-    box-shadow:
-      0 32px 62px rgba(0, 0, 0, 0.46),
-      0 0 0 1px rgba(214, 245, 255, 0.1) inset,
-      0 0 54px rgba(155, 231, 255, 0.26);
-  }
-}
-
-@keyframes founderCardShimmer {
-  0%,
-  100% {
-    opacity: 0.55;
-    transform: translateX(0);
-  }
-
-  50% {
-    opacity: 1;
-    transform: translateX(8%);
-  }
+    0 22px 44px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(214, 245, 255, 0.1) inset,
+    0 0 44px rgba(155, 231, 255, 0.24);
 }
 
 .ambassadorAvatar {
@@ -2248,112 +2214,6 @@
   overflow: hidden;
 }
 
-.ambassadorFounderContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-}
-
-.ambassadorFounderBadgeHero {
-  position: relative;
-  width: min(100px, 44vw);
-  margin: 0 auto 18px;
-  z-index: 2;
-}
-
-.ambassadorFounderBadgeAura {
-  position: absolute;
-  inset: -42%;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, rgba(155, 231, 255, 0.42) 0%, rgba(88, 168, 255, 0.12) 42%, transparent 68%);
-  filter: blur(10px);
-  animation: founderBadgeAura 4.5s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.ambassadorFounderBadgeShine {
-  position: absolute;
-  inset: -8%;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 210deg,
-    transparent 0deg,
-    rgba(255, 255, 255, 0.2) 48deg,
-    transparent 96deg,
-    rgba(155, 231, 255, 0.16) 180deg,
-    transparent 240deg
-  );
-  opacity: 0.65;
-  mix-blend-mode: screen;
-  animation: founderBadgeShine 7s linear infinite;
-  pointer-events: none;
-}
-
-.ambassadorFounderBadge {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: auto;
-  filter:
-    drop-shadow(0 10px 28px rgba(155, 231, 255, 0.45))
-    drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
-  transition:
-    transform 360ms ease,
-    filter 360ms ease;
-}
-
-.ambassadorCard_founder:hover .ambassadorFounderBadge,
-.ambassadorCard_founder:focus-within .ambassadorFounderBadge {
-  transform: translateY(-5px) scale(1.04);
-  filter:
-    drop-shadow(0 16px 36px rgba(155, 231, 255, 0.58))
-    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
-  animation: founderBadgeHoverFloat 2.8s ease-in-out infinite;
-}
-
-@keyframes founderBadgeAura {
-  0%,
-  100% {
-    opacity: 0.72;
-    transform: scale(0.96);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.06);
-  }
-}
-
-@keyframes founderBadgeShine {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes founderBadgeHoverFloat {
-  0%,
-  100% {
-    transform: translateY(-5px) scale(1.04);
-  }
-
-  50% {
-    transform: translateY(-9px) scale(1.05);
-  }
-}
-
-.ambassadorFounderAvatar {
-  width: 68px;
-  height: 68px;
-  margin-bottom: 14px;
-  font-size: 18px;
-  border-width: 2px;
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.28),
-    0 0 16px rgba(155, 231, 255, 0.18);
-}
-
 .ambassadorAvatarPhoto {
   padding: 0;
   background: #0a1018;
@@ -2366,58 +2226,6 @@
   object-fit: cover;
 }
 
-.ambassadorBadgeMini {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 30px;
-  height: auto;
-  opacity: 0.95;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
-}
-
-.ambassadorFounderName {
-  margin-bottom: 8px;
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-  color: #f4fbff;
-  text-shadow: 0 1px 12px rgba(155, 231, 255, 0.2);
-}
-
-.ambassadorFounderCountry {
-  margin: 0 0 4px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(214, 245, 255, 0.78);
-}
-
-.ambassadorFounderSports {
-  margin: 0 0 12px;
-  font-size: 14px;
-  line-height: 1.45;
-  color: rgba(228, 235, 243, 0.72);
-}
-
-.ambassadorFounderLabel {
-  margin: 0;
-  padding: 7px 14px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #d6f5ff;
-  border: 1px solid rgba(155, 231, 255, 0.42);
-  background:
-    linear-gradient(135deg, rgba(155, 231, 255, 0.16) 0%, rgba(88, 168, 255, 0.08) 100%);
-  box-shadow:
-    0 0 20px rgba(155, 231, 255, 0.14),
-    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
-}
-
 .ambassadorName {
   margin: 0 0 6px;
   font-size: 17px;
@@ -2426,7 +2234,8 @@
 }
 
 .ambassadorMeta {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
+  min-height: 2.9em;
   font-size: 13px;
   line-height: 1.45;
   color: rgba(228, 235, 243, 0.65);
@@ -2434,6 +2243,7 @@
 
 .ambassadorLevelPill {
   display: inline-flex;
+  margin-top: auto;
   padding: 5px 12px;
   border-radius: 999px;
   font-size: 11px;
@@ -2477,35 +2287,27 @@
 }
 
 @media (--viewportMedium) {
-  .ambassadorsScroller {
-    display: grid;
+  .ambassadorsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    overflow: visible;
-    scroll-snap-type: none;
-  }
-
-  .ambassadorCard {
-    width: 100%;
-  }
-
-  .ambassadorFounderBadgeHero {
-    width: min(112px, 36%);
-    margin-bottom: 20px;
-  }
-
-  .ambassadorFounderAvatar {
-    width: 72px;
-    height: 72px;
-  }
-
-  .ambassadorFounderName {
-    font-size: 20px;
+    gap: 18px;
   }
 }
 
 @media (--viewportLarge) {
-  .ambassadorsScroller {
+  .ambassadorsGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambassadorCard {
+    transition: border-color 280ms ease, box-shadow 280ms ease;
+  }
+
+  .ambassadorCard:hover,
+  .ambassadorCard:focus-within {
+    transform: none;
   }
 }
 

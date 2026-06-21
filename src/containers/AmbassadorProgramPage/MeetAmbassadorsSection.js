@@ -2,12 +2,9 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { fetchAmbassadorsShowcase } from '../../util/api';
-import {
-  getShowcaseTierImage,
-  getShowcaseTierStyleVars,
-} from '../../util/ambassadorShowcase';
+import { getShowcaseTierStyleVars } from '../../util/ambassadorShowcase';
 import { countryDisplayName } from '../../util/coachExplore';
-import { NamedLink } from '../../components';
+import { NamedLink, PeakUpAmbassadorTierBadge } from '../../components';
 import { AMBASSADOR_LEVELS, SECTION_IDS } from './ambassadorProgramContent';
 import css from './AmbassadorProgramPage.module.css';
 
@@ -28,66 +25,51 @@ const resolveTierNameId = tierId => {
   return level?.nameId || TIER_NAME_IDS.bronze;
 };
 
+const buildAmbassadorMetaLine = (ambassador, locale) => {
+  const countryLabel = ambassador.country
+    ? countryDisplayName(ambassador.country, locale)
+    : '';
+  const metaParts = [ambassador.sports, countryLabel || ambassador.location].filter(Boolean);
+  return metaParts.join(' · ');
+};
+
 /**
  * @param {object} props
- * @param {typeof import('./AmbassadorProgramPage.module.css')} props.cssModule
+ * @param {object} props.ambassador
  */
 const AmbassadorShowcaseCard = ({ ambassador }) => {
   const intl = useIntl();
-  const isFounder = ambassador.isFounder;
-  const tierStyle = getShowcaseTierStyleVars(ambassador.tierId);
-  const tierNameId = resolveTierNameId(ambassador.tierId);
-  const badgeSrc = getShowcaseTierImage(ambassador.tierId);
-  const metaParts = [ambassador.sports, ambassador.location].filter(Boolean);
-  const countryLabel = ambassador.country
-    ? countryDisplayName(ambassador.country, intl.locale)
-    : '';
+  const tierId = ambassador.tierId;
+  const tierStyle = getShowcaseTierStyleVars(tierId);
+  const tierNameId = resolveTierNameId(tierId);
+  const metaLine = buildAmbassadorMetaLine(ambassador, intl.locale);
 
   return (
     <li
-      className={classNames(
-        css.ambassadorCard,
-        css[`ambassadorCard_${ambassador.tierId}`],
-        isFounder ? css.ambassadorCardFounder : null
-      )}
+      className={classNames(css.ambassadorCard, css[`ambassadorCard_${tierId}`])}
       style={tierStyle}
     >
       <NamedLink
-        className={classNames(
-          css.ambassadorCardLink,
-          isFounder ? css.ambassadorFounderCardLink : null
-        )}
+        className={css.ambassadorCardLink}
         name="ProfilePage"
         params={{ id: ambassador.userId }}
       >
-        {isFounder ? (
-          <div className={css.ambassadorFounderBadgeHero}>
-            <div className={css.ambassadorFounderBadgeAura} aria-hidden />
-            <div className={css.ambassadorFounderBadgeShine} aria-hidden />
-            <img
-              className={css.ambassadorFounderBadge}
-              src={badgeSrc}
-              alt=""
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-        ) : (
-          <img
-            className={css.ambassadorBadgeMini}
-            src={badgeSrc}
-            alt=""
-            loading="lazy"
-            decoding="async"
-          />
-        )}
+        <PeakUpAmbassadorTierBadge
+          tierId={tierId}
+          size="showcase"
+          showHalo
+          className={classNames(
+            css.ambassadorCardBadge,
+            tierId === 'founder' ? css.ambassadorCardBadgeFounder : null
+          )}
+          alt={intl.formatMessage({ id: tierNameId })}
+        />
 
-        <div className={isFounder ? css.ambassadorFounderContent : null}>
+        <div className={css.ambassadorCardBody}>
           <div
             className={classNames(
               css.ambassadorAvatar,
-              ambassador.profileImageUrl ? css.ambassadorAvatarPhoto : null,
-              isFounder ? css.ambassadorFounderAvatar : null
+              ambassador.profileImageUrl ? css.ambassadorAvatarPhoto : null
             )}
             aria-hidden={Boolean(ambassador.profileImageUrl)}
           >
@@ -104,42 +86,15 @@ const AmbassadorShowcaseCard = ({ ambassador }) => {
             )}
           </div>
 
-          <h3
-            className={classNames(
-              css.ambassadorName,
-              isFounder ? css.ambassadorFounderName : null
-            )}
-          >
-            {ambassador.displayNameShort}
-          </h3>
+          <h3 className={css.ambassadorName}>{ambassador.displayNameShort}</h3>
 
-          {isFounder ? (
-            <>
-              {countryLabel ? (
-                <p className={css.ambassadorFounderCountry}>{countryLabel}</p>
-              ) : null}
-              {ambassador.sports ? (
-                <p className={css.ambassadorFounderSports}>{ambassador.sports}</p>
-              ) : null}
-              <p className={css.ambassadorFounderLabel}>
-                <FormattedMessage id="AmbassadorProgramPage.ambassadorFounderSubtitle" />
-              </p>
-            </>
-          ) : (
-            <>
-              {metaParts.length > 0 ? (
-                <p className={css.ambassadorMeta}>{metaParts.join(' · ')}</p>
-              ) : null}
-              <span
-                className={classNames(
-                  css.ambassadorLevelPill,
-                  css[`ambassadorLevelPill_${ambassador.tierId}`]
-                )}
-              >
-                <FormattedMessage id={tierNameId} />
-              </span>
-            </>
-          )}
+          {metaLine ? <p className={css.ambassadorMeta}>{metaLine}</p> : null}
+
+          <span
+            className={classNames(css.ambassadorLevelPill, css[`ambassadorLevelPill_${tierId}`])}
+          >
+            <FormattedMessage id={tierNameId} />
+          </span>
         </div>
       </NamedLink>
     </li>
@@ -219,7 +174,7 @@ const MeetAmbassadorsSection = () => {
 
       {ambassadors.length > 0 ? (
         <div className={css.ambassadorsTrack}>
-          <ul className={css.ambassadorsScroller}>
+          <ul className={css.ambassadorsGrid}>
             {ambassadors.map(ambassador => (
               <AmbassadorShowcaseCard key={ambassador.userId} ambassador={ambassador} />
             ))}

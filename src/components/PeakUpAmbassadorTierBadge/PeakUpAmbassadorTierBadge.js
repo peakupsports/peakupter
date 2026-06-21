@@ -38,7 +38,7 @@ export const resolveAmbassadorTierBadgeSrc = tierId => {
  *
  * @param {Object} props
  * @param {string|null|undefined} [props.tierId] bronze | silver | gold | platinum | diamond | founder
- * @param {'title'|'stat'} [props.size] compact layout preset (24–32px range)
+ * @param {'title'|'stat'|'showcase'} [props.size] compact layout preset (24–32px range; showcase for profile cards)
  * @param {boolean} [props.showHalo] radial glow behind badge (default true for title, false for stat)
  * @param {string} [props.className]
  * @param {string} [props.alt] accessible label; empty string for decorative use
