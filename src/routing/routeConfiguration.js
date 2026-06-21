@@ -133,6 +133,11 @@ const CoachEarningsPage = loadable(() =>
     /* webpackChunkName: "CoachEarningsPage" */ '../containers/CoachEarningsPage/CoachEarningsPage'
   )
 );
+const CoachEarningsDashboardPage = loadable(() =>
+  import(
+    /* webpackChunkName: "CoachEarningsDashboardPage" */ '../containers/CoachEarningsDashboardPage/CoachEarningsDashboardPage'
+  )
+);
 const AmbassadorProgramPage = loadable(() =>
   import(
     /* webpackChunkName: "AmbassadorProgramPage" */ '../containers/AmbassadorProgramPage/AmbassadorProgramPage'
@@ -304,6 +309,14 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       authPage: 'LoginPage',
       component: CoachDashboardEventsPage,
       loadData: pageDataLoadingAPI.CoachDashboardBookingsPage.loadData,
+    },
+    {
+      path: '/coach-dashboard/earnings',
+      name: 'CoachEarningsDashboardPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: CoachEarningsDashboardPage,
+      loadData: pageDataLoadingAPI.CoachEarningsDashboardPage.loadData,
     },
     {
       path: '/customer-dashboard',

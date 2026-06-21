@@ -7,9 +7,6 @@ import { useLocation } from 'react-router-dom';
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
-import { getAmbassadorProfileState, isAmbassadorActive } from '../../util/ambassadorActivation';
-import { FOUNDER_BADGE_IMAGE } from '../../util/ambassadorFounderOverride';
-import { fetchReferralCenterDashboard } from '../../util/api';
 import {
   buildAmbassadorShareLink,
   formatAmbassadorShareLinkDisplay,
@@ -24,18 +21,15 @@ import sportTheme from '../SportPagesTheme.module.css';
 import { AMBASSADOR_LEVELS } from '../AmbassadorProgramPage/ambassadorProgramContent';
 import {
   AMBASSADOR_PROGRAM_LEVELS_HASH,
-  getAmbassadorTierConfig,
-  getNextAmbassadorTierConfig,
-  getTierCommissionReward,
   NEXT_TIER_REQUIREMENT_IDS,
   HERO_PROGRESS_TIER_IDS,
   PLACEHOLDER_STATS,
-  REFERRAL_CENTER_TIER_IMAGES,
   REFERRAL_STATUS_LABEL_IDS,
   REFERRAL_TABLE_COLUMNS,
   REWARD_BREAKDOWN_STATS,
   REWARD_HISTORY_COLUMNS,
 } from './referralCenterContent';
+import useReferralCenterDashboard from './useReferralCenterDashboard';
 import css from './ReferralCenterPage.module.css';
 
 const copyToClipboard = async text => {
@@ -542,15 +536,33 @@ const ReferralCenterPage = () => {
   const isAuthenticated = useSelector(state => state.auth?.isAuthenticated);
 
   const marketplaceName = config.marketplaceName;
-  const profileState = useMemo(() => getAmbassadorProfileState(currentUser), [currentUser]);
-  const ambassadorActive = isAmbassadorActive(currentUser);
+  const {
+    profileState,
+    ambassadorActive,
+    referralCode,
+    dashboard,
+    dashboardLoading,
+    dashboardError,
+    showUnlockBanner,
+    isFounderOverride,
+    tierConfig,
+    nextTierConfig,
+    nextTierReward,
+    currentTierReward,
+    rewardsUnlocked,
+    statValues,
+    rewardBreakdownValues,
+    referrals,
+    hasReferrals,
+    bronzeCriteria,
+    rewardHistory,
+  } = useReferralCenterDashboard(currentUser, isAuthenticated);
 
   const loginFromState = useMemo(
     () => ({ from: `${location.pathname}${location.search}${location.hash}` }),
     [location.hash, location.pathname, location.search]
   );
 
-  const referralCode = profileState.ambassadorReferralCode || '';
   const referralLink = useMemo(
     () => buildAmbassadorShareLink(referralCode, config),
     [referralCode, config]
@@ -560,120 +572,12 @@ const ReferralCenterPage = () => {
     [referralCode, config]
   );
 
-  const [dashboard, setDashboard] = useState(null);
-  const [dashboardLoading, setDashboardLoading] = useState(false);
-  const [dashboardError, setDashboardError] = useState(null);
-  const [showUnlockBanner, setShowUnlockBanner] = useState(false);
-
-  const currentUserId = currentUser?.id?.uuid;
-
-  useEffect(() => {
-    if (!isAuthenticated || !ambassadorActive || !currentUserId) {
-      return undefined;
+  const ambassadorSinceLabel = useMemo(() => {
+    if (!profileState.ambassadorJoinedAt) {
+      return null;
     }
-
-    let cancelled = false;
-    setDashboardLoading(true);
-    setDashboardError(null);
-
-    fetchReferralCenterDashboard()
-      .then(response => {
-        if (cancelled) {
-          return;
-        }
-        setDashboard(response?.dashboard ?? null);
-        if (response?.dashboard?.rewardsJustUnlocked) {
-          setShowUnlockBanner(true);
-          window.setTimeout(() => setShowUnlockBanner(false), 6000);
-        }
-      })
-      .catch(error => {
-        if (!cancelled) {
-          // eslint-disable-next-line no-console
-          console.error('[PeakUp ReferralCenter] dashboard unavailable', {
-            message: error?.message,
-            status: error?.status,
-            network: error?.network,
-            url: error?.url,
-          });
-          setDashboardError(error?.message || 'Failed to load referral dashboard');
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setDashboardLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [ambassadorActive, currentUserId, isAuthenticated]);
-
-  const isFounderOverride =
-    dashboard?.founderOverrideActive ?? profileState.founderOverrideActive ?? false;
-
-  const effectiveTier = isFounderOverride
-    ? dashboard?.ambassadorTier || profileState.ambassadorTier || 'diamond'
-    : profileState.ambassadorTier;
-
-  const tierConfig = useMemo(() => {
-    if (isFounderOverride) {
-      const diamondConfig = getAmbassadorTierConfig('diamond');
-      return {
-        ...diamondConfig,
-        id: 'founder',
-        tierClass: 'founder',
-        nameId: 'ReferralCenterPage.founderTierName',
-        imageSrc: FOUNDER_BADGE_IMAGE || REFERRAL_CENTER_TIER_IMAGES.founder,
-      };
-    }
-    return getAmbassadorTierConfig(effectiveTier);
-  }, [effectiveTier, isFounderOverride]);
-
-  const nextTierConfig = useMemo(
-    () => (isFounderOverride ? null : getNextAmbassadorTierConfig(effectiveTier)),
-    [effectiveTier, isFounderOverride]
-  );
-  const nextTierReward = useMemo(
-    () => (nextTierConfig ? getTierCommissionReward(nextTierConfig.id) : null),
-    [nextTierConfig]
-  );
-  const currentTierReward = useMemo(
-    () =>
-      isFounderOverride
-        ? getTierCommissionReward('diamond')
-        : getTierCommissionReward(tierConfig.id),
-    [isFounderOverride, tierConfig.id]
-  );
-
-  const rewardsUnlocked = isFounderOverride
-    ? true
-    : dashboard?.ambassadorRewardsUnlocked ?? profileState.ambassadorRewardsUnlocked;
-
-  const referrals = dashboard?.referrals || [];
-  const hasReferrals = referrals.length > 0;
-  const bronzeCriteria = dashboard?.bronzeCriteria || [];
-
-  const statValues = useMemo(
-    () => ({
-      invited: dashboard?.stats?.invited ?? 0,
-      pending: dashboard?.stats?.pending ?? 0,
-      active: dashboard?.stats?.active ?? 0,
-      rewards: dashboard?.rewards?.earnedFormatted ?? 'CHF 0.00',
-    }),
-    [dashboard]
-  );
-
-  const rewardBreakdownValues = useMemo(
-    () => ({
-      earned: dashboard?.rewards?.earnedFormatted ?? 'CHF 0.00',
-      pending: dashboard?.rewards?.pendingFormatted ?? 'CHF 0.00',
-      lifetime: dashboard?.rewards?.lifetimeFormatted ?? 'CHF 0.00',
-      monthly: dashboard?.rewards?.monthlyFormatted ?? 'CHF 0.00',
-    }),
-    [dashboard]
-  );
+    return moment(profileState.ambassadorJoinedAt).format('D MMM YYYY');
+  }, [profileState.ambassadorJoinedAt]);
 
   const rewardBreakdownStats = useMemo(() => {
     if (rewardsUnlocked) {
@@ -685,15 +589,6 @@ const ReferralCenterPage = () => {
         : stat
     );
   }, [rewardsUnlocked]);
-
-  const rewardHistory = dashboard?.rewardHistory || [];
-
-  const ambassadorSinceLabel = useMemo(() => {
-    if (!profileState.ambassadorJoinedAt) {
-      return null;
-    }
-    return moment(profileState.ambassadorJoinedAt).format('D MMM YYYY');
-  }, [profileState.ambassadorJoinedAt]);
 
   const tierName = intl.formatMessage({ id: tierConfig.nameId });
 

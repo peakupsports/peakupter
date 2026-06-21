@@ -1,12 +1,13 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSelector } from 'react-redux';
 
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
+import { getAmbassadorProfileState, isAmbassadorActive } from '../../util/ambassadorActivation';
 
-import { Page } from '../../components';
+import { NamedLink, Page } from '../../components';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
 
@@ -285,6 +286,13 @@ const AmbassadorProgramPage = () => {
   const description = intl.formatMessage({ id: 'AmbassadorProgramPage.schemaDescription' });
   const [activeLevelId, setActiveLevelId] = useState(null);
   const [activationModalOpen, setActivationModalOpen] = useState(false);
+  const currentUser = useSelector(state => state.user.currentUser);
+  const profileState = useMemo(() => getAmbassadorProfileState(currentUser), [currentUser]);
+  const ambassadorActive = isAmbassadorActive(currentUser);
+  const isFounderOverride = profileState.founderOverrideActive;
+  const showFounderCta = isFounderOverride;
+  const showActiveAmbassadorCta = ambassadorActive && !isFounderOverride;
+  const showReferralCenterHeroCta = isFounderOverride || ambassadorActive;
 
   const openLevelPopup = levelId => setActiveLevelId(levelId);
   const closeLevelPopup = () => setActiveLevelId(null);
@@ -340,13 +348,27 @@ const AmbassadorProgramPage = () => {
                 </li>
               ))}
             </ul>
-            <div className={css.heroCtas}>
-              <a href={`#${SECTION_IDS.qualification}`} className={css.heroCtaPrimary}>
-                <FormattedMessage id="AmbassadorProgramPage.ctaProgress" />
-              </a>
-              <a href={`#${SECTION_IDS.howItWorks}`} className={css.heroCtaSecondary}>
-                <FormattedMessage id="AmbassadorProgramPage.ctaHowItWorks" />
-              </a>
+            <div
+              className={classNames(css.heroCtas, isFounderOverride && css.heroCtasSingle)}
+            >
+              {showReferralCenterHeroCta ? (
+                <NamedLink name="ReferralCenterPage" className={css.heroCtaPrimary}>
+                  <FormattedMessage id="AmbassadorProgramPage.ctaViewReferralCenter" />
+                </NamedLink>
+              ) : (
+                <a href={`#${SECTION_IDS.qualification}`} className={css.heroCtaPrimary}>
+                  <FormattedMessage id="AmbassadorProgramPage.ctaProgress" />
+                </a>
+              )}
+              {showActiveAmbassadorCta ? (
+                <NamedLink name="CoachEarningsDashboardPage" className={css.heroCtaSecondary}>
+                  <FormattedMessage id="CoachEarningsDashboardPage.pageTitle" />
+                </NamedLink>
+              ) : !showReferralCenterHeroCta ? (
+                <a href={`#${SECTION_IDS.howItWorks}`} className={css.heroCtaSecondary}>
+                  <FormattedMessage id="AmbassadorProgramPage.ctaHowItWorks" />
+                </a>
+              ) : null}
             </div>
             </div>
             <div className={css.heroVisual}>
@@ -646,18 +668,43 @@ const AmbassadorProgramPage = () => {
           >
             <div className={css.finalCtaGlow} aria-hidden="true" />
             <h2 id="ambassador-final-heading" className={css.finalCtaTitle}>
-              <FormattedMessage id="AmbassadorProgramPage.finalTitle" />
+              {showFounderCta ? (
+                <FormattedMessage id="AmbassadorProgramPage.finalFounderTitle" />
+              ) : showActiveAmbassadorCta ? (
+                <FormattedMessage id="AmbassadorProgramPage.finalActiveTitle" />
+              ) : (
+                <FormattedMessage id="AmbassadorProgramPage.finalTitle" />
+              )}
             </h2>
             <p className={css.finalCtaLead}>
-              <FormattedMessage id="AmbassadorProgramPage.finalLead" />
+              {showFounderCta ? (
+                <FormattedMessage id="AmbassadorProgramPage.finalFounderLead" />
+              ) : showActiveAmbassadorCta ? (
+                <FormattedMessage id="AmbassadorProgramPage.finalActiveLead" />
+              ) : (
+                <FormattedMessage id="AmbassadorProgramPage.finalLead" />
+              )}
             </p>
             <div className={css.finalCtaActions}>
-              <button type="button" className={css.finalCtaPrimary} onClick={openActivationModal}>
-                <FormattedMessage id="AmbassadorProgramPage.ctaJoin" />
-              </button>
-              <a href={`#${SECTION_IDS.howItWorks}`} className={css.finalCtaSecondary}>
-                <FormattedMessage id="AmbassadorProgramPage.ctaHowItWorks" />
-              </a>
+              {showFounderCta || showActiveAmbassadorCta ? (
+                <>
+                  <NamedLink name="ReferralCenterPage" className={css.finalCtaPrimary}>
+                    <FormattedMessage id="ReferralCenterPage.title" />
+                  </NamedLink>
+                  <NamedLink name="CoachEarningsDashboardPage" className={css.finalCtaSecondary}>
+                    <FormattedMessage id="CoachEarningsDashboardPage.pageTitle" />
+                  </NamedLink>
+                </>
+              ) : (
+                <>
+                  <button type="button" className={css.finalCtaPrimary} onClick={openActivationModal}>
+                    <FormattedMessage id="AmbassadorProgramPage.ctaJoin" />
+                  </button>
+                  <a href={`#${SECTION_IDS.howItWorks}`} className={css.finalCtaSecondary}>
+                    <FormattedMessage id="AmbassadorProgramPage.ctaHowItWorks" />
+                  </a>
+                </>
+              )}
             </div>
           </ScrollReveal>
         </div>

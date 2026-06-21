@@ -360,6 +360,10 @@
   margin-top: 32px;
 }
 
+.heroCtasSingle {
+  justify-content: center;
+}
+
 .heroCtaPrimary,
 .heroCtaSecondary,
 .finalCtaPrimary,

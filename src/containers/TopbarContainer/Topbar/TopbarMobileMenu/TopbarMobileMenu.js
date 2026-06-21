@@ -238,8 +238,8 @@ const TopbarMobileMenu = props => {
   );
 
   const earningsLink = (
-    <li className={classNames(css.navigationLink, currentPageClass('CoachEarningsPage'))}>
-      <NamedLink name="CoachEarningsPage">
+    <li className={classNames(css.navigationLink, currentPageClass('CoachEarningsDashboardPage'))}>
+      <NamedLink name="CoachEarningsDashboardPage">
         <FormattedMessage id="TopbarMobileMenu.coachEarningsLink" />
       </NamedLink>
     </li>

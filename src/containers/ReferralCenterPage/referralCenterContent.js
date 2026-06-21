@@ -169,3 +169,81 @@ export const getPlaceholderReferralStats = () => ({
 
 /** MVP: no live referral rows yet. */
 export const PLACEHOLDER_REFERRALS = [];
+
+/**
+ * KPI stats from a live Referral Center dashboard payload.
+ *
+ * @param {object|null|undefined} dashboard
+ * @returns {{ invited: number, pending: number, active: number, rewards: string }}
+ */
+export const deriveReferralDashboardStatValues = (dashboard = null) => ({
+  invited: dashboard?.stats?.invited ?? 0,
+  pending: dashboard?.stats?.pending ?? 0,
+  active: dashboard?.stats?.active ?? 0,
+  rewards: dashboard?.rewards?.earnedFormatted ?? 'CHF 0.00',
+});
+
+/**
+ * Reward breakdown strings from a live Referral Center dashboard payload.
+ *
+ * @param {object|null|undefined} dashboard
+ * @returns {{ earned: string, pending: string, lifetime: string, monthly: string }}
+ */
+export const deriveReferralDashboardRewardBreakdown = (dashboard = null) => ({
+  earned: dashboard?.rewards?.earnedFormatted ?? 'CHF 0.00',
+  pending: dashboard?.rewards?.pendingFormatted ?? 'CHF 0.00',
+  lifetime: dashboard?.rewards?.lifetimeFormatted ?? 'CHF 0.00',
+  monthly: dashboard?.rewards?.monthlyFormatted ?? 'CHF 0.00',
+});
+
+/**
+ * Tier + unlock state shared by Referral Center and Earnings dashboard.
+ *
+ * @param {{ dashboard?: object|null, profileState?: object }} params
+ * @returns {{
+ *   isFounderOverride: boolean,
+ *   effectiveTier: string|null,
+ *   tierConfig: object,
+ *   rewardsUnlocked: boolean,
+ *   ambassadorBadgeTierId: string|null,
+ * }}
+ */
+export const deriveReferralDashboardTierState = ({ dashboard = null, profileState = {} } = {}) => {
+  const isFounderOverride =
+    dashboard?.founderOverrideActive ?? profileState.founderOverrideActive ?? false;
+
+  const effectiveTier = isFounderOverride
+    ? dashboard?.ambassadorTier || profileState.ambassadorTier || 'diamond'
+    : profileState.ambassadorTier;
+
+  const tierConfig = isFounderOverride
+    ? {
+        ...getAmbassadorTierConfig('diamond'),
+        id: 'founder',
+        tierClass: 'founder',
+        nameId: 'ReferralCenterPage.founderTierName',
+        imageSrc: REFERRAL_CENTER_TIER_IMAGES.founder,
+      }
+    : getAmbassadorTierConfig(effectiveTier);
+
+  const rewardsUnlocked = isFounderOverride
+    ? true
+    : dashboard?.ambassadorRewardsUnlocked ?? profileState.ambassadorRewardsUnlocked;
+
+  const normalizedTier = String(effectiveTier || '')
+    .trim()
+    .toLowerCase();
+  const ambassadorBadgeTierId = isFounderOverride
+    ? 'founder'
+    : ['bronze', 'silver', 'gold', 'platinum', 'diamond'].includes(normalizedTier)
+      ? normalizedTier
+      : null;
+
+  return {
+    isFounderOverride,
+    effectiveTier,
+    tierConfig,
+    rewardsUnlocked,
+    ambassadorBadgeTierId,
+  };
+};

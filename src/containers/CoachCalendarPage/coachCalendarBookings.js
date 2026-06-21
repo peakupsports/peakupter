@@ -412,6 +412,8 @@ const fetchSalesPage = (sdk, page, processNames = BOOKING_PROCESS_NAMES) =>
       'transitions',
       'lineItems',
       'protectedData',
+      'payinTotal',
+      'payoutTotal',
     ],
     'fields.listing': ['title', 'availabilityPlan', 'publicData'],
     'fields.user': ['profile.displayName', 'profile.abbreviatedName', 'deleted', 'banned'],

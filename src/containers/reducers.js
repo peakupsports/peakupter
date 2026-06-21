@@ -6,6 +6,7 @@
 import CoachesExplorePage from './CoachesExplorePage/CoachesExplorePage.duck';
 import CoachDashboardPage from './CoachDashboardPage/CoachDashboardPage.duck';
 import CoachDashboardBookingsPage from './CoachDashboardPage/CoachDashboardBookingsPage.duck';
+import CoachEarningsDashboardPage from './CoachEarningsDashboardPage/CoachEarningsDashboardPage.duck';
 import CustomerDashboardPage from './CustomerDashboardPage/CustomerDashboardPage.duck';
 import CustomerDashboardBookingsPage from './CustomerDashboardPage/CustomerDashboardBookingsPage.duck';
 import TeamDashboardPage from './TeamDashboardPage/TeamDashboardPage.duck';
@@ -34,6 +35,7 @@ export {
   CoachesExplorePage,
   CoachDashboardPage,
   CoachDashboardBookingsPage,
+  CoachEarningsDashboardPage,
   CustomerDashboardPage,
   CustomerDashboardBookingsPage,
   TeamDashboardPage,

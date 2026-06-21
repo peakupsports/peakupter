@@ -18,6 +18,7 @@ import {
 } from './peakUpCoachBookingTransaction';
 import { isPeakUpMultiDayPurchaseTransaction } from './peakUpMultiDayPurchase';
 import { debugInspectMultiDayExperienceDateBatch } from './peakUpMultiDayExperienceDateDebug';
+import { isCanceledBookingTransaction } from './transactionListingFallback';
 
 const DASHBOARD_TX_PAGE_SIZE = 100;
 const DASHBOARD_TX_MAX_PAGES = 50;
@@ -328,6 +329,53 @@ export const segmentBookingDashboardTransactions = (transactions, role, now = ne
   );
 
   return segments;
+};
+
+/**
+ * Current process state string (same source as booking dashboard segmentation).
+ *
+ * @param {Object} transaction
+ * @returns {string}
+ */
+export const getDashboardProcessState = transaction =>
+  getBookingProcessStateInfo(transaction)?.processState || '';
+
+/**
+ * Canceled / declined / expired / refunded bookings — aligned with dashboard `canceled` bucket.
+ *
+ * @param {Object} transaction
+ * @returns {boolean}
+ */
+export const isDashboardCanceledTransaction = transaction => {
+  const state = getDashboardProcessState(transaction);
+  if (isCanceledProcessState(state)) {
+    return true;
+  }
+
+  const info = getBookingProcessStateInfo(transaction);
+  if (info?.process && isCanceledBookingTransaction(transaction, info.process)) {
+    return true;
+  }
+
+  const lastTransition = transaction?.attributes?.lastTransition;
+  if (lastTransition && info?.process?.isRefunded?.(lastTransition)) {
+    return true;
+  }
+
+  return false;
+};
+
+/**
+ * Open requests / pending payment — aligned with dashboard `pending` bucket.
+ *
+ * @param {Object} transaction
+ * @returns {boolean}
+ */
+export const isDashboardPendingTransaction = transaction => {
+  if (isDashboardCanceledTransaction(transaction)) {
+    return false;
+  }
+  return isPendingProcessState(getDashboardProcessState(transaction));
 };
 
 export const CUSTOMER_DASHBOARD_PATH = '/customer-dashboard';

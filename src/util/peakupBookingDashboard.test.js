@@ -1,7 +1,9 @@
 import {
   filterDashboardOperationalTransactions,
   getDashboardListingSkipReason,
+  isDashboardCanceledTransaction,
   isDashboardOperationalTransaction,
+  isDashboardPendingTransaction,
   normalizeBookingDashboardSegmentsForDisplay,
   segmentBookingDashboardTransactions,
 } from './peakupBookingDashboard';
@@ -328,6 +330,28 @@ describe('peakupBookingDashboard operational filter', () => {
       expect(normalized.upcoming[0].transaction.id.uuid).toBe('tx-booking-1');
       expect(normalized.multiDayExperiences).toHaveLength(1);
       expect(normalized.multiDayExperiences[0].transaction.id.uuid).toBe('tx-multi-day');
+    });
+
+    it('segments canceled bookings into canceled bucket only', () => {
+      const canceled = bookingTransaction({
+        start: '2026-05-01T10:00:00.000Z',
+      });
+      canceled.attributes.lastTransition = 'transition/cancel';
+
+      const segments = segmentBookingDashboardTransactions([canceled], 'provider', now);
+
+      expect(segments.canceled).toHaveLength(1);
+      expect(segments.past).toHaveLength(0);
+      expect(segments.upcoming).toHaveLength(0);
+      expect(isDashboardCanceledTransaction(canceled)).toBe(true);
+    });
+
+    it('flags accepted bookings as neither canceled nor pending payment', () => {
+      const accepted = bookingTransaction({ start: '2030-09-01T10:00:00.000Z' });
+      accepted.attributes.lastTransition = 'transition/accept';
+
+      expect(isDashboardCanceledTransaction(accepted)).toBe(false);
+      expect(isDashboardPendingTransaction(accepted)).toBe(false);
     });
   });
 });

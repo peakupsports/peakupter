@@ -175,10 +175,10 @@ const ProfileMenu = ({
   );
 
   const earningsLink = (
-    <MenuItem key="CoachEarningsPage">
+    <MenuItem key="CoachEarningsDashboardPage">
       <NamedLink
-        className={classNames(css.menuLink, currentPageClass('CoachEarningsPage'))}
-        name="CoachEarningsPage"
+        className={classNames(css.menuLink, currentPageClass('CoachEarningsDashboardPage'))}
+        name="CoachEarningsDashboardPage"
       >
         <span className={css.menuItemBorder} />
         <FormattedMessage id="TopbarDesktop.coachEarningsLink" />
