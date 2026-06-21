@@ -66,7 +66,7 @@ export const buildInstructorsPageData = (intl, options = {}) => {
         sectionName: 'Grow with PeakUp hero',
         sectionType: 'hero',
         title: heading2(t('InstructorsPage.heroTitle')),
-        description: paragraph(t('InstructorsPage.heroDescription')),
+        description: noCta,
         callToAction: coachSignupCta(intl, 'InstructorsPage.heroCtaButton'),
         appearance: {
           fieldType: 'customAppearance',

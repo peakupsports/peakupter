@@ -117,6 +117,7 @@ class PageComponent extends Component {
       noIndex,
       config,
       routeConfiguration,
+      style: styleFromProps,
     } = this.props;
 
     const classes = classNames(rootClassName || css.root, className, {
@@ -242,7 +243,10 @@ class PageComponent extends Component {
     // Marketplace color and the color for <PrimaryButton> come from configs
     // If set, we need to create those custom CSS Properties and set them for the app
     // Note: this is also set to <html> element in app.js to provide marketplace colors for modals/portals.
-    const styles = getCustomCSSPropertiesFromConfig(config.branding);
+    const styles = {
+      ...getCustomCSSPropertiesFromConfig(config.branding),
+      ...(styleFromProps || {}),
+    };
 
     return (
       <div id="page" className={classes} style={styles}>

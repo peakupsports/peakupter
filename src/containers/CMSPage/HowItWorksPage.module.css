@@ -2255,7 +2255,7 @@
   justify-content: center;
   justify-items: center;
   text-align: center;
-  padding: 116px 32px 92px;
+  padding: 116px 32px 72px;
   box-sizing: border-box;
 }
 
@@ -2283,7 +2283,7 @@
     :global(main)
     > :global(section):first-of-type
     [class*='SectionBuilder_sectionDetails'] {
-    padding: 148px 48px 112px;
+    padding: 148px 48px 92px;
   }
 }
 
@@ -2307,34 +2307,12 @@
   text-shadow: 0 2px 26px rgba(0, 0, 0, 0.52);
 }
 
-/* Description sibling under the hero CTA — explicit `z-index: 6` keeps the
- * white subtitle text strictly above the CTA's stacking context (the CTA
- * is at z-index: 5 with `isolation: isolate`). Without this, the button's
- * hover glow halo bleeds visually over the description text below.
- *
- * The strengthened layered text-shadow (deep navy near-glow + wider
- * cinematic drop) is the second line of defence: even if the glow halo
- * extends into the description's spatial area, the text reads crisp white
- * over any colour. */
+/* Hero section description is unused — microcopy lives on the CTA ::after only. */
 .instructorsPremiumPage
   :global(main)
   > :global(section):first-of-type
   [class*='SectionBuilder_description'] {
-  grid-row: 3;
-  position: relative;
-  z-index: 6;
-  max-width: 58ch;
-  color: rgba(238, 246, 252, 0.86);
-  font-size: clamp(1.06rem, 0.97rem + 0.4vw, 1.28rem);
-  line-height: 1.7;
-  text-wrap: pretty;
-  hyphens: none;
-  -webkit-hyphens: none;
-  word-break: normal;
-  overflow-wrap: normal;
-  text-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.42),
-    0 12px 30px rgba(0, 0, 0, 0.3);
+  display: none;
 }
 
 /* ===========================================================================
@@ -2364,10 +2342,12 @@
   padding-right: 24px;
   border: 1px solid rgba(232, 248, 255, 0.26);
   border-radius: 999px;
-  font-size: 1rem;
+  font-size: 0;
+  line-height: 0;
   font-weight: 800;
   letter-spacing: 0.01em;
-  color: transparent;
+  text-decoration: none;
+  text-shadow: none;
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.11) 16%, rgba(255, 255, 255, 0) 44%),
     linear-gradient(90deg, #17d9ff 0%, #39f3d1 45%, #9dff4f 100%);
@@ -2383,14 +2363,48 @@
     border-color 320ms ease;
 }
 
-/* Hero CTA — positioning only. Visual styling inherited from the generic
- * `[class*='SectionBuilder_ctaButton']` rule above. */
+.instructorsPremiumPage
+  :global(main)
+  [class*='SectionBuilder_ctaButton']:is(:hover, :focus, :focus-visible, :active, :visited) {
+  font-size: 0;
+  line-height: 0;
+  text-decoration: none;
+  text-shadow: none;
+}
+
+.instructorsPremiumPage :global(main) [class*='SectionBuilder_ctaButton']::before {
+  z-index: 1;
+  font-size: 1rem;
+  line-height: normal;
+  color: #041018;
+  -webkit-text-fill-color: #041018;
+  opacity: 1;
+  mix-blend-mode: normal;
+}
+
+.instructorsPremiumPage
+  :global(main)
+  [class*='SectionBuilder_ctaButton']:is(:hover, :focus, :focus-visible, :active)::before {
+  color: #041018;
+  -webkit-text-fill-color: #041018;
+  opacity: 1;
+}
+
+/* Hero CTA — stable primary-action pill (label in document flow, not absolute). */
 .instructorsPremiumPage
   :global(main)
   > :global(section):first-of-type
   [class*='SectionBuilder_ctaButton'] {
   grid-row: 2;
-  margin: 46px auto 24px;
+  margin: 66px auto 24px;
+  box-sizing: border-box;
+  overflow: visible;
+  width: auto;
+  min-width: 220px;
+  max-width: min(92vw, 432px);
+  padding-left: 30px;
+  padding-right: 30px;
+  transform-origin: center center;
 }
 
 .instructorsPremiumPage
@@ -2398,14 +2412,21 @@
   > :global(section):first-of-type
   [class*='SectionBuilder_ctaButton']::before {
   content: var(--instructorsHeroCtaLabel, 'JOIN PEAKUP');
-  position: absolute;
-  inset: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  z-index: 2;
+  display: block;
+  flex: 0 0 auto;
+  width: max-content;
+  margin: 0 auto;
+  white-space: nowrap;
+  font-size: 1.0625rem;
+  line-height: 1.2;
   color: #041018;
+  -webkit-text-fill-color: #041018;
   font-weight: 800;
   letter-spacing: 0.01em;
+  opacity: 1;
+  mix-blend-mode: normal;
   pointer-events: none;
 }
 
@@ -2413,9 +2434,9 @@
   :global(main)
   > :global(section):first-of-type
   [class*='SectionBuilder_ctaButton']::after {
-  content: var(--instructorsHeroCtaSubtext, 'Takes 2 minutes · No commitment');
+  content: var(--instructorsHeroCtaSubtext, 'No subscriptions • No commitment');
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 22px);
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -2441,7 +2462,46 @@
     0 0 32px rgba(33, 230, 193, 0.1);
 }
 
-/* Hero CTA hover — fully inherited from the unified generic CTA :hover rule above. */
+/* Hero CTA hover — layout-locked pill; overrides generic hover above. */
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SectionBuilder_ctaButton']:hover,
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SectionBuilder_ctaButton']:focus-visible,
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SectionBuilder_ctaButton']:active {
+  transform: translateY(-1px);
+  filter: none;
+  overflow: visible;
+  width: auto;
+  min-width: 220px;
+  max-width: min(92vw, 432px);
+  padding-left: 30px;
+  padding-right: 30px;
+  border-color: rgba(239, 251, 255, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 22px 44px rgba(2, 8, 16, 0.42),
+    0 0 24px rgba(24, 200, 255, 0.22),
+    0 0 42px rgba(33, 230, 193, 0.14);
+}
+
+.instructorsPremiumPage
+  :global(main)
+  > :global(section):first-of-type
+  [class*='SectionBuilder_ctaButton']:is(:hover, :focus, :focus-visible, :active)::before {
+  position: relative;
+  z-index: 2;
+  color: #041018;
+  -webkit-text-fill-color: #041018;
+  opacity: 1;
+  white-space: nowrap;
+}
 
 .instructorsPremiumPage
   :global(main)
@@ -3266,9 +3326,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-size: 1rem;
+  line-height: normal;
   color: #041018;
+  -webkit-text-fill-color: #041018;
   font-weight: 800;
   letter-spacing: 0.01em;
+  opacity: 1;
+  mix-blend-mode: normal;
   pointer-events: none;
 }
 
@@ -3418,7 +3483,7 @@
     align-content: center;
     row-gap: 8px;
     padding-top: clamp(72px, 16vw, 108px);
-    padding-bottom: clamp(44px, 10vw, 72px);
+    padding-bottom: clamp(34px, 9vw, 62px);
     padding-left: max(22px, env(safe-area-inset-left, 0px));
     padding-right: max(22px, env(safe-area-inset-right, 0px));
   }
@@ -3449,6 +3514,10 @@
     [class*='SectionBuilder_ctaButton'] {
     margin-left: auto;
     margin-right: auto;
+    min-width: 220px;
+    max-width: min(92vw, 432px);
+    padding-left: 30px;
+    padding-right: 30px;
   }
 
   .instructorsPremiumPage
