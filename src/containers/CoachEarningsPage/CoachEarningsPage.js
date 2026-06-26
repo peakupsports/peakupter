@@ -21,7 +21,7 @@ import {
 } from './coachEarningsContent';
 import css from './CoachEarningsPage.module.css';
 
-const HERO_IMAGE = '/CoachPagePic/Recruiting.jpg';
+const HERO_IMAGE = '/CoachPagePic/golf_coach.jpg';
 const COMMISSION_IMAGE = '/CoachPagePic/Commition.png';
 const COACH_LEVELS_HASH = '#coach-levels';
 
