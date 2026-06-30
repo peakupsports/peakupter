@@ -35,14 +35,16 @@
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
   -webkit-font-smoothing: antialiased;
+  box-shadow: none;
+  filter: none;
 }
 
-.collectibleFramePodium {
-  overflow: visible;
-}
-
-.collectibleFramePodium .podiumMedal {
-  overflow: visible;
+.root::before,
+.root::after {
+  content: none;
+  display: none;
+  box-shadow: none !important;
+  filter: none !important;
 }
 
 .collectibleFrame {
@@ -54,6 +56,24 @@
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
   transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: none;
+  filter: none;
+}
+
+.collectibleFrame::before,
+.collectibleFrame::after {
+  content: none;
+  display: none;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.collectibleFramePodium {
+  overflow: visible;
+}
+
+.collectibleFramePodium .podiumMedal {
+  overflow: visible;
 }
 
 /* Hover lift + tier-coloured halo. Medal and figurina share `.collectibleFrame`
@@ -213,9 +233,10 @@
       var(--stickerSurfaceMid) 48%,
       var(--stickerSurfaceBottom) 100%
     );
+  /* External ambient shadow removed — only the tier border reads outside
+   * the card on sport directory / carousel surfaces. Inset highlights
+   * stay so the interior surface treatment is unchanged. */
   box-shadow:
-    0 18px 44px rgba(3, 8, 16, 0.36),
-    0 8px 24px var(--stickerAmbientShadow),
     inset 0 0 0 1px rgba(255, 255, 255, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   box-sizing: border-box;
@@ -941,8 +962,8 @@
 }
 
 /* Sport bubble row in the footer next to the CTA. Gap bumped 6 → 8 so
- * the new tier ring + glow on each `.footerSportBadge` doesn't visually
- * overlap with the next bubble's white ring. The bubble row absorbs any
+ * adjacent `.footerSportBadge` circles don't visually crowd each other.
+ * The bubble row absorbs any
  * leftover footer width (`flex: 1 1 auto`) and `overflow: hidden` clips
  * any extra bubble that wouldn't fit, so it can never push the CTA off
  * the card or grow the card itself. */
@@ -961,13 +982,9 @@
 }
 
 /* Sport emoji bubble next to the CTA in the footer. Airy / almost-
- * transparent body — the bubble used to carry a heavy dark glass fill,
- * but the emoji glyph already has its own colour so the dark backdrop
- * read as visual weight instead of identity. Now the tier border
- * (icy / gold / silver / bronze) defines the circle and a very soft
- * tier-rgb lift keeps the premium feel without dominating the footer
- * row. Width / height / font-size / radius unchanged so layout and
- * emoji size stay byte-identical. */
+ * transparent body — the tier border (icy / gold / silver / bronze)
+ * defines the circle. Width / height / font-size / radius unchanged so
+ * layout and emoji size stay byte-identical. */
 .footerSportBadge {
   display: inline-flex;
   align-items: center;
@@ -977,9 +994,6 @@
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--tier-border, rgba(201, 162, 39, 0.45));
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.14),
-    0 0 8px rgba(var(--tier-rgb, 16, 33, 62), 0.14);
   font-size: 14px;
   line-height: 1;
   flex: 0 0 auto;
@@ -1070,9 +1084,7 @@
   }
 
   .stickerCard {
-    box-shadow:
-      0 10px 24px rgba(3, 8, 16, 0.28),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   }
 }
 
