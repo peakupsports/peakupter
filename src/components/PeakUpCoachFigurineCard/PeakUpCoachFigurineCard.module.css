@@ -415,6 +415,21 @@
  * Founder. Stesso trattamento usato nella ProfilePage figurina (cerchio con
  * bordo dorato + soft glass scuro), ma scalato perché la card del carosello
  * è più compatta. */
+.stickerFounderLogoLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 50%;
+}
+
+.stickerFounderLogoLink:focus-visible {
+  outline: 2px solid var(--tier-accent, var(--stickerGold));
+  outline-offset: 2px;
+}
+
 .stickerFounderLogo {
   flex: 0 0 auto;
   display: block;

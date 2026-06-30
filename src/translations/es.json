@@ -2187,6 +2187,7 @@
   "PeakUpCoachFigurineCard.badge.topCoach": "Top profesional",
   "PeakUpCoachFigurineCard.cta": "Ver perfil",
   "PeakUpCoachFigurineCard.founderLogoAlt": "Insignia de Fundador PeakUp",
+  "PeakUpCoachFigurineCard.founderLogoAboutLink": "Más información sobre PeakUp Sports",
   "PeakUpCoachFigurineCard.locationLabel": "Con base en {location}",
   "PeakUpCoachFigurineCard.podiumRank": "Puesto {rank} en PeakUp",
   "PeakUpCoachFigurineCard.priceFrom": "Desde {price} / hora",

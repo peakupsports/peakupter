@@ -239,18 +239,24 @@ const PeakUpCoachFigurineCard = props => {
             aria-hidden={!showFounderLogo}
           >
             {showFounderLogo ? (
-              <img
-                className={css.stickerFounderLogo}
-                src={peakUpFounderLogo}
-                alt={intl.formatMessage({
-                  id: 'PeakUpCoachFigurineCard.founderLogoAlt',
-                  defaultMessage: 'PeakUp Founder badge',
+              <NamedLink
+                className={css.stickerFounderLogoLink}
+                name="AboutPage"
+                ariaLabel={intl.formatMessage({
+                  id: 'PeakUpCoachFigurineCard.founderLogoAboutLink',
+                  defaultMessage: 'Learn more about PeakUp Sports',
                 })}
-                width={28}
-                height={28}
-                loading="lazy"
-                decoding="async"
-              />
+              >
+                <img
+                  className={css.stickerFounderLogo}
+                  src={peakUpFounderLogo}
+                  alt=""
+                  width={28}
+                  height={28}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </NamedLink>
             ) : null}
           </div>
           <div className={css.stickerHeaderBadges}>

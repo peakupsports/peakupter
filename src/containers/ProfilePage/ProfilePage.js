@@ -556,18 +556,24 @@ export const AsideContent = props => {
             aria-hidden={!isFounder}
           >
             {isFounder ? (
-              <img
-                className={css.stickerFounderLogo}
-                src={peakUpFounderLogo}
-                alt={intl.formatMessage({
-                  id: 'ProfilePage.founderLogoAlt',
-                  defaultMessage: 'PeakUp Founder badge',
+              <NamedLink
+                className={css.stickerFounderLogoLink}
+                name="AboutPage"
+                ariaLabel={intl.formatMessage({
+                  id: 'PeakUpCoachFigurineCard.founderLogoAboutLink',
+                  defaultMessage: 'Learn more about PeakUp Sports',
                 })}
-                width={36}
-                height={36}
-                loading="lazy"
-                decoding="async"
-              />
+              >
+                <img
+                  className={css.stickerFounderLogo}
+                  src={peakUpFounderLogo}
+                  alt=""
+                  width={36}
+                  height={36}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </NamedLink>
             ) : null}
           </div>
           <div className={css.stickerHeaderBadges}>
