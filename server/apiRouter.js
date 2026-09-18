@@ -19,6 +19,8 @@ const transactionTransitionWebhook = require('./api/transaction-transition-webho
 const deleteAccount = require('./api/delete-account');
 const peakupBookingHold = require('./api/peakup-booking-hold');
 const peakupBookingHoldRelease = require('./api/peakup-booking-hold-release');
+const peakupWeather = require('./api/peakup-weather');
+const peakupSnow = require('./api/peakup-snow');
 const coachApplication = require('./api/coach-application');
 const coachOnboardingNotify = require('./api/coach-onboarding-notify');
 const teamApplication = require('./api/team-application');
@@ -212,7 +214,8 @@ router.post('/delete-account', deleteAccount);
 
 router.post('/peakup/booking-hold', peakupBookingHold);
 router.post('/peakup/booking-hold/release', peakupBookingHoldRelease);
-
+router.get('/peakup/weather', peakupWeather);
+router.get('/peakup/snow', peakupSnow);
 // Create user with identity provider (e.g. Facebook or Google)
 // This endpoint is called to create a new user after user has confirmed
 // they want to continue with the data fetched from IdP (e.g. name and email)

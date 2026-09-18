@@ -134,3 +134,163 @@
     max-width: 270px;
   }
 }
+
+/* Landing hero premium panel — vertical card grid; enabled when
+ * `landingPremiumPanel` is passed from LandingHeroSection. Isolated from
+ * legacy `.gridCol*` horizontal search bar rules. */
+.premiumPanelContainer {
+  composes: align;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0 !important;
+  margin-top: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  box-sizing: border-box;
+  color: var(--colorGrey500);
+}
+
+.premiumPanelGrid {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  grid-template-columns: 1fr;
+  grid-auto-rows: auto;
+  gap: 0;
+  align-items: stretch;
+  justify-content: stretch;
+  justify-items: stretch;
+  padding: 0;
+}
+
+/* Neutralize legacy horizontal search bar grid if classes ever leak */
+.premiumPanelGrid.gridCol1,
+.premiumPanelGrid.gridCol2,
+.premiumPanelGrid.gridCol3,
+.premiumPanelGrid.gridCol4 {
+  grid-template-columns: 1fr;
+}
+
+.premiumPanelGrid > * {
+  justify-self: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+.premiumPanelGrid > *:not(:last-child):not(:nth-last-child(2)) {
+  border-right: none;
+  border-bottom: none;
+}
+
+.premiumPanelGrid > *:last-child {
+  justify-self: stretch;
+}
+
+.premiumField {
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 14px 11px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.premiumFieldLabel {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: rgba(245, 247, 250, 0.52);
+}
+
+.premiumPanelContainer .premiumPanelGrid .premiumField .filterField {
+  display: block;
+  min-height: 36px;
+  height: auto;
+  width: 100%;
+  padding: 0;
+  font-size: 15px;
+}
+
+/* Filter controls inside premium fields */
+.premiumField :global([class*='FilterCategories_toggleButton']),
+.premiumField :global([class*='FilterDateRange_toggleButton']) {
+  height: 32px;
+  min-height: 32px;
+  margin: 0;
+  padding: 4px 24px 4px 0;
+}
+
+.premiumField :global([class*='FilterCategories_dropdownContainer']),
+.premiumField :global([class*='FilterDateRange_dropdownContainer']) {
+  padding: 0;
+}
+
+.premiumField :global([class*='FilterLocation_root']),
+.premiumField :global([class*='FilterLocation_customField']),
+.premiumField :global([class*='LocationAutocompleteInput_root']) {
+  min-height: 32px;
+}
+
+.premiumField :global([class*='FilterLocation_input']),
+.premiumField :global([class*='LocationAutocompleteInput_input']) {
+  min-height: 32px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.premiumPanelCta {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.premiumPanelSubmit {
+  width: 100%;
+  max-width: none;
+  min-height: 46px;
+  margin: 0;
+  padding: 12px 18px;
+  justify-self: stretch;
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@media (--viewportLarge) {
+  .premiumPanelGrid.premiumPanelLayoutStack {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .premiumPanelGrid > *:last-child {
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 1023px) {
+  .premiumPanelGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .premiumField {
+    padding: 8px 12px 9px;
+  }
+
+  .premiumPanelContainer .premiumPanelGrid .premiumField .filterField {
+    min-height: 34px;
+  }
+
+  .premiumPanelSubmit {
+    min-height: 42px;
+  }
+}

@@ -8,6 +8,7 @@ import { useRouteConfiguration } from '../../../../context/routeConfigurationCon
 import { useConfiguration } from '../../../../context/configurationContext';
 
 // Utility
+import { FormattedMessage } from '../../../../util/reactIntl';
 import { getPeakUpTopLevelSportOptions } from '../../../../util/peakupSportTaxonomy';
 import {
   buildCoachMapSearchWithManualLocation,
@@ -45,6 +46,27 @@ const GRID_CONFIG = [
   { gridCss: css.gridCol4 },
 ];
 
+const PREMIUM_PANEL_FIELD_ORDER = ['categories', 'locationSearch', 'dateRange'];
+
+const PREMIUM_PANEL_FIELD_LABELS = {
+  categories: {
+    id: 'PageBuilder.SearchCTA.premiumPanel.sport',
+    defaultMessage: 'Sport',
+  },
+  locationSearch: {
+    id: 'PageBuilder.SearchCTA.premiumPanel.where',
+    defaultMessage: 'Where',
+  },
+  keywordSearch: {
+    id: 'PageBuilder.SearchCTA.premiumPanel.forWho',
+    defaultMessage: 'For who',
+  },
+  dateRange: {
+    id: 'PageBuilder.SearchCTA.premiumPanel.when',
+    defaultMessage: 'When',
+  },
+};
+
 const getGridCount = numberOfFields => {
   const gridConfig = GRID_CONFIG[numberOfFields - 1];
   return gridConfig ? gridConfig.gridCss : GRID_CONFIG[0].gridCss;
@@ -60,6 +82,7 @@ export const SearchCTA = React.forwardRef((props, ref) => {
 
   const { categories, dateRange, keywordSearch, locationSearch } = props.searchFields;
   const landingMobileHints = props.landingMobileHints === true;
+  const landingPremiumPanel = props.landingPremiumPanel === true;
 
   const [submitDisabled, setSubmitDisabled] = useState(false);
   const [locationSearchErrorCode, setLocationSearchErrorCode] = useState(null);
@@ -136,6 +159,17 @@ export const SearchCTA = React.forwardRef((props, ref) => {
     },
   };
 
+  const enabledFilterKeys = PREMIUM_PANEL_FIELD_ORDER.filter(
+    key => filters[key]?.enabled && filters[key]?.isValid()
+  );
+
+  const fieldCountForGrid = enabledFilterKeys.length;
+
+  const premiumPanelLayoutClass =
+    landingPremiumPanel && fieldCountForGrid > 0 ? css.premiumPanelLayoutStack : null;
+
+  const legacyGridClass = landingPremiumPanel ? null : getGridCount(fieldCountForGrid);
+
   const addFilters = filterOrder => {
     const enabledFilters = filterOrder.filter(
       key => filters[key]?.enabled && filters[key]?.isValid()
@@ -148,12 +182,26 @@ export const SearchCTA = React.forwardRef((props, ref) => {
       const isLast = index === totalEnabled - 1;
       const alignLeft = totalEnabled === 1 || !isLast;
 
+      if (landingPremiumPanel) {
+        const label = PREMIUM_PANEL_FIELD_LABELS[key];
+        return (
+          <div
+            className={classNames(css.premiumField, css[`premiumField_${key}`])}
+            key={key}
+          >
+            {label ? (
+              <span className={css.premiumFieldLabel}>
+                <FormattedMessage id={label.id} defaultMessage={label.defaultMessage} />
+              </span>
+            ) : null}
+            {filter.render(alignLeft)}
+          </div>
+        );
+      }
+
       return filter.enabled && filter.isValid() ? filter.render(alignLeft) : null;
     });
   };
-
-  const fieldCountForGrid = Object.values(filters).filter(field => field.enabled && field.isValid())
-    .length;
 
   if (!fieldCountForGrid) {
     return null;
@@ -227,8 +275,18 @@ export const SearchCTA = React.forwardRef((props, ref) => {
     }
   };
 
+  const filterOrder = landingPremiumPanel
+    ? PREMIUM_PANEL_FIELD_ORDER
+    : ['categories', 'keywordSearch', 'locationSearch', 'dateRange'];
+
   return (
-    <div className={classNames(css.searchBarContainer, getGridCount(fieldCountForGrid))}>
+    <div
+      className={classNames(
+        landingPremiumPanel ? css.premiumPanelContainer : css.searchBarContainer,
+        legacyGridClass,
+        premiumPanelLayoutClass
+      )}
+    >
       <FinalForm
         onSubmit={onDesktopSubmit}
         {...props}
@@ -247,32 +305,46 @@ export const SearchCTA = React.forwardRef((props, ref) => {
                     }
                   : handleSubmit
               }
-              className={classNames(css.gridContainer, getGridCount(fieldCountForGrid))}
-            >
-              {addFilters(['categories', 'keywordSearch', 'locationSearch', 'dateRange'])}
-
-              {isMobileLanding ? (
-                <PrimaryButton
-                  type="button"
-                  disabled={ctaDisabled || isMobileSubmitting}
-                  className={classNames(css.submitButton, css.mobileSubmitButton)}
-                  onClick={event => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    handleMobileCTAClick(values, ctaDisabled);
-                  }}
-                >
-                  {searchButtonLabel}
-                </PrimaryButton>
-              ) : (
-                <PrimaryButton
-                  disabled={submitDisabled}
-                  className={css.submitButton}
-                  type="submit"
-                >
-                  {searchButtonLabel}
-                </PrimaryButton>
+              className={classNames(
+                css.gridContainer,
+                legacyGridClass,
+                landingPremiumPanel && css.premiumPanelGrid,
+                premiumPanelLayoutClass
               )}
+            >
+              {addFilters(filterOrder)}
+
+              <div className={landingPremiumPanel ? css.premiumPanelCta : undefined}>
+                {isMobileLanding ? (
+                  <PrimaryButton
+                    type="button"
+                    disabled={ctaDisabled || isMobileSubmitting}
+                    className={classNames(
+                      css.submitButton,
+                      css.mobileSubmitButton,
+                      landingPremiumPanel && css.premiumPanelSubmit
+                    )}
+                    onClick={event => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      handleMobileCTAClick(values, ctaDisabled);
+                    }}
+                  >
+                    {searchButtonLabel}
+                  </PrimaryButton>
+                ) : (
+                  <PrimaryButton
+                    disabled={submitDisabled}
+                    className={classNames(
+                      css.submitButton,
+                      landingPremiumPanel && css.premiumPanelSubmit
+                    )}
+                    type="submit"
+                  >
+                    {searchButtonLabel}
+                  </PrimaryButton>
+                )}
+              </div>
             </Form>
           );
         }}

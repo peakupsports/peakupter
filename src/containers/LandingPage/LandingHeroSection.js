@@ -1,16 +1,13 @@
-import React, { useEffect, useId, useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useEffect, useId, useState } from 'react';
+import classNames from 'classnames';
 
 import { FormattedMessage } from '../../util/reactIntl';
-import { debugCoachMapLocate, mergeCoachMapLocateIntentSearch } from '../../util/coachExplore';
-
-import { NamedLink } from '../../components';
 
 import Field, { validProps } from '../PageBuilder/Field/Field';
 import { SearchCTA } from '../PageBuilder/Primitives/SearchCTA/SearchCTA';
 import SectionContainer from '../PageBuilder/SectionBuilder/SectionContainer';
 
-import { LANDING_HERO_MEDIA } from './landingHeroMedia';
+import { LANDING_HERO_MEDIA, resolveLandingHeroSlidePresentation } from './landingHeroMedia';
 import css from './LandingHeroSection.module.css';
 
 const HERO_FEATURE_ITEMS = [
@@ -161,16 +158,6 @@ const LandingHeroSection = props => {
   const searchProps =
     callToAction?.fieldType === 'search' ? validProps(callToAction, fieldOptions) : null;
 
-  const location = useLocation();
-  const coachMapLocateSearch = useMemo(() => {
-    const merged = mergeCoachMapLocateIntentSearch(location.search);
-    debugCoachMapLocate('LandingHero primary CTA (NamedLink) search', {
-      locationSearch: location.search,
-      merged,
-    });
-    return merged;
-  }, [location.search]);
-
   const heroSlides = Array.isArray(LANDING_HERO_MEDIA.slides) ? LANDING_HERO_MEDIA.slides : [];
   const hasHeroRotation = heroSlides.length > 0;
   const usesLocalHeroImage =
@@ -239,6 +226,8 @@ const LandingHeroSection = props => {
     };
   }, [hasHeroRotation, heroSlides.length]);
 
+  const staticHeroPresentation = resolveLandingHeroSlidePresentation(LANDING_HERO_MEDIA);
+
   return (
     <SectionContainer
       id={sectionId}
@@ -249,34 +238,58 @@ const LandingHeroSection = props => {
     >
       {hasHeroRotation ? (
         <div className={css.backgroundSlides} aria-hidden="true">
-          {heroSlides.map((slide, index) => (
-            <div
-              key={slide.key || slide.imageUrl || index}
-              className={css.backgroundSlide}
-              style={{
-                backgroundImage: `url("${slide.imageUrl}")`,
-                backgroundPosition: slide.focalPoint || LANDING_HERO_MEDIA.focalPoint,
-                opacity: index === activeSlideIndex ? 1 : 0,
-                transitionDuration: `${LANDING_HERO_MEDIA.transitionDurationMs || 1600}ms`,
-              }}
-            />
-          ))}
+          {heroSlides.map((slide, index) => {
+            const { shouldMirror, backgroundPositionX, backgroundPositionY } =
+              resolveLandingHeroSlidePresentation(slide);
+
+            return (
+              <div
+                key={slide.key || slide.imageUrl || index}
+                className={css.backgroundSlide}
+                style={{
+                  opacity: index === activeSlideIndex ? 1 : 0,
+                  transitionDuration: `${LANDING_HERO_MEDIA.transitionDurationMs || 1600}ms`,
+                }}
+              >
+                <div
+                  className={classNames(
+                    css.backgroundSlideImage,
+                    shouldMirror && css.backgroundSlideMirrored
+                  )}
+                  style={{
+                    backgroundImage: `url("${slide.imageUrl}")`,
+                    ['--landingHeroBgPosX']: backgroundPositionX,
+                    ['--landingHeroBgPosY']: backgroundPositionY,
+                    backgroundPositionX,
+                    backgroundPositionY,
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
       ) : null}
 
       {usesLocalHeroImage ? (
-        <div
-          className={css.backgroundOverride}
-          style={{
-            backgroundImage: `url("${LANDING_HERO_MEDIA.imageUrl}")`,
-            backgroundPosition: LANDING_HERO_MEDIA.focalPoint,
-          }}
-          aria-hidden="true"
-        />
+        <div className={css.backgroundOverride} aria-hidden="true">
+          <div
+            className={classNames(
+              css.backgroundOverrideImage,
+              staticHeroPresentation.shouldMirror && css.backgroundSlideMirrored
+            )}
+            style={{
+              backgroundImage: `url("${LANDING_HERO_MEDIA.imageUrl}")`,
+              ['--landingHeroBgPosX']: staticHeroPresentation.backgroundPositionX,
+              ['--landingHeroBgPosY']: staticHeroPresentation.backgroundPositionY,
+              backgroundPositionX: staticHeroPresentation.backgroundPositionX,
+              backgroundPositionY: staticHeroPresentation.backgroundPositionY,
+            }}
+          />
+        </div>
       ) : null}
 
       <div className={css.heroLayout}>
-        <div className={css.contentColumn}>
+        <div className={css.heroStack}>
           <p className={css.eyebrow}>
             <FormattedMessage
               id="LandingHeroSection.eyebrow"
@@ -284,53 +297,41 @@ const LandingHeroSection = props => {
             />
           </p>
 
-          <h1 className={css.headline}>
-            <span className={css.headlineLine}>
-              <FormattedMessage
-                id="LandingHeroSection.headlineLineOne"
-                defaultMessage="The marketplace for"
-              />
-            </span>
-            <span className={css.headlineLine}>
-              <span className={css.anywhereGradient}>
-                <FormattedMessage
-                  id="LandingHeroSection.headlineLineTwoRest"
-                  defaultMessage="certified sports professionals"
-                />
-              </span>
-            </span>
-          </h1>
-
-          <p className={css.subtitle}>
-            <FormattedMessage
-              id="LandingHeroSection.subtitle"
-              defaultMessage="Discover certified and verified instructors, guides, and coaches for every sport, wherever you are."
-            />
-          </p>
-
-          <div className={css.ctaRow}>
-            <NamedLink
-              className={css.primaryCta}
-              name="CoachMapPage"
-              to={{ search: coachMapLocateSearch }}
-            >
-              <FormattedMessage
-                id="LandingHeroSection.primaryCta"
-                defaultMessage="Find professionals"
-              />
-            </NamedLink>
-
-            <NamedLink className={css.secondaryCta} name="CMSPage" params={{ pageId: "howitworks" }}>
-              <FormattedMessage
-                id="LandingHeroSection.secondaryCta"
-                defaultMessage="How it works"
-              />
-            </NamedLink>
-          </div>
-
           {searchProps?.searchFields ? (
-            <div className={css.searchRow}>
-              <SearchCTA searchFields={searchProps.searchFields} landingMobileHints />
+            <div className={css.premiumHeroCard}>
+              <div className={css.premiumHeroCopy}>
+                <h1 className={css.premiumHeroHeadline}>
+                  <span className={css.premiumHeroHeadlineLine}>
+                    <FormattedMessage
+                      id="LandingHeroSection.headlineLineOne"
+                      defaultMessage="Find the right"
+                    />
+                  </span>
+                  <span className={css.premiumHeroHeadlineLine}>
+                    <span className={css.premiumHeroGradient}>
+                      <FormattedMessage
+                        id="LandingHeroSection.headlineLineTwoRest"
+                        defaultMessage="sports professional"
+                      />
+                    </span>
+                  </span>
+                </h1>
+
+                <p className={css.premiumHeroSubtitle}>
+                  <FormattedMessage
+                    id="LandingHeroSection.subtitle"
+                    defaultMessage="Search among certified and verified instructors, guides and coaches worldwide."
+                  />
+                </p>
+              </div>
+
+              <div className={css.searchRow}>
+                <SearchCTA
+                  searchFields={searchProps.searchFields}
+                  landingMobileHints
+                  landingPremiumPanel
+                />
+              </div>
             </div>
           ) : null}
 

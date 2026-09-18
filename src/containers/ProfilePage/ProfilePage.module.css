@@ -699,6 +699,21 @@
 /* Logo PeakUp inserito tra il nome e il badge "FOUNDER" nell'header navy.
  * Compare solo per il Founder. Anello dorato sottile per dialogare con la
  * cornice della figurina, sfondo scuro morbido così il logo bianco "stacca". */
+.stickerFounderLogoLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 50%;
+}
+
+.stickerFounderLogoLink:focus-visible {
+  outline: 2px solid var(--tier-accent, var(--stickerGold));
+  outline-offset: 2px;
+}
+
 .stickerFounderLogo {
   flex: 0 0 auto;
   display: block;
@@ -1215,17 +1230,13 @@
 }
 
 /* Sport emoji bubble — airy / almost-transparent body so the photo
- * reads through and the bubble doesn't feel "pasted on". The tier
- * border carries the identity (icy / gold / silver / bronze), and a
- * very light tier-rgb glow keeps a premium lift without weight.
- * Padding, font-size, radius and the surrounding `.stickerMiniBadge`
- * sizing remain byte-identical, so emoji size and spacing don't shift. */
+ * reads through. The tier border carries the identity (icy / gold /
+ * silver / bronze). Padding, font-size, radius and the surrounding
+ * `.stickerMiniBadge` sizing remain byte-identical. */
 .stickerMiniBadgeSport {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(var(--tier-rgb, 16, 33, 62), 0.55);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.14),
-    0 0 6px rgba(var(--tier-rgb, 16, 33, 62), 0.10);
+  box-shadow: none;
 }
 
 .stickerCardFooter {
