@@ -1,5 +1,6 @@
 const SNOWSURE_API_BASE_URL = 'https://www.snowsure.ai/api/v1';
-
+const snowResortCache = new Map();
+const SNOW_RESORT_CACHE_TTL = 5 * 60 * 1000;
 /**
  * Convert SnowSure's large resort payload into the small,
  * stable shape PeakUp needs.
@@ -100,7 +101,11 @@ const fetchSnowSureResort = async slug => {
     err.status = 400;
     throw err;
   }
+  const cached = snowResortCache.get(slug);
 
+  if (cached && Date.now() - cached.timestamp < SNOW_RESORT_CACHE_TTL) {
+    return cached.data;
+  }
   const response = await fetch(
     `${SNOWSURE_API_BASE_URL}/resorts/${encodeURIComponent(slug)}`,
     {
@@ -117,8 +122,14 @@ const fetchSnowSureResort = async slug => {
   }
 
   const data = await response.json();
-
-  return normalizeSnowSureResort(data);
+  const normalized = normalizeSnowSureResort(data);
+  
+  snowResortCache.set(slug, {
+    timestamp: Date.now(),
+    data: normalized,
+  });
+  
+  return normalized;
 };
 
 module.exports = {
