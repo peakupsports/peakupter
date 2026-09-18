@@ -13,12 +13,13 @@ import useInboxNotificationRefresh from '../../util/useInboxNotificationRefresh'
 
 import { Page, NamedLink } from '../../components';
 import BookingsSummaryCard from '../../components/BookingsSummaryCard/BookingsSummaryCard';
+import PeakUpWeatherWidget from '../../components/PeakUpWeatherWidget/PeakUpWeatherWidget';
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
 
 import sportTheme from '../SportPagesTheme.module.css';
 import css from '../CoachDashboardPage/CoachDashboardPage.module.css';
-
+import PeakUpSnowWidget from '../../components/PeakUpSnowWidget';
 /**
  * Customer operational hub — bookings overview separate from Inbox messaging.
  */
@@ -85,7 +86,10 @@ const CustomerDashboardPage = () => {
             </p>
           </header>
 
-          <div className={css.grid}>
+          <PeakUpWeatherWidget />
+<PeakUpSnowWidget />
+
+<div className={css.grid}>
             <NamedLink className={css.card} name="InboxPage" params={{ tab: 'orders' }}>
               <span className={css.cardIcon} aria-hidden="true">
                 ✉

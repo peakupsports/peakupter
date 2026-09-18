@@ -320,3 +320,24 @@ export const fetchReferralCenterDashboard = () =>
 
 /** Public ambassadors for Ambassador Program “Meet our Ambassadors” section. */
 export const fetchAmbassadorsShowcase = () => getJsonFromLocalApi('/api/ambassadors-showcase');
+
+/** Current weather for coordinates (WeatherAPI.com proxied on the Node server). */
+export const fetchPeakUpWeatherFromApi = ({ lat, lng }) => {
+  const params = new URLSearchParams({
+    lat: String(lat),
+    lng: String(lng),
+  });
+  return getJsonFromLocalApi(`/api/peakup/weather?${params.toString()}`);
+};
+/** Snow conditions for a ski resort (SnowSure proxied on the Node server). */
+export const fetchPeakUpSnowFromApi = ({ lat, lng }) => {
+  const params = new URLSearchParams({
+    lat: String(lat),
+    lng: String(lng),
+  });
+
+  return getJsonFromLocalApi(`/api/peakup/snow?${params.toString()}`);
+};
+/** SnowSure resort list used to find the nearest resort. */
+export const fetchPeakUpSnowResortsFromApi = () =>
+  getJsonFromLocalApi('/api/peakup/snow');

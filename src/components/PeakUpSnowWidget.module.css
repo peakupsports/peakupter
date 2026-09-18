@@ -1,0 +1,69 @@
+.root {
+    width: 100%;
+    margin: 10px 0 18px;
+  }
+  
+  .card {
+    width: 100%;
+    padding: 14px 20px;
+    border: 1px solid rgba(38, 190, 230, 0.22);
+    border-radius: 16px;
+    background: rgba(8, 18, 32, 0.72);
+  }
+  
+  .bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: #dce7f3;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  .resort {
+    font-weight: 700;
+    color: #ffffff;
+  }
+  
+  .temperature {
+    font-weight: 600;
+    color: #ffffff;
+  }
+  
+  .divider {
+    opacity: 0.3;
+  }
+  
+  .item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  
+  .status {
+    opacity: 0.8;
+  }
+  
+  .loading,
+  .error {
+    margin: 0;
+    color: #aeb9c7;
+    font-size: 14px;
+  }
+  
+  @media (max-width: 767px) {
+    .card {
+      padding: 12px 14px;
+    }
+  
+    .bar {
+      gap: 7px;
+      font-size: 13px;
+    }
+  
+    .divider {
+      display: none;
+    }
+  }
