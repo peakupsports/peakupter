@@ -12,6 +12,7 @@ import css from './PeakUpWeatherWidget.module.css';
 import sunnyIcon from '../../assets/WeatherIcons/weather-sunny.png';
 import partlyCloudyIcon from '../../assets/WeatherIcons/weather-partly-cloudy.png';
 import cloudyIcon from '../../assets/WeatherIcons/weather-cloudy.png';
+import partlyCloudyNightIcon from '../../assets/WeatherIcons/weather-partly-cloudy-night.png';
 import rainIcon from '../../assets/WeatherIcons/weather-rain.png';
 import heavyRainIcon from '../../assets/WeatherIcons/weather-heavy-rain.png';
 import snowIcon from '../../assets/WeatherIcons/weather-snow.png';
@@ -21,12 +22,13 @@ import temperatureIcon from '../../assets/WeatherIcons/weather-temperature.png';
 import surfWindIcon from '../../assets/WeatherIcons/surf-wind.png';
 import locationIcon from '../../assets/WeatherIcons/location-pin.png';
 import rainChanceIcon from '../../assets/WeatherIcons/weather-rain-chance.png';
-const weatherIconFromConditionCode = code => {
+const weatherIconFromConditionCode = (code, isDay) => {
   const n = Number(code);
-
   if (!Number.isFinite(n)) return temperatureIcon;
   if (n === 1000) return sunnyIcon;
-  if (n === 1003) return partlyCloudyIcon;
+  if (n === 1003) {
+    return Number(isDay) === 0 ? partlyCloudyNightIcon : partlyCloudyIcon;
+  }
   if (n === 1006 || n === 1009) return cloudyIcon;
   if (n === 1030 || n === 1135 || n === 1147) return fogIcon;
 
@@ -146,10 +148,13 @@ const PeakUpWeatherWidget = ({ onWeatherEmoji }) => {
 
   const ariaLabel = intl.formatMessage({ id: 'PeakUpWeatherWidget.ariaLabel' });
   useEffect(() => {
+    console.log('PEAKUP WEATHER DATA:', weather);
     if (onWeatherEmoji) {
-      onWeatherEmoji(weatherIconFromConditionCode(weather?.conditionCode));
+      onWeatherEmoji(
+        weatherIconFromConditionCode(weather?.conditionCode, weather?.isDay)
+      );
     }
-  }, [weather?.conditionCode, onWeatherEmoji]);
+  }, [weather?.conditionCode, weather?.isDay, onWeatherEmoji]);
   if (phase === 'loadingLocation') {
     return (
       <div className={css.root} aria-label={ariaLabel}>

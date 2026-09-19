@@ -45,6 +45,7 @@ const normalizeWeatherApiResponse = data => {
     feelsLikeC: current?.feelslike_c,
     conditionText: condition?.text || '',
     conditionCode: condition?.code,
+    isDay: current?.is_day,
     windKph: current?.wind_kph,
     precipMm: current?.precip_mm,
     rainChancePercent: day?.daily_chance_of_rain,
