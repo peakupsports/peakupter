@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { fetchPeakUpSnow } from '../util/peakupSnow';
 import { getPeakUpWeatherBrowserCoordinates } from '../util/peakupWeather';
 import css from './PeakUpSnowWidget.module.css';
+import snowflakeIcon from '../assets/WeatherIcons/weather-snowflake.png';
+import liftIcon from '../assets/WeatherIcons/weather-lift.png';
+import skierIcon from '../assets/WeatherIcons/weather-skier.png';
 /**
  * Compact SnowSure snow report.
  * Temporary V1 uses Laax to verify the complete frontend integration.
@@ -59,7 +62,10 @@ const response = await fetchPeakUpSnow(coords);
     <div className={css.root}>
       <div className={css.card}>
         <div className={css.bar}>
-          <span className={css.resort}>❄️ {snow.name}</span>
+        <span className={css.resort}>
+  <img src={snowflakeIcon} alt="" />
+  {snow.name}
+</span>
   
           <span className={css.divider}>|</span>
   
@@ -72,20 +78,23 @@ const response = await fetchPeakUpSnow(coords);
           <span className={css.divider}>|</span>
   
           <span className={css.item}>
-            🚡 {snow.liftsOpen != null ? snow.liftsOpen : '—'}/{snow.liftsTotal ?? '—'} lifts
-          </span>
+  <img src={liftIcon} alt="" />
+  {snow.liftsOpen != null ? snow.liftsOpen : '—'}/{snow.liftsTotal ?? '—'} lifts
+</span>
   
           <span className={css.divider}>|</span>
   
           <span className={css.item}>
-            ⛷️ {snow.runsOpen != null ? snow.runsOpen : '—'}/{snow.runsTotal ?? '—'} runs
-          </span>
+          <img src={skierIcon} className={css.skierIcon} alt="" />
+  {snow.runsOpen != null ? snow.runsOpen : '—'}/{snow.runsTotal ?? '—'} runs
+</span>
   
           <span className={css.divider}>|</span>
   
           <span className={css.item}>
-            ❄️ 24h: {snow.newSnow24hCm ?? '—'} cm
-          </span>
+  <img src={snowflakeIcon} alt="" />
+  24h: {snow.newSnow24hCm ?? '—'} cm
+</span>
         </div>
       </div>
     </div>

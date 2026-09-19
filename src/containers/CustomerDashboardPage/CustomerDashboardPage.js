@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
@@ -25,6 +25,7 @@ import PeakUpSnowWidget from '../../components/PeakUpSnowWidget';
  */
 const CustomerDashboardPage = () => {
   const intl = useIntl();
+  const [weatherEmoji, setWeatherEmoji] = useState(null);
   const config = useConfiguration();
   const scrollingDisabled = useSelector(isScrollingDisabled);
   const isAuthenticated = useSelector(state => state.auth?.isAuthenticated);
@@ -80,13 +81,18 @@ const CustomerDashboardPage = () => {
                 <FormattedMessage id="CustomerDashboardPage.heroTitlePrefix" />
               </span>
               {heroDisplayName ? <span className={css.titleName}>{heroDisplayName}</span> : null}
+              {weatherEmoji ? (
+  <span className={css.heroWeatherEmoji} aria-hidden="true">
+    <img src={weatherEmoji} alt="" />
+  </span>
+) : null}
             </h1>
             <p className={css.lead}>
               <FormattedMessage id="CustomerDashboardPage.heroLead" />
             </p>
           </header>
 
-          <PeakUpWeatherWidget />
+          <PeakUpWeatherWidget onWeatherEmoji={setWeatherEmoji} />
 <PeakUpSnowWidget />
 
 <div className={css.grid}>

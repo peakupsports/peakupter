@@ -571,3 +571,19 @@
 .cardMultiDay .cardCta {
   color: rgba(196, 255, 230, 0.92);
 }
+.heroWeatherEmoji {
+  position: absolute;
+  top: -15px;
+  right: 48px;
+  font-size: clamp(5rem, 10vw, 8rem);
+  line-height: 1;
+  align-self: flex-start;
+  filter: drop-shadow(0 0 24px rgba(255, 210, 70, 0.4));
+  pointer-events: none;
+}
+.heroWeatherEmoji img {
+  width: 280px;
+height: 280px;
+  object-fit: cover;
+  display: block;
+}
