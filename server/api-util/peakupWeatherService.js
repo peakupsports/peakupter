@@ -84,6 +84,7 @@ const fetchWeatherForCoordinates = async ({ lat, lng, apiKey }) => {
   }
 
   const data = await response.json();
+  console.log('WEATHER HOURLY TEST:', data?.forecast?.forecastday?.[0]?.hour);
   return normalizeWeatherApiResponse(data);
 };
 

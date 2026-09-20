@@ -18,6 +18,7 @@ const normalizeSnowSureResort = payload => {
 
     isOpen: data?.isOpen ?? null,
     status: data?.statusLabel || data?.status || '',
+    operatingStatus: data?.conditions?.data?.status?.value || null,
     openingDate: data?.seasonOpeningDate || null,
 
     liftsTotal: data?.operations?.liftsTotal ?? null,
@@ -67,6 +68,7 @@ const normalizeSnowSureResort = payload => {
 
     heroImage: data?.heroImage || null,
     gallery: data?.gallery || [],
+    webcams: data?.webcams || [],
   };
 };
 

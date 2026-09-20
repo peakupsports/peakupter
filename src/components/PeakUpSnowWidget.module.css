@@ -90,3 +90,98 @@
     drop-shadow(0 0 2px #00eaff)
     drop-shadow(0 0 4px #00eaff);
   }
+  .mountainLiveImage {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: 16px;
+    margin-top: 12px;
+    display: block;
+  }
+  .mountainLive {
+    margin-top: 10px;
+    padding: 16px;
+    background: rgba(7, 20, 38, 0.92);
+    border: 1px solid rgba(53, 220, 255, 0.28);
+    border-radius: 18px;
+  }
+  .webcamControls {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 12px;
+  }
+  
+  .webcamButton {
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(53, 220, 255, 0.45);
+    border-radius: 7px;
+    background: rgba(53, 220, 255, 0.06);
+    color: #35dcff;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .liveBadge {
+    margin-left: 10px;
+    padding: 3px 7px;
+    border: 1px solid #35dcff;
+    border-radius: 6px;
+    color: #35dcff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    vertical-align: middle;
+    box-shadow: 0 0 6px rgba(53, 220, 255, 0.25);
+  }
+  .liveOverlay {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    padding: 9px 14px;
+    border: 1px solid #35dcff;
+    border-radius: 8px;
+    background: rgba(5, 18, 32, 0.85);
+    color: #35dcff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    box-shadow: 0 0 8px rgba(53, 220, 255, 0.35);
+  }
+  .mountainLive a {
+    position: relative;
+    display: block;
+  }
+  .webcamHeader {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .webcamArrows {
+    display: flex;
+    gap: 6px;
+  }
+  .webcamDots {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 8px;
+  }
+  
+  .webcamDot,
+  .webcamDotActive {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+  }
+  
+  .webcamDotActive {
+    background: #35dcff;
+    box-shadow: 0 0 6px rgba(53, 220, 255, 0.6);
+  }

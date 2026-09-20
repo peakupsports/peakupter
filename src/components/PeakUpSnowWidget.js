@@ -11,10 +11,12 @@ import skierIcon from '../assets/WeatherIcons/weather-skier.png';
  * Temporary V1 uses Laax to verify the complete frontend integration.
  */
 const PeakUpSnowWidget = () => {
+    console.log('PEAKUP SNOW WIDGET START');
   const [snow, setSnow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-
+  const [mountainLiveOpen, setMountainLiveOpen] = useState(false);
+  const [selectedWebcamIndex, setSelectedWebcamIndex] = useState(0);
   useEffect(() => {
     let cancelled = false;
 
@@ -33,6 +35,7 @@ const response = await fetchPeakUpSnow(coords);
           setError(true);
         }
       } catch (e) {
+        console.error('PEAKUP SNOW ERROR:', e);
         if (!cancelled) {
           setError(true);
         }
@@ -57,10 +60,14 @@ const response = await fetchPeakUpSnow(coords);
   if (error || !snow) {
     return null;
   }
-  
+  const isOffSeason = snow.operatingStatus === 'OFF_SEASON';
+  console.log('PEAKUP SNOW WEBCAMS:', snow.webcams);
   return (
     <div className={css.root}>
-      <div className={css.card}>
+     <div
+  className={css.card}
+  onClick={() => setMountainLiveOpen(!mountainLiveOpen)}
+>
         <div className={css.bar}>
         <span className={css.resort}>
   <img src={snowflakeIcon} alt="" />
@@ -75,19 +82,33 @@ const response = await fetchPeakUpSnow(coords);
   
           <span className={css.status}>{snow.conditions || '—'}</span>
   
-          <span className={css.divider}>|</span>
+          {isOffSeason ? (
+  <>
+    <span className={css.divider}>|</span>
+    <span className={css.status}>
+      Closed for season · Reopens Nov 28
+    </span>
+  </>
+) : (
+  <>
+    <span className={css.divider}>|</span>
+    <span className={css.item}>
+      <img src={liftIcon} alt="" />
+      {snow.liftsOpen != null ? snow.liftsOpen : '—'}/{snow.liftsTotal ?? '—'} lifts
+    </span>
+  </>
+)}
   
-          <span className={css.item}>
-  <img src={liftIcon} alt="" />
-  {snow.liftsOpen != null ? snow.liftsOpen : '—'}/{snow.liftsTotal ?? '—'} lifts
-</span>
-  
-          <span className={css.divider}>|</span>
-  
-          <span className={css.item}>
-          <img src={skierIcon} className={css.skierIcon} alt="" />
-  {snow.runsOpen != null ? snow.runsOpen : '—'}/{snow.runsTotal ?? '—'} runs
-</span>
+          {!isOffSeason ? (
+  <>
+    <span className={css.divider}>|</span>
+
+    <span className={css.item}>
+      <img src={skierIcon} className={css.skierIcon} alt="" />
+      {snow.runsOpen != null ? snow.runsOpen : '—'}/{snow.runsTotal ?? '—'} runs
+    </span>
+  </>
+) : null}
   
           <span className={css.divider}>|</span>
   
@@ -97,6 +118,66 @@ const response = await fetchPeakUpSnow(coords);
 </span>
         </div>
       </div>
+      {mountainLiveOpen ? (
+  <div className={css.mountainLive}>
+  <div className={css.webcamHeader}>
+ <strong>{snow.webcams?.[selectedWebcamIndex]?.name}</strong>
+
+ <span className={css.webcamControls}></span>
+ <div className={css.webcamArrows}>
+ <button
+ className={css.webcamButton}
+  type="button"
+  onClick={e => {
+    e.stopPropagation();
+    setSelectedWebcamIndex(
+      (selectedWebcamIndex - 1 + snow.webcams.length) % snow.webcams.length
+    );
+  }}
+>
+  ‹
+</button>
+ <button
+ className={css.webcamButton}
+  type="button"
+  onClick={e => {
+    e.stopPropagation();
+    setSelectedWebcamIndex(
+      (selectedWebcamIndex + 1) % snow.webcams.length
+    );
+  }}
+>
+  ›
+</button>
+</div>
+</div>
+<a
+ href={snow.webcams?.[selectedWebcamIndex]?.url}
+  target="_blank"
+  rel="noopener noreferrer"
+  onClick={e => e.stopPropagation()}
+>
+ <img
+  src={snow.webcams?.[selectedWebcamIndex]?.thumbnailUrl}
+  alt={snow.webcams?.[selectedWebcamIndex]?.name || 'Mountain webcam'}
+  className={css.mountainLiveImage}
+/>
+<span className={css.liveOverlay}>LIVE ↗</span>
+</a>
+<div className={css.webcamDots}>
+{[0, 1, 2, 3].map(index => (
+  <span
+    key={index}
+    className={
+      selectedWebcamIndex % 4 === index
+        ? css.webcamDotActive
+        : css.webcamDot
+    }
+  />
+))}
+</div>
+</div>
+) : null}
     </div>
   );
 };
