@@ -10,7 +10,18 @@
     border-radius: 16px;
     background: rgba(8, 18, 32, 0.72);
   }
+  .card {
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
   
+  .card:hover {
+    border-color: rgba(53, 220, 255, 0.65);
+    background: rgba(8, 22, 38, 0.82);
+    box-shadow:
+      0 0 18px rgba(53, 220, 255, 0.12),
+      inset 0 0 18px rgba(53, 220, 255, 0.025);
+  }
   .bar {
     display: flex;
     align-items: center;
