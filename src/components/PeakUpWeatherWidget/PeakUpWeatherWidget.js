@@ -22,10 +22,13 @@ import temperatureIcon from '../../assets/WeatherIcons/weather-temperature.png';
 import surfWindIcon from '../../assets/WeatherIcons/surf-wind.png';
 import locationIcon from '../../assets/WeatherIcons/location-pin.png';
 import rainChanceIcon from '../../assets/WeatherIcons/weather-rain-chance.png';
+import clearNightIcon from '../../assets/WeatherIcons/weather-clear-night.png';
 const weatherIconFromConditionCode = (code, isDay) => {
   const n = Number(code);
   if (!Number.isFinite(n)) return temperatureIcon;
-  if (n === 1000) return sunnyIcon;
+  if (n === 1000) {
+    return Number(isDay) === 0 ? clearNightIcon : sunnyIcon;
+  }
   if (n === 1003) {
     return Number(isDay) === 0 ? partlyCloudyNightIcon : partlyCloudyIcon;
   }
