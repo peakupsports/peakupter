@@ -3,107 +3,95 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 16px;
-    padding: 22px 30px;
+    gap: 12px;
+    padding: 20px;
     margin: 24px 0;
     background: #101b2b;
     border: 1px solid #21445a;
     border-radius: 18px;
     color: #e9f1f8;
+    box-sizing: border-box;
   }
   
-  .item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-  }
+  /* SELEZIONE SPOT */
   
-  .value {
-    font-weight: 700;
-    color: #ffffff;
-  }
-  
-  .separator {
-    color: #456075;
-  }
-  
-  @media (max-width: 600px) {
-    .root {
-      padding: 16px;
-      gap: 12px;
-    }
-  }
-  .spotSelect {
-    appearance: none;
-    -webkit-appearance: none;
-    background-color: #111c2b;
-    color: #ffffff;
-    border: 1px solid #31576b;
-    border-radius: 10px;
-    padding: 12px 52px 12px 14px;
-    width: 100%;
-    font-size: 15px;
-    cursor: pointer;
-    color-scheme: dark;
-  
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2365dfff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 10 6-6 6 6M6 14l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    background-size: 24px;
-  }
-  
-  .spotSelect option {
-    background-color: #111c2b;
-    color: #ffffff;
-  }
-
-.spotMenu {
+  .spotMenu {
     position: relative;
+    flex: 0 0 100%;
     width: 100%;
-    margin-bottom: 12px;
+    min-width: 0;
+    margin-bottom: 8px;
   }
   
   .spotMenuButton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
-    padding: 16px 20px;
-    background: #14212f;
+    padding: 14px 18px;
+    background: #172637;
     color: #ffffff;
     border: 1px solid #34576b;
-    border-radius: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
+    border-radius: 11px;
+    font-family: inherit;
     font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .spotMenuButton:hover {
+    border-color: #65dfff;
   }
   
   .spotArrow {
     color: #65dfff;
-    font-size: 24px;
-    margin-left: 20px;
+    font-size: 22px;
+    margin-left: 16px;
   }
   
   .spotDropdown {
     position: absolute;
-    top: calc(100% + 5px);
+    top: calc(100% + 6px);
     left: 0;
-    width: 100%;
+    right: 0;
     max-height: 320px;
     overflow-y: auto;
+    overscroll-behavior: contain;
     background: #14212f;
     border: 1px solid #34576b;
-    border-radius: 10px;
+    border-radius: 11px;
     z-index: 100;
-    box-shadow: 0 12px 30px #0008;
+    box-shadow: 0 14px 35px #0009;
   }
   
   .spotCountry {
-    padding: 12px 20px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 16px;
+    margin: 0;
+    background: #172b3b;
+    color: #e8f4fa;
+    border: 0;
+    border-bottom: 1px solid #304a5c;
+    border-radius: 0;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .spotCountry:hover {
+    background: #254457;
+  }
+  
+  .spotCountry span {
     color: #65dfff;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
+    font-size: 18px;
   }
   
   .spotOption {
@@ -111,13 +99,159 @@
     width: 100%;
     padding: 12px 20px;
     background: transparent;
-    border: none;
+    border: 0;
     color: #ffffff;
+    font-family: inherit;
+    font-size: 14px;
     text-align: left;
     cursor: pointer;
   }
   
   .spotOption:hover,
-  .spotOption:focus {
+  .spotOption:focus-visible {
     background: #244459;
+  }
+  
+  /* PREVISIONI SURF */
+  
+  .item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1 1 125px;
+    min-width: 0;
+    min-height: 54px;
+    padding: 10px 12px;
+    box-sizing: border-box;
+    background: #172b3b;
+    border: 1px solid #29485c;
+    border-radius: 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  
+  .value {
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 14px;
+  }
+  
+  .separator {
+    display: none;
+  }
+  
+  /* WEBCAM SURFLINE */
+  
+  .surfLive {
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin-top: 8px;
+    padding: 16px;
+    background: #142535;
+    border: 1px solid #29485c;
+    border-radius: 14px;
+  }
+  
+  .webcamHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: #ffffff;
+    font-size: 15px;
+  }
+  
+  .webcamArrows {
+    display: flex;
+    gap: 8px;
+  }
+  
+  /* Le frecce servono solo con più webcam:
+     la visibilità sarà gestita nel JSX. */
+  
+  .webcamArrows button {
+    background: #20394b;
+    color: #75dfff;
+    border: 1px solid #36566a;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .webcamArrows button:hover {
+    background: #31566b;
+  }
+  
+  .surfLiveImage {
+    display: block;
+    width: 100%;
+    max-height: 240px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  
+  .liveOverlay {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: #20394b;
+    border: 1px solid #36566a;
+    border-radius: 8px;
+    color: #75dfff;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  
+  /* COMPATIBILITÀ CON IL VECCHIO SELECT */
+  
+  .spotSelect {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    padding: 12px 14px;
+    background: #111c2b;
+    color: #ffffff;
+    border: 1px solid #31576b;
+    border-radius: 10px;
+    font-size: 15px;
+    color-scheme: dark;
+  }
+  
+  /* MOBILE */
+  
+  @media (max-width: 600px) {
+    .root {
+      padding: 14px;
+      gap: 8px;
+    }
+  
+    .spotMenuButton {
+      padding: 13px 14px;
+    }
+  
+    .item {
+      flex: 1 1 calc(50% - 8px);
+      min-height: 52px;
+      padding: 10px 8px;
+      font-size: 12px;
+    }
+  
+    .value {
+      font-size: 13px;
+    }
+  
+    .surfLive {
+      padding: 12px;
+    }
+  
+    .webcamHeader {
+      flex-wrap: wrap;
+    }
   }
