@@ -66,6 +66,9 @@ const CustomerDashboardPage = () => {
   ];
   
   const showSnowWidget = customerSports.some(sport => mountainSports.includes(sport));
+  const showSurfWidget = customerSports.some(
+    sport => ['surf', 'surfing', 'longboard-surf'].includes(sport)
+  );
   const heroDisplayName =
     profile.displayName?.trim() ||
     profile.firstName?.trim() ||
@@ -109,7 +112,7 @@ const CustomerDashboardPage = () => {
 
           <PeakUpWeatherWidget onWeatherEmoji={setWeatherEmoji} />
           {showSnowWidget ? <PeakUpSnowWidget /> : null}
-          <PeakUpSurfWidget />
+          {showSurfWidget ? <PeakUpSurfWidget /> : null}
 
 <div className={css.grid}>
             <NamedLink className={css.card} name="InboxPage" params={{ tab: 'orders' }}>
