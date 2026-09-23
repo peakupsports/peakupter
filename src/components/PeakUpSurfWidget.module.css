@@ -34,3 +34,90 @@
       gap: 12px;
     }
   }
+  .spotSelect {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #111c2b;
+    color: #ffffff;
+    border: 1px solid #31576b;
+    border-radius: 10px;
+    padding: 12px 52px 12px 14px;
+    width: 100%;
+    font-size: 15px;
+    cursor: pointer;
+    color-scheme: dark;
+  
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2365dfff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 10 6-6 6 6M6 14l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 24px;
+  }
+  
+  .spotSelect option {
+    background-color: #111c2b;
+    color: #ffffff;
+  }
+
+.spotMenu {
+    position: relative;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+  
+  .spotMenuButton {
+    width: 100%;
+    padding: 16px 20px;
+    background: #14212f;
+    color: #ffffff;
+    border: 1px solid #34576b;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 15px;
+  }
+  
+  .spotArrow {
+    color: #65dfff;
+    font-size: 24px;
+    margin-left: 20px;
+  }
+  
+  .spotDropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 100%;
+    max-height: 320px;
+    overflow-y: auto;
+    background: #14212f;
+    border: 1px solid #34576b;
+    border-radius: 10px;
+    z-index: 100;
+    box-shadow: 0 12px 30px #0008;
+  }
+  
+  .spotCountry {
+    padding: 12px 20px 6px;
+    color: #65dfff;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .spotOption {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .spotOption:hover,
+  .spotOption:focus {
+    background: #244459;
+  }
