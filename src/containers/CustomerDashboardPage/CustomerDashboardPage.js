@@ -20,6 +20,7 @@ import FooterContainer from '../FooterContainer/FooterContainer';
 import sportTheme from '../SportPagesTheme.module.css';
 import css from '../CoachDashboardPage/CoachDashboardPage.module.css';
 import PeakUpSnowWidget from '../../components/PeakUpSnowWidget';
+import PeakUpSurfWidget from '../../components/PeakUpSurfWidget';
 /**
  * Customer operational hub — bookings overview separate from Inbox messaging.
  */
@@ -108,6 +109,7 @@ const CustomerDashboardPage = () => {
 
           <PeakUpWeatherWidget onWeatherEmoji={setWeatherEmoji} />
           {showSnowWidget ? <PeakUpSnowWidget /> : null}
+          <PeakUpSurfWidget />
 
 <div className={css.grid}>
             <NamedLink className={css.card} name="InboxPage" params={{ tab: 'orders' }}>

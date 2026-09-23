@@ -336,8 +336,23 @@ export const fetchPeakUpSnowFromApi = ({ lat, lng }) => {
     lng: String(lng),
   });
 
-  return getJsonFromLocalApi(`/api/peakup/snow?${params.toString()}`);
+  return getJsonFromLocalApi(
+    `/api/peakup/snow?${params.toString()}`
+  );
+  };
+/** Surf conditions from Open-Meteo Marine API. */
+export const fetchPeakUpSurfFromApi = ({ lat, lng }) => {
+  const params = new URLSearchParams({
+    lat: String(lat),
+    lng: String(lng),
+  });
+
+  return getJsonFromLocalApi(
+    `/api/peakup/surf?${params.toString()}`
+  );
 };
+
+
 /** SnowSure resort list used to find the nearest resort. */
 export const fetchPeakUpSnowResortsFromApi = () =>
   getJsonFromLocalApi('/api/peakup/snow');

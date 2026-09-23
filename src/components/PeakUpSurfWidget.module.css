@@ -1,0 +1,36 @@
+
+.root {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 22px 30px;
+    margin: 24px 0;
+    background: #101b2b;
+    border: 1px solid #21445a;
+    border-radius: 18px;
+    color: #e9f1f8;
+  }
+  
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+  
+  .value {
+    font-weight: 700;
+    color: #ffffff;
+  }
+  
+  .separator {
+    color: #456075;
+  }
+  
+  @media (max-width: 600px) {
+    .root {
+      padding: 16px;
+      gap: 12px;
+    }
+  }
